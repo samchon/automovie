@@ -9,7 +9,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { resolveAutoMovieMeshPhysicalVertices } from "../math/resolveAutoMovieMeshPhysicalVertices";
-import { finiteVector } from "./finiteVector";
 import { triangleIndicesOf } from "./triangleIndicesOf";
 
 /** Largest admitted distance of a placement rotation's norm from one. */
@@ -79,7 +78,6 @@ export const transformAutoMovieMesh: (
     y: 0,
     z: 0,
   };
-  finiteVector(translation, "mesh transform translation");
   const rotation: IAutoMovieQuaternion = transform.rotation ?? {
     x: 0,
     y: 0,
@@ -87,13 +85,11 @@ export const transformAutoMovieMesh: (
     w: 1,
   };
   if (
-    ![rotation.x, rotation.y, rotation.z, rotation.w].every(Number.isFinite) ||
     Math.abs(Math.hypot(rotation.x, rotation.y, rotation.z, rotation.w) - 1) >
       UNIT_QUATERNION_EPSILON
   )
     throw new Error("mesh transform rotation must be a unit quaternion");
   const scale: IAutoMovieVector3 = transform.scale ?? { x: 1, y: 1, z: 1 };
-  finiteVector(scale, "mesh transform scale");
   if (scale.x === 0 || scale.y === 0 || scale.z === 0)
     throw new Error("mesh transform scale may not collapse an axis");
   const positions: number[] = [];

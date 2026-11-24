@@ -132,15 +132,8 @@ export namespace AutoMovieSolidMeshAuthorities {
       for (let k: number = 0; k < loop.vertices.length; k++) {
         const id: number = loop.vertices[k]!;
         const point: Readonly<AutoMovieVector2Tuple> = loop.chart[k]!;
-        if (
-          !Number.isSafeInteger(id) ||
-          id < 0 ||
-          3 * id + 2 >= mesh.positions.length ||
-          point.length !== 2 ||
-          !point.every(Number.isFinite) ||
-          !mesh.positions.slice(3 * id, 3 * id + 3).every(Number.isFinite)
-        )
-          return "face trim has an unavailable authoritative vertex or nonfinite chart";
+        if (id < 0 || 3 * id + 2 >= mesh.positions.length)
+          return "face trim has an unavailable authoritative vertex";
         const known: Readonly<AutoMovieVector2Tuple> | undefined =
           chart.get(id);
         if (known === undefined) chart.set(id, [point[0], point[1]]);
@@ -150,11 +143,7 @@ export namespace AutoMovieSolidMeshAuthorities {
               ? 0
               : Math.round((point[1] - known[1]) / period);
           const rebuilt: number = known[1] + turn * (period ?? 0);
-          if (
-            known[0] !== point[0] ||
-            !Number.isSafeInteger(turn) ||
-            point[1] !== rebuilt
-          )
+          if (known[0] !== point[0] || point[1] !== rebuilt)
             return "one authoritative vertex has inconsistent face charts; phase lifts must reproduce the original authority exactly";
         }
       }
@@ -185,8 +174,6 @@ export namespace AutoMovieSolidMeshAuthorities {
                 (target - chart.get(loop.vertices[next]!)![1]) / period,
               );
         const turn: number = liftB - liftA;
-        if (!Number.isSafeInteger(turn))
-          return "face trim turn is not representable";
         winding += turn;
         result.push({ a: loop.vertices[k]!, b: loop.vertices[next]!, turn });
       }

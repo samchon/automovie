@@ -12,9 +12,9 @@ import { seated } from "./seated";
 type PrepareSeatedRootHeading = "yaw" | "pitch" | "roll";
 
 /**
- * Prepare a fixed body's seat socket under an unchanged rigid heading. The
- * first actual point acquires its rotated rest offset; every point still yields
- * the original fresh root that puts the socket there.
+ * Prepare a fixed body's seat socket under an unchanged rigid heading: its rest
+ * offset is turned by the heading here, so every point yields the root that puts
+ * the socket there with one subtraction.
  *
  * @param body The unchanged body/rest/socket geometry of this action.
  * @param heading Unchanged yaw, pitch and roll in degrees for this reader.
@@ -25,12 +25,10 @@ export function prepareSeatedRoot(
   body: IAutoMovieMotionHumanBody,
   heading: Pick<IAutoMovieMotionHumanPosture, PrepareSeatedRootHeading>,
 ): (at: IAutoMovieVector3) => IAutoMovieVector3 {
-  let offset: IAutoMovieVector3 | undefined;
-  return (at: IAutoMovieVector3): IAutoMovieVector3 => {
-    offset ??= Quaternion.rotateVector(
-      humanPostureHeading(heading),
-      seated.offset(body),
-    );
-    return Vector3.subtract(at, offset);
-  };
+  const offset: IAutoMovieVector3 = Quaternion.rotateVector(
+    humanPostureHeading(heading),
+    seated.offset(body),
+  );
+  return (at: IAutoMovieVector3): IAutoMovieVector3 =>
+    Vector3.subtract(at, offset);
 }

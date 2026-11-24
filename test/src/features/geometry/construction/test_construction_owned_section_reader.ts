@@ -22,19 +22,21 @@ type Jet = ReturnType<ReturnType<typeof AutoMovieLoftSectionNative.jet>>;
 const FIELDS: readonly (keyof Jet)[] = ["p", "s", "t", "ss", "st", "tt"];
 
 /**
- * A private copied station reuses successful validation without weakening public reads.
+ * A private copied station reuses successful validation without weakening
+ * public reads.
  *
  * Scenarios:
+ *
  * 1. Homothetic circles at three scales retain all six independent Cartesian
  *    derivatives across positive, negative, cardinal and periodic phases.
  * 2. Input rewrites after factory return and returned-vector rewrites cannot
  *    mutate the private preparation; every output remains fresh.
  * 3. Public cold copies work and changed snapshots still fail before bad phases.
- * 4. A getter that becomes nonfinite during copying retains deferred phase
- *    failure and repeat failure behavior; original getter exceptions survive.
- * 5. Owned precise coverage counts the actual validator. One public control
- *    plus one private successful preparation allows at most two entries for
- *    either one or 129 phases; missing identity is an observer failure.
+ * 4. A getter that becomes nonfinite during copying retains deferred phase failure
+ *    and repeat failure behavior; original getter exceptions survive.
+ * 5. Owned precise coverage counts the actual validator. One public control plus
+ *    one private successful preparation allows at most two entries for either
+ *    one or 129 phases; missing identity is an observer failure.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises Native.jet factories/readings and public Field cold/copy/failure paths, detects stale aliases, premature admission, swallowed original errors and repeated private metadata scans.
  * @evidence contracts/development/testing.md#independent-expectations The circle rho(s)=scale*(2+3s+4s*s) at s=0 gives exact p/s/ss and their sine/cosine phase derivatives independently of the kernel. Copy/refusal and exception order follow existing ownership contracts. The work ceiling is one public control plus at most one successful private validation, not a wall/heap oracle or an exact layout.
@@ -117,7 +119,10 @@ function expected(scale: number, phi: number): Jet {
   };
 }
 
-/** Compare every required finite vector with the same independent length-scale budget. */
+/**
+ * Compare every required finite vector with the same independent length-scale
+ * budget.
+ */
 function close(actual: Jet, target: Jet, scale: number): void {
   for (const field of FIELDS)
     if (
@@ -128,7 +133,10 @@ function close(actual: Jet, target: Jet, scale: number): void {
       throw new Error(`Independent circle ${field} differs`);
 }
 
-/** Neither original tuple storage nor earlier returned vectors are aliases of the retained preparation. */
+/**
+ * Neither original tuple storage nor earlier returned vectors are aliases of
+ * the retained preparation.
+ */
 function circle(scale: number): void {
   const data: IAutoMovieLoftViewRead.IJets = inputs(scale);
   const read: ReturnType<typeof AutoMovieLoftSectionNative.jet> =
@@ -157,7 +165,10 @@ function prepared(
   return value;
 }
 
-/** Public records remain value-copyable and are rechecked on every call, including error order. */
+/**
+ * Public records remain value-copyable and are rechecked on every call,
+ * including error order.
+ */
 function copies(): void {
   const at: IAutoMovieViewSectionField.IPrepared = prepared(inputs());
   const copy: IAutoMovieViewSectionField.IPrepared = structuredClone(at);
@@ -235,7 +246,10 @@ function malformed(): void {
     );
 }
 
-/** Getter failures retain identity during the existing input-copy/admission stage. */
+/**
+ * Getter failures retain identity during the existing input-copy/admission
+ * stage.
+ */
 function originals(): void {
   const values: readonly unknown[] = [
     new Error("owned input failure"),
@@ -260,7 +274,10 @@ function originals(): void {
   }
 }
 
-/** Observe this process's real metadata checks with a public positive control and owned observer cleanup. */
+/**
+ * Observe this process's real metadata checks with a public positive control
+ * and owned observer cleanup.
+ */
 async function work(): Promise<{ phases: number; validations: number }[]> {
   const session: Session = new Session();
   const readings: { phases: number; validations: number }[] = [];
@@ -311,11 +328,7 @@ async function work(): Promise<{ phases: number; validations: number }[]> {
           "The actual metadata-validator identity is missing or ambiguous",
         );
       const validations: number | undefined = functions[0]!.ranges[0]?.count;
-      if (
-        validations === undefined ||
-        !Number.isSafeInteger(validations) ||
-        validations <= 0
-      )
+      if (validations === undefined || validations <= 0)
         throw new Error(
           "The positive public validation control was not observed",
         );

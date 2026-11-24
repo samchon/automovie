@@ -42,22 +42,14 @@ export function solveAirborneInvariant(
 
   const { t0, t1 }: IAutoMovieIntegrateAirborneRotation.IProps = props;
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
-  if (
-    !Number.isFinite(t0) ||
-    !Number.isFinite(t1) ||
-    !(t1 > t0) ||
-    !Number.isFinite(h) ||
-    !(h > 0) ||
-    (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
-  )
-    return undefined;
+  if (t1 <= t0 || h <= 0) return undefined;
   const tolerance: IAutoMovieIntegrateAirborneRotation.IProps["tolerance"] =
     props.tolerance;
   if (
     tolerance !== undefined &&
-    (!(tolerance.relative >= 0 && tolerance.absolute >= 0) ||
-      !(tolerance.relative + tolerance.absolute > 0) ||
-      !Number.isFinite(tolerance.relative + tolerance.absolute))
+    (tolerance.relative < 0 ||
+      tolerance.absolute < 0 ||
+      tolerance.relative + tolerance.absolute <= 0)
   )
     return undefined;
 
@@ -70,14 +62,7 @@ export function solveAirborneInvariant(
     back,
     props.momentum,
   );
-  if (
-    !finite(carried) ||
-    !Number.isFinite(q0.x) ||
-    !Number.isFinite(q0.y) ||
-    !Number.isFinite(q0.z) ||
-    !Number.isFinite(q0.w)
-  )
-    return undefined;
+
 
   const x: IAutoMovieVector3 = factor.apply({ x: 1, y: 0, z: 0 });
   const y: IAutoMovieVector3 = factor.apply({ x: 0, y: 1, z: 0 });
@@ -93,26 +78,15 @@ export function solveAirborneInvariant(
   if (!spherical && !principal && !stationary) return undefined;
   const directions: readonly IAutoMovieVector3[] = props.variations ?? [];
   if (!stationary && directions.length !== 0) return undefined;
-  for (let index: number = 0; index < directions.length; index++)
-    if (!(index in directions) || !finite(directions[index]!)) return undefined;
+
 
   const rate: IAutoMovieVector3 = factor.solve(carried);
-  const span: number = t1 - t0;
-  if (
-    !finite(rate) ||
-    !Number.isFinite(Math.hypot(rate.x, rate.y, rate.z) * span)
-  )
-    return undefined;
+
   const tangents: IAutoMovieVector3[] = directions.map(
     (direction: IAutoMovieVector3): IAutoMovieVector3 =>
       factor.solve(Quaternion.rotateVector(back, direction)),
   );
-  for (const tangent of tangents)
-    if (
-      !finite(tangent) ||
-      !Number.isFinite(Math.hypot(tangent.x, tangent.y, tangent.z) * span)
-    )
-      return undefined;
+
   if (props.momentumTolerance !== undefined) {
     const defect: ReturnType<typeof AirborneMomentumDefect> =
       AirborneMomentumDefect(
@@ -125,14 +99,6 @@ export function solveAirborneInvariant(
   return flight(t0, t1, h, q0, rate, tangents);
 }
 
-/** Reject an unrepresentable physical vector before selecting the exact curve. */
-function finite(value: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z)
-  );
-}
 
 /**
  * Own only completed numeric data; endpoint holds and zero rotations still

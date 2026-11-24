@@ -34,10 +34,7 @@ export function ArchetypeMassPrimitive(
   shape: IAutoMoviePrimitiveShape,
 ): ILocal | null {
   for (const [name, value] of Object.entries(shape))
-    if (
-      name !== "type" &&
-      !(typeof value === "number" && Number.isFinite(value) && value > 0)
-    )
+    if (name !== "type" && !(value > 0))
       throw new Error(
         `Mass primitive ${shape.type} needs finite positive ${name}`,
       );
@@ -45,16 +42,9 @@ export function ArchetypeMassPrimitive(
   if (
     result !== null &&
     !(
-      Number.isFinite(result.volume) &&
       result.volume > 0 &&
-      Number.isFinite(result.centroid.x) &&
-      Number.isFinite(result.centroid.y) &&
-      Number.isFinite(result.centroid.z) &&
-      Number.isFinite(result.unit.x) &&
       result.unit.x > 0 &&
-      Number.isFinite(result.unit.y) &&
       result.unit.y > 0 &&
-      Number.isFinite(result.unit.z) &&
       result.unit.z > 0
     )
   )
@@ -182,7 +172,7 @@ function evaluate(shape: IAutoMoviePrimitiveShape): ILocal | null {
 /** Preserve the ordinary box rule; rescue only its overflowing square sum. */
 function transverse(a: number, b: number): number {
   const ordinary: number = (a * a + b * b) / 12;
-  return Number.isFinite(ordinary)
+  return ordinary !== Infinity
     ? ordinary
     : ArchetypeMassArithmetic.sum([
         ArchetypeMassArithmetic.product(1 / 12, a, a),

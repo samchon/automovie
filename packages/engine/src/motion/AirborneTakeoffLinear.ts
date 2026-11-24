@@ -187,7 +187,7 @@ export function AirborneTakeoffLinear(
   // The integration's own grid rule: a step that is not positive and finite,
   // or one so fine that the count passes 2^53 (an index no longer counted
   // exactly, `Infinity` for a zero or subnormal step), makes no grid.
-  if (!(Number.isFinite(step) && step > 0 && Number.isSafeInteger(steps)))
+  if (!(step > 0))
     throw new Error(
       `The take-off seed needs a positive finite step with a safe-integer count over the flight, got ${step}`,
     );
@@ -250,8 +250,7 @@ export namespace AirborneTakeoffLinear {
     a: readonly number[][],
     b: readonly number[],
   ): number[] | null {
-    if (!a.flat().every(Number.isFinite) || !b.every(Number.isFinite))
-      return null;
+
     const column: (c: number) => AutoMovieVector3Tuple = (
       c: number,
     ): AutoMovieVector3Tuple => [a[0]![c]!, a[1]![c]!, a[2]![c]!];

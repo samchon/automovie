@@ -138,8 +138,7 @@ export namespace trampolineBounce {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const g: number = AutoMovieGravity.STANDARD;
     const mass: number = body.profile.mass;
-    const bounces: number = p.bounces ?? 4;
-    HumanBound.whole("bounces", bounces);
+    const bounces: number = HumanBound.whole("bounces", p.bounces ?? 4);
     const apex: number = p.apex ?? 1;
     HumanBound.above("apex", apex, 0, "m");
     const sustained: number = PUSH / (1 - KEEP);

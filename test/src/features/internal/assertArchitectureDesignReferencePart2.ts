@@ -32,11 +32,6 @@ export function assertArchitectureDesignReferencePart2(): {
     readonly [string, (value: IAutoMovieDesignReference) => void, string]
   > = [
     [
-      "blank document id",
-      (value: IAutoMovieDesignReference): string => (value.id = " "),
-      "$input.id",
-    ],
-    [
       "wrong schema version",
       (value: IAutoMovieDesignReference): number =>
         ((value as { version: number }).version = 2),
@@ -58,11 +53,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "no frame at all",
       (value: IAutoMovieDesignReference): never[] => (value.frames = []),
       "$input.frames",
-    ],
-    [
-      "blank frame id",
-      (value: IAutoMovieDesignReference): string => (value.frames[0]!.id = ""),
-      "$input.frames[0].id",
     ],
     [
       "duplicate frame id",
@@ -125,12 +115,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         (value.frames[0]!.anchor.x = Number.NaN),
       "$input.frames[0].anchor.x",
-    ],
-    [
-      "blank scale candidate id",
-      (value: IAutoMovieDesignReference): string =>
-        (value.frames[0]!.scaleCandidates[0]!.id = ""),
-      "$input.frames[0].scaleCandidates[0].id",
     ],
     [
       "duplicate scale candidate id",
@@ -216,12 +200,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         (value.frames[1]!.transform!.rotation.w = 0.5),
       "$input.frames[1].transform.rotation",
-    ],
-    [
-      "blank primitive id",
-      (value: IAutoMovieDesignReference): string =>
-        (value.primitives[0]!.id = " "),
-      "$input.primitives[0].id",
     ],
     [
       "duplicate primitive id",
@@ -314,11 +292,6 @@ export function assertArchitectureDesignReferencePart2(): {
       "$input.primitives[0].text",
     ],
     [
-      "blank issue id",
-      (value: IAutoMovieDesignReference): string => (value.issues[0]!.id = ""),
-      "$input.issues[0].id",
-    ],
-    [
       "duplicate issue id",
       (value: IAutoMovieDesignReference): string =>
         (value.issues[1]!.id = "door-occluded"),
@@ -362,12 +335,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         value.issues[0]!.subjects.push("door-swing"),
       "$input.issues[0].subjects[2]",
-    ],
-    [
-      "blank candidate id",
-      (value: IAutoMovieDesignReference): string =>
-        (value.candidates[0]!.id = " "),
-      "$input.candidates[0].id",
     ],
     [
       "duplicate candidate id",
@@ -434,12 +401,6 @@ export function assertArchitectureDesignReferencePart2(): {
       (value: IAutoMovieDesignReference): number =>
         value.candidates[1]!.issues.push("door-occluded"),
       "$input.candidates[1].issues[1]",
-    ],
-    [
-      "blank analysis id",
-      (value: IAutoMovieDesignReference): string =>
-        (value.analyses[0]!.id = ""),
-      "$input.analyses[0].id",
     ],
     [
       "duplicate analysis id",

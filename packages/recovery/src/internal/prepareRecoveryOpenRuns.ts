@@ -16,10 +16,7 @@ export function prepareRecoveryOpenRuns(
   ): string => `${n.section}:${n.arc}`;
   if (
     (operator !== "quadratic" && operator !== "ruled") ||
-    !(
-      bundle.policy.toleranceMm > 0 &&
-      Number.isFinite(bundle.policy.toleranceMm)
-    )
+    !(bundle.policy.toleranceMm > 0)
   )
     throw new Error(
       "Explicit interpolation and a positive physical approximation budget required",
@@ -27,8 +24,7 @@ export function prepareRecoveryOpenRuns(
   if (
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
-    !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
-    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    !(graph.resolutionMm > 0) ||
     graph.maxVerticesPerRun < 4
   )
     throw new Error(
@@ -44,11 +40,7 @@ export function prepareRecoveryOpenRuns(
     section: number,
     arc: number,
   ): void => {
-    if (
-      !Number.isSafeInteger(arc) ||
-      arc < 0 ||
-      arc >= bundle.reports[section]!.open.length
-    )
+    if (arc < 0 || arc >= bundle.reports[section]!.open.length)
       throw new Error(
         "Open curve address does not match saved coefficient authority",
       );
@@ -77,8 +69,6 @@ export function prepareRecoveryOpenRuns(
     for (const [pairOrdinal, pair] of interval.pairs.entries()) {
       claim(0, pair.before);
       claim(1, pair.after);
-      if (typeof pair.reverseAfter !== "boolean")
-        throw new Error("Endpoint reversal must be explicit");
       const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },

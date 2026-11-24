@@ -165,7 +165,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     object(table, "table");
     object(table.gaits, "table.gaits");
     object(table.follow, "table.follow");
-    if (!Array.isArray(table.order) || table.order.length === 0)
+    if (table.order.length === 0)
       refuse("table.order", table.order, "list at least one supported gait");
     positive(table.reference, "table.reference");
     nonnegative(table.hysteresis, "table.hysteresis");
@@ -173,12 +173,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     unit(table.follow.hind, "table.follow.hind");
     if (table.scaling !== undefined && table.scaling !== "absolute")
       refuse("table.scaling", table.scaling, "use absolute or omit scaling");
-    if (table.explicit !== undefined && !Array.isArray(table.explicit))
-      refuse(
-        "table.explicit",
-        table.explicit,
-        "list the optional explicit gait names",
-      );
     const order: AutoMovieArchetypeQuadrupedGait.Gait[] = [];
     const explicit: AutoMovieArchetypeQuadrupedGait.Gait[] = [];
     const declared: readonly AutoMovieArchetypeQuadrupedGait.Gait[] = [
@@ -307,7 +301,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     pose: AutoMovieArchetypeQuadrupedGait.IGait,
     gait: AutoMovieArchetypeQuadrupedGait.Gait,
   ): AutoMovieArchetypeQuadrupedGait.IGait {
-    if (!Array.isArray(clocks) || clocks.length === 0)
+    if (clocks.length === 0)
       refuse(`${gait}.rows`, clocks, "supply at least one authored clock");
     const rows: AutoMovieArchetypeQuadrupedGait.IRow[] = Array.from(
       clocks,
@@ -340,7 +334,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     rows: readonly AutoMovieArchetypeQuadrupedGait.IRow[],
     axis: string,
   ): AutoMovieArchetypeQuadrupedGait.IRow[] {
-    if (!Array.isArray(rows) || rows.length === 0)
+    if (rows.length === 0)
       refuse(axis, rows, "supply a nonempty speed-ordered row table");
     let previous: number = 0;
     return Array.from(
@@ -429,12 +423,6 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     if (rule.kind === "mass") {
       positive(rule.speed, `${axis}.change.speed`);
       positive(rule.mass, `${axis}.change.mass`);
-      if (!Number.isFinite(rule.exponent))
-        refuse(
-          `${axis}.change.exponent`,
-          rule.exponent,
-          "use a finite mass exponent",
-        );
       return {
         kind: "mass",
         speed: rule.speed,
@@ -455,20 +443,18 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
 
   /** Require a record before reading a caller's nested table or clock. */
   function object(value: unknown, axis: string): void {
-    if (value === null || typeof value !== "object" || Array.isArray(value))
+    if (value === null || typeof value !== "object")
       refuse(axis, value, "supply the declared record");
   }
 
   /** A finite positive SI time, reciprocal frequency, speed or reference length. */
   function positive(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value <= 0)
-      refuse(axis, value, "supply a finite positive value");
+    if (value <= 0) refuse(axis, value, "supply a finite positive value");
   }
 
   /** A finite nonnegative range, spread or hysteresis. */
   function nonnegative(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value < 0)
-      refuse(axis, value, "supply a finite nonnegative value");
+    if (value < 0) refuse(axis, value, "supply a finite nonnegative value");
   }
 
   /**
@@ -476,7 +462,7 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
    * one.
    */
   function unit(value: number, axis: string): void {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       refuse(axis, value, "supply a finite fraction from zero through one");
   }
 

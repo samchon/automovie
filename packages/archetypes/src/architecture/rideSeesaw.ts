@@ -45,7 +45,7 @@ export function rideSeesaw(
     Quaternion.DEG2RAD;
   ride.pushes.forEach((at: number, index: number): void => {
     const before: number = index === 0 ? ride.settle : ride.pushes[index - 1]!;
-    if (!(Number.isFinite(at) && at >= before + ride.swing && ride.swing > 0))
+    if (!(at >= before + ride.swing && ride.swing > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "seesaw",

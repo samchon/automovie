@@ -22,7 +22,7 @@ export const planGuidePassOutputs: (
 ) => IAutoMovieGuidePassOutput[] = (
   props: IAutoMoviePlanGuidePassOutputsProps,
 ): IAutoMovieGuidePassOutput[] => {
-  if (Number.isInteger(props.frameCount) === false || props.frameCount <= 0)
+  if (props.frameCount <= 0)
     throw new Error(
       `guide pass frameCount must be a positive integer, but was ${props.frameCount}`,
     );

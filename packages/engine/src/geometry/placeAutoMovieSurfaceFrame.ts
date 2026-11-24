@@ -21,16 +21,8 @@ export function placeAutoMovieSurfaceFrame(
   prepared: IAutoMoviePreparedSurfaceFrame,
   target: IAutoMovieSurfaceFrame,
 ): [IAutoMovieVector3, IAutoMovieVector3, IAutoMovieVector3] {
-  if (
-    prepared.offsets.length !== 3 ||
-    prepared.offsets.some(
-      (point: Readonly<IAutoMovieVector3>): boolean =>
-        ![point.x, point.y, point.z].every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "Surface placement requires three finite prepared offsets.",
-    );
+  if (prepared.offsets.length !== 3)
+    throw new Error("Surface placement requires three prepared offsets.");
 
   const basis: IAutoMovieSweepFrame = normalizeAutoMovieSurfaceFrame(target);
   const points: IAutoMovieVector3[] = prepared.offsets.map(
@@ -52,8 +44,6 @@ export function placeAutoMovieSurfaceFrame(
           point.y * basis.y.z +
           point.z * basis.normal.z,
       };
-      if (![out.x, out.y, out.z].every(Number.isFinite))
-        throw new Error("Surface placement exceeds finite coordinates.");
       return out;
     },
   );

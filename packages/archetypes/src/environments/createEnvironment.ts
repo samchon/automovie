@@ -50,8 +50,6 @@ export function createEnvironment(
   recipe: IAutoMovieEnvironmentRecipe,
 ): IAutoMovieEnvironment {
   requirePath(recipe.id, "$input.id");
-  if (recipe.seed !== undefined && !Number.isFinite(recipe.seed))
-    throw new Error("$input.seed: numeric environment seed must be finite");
   const root: IAutoMovieTransform = recipe.frame ?? Transform.identity();
   requireEnvironmentFrame(root, "$input.frame");
 

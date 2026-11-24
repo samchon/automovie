@@ -209,7 +209,7 @@ export function createCohortQuadruped<Cohort extends string>(
     value: number | undefined,
     unit: AutoMovieArchetypeBandUnit,
   ): void {
-    if (!(value !== undefined && Number.isFinite(value) && value > 0))
+    if (!(value !== undefined && value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: props.archetype,

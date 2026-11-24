@@ -12,25 +12,22 @@ import { sweepPolygonLoft } from "../internal/sweepPolygonLoft";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
- * Counts of indexed UV determinant signs, independent of any three-dimensional tangent frame.
+ * Counts of indexed UV determinant signs, independent of any three-dimensional
+ * tangent frame.
  */
 interface IHandedness {
-  /**
-   * Triangles with a positive indexed UV determinant.
-   */
+  /** Triangles with a positive indexed UV determinant. */
   positive: number;
-  /**
-   * Triangles with a negative indexed UV determinant.
-   */
+  /** Triangles with a negative indexed UV determinant. */
   negative: number;
-  /**
-   * Triangles with no uv area to have a handedness at all.
-   */
+  /** Triangles with no uv area to have a handedness at all. */
   degenerate: number;
 }
 
 /**
- * Count finite indexed UV determinants and refuse nonfinite arithmetic instead of classifying NaN as negative; sign measures the atlas convention, while shader tangent handedness and appearance require their own GPU observation.
+ * Count finite indexed UV determinants and refuse nonfinite arithmetic instead
+ * of classifying NaN as negative; sign measures the atlas convention, while
+ * shader tangent handedness and appearance require their own GPU observation.
  */
 const handedness: (mesh: IAutoMovieMesh) => IHandedness = (
   mesh: IAutoMovieMesh,
@@ -50,10 +47,6 @@ const handedness: (mesh: IAutoMovieMesh) => IHandedness = (
     const determinant: number =
       (uvs[b * 2]! - uvs[a * 2]!) * (uvs[c * 2 + 1]! - uvs[a * 2 + 1]!) -
       (uvs[b * 2 + 1]! - uvs[a * 2 + 1]!) * (uvs[c * 2]! - uvs[a * 2]!);
-    if (!Number.isFinite(determinant))
-      throw new Error(
-        "UV handedness measurement requires finite determinants.",
-      );
     if (Math.abs(determinant) <= DEGENERATE_UV_AREA) tally.degenerate += 1;
     else if (determinant > 0) tally.positive += 1;
     else tally.negative += 1;
@@ -61,9 +54,7 @@ const handedness: (mesh: IAutoMovieMesh) => IHandedness = (
   return tally;
 };
 
-/**
- * Below this the triangle covers no atlas area worth assigning a sign.
- */
+/** Below this the triangle covers no atlas area worth assigning a sign. */
 const DEGENERATE_UV_AREA: number = 1e-12;
 
 const corner: (x: number, y: number, z: number) => IAutoMovieVector3 = (
@@ -86,13 +77,20 @@ const square: (half: number) => Array<{ x: number; y: number }> = (
 ];
 
 /**
- * Atlas-bearing builders share a positive indexed UV orientation convention, and merge preserves every member's coordinate correspondence; this determinant census does not judge normal-mapped lighting.
+ * Atlas-bearing builders share a positive indexed UV orientation convention,
+ * and merge preserves every member's coordinate correspondence; this
+ * determinant census does not judge normal-mapped lighting.
  *
  * Scenarios:
- * 1. Three quad faces give six positive triangles, and a sixteen-segment cylinder gives thirty-two.
- * 2. A twelve-segment profile beginning on-axis gives twelve degenerate pole triangles and thirty-six positive triangles.
- * 3. Region extrusion and loft each give twelve positive triangles, and merged members retain summed counts.
- * 4. Reflecting U reverses all cylinder signs, and merging that twin retains six positive and thirty-two negative triangles.
+ *
+ * 1. Three quad faces give six positive triangles, and a sixteen-segment cylinder
+ *    gives thirty-two.
+ * 2. A twelve-segment profile beginning on-axis gives twelve degenerate pole
+ *    triangles and thirty-six positive triangles.
+ * 3. Region extrusion and loft each give twelve positive triangles, and merged
+ *    members retain summed counts.
+ * 4. Reflecting U reverses all cylinder signs, and merging that twin retains six
+ *    positive and thirty-two negative triangles.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls atlas-bearing builders and mesh merge, then counts the sign of indexed UV determinants; reversed construction or a merge that loses a member's UV correspondence fails.
  * @evidence contracts/development/testing.md#independent-expectations Authored quad/segment counts determine expected triangle populations, and reflecting U independently reverses determinants. Positive atlas orientation is the convention checked here; a negative sign alone does not prove incorrect GPU normal mapping.

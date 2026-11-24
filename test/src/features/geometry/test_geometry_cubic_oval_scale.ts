@@ -6,11 +6,15 @@ import assert from "node:assert/strict";
 import { nclose } from "../internal/predicates";
 
 /**
- * Homogeneous oval sizing keeps representable extreme-aspect diameters positive.
+ * Homogeneous oval sizing keeps representable extreme-aspect diameters
+ * positive.
  *
  * Scenarios:
- * 1. The largest finite breadth/depth ratio produces two positive finite diameters, with the dominant diameter near half the girth.
- * 2. Reciprocal finite aspects exchange the diameters and doubling girth doubles both.
+ *
+ * 1. The largest finite breadth/depth ratio produces two positive finite
+ *    diameters, with the dominant diameter near half the girth.
+ * 2. Reciprocal finite aspects exchange the diameters and doubling girth doubles
+ *    both.
  * 3. A smallest-positive girth whose diameters underflow is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls axesBySimpson on extreme and ordinary scales, rejecting the former zero-diameter overflow result while preserving aspect symmetry and scaling.
@@ -24,10 +28,7 @@ export function test_geometry_cubic_oval_scale(): void {
     AutoMovieCubicOval64.axesBySimpson(100, Number.MAX_VALUE);
   TestValidator.predicate(
     "extreme aspect retains representable positive diameters",
-    Number.isFinite(extreme.breadthMm) &&
-      Number.isFinite(extreme.depthMm) &&
-      extreme.depthMm > 0 &&
-      Math.abs(extreme.breadthMm / 50 - 1) < 1e-3,
+    extreme.depthMm > 0 && Math.abs(extreme.breadthMm / 50 - 1) < 1e-3,
   );
   const wide: IAutoMovieCubicOval64.IAxesBySimpsonResult =
     AutoMovieCubicOval64.axesBySimpson(100, 4);

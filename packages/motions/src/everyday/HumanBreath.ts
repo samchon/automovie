@@ -205,23 +205,22 @@ export namespace HumanBreath {
   export function layer(
     options: IAutoMovieMotionHumanBreath.IOptions = {},
   ): IAutoMovieMotionHumanLayer {
-    const rateAt: (random: IAutoMovieRandom) => number = fixedDraw(restingRate);
-    const phaseAt: (random: IAutoMovieRandom) => number = fixedDraw(
-      (random: IAutoMovieRandom): number => random.float(0),
-    );
     const layer: IAutoMovieMotionHumanLayer = {
       name: "breath",
 
       // The spine, the chest and the shoulder girdles (`TIDAL`).
       channels: ["trunk"],
+
+      // Read on the film clock when the pose is shown (`isNative`).
+      clock: "film",
       apply: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         context: IAutoMovieMotionHumanLayer.IContext,
       ): IAutoMovieMotionHumanPosture => {
         const rate: number =
-          options.rate ?? rateAt(context.random("breath.rate"));
-        const phase0: number = phaseAt(context.random("breath.phase"));
+          options.rate ?? restingRate(context.random("breath.rate"));
+        const phase0: number = context.random("breath.phase").float(0);
         const volume: number = HumanBreath.state(
           seconds,
           rate,
@@ -232,24 +231,19 @@ export namespace HumanBreath {
         return add(posture, volume);
       },
     };
-    NATIVE_LAYER_APPLY.set(layer, layer.apply);
     return layer;
   }
 
   /**
-   * Whether the layer still uses the native respiratory contribution.
+   * Whether the layer still uses the native respiratory contribution: it
+   * declares the film clock (`IAutoMovieMotionHumanLayer.clock`) and adds no
+   * weighted blend of its own.
    *
    * @param layer A layer from the performance.
-   * @returns Whether this is an unmodified native breath layer.
+   * @returns Whether this is a native breath layer.
    */
   export function isNative(layer: IAutoMovieMotionHumanLayer): boolean {
-    const native: IAutoMovieMotionHumanLayer["apply"] | undefined =
-      NATIVE_LAYER_APPLY.get(layer);
-    return (
-      native !== undefined &&
-      Object.getOwnPropertyDescriptor(layer, "apply")?.value === native &&
-      layer.blend === undefined
-    );
+    return layer.clock === "film" && layer.blend === undefined;
   }
 
   /**
@@ -277,12 +271,6 @@ export namespace HumanBreath {
     return { ...posture, joints };
   }
 }
-
-/** A layer's native apply function, held only for that layer's lifetime. */
-const NATIVE_LAYER_APPLY: WeakMap<
-  IAutoMovieMotionHumanLayer,
-  IAutoMovieMotionHumanLayer["apply"]
-> = new WeakMap();
 
 /**
  * One admitted bout: the cube root of its level, its start (`-Infinity` when
@@ -392,20 +380,3 @@ const TIDAL_ENTRIES: readonly [
   AutoMovieHumanoidBone,
   readonly [number, number, number],
 ][];
-/** The record of `IFixedDrawPrevious`'s site. */
-type IFixedDrawPrevious = { seed: string; value: number };
-
-/**
- * Reuse one fixed-index scalar draw only while its pure stream seed is
- * identical.
- */
-function fixedDraw(
-  draw: (random: IAutoMovieRandom) => number,
-): (random: IAutoMovieRandom) => number {
-  let previous: IFixedDrawPrevious | undefined;
-  return (random: IAutoMovieRandom): number => {
-    if (previous === undefined || previous.seed !== random.seed)
-      previous = { seed: random.seed, value: draw(random) };
-    return previous.value;
-  };
-}

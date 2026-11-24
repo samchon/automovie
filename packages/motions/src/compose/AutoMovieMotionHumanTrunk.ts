@@ -345,26 +345,22 @@ export namespace AutoMovieMotionHumanTrunk {
         ),
       );
     // Without the balance option the hips sink where they stand: no centre
-    // of mass is read.
-    let back: number | undefined;
+    // of mass is read. With it, the full-depth shift is solved once here,
+    // the branch point the crouch's balance is found at.
+    const back: number =
+      window === undefined || window === null
+        ? 0
+        : HumanBalance.shift(
+            props.body,
+            (b: number): IAutoMovieMotionHumanPosture =>
+              low(props.standing, 1, b),
+          );
     return (
       posture: IAutoMovieMotionHumanPosture,
       share: number,
       weight: number = 0,
-    ): IAutoMovieMotionHumanPosture => {
-      if (
-        window === undefined ||
-        window === null ||
-        weight === 0 ||
-        share === 0
-      )
-        return low(posture, share, 0);
-      back ??= HumanBalance.shift(
-        props.body,
-        (b: number): IAutoMovieMotionHumanPosture => low(props.standing, 1, b),
-      );
-      return low(posture, share, back * share * weight);
-    };
+    ): IAutoMovieMotionHumanPosture =>
+      low(posture, share, back * share * weight);
   }
 
   /**

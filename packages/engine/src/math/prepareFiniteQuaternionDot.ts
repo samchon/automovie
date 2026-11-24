@@ -35,10 +35,8 @@ export function prepareFiniteQuaternionDot(
       }
       component = key;
     }
-  const factor: number = component === undefined ? 0 : coefficient[component];
-  const sparse: keyof IAutoMovieQuaternion | undefined = Number.isFinite(factor)
-    ? component
-    : undefined;
+  const sparse: keyof IAutoMovieQuaternion | undefined = component;
+  const factor: number = sparse === undefined ? 0 : coefficient[sparse];
   return (target: IAutoMovieQuaternion): number => {
     if (sparse !== undefined) {
       const product: number = target[sparse] * factor;

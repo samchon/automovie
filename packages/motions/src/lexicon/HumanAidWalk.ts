@@ -101,12 +101,7 @@ function course(
       index: number,
     ): IAdvance => {
       const heading: number = station.turn ?? 0;
-      if (
-        ![station.x, station.z, heading, station.seconds].every(
-          Number.isFinite,
-        ) ||
-        station.seconds <= 0
-      )
+      if (!(station.seconds > 0))
         return refuse(
           "stations",
           index,

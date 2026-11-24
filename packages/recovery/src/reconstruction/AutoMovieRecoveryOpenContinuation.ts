@@ -234,8 +234,7 @@ export namespace AutoMovieRecoveryOpenContinuation {
                 sum + (x - contour.pts[k - 1]!.p[j]!) * t[j]!,
               0,
             ) * input.sourceOrientationSign;
-          if (Number.isFinite(sense) && sense !== 0)
-            signs[ordinal] = sense > 0 ? 1 : -1;
+          if (sense !== 0) signs[ordinal] = sense > 0 ? 1 : -1;
         }
       }
       for (let j: number = 0; j < bundle.reports[i]!.open.length; j++)

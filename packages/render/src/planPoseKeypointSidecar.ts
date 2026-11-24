@@ -59,7 +59,7 @@ export const planPoseKeypointSidecar: (
 ) => IAutoMoviePoseKeypointSidecar = (
   props: IAutoMoviePlanPoseKeypointSidecarProps,
 ): IAutoMoviePoseKeypointSidecar => {
-  if (Number.isFinite(props.fps) === false || props.fps <= 0)
+  if (props.fps <= 0)
     throw new Error(`fps must be a finite number > 0, but was ${props.fps}`);
   const timeline: IAutoMoviePlaybackTimeline = sequenceTimeline(
     props.sequence,

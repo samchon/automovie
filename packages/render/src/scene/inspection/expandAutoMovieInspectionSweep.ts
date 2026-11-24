@@ -40,17 +40,13 @@ import { matchAutoMovieInspectionPath } from "./matchAutoMovieInspectionPath.js"
 export function expandAutoMovieInspectionSweep(
   props: IAutoMovieInspectionSweepProps,
 ): IAutoMovieInspectionSweepUnit[] {
-  if (!(Number.isFinite(props.margin) && props.margin >= 0))
+  if (!(props.margin >= 0))
     throw new Error(
       `Sweep margin ${props.margin} is not a finite distance of zero or more`,
     );
   for (const object of props.objects)
     for (const axis of AXES)
-      if (
-        !Number.isFinite(object.min[axis]) ||
-        !Number.isFinite(object.max[axis]) ||
-        object.min[axis] > object.max[axis]
-      )
+      if (object.min[axis] > object.max[axis])
         throw new Error(
           `Sweep object "${object.path}" has no finite ordered box along ${axis}`,
         );

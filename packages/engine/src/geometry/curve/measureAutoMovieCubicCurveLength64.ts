@@ -24,7 +24,6 @@ export function measureAutoMovieCubicCurveLength64(
 ): IAutoMovieCurveLengthMeasurement64 {
   assertAutoMovieCurve64(curve);
   if (
-    !Number.isSafeInteger(subdivisions) ||
     subdivisions < 1 ||
     subdivisions > 1024
   )
@@ -68,8 +67,6 @@ export function measureAutoMovieCubicCurveLength64(
       subdivisions,
       false,
     );
-  if (!Number.isFinite(measured.fineMm) || !Number.isFinite(measured.coarseMm))
-    throw new Error("Cubic speed integration overflow");
   return {
     lengthMm: measured.fineMm,
     differenceMm: Math.abs(measured.fineMm - measured.coarseMm),

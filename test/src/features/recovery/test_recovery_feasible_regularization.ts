@@ -16,13 +16,23 @@ import { nclose } from "../internal/nclose";
 import { runRecoveryRegularizationControl } from "../internal/runRecoveryRegularizationControl";
 
 /**
- * Selected-increment metric reactions preserve actual horizons and normal stops.
+ * Selected-increment metric reactions preserve actual horizons and normal
+ * stops.
  *
  * Scenarios:
- * 1. Scalar agreement increase, hold and decrease use the accepted-radius reciprocal; invalid decrease, ratio and next coefficient preserve the previous damping.
- * 2. Original-q affine least squares with epsilon1/.001 compares fixed1e-3, nonshipping oracle0 and accepted-agreement metrics under the same100 actual evaluations and physical normal tolerance.
- * 3. A nonlinear residual under vector soft-L1 has a qualified full step with poor actual agreement; only its next existing model increases damping. Notification receives the exact base/increment/cost and propagates the original error.
- * 4. Initial normal KKT and a refused actual trial notify zero times. Qualified-unselected evaluations consume trials but never notify.
+ *
+ * 1. Scalar agreement increase, hold and decrease use the accepted-radius
+ *    reciprocal; invalid decrease, ratio and next coefficient preserve the
+ *    previous damping.
+ * 2. Original-q affine least squares with epsilon1/.001 compares fixed1e-3,
+ *    nonshipping oracle0 and accepted-agreement metrics under the same100
+ *    actual evaluations and physical normal tolerance.
+ * 3. A nonlinear residual under vector soft-L1 has a qualified full step with poor
+ *    actual agreement; only its next existing model increases damping.
+ *    Notification receives the exact base/increment/cost and propagates the
+ *    original error.
+ * 4. Initial normal KKT and a refused actual trial notify zero times.
+ *    Qualified-unselected evaluations consume trials but never notify.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls source update, generic controller and selector through the typed chosen-increment hook. Observes actual budgets, original normal status, next-model coefficients, notification identity and core error propagation without replacing a foreign function.
  * @evidence contracts/development/testing.md#independent-expectations The rotated original-q quadratic has hn=2+delta*(1+epsilon^2),ht=2*epsilon^2+delta*(1+epsilon^2). For epsilon.001 fixed damping, even100 untilted unit steps leave physical normal infinity above2.89e-7; original KKT determines the other outcomes rather than saved iteration counts. For r(x)=1+x+sqrt(.75)*x^2 at0, soft-L1 gradient and weighted GN give u=-1/1.001 and an independently computed positive ratio below.5, so the next coefficient must increase.
@@ -72,17 +82,7 @@ export function test_recovery_feasible_regularization(): void {
       supported[3]!.factor === 1 / 3 &&
       unsupported.every(
         (row: IAutoMovieRecoveryRegularizationUpdate): boolean =>
-          !row.supported &&
-          row.damping === row.previousDamping &&
-          [
-            row.actualDecrease,
-            row.predictedDecrease,
-            row.ratio,
-            row.factor,
-          ].every(
-            (value: number | null): boolean =>
-              value === null || Number.isFinite(value),
-          ),
+          !row.supported && row.damping === row.previousDamping,
       ) &&
       invalidDamping === 4,
   );

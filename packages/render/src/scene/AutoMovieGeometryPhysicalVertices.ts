@@ -35,20 +35,14 @@ export class AutoMovieGeometryPhysicalVertices {
     }
     if (raw && (wire || attribute !== undefined))
       throw new Error("Conflicting physical source namespaces.");
-    let input: unknown = geometry.userData.automovieMeshPhysicalVertices;
+    let input: NonNullable<IAutoMovieMesh["physicalVertices"]> =
+      geometry.userData.automovieMeshPhysicalVertices;
     if (wire) {
-      const record: unknown = geometry.userData.automoviePhysicalVertices;
+      const record: Pick<
+        NonNullable<IAutoMovieMesh["physicalVertices"]>,
+        "sources"
+      > = geometry.userData.automoviePhysicalVertices;
       if (
-        record === null ||
-        typeof record !== "object" ||
-        Object.keys(record)
-          .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-          .join(",") !== "attribute,sources,version" ||
-        !("version" in record) ||
-        record.version !== 1 ||
-        !("attribute" in record) ||
-        record.attribute !== "_AUTOMOVIE_PHYSICAL_SOURCE" ||
-        !("sources" in record) ||
         attribute === undefined ||
         attribute.itemSize !== 2 ||
         attribute.normalized ||
@@ -123,43 +117,22 @@ export class AutoMovieGeometryPhysicalVertices {
   }
 
   private static copy(
-    input: unknown,
+    input: NonNullable<IAutoMovieMesh["physicalVertices"]>,
   ): NonNullable<IAutoMovieMesh["physicalVertices"]> {
-    if (
-      input === null ||
-      typeof input !== "object" ||
-      !("sources" in input) ||
-      !Array.isArray(input.sources) ||
-      !("vertices" in input) ||
-      !Array.isArray(input.vertices)
-    )
-      throw new Error(
-        "Physical source correspondence needs source and vertex arrays.",
-      );
     const sources: NonNullable<IAutoMovieMesh["physicalVertices"]>["sources"] =
       input.sources.map(
         (
-          source: unknown,
+          source: NonNullable<
+            IAutoMovieMesh["physicalVertices"]
+          >["sources"][number],
         ): NonNullable<
           IAutoMovieMesh["physicalVertices"]
         >["sources"][number] => {
-          if (
-            source === null ||
-            typeof source !== "object" ||
-            !("domain" in source) ||
-            typeof source.domain !== "string" ||
-            source.domain.trim().length === 0 ||
-            !("id" in source) ||
-            typeof source.id !== "number" ||
-            !Number.isSafeInteger(source.id) ||
-            source.id < 0
-          )
-            throw new Error(
-              "Physical sources need nonblank domains and safe nonnegative IDs.",
-            );
+          if (source.id < 0)
+            throw new Error("Physical sources need nonnegative IDs.");
           return { domain: source.domain, id: source.id };
         },
       );
-    return { sources, vertices: input.vertices.slice() as (number | null)[] };
+    return { sources, vertices: input.vertices.slice() };
   }
 }

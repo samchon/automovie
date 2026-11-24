@@ -63,7 +63,6 @@ export function ArchetypeTrackEase<Id extends string>(
     launch,
     travel: (sample: number): number => {
       const elapsed: number = ArchetypeTrackTime.elapsed(
-        name,
         sample,
         start,
         end,

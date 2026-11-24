@@ -52,8 +52,6 @@ export namespace AutoMovieConstructionSharedLoop {
       return { contract: "shared loop", detail: "the join declares no loop" };
     if (
       !(
-        Number.isFinite(loop.centre[0]) &&
-        Number.isFinite(loop.centre[1]) &&
         loop.semi[0] > 0 &&
         loop.semi[1] > 0 &&
         loop.semi[1] < Math.PI &&
@@ -65,7 +63,7 @@ export namespace AutoMovieConstructionSharedLoop {
         detail: `the loop needs a finite centre, positive semi-axes with the phase one under pi and, when shaped, ${node.count} shares`,
       };
     if (
-      !(Number.isInteger(node.count) && node.count >= 8 && node.count % 4 === 0)
+      !(node.count >= 8 && node.count % 4 === 0)
     )
       return {
         contract: "shared loop",

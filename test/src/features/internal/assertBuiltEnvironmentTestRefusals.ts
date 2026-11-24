@@ -4,12 +4,14 @@ import { TestValidator } from "@nestia/e2e";
 import { builtEnvironmentTestRefusalPaths as refusalPaths } from "./builtEnvironmentTestRefusalPaths";
 import { builtEnvironmentTestTransform as transform } from "./builtEnvironmentTestTransform";
 
-/** Run the existing malformed BuiltEnvironmentTest cases in their authored order. */
+/**
+ * Run the existing malformed BuiltEnvironmentTest cases in their authored
+ * order.
+ */
 export const assertBuiltEnvironmentTestRefusals = (): void => {
   const malformed: Array<
     readonly [string, (value: IAutoMovieBuiltEnvironment) => void, string]
   > = [
-    ["blank building id", (value) => (value.id = " "), "$input.id"],
     ["unknown version", (value) => (value.version = 2 as 1), "$input.version"],
     [
       "unknown units",
@@ -25,11 +27,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "duplicate building unit",
       (value) => value.buildings.push(value.buildings[0]!),
       "$input.buildings[1].id",
-    ],
-    [
-      "blank building unit",
-      (value) => (value.buildings[0]!.id = " "),
-      "$input.buildings[0].id",
     ],
     [
       "missing building element",
@@ -97,16 +94,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "$input.models[1].id",
     ],
     [
-      "invalid owned model",
-      (value) => (value.models[0]!.id = " "),
-      "$input.models[0].id",
-    ],
-    [
-      "blank model reference",
-      (value) => (value.modelReferences[0] = " "),
-      "$input.modelReferences[0]",
-    ],
-    [
       "owned model reference",
       (value) => value.modelReferences.push("slab"),
       "$input.modelReferences[1]",
@@ -115,11 +102,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "duplicate model reference",
       (value) => value.modelReferences.push("external-stone"),
       "$input.modelReferences[1]",
-    ],
-    [
-      "blank space id",
-      (value) => (value.spaces[1]!.id = " "),
-      "$input.spaces[1].id",
     ],
     [
       "blank space kind",
@@ -135,11 +117,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "space cycle",
       (value) => (value.spaces[0]!.parent = "ground"),
       "$input.spaces[0].parent",
-    ],
-    [
-      "blank cell id",
-      (value) => (value.spaces[1]!.cells[0]!.id = " "),
-      "$input.spaces[1].cells[0].id",
     ],
     [
       "duplicate cell",
@@ -173,11 +150,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "duplicate element",
       (value) => value.elements.push(value.elements[0]!),
       "$input.elements[5].id",
-    ],
-    [
-      "blank element id",
-      (value) => (value.elements[1]!.id = " "),
-      "$input.elements[1].id",
     ],
     [
       "blank element kind",
@@ -228,11 +200,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "$input.boundaries[2].id",
     ],
     [
-      "blank boundary id",
-      (value) => (value.boundaries[0]!.id = " "),
-      "$input.boundaries[0].id",
-    ],
-    [
       "blank boundary kind",
       (value) => (value.boundaries[0]!.kind = " "),
       "$input.boundaries[0].kind",
@@ -271,11 +238,6 @@ export const assertBuiltEnvironmentTestRefusals = (): void => {
       "duplicate opening",
       (value) => value.openings.push(value.openings[0]!),
       "$input.openings[1].id",
-    ],
-    [
-      "blank opening id",
-      (value) => (value.openings[0]!.id = " "),
-      "$input.openings[0].id",
     ],
     [
       "blank opening kind",

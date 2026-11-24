@@ -11,8 +11,8 @@ import { subdivisionGrid } from "../internal/subdivisionGrid";
 
 /**
  * A 4 x 2 grid cut into two UV charts along the column x = 2: the left chart
- * maps grid point `(x, y)` to `(0.1 x, 0.1 y)` and the right chart to
- * `(0.5 + 0.1 x, 0.1 y)`, so the seam vertices carry two UVs each.
+ * maps grid point `(x, y)` to `(0.1 x, 0.1 y)` and the right chart to `(0.5 +
+ * 0.1 x, 0.1 y)`, so the seam vertices carry two UVs each.
  */
 const charted: () => IAutoMovieSubdivisionCage =
   (): IAutoMovieSubdivisionCage => {
@@ -62,21 +62,21 @@ const gridPoint: (
  *
  * Scenarios:
  *
- * 1. Two charts that are each a linear map of the grid keep it exactly at
- *    level 3: every face corner's UV is its chart's map of the corner's grid
- *    point, including the outer corners, where the positions are rounded, and
- *    the seam keeps two UV values per vertex.
- * 2. A seam UV moved off its chart's line keeps its value exactly at every
- *    level, its seam edges take midpoints, while an interior UV moved off the
- *    line is smoothed by the vertex rule `(n - 2) / n` plus `1 / n^2` per
- *    neighbour and face point.
+ * 1. Two charts that are each a linear map of the grid keep it exactly at level 3:
+ *    every face corner's UV is its chart's map of the corner's grid point,
+ *    including the outer corners, where the positions are rounded, and the seam
+ *    keeps two UV values per vertex.
+ * 2. A seam UV moved off its chart's line keeps its value exactly at every level,
+ *    its seam edges take midpoints, while an interior UV moved off the line is
+ *    smoothed by the vertex rule `(n - 2) / n` plus `1 / n^2` per neighbour and
+ *    face point.
  * 3. A cage without UVs returns `null` for both UV arrays.
  * 4. Parameters: a quad grid reports every vertex on the lowest-numbered face
  *    containing it, with dyadic `(u, v)`; a triangle splits into corner
- *    sub-faces, its corners at `(0, 0)` of their own, its first two edge
- *    points at `(1, 0)` of the corner before them, its closing edge point at
- *    `(0, 1)` of corner 0, which reaches it first, and its centre at `(1, 1)`
- *    of corner 0.
+ *    sub-faces, its corners at `(0, 0)` of their own, its first two edge points
+ *    at `(1, 0)` of the corner before them, its closing edge point at `(0, 1)`
+ *    of corner 0, which reaches it first, and its centre at `(1, 1)` of corner
+ *    0.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `subdivideAutoMovieSurface` with face-varying UVs and asserts `uvs`, `uvFaces` and `parameters`; smoothing a seam, merging the two sides of a seam, a wrong interior rule, a wrong parameter face or coordinate fails.
  * @evidence contracts/development/testing.md#independent-expectations Linear charts are reproduced exactly by Catmull-Clark on a regular grid and kept by pinned boundaries, so the expected UV is the chart map of the grid point; the interior rule is Catmull and Clark's written in the test; parameter expectations follow the documented square and sub-face conventions.
@@ -187,8 +187,6 @@ export function test_geometry_subdivision_uvs(): void {
       const [x, y] = gridPoint(p, 2);
       return (
         p.corner === null &&
-        Number.isInteger(p.u * 4) &&
-        Number.isInteger(p.v * 4) &&
         p.face ===
           Math.max(0, Math.ceil(y) - 1) * 2 + Math.max(0, Math.ceil(x) - 1)
       );

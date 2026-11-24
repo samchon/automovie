@@ -81,7 +81,7 @@ export function* AutoMovieBicubicAtlasEmit64(
       ),
       n: AutoMovieVector3Tuple = cross(du, dv),
       length: number = norm(n);
-    const regular: boolean = Number.isFinite(length) && length > 0;
+    const regular: boolean = length > 0;
     return {
       position: B.value(poly, u),
       normal: regular ? V.scale(n, 1 / length) : [0, 0, 0],
@@ -390,8 +390,6 @@ export function* AutoMovieBicubicAtlasEmit64(
           const area: number = norm(
             cross(V.sub(b.position, a.position), V.sub(c.position, a.position)),
           );
-          if (!Number.isFinite(area))
-            throw new Error("nonfinite triangle arithmetic");
           if (area === 0) {
             chunk.counts.omittedZeroAreaTriangles++;
             range.omittedZeroAreaTriangles++;

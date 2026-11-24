@@ -31,7 +31,7 @@ export namespace KnockdownCount {
    * @throws {Error} When the number is not one to ten.
    */
   export function number(start: number, number: number): number {
-    if (!Number.isInteger(number) || number < 1 || number > TEN)
+    if (!(number >= 1 && number <= TEN))
       throw new Error(`A count number is one to ten: ${number}`);
     return start + number;
   }

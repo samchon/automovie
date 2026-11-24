@@ -35,7 +35,7 @@ export function appendEditorialMarkersArtifact(
 
     const start: number = marker.startSeconds;
     const end: number = marker.endSeconds;
-    if (!Number.isFinite(start) || start < 0 || start >= duration)
+    if (start < 0 || start >= duration)
       pushViolation(
         violations,
         "range",
@@ -43,7 +43,7 @@ export function appendEditorialMarkersArtifact(
         "editorial marker start must be finite and within the playable shot",
         start,
       );
-    if (!Number.isFinite(end) || end < 0 || end > duration || end < start)
+    if (end < 0 || end > duration || end < start)
       pushViolation(
         violations,
         "range",

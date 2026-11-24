@@ -52,7 +52,7 @@ export function fitRecoveryEpipolarMatrix(
     decomposeAutoMovieSingularMatrix(rows, options);
   const ratio: number =
     decomposition.singularValues[7]! / decomposition.singularValues[0]!;
-  if (!Number.isFinite(ratio) || ratio < minimumRatio)
+  if (decomposition.singularValues[0] === 0 || ratio < minimumRatio)
     throw new Error("camera-design: rank-degenerate eight-point design");
   const homogeneous: number[] = decomposition.rightColumns[8]!;
   const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
@@ -77,7 +77,7 @@ export function fitRecoveryEpipolarMatrix(
     AutoMovieMatrix3.multiply(rankTwo, a.transform),
   );
   const norm: number = Math.hypot(...matrix);
-  if (!(norm > 0) || !Number.isFinite(norm))
+  if (!(norm > 0))
     throw new Error("camera-design: nonrepresentable fundamental matrix");
   let anchor: number = 0;
   for (let at: number = 1; at < 9; at++)

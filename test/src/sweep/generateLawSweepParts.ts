@@ -6,17 +6,17 @@ import { motionHumanLawCovering } from "../features/internal/motionHumanLawCover
 
 /**
  * Writes the part specs of the universal law sweep,
- * `test_human_motion_law_sweep_<family>_<nn>.ts` in `src/features/motion`:
- * each family's covering array (`motionHumanLawCovering`) cut into parts of
- * at most `cells` cells a body (`motionHumanLawCovering.part`), so each part
- * prepares two bodies and stays under a minute alone at the measured cost.
- * A family's earlier part specs are removed first, so a regeneration with
- * another size leaves none behind.
+ * `test_human_motion_law_sweep_<family>_<nn>.ts` in `src/features/motion`: each
+ * family's covering array (`motionHumanLawCovering`) cut into parts of at most
+ * `cells` cells a body (`motionHumanLawCovering.part`), so each part prepares
+ * two bodies and stays under a minute alone at the measured cost. A family's
+ * earlier part specs are removed first, so a regeneration with another size
+ * leaves none behind.
  *
  * Run with `pnpm --filter @automovie/test sweep:parts [cells] [family...]`:
  * `cells` is the most cells a part takes of one body (4 when absent). The
- * generated families are handling, locomotion, sport and striking. Posture
- * and touch have maintained property and boundary specs.
+ * generated families are handling, locomotion, sport and striking. Posture and
+ * touch have maintained property and boundary specs.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what is written, where, how a part is sized and how to run it.
  * @evidence contracts/development/implementation.md#principled-implementation The part count is read off the covering array itself, the cells each body performs, so the parts together are exactly the whole array.
@@ -26,10 +26,10 @@ import { motionHumanLawCovering } from "../features/internal/motionHumanLawCover
  * @evidence contracts/development/implementation.md#reuse-equivalent-work The covering design and the cut are `motionHumanLawCovering`'s.
  * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources A one-shot script.
  */
-const main = (): void => {
+const main = async (): Promise<void> => {
   const args: string[] = process.argv.slice(2);
   const cells: number = args[0] === undefined ? 4 : Number(args[0]);
-  if (!Number.isInteger(cells) || cells < 1)
+  if (cells < 1)
     throw new Error(
       `the cells a part takes must be a positive integer, not ${args[0]}`,
     );
@@ -47,7 +47,8 @@ const main = (): void => {
     )[family];
     if (claim === undefined || table === undefined)
       throw new Error(`no stage table or description for the family ${family}`);
-    const counts: Record<string, number> = motionHumanLawCovering.cells(table);
+    const counts: Record<string, number> =
+      await motionHumanLawCovering.cells(table);
     const bodies: string[] = Object.keys(counts);
     const k: number = Math.max(
       1,
@@ -151,14 +152,17 @@ const spec = (
     ` * @evidence contracts/development/testing.md#execution-ownership Prepares two polygon men and performs this part's cells in memory, under a minute alone; the test program discovers every \`test_\` function, so \`pnpm test\` and the CI test job run it.`,
     ` * @evidence contracts/development/common.md#meaningful-documentation States the covering design, the part's share of it, how the complaints are gathered and the 5 scenarios with their bounds.`,
     ` */`,
-    `export function ${name}(): void {`,
+    `export async function ${name}(): Promise<void> {`,
     `  TestValidator.equals(`,
     `    "every ${family} cell of part ${i + 1} of ${n} is clean",`,
-    `    motionHumanLawCovering.part(${constant}, [${i}, ${n}]),`,
+    `    await motionHumanLawCovering.part(${constant}, [${i}, ${n}]),`,
     `    [],`,
     `  );`,
     `}`,
     ``,
   ].join("\n");
 
-main();
+main().catch((error: unknown): void => {
+  console.error(error);
+  process.exit(1);
+});

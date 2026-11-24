@@ -5,15 +5,22 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/** Replayed virtual support predictions keep requested minus allocated equal to their residual, independent of an archive's integrity trailer.
+/**
+ * Replayed virtual support predictions keep requested minus allocated equal to
+ * their residual, independent of an archive's integrity trailer.
  *
  * Scenarios:
- * 1. An unsupported prediction, full residual and zero allocation, is admitted.
- * 2. A partial allocation whose residual is the exact difference is admitted, also at the 64-ulp rounding bound.
- * 3. A residual one newton off, or past the rounding bound, is refused as inconsistent.
- * 4. A negative or fractional witness count, and two predictions at one instant, are refused as malformed.
  *
- * The allocation law itself belongs to `test_physical_support_wrench`, and binary transport to `test_physical_playback_archive`.
+ * 1. An unsupported prediction, full residual and zero allocation, is admitted.
+ * 2. A partial allocation whose residual is the exact difference is admitted, also
+ *    at the 64-ulp rounding bound.
+ * 3. A residual one newton off, or past the rounding bound, is refused as
+ *    inconsistent.
+ * 4. A negative witness count, and two predictions at one instant, are refused as
+ *    malformed.
+ *
+ * The allocation law itself belongs to `test_physical_support_wrench`, and
+ * binary transport to `test_physical_playback_archive`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalPlayback`, `AutoMoviePhysicsCache`, `admitPhysicalPlaybackMetadata` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; 4 numbered scenarios (first: An unsupported prediction, full residual and zero allocation, is admitted.; last: A negative or fractional witness count, and two predictions at one instant, are refused as malformed.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -58,11 +65,7 @@ export function test_physical_wrench_replay(): void {
         [{ ...partial, pointCount: -1 }],
         "Malformed physical playback support-wrench prediction",
       ],
-      [
-        "fractional witness count",
-        [{ ...partial, pointCount: 1.5 }],
-        "Malformed physical playback support-wrench prediction",
-      ],
+
       [
         "repeated instant",
         [partial, partial],
@@ -83,7 +86,10 @@ export function test_physical_wrench_replay(): void {
   TestValidator.equals("support-wrench replay admission", failures, []);
 }
 
-/** A one-body, one-segment archive header with no contacts and initial dynamic ownership. */
+/**
+ * A one-body, one-segment archive header with no contacts and initial dynamic
+ * ownership.
+ */
 function header(): IAutoMoviePhysicalPlayback.IHeader {
   return {
     format: 1,
@@ -125,7 +131,10 @@ function wrench(
   };
 }
 
-/** The same prediction with its vertical force residual moved by `delta` newtons. */
+/**
+ * The same prediction with its vertical force residual moved by `delta`
+ * newtons.
+ */
 function nudge(
   entry: IAutoMoviePhysicalSupportWrench,
   delta: number,

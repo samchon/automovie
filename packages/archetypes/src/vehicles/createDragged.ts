@@ -45,7 +45,7 @@ export function createDragged(
   ) as createDragged.Dimension[]) {
     const value: number = params[key] ?? d[key];
     d[key] = value;
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dragged",

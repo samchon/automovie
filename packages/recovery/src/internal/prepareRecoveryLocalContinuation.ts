@@ -27,11 +27,7 @@ export function prepareRecoveryLocalContinuation(
     section: number,
     arc: number,
   ): void => {
-    if (
-      !Number.isSafeInteger(arc) ||
-      arc < 0 ||
-      arc >= bundle.reports[section]!.open.length
-    )
+    if (arc < 0 || arc >= bundle.reports[section]!.open.length)
       throw new Error(
         "Open curve address does not match saved coefficient authority",
       );
@@ -60,8 +56,6 @@ export function prepareRecoveryLocalContinuation(
     for (const [pairOrdinal, pair] of interval.pairs.entries()) {
       claim(0, pair.before);
       claim(1, pair.after);
-      if (typeof pair.reverseAfter !== "boolean")
-        throw new Error("Endpoint reversal must be explicit");
       if (analytic.openPairs.has(`${i}:${pairOrdinal}`)) continue;
       const edge: IAutoMovieRecoveryOpenContinuationEdge = {
         before: { section: i, arc: pair.before },

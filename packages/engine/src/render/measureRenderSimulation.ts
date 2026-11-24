@@ -105,7 +105,7 @@ export const measureRenderSimulation: (
   // preflight bound must hold at the cue's peak rather than at frame zero.
   for (const effect of subject.effects ?? []) {
     const cap: number = effect.recipe.budget.maxParticles;
-    if (!Number.isSafeInteger(cap) || cap <= 0)
+    if (cap <= 0)
       throw new Error(
         `render inventory cannot measure effect "${effect.id}": maxParticles must be a positive safe integer, but was ${cap}`,
       );
@@ -380,7 +380,7 @@ const statedPrototype: (
     ["vertices", cost.vertices],
     ["triangles", cost.triangles],
   ] as const)
-    if (!Number.isSafeInteger(value) || value < 0)
+    if (value < 0)
       throw new Error(
         `render inventory cannot measure ${cited} prototype: ${field} must be a safe integer at or above zero, but was ${value}`,
       );

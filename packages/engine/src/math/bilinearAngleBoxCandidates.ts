@@ -55,8 +55,6 @@ function evaluateBox(
   prepared?: IBoxState,
 ): [number, number][] | null {
   if (
-    !matrix.every(Number.isFinite) ||
-    !reference.every(Number.isFinite) ||
     !admitRanges(ranges, prepared)
   )
     throw new Error("Bilinear angle boxes require finite ordered inputs.");
@@ -192,8 +190,7 @@ function enumerateBox(
     const last: number = bounds?.last ?? Math.floor((range.max - angle) / 360);
     const turn: number = Math.round((anchor - angle) / 360);
     const safe: boolean =
-      bounds?.safe ??
-      (Number.isSafeInteger(first) && Number.isSafeInteger(last));
+      bounds?.safe ?? last <= Number.MAX_SAFE_INTEGER;
     if (
       prepared !== undefined &&
       (slot === 0 || slot === 1) &&
@@ -201,7 +198,7 @@ function enumerateBox(
     )
       prepared.aliasBounds[axis][slot] = { first, last, safe };
     let result: number | null;
-    if (!safe || !Number.isSafeInteger(turn)) {
+    if (!safe) {
       representable = false;
       result = null;
     } else {
@@ -315,12 +312,7 @@ function enumerateBox(
     const near: number = (anchorX - sign * anchorY - phaseDegrees) / 360;
     const below: number = Math.floor(near);
     const above: number = Math.ceil(near);
-    if (
-      !Number.isSafeInteger(first) ||
-      !Number.isSafeInteger(last) ||
-      !Number.isSafeInteger(below) ||
-      !Number.isSafeInteger(above)
-    ) {
+    if (above > Number.MAX_SAFE_INTEGER) {
       representable = false;
       return;
     }
@@ -411,8 +403,6 @@ function admitRanges(
   if (prepared?.admitted !== undefined) return prepared.admitted;
   const admitted: boolean = !ranges.some(
     (range: IAutoMovieAngleRange): boolean =>
-      !Number.isFinite(range.min) ||
-      !Number.isFinite(range.max) ||
       range.min > range.max,
   );
   if (prepared !== undefined) prepared.admitted = admitted;
@@ -529,12 +519,6 @@ export namespace bilinearAngleBoxCandidates {
       referenceY: number,
     ): number[] | null => {
       if (
-        !Number.isFinite(m00) ||
-        !Number.isFinite(m01) ||
-        !Number.isFinite(m10) ||
-        !Number.isFinite(m11) ||
-        !Number.isFinite(referenceX) ||
-        !Number.isFinite(referenceY) ||
         !admitRanges(ranges, prepared)
       )
         throw new Error("Bilinear angle boxes require finite ordered inputs.");

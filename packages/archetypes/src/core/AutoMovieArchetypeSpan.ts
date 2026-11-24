@@ -195,19 +195,8 @@ export namespace AutoMovieArchetypeSpan {
     const offset: IAutoMovieVector3 = Vector3.subtract(end, start);
     const distance: number = Math.hypot(offset.x, offset.y, offset.z);
     if (
-      ![
-        start.x,
-        start.y,
-        start.z,
-        end.x,
-        end.y,
-        end.z,
-        distance,
-        span.radius,
-      ].every(Number.isFinite) ||
       !(span.radius > 0) ||
-      (span.length !== null &&
-        !(Number.isFinite(span.length) && span.length >= 0)) ||
+      (span.length !== null && !(span.length >= 0)) ||
       !(distance > 0)
     )
       refuse(
@@ -237,7 +226,7 @@ export namespace AutoMovieArchetypeSpan {
       to.y - from.y,
       to.z - from.z,
     );
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       refuse(
         archetype,
         span.id,
@@ -333,7 +322,7 @@ export namespace AutoMovieArchetypeSpan {
   function overhang(archetype: string, id: string, end: End): number {
     const value: number = end.overhang === undefined ? 0 : end.overhang;
     if (
-      !(Number.isFinite(value) && value >= 0) ||
+      !(value >= 0) ||
       (end.affordance === undefined && end.overhang !== undefined)
     )
       refuse(

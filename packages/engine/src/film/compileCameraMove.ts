@@ -146,7 +146,6 @@ export function compileCameraMove(
   const halfY: number = Math.tan(((camera.fovY / 2) * Math.PI) / 180);
   const aspect: number =
     props.aspect !== undefined &&
-    Number.isFinite(props.aspect) &&
     props.aspect > 0
       ? props.aspect
       : 1;
@@ -475,10 +474,6 @@ function frameKeyTimes(
   if (!(t1 > t0)) return times;
   const first: number = Math.floor((t0 * rate.numerator) / rate.denominator);
   const last: number = Math.ceil((t1 * rate.numerator) / rate.denominator);
-  if (!Number.isSafeInteger(first) || !Number.isSafeInteger(last))
-    throw new Error(
-      "camera move cannot enumerate a frame index that is not a safe integer",
-    );
   for (let k: number = first; k <= last; ++k) {
     const t: number = (k * rate.denominator) / rate.numerator;
     if (t > t0 + SAME_INSTANT && t < t1 - SAME_INSTANT) times.push(t);

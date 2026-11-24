@@ -9,8 +9,9 @@ import { archetypeExtent } from "../internal/archetypeExtent";
  * Dog prototypes preserve whole cited cohorts, declared mass and real tack.
  *
  * Scenarios:
- * 1. Each whole Huson et al. 2025 Table 1 cohort has its measured withers,
- *    chest girth and fore-limb surface spans, with authored mass retained.
+ *
+ * 1. Each whole Huson et al. 2025 Table 1 cohort has its measured withers, chest
+ *    girth and fore-limb surface spans, with authored mass retained.
  * 2. Seeded selection never blends height/girth between cohorts; unknown paw
  *    friction and skin restitution are absent, and a bare dog has no saddle.
  * 3. An authored collar's real straight lead owns the published contact frame.
@@ -49,7 +50,7 @@ export function test_archetype_animal_dog(): void {
     expected: number,
     bound: number,
   ): void => {
-    if (!(Number.isFinite(actual) && Math.abs(actual - expected) <= bound))
+    if (!(Math.abs(actual - expected) <= bound))
       findings.push(
         `${label}: ${actual}, expected ${expected} within ${bound}`,
       );

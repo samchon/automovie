@@ -158,8 +158,7 @@ export namespace createHumanPolygonPalette {
     if (
       colors !== undefined &&
       Object.values(colors).some(
-        (value: number): boolean =>
-          !Number.isInteger(value) || value < 0 || value > 0xffffff,
+        (value: number): boolean => value < 0 || value > 0xffffff,
       )
     )
       throw new Error("Polygon part colours require RGB hex integers");

@@ -54,8 +54,6 @@ export function measureAutoMovieMeshClearance(
       for (const point of clip(a.points, b)) {
         const weights: number[] = barycentric(a, point);
         const gap: number = depth(a, weights) - depth(b, barycentric(b, point));
-        if (!Number.isFinite(gap))
-          throw new Error("Mesh clearance arithmetic must remain finite.");
         minimum = Math.min(minimum, gap);
         visit?.({
           triangle,
@@ -169,8 +167,6 @@ const triangles = (
     mesh,
     "Mesh clearance (complete triangle buffers)",
   );
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Mesh clearance needs finite complete triangle buffers.");
   const result: IProjectedTriangle[] = [];
   for (let i: number = 0; i < indices.length; i += 3) {
     const vertices: number[] = indices.slice(i, i + 3);
@@ -183,8 +179,6 @@ const triangles = (
     const b: number[] = points[1]!;
     const c: number[] = points[2]!;
     const area: number = side(a, b, c);
-    if (!Number.isFinite(area))
-      throw new Error("Mesh clearance projected area must remain finite.");
     result.push({
       points,
       vertices,
@@ -238,8 +232,6 @@ const clip = (points: number[][], triangle: IProjectedTriangle): number[][] => {
       const previous: number[] = input[(i + input.length - 1) % input.length]!;
       const dc: number = sign * side(a, b, current);
       const dp: number = sign * side(a, b, previous);
-      if (!Number.isFinite(dc) || !Number.isFinite(dp))
-        throw new Error("Mesh clearance clipping must remain finite.");
       if (dc >= 0 !== dp >= 0) {
         // Normalize before dividing: dp-dc can overflow for finite opposite
         // signs, whereas these bounded signed ratios retain the same crossing.

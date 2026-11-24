@@ -244,10 +244,7 @@ function inspect(
   top: Top,
 ): string[] {
   const findings: string[] = [];
-  if (
-    !(Number.isFinite(affordance.width) && affordance.width! > 0) ||
-    !(Number.isFinite(affordance.depth) && affordance.depth! > 0)
-  )
+  if (!(affordance.width! > 0) || !(affordance.depth! > 0))
     findings.push(`${label}: width or depth is not positive and finite`);
 
   const frame: THREE.Matrix4 = new THREE.Matrix4().compose(

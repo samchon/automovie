@@ -27,8 +27,7 @@ export function gaitPhaseOf(
 ): number | null {
   const cycle: IAutoMovieGaitCycle | null = clip.gaitCycle ?? null;
   if (cycle !== null) {
-    if (!Number.isFinite(cycle.period) || cycle.period <= 0) return null;
-    if (!Number.isFinite(cycle.phaseAt)) return null;
+    if (cycle.period <= 0) return null;
     return addPositiveModulo(cycle.phaseAt, localTime, cycle.period);
   }
   if (!clip.loop || clip.duration <= 0) return null;

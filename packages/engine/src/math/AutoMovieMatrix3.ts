@@ -11,11 +11,6 @@ export namespace AutoMovieMatrix3 {
       throw new Error(
         "matrix3: finite three-coordinate cross-product operand required",
       );
-    for (let at: number = 0; at < 3; at++)
-      if (!Number.isFinite(vector[at]))
-        throw new Error(
-          "matrix3: finite three-coordinate cross-product operand required",
-        );
     return [
       0,
       -vector[2]!,
@@ -43,11 +38,6 @@ export namespace AutoMovieMatrix3 {
       throw new Error(
         "matrix3: two complete finite row-major matrices required",
       );
-    for (let at: number = 0; at < 9; at++)
-      if (!Number.isFinite(left[at]) || !Number.isFinite(right[at]))
-        throw new Error(
-          "matrix3: two complete finite row-major matrices required",
-        );
     const result: number[] = new Array<number>(9).fill(0);
     for (let row: number = 0; row < 3; row++) {
       for (let column: number = 0; column < 3; column++) {
@@ -56,8 +46,6 @@ export namespace AutoMovieMatrix3 {
             left[3 * row + at]! * right[3 * at + column]!;
       }
     }
-    if (!result.every(Number.isFinite))
-      throw new Error("matrix3: product is not representable");
     return result;
   }
 
@@ -65,9 +53,6 @@ export namespace AutoMovieMatrix3 {
   export function transpose(matrix: readonly number[]): number[] {
     if (!Array.isArray(matrix) || matrix.length !== 9)
       throw new Error("matrix3: complete finite row-major matrix required");
-    for (let at: number = 0; at < 9; at++)
-      if (!Number.isFinite(matrix[at]))
-        throw new Error("matrix3: complete finite row-major matrix required");
     return [
       matrix[0]!,
       matrix[3]!,
@@ -98,16 +83,6 @@ export namespace AutoMovieMatrix3 {
       throw new Error(
         "matrix3: complete finite matrix and three-coordinate vector required",
       );
-    for (let at: number = 0; at < 9; at++)
-      if (!Number.isFinite(matrix[at]))
-        throw new Error(
-          "matrix3: complete finite matrix and three-coordinate vector required",
-        );
-    for (let at: number = 0; at < 3; at++)
-      if (!Number.isFinite(vector[at]))
-        throw new Error(
-          "matrix3: complete finite matrix and three-coordinate vector required",
-        );
     const result: [number, number, number] = [
       matrix[0]! * vector[0]! +
         matrix[1]! * vector[1]! +
@@ -119,8 +94,6 @@ export namespace AutoMovieMatrix3 {
         matrix[7]! * vector[1]! +
         matrix[8]! * vector[2]!,
     ];
-    if (!result.every(Number.isFinite))
-      throw new Error("matrix3: vector product is not representable");
     return result;
   }
 }

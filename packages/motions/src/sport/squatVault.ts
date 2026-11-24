@@ -228,7 +228,7 @@ export namespace squatVault {
       (s * push) / duration;
     return {
       duration,
-      settle: (): void => held.settle?.(),
+      prepare: (): void => held.prepare?.(),
       base: { kind: "standing" },
       events: [
         ...held.events.map(

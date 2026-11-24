@@ -17,7 +17,7 @@ import type {
   IAutoMovieSamplePhysicalTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import { PhysicalDisturbance } from "./PhysicalDisturbance";
@@ -149,8 +149,8 @@ export namespace PhysicalBalanceReplay {
 
   /**
    * The fixtures whose key frames the replay checks: each subject's recovery,
-   * which steps and lands, and its fall, which fails; the sustained and
-   * extra pushes pass through the same phases at the same kinds of frame.
+   * which steps and lands, and its fall, which fails; the sustained and extra
+   * pushes pass through the same phases at the same kinds of frame.
    */
   export const KEY_FIXTURES: readonly string[] = [
     // The Human's recovery first: it stores the profile the fall reuses.
@@ -161,11 +161,10 @@ export namespace PhysicalBalanceReplay {
   ];
 
   /**
-   * A fixture's key records, by index: the controller's call at quiet
-   * stance, at the push, at the first and last events, mid-swing and at the
-   * landing ramp's end or after the landing, each phase's frame once; and the
-   * root tracker's at quiet stance and mid-swing, or at the push without a
-   * swing.
+   * A fixture's key records, by index: the controller's call at quiet stance,
+   * at the push, at the first and last events, mid-swing and at the landing
+   * ramp's end or after the landing, each phase's frame once; and the root
+   * tracker's at quiet stance and mid-swing, or at the push without a swing.
    */
   export function keyFrames(fixture: IFixture): number[] {
     const records: IRecord[] = fixture.records;
@@ -203,18 +202,17 @@ export namespace PhysicalBalanceReplay {
   export const HUMAN_PROFILE: string = "human_recover_z.json";
 
   /** Every fixture's file name. */
-  export function list(): string[] {
-    return fs
-      .readdirSync(path.join(repositoryRoot(), FOLDER))
+  export async function list(): Promise<string[]> {
+    return (await fs.readdir(path.join(repositoryRoot(), FOLDER)))
       .filter((name: string): boolean => name.endsWith(".json"))
       .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0));
   }
 
   /** One fixture, read and unpacked. */
-  export function load(name: string): IFixture {
+  export async function load(name: string): Promise<IFixture> {
     const file: IFile = JSON.parse(
-      fs.readFileSync(path.join(repositoryRoot(), FOLDER, name), "utf8"),
-    ) as IFile;
+      await fs.readFile(path.join(repositoryRoot(), FOLDER, name), "utf8"),
+    );
     const resolve = (value: unknown): any =>
       value !== null &&
       typeof value === "object" &&
@@ -301,14 +299,19 @@ export namespace PhysicalBalanceReplay {
   }
 
   /**
-   * The case's profile as the fixture stores it, checked against the digest
-   * the recording took of it; rebuilt as the recording built it when the
-   * fixture stores none.
+   * The case's profile as the fixture stores it, checked against the digest the
+   * recording took of it; rebuilt as the recording built it when the fixture
+   * stores none.
    */
-  export function stored(fixture: IFixture): IAutoMoviePhysicalProfile {
+  export async function stored(
+    fixture: IFixture,
+  ): Promise<IAutoMoviePhysicalProfile> {
     if (fixture.profile === undefined)
       return fixture.subject === "human"
-        ? stored({ ...fixture, profile: PhysicalHumanProfiles.load("m-average") })
+        ? stored({
+            ...fixture,
+            profile: await PhysicalHumanProfiles.load("m-average"),
+          })
         : PhysicalModelFixtures.quadrupod();
     const found: string = digest(JSON.stringify(fixture.profile));
     if (found !== fixture.body.profileDigest)

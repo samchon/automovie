@@ -57,7 +57,6 @@ function planHumanTendHorse(
   } = context.params;
   const stroke: number = context.params.stroke ?? 0;
   if (
-    ![seconds, transition, stroke].every(Number.isFinite) ||
     !(transition > 0 && 2 * transition < seconds && stroke >= 0) ||
     (stroke > 0 && task !== "brush")
   )

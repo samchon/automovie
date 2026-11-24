@@ -212,7 +212,7 @@ export function RecoveryChartLeafFit(
             x[2]! * y[0]! - x[0]! * y[2]!,
             x[0]! * y[1]! - x[1]! * y[0]!,
           ) / 2;
-        if (!(area > 0 && Number.isFinite(area)))
+        if (!(area > 0))
           throw new Error("Positive private source triangles are required");
         sourceAreaMm2 += area;
         for (const id of t) weights[id] += area / 3;

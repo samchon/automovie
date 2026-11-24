@@ -114,15 +114,9 @@ export namespace AutoMovieSolidChain {
       if (error instanceof AutoMovieLoftAdmissionError) return null;
       throw error;
     }
-    if (
-      ![j.p, j.s, j.t, j.ss, j.st, j.tt].every(
-        (v: readonly number[]): boolean => v.every(Number.isFinite),
-      )
-    )
-      return null;
     const normal: AutoMovieVector3Tuple = AutoMovieSolidVector.cross(j.s, j.t);
     const size: number = Math.hypot(...normal);
-    if (!(Number.isFinite(size) && size > 0)) return null;
+    if (!(size > 0)) return null;
     let sign: 1 | -1;
     if (chain.orientation !== undefined) {
       if (chain.orientation !== 1 && chain.orientation !== -1) return null;
@@ -133,7 +127,7 @@ export namespace AutoMovieSolidChain {
         AutoMovieLoftChain.axis(chain, middle),
       );
       const facing: number = AutoMovieSolidVector.dot(normal, out);
-      if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+      if (!(Math.abs(facing) > 0)) return null;
       sign = facing > 0 !== (chain.mirrored === true) ? 1 : -1;
     }
 
@@ -143,28 +137,14 @@ export namespace AutoMovieSolidChain {
       domain,
       orientation: sign,
       point: (u: number, v: number): AutoMovieVector3Tuple => {
-        if (
-          !(
-            Number.isFinite(u) &&
-            Number.isFinite(v) &&
-            u >= domain[0] &&
-            u <= domain[1]
-          )
-        )
+        if (!(u >= domain[0] && u <= domain[1]))
           throw new AutoMovieLoftAdmissionError(
             "The requested point is outside the loft's owned original domain.",
           );
         return AutoMovieLoftChain.point(chain, u, v);
       },
       jet: (u: number, v: number): IAutoMovieSolidSurface.IJet => {
-        if (
-          !(
-            Number.isFinite(u) &&
-            Number.isFinite(v) &&
-            u >= domain[0] &&
-            u <= domain[1]
-          )
-        )
+        if (!(u >= domain[0] && u <= domain[1]))
           throw new AutoMovieLoftAdmissionError(
             "The requested jet is outside the loft's owned original domain.",
           );

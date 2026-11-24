@@ -48,20 +48,7 @@ export const builtOutlineIsClosed: (
     );
     return false;
   }
-  let finite: boolean = true;
-  outline.forEach((point: IAutoMoviePlanarPoint, index: number): void => {
-    for (const axis of ["x", "y"] as const)
-      if (!Number.isFinite(point[axis])) {
-        finite = false;
-        collector.push(
-          "range",
-          `${path}[${index}].${axis}`,
-          `${label} ${axis} must be finite, but was ${point[axis]}`,
-          point[axis],
-        );
-      }
-  });
-  if (!finite) return false;
+
   if (polygonShortestEdge(outline) <= BUILT_PLANAR_EPSILON) {
     collector.push(
       "range",

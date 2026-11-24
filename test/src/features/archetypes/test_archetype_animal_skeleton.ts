@@ -24,15 +24,17 @@ import { nclose } from "../internal/nclose";
  * The real horse's named skeleton poses real geometry and carried contacts.
  *
  * Scenarios:
- * 1. Every generic neutral frame matches the actual horse bar's upper joint
- *    and orientation, with 23 quadruped names and no dummy humanoid slot.
- * 2. A neck turn carries explicitly bound bridle parts and rein/lead frames;
- *    their neck-local coordinates stay fixed and their world positions move.
+ *
+ * 1. Every generic neutral frame matches the actual horse bar's upper joint and
+ *    orientation, with 23 quadruped names and no dummy humanoid slot.
+ * 2. A neck turn carries explicitly bound bridle parts and rein/lead frames; their
+ *    neck-local coordinates stay fixed and their world positions move.
  * 3. Independently binding the same held origins to the trunk keeps the hands
  *    fixed while actual flexible spans retain head-local bit points, full
  *    occupied runs and line-aligned grip frames. Both binding choices work.
- * 4. Missing accessory/contact bindings and unknown replacement frame ids refuse. Construction and sampling
- *    leave the original horse's complete serialization unchanged.
+ * 4. Missing accessory/contact bindings and unknown replacement frame ids refuse.
+ *    Construction and sampling leave the original horse's complete
+ *    serialization unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual source bars, independent neutral-frame comparison, carried-contact invariants and preservation of original horse bytes.
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public horse producer, generic engine reader and actual AutoMovieArchetypeQuadrupedSkeleton.pose output. Both rigid head-carried and independently trunk-held contact cases observe real parts and full flexible held runs instead of an isolated matrix.
@@ -175,7 +177,7 @@ export function test_archetype_animal_skeleton(): void {
     const heldLength: number = current.length ?? NaN;
     if (
       current.kind !== "rein" ||
-      !(Number.isFinite(heldLength) && heldLength > 0) ||
+      !(heldLength > 0) ||
       afterLine.geometry.type !== "primitive" ||
       afterLine.geometry.shape.type !== "cylinder"
     ) {
@@ -271,7 +273,10 @@ function local(
   );
 }
 
-/** Euclidean separation is computed directly from coordinates as an independent geometric observation. */
+/**
+ * Euclidean separation is computed directly from coordinates as an independent
+ * geometric observation.
+ */
 function distance(
   left: IAutoMovieTransform["translation"],
   right: IAutoMovieTransform["translation"],
@@ -300,7 +305,10 @@ function end(
   );
 }
 
-/** Position equality and sign-independent quaternion agreement compare the existing actual bars. */
+/**
+ * Position equality and sign-independent quaternion agreement compare the
+ * existing actual bars.
+ */
 function same(left: IAutoMovieTransform, right: IAutoMovieTransform): boolean {
   return (
     (["x", "y", "z"] as const).every((axis: "x" | "y" | "z"): boolean =>

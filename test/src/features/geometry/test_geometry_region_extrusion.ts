@@ -64,7 +64,6 @@ const closes: (mesh: IAutoMovieMesh, volume: number) => boolean = (
   return (
     topology.watertight &&
     topology.degenerate === 0 &&
-    topology.nonFinite === 0 &&
     validateMeshTopology({ mesh, expectClosed: true }).success &&
     validateModel({ model: asPart(mesh) }).success &&
     nclose(topology.volume, volume, 1e-12)

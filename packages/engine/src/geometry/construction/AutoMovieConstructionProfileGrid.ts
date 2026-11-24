@@ -46,7 +46,7 @@ export namespace AutoMovieConstructionProfileGrid {
     prepared: IAutoMoviePreparedConstructionProfile.IPrepared,
     tolerance: number,
   ): IAutoMovieConstructionProfileGrid.IGrid[] {
-    if (!(Number.isFinite(tolerance) && tolerance > 0))
+    if (!(tolerance > 0))
       fail(
         "Original profile tessellation needs a finite positive millimetre chord tolerance.",
       );
@@ -65,10 +65,6 @@ function grid(
 ): IAutoMovieConstructionProfileGrid.IGrid {
   const first: number = 1000 * loop.domain[0];
   const last: number = 1000 * loop.domain[1];
-  if (![first, last, last - first].every(Number.isFinite))
-    fail(
-      "Original profile station interval is not representable in millimetres.",
-    );
   const poles: number[] =
     loop.pole === "both"
       ? [first, last]
@@ -122,11 +118,7 @@ function grid(
     if (old !== undefined) return old;
     const owner: IAutoMovieSolidSurface = prepared.surfaces.get(piece)!;
     const value: readonly number[] = owner.point!(station, phase);
-    if (
-      !Array.isArray(value) ||
-      value.length !== 3 ||
-      !value.every(Number.isFinite)
-    )
+    if (!Array.isArray(value) || value.length !== 3)
       fail("Original profile grid has no finite Point0.");
     const point: Point = [value[0]!, value[1]!, value[2]!];
     curve.set(phase, point);
@@ -256,7 +248,7 @@ function grid(
 /** Every added mark lies strictly within its finite original interval. */
 function middle(a: number, b: number): number {
   const value: number = a + (b - a) / 2;
-  if (!(Number.isFinite(value) && value > a && value < b))
+  if (!(value > a && value < b))
     fail("Original profile grid has no representable interior subdivision.");
   return value;
 }
@@ -277,8 +269,6 @@ function deviation(point: Point, a: Point, b: Point): number {
   const value: number = Math.hypot(
     ...point.map((v: number, k: number): number => v - (a[k]! / 2 + b[k]! / 2)),
   );
-  if (!Number.isFinite(value))
-    fail("Original profile chord observation is not finite.");
   return value;
 }
 

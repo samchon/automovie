@@ -23,7 +23,6 @@ export namespace EllipticFunctions {
   export function firstKind(m1: number): number {
     if (m1 < 0) throw new Error(`ellpk: m1 ${m1} is negative`);
     if (m1 > 1) {
-      if (!Number.isFinite(m1)) return 0;
       return firstKind(1 / m1) / Math.sqrt(m1);
     }
     if (m1 > MACHEP) return polevl(m1, K_P) - Math.log(m1) * polevl(m1, K_Q);
@@ -59,7 +58,7 @@ export namespace EllipticFunctions {
    *   that does not converge in its nine terms (`SF_ERROR_OVERFLOW`).
    */
   export function jacobi(u: number, m: number): IJacobi {
-    if (m < 0 || m > 1 || Number.isNaN(m))
+    if (m < 0 || m > 1)
       throw new Error(`ellpj: m ${m} lies outside 0 to 1`);
     if (m < 1e-9) {
       const t: number = Math.sin(u);

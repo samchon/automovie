@@ -32,7 +32,7 @@ export function composeHumanStageProp(
     if (performer.subject === response.performer.subject)
       throw new Error("A stage prop response needs a different performer");
     const delay: number = response.delay ?? 0;
-    if (!Number.isFinite(delay) || delay < 0)
+    if (!(delay >= 0))
       throw new Error("Give the stage response a finite nonnegative delay");
   }
 

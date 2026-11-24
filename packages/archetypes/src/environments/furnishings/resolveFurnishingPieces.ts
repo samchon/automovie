@@ -99,10 +99,6 @@ export function resolveFurnishingPieces(
     let heading: number;
     if (override !== undefined) {
       heading = override.heading ?? 0;
-      if (![override.at[0], override.at[1], heading].every(Number.isFinite))
-        throw new Error(
-          `${id} overrides.${role} needs a finite position and heading`,
-        );
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
@@ -112,12 +108,6 @@ export function resolveFurnishingPieces(
       );
     } else if (piece.place.kind === "at") {
       heading = piece.place.heading ?? 0;
-      if (
-        ![piece.place.at[0], piece.place.at[1], heading].every(Number.isFinite)
-      )
-        throw new Error(
-          `${id} ${role} place needs a finite position and heading`,
-        );
       placement = FurnishingRect.locate(
         piece.model,
         piece.bounds,
@@ -128,12 +118,10 @@ export function resolveFurnishingPieces(
     } else if (piece.place.kind === "facing") {
       const place: IAutoMovieFurnishingRelation.IFacing = piece.place;
       const offset: number = place.offset ?? 0;
-      if (!(Number.isFinite(place.distance) && place.distance >= 0))
+      if (!(place.distance >= 0))
         throw new Error(
           `${id} ${role} place.distance needs a finite nonnegative distance`,
         );
-      if (!Number.isFinite(offset))
-        throw new Error(`${id} ${role} place.offset needs a finite offset`);
       const target: FurnishingRect.IPlacement = earlier(
         role,
         "target",
@@ -169,7 +157,7 @@ export function resolveFurnishingPieces(
       const offset: number = place.offset ?? 0;
       const lowest: number = piece.bounds.min.y;
       const elevation: number = place.elevation ?? (lowest > 0 ? lowest : 0);
-      if (![gap, offset, elevation].every(Number.isFinite) || elevation < 0)
+      if (elevation < 0)
         throw new Error(
           `${id} ${role} place needs a finite offset and gap and a finite nonnegative elevation`,
         );
@@ -259,10 +247,7 @@ function reserve(
     const front: boolean = side === "front";
     const face: number = front ? max.x - min.x : max.z - min.z;
     const span: number = clear.width ?? Math.max(face, aisle);
-    if (
-      !(Number.isFinite(clear.depth) && clear.depth > 0) ||
-      !(Number.isFinite(span) && span > 0)
-    )
+    if (!(clear.depth > 0) || !(span > 0))
       throw new Error(
         `${id} ${role} ${name} clearance needs a positive finite depth and width`,
       );

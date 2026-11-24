@@ -227,11 +227,7 @@ export const buildModel: (
               tangent.getY(k),
               tangent.getZ(k),
             );
-            if (
-              !Number.isFinite(tangent.getW(k)) ||
-              !Number.isFinite(length) ||
-              length === 0
-            ) {
+            if (length === 0) {
               geo.deleteAttribute("tangent");
               break;
             }

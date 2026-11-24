@@ -34,16 +34,13 @@ export function RecoveryChartFitSystem(
     leastSquaresConstant: number = 0;
   for (const sample of input.observations) {
     if (
-      !Number.isSafeInteger(sample.patch) ||
       sample.patch < 0 ||
       sample.patch >= input.patches.length ||
       !finite(sample.pointMm) ||
       sample.pointMm.some(
         (x: number, k: number): boolean => x < lower[k]! || x > upper[k]!,
       ) ||
-      !(sample.weight > 0 && Number.isFinite(sample.weight)) ||
-      !Number.isFinite(sample.u) ||
-      !Number.isFinite(sample.v) ||
+      !(sample.weight > 0) ||
       sample.u < 0 ||
       sample.u > 1 ||
       sample.v < 0 ||

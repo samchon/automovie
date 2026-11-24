@@ -29,11 +29,6 @@ export function buildHumanPolygonModule(
   breadth?: THREE.Vector3,
   topPole?: [number, number, number],
 ): { group: THREE.Group; diagnostic: THREE.Group; part: THREE.Mesh } {
-  if (
-    !placement.position.every(Number.isFinite) ||
-    !placement.rotation.every(Number.isFinite)
-  )
-    throw new Error(`Missing or invalid polygon placement: ${bone.bone}`);
   const normal: THREE.Vector3 = axis.clone().normalize();
   const u: THREE.Vector3 =
     breadth === undefined
@@ -75,11 +70,7 @@ export function buildHumanPolygonModule(
   group.name = `human.polygon.${bone.bone}`;
   diagnostic.name = `${group.name}.sections`;
   for (const ring of rings) {
-    if (
-      !(ring.depth > 0 && ring.breadth > 0) ||
-      !Number.isFinite(ring.depth + ring.breadth) ||
-      !ring.centre.toArray().every(Number.isFinite)
-    )
+    if (!(ring.depth > 0 && ring.breadth > 0))
       throw new Error(`Invalid polygon section: ${bone.bone}`);
     const loop: THREE.Vector3[] = [];
     if (ring.points !== undefined && ring.points.length !== sides)
@@ -95,8 +86,6 @@ export function buildHumanPolygonModule(
               .addScaledVector(u, Math.cos(angle) * ring.depth)
               .addScaledVector(v, Math.sin(angle) * ring.breadth)
           : ring.points[i]!.clone();
-      if (!p.toArray().every(Number.isFinite))
-        throw new Error(`Non-finite polygon point: ${bone.bone}`);
       p.sub(new THREE.Vector3(...bone.position));
       positions.push(p.x, p.y, p.z);
       loop.push(p);
@@ -323,7 +312,6 @@ export namespace buildHumanPolygonModule {
     y: number,
     z: number,
   ): number | undefined {
-    if (!Number.isFinite(y + z)) return undefined;
     const ray: THREE.Ray = new THREE.Ray(
       new THREE.Vector3(bounds.min.x - (bounds.max.x - bounds.min.x), y, z),
       new THREE.Vector3(1, 0, 0),

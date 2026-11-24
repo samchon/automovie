@@ -77,23 +77,16 @@ export const validateGroundContact: (
   // NaN = NaN` so `y < NaN` is always false. Either one would silently drop
   // every penetration (a #1051/#1082 silent-skip). Surface both as errors and
   // do not sample against a broken clock.
-  const badRate: boolean = !Number.isFinite(sampleRate) || sampleRate <= 0;
-  const badTolerance: boolean = !Number.isFinite(tolerance);
-  if (badRate)
+  const badRate: boolean = sampleRate <= 0;
+  if (badRate) {
     collector.push(
       "range",
       `${path}.sampleRate`,
-      `sampleRate must be a finite number > 0, but was ${sampleRate}`,
+      `sampleRate must be a number > 0, but was ${sampleRate}`,
       sampleRate,
     );
-  if (badTolerance)
-    collector.push(
-      "range",
-      `${path}.tolerance`,
-      `tolerance must be a finite number, but was ${tolerance}`,
-      tolerance,
-    );
-  if (badRate || badTolerance) return collector.toValidation();
+    return collector.toValidation();
+  }
 
   sampleTimes(props.motion.duration, sampleRate).forEach(
     (time: number, index: number): void => {

@@ -42,9 +42,7 @@ export function assertAutoMovieDeformedTriangles(
     const beforeLength: number = Math.hypot(before[0]!, before[1]!, before[2]!);
     const afterLength: number = Math.hypot(after[0]!, after[1]!, after[2]!);
     if (
-      !Number.isFinite(beforeLength) ||
       beforeLength === 0 ||
-      !Number.isFinite(afterLength) ||
       afterLength === 0
     )
       throw new Error(
@@ -62,10 +60,6 @@ export function assertAutoMovieDeformedTriangles(
       let tx: number = matrix[0]! * nx + matrix[1]! * ny + matrix[2]! * nz;
       let ty: number = matrix[3]! * nx + matrix[4]! * ny + matrix[5]! * nz;
       let tz: number = matrix[6]! * nx + matrix[7]! * ny + matrix[8]! * nz;
-      if (!Number.isFinite(tx) || !Number.isFinite(ty) || !Number.isFinite(tz))
-        throw new Error(
-          `Mesh deformation triangle ${triangle} cannot transport its source orientation through vertex ${vertex}.`,
-        );
       let length: number = Math.hypot(tx, ty, tz);
       if (length === Infinity) {
         // Finite components whose norm overflows still carry a direction;

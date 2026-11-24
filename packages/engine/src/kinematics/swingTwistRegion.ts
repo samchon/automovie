@@ -362,10 +362,6 @@ function widen(
   ];
   const low: number = Math.min(...ends);
   const high: number = Math.max(...ends);
-  if (!(Number.isFinite(low) && Number.isFinite(high)))
-    throw new Error(
-      `A proximal twist interval must be finite, got [${low}, ${high}]`,
-    );
 
   // A twist interval of a whole turn carries every reached direction all the
   // way around the rest axis, so every ray reaches the farthest of all; its

@@ -209,7 +209,6 @@ const usesTexture: (scene: THREE.Scene, texture: THREE.Texture) => boolean = (
     if (typeof value !== "object" || value === null || seen.has(value))
       return false;
     if (
-      !Array.isArray(value) &&
       Object.getPrototypeOf(value) !== Object.prototype &&
       Object.getPrototypeOf(value) !== null
     )

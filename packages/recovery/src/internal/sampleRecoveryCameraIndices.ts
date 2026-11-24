@@ -14,9 +14,6 @@ export function sampleRecoveryCameraIndices(
   trial: number,
 ): number[] {
   if (
-    ![population, sampleSize, seed, domain, trial].every(
-      Number.isSafeInteger,
-    ) ||
     population < sampleSize ||
     sampleSize < 1 ||
     seed < 0 ||

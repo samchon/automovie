@@ -43,13 +43,21 @@ export function supportHeldSocket(
     prepareSupportContactForm(body, false);
   const held: Map<string, SupportHeldSocketHeldEntry> = new Map();
   for (const key of keys) {
-    let bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> | undefined;
-    for (const contact of key.contacts) {
-      if (contact.part !== "leftFoot" && contact.part !== "rightFoot") continue;
+    // The key's floor feet first held here; the key's pose is resolved only
+    // when it sets one down.
+    const feet: IAutoMovieMotionHumanSupport.IContact[] = key.contacts.filter(
+      (contact: IAutoMovieMotionHumanSupport.IContact): boolean =>
+        (contact.part === "leftFoot" || contact.part === "rightFoot") &&
+        !held.has(supportContact.id(contact)) &&
+        form(contact, key.place(contact)).bearing !== undefined,
+    );
+    if (feet.length === 0) continue;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      resolveHumanPosture(body, key.posture),
+    );
+    for (const contact of feet) {
       const id: string = supportContact.id(contact);
-      if (held.has(id)) continue;
-      if (form(contact, key.place(contact)).bearing === undefined) continue;
-      bones ??= poseBones(body, resolveHumanPosture(body, key.posture));
       const side: AutoMovieHumanSide =
         contact.part === "leftFoot" ? "left" : "right";
       const sole: IAutoMovieMotionHumanFoot.ISocket[] = HumanFoot.sockets(

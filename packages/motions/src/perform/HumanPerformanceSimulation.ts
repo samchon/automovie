@@ -112,8 +112,7 @@ export namespace HumanPerformanceSimulation {
     const count: number = Math.round((window.to - window.from) * RATE);
     const duration: number = count / RATE;
     if (
-      !Number.isFinite(window.from) ||
-      window.from < 0 ||
+      !(window.from >= 0) ||
       count < 1 ||
       window.from + duration > performance.duration + 1e-9 ||
       duration * RATE !== count
@@ -239,7 +238,7 @@ export namespace HumanPerformanceSimulation {
               ): number => impulse.step,
             ),
         );
-        return [subject, Number.isFinite(first) ? first : 1];
+        return [subject, first === Infinity ? 1 : first];
       }),
     );
 

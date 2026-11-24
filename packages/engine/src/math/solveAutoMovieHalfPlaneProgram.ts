@@ -42,33 +42,19 @@ export function solveAutoMovieHalfPlaneProgram(
   preferred: IAutoMovieSolveHalfPlaneProgram.IPoint,
   hard: number = 0,
 ): IAutoMovieSolveHalfPlaneProgram.IResult {
-  if (!(radius > 0) || !Number.isFinite(radius))
+  if (!(radius > 0))
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: the radius ${radius} is not positive and finite`,
     );
-  if (!Number.isSafeInteger(hard) || hard < 0 || hard > lines.length)
+  if (hard < 0 || hard > lines.length)
     throw new Error(
       `solveAutoMovieHalfPlaneProgram: hard ${hard} is not a count within the ${lines.length} half-planes`,
-    );
-  if (!Number.isFinite(preferred.x) || !Number.isFinite(preferred.y))
-    throw new Error(
-      "solveAutoMovieHalfPlaneProgram: the preferred point must be finite",
     );
   // Every half-plane is admitted before any is used: its four values read
   // once each in order, with no record a half-plane.
   for (let i: number = 0; i < lines.length; ++i) {
     const line: ILine = lines[i]!;
-    if (
-      !(
-        Number.isFinite(line.point.x) &&
-        Number.isFinite(line.point.y) &&
-        Number.isFinite(line.direction.x) &&
-        Number.isFinite(line.direction.y)
-      )
-    )
-      throw new Error(
-        `solveAutoMovieHalfPlaneProgram: half-plane ${i} holds a value that is not finite`,
-      );
+
     // The squared length decides a direction plainly inside or outside the
     // unit band (its square lies within 1 - 2e-6 + 1e-12 to 1 + 2e-6 + 1e-12),
     // with room to spare for the rounding of either form; only a square near

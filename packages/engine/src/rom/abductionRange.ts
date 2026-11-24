@@ -25,7 +25,7 @@ export function abductionRange(
     constraint.abductionFlexed;
   if (allowed === null || flexed === undefined || flexed === null)
     return allowed;
-  const f: number = flexion === null || !Number.isFinite(flexion) ? 0 : flexion;
+  const f: number = flexion ?? 0;
   const share: number = Math.min(1, Math.max(0, f / flexed.flexion));
   return share === 0
     ? allowed

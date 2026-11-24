@@ -22,7 +22,7 @@ export function measureAutoMovieGeometryDistance(
 
   if (
     request.time !== undefined &&
-    (Number.isFinite(request.time) === false || request.time < 0)
+    (request.time < 0)
   )
     throw new Error(
       `Distance sample time ${request.time} is invalid. Choose a finite non-negative shot time.`,

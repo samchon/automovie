@@ -130,7 +130,7 @@ export namespace regrasp {
 
     // A twist's time is in proportion to its angle, so a twist of none has
     // no time to turn in.
-    if (!(Math.abs(angle) > 0) || !Number.isFinite(angle))
+    if (!(Math.abs(angle) > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "angle",

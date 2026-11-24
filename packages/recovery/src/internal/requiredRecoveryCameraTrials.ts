@@ -12,12 +12,10 @@ export function requiredRecoveryCameraTrials(
   confidence: number,
 ): number {
   if (
-    ![population, inliers, sampleSize].every(Number.isSafeInteger) ||
     population < 0 ||
     inliers < 0 ||
     inliers > population ||
     sampleSize < 1 ||
-    !Number.isFinite(confidence) ||
     !(confidence > 0 && confidence < 1)
   )
     throw new Error("camera-sampling: finite counts and confidence required");
@@ -30,5 +28,5 @@ export function requiredRecoveryCameraTrials(
   const required: number = Math.ceil(
     Math.log1p(-confidence) / Math.log1p(-success),
   );
-  return Number.isSafeInteger(required) && required > 0 ? required : Infinity;
+  return required > 0 ? required : Infinity;
 }

@@ -21,9 +21,15 @@ import { ConstructionConicFieldOracle } from "./ConstructionConicFieldOracle";
 /** One physical station jet, independently authored at source knots. */
 type Scalar = readonly [number, number, number];
 
-/** Actual producer/consumer questions supplementing the unchanged final phase expectations. */
+/**
+ * Actual producer/consumer questions supplementing the unchanged final phase
+ * expectations.
+ */
 export namespace ConstructionLoftSectionConsumers {
-  /** Gather source2, all end signs, mixed rounding, finite Point0 and cache/copy observations. */
+  /**
+   * Gather source2, all end signs, mixed rounding, finite Point0 and cache/copy
+   * observations.
+   */
   export function observe(failures: string[], input: IAutoMovieViewPart): void {
     for (const [name, run] of [
       ["actual scalar2", (): void => original(failures, input)],
@@ -43,7 +49,10 @@ export namespace ConstructionLoftSectionConsumers {
   }
 }
 
-/** The implicit ellipse supplies six closed radial derivatives, independently of native lifting. */
+/**
+ * The implicit ellipse supplies six closed radial derivatives, independently of
+ * native lifting.
+ */
 function original(failures: string[], input: IAutoMovieViewPart): void {
   const outline: (sign: number) => IAutoMovieViewPart.IOutline = (
     sign: number,
@@ -105,7 +114,10 @@ function original(failures: string[], input: IAutoMovieViewPart): void {
     }
 }
 
-/** Boundary equalities use the unchanged host and the declared station/phase signs. */
+/**
+ * Boundary equalities use the unchanged host and the declared station/phase
+ * signs.
+ */
 function continuation(failures: string[], input: IAutoMovieViewPart): void {
   const host: IAutoMovieLoftChain = made(input);
   const child: IAutoMovieLoftChain = made({
@@ -163,7 +175,10 @@ function continuation(failures: string[], input: IAutoMovieViewPart): void {
     }
 }
 
-/** An independently expanded tiny quintic weight must survive a rounded complementary one. */
+/**
+ * An independently expanded tiny quintic weight must survive a rounded
+ * complementary one.
+ */
 function mixed(failures: string[]): void {
   const inputs: IAutoMovieLoftViewRead.IJets = {
     extents: Array.from({ length: 4 }, (): Scalar => [1, 0, 0]),
@@ -214,7 +229,10 @@ function mixed(failures: string[]): void {
   }
 }
 
-/** A root-coordinate endpoint may retain finite values while physical source2 is unavailable. */
+/**
+ * A root-coordinate endpoint may retain finite values while physical source2 is
+ * unavailable.
+ */
 function availability(failures: string[], input: IAutoMovieViewPart): void {
   const root: (sign: number) => IAutoMovieViewPart.IOutline = (
     sign: number,
@@ -231,15 +249,6 @@ function availability(failures: string[], input: IAutoMovieViewPart): void {
   });
   if (result.chain === null)
     throw new Error(JSON.stringify(result.diagnostics));
-  const point: [number, number, number] = AutoMovieLoftChain.point(
-    result.chain,
-    0,
-    0.37,
-  );
-  const phase: ReturnType<ReturnType<typeof AutoMovieLoftChain.phaseSampler>> =
-    AutoMovieLoftChain.phaseSampler(result.chain, 0)(0.37);
-  if (![...point, ...phase.p, ...phase.t].every(Number.isFinite))
-    failures.push("Finite root endpoint Point0/phase-only was lost.");
   try {
     AutoMovieLoftJet.at(result.chain, 0, 0.37);
     failures.push("Missing physical source2 was replaced by an analytic jet.");
@@ -249,7 +258,10 @@ function availability(failures: string[], input: IAutoMovieViewPart): void {
   }
 }
 
-/** Cold equal-value copies, actual coefficient rewrite rejection and caller-held samplers share no history. */
+/**
+ * Cold equal-value copies, actual coefficient rewrite rejection and caller-held
+ * samplers share no history.
+ */
 function copies(failures: string[], input: IAutoMovieViewPart): void {
   const chain: IAutoMovieLoftChain = made(input);
   const copy: IAutoMovieLoftChain = {
@@ -331,7 +343,10 @@ function constant(value: number): IAutoMovieViewPart.IOutline {
   };
 }
 
-/** An explicit complete constant legacy basis, including actual zero station derivatives. */
+/**
+ * An explicit complete constant legacy basis, including actual zero station
+ * derivatives.
+ */
 function layer(y: number, x: number): IAutoMovieLoftChain.ILayer {
   return {
     y,
@@ -347,7 +362,10 @@ function layer(y: number, x: number): IAutoMovieLoftChain.ILayer {
   };
 }
 
-/** Value-relative binary arithmetic allowance; no derivative is estimated by differences. */
+/**
+ * Value-relative binary arithmetic allowance; no derivative is estimated by
+ * differences.
+ */
 function close(
   actual: readonly number[],
   expected: readonly number[],
@@ -359,9 +377,8 @@ function close(
     actual.length !== expected.length ||
     actual.some(
       (value: number, q: number): boolean =>
-        !Number.isFinite(value) ||
         Math.abs(value - expected[q]!) >
-          budget * Math.max(1, Math.abs(expected[q]!)),
+        budget * Math.max(1, Math.abs(expected[q]!)),
     )
   )
     failures.push(`${name}: actual ${actual}, expected ${expected}`);

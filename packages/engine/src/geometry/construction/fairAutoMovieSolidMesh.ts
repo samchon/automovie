@@ -64,9 +64,9 @@ export function fairAutoMovieSolidMesh(
     if (
       region.vertices.length === 0 ||
       region.vertices.some(
-        (v: number): boolean => !(Number.isInteger(v) && v >= 0 && v < count),
+        (v: number): boolean => !(v >= 0 && v < count),
       ) ||
-      !(region.radius > 0 && Number.isFinite(region.radius))
+      !(region.radius > 0)
     )
       throw new Error(
         `fairAutoMovieSolidMesh: a region of radius ${region.radius} has no sources, a source that is no vertex, or no positive finite radius`,

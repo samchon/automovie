@@ -433,7 +433,7 @@ export namespace AutoMovieArchetypeRide {
         achieved.y - point.y,
         achieved.z - point.z,
       );
-      if (!Number.isFinite(error) || error > 64 * Number.EPSILON * scale)
+      if (error > 64 * Number.EPSILON * scale)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: trailer.archetype,

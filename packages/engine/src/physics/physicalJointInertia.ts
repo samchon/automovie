@@ -32,9 +32,9 @@ export function physicalJointInertia(
     }
   const result: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const axis of ["x", "y", "z"] as const) {
-    if (!(inverse[axis] > 0) || !Number.isFinite(inverse[axis]))
+    if (inverse[axis] <= 0)
       throw new Error(
-        "Angular tracking needs a finite positive dynamic inertia",
+        "Angular tracking needs a positive dynamic inertia",
       );
     result[axis] = 1 / inverse[axis];
   }

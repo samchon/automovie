@@ -47,30 +47,44 @@ export namespace gestureTouch {
    * @param body The body supplying rig, measure and contact geometry.
    * @param side The moving hand.
    * @param kind The gesture kind.
+   * @param touched The face region a `touchFace` touches.
    * @returns The plan's touch geometry for pointing or self-touch, or undefined
-   *   for other kinds; a pointing hand's reach and bone readers are built on
-   *   first use.
+   *   for other kinds: a pointing hand's reach and bone reader, or a touching
+   *   hand's padding and region reader, all built here.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
     kind: IAutoMovieMotionHumanGestureStroke.Kind,
+    touched: AutoMovieHumanoidRegion,
   ): IPrepared | undefined {
+    if (kind === "point")
+      return {
+        body,
+        side,
+        kind,
+        reach: pointingReach(body, side),
+        point: HumanTrunk.prepareResolve(body, POINT_FRAMES[side]),
+      };
     if (
-      kind !== "point" &&
       kind !== "touchFace" &&
       kind !== "pushGlasses" &&
       kind !== "scratchHead"
     )
       return undefined;
-    const prepared: IPrepared = { body, side, kind };
-    if (kind !== "point") prepared.padding = padding(body, side);
-    return prepared;
+    const name: AutoMovieHumanoidRegion = regionOf(kind, side, touched);
+    return {
+      body,
+      side,
+      kind,
+      padding: padding(body, side),
+      region: { name, read: HumanTrunk.prepareRegion(body, name) },
+    };
   }
 
   /**
    * A plan's touch geometry for one hand: the body, side and kind it was built
-   * for, and what has been computed for them so far.
+   * for, and what was computed for them.
    */
   export interface IPrepared {
     /** The body the geometry is computed for. */
@@ -83,19 +97,16 @@ export namespace gestureTouch {
     readonly kind: IAutoMovieMotionHumanGestureStroke.Kind;
 
     /** The fingertip's landmark-to-skin padding for self-touch, metres. */
-    padding?: number;
+    readonly padding?: number;
 
-    /**
-     * The pointing reach from the shoulder to the fingertip, metres, once first
-     * read.
-     */
-    reach?: number;
+    /** The pointing reach from the shoulder to the fingertip, metres. */
+    readonly reach?: number;
 
-    /** The eye and shoulder reader of a pointing hand, once first read. */
-    point?: ReturnType<typeof HumanTrunk.prepareResolve>;
+    /** The eye and shoulder reader of a pointing hand. */
+    readonly point?: ReturnType<typeof HumanTrunk.prepareResolve>;
 
-    /** The last self-touch region's reader. */
-    region?: IPreparedRegion;
+    /** The self-touch region's reader. */
+    readonly region?: IPreparedRegion;
   }
 
   /**
@@ -126,19 +137,16 @@ export namespace gestureTouch {
       side,
       "point",
     );
-    let bones: ReturnType<typeof HumanTrunk.resolve>;
-    if (fixed === undefined)
-      bones = HumanTrunk.resolve(
-        body,
-        input.base,
-        undefined,
-        input.resolution,
-        POINT_FRAMES[side],
-      );
-    else {
-      fixed.point ??= HumanTrunk.prepareResolve(body, POINT_FRAMES[side]);
-      bones = fixed.point(input.base, input.resolution);
-    }
+    const bones: ReturnType<typeof HumanTrunk.resolve> =
+      fixed?.point === undefined
+        ? HumanTrunk.resolve(
+            body,
+            input.base,
+            undefined,
+            input.resolution,
+            POINT_FRAMES[side],
+          )
+        : fixed.point(input.base, input.resolution);
     const eye: IAutoMovieVector3 = bones.get(`${side}Eye`)!.worldPosition;
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
@@ -146,12 +154,7 @@ export namespace gestureTouch {
     const line: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(input.target, eye),
     );
-    let reach: number;
-    if (fixed === undefined) reach = pointingReach(body, side);
-    else {
-      fixed.reach ??= pointingReach(body, side);
-      reach = fixed.reach;
-    }
+    const reach: number = fixed?.reach ?? pointingReach(body, side);
 
     // The point on the line at the reach from the shoulder: |eye + s d - shoulder| = reach.
     const w: IAutoMovieVector3 = Vector3.subtract(eye, shoulder);
@@ -194,34 +197,17 @@ export namespace gestureTouch {
     cycles: number,
   ): IAutoMovieMotionHumanGestureStroke.IHand {
     const body: IAutoMovieMotionHumanBody = input.body;
-    const region: AutoMovieHumanoidRegion =
-      kind === "pushGlasses"
-        ? "noseBridge"
-        : kind === "scratchHead"
-          ? side === "left"
-            ? "templeLeft"
-            : "templeRight"
-          : input.region;
+    const region: AutoMovieHumanoidRegion = regionOf(kind, side, input.region);
     const fixed: IPrepared | undefined = preparation(
       input.prepared,
       body,
       side,
       kind,
     );
-    let surface: HumanTrunk.ISurface;
-    if (fixed === undefined)
-      surface = HumanTrunk.region(body, input.base, region, input.resolution);
-    else {
-      let reading: IPrepared["region"] = fixed.region;
-      if (reading === undefined || reading.name !== region) {
-        reading = {
-          name: region,
-          read: HumanTrunk.prepareRegion(body, region),
-        };
-        fixed.region = reading;
-      }
-      surface = reading.read(input.base, input.resolution);
-    }
+    const surface: HumanTrunk.ISurface =
+      fixed?.region === undefined || fixed.region.name !== region
+        ? HumanTrunk.region(body, input.base, region, input.resolution)
+        : fixed.region.read(input.base, input.resolution);
     const up: IAutoMovieVector3 = Vector3.normalize(
       Vector3.subtract(
         { x: 0, y: 1, z: 0 },
@@ -312,6 +298,24 @@ const STEEP: number = 0.9;
  * (provisional: read from no measured source).
  */
 const TOUCH_OUT: number = 0.15;
+
+/**
+ * The face region a self-touch kind touches: the nose bridge for
+ * `pushGlasses`, the hand's temple for `scratchHead`, the asked one otherwise.
+ */
+function regionOf(
+  kind: IAutoMovieMotionHumanGestureStroke.Kind,
+  side: AutoMovieHumanSide,
+  asked: AutoMovieHumanoidRegion,
+): AutoMovieHumanoidRegion {
+  return kind === "pushGlasses"
+    ? "noseBridge"
+    : kind === "scratchHead"
+      ? side === "left"
+        ? "templeLeft"
+        : "templeRight"
+      : asked;
+}
 
 /** A prepared record, when it was built for this body, side and kind. */
 function preparation(

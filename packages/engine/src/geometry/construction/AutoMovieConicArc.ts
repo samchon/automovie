@@ -163,7 +163,7 @@ export namespace AutoMovieConicArc {
     c: readonly [number, number, number, number, number, number],
   ): IAutoMoviePolarSector.Jet {
     const scale: number = Math.hypot(c[0], c[1]);
-    if (!(Number.isFinite(scale) && scale > 0)) return [NaN, NaN, NaN];
+    if (!(scale > 0)) return [NaN, NaN, NaN];
     const normalized: readonly [
       number,
       number,
@@ -185,7 +185,7 @@ export namespace AutoMovieConicArc {
     const pt: number =
       (normalized[0] * normalized[3] - normalized[1] * normalized[2]) /
       (rho * rho);
-    if (!(Number.isFinite(pt) && pt > 0)) return [NaN, NaN, NaN];
+    if (!(pt > 0)) return [NaN, NaN, NaN];
     const rtt: number =
       (normalized[2] ** 2 +
         normalized[3] ** 2 +
@@ -273,12 +273,6 @@ export namespace AutoMovieConicArc {
       reverse ? -guideValue.slope : guideValue.slope,
       guideValue.curvature,
     ];
-    if (
-      ![...geometry.point, ...geometry.tangent, ...radial, logCurvature].every(
-        Number.isFinite,
-      )
-    )
-      return null;
     return {
       ...geometry,
       radial,
@@ -308,7 +302,6 @@ export namespace AutoMovieConicArc {
     );
     const x: number = local[0] * selected.scale;
     const y: number = local[1] * selected.scale;
-    if (![x, y].every(Number.isFinite)) return null;
     return selected.reverse ? [y, x] : [x, y];
   }
 
@@ -316,10 +309,7 @@ export namespace AutoMovieConicArc {
   export function value(a: number, b: number, r: number, phi: number): number {
     const selected: Inverse | null = inverse(a, b, r, phi);
     if (selected === null) return NaN;
-    if (selected.t === 0)
-      return Number.isFinite(selected.first) && selected.first > 0
-        ? selected.first
-        : NaN;
+    if (selected.t === 0) return selected.first > 0 ? selected.first : NaN;
     const point: readonly [number, number] = AutoMovieConicArcField.point(
       AutoMovieConicFieldJet.NUMBER,
       selected.x,
@@ -328,7 +318,7 @@ export namespace AutoMovieConicArc {
       selected.t,
     );
     const value: number = Math.hypot(...point) * selected.scale;
-    return Number.isFinite(value) && value > 0 ? value : NaN;
+    return value > 0 ? value : NaN;
   }
 
   /** Preserve every inverse and normalization operation used by locate. */
@@ -338,7 +328,7 @@ export namespace AutoMovieConicArc {
     r: number,
     phi: number,
   ): Inverse | null {
-    if (!(Number.isFinite(phi) && phi >= 0 && phi <= Math.PI / 2)) return null;
+    if (!(phi >= 0 && phi <= Math.PI / 2)) return null;
 
     const A: number = a * Math.sin(phi);
     const B: number = b * Math.cos(phi);

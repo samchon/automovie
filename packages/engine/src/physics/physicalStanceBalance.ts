@@ -797,7 +797,7 @@ export namespace physicalStanceBalance {
       const rate: number = nx * dx + nz * dz;
       if (rate > 0) best = Math.min(best, Math.max(0, slack) / rate);
     }
-    return Number.isFinite(best) ? best : 0;
+    return best === Infinity ? 0 : best;
   }
 
   /**

@@ -1,11 +1,11 @@
 import type { IAutoMovieMotionHumanAuditMeasure } from "@automovie/interface";
 import { AutoMovieMotionHumanAuditDifference } from "@automovie/motions/internal";
 
-import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { motionCoveringArray } from "./motionCoveringArray";
 import { motionHumanBody } from "./motionHumanBody";
 import type { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanLawSweep } from "./motionHumanLawSweep";
+import { motionHumanLedger } from "./motionHumanLedger";
 
 /**
  * The covering design of the universal sweep (`motionHumanLawSweep`): each
@@ -59,10 +59,13 @@ export namespace motionHumanLawCovering {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Returns fresh parameter arrays from the shared immutable ledger; it has no cross-call cache or mutable result alias.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned record owns its arrays; local references end at return and no scene, body or running task is acquired.
    */
-  export function factors(law: string): Record<string, string[]> {
-    const listed: { rows: { row: string }[] } | undefined = (
-      LEDGER.laws as { law: string; rows: { row: string }[] }[]
-    ).find((l: { law: string }): boolean => l.law === law);
+  export async function factors(
+    law: string,
+  ): Promise<Record<string, string[]>> {
+    const ledger: motionHumanLedger.ILedger = await motionHumanLedger();
+    const listed: motionHumanLedger.ILaw | undefined = ledger.laws.find(
+      (l: motionHumanLedger.ILaw): boolean => l.law === law,
+    );
     const out: Record<string, string[]> = {};
     for (const { row } of listed?.rows ?? []) {
       if (row === "default") continue;
@@ -106,13 +109,13 @@ export namespace motionHumanLawCovering {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Uses the same sweep/staging/cell owners as partitioned runs; each actual cell shares one film across its physical detectors and repeats only the law's first cell for determinism.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns the complete growing complaint list without a cap; active rows/film ownership belong to the sweep/cell calls and no process or global film cache is started.
    */
-  export function covering(
+  export async function covering(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     bodies: readonly motionHumanBody.Name[] = BODIES,
     seeds: readonly string[] = SEEDS,
     report: (cell: motionHumanLawSweep.ICell) => void = (): void => {},
     only?: readonly string[],
-  ): string[] {
+  ): Promise<string[]> {
     return sweep(table, bodies, seeds, (): boolean => true, report, only);
   }
 
@@ -139,16 +142,14 @@ export namespace motionHumanLawCovering {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses the common enumeration and cell verifier instead of reimplementing factors or physical checks. The ordinal is local to this call and no result is retained across parts.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Holds only the selected body name, stride and ordinal besides the delegated rows/complaints; all temporary sweep state releases on return or throw.
    */
-  export function part(
+  export async function part(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     at: readonly [number, number],
     bodies: readonly motionHumanBody.Name[] = BODIES,
     seeds: readonly string[] = SEEDS,
-  ): string[] {
+  ): Promise<string[]> {
     const [i, n] = at;
     if (
-      !Number.isSafeInteger(i) ||
-      !Number.isSafeInteger(n) ||
       n <= 0 ||
       bodies.length === 0 ||
       n % bodies.length !== 0 ||
@@ -183,15 +184,15 @@ export namespace motionHumanLawCovering {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Calls the same factor extractor and covering constructor as execution, so scheduling does not keep a second ledger interpretation.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only numeric counts escape; row arrays and factor records are local and no body, film, task or process is acquired.
    */
-  export function cells(
+  export async function cells(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     bodies: readonly motionHumanBody.Name[] = BODIES,
     seeds: readonly string[] = SEEDS,
-  ): Record<string, number> {
+  ): Promise<Record<string, number>> {
     const out: Record<string, number> = {};
     for (const body of bodies) out[body] = 0;
     for (const law of Object.keys(table)) {
-      const own: Record<string, string[]> = factors(law);
+      const own: Record<string, string[]> = await factors(law);
       for (const row of motionCoveringArray(
         { ...own, body: [...bodies], seed: [...seeds] },
         STRENGTH,
@@ -224,18 +225,18 @@ export namespace motionHumanLawCovering {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Each left film is built once and handed to its one right comparison; both use the existing staging, film and frame-validation owners without replacing source behavior.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The left/right films live only through their pair comparison; the returned complaint list has no added cap and no film/global callback history or running task escapes.
    */
-  export function mirrors(
+  export async function mirrors(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     body: motionHumanBody.Name = "m-average",
     seed: string = motionHumanLawSweep.SEEDS[0]!,
-  ): string[] {
+  ): Promise<string[]> {
     const out: string[] = [];
     const pair: [motionHumanBody.Name, motionHumanBody.Name] = [
       body,
       "f-small",
     ];
     for (const [law, stage] of Object.entries(table)) {
-      const own: Record<string, string[]> = factors(law);
+      const own: Record<string, string[]> = await factors(law);
       for (const param of Object.keys(own)) {
         if (
           !motionHumanLawSweep.MIRRORED.includes(param) ||
@@ -263,18 +264,18 @@ export namespace motionHumanLawCovering {
    * Every cell of every law the selection takes, read and reported, its
    * complaints gathered.
    */
-  function sweep(
+  async function sweep(
     table: Readonly<Record<string, motionHumanLawSweep.Stage>>,
     bodies: readonly motionHumanBody.Name[],
     seeds: readonly string[],
     take: (body: motionHumanBody.Name) => boolean,
     report: (cell: motionHumanLawSweep.ICell) => void = (): void => {},
     only?: readonly string[],
-  ): string[] {
+  ): Promise<string[]> {
     const out: string[] = [];
     for (const [law, stage] of Object.entries(table)) {
       if (only !== undefined && !only.includes(law)) continue;
-      const own: Record<string, string[]> = factors(law);
+      const own: Record<string, string[]> = await factors(law);
       const params: string[] = Object.keys(own);
       const rows: Record<string, string>[] = motionCoveringArray(
         { ...own, body: [...bodies], seed: [...seeds] },
@@ -349,7 +350,7 @@ export namespace motionHumanLawCovering {
           mirror: 0,
           rate: 4,
         }).distance;
-      if (!Number.isFinite(m.value) || m.value > motionHumanLawSweep.SKIN)
+      if (m.value > motionHumanLawSweep.SKIN)
         out.push(
           `${law} | ${row} | ${bodies[0]}+${bodies[1]} | ${seed} | ${subject} | mirror ${m.value.toFixed(4)} over ${motionHumanLawSweep.SKIN} at ${m.seconds.toFixed(2)} s (${m.where})`,
         );

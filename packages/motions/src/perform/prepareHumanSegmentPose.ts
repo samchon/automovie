@@ -38,18 +38,15 @@ function fresh(
 /** Operation-owned preparation borrowed by displayed-pose stages. */
 export namespace prepareHumanSegmentPose {
   /**
-   * Issue independent evaluations within one synchronous unchanged-body scan.
-   * The first actual query prepares genuine ROM metadata; each invocation
-   * creates a fresh lazy FK workspace and retains no prior workspace or result.
-   * Changed body/rig/ROM data require a new scan producer. Every actual joint
-   * still projects normally, and release of the scan releases its mapper.
+   * Issue independent evaluations within one synchronous unchanged-body scan:
+   * the body's ROM metadata is prepared once here; each invocation creates a
+   * fresh FK workspace and retains no prior workspace or result. Changed
+   * body/rig/ROM data require a new scan producer.
    */
   export function queries(body: IAutoMovieMotionHumanBody): () => IPrepared {
-    let clamp: ReturnType<typeof prepareHumanPostureProjection> | undefined;
-    return (): IPrepared => {
-      if (clamp === undefined) clamp = prepareHumanPostureProjection(body);
-      return fresh(body, clamp);
-    };
+    const clamp: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    return (): IPrepared => fresh(body, clamp);
   }
 
   /**

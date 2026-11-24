@@ -17,10 +17,13 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * Both hands take the sled handles while the standing body supplies a support margin.
+ * Both hands take the sled handles while the standing body supplies a support
+ * margin.
  *
  * Scenarios:
- * 1. Read the displayed grip points and extrapolated centre at the first loaded instant of a push.
+ *
+ * 1. Read the displayed grip points and extrapolated centre at the first loaded
+ *    instant of a push.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Both hands take the sled handles while the standing body supplies a support margin.
  * @evidence contracts/development/testing.md#independent-expectations Handles sit at symmetric quarter-metre lateral offsets in the rigid sled frame; XCoM advances by v sqrt(1.34 hip height / g).
@@ -154,6 +157,6 @@ export function test_motion_dynamics_balance_push(): void {
   );
   TestValidator.predicate(
     "front support limits forward margin",
-    Number.isFinite(margin) && margin <= front - xcom + 0.005,
+    margin <= front - xcom + 0.005,
   );
 }

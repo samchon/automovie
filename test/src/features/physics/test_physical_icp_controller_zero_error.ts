@@ -2,23 +2,22 @@ import { physicalIcpController } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * An exactly zero capture-point error follows IHMC's own arithmetic and never
- * lets a not-a-number out: Zulu's zero dead band scales the error by 0 / 0
- * (`ICPController` l.339-351), the program fails, the last solution stays
- * (l.447-457), and while the body is stuck the smart integral becomes not a
- * number and stays so (`AngularMomentumIntegrator` l.69-80); the caller's guard
- * then commands the capture point as the pivot and the pivot as a not-a-number
- * centre of pressure (`LinearMomentumRateControlModule` l.576-598).
+ * An exactly zero capture-point error is zero after Zulu's zero dead band, the
+ * band's limit where IHMC divides 0 / 0 (`ICPController` l.339-351); its zero
+ * feedback direction has no normal, so the program fails and the last solution
+ * stays (l.447-457), and the smart integral gathers nothing from it
+ * (`AngularMomentumIntegrator` l.69-80).
  *
  * Scenarios, a plan at the origin over a wide support:
  *
  * 1. At rest with the capture point and the centre of mass on the plan: no
- *    solution, one failure, a stuck not-a-number integral, and a pivot and
- *    centre of pressure on the capture point.
- * 2. Next, a 1 mm error while still stuck: the program solves, the integral stays
- *    not a number, and the pivot is still the capture point.
+ *    solution, one failure, a stuck zero integral, and a pivot and centre of
+ *    pressure on the capture point.
+ * 2. Next, a 1 mm error while still stuck: the program solves, the integral
+ *    gathers K_i dt e, and the pivot is the centre of pressure plus dCMP and
+ *    the integral.
  * 3. Then a plan moving at 0.1 m/s: the integral clears and the pivot is the
- *    centre of pressure plus dCMP again.
+ *    centre of pressure plus dCMP.
  * 4. A zero error after a solved update with the centre of mass moving at 0.33
  *    m/s, so not stuck: the last solution stays and the integral is zero.
  *
@@ -51,8 +50,6 @@ export function test_physical_icp_controller_zero_error(): void {
       omega,
       dt: 0.004,
     });
-  const finite = (point: { x: number; y: number }): boolean =>
-    Number.isFinite(point.x) && Number.isFinite(point.y);
 
   // 1. At rest, exactly on the plan.
   const first: physicalIcpController.IResult = run(
@@ -63,15 +60,15 @@ export function test_physical_icp_controller_zero_error(): void {
   TestValidator.equals("first unsolved", first.converged, false);
   TestValidator.equals("first failure", first.state.failures, 1);
   TestValidator.equals("first stuck", first.state.integrator.stuck, true);
-  TestValidator.predicate(
-    "first integral not a number",
-    Number.isNaN(first.state.integrator.integral.x),
-  );
+  TestValidator.equals("first integral", first.state.integrator.integral, {
+    x: 0,
+    y: 0,
+  });
   TestValidator.equals("first pivot", first.cmp, { x: 0, y: 0 });
   TestValidator.equals("first CoP", first.cop, { x: 0, y: 0 });
   TestValidator.equals("first pair kept", first.state.copDelta, { x: 0, y: 0 });
 
-  // 2. A small error, still stuck: solved, the integral still poisoned.
+  // 2. A small error, still stuck: solved, the integral gathers K_i dt e.
   const second: physicalIcpController.IResult = run(
     first.state,
     { x: 0.001, y: 0 },
@@ -79,14 +76,21 @@ export function test_physical_icp_controller_zero_error(): void {
   );
   TestValidator.equals("second solved", second.converged, true);
   TestValidator.predicate(
-    "second integral not a number",
-    Number.isNaN(second.state.integrator.integral.x),
+    "second integral",
+    Math.abs(second.state.integrator.integral.x - 2.0 * 0.004 * 0.001) <
+      1e-15 && second.state.integrator.integral.y === 0,
   );
-  TestValidator.equals("second pivot", second.cmp, { x: 0.001, y: 0 });
-  TestValidator.predicate(
-    "second CoP finite with feedback",
-    finite(second.cop) && second.cop.x > 0,
-  );
+  TestValidator.equals("second pivot", second.cmp, {
+    x:
+      second.cop.x +
+      second.state.cmpDelta.x +
+      second.state.integrator.integral.x,
+    y:
+      second.cop.y +
+      second.state.cmpDelta.y +
+      second.state.integrator.integral.y,
+  });
+  TestValidator.predicate("second CoP with feedback", second.cop.x > 0);
 
   // 3. A moving plan clears the integral.
   const third: physicalIcpController.IResult = run(
@@ -143,8 +147,4 @@ export function test_physical_icp_controller_zero_error(): void {
     x: 0.1 + solved.state.copDelta.x,
     y: 0 + solved.state.copDelta.y,
   });
-  TestValidator.predicate(
-    "zero outputs finite",
-    finite(zero.cop) && finite(zero.cmp),
-  );
 }

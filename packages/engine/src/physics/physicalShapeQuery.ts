@@ -10,10 +10,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { bracketedMinimum } from "../math/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
-import type { PhysicalHullScalarWitness } from "./PhysicalHullScalarWitness";
 import { physicalHullNearest } from "./physicalHullNearest";
 import { physicalHullSegment } from "./physicalHullSegment";
-import { readPhysicalHullPoint } from "./readPhysicalHullPoint";
 
 /**
  * A shape-local proximity reading before its point and normal return to world
@@ -135,7 +133,6 @@ export namespace physicalShapeQuery {
   export function prepare(
     pose: IAutoMovieRigidTransform,
     shape: IAutoMoviePhysicalShape,
-    witness?: PhysicalHullScalarWitness,
   ): (
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -146,7 +143,7 @@ export namespace physicalShapeQuery {
       a: IAutoMovieVector3,
       b: IAutoMovieVector3,
       taper?: readonly [number, number],
-    ): number => query(pose, shape, a, b, taper, false, prepared, witness);
+    ): number => query(pose, shape, a, b, taper, false, prepared);
   }
 }
 
@@ -162,7 +159,6 @@ function query(
   taper: readonly [number, number] | undefined,
   details: false,
   prepared?: IPrepared,
-  witness?: PhysicalHullScalarWitness,
 ): number;
 
 /** The cold full/scalar facade retains its original union result. */
@@ -174,7 +170,6 @@ function query(
   taper: readonly [number, number] | undefined,
   details: boolean,
   prepared?: IPrepared,
-  witness?: PhysicalHullScalarWitness,
 ): IAutoMoviePhysicalShapeNearest.IResult | number;
 
 /** One fixed-frame acquisition and the unchanged ordered proximity calculation. */
@@ -186,7 +181,6 @@ function query(
   taper: readonly [number, number] | undefined,
   details: boolean,
   prepared?: IPrepared,
-  witness?: PhysicalHullScalarWitness,
 ): IAutoMoviePhysicalShapeNearest.IResult | number {
   let frame: IFrame | undefined = prepared?.frame;
   const centre: IAutoMovieVector3 =
@@ -293,10 +287,7 @@ function query(
   const distance: (p: IAutoMovieVector3) => number = (
     p: IAutoMovieVector3,
   ): number => {
-    if (shape.kind === "hull")
-      return witness === undefined
-        ? physicalHullNearest(shape.points, p, false)
-        : readPhysicalHullPoint(shape.points, p, false, witness);
+    if (shape.kind === "hull") return physicalHullNearest(shape.points, p, false);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p, false);
     if (shape.kind === "sphere" || shape.kind === "capsule") {
       if (roundAxis === undefined) roundAxis = { x: 0, y: 0, z: 0 };

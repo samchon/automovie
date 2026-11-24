@@ -49,8 +49,8 @@ export function compilePerformShotFocusPull(
     );
   const offset: number = pull.start;
   const duration: number = pull.duration;
-  const validOffset: boolean = Number.isFinite(offset) && offset >= 0;
-  const validDuration: boolean = Number.isFinite(duration) && duration > 0;
+  const validOffset: boolean = offset >= 0;
+  const validDuration: boolean = duration > 0;
   if (!validOffset)
     context.out.push(
       "range",

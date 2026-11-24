@@ -8,8 +8,6 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "./ViolationCollector";
-import { validateRotationArtifact } from "./validateRotationArtifact";
-import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
  * Measure a support or grip using already placed observations at one film
@@ -38,18 +36,6 @@ function measureSupport(
 ): IAutoMoviePlacedContact.IResult {
   const { path, maxGap, maxSlip } = props;
   const collector: ViolationCollector = new ViolationCollector();
-  validateVectorArtifact(
-    sample.point,
-    `${path}.point`,
-    "contact point",
-    collector.items,
-  );
-  validateVectorArtifact(
-    sample.anchor,
-    `${path}.anchor`,
-    "support anchor",
-    collector.items,
-  );
   validateFrame(sample.frame, `${path}.frame`, "support frame", collector);
   collector.range(`${path}.maxGap`, maxGap, 0, Infinity, "normal gap limit");
   collector.range(
@@ -84,8 +70,6 @@ function measureSupport(
     maxSlip,
     "tangential support slip in metres",
   );
-  if (!Number.isFinite(gap) || !Number.isFinite(slip))
-    return { status: "invalid", violations: collector.items };
   return {
     status: "checked",
     kind: "support",
@@ -147,8 +131,6 @@ function measureGrip(
     "grip separation in metres",
   );
   collector.range(`${path}.angle`, angle, 0, maxAngle, "grip angle in radians");
-  if (!Number.isFinite(distance) || !Number.isFinite(angle))
-    return { status: "invalid", violations: collector.items };
   return {
     status: "checked",
     kind: "grip",
@@ -168,18 +150,7 @@ function validateFrame(
   label: string,
   collector: ViolationCollector,
 ): void {
-  validateVectorArtifact(
-    frame.position,
-    `${path}.position`,
-    `${label} position`,
-    collector.items,
-  );
-  validateRotationArtifact(
-    frame.rotation,
-    `${path}.rotation`,
-    `${label} rotation`,
-    collector,
-  );
+  collector.unitQuaternion(`${path}.rotation`, frame.rotation, `${label} rotation`);
 }
 
 /**

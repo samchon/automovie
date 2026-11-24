@@ -21,16 +21,18 @@ import { animalTerminalSole } from "../internal/animalTerminalSole";
  * The real dog factory and shared ride retain declared canine contact timing.
  *
  * Scenarios:
+ *
  * 1. Every prototype uses Light et al. 2010's pooled 1.11 s stride, .62 s fore
  *    stance and .56 s hind stance at the tested .75 m/s, without invented
- *    reference-height scaling. Duties are ratios of means, not mean percentages.
- * 2. Griffin et al. 2004's 15% ipsilateral fore lag gives LF=0, RH=.35,
- *    RF=.5 and LH=.85; actual ride instants retain those rebased phases.
- * 3. Fore and hind lower control endpoints stay within 1 mm in world space
- *    during their own stance, including exact landing and its two sides.
- *    Hind endpoints move after .56 s, before .62 s.
- *    Exact landing and planted-ground checks use the entire actual terminal
- *    cylinder/capsule sole; the distal joint is not relabelled as its surface.
+ *    reference-height scaling. Duties are ratios of means, not mean
+ *    percentages.
+ * 2. Griffin et al. 2004's 15% ipsilateral fore lag gives LF=0, RH=.35, RF=.5 and
+ *    LH=.85; actual ride instants retain those rebased phases.
+ * 3. Fore and hind lower control endpoints stay within 1 mm in world space during
+ *    their own stance, including exact landing and its two sides. Hind
+ *    endpoints move after .56 s, before .62 s. Exact landing and planted-ground
+ *    checks use the entire actual terminal cylinder/capsule sole; the distal
+ *    joint is not relabelled as its surface.
  * 4. At three off-grid times under translation/yaw, the moving lead contact
  *    remains at its actual rope centre. Unavailable gaits and speeds refuse.
  *
@@ -56,7 +58,7 @@ export function test_archetype_ride_dog(): void {
     expected: number,
     bound: number,
   ): void => {
-    if (!(Number.isFinite(actual) && Math.abs(actual - expected) <= bound))
+    if (!(Math.abs(actual - expected) <= bound))
       findings.push(
         `${label}: ${actual}, expected ${expected} within ${bound}`,
       );
@@ -348,7 +350,10 @@ export function test_archetype_ride_dog(): void {
   TestValidator.equals("the actual dog ride and contact timing", findings, []);
 }
 
-/** The whole actual terminal surface must touch ground; its distal joint need not. */
+/**
+ * The whole actual terminal surface must touch ground; its distal joint need
+ * not.
+ */
 function sole<Id extends string, D extends string>(
   ride: AutoMovieArchetypeRide.IRide<Id, D>,
   seconds: number,

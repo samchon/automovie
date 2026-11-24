@@ -48,15 +48,11 @@ export function boundAutoMovieTriangleAttachmentContact(
     support.length !== 3 ||
     !vertices.every(
       (p: IAutoMovieVector3 | undefined | null): boolean =>
-        p !== undefined &&
-        p !== null &&
-        Number.isFinite(p.x) &&
-        Number.isFinite(p.y) &&
-        Number.isFinite(p.z),
+        p !== undefined && p !== null,
     )
   )
     throw new Error(
-      "Attachment contact needs complete finite fan and support triangles.",
+      "Attachment contact needs complete fan and support triangles.",
     );
   const u: IAutoMovieVector3 = Vector3.subtract(support[1]!, support[0]!);
   const v: IAutoMovieVector3 = Vector3.subtract(support[2]!, support[0]!);
@@ -68,8 +64,6 @@ export function boundAutoMovieTriangleAttachmentContact(
     Math.abs(v.y),
     Math.abs(v.z),
   );
-  if (!Number.isFinite(scale))
-    throw new Error("Attachment support differences must remain finite.");
   if (scale === 0)
     return { proved: false, cap: 0, cornerGap: 0, rootDeficit: 0 };
   const direction: IAutoMovieVector3 = Vector3.cross(

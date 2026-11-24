@@ -48,14 +48,6 @@ export const pinStanceTargets: (
               z: startFoot.z,
             }
           : { ...carried };
-      if (
-        !Number.isFinite(target.x) ||
-        !Number.isFinite(target.y) ||
-        !Number.isFinite(target.z)
-      )
-        throw new Error(
-          `stance target for ${leg.foot} must have finite coordinates`,
-        );
       for (let f: number = run.start; f <= run.end; ++f)
         targets[f]!.set(leg.foot, target);
       plants.push({
@@ -91,8 +83,7 @@ function pinTimedStanceTargets(
         props.resolved[i]!.get(foot)?.worldPosition;
       const height: number | null =
         point === undefined ? null : support.at(time, point, "foot");
-      if (height !== null && !Number.isFinite(height))
-        throw new Error(`stance support for ${foot} must be finite`);
+
       if (
         point === undefined ||
         height === null ||
@@ -120,10 +111,6 @@ function pinTimedStanceTargets(
           carried === undefined
             ? { x: point.x, y: height, z: point.z }
             : { ...carried };
-        if (![target.x, target.y, target.z].every(Number.isFinite))
-          throw new Error(
-            `stance target for ${foot} must have finite coordinates`,
-          );
         active = { foot, start: time, end: time, position: target };
         plants.push(active);
       }

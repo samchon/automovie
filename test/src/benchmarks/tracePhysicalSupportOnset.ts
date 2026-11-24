@@ -29,7 +29,10 @@ type Contact = {
 /** A declared endpoint and any colliders that can support it. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];
 
-/** Geometry and measurement shared by quiet qualification and the short onset diagnostic. */
+/**
+ * Geometry and measurement shared by quiet qualification and the short onset
+ * diagnostic.
+ */
 export namespace tracePhysicalSupportOnset {
   /** Measure the lowest world point across a declared patch's actual colliders. */
   export function patchHeight(
@@ -44,7 +47,10 @@ export namespace tracePhysicalSupportOnset {
     );
   }
 
-  /** Run the exact first eighteen target intervals and publish every completed frame. */
+  /**
+   * Run the exact first eighteen target intervals and publish every completed
+   * frame.
+   */
   export async function run(
     input: IAutoMoviePhysicalSimulationInput.IInput,
     floorOffset: number,
@@ -100,7 +106,10 @@ export namespace tracePhysicalSupportOnset {
   }
 }
 
-/** Read completed native pose, causal controller state, and distinct support measurements. */
+/**
+ * Read completed native pose, causal controller state, and distinct support
+ * measurements.
+ */
 function observeFrame(
   result: IAutoMoviePhysicalSimulation,
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -243,9 +252,7 @@ function observeFrame(
       plane: receiptPlane,
       capture: receiptAssessment.capturePoint,
       hull: receiptAssessment.polygon,
-      outside: Number.isFinite(receiptAssessment.outside)
-        ? receiptAssessment.outside
-        : null,
+      outside: receiptAssessment.outside,
       state: receiptAssessment.state,
     },
     wrench:
@@ -270,7 +277,10 @@ function observeFrame(
   };
 }
 
-/** Group stored solver receipts by their completed output step without reading future samples. */
+/**
+ * Group stored solver receipts by their completed output step without reading
+ * future samples.
+ */
 function indexContacts(result: IAutoMoviePhysicalSimulation): Contact[][] {
   const contacts: Contact[][] = Array.from(
     { length: result.cache.frames.length },
@@ -286,7 +296,10 @@ function indexContacts(result: IAutoMoviePhysicalSimulation): Contact[][] {
   return contacts;
 }
 
-/** Independently combine each segment's world mass center and transport velocity. */
+/**
+ * Independently combine each segment's world mass center and transport
+ * velocity.
+ */
 function centerOfMass(
   profile: IAutoMoviePhysicalProfile,
   poses: IAutoMoviePhysicalFrame["bodies"][string],
@@ -316,7 +329,10 @@ function centerOfMass(
   return { center, velocity };
 }
 
-/** Read the minimum world Y of one declared contact carrier from its measured pose. */
+/**
+ * Read the minimum world Y of one declared contact carrier from its measured
+ * pose.
+ */
 function carrierHeight(
   profile: IAutoMoviePhysicalProfile,
   bone: string,

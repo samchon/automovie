@@ -177,9 +177,6 @@ export namespace ArchetypeTowing {
       ...trailer.affordance(coupling).frame.translation,
     };
     const pivot: IAutoMovieVector3 = front?.pivot ?? axle;
-    for (const point of [axle, pivot, local])
-      if (![point.x, point.y, point.z].every(Number.isFinite))
-        refuse("support", "Towing points must be finite model-space metres");
     const scale: number = Math.max(
       ...[axle, pivot, local].flatMap((p: IAutoMovieVector3): number[] => [
         Math.abs(p.x),
@@ -205,7 +202,7 @@ export namespace ArchetypeTowing {
         "The coupling must lie ahead along its declared towing direction",
       );
     const body: number = front === null ? 0 : pivot.z - axle.z;
-    if (front !== null && !(Number.isFinite(body) && body > 0))
+    if (front !== null && !(body > 0))
       refuse("pivot", "The front axle must lie ahead of the rear axle");
     if (
       support !== undefined &&
@@ -227,7 +224,6 @@ export namespace ArchetypeTowing {
       if (
         steering.kind !== "wheel" ||
         !same(steering.frame.translation, pivot) ||
-        ![axis.x, axis.y, axis.z].every(Number.isFinite) ||
         Math.abs(axis.x) > 64 * Number.EPSILON ||
         Math.abs(axis.z) > 64 * Number.EPSILON ||
         Math.abs(axis.y - 1) > 64 * Number.EPSILON
@@ -249,7 +245,6 @@ export namespace ArchetypeTowing {
         joint.kind !== "hinge" ||
         trailer.affordance(coupling).rides !== pitchId ||
         !same(joint.frame.translation, pivot) ||
-        ![axis.x, axis.y, axis.z].every(Number.isFinite) ||
         Math.abs(axis.y) > 64 * Number.EPSILON ||
         Math.abs(axis.z) > 64 * Number.EPSILON ||
         Math.abs(Math.abs(axis.x) - 1) > 64 * Number.EPSILON ||
@@ -262,7 +257,7 @@ export namespace ArchetypeTowing {
       pitchSign = Math.sign(axis.x);
     }
     const radius: number = Math.hypot(qy, qz);
-    if (!(Number.isFinite(radius) && radius > 0))
+    if (!(radius > 0))
       refuse(
         "support",
         "The actual coupling lever must have represented positive length",
@@ -275,8 +270,6 @@ export namespace ArchetypeTowing {
       hitch: number,
       ground: number,
     ): { reach: number; pitch: number } {
-      if (!Number.isFinite(hitch) || !Number.isFinite(ground))
-        refuse("support", "Towing ground and hitch heights must be finite");
       if (!free) {
         const expected: number = ground + local.y;
         if (
@@ -293,20 +286,13 @@ export namespace ArchetypeTowing {
       }
       const vertical: number = hitch - ground - pivot.y;
       const ratio: number = vertical / radius;
-      if (
-        !(
-          Number.isFinite(radius) &&
-          radius > 0 &&
-          Number.isFinite(ratio) &&
-          Math.abs(ratio) < 1
-        )
-      )
+      if (!(radius > 0 && Math.abs(ratio) < 1))
         refuse(
           "support",
           "The hitch height has no strictly forward projection within the actual rigid lever",
         );
       const reach: number = radius * Math.sqrt((1 - ratio) * (1 + ratio));
-      if (!(Number.isFinite(reach) && reach > 0))
+      if (!(reach > 0))
         refuse(
           "support",
           "The actual towing lever has no represented horizontal reach",
@@ -331,10 +317,7 @@ export namespace ArchetypeTowing {
       let plane: IPlane = terrain(hitch.x - sin * reach, hitch.z - cos * reach);
       for (let attempt: number = 0; attempt < 4; attempt++) {
         const { point, normal } = plane;
-        if (
-          !(normal.y > 0) ||
-          ![point.y, normal.x, normal.z].every(Number.isFinite)
-        )
+        if (!(normal.y > 0))
           refuse("ground", "The ground under the axle must face up");
         if (Math.abs(normal.x * cos - normal.z * sin) > 64 * Number.EPSILON)
           refuse(
@@ -357,7 +340,7 @@ export namespace ArchetypeTowing {
             "The hitch height has no reach within the actual lever over this ground",
           );
         reach = (-k * slope + Math.sqrt(disc)) / a;
-        if (!(Number.isFinite(reach) && reach > 0))
+        if (!(reach > 0))
           refuse(
             "ground",
             "The actual lever has no forward reach over this ground",
@@ -403,8 +386,6 @@ export namespace ArchetypeTowing {
         placement: IAutoMovieTransform;
         travels: Partial<Record<Id, number>>;
       } => {
-        if (![hitch.x, hitch.z, theta, phi].every(Number.isFinite))
-          refuse("support", "Towing point and planar headings must be finite");
         const solved: { reach: number; pitch: number } = height(
           hitch.y,
           ground,

@@ -26,15 +26,11 @@ export function planPhysicalFloorSupportTargets(
   input: IAutoMoviePlanPhysicalFloorSupportTargets.IInput,
 ): IAutoMoviePlanPhysicalFloorSupportTargets.IResult {
   if (
-    !Number.isSafeInteger(input.passes) ||
     input.passes < 1 ||
     input.passes > 16 ||
-    !Number.isFinite(input.floor) ||
-    !Number.isFinite(input.maximumRootDrop) ||
     input.maximumRootDrop < 0 ||
-    Object.entries(input.endpointHeights ?? {}).some(
-      ([bone, height]: [string, number]): boolean =>
-        !Number.isFinite(height) ||
+    Object.keys(input.endpointHeights ?? {}).some(
+      (bone: string): boolean =>
         !input.pattern.limbs.some(
           (limb: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
             limb.bone === bone,

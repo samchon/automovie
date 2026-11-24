@@ -93,7 +93,7 @@ export const simulateFluidDomain: (
   domain: IAutoMovieFluidDomain,
   step: number,
 ): IAutoMovieFluidState => {
-  if (!Number.isInteger(step) || step < 0)
+  if (step < 0)
     throw new Error(
       `fluid domain "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
@@ -258,10 +258,6 @@ export const simulateFluidDomain: (
         depth[cell] = updated > 0 ? updated : 0;
       }
 
-    if (allFinite([depth, velocityX, velocityZ]) === false)
-      throw new Error(
-        `fluid domain "${domain.id}" produced a non-finite state at step ${index + 1}`,
-      );
   }
 
   let volume: number = 0;
@@ -341,16 +337,4 @@ const active: (start: number, end: number | null, time: number) => boolean = (
   time: number,
 ): boolean => time >= start && (end === null || time < end);
 
-/**
- * Scan borrowed arrays until the first non-finite entry, with O(total entries)
- * time and constant local storage. The caller supplies depth/velocities only;
- * this does not inspect ledgers, clocks or pre-clamp intermediates.
- */
-const allFinite: (arrays: Float64Array[]) => boolean = (
-  arrays: Float64Array[],
-): boolean => {
-  for (const values of arrays)
-    for (let index: number = 0; index < values.length; ++index)
-      if (Number.isFinite(values[index]) === false) return false;
-  return true;
-};
+

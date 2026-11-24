@@ -183,8 +183,7 @@ export function manipulateHeld(
     const time: number = contact.at ?? next;
     const previous: number | undefined = pressTimes.at(-1);
     if (
-      !Number.isFinite(time) ||
-      time < HumanSegment.FADE ||
+      !(time >= HumanSegment.FADE) ||
       (previous !== undefined && time <= previous)
     )
       throw new HumanRefusal({
@@ -226,7 +225,7 @@ export function manipulateHeld(
         fix: "target a rigid site or drive the articulation with an operation",
       });
     const depth: number = contact.depth ?? affordance.travel ?? 0;
-    if (!(Number.isFinite(depth) && depth >= 0))
+    if (!(depth >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "contacts.depth",

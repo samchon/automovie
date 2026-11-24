@@ -177,10 +177,6 @@ function prepare<Id extends string, Dimension extends string>(
       magnitude(frame.translation),
     ),
   );
-  if (!Number.isFinite(sourceScale))
-    throw new RangeError(
-      "Quadruped neutral geometry has an unrepresentable coordinate scale",
-    );
   for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
     const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
       AutoMovieArchetypeQuadrupedBody.BONES[limb];
@@ -192,7 +188,7 @@ function prepare<Id extends string, Dimension extends string>(
           neutral.get(chain[index + 1]!)!.translation,
         ),
       );
-      if (!Number.isFinite(gap) || gap > 256 * Number.EPSILON * sourceScale)
+      if (gap > 256 * Number.EPSILON * sourceScale)
         throw new RangeError(
           `Quadruped neutral ${bone} misses its child joint by ${gap} m`,
         );
@@ -271,13 +267,9 @@ function prepare<Id extends string, Dimension extends string>(
         part.geometry.shape.type === "plane"
       )
         continue;
-      if (!Number.isFinite(floor))
-        throw new RangeError(
-          `Quadruped ${part.id} has an unrepresentable body floor`,
-        );
       lowest = Math.min(lowest, floor);
     }
-    if (!Number.isFinite(lowest))
+    if (lowest === Infinity)
       throw new RangeError(
         "Quadruped body floor requires actual finite non-limb solids",
       );
@@ -319,10 +311,6 @@ function prepare<Id extends string, Dimension extends string>(
           points.map((point: IAutoMovieVector3): number => magnitude(point)),
       ),
     );
-    if (!Number.isFinite(scale))
-      throw new RangeError(
-        "Quadruped current goals have an unrepresentable coordinate scale",
-      );
 
     // Fixed graph depth and rigid/circle arithmetic accumulate binary64 error.
     // This is the existing rest observation's coordinate-scaled budget; a
@@ -344,12 +332,7 @@ function prepare<Id extends string, Dimension extends string>(
             points[index + 1]!,
           ),
         );
-        if (
-          !Number.isFinite(originError) ||
-          !Number.isFinite(endError) ||
-          originError > roundoff ||
-          endError > roundoff
-        )
+        if (originError > roundoff || endError > roundoff)
           throw new RangeError(
             `Quadruped ${bone} cannot close its actual chain: origin ${originError} m, endpoint ${endError} m`,
           );

@@ -55,8 +55,6 @@ export function measureAutoMovieSceneCollision(
   props: Collision.IProps,
 ): Collision.IResult {
   if (
-    !Number.isFinite(props.seconds) ||
-    !Number.isSafeInteger(props.maxComparisons) ||
     props.maxComparisons < 0
   )
     throw new Error("Invalid scene collision time or comparison budget");
@@ -141,13 +139,7 @@ export function measureAutoMovieSceneCollision(
           continue;
         }
         if (contact === null) continue;
-        if (
-          !Number.isFinite(contact.separation) ||
-          !finitePoint(contact.point)
-        ) {
-          unavailablePairs.push(pair);
-          continue;
-        }
+
         if (contact.separation > margin) continue;
         const basis: "displayed" | "proxy" =
           firstShape.basis === "displayed" && secondShape.basis === "displayed"
@@ -324,8 +316,6 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
     return null;
   }
   if (
-    !finitePoint(bounds.min) ||
-    !finitePoint(bounds.max) ||
     bounds.min.x > bounds.max.x ||
     bounds.min.y > bounds.max.y ||
     bounds.min.z > bounds.max.z
@@ -358,9 +348,7 @@ function preparePart(part: Collision.IPart): IPreparedPart | null {
       z: bounds.max.z + margin,
     },
   };
-  return finitePoint(padded.min) && finitePoint(padded.max)
-    ? { source: part, bounds: padded, margin }
-    : null;
+  return { source: part, bounds: padded, margin };
 }
 
 /**
@@ -375,10 +363,7 @@ function activeAllowances(
   for (const entry of entries) {
     if (
       entry.first === entry.second ||
-      !Number.isFinite(entry.startSeconds) ||
-      !Number.isFinite(entry.endSeconds) ||
       entry.startSeconds >= entry.endSeconds ||
-      !Number.isFinite(entry.maxPenetration) ||
       entry.maxPenetration < 0 ||
       [entry.firstJoints, entry.secondJoints].some(
         (joints: readonly string[] | undefined): boolean =>
@@ -415,14 +400,6 @@ function overlaps(a: IAutoMovieSubjectBox, b: IAutoMovieSubjectBox): boolean {
   );
 }
 
-/** Admit all three current point coordinates. */
-function finitePoint(point: IAutoMovieSubjectBox["min"]): boolean {
-  return (
-    Number.isFinite(point.x) &&
-    Number.isFinite(point.y) &&
-    Number.isFinite(point.z)
-  );
-}
 
 /** Compare paths without environment-specific collation. */
 function comparePaths(a: string, b: string): number {

@@ -28,9 +28,9 @@ export function AutoMovieSolidTraceTrial(
 ): IAutoMovieSolidTraceTrialTrial | null {
   if (observation !== undefined) observation.trial = null;
   const current: IAutoMovieSolidSurface | undefined = host.faces[face];
-  if (current === undefined || !Number.isFinite(u) || !Number.isFinite(v))
+  if (current === undefined)
     return Observation.reject(observation, "invalid-host-chart", [u, v], face);
-  if (AutoMovieSolidDomain.contains(current, u, v)) {
+  if (AutoMovieSolidDomain.contains(current, u)) {
     const jet: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
       current,
       u,

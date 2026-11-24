@@ -3,10 +3,6 @@ import {
   type IAutoMovieEvaluateCameraDepthPrecision,
 } from "@automovie/interface";
 
-/** A number as the report carries it: itself when finite, else null. */
-function finiteOrNull(value: number): number | null {
-  return Number.isFinite(value) ? value : null;
-}
 
 /**
  * Measure the largest gap between adjacent representable depths that a camera's
@@ -22,7 +18,7 @@ function finiteOrNull(value: number): number | null {
  * range that ends exactly on `near` needs only code 0, which decodes exactly,
  * so it reports codes 0 and 0 and a step of 0.
  *
- * The report echoes every input, with a non-finite number as null, and its
+ * The report echoes every input, and its
  * `status` is `invalid` for a negative or non-finite time, a
  * clip range that is not `0 < near < far` and finite, an inverted or non-finite
  * required range, a bit depth that is not a positive integer whose level count
@@ -40,15 +36,15 @@ export function evaluateAutoMovieCameraDepthPrecision(
     "lowerCode" | "upperCode" | "measuredStepMeters" | "status" | "passed"
   > = {
     camera: props.camera,
-    time: finiteOrNull(props.time),
+    time: props.time,
     metric: "maximum-adjacent-depth-step",
     unit: "meters",
-    near: finiteOrNull(props.near),
-    far: finiteOrNull(props.far),
-    requiredNear: finiteOrNull(props.requiredNear),
-    requiredFar: finiteOrNull(props.requiredFar),
-    minimumDepthBits: finiteOrNull(props.constraint.minimumDepthBits),
-    maximumStepMeters: finiteOrNull(props.constraint.maximumStepMeters),
+    near: props.near,
+    far: props.far,
+    requiredNear: props.requiredNear,
+    requiredFar: props.requiredFar,
+    minimumDepthBits: props.constraint.minimumDepthBits,
+    maximumStepMeters: props.constraint.maximumStepMeters,
   };
   function unmeasured(
     status: "invalid" | "outside-clipping-range",
@@ -64,19 +60,11 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const levels: number = 2 ** props.constraint.minimumDepthBits - 1;
   if (
-    !Number.isFinite(props.time) ||
     props.time < 0 ||
-    !Number.isFinite(props.near) ||
     props.near <= 0 ||
-    !Number.isFinite(props.far) ||
     props.far <= props.near ||
-    !Number.isFinite(props.requiredNear) ||
-    !Number.isFinite(props.requiredFar) ||
     props.requiredNear > props.requiredFar ||
-    !Number.isSafeInteger(props.constraint.minimumDepthBits) ||
     props.constraint.minimumDepthBits <= 0 ||
-    !Number.isSafeInteger(levels) ||
-    !Number.isFinite(props.constraint.maximumStepMeters) ||
     props.constraint.maximumStepMeters <= 0
   )
     return unmeasured("invalid");
@@ -95,7 +83,7 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const measuredStepMeters: number =
     depthAtCode(upperCode) - depthAtCode(lowerCode);
-  if (!Number.isFinite(measuredStepMeters) || measuredStepMeters < 0)
+  if (measuredStepMeters < 0)
     return unmeasured("invalid");
   const passed: boolean =
     measuredStepMeters <= props.constraint.maximumStepMeters;

@@ -13,37 +13,37 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * A hinged chain's fit continued from a seed (`near`) is the fit of the
- * whole sweep inside the seed's basin, to its own tolerance, and stays on
- * the seed's basin where the fit itself jumps to another.
+ * A hinged chain's fit continued from a seed (`near`) is the fit of the whole
+ * sweep inside the seed's basin, to its own tolerance, and stays on the seed's
+ * basin where the fit itself jumps to another.
  *
  * The chain is 0.3 m and 0.25 m along +X with a +Y hinge at the origin, its
  * target 0.6 m out, past its 0.55 m span, so it has one bend branch. A
  * candidate's score is written in its swivel through `hingedArmSwivel.pose`:
- * two root rotations a swivel `d` apart are `d` apart, so the squared angle
- * to the rotation at a swivel `c` is a well whose bottom is `c`.
+ * two root rotations a swivel `d` apart are `d` apart, so the squared angle to
+ * the rotation at a swivel `c` is a well whose bottom is `c`.
  *
  * Scenarios:
- * 1. In one basin, a well at 63.37 degrees (between sweep steps): the sweep's
- *    fit names its swivel within its resolution (`hingedArmSwivel.RESOLUTION`)
- *    and its branch, and the fit seeded at 63.9 degrees with a tolerance of
- *    1e-9 degrees lands within 1e-9 of 63.37, so within the sweep's
- *    resolution of the sweep's fit.
- * 2. On a range's edge: every swivel more than 20 degrees from 30 overshoots
- *    by its excess, and the well asks for 70, so the best legal swivel is the
- *    edge at 50. Seeded at 49.6 degrees, the fit lands legal within 1e-9 of
- *    50.
+ *
+ * 1. In one basin, a well at 63.37 degrees (between sweep steps): the sweep's fit
+ *    names its swivel within its resolution (`hingedArmSwivel.RESOLUTION`) and
+ *    its branch, and the fit seeded at 63.9 degrees with a tolerance of 1e-9
+ *    degrees lands within 1e-9 of 63.37, so within the sweep's resolution of
+ *    the sweep's fit.
+ * 2. On a range's edge: every swivel more than 20 degrees from 30 overshoots by
+ *    its excess, and the well asks for 70, so the best legal swivel is the edge
+ *    at 50. Seeded at 49.6 degrees, the fit lands legal within 1e-9 of 50.
  * 3. Across a change of basin: a well at `60 + 100 t` degrees and one at 240
  *    degrees, the first 0.005 deeper until 1.5 ms and 0.005 shallower after.
  *    Read at 1, 2 and 3 ms, the sweep's fit jumps from the first basin to the
  *    second, its one-sided difference above 10,000 degrees per second, while
  *    the fit seeded from the first read stays on the first basin and its
  *    difference is the basin's own 100 degrees per second, within 1e-3.
- * 4. A seed of the second branch, on a target with only one, continues on
- *    the one; a tolerance of 0 or one not finite throws. The smallest
- *    positive binary64 tolerance still returns a finite fit satisfying the
- *    original 1e-9-degree observation bound, rather than requesting an
- *    infinite refinement count after its tolerance ratio underflows.
+ * 4. A seed of the second branch, on a target with only one, continues on the one;
+ *    a tolerance of 0 or one not finite throws. The smallest positive binary64
+ *    tolerance still returns a finite fit satisfying the original 1e-9-degree
+ *    observation bound, rather than requesting an infinite refinement count
+ *    after its tolerance ratio underflows.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public articulation with and without a seed and reads the swivel and branch it names and the difference of three reads; a seed ignored, a refinement short of its tolerance, an edge crossed or a basin left fails.
  * @evidence contracts/development/testing.md#independent-expectations Every expected swivel is a well's bottom or a range's edge this test writes, and the basin's rate is its written slope; none is read from a solver.
@@ -170,10 +170,14 @@ export function test_kinematics_hinged_arm_near(): void {
     fit(interior, { swivel: 63, branch: 0, tolerance: Infinity }),
   );
   const subnormal: IAutoMovieHingedArticulation = fit(interior, {
-    swivel: 63.9, branch: 0, tolerance: Number.MIN_VALUE,
+    swivel: 63.9,
+    branch: 0,
+    tolerance: Number.MIN_VALUE,
   });
-  TestValidator.predicate("a positive subnormal tolerance terminates with the actual well's finite fit",
-    Number.isFinite(subnormal.swivel) && subnormal.branch === 0 &&
-    Math.abs(subnormal.swivel - 63.37) <= 1e-9 && degrees(subnormal.upper, at(63.37)) <= 1e-9,
+  TestValidator.predicate(
+    "a positive subnormal tolerance terminates with the actual well's finite fit",
+    subnormal.branch === 0 &&
+      Math.abs(subnormal.swivel - 63.37) <= 1e-9 &&
+      degrees(subnormal.upper, at(63.37)) <= 1e-9,
   );
 }

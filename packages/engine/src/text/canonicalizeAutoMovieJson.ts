@@ -26,11 +26,6 @@ export const canonicalizeAutoMovieJson: (value: unknown) => string = (
       return JSON.stringify(current);
     }
     if (typeof current === "number") {
-      if (Number.isFinite(current) === false)
-        throw new AutoMovieCanonicalJsonError(
-          "unsupported-value",
-          "numbers must be finite",
-        );
       return JSON.stringify(current);
     }
     if (typeof current === "bigint")

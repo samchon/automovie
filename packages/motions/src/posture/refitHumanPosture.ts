@@ -2,7 +2,6 @@ import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -114,18 +113,6 @@ export namespace refitHumanPosture {
 }
 
 /**
- * Whether each of a record's three angles is finite or null, which is all
- * forward kinematics asks of a named bone's record.
- */
-function wellFormed(joint: IAutoMovieJointPose): boolean {
-  return (
-    (joint.flexion === null || Number.isFinite(joint.flexion)) &&
-    (joint.abduction === null || Number.isFinite(joint.abduction)) &&
-    (joint.twist === null || Number.isFinite(joint.twist))
-  );
-}
-
-/**
  * Keep the original limb-order loop once; only the entry's limb fit differs. An
  * `assembled` pose is the base-free assembly's own, one clamped record a rig
  * bone.
@@ -156,14 +143,9 @@ function fitted(
   // once, by the first fit that reads it.
   //
   // A pose the assembly just made holds one record a bone, each with the
-  // bone's own name and three angles. Forward kinematics refuses such a
-  // record only for an angle that is neither finite nor null, so when every
-  // angle is one of the two the whole pose's admission has nothing to
-  // refuse and is not run; otherwise it runs and throws as before. The root
-  // is read by every fit's own reduced pose.
-  const admission: HumanLimbView.IAdmission = {
-    admitted: assembled && pose.joints.every(wellFormed),
-  };
+  // bone's own name and three angles, so its admission has nothing to
+  // refuse and is not run. The root is read by every fit's own reduced pose.
+  const admission: HumanLimbView.IAdmission = { admitted: assembled };
   const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};
   const values: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["values"] = {};
   const placed: AutoMovieHumanSide[] = (["left", "right"] as const).filter(

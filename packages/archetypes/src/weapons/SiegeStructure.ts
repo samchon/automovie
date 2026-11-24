@@ -342,7 +342,7 @@ export namespace SiegeStructure {
      * tolerance.
      */
     function admit(id: string, minimum: number): void {
-      if (!(Number.isFinite(minimum) && minimum >= 0))
+      if (!(minimum >= 0))
         throw new RangeError(
           `Siege ${id} crosses its declared floor over the angle domain`,
         );

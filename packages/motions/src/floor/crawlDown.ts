@@ -129,12 +129,15 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     angles: Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmAngles.IAngles>;
     ends: number[];
     /**
-     * The feet-supported sitting key, solved on its first positive
-     * contribution.
+     * The feet-supported sitting key, solved as the way down is built when the
+     * hips own a balance window; none otherwise.
      */
-    satBalance(): number;
-    /** The hips and lean when the hands first reach their fixed places. */
-    handBalance(): IHandKey;
+    satBalance: number | undefined;
+    /**
+     * The hips and lean when the hands first reach their fixed places, solved
+     * with `satBalance`; none otherwise.
+     */
+    handBalance: IHandKey | undefined;
   }
   interface IHandKey {
     back: number;
@@ -263,8 +266,44 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     const lean: number = leanAt(leantBack);
     const leant: IAutoMovieMotionHumanPosture = at(leantBack, lean);
     const solved: ReturnType<typeof read.pose> = read.pose(leant);
-    let sat: number | undefined;
-    let hand: IHandKey | undefined;
+
+    // The balanced keys, which only a balance window of the hips reads: the
+    // sitting key no further back than keeps the centre over the feet, and
+    // the hips where the centre stays behind the knees (or the tucked toes)
+    // as the hands land.
+    const sat: number | undefined = props.balanced
+      ? Math.min(
+          satBack,
+          HumanBalance.shift(
+            body,
+            (back: number): IAutoMovieMotionHumanPosture =>
+              armed(heldKneeling(base, back, 0), null, 0),
+            satBack / m.hipHeight,
+          ),
+        )
+      : undefined;
+    const hand: IHandKey | undefined = props.balanced
+      ? ((): IHandKey => {
+          const support: IAutoMovieVector3 = props.hover
+            ? pair((side) => tucked[side].at)
+            : knee;
+          const forward: IAutoMovieVector3 = HumanFrame.forward(S.yaw);
+          const centre: ReturnType<typeof HumanBalance.prepareCentre> =
+            HumanBalance.prepareCentre(body);
+          const error = (back: number): number =>
+            Vector3.dot(
+              Vector3.subtract(centre(at(back, leanAt(back))), support),
+              forward,
+            );
+          const back: number =
+            error(0) <= 0
+              ? 0
+              : error(leantBack) > 0
+                ? leantBack
+                : bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
+          return { back, lean: leanAt(back) };
+        })()
+      : undefined;
 
     // The time shared by how far the limbs' joints travel.
     const ends: number[] = crawlDownTiming(
@@ -278,40 +317,8 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
       props.sit,
     );
     return {
-      satBalance: (): number => {
-        sat ??= Math.min(
-          satBack,
-          HumanBalance.shift(
-            body,
-            (back: number): IAutoMovieMotionHumanPosture =>
-              armed(heldKneeling(base, back, 0), null, 0),
-            satBack / m.hipHeight,
-          ),
-        );
-        return sat;
-      },
-      handBalance: (): IHandKey => {
-        if (hand !== undefined) return hand;
-        const support: IAutoMovieVector3 = props.hover
-          ? pair((side) => tucked[side].at)
-          : knee;
-        const forward: IAutoMovieVector3 = HumanFrame.forward(S.yaw);
-        const centre: ReturnType<typeof HumanBalance.prepareCentre> =
-          HumanBalance.prepareCentre(body);
-        const error = (back: number): number =>
-          Vector3.dot(
-            Vector3.subtract(centre(at(back, leanAt(back))), support),
-            forward,
-          );
-        const back: number =
-          error(0) <= 0
-            ? 0
-            : error(leantBack) > 0
-              ? leantBack
-              : bracketedRoot(error, 0, leantBack, HumanBalance.TOLERANCE);
-        hand = { back, lean: leanAt(back) };
-        return hand;
-      },
+      satBalance: sat,
+      handBalance: hand,
       back: { sat: satBack, leant: leantBack },
       lean,
       angles: {
@@ -388,13 +395,16 @@ export function crawlDown(props: ICrawlDownProps): crawlDown.IDown {
     );
     const lerp = (a: number, b: number): number => a + (b - a) * u;
     const sat: number =
-      k > 2 || weight === 0 || (k === 1 && u === 0)
+      k > 2 ||
+      weight === 0 ||
+      (k === 1 && u === 0) ||
+      s.satBalance === undefined
         ? s.back.sat
-        : s.back.sat + weight * (s.satBalance() - s.back.sat);
+        : s.back.sat + weight * (s.satBalance - s.back.sat);
     const hand: IHandKey | undefined =
       k === 1 || weight === 0 || (k === 2 && u === 0)
         ? undefined
-        : s.handBalance();
+        : s.handBalance;
     const back: number =
       hand === undefined
         ? s.back.leant

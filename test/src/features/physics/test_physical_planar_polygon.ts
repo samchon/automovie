@@ -14,8 +14,8 @@ import { nclose } from "../internal/nclose";
  *
  * 1. The hull of a 2 x 1 rectangle's corners, shuffled with a duplicate and an
  *    edge midpoint, is its four corners, clockwise (negative shoelace).
- * 2. Areas: the rectangle 2, a trapezoid 3, a point 0, nothing NaN; the
- *    trapezoid's centroid is its area centroid, not its vertices' mean.
+ * 2. Areas: the rectangle 2, a trapezoid 3, a point 0, nothing 0; the trapezoid's
+ *    centroid is its area centroid, not its vertices' mean.
  * 3. From (3, 0) the unit square's visible vertices are (1, -1) then (1, 1).
  * 4. A boundary point is inside; signed distances -1 at the square's centre and 2
  *    at (3, 0); (3, 0) projects to (1, 0), the centre to itself.
@@ -68,7 +68,7 @@ export function test_physical_planar_polygon(): void {
     nclose(Polygon.area(trapezoid), 3, 1e-12),
   );
   TestValidator.predicate("point area", Polygon.area([{ x: 1, y: 1 }]) === 0);
-  TestValidator.predicate("empty area", Number.isNaN(Polygon.area([])));
+  TestValidator.equals("empty area", Polygon.area([]), 0);
   const centre: Polygon.IPoint = Polygon.centroid(trapezoid);
   TestValidator.predicate(
     "trapezoid centroid",

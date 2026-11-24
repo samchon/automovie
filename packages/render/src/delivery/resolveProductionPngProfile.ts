@@ -26,14 +26,7 @@ export const resolveProductionPngProfile: (
       : { width: props.width, height: props.height };
   const width: number | undefined = raster.width;
   const height: number | undefined = raster.height;
-  if (
-    width === undefined ||
-    height === undefined ||
-    Number.isSafeInteger(width) === false ||
-    width <= 0 ||
-    Number.isSafeInteger(height) === false ||
-    height <= 0
-  )
+  if (width === undefined || height === undefined || width <= 0 || height <= 0)
     throw new Error(
       `PNG role "${props.role}" requires a positive safe-integer raster.`,
     );

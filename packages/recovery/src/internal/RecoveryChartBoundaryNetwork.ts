@@ -31,12 +31,7 @@ import { RecoveryChartBoundaryNetworkRegistry } from "./RecoveryChartBoundaryNet
 export function RecoveryChartBoundaryNetwork(
   input: Parameters<IAutoMovieRecoveryChartBoundaryNetwork.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartBoundaryNetwork.Operation> {
-  if (
-    !input ||
-    !Array.isArray(input.charts) ||
-    !input.owner ||
-    typeof input.owner.get !== "function"
-  )
+  if (!input || !input.owner)
     throw new Error("Private charts and one boundary owner are required");
   const context: ReturnType<IAutoMovieRecoveryChartBoundaryNetworkRegistry.Operation> =
     RecoveryChartBoundaryNetworkRegistry(input);

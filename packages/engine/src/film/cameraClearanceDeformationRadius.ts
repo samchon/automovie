@@ -30,10 +30,6 @@ export function cameraClearanceDeformationRadius(
   extent: IAutoMovieCameraClearanceDeformationRadius.IExtent,
 ): number {
   const radius: number = originRadius(extent) + 2 * maximumRigReach(model);
-  if (!Number.isFinite(radius))
-    throw new Error(
-      `camera clearance deformation radius for model "${model.id}" overflows`,
-    );
   return radius;
 }
 
@@ -54,7 +50,6 @@ function originRadius(extent: {
 function maximumRigReach(model: IAutoMovieModel): number {
   const skeleton: IAutoMovieModel["skeleton"] = model.skeleton;
   if (skeleton === null) return 0;
-  const skeletonId: string = skeleton.id;
   type Bone = (typeof skeleton.bones)[number];
   const bones: Map<Bone["bone"], Bone> = new Map(
     skeleton.bones.map((bone: Bone): [Bone["bone"], Bone] => [bone.bone, bone]),
@@ -70,10 +65,6 @@ function maximumRigReach(model: IAutoMovieModel): number {
         bone.rest.translation.y,
         bone.rest.translation.z,
       ) + (bone.parent === null ? 0 : resolve(bone.parent));
-    if (!Number.isFinite(reach))
-      throw new Error(
-        `camera clearance rig "${skeletonId}" chain to bone "${name}" overflows`,
-      );
     reaches.set(name, reach);
     return reach;
   }

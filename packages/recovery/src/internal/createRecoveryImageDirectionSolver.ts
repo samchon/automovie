@@ -13,7 +13,7 @@ export function createRecoveryImageDirectionSolver(
 ): ReturnType<IAutoMovieRecoveryImageDirectionSolverCreationOperation.Operation> {
   let r00: number = 0;
   for (const row of directions) r00 = Math.hypot(r00, row[0]);
-  if (!(r00 > 0) || !Number.isFinite(r00))
+  if (!(r00 > 0))
     throw new Error(
       "weak-support-directions: first direction column is degenerate",
     );
@@ -43,7 +43,7 @@ export function createRecoveryImageDirectionSolver(
   const largest: number =
     (Math.hypot(r00 + r11, r01) + Math.hypot(r00 - r11, r01)) / 2;
   const ratio: number = (r00 / largest) * (r11 / largest);
-  if (!(ratio >= minimumRatio) || !Number.isFinite(ratio))
+  if (!(ratio >= minimumRatio))
     throw new Error(
       "weak-support-directions: supplied camera columns do not identify both section axes",
     );
@@ -56,17 +56,11 @@ export function createRecoveryImageDirectionSolver(
       let first: number = 0,
         second: number = 0;
       for (let index: number = 0; index < values.length; index++) {
-        if (!Number.isFinite(values[index]))
-          throw new Error(
-            "Nonfinite section support cannot enter direction fitting",
-          );
         first += q0[index] * values[index];
         second += q1[index] * values[index];
       }
       const z: number = second / r11,
         x: number = (first - r01 * z) / r00;
-      if (!Number.isFinite(x) || !Number.isFinite(z))
-        throw new Error("Direction solve exceeded finite arithmetic");
       return [x, z];
     },
   };

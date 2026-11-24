@@ -109,7 +109,7 @@ const validateSurface: (
   }
   if (
     surface.availableFrom !== undefined &&
-    (!Number.isFinite(surface.availableFrom) || surface.availableFrom < 0)
+    (surface.availableFrom < 0)
   )
     collector.push(
       "range",
@@ -252,19 +252,7 @@ const validateRing: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): IAutoMovieFootprintRing | null => {
-  let planFinite: boolean = true;
-  points.forEach((point: IAutoMovieVector3, i: number): void => {
-    for (const axis of ["x", "z"] as const)
-      if (!Number.isFinite(point[axis])) {
-        planFinite = false;
-        collector.push(
-          "range",
-          `${path}[${i}].${axis}`,
-          `${label} ${axis} must be finite, but was ${point[axis]}`,
-          point[axis],
-        );
-      }
-  });
+
   if (points.length < 3) {
     collector.push(
       "type",
@@ -274,7 +262,6 @@ const validateRing: (
     );
     return null;
   }
-  if (!planFinite) return null;
   const ring: IAutoMovieFootprintRing = footprintRing(points);
   if (Math.abs(ring.doubleArea) <= MIN_RING_DOUBLE_AREA) {
     collector.push(
@@ -347,14 +334,10 @@ const validateSurfaceGround: (
     );
     return;
   }
-  validateAnchor(surface.anchor, `${path}.anchor`, collector);
   if (rampTo !== null) {
-    validateAnchor(rampTo, `${path}.rampTo`, collector);
     const ax: number = rampTo.x - surface.anchor.x;
     const az: number = rampTo.z - surface.anchor.z;
     if (
-      Number.isFinite(ax) &&
-      Number.isFinite(az) &&
       ax * ax + az * az < MIN_RAMP_AXIS
     )
       collector.push(
@@ -366,38 +349,3 @@ const validateSurfaceGround: (
   }
 };
 
-/**
- * Require finite X/Y/Z in a surface height anchor.
- *
- * The ground statement owner supplies which anchor path is being checked.
- *
- * The vector is not normalized or replaced by the origin.
- *
- * Axis-qualified faults retain each authored scalar.
- *
- * Three finite tests cost constant work.
- *
- * Anchor and ramp endpoint share this admission rather than divergent vector
- * checks.
- *
- * Only caller-owned diagnostics remain; no anchor record is retained
- * internally.
- */
-const validateAnchor: (
-  anchor: IAutoMovieVector3,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  anchor: IAutoMovieVector3,
-  path: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(anchor[axis]))
-      collector.push(
-        "range",
-        `${path}.${axis}`,
-        `anchor ${axis} must be finite, but was ${anchor[axis]}`,
-        anchor[axis],
-      );
-};

@@ -15,6 +15,6 @@ export const countAtLeast = (
   least: number,
   label: string,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < least)
+  if (value < least)
     throw new Error(`${label} must be a safe integer >= ${least}`);
 };

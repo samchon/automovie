@@ -49,14 +49,12 @@ export const interpolateAutoMovieMonotone: (
   const xs: number[] = [...props.knots];
   const ys: number[] = [...props.values];
   for (let k: number = 0; k < n; ++k) {
-    if (!Number.isFinite(xs[k]!) || !Number.isFinite(ys[k]!))
-      throw new Error(`monotone interpolation knot ${k} is not finite`);
     if (k > 0 && !(xs[k]! > xs[k - 1]!))
       throw new Error(`monotone interpolation knot ${k} does not increase`);
   }
   const period: number | undefined = props.period;
   if (period !== undefined) {
-    if (!Number.isFinite(period) || xs[0]! < 0 || !(xs[n - 1]! < period))
+    if (xs[0]! < 0 || !(xs[n - 1]! < period))
       throw new Error("periodic knots must lie in [0, period)");
   }
   const slopes: Float64Array = new Float64Array(n);

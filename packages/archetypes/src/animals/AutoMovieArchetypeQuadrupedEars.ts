@@ -96,7 +96,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
     );
     if (
       ![withers, length, width, thickness, norm].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new RangeError(
@@ -109,10 +109,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         height: length,
         depth: thickness,
       });
-    if (
-      solid === null ||
-      !(Number.isFinite(2 * solid.volume) && 2 * solid.volume > 0)
-    )
+    if (solid === null || !(2 * solid.volume > 0))
       throw new RangeError(
         "The complete ear pair must have representable positive solid volume",
       );
@@ -141,10 +138,6 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         root,
         Vector3.scale(direction, length / 2),
       );
-      if (![centre.x, centre.y, centre.z].every(Number.isFinite))
-        throw new RangeError(
-          "Ear plate geometry must be finitely representable",
-        );
       plans.push({
         id,
         centre,
@@ -158,10 +151,7 @@ export namespace AutoMovieArchetypeQuadrupedEars {
         color: string,
         totalShare?: number,
       ): void {
-        if (
-          totalShare !== undefined &&
-          !(Number.isFinite(totalShare) && totalShare > 0 && totalShare / 2 > 0)
-        )
+        if (totalShare !== undefined && !(totalShare > 0 && totalShare / 2 > 0))
           throw new RangeError(
             "Actual ear weights must be representably positive",
           );

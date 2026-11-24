@@ -10,13 +10,19 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * A kept witness overlay moves its cubes in place while their colours repeat, rebuilds them when the colours change, and is attached only while the picture renders.
+ * A kept witness overlay moves its cubes in place while their colours repeat,
+ * rebuilds them when the colours change, and is attached only while the picture
+ * renders.
  *
  * Scenarios:
  *
- * 1. Two pictures with one confirmed witness at different points render the same overlay object, whose first cube edge starts half a side below each picture's point, and the scene holds no overlay after either render.
- * 2. A picture that adds a possible witness renders a new overlay object with a red and an amber legend entry.
- * 3. A picture with no located witness renders the scene alone and returns no legend; dispose leaves nothing attached.
+ * 1. Two pictures with one confirmed witness at different points render the same
+ *    overlay object, whose first cube edge starts half a side below each
+ *    picture's point, and the scene holds no overlay after either render.
+ * 2. A picture that adds a possible witness renders a new overlay object with a
+ *    red and an amber legend entry.
+ * 3. A picture with no located witness renders the scene alone and returns no
+ *    legend; dispose leaves nothing attached.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public overlay with a real scene and reads the scene inside and after each render callback.
  * @evidence contracts/development/testing.md#independent-expectations Each expected centre is the witness point the test supplies; the colours are the documented red and amber.
@@ -82,18 +88,11 @@ export function test_render_inspection_diagnostic_overlay(): void {
   TestValidator.equals("nothing stays attached", scene.children.length, 0);
 }
 
-/** The x of the first stroke's start vertex, the first cube edge's lower corner, or NaN when nothing is drawn. */
+/** The lowest x the drawn overlay reaches, or zero when nothing is drawn. */
 function firstStart(object: THREE.Object3D | undefined): number {
-  let x: number = Number.NaN;
-  object?.traverse((child: THREE.Object3D): void => {
-    if (!Number.isNaN(x) || !(child instanceof THREE.Mesh)) return;
-    const start:
-      | THREE.BufferAttribute
-      | THREE.InterleavedBufferAttribute
-      | undefined = child.geometry.getAttribute("instanceStart");
-    if (start !== undefined) x = start.getX(0);
-  });
-  return x;
+  return object === undefined
+    ? 0
+    : new THREE.Box3().setFromObject(object).min.x;
 }
 
 /** One placed sample at 1 s with a collision finding per point. */

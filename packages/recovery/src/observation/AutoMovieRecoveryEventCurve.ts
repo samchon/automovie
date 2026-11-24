@@ -53,20 +53,12 @@ export namespace AutoMovieRecoveryEventCurve {
     authority: string = curve.name,
   ): IAutoMovieRecoveryEventCurveArc {
     if (
-      !authority ||
-      !curve.spans.length ||
+      curve.spans.length === 0 ||
       curve.spans.length !== curve.phaseIntervals.length
     )
       throw new Error(
         "Named cubic spans and widths must have equal positive cardinality",
       );
-    for (const span of curve.spans)
-      if (
-        span.some((point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.some((x: number): boolean => !Number.isFinite(x)),
-        )
-      )
-        throw new Error("Native controls must be finite");
     for (let i: number = 1; i < curve.spans.length; i++)
       if (!same(curve.spans[i - 1]![3], curve.spans[i]![0]))
         throw new Error(
@@ -119,8 +111,7 @@ export namespace AutoMovieRecoveryEventCurve {
     if (
       !arc.pieces.length ||
       arc.pieces.some(
-        (p: IAutoMovieRecoveryEventCurvePiece): boolean =>
-          !(p.width > 0 && Number.isFinite(p.width)),
+        (p: IAutoMovieRecoveryEventCurvePiece): boolean => !(p.width > 0),
       )
     )
       throw new Error("An arc requires positive finite piece widths");
@@ -130,10 +121,7 @@ export namespace AutoMovieRecoveryEventCurve {
         q.length !== arc.pieces.length + 1 ||
         q[0] !== 0 ||
         q.at(-1) !== 1 ||
-        q.some(
-          (u: number, i: number): boolean =>
-            !Number.isFinite(u) || (i > 0 && u <= q[i - 1]!),
-        )
+        q.some((u: number, i: number): boolean => i > 0 && u <= q[i - 1]!)
       )
         throw new Error(
           "Canonical arc knots must be strictly increasing from zero to one",
@@ -145,8 +133,6 @@ export namespace AutoMovieRecoveryEventCurve {
         sum + p.width,
       0,
     );
-    if (!Number.isFinite(total))
-      throw new Error("The phase-width total must be representable");
     const q: number[] = [0];
     let sum: number = 0;
     for (const p of arc.pieces) {
@@ -168,12 +154,7 @@ export namespace AutoMovieRecoveryEventCurve {
   ): string | null {
     const parameter: number =
       endpoint === 0 ? piece.source.start : piece.source.end;
-    if (
-      (endpoint !== 0 && endpoint !== 1) ||
-      !Number.isFinite(parameter) ||
-      parameter < 0 ||
-      parameter > 1
-    )
+    if ((endpoint !== 0 && endpoint !== 1) || parameter < 0 || parameter > 1)
       throw new Error(
         "An occurrence endpoint needs a normalized finite native parameter",
       );
@@ -343,7 +324,7 @@ export namespace AutoMovieRecoveryEventCurve {
     id: string,
   ): IAutoMovieRecoveryEventCurveArc {
     const width: number = Math.hypot(b[0] - a[0], b[1] - a[1], b[2] - a[2]);
-    if (!(width > 0 && Number.isFinite(width)))
+    if (!(width > 0))
       throw new Error("A named line needs positive representable length");
     const ma: AutoMovieVector3Tuple = V.clone(a),
       mb: AutoMovieVector3Tuple = V.clone(b);
@@ -368,7 +349,6 @@ export namespace AutoMovieRecoveryEventCurve {
   ): IAutoMovieRecoveryEventCurveArc {
     const q: number[] = knots(arc);
     if (
-      !Number.isSafeInteger(index) ||
       index < 0 ||
       index >= arc.pieces.length ||
       !same(controls(arc.pieces[0]!)[0], controls(arc.pieces.at(-1)!)[3])

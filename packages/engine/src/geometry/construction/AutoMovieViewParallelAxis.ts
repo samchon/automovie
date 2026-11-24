@@ -42,7 +42,6 @@ export namespace AutoMovieViewParallelAxis {
     const V: AutoMovieVector3Tuple = [...v];
     const tolerance: number = 64 * Number.EPSILON;
     if (
-      ![...U, ...V].every(Number.isFinite) ||
       Math.abs(Math.hypot(...U) - 1) > tolerance ||
       Math.abs(Math.hypot(...V) - 1) > tolerance ||
       Math.abs(U[0] * V[0] + U[1] * V[1] + U[2] * V[2]) > tolerance
@@ -108,7 +107,6 @@ export namespace AutoMovieViewParallelAxis {
             reading.parameterJet[1] * transfer[0] * transfer[0] +
             reading.parameterJet[0] * transfer[1];
         }
-        if (![...first, ...second].every(Number.isFinite)) return null;
         return AutoMovieViewAxisJet.fixed(
           { origin: point, u: [...U], v: [...V] },
           first,

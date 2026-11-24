@@ -57,15 +57,10 @@ export const validateBuiltConnectorShape: (
   measured: boolean,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  const finite: boolean =
-    connector.route.length >= 2 &&
-    connector.route.every((point: IAutoMovieVector3): boolean =>
-      [point.x, point.y, point.z].every(Number.isFinite),
-    );
   // A route with any length can be measured even with a repeated station,
   // which is reported here; only a route of one repeated point has none.
   let measurable: boolean = false;
-  if (finite)
+  if (connector.route.length >= 2)
     for (let index: number = 0; index + 1 < connector.route.length; ++index)
       if (
         Vector3.length(
@@ -125,26 +120,11 @@ export const validateBuiltConnectorShape: (
     );
   } else validateSections(connector.sections!, `${path}.sections`, collector);
 
-  let metrics: IAutoMovieConnectorGeometry | null = measurable
+  const metrics: IAutoMovieConnectorGeometry | null = measurable
     ? builtConnectorGeometry(environment, connector.id)
     : null;
-  if (
-    metrics !== null &&
-    [metrics.length, metrics.run, metrics.rise, metrics.slope].some(
-      (value: number): boolean => !Number.isFinite(value),
-    )
-  ) {
-    collector.push(
-      "range",
-      `${path}.route`,
-      "connector route must produce finite length, run, rise and slope",
-      connector.route,
-    );
-    metrics = null;
-  }
   if (connector.slope !== undefined) {
     if (
-      !Number.isFinite(connector.slope) ||
       connector.slope < 0 ||
       connector.slope > Math.PI / 2
     )
@@ -168,7 +148,7 @@ export const validateBuiltConnectorShape: (
   if (connector.steps === undefined) return;
   const steps: NonNullable<IAutoMovieBuiltConnector["steps"]> = connector.steps;
   const before: number = collector.items.length;
-  if (!Number.isSafeInteger(steps.count) || steps.count < 1)
+  if (steps.count < 1)
     collector.push(
       "range",
       `${path}.steps.count`,

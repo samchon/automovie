@@ -89,7 +89,7 @@ export namespace HumanForceResponse {
                 f.from - context.start,
             ),
         );
-    if (!(onset > 0 && Number.isFinite(onset)))
+    if (!(onset > 0 && onset < Infinity))
       return humanForceRespond(context, chosen, outcome);
     const answer: IAutoMovieMotionHumanActionPlan = humanForceRespond(
       {

@@ -4,7 +4,6 @@ import type {
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "./HumanLimbFit";
@@ -82,25 +81,6 @@ function simple(goal: IAutoMovieHumanLimbGoal, leg: boolean): boolean {
     goal.rests === undefined &&
     goal.restsOwn === undefined &&
     goal.clearanceOn === undefined &&
-    (leg || (goal.contact === undefined && goal.planted === undefined)) &&
-    finite(goal.point) &&
-    finite(goal.bend) &&
-    (goal.contact === undefined || finite(goal.contact)) &&
-    (goal.rotation === undefined ||
-      [
-        goal.rotation.x,
-        goal.rotation.y,
-        goal.rotation.z,
-        goal.rotation.w,
-      ].every(Number.isFinite))
-  );
-}
-
-/** Nonfinite omitted demands must reach the original numerical admission. */
-function finite(point: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(point.x) &&
-    Number.isFinite(point.y) &&
-    Number.isFinite(point.z)
+    (leg || (goal.contact === undefined && goal.planted === undefined))
   );
 }

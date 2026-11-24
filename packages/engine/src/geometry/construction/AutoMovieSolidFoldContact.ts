@@ -176,9 +176,7 @@ export namespace AutoMovieSolidFoldContact {
         [-dot(h.rate, gap), dot(m.rate, gap)],
       );
       if (
-        move === null ||
-        !Number.isFinite(move[0]) ||
-        !Number.isFinite(move[1])
+        move === null
       )
         return null;
       uh += move[0];

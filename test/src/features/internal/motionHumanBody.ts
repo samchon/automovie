@@ -1,56 +1,44 @@
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   IAutoMovieHumanCanonicalBody,
-  IAutoMovieHumanParameters,
   IAutoMovieMotionHumanBody,
 } from "@automovie/interface";
 import { createHumanBody } from "@automovie/motions";
 
-import PEOPLE from "./MOTION_HUMAN_PEOPLE.json";
+import type { IMotionHumanPerson } from "./people/IMotionHumanPerson";
+import { MOTION_HUMAN_PEOPLE } from "./people/MOTION_HUMAN_PEOPLE";
 
 /**
  * A real body for the motion tests: one of the fourteen people of the ANSUR
  * 1988 boundary population the capture harness sweeps, prepared by Human at the
  * skeleton level and wrapped as the motions package's body.
  *
- * `MOTION_HUMAN_PEOPLE.json` holds each person's Human parameters and surveyed
- * mass, a snapshot of `HumanPopulation.params(end)` and
- * `HumanPopulation.measures(end).mass` of the motions package's capture harness
- * for the ends of its sweep (the harness is not a package entry point, so a
- * test cannot import it).
- *
- * A body is prepared from the parameters by closed-form placement laws in tens
- * of milliseconds, so each is prepared once a process, wrapped and shared by
- * every test of the process; tests must not mutate it.
+ * Each person's Human parameters and surveyed mass are typed constants
+ * (`MOTION_HUMAN_PEOPLE`). Each call prepares and wraps a new body, the
+ * preparation tens of milliseconds and the wrapping, which solves the quiet
+ * stance, hundreds; nothing is kept between calls, so no test shares a body
+ * with another. A unit test reads the stored rig and profile (`humanFixture`)
+ * instead and takes a whole body only for a function whose input is one.
  *
  * @param name The person.
- * @returns The body.
+ * @returns A new body.
  */
 export function motionHumanBody(
   name: motionHumanBody.Name,
 ): IAutoMovieMotionHumanBody {
-  const known: IAutoMovieMotionHumanBody | undefined = BODIES.get(name);
-  if (known !== undefined) return known;
-  const person: { mass: number; params: unknown } = PEOPLE[name];
-  const params: IAutoMovieHumanParameters =
-    person.params as IAutoMovieHumanParameters;
+  const person: IMotionHumanPerson = MOTION_HUMAN_PEOPLE[name];
   const prepared: IAutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(params, {
+    AutoMovieHumanCanonicalBody.prepare(person.params, {
       mass: person.mass,
       id: name,
     });
-  const body: IAutoMovieMotionHumanBody = createHumanBody(
-    prepared.skeleton,
-    prepared.profile,
-  );
-  BODIES.set(name, body);
-  return body;
+  return createHumanBody(prepared.skeleton, prepared.profile);
 }
 
 /** Companion types and lists of {@link motionHumanBody}. */
 export namespace motionHumanBody {
   /** The people of the fixture. */
-  export type Name = keyof typeof PEOPLE;
+  export type Name = MOTION_HUMAN_PEOPLE.Name;
 
   /**
    * Every person of the sweep: both sexes' small and large corners, the
@@ -86,5 +74,3 @@ export namespace motionHumanBody {
     "m-average",
   ];
 }
-
-const BODIES: Map<motionHumanBody.Name, IAutoMovieMotionHumanBody> = new Map();

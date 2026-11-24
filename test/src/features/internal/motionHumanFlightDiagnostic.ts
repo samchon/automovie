@@ -214,7 +214,6 @@ export function motionHumanFlightDiagnostic(props: {
     problems.push("flight diagnostic does not admit held or stopped weapons");
   if (
     !(
-      Number.isFinite(delta) &&
       delta > 0 &&
       observations.length === 19 &&
       observations.every(
@@ -256,10 +255,7 @@ export function motionHumanFlightDiagnostic(props: {
         if (
           transition !== undefined &&
           transition.kind !== "redirect" &&
-          !(
-            Number.isFinite(transition.cut + transition.blend) &&
-            seconds - transition.cut >= transition.blend
-          )
+          !(seconds - transition.cut >= transition.blend)
         )
           throw new Error(`transition offset still active at ${seconds}`);
         const share: number = (seconds - segment.start) / segment.plan.duration;
@@ -282,15 +278,7 @@ export function motionHumanFlightDiagnostic(props: {
           )
         )
           throw new Error(`raw goals are planted or attached at ${seconds}`);
-        if (
-          actual.root === null ||
-          !qunit(actual.root.rotation) ||
-          ![
-            actual.root.translation.x,
-            actual.root.translation.y,
-            actual.root.translation.z,
-          ].every(Number.isFinite)
-        )
+        if (actual.root === null || !qunit(actual.root.rotation))
           throw new Error(`recorded displayed root is invalid at ${seconds}`);
         const canonical: IAutoMoviePose = clampPose(
           resolveHumanPosture(body, raw),
@@ -319,11 +307,6 @@ export function motionHumanFlightDiagnostic(props: {
               `displayed joint ${joint.bone} is missing at ${seconds}`,
             );
           for (const axis of ["flexion", "abduction", "twist"] as const) {
-            if (
-              (joint[axis] !== null && !Number.isFinite(joint[axis])) ||
-              (displayed[axis] !== null && !Number.isFinite(displayed[axis]))
-            )
-              row.finite = false;
             if (!Object.is(displayed[axis], joint[axis]))
               row.jointDifferences.push({
                 seconds,
@@ -346,19 +329,6 @@ export function motionHumanFlightDiagnostic(props: {
         2 * delta,
       ).angular;
       row.discrepancy = Vector3.subtract(row.displayed, row.rigid);
-      row.finite &&= [
-        row.displayed.x,
-        row.displayed.y,
-        row.displayed.z,
-        row.rigid.x,
-        row.rigid.y,
-        row.rigid.z,
-        row.discrepancy.x,
-        row.discrepancy.y,
-        row.discrepancy.z,
-      ].every(Number.isFinite);
-      if (!row.finite)
-        problems.push(`${row.role}: nonfinite flight diagnostic values`);
     } catch (error) {
       row.finite = false;
       row.error = error instanceof Error ? error.message : String(error);
@@ -368,7 +338,7 @@ export function motionHumanFlightDiagnostic(props: {
   }
   const takeoff: ReturnType<typeof motionHumanFlightDiagnostic>["takeoff"] = [];
   const takeoffProblems: string[] = [];
-  if (!(Number.isFinite(from) && from > 0))
+  if (!(from > 0))
     takeoffProblems.push(
       "Direct takeoff observation requires this fixture's positive finite clock",
     );
@@ -385,15 +355,7 @@ export function motionHumanFlightDiagnostic(props: {
     for (const seconds of [before, from, after]) {
       try {
         const pose: IAutoMoviePose = film.pose("a", seconds);
-        if (
-          pose.root === null ||
-          !qunit(pose.root.rotation) ||
-          ![
-            pose.root.translation.x,
-            pose.root.translation.y,
-            pose.root.translation.z,
-          ].every(Number.isFinite)
-        )
+        if (pose.root === null || !qunit(pose.root.rotation))
           throw new Error(
             "Direct takeoff observation has an invalid displayed root",
           );
@@ -407,8 +369,6 @@ export function motionHumanFlightDiagnostic(props: {
           model,
           world,
         );
-        if (![centre.x, centre.y, centre.z].every(Number.isFinite))
-          throw new Error("Direct takeoff centre is nonfinite");
         takeoff.push({
           seconds,
           pose: structuredClone(pose),

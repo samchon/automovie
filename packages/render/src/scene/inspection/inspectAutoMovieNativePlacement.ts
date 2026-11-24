@@ -7,7 +7,6 @@ import type { Matrix4, Object3D } from "three";
 import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "./AUTOMOVIE_PLACED_FRAME_TOLERANCE.js";
 import { autoMovieInspectionEntityPathOf } from "./autoMovieInspectionEntityPathOf.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
-import { isAutoMovieFiniteVector } from "./isAutoMovieFiniteVector.js";
 
 type IFinding = IAutoMovieInspectionDiagnostics.IFinding;
 
@@ -77,7 +76,6 @@ function inspectNode(
   if (authority !== undefined) {
     if (!drawable(object[authority], isCamera)) fields.push(authority);
   } else {
-    if (!isAutoMovieFiniteVector(object.position)) fields.push("position");
     if (
       !(
         Math.abs(object.quaternion.length() - 1) <=
@@ -86,10 +84,7 @@ function inspectNode(
     )
       fields.push("quaternion");
     const scale: IAutoMovieVector3 = object.scale;
-    if (
-      !isAutoMovieFiniteVector(scale) ||
-      (isCamera && (scale.x === 0 || scale.y === 0 || scale.z === 0))
-    )
+    if (isCamera && (scale.x === 0 || scale.y === 0 || scale.z === 0))
       fields.push("scale");
   }
   // Valid local authority can still compose a corrupt displayed matrix through
@@ -123,9 +118,5 @@ function inspectNode(
  */
 function drawable(matrix: Matrix4, isCamera: boolean): boolean {
   const determinant: number = isCamera ? matrix.determinant() : 1;
-  return (
-    isAutoMovieAffineMatrix(matrix) &&
-    Number.isFinite(determinant) &&
-    determinant !== 0
-  );
+  return isAutoMovieAffineMatrix(matrix) && determinant !== 0;
 }

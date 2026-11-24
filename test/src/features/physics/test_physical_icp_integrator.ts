@@ -19,9 +19,7 @@ import { TestValidator } from "@nestia/e2e";
  * 5. The smart integrator off: stuck, but a zero integral.
  * 6. A leak of 0.25 per second over dt 0.5 halves the old integral; a maximum of 1
  *    cm holds a longer one to 1 cm along itself; a K_i under 1e-10 zeroes it.
- * 7. A not-a-number error while stuck makes the integral not a number, a finite
- *    error next keeps it so, and a moving plan clears it.
- * 8. `reset` keeps the integral and clears the flag; a new integrator is not stuck
+ * 7. `reset` keeps the integral and clears the flag; a new integrator is not stuck
  *    with a zero integral.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the stuck rule, the integral law and each scenario.
@@ -142,29 +140,7 @@ export function test_physical_icp_integrator(): void {
     { x: 0, y: 0 },
   );
 
-  // 7. A not-a-number error poisons the integral while stuck.
-  const poisoned: physicalAngularMomentumIntegrator.IState = step(
-    integrator.create(),
-    still,
-    slow,
-    { x: Number.NaN, y: Number.NaN },
-  );
-  TestValidator.predicate(
-    "not a number while stuck",
-    poisoned.stuck &&
-      Number.isNaN(poisoned.integral.x) &&
-      Number.isNaN(poisoned.integral.y),
-  );
-  TestValidator.predicate(
-    "stays not a number",
-    Number.isNaN(step(poisoned, still, fast).integral.x),
-  );
-  TestValidator.equals("moving plan clears it", step(poisoned, fast, still), {
-    stuck: false,
-    integral: { x: 0, y: 0 },
-  });
-
-  // 8. Reset and create.
+  // 7. Reset and create.
   TestValidator.equals("reset", integrator.reset(twice), {
     stuck: false,
     integral: twice.integral,

@@ -26,12 +26,26 @@ import { nclose } from "../../internal/nclose";
  * Exact native ellipse phases are compared with actual final-loft consumers.
  *
  * Scenarios:
- * 1. Aspects 1,2,4,8,16,32,64, reciprocal orientations and three length scales retain the source/box budgets through candidate native points/jets at and between identical layers; actual ViewLoft point/Jet/surface must satisfy the same convexity/support expectations.
- * 2. The old direct periodic Cartesian cubic remains a negative mathematical witness, not a convexity promise of SplineCurve's interpolation API.
- * 3. A three-layer homothetic ellipse agrees with an independent closed-form natural spline and its station/phase/mixed derivatives; numeric copies preserve the source and invalid inputs fail explicitly.
- * 4. A four-layer circle counterexample demonstrates that native principal preservation does not guarantee positive intermediate radii.
- * 5. The actual authored source a(s)=1+s squared,b(s)=2 retains its scalar 2-jet and direct native phase jet, while a second principal interpolation loses0.25 mm at the midpoint. The same original source remains the expectation for final point/Jet/surface consumers.
- * 6. Actual original total2, four native continuation end signs, a tiny mixed complementary weight, cap support derivatives, scalar bridge laws, finite Point0 without physical2, cold copies and held samplers distinguish production ownership and capability boundaries.
+ *
+ * 1. Aspects 1,2,4,8,16,32,64, reciprocal orientations and three length scales
+ *    retain the source/box budgets through candidate native points/jets at and
+ *    between identical layers; actual ViewLoft point/Jet/surface must satisfy
+ *    the same convexity/support expectations.
+ * 2. The old direct periodic Cartesian cubic remains a negative mathematical
+ *    witness, not a convexity promise of SplineCurve's interpolation API.
+ * 3. A three-layer homothetic ellipse agrees with an independent closed-form
+ *    natural spline and its station/phase/mixed derivatives; numeric copies
+ *    preserve the source and invalid inputs fail explicitly.
+ * 4. A four-layer circle counterexample demonstrates that native principal
+ *    preservation does not guarantee positive intermediate radii.
+ * 5. The actual authored source a(s)=1+s squared,b(s)=2 retains its scalar 2-jet
+ *    and direct native phase jet, while a second principal interpolation
+ *    loses0.25 mm at the midpoint. The same original source remains the
+ *    expectation for final point/Jet/surface consumers.
+ * 6. Actual original total2, four native continuation end signs, a tiny mixed
+ *    complementary weight, cap support derivatives, scalar bridge laws, finite
+ *    Point0 without physical2, cold copies and held samplers distinguish
+ *    production ownership and capability boundaries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the new disconnected source helper and the real ViewLoft chain through point, Jet and surface. Convexity/support failures remain failures in the final consumers; the old direct spline is retained separately as a diagnostic counterexample.
  * @evidence contracts/development/testing.md#independent-expectations Ellipse radius is1/hypot(cos/a,sin/b), implicit residual budget3e-7 and source-radius budget1e-7 times the short extent are unchanged. Cartesian signed curvature uses64epsilon times the two product magnitudes and support allowance256epsilon times the long extent. The three-layer natural spline has middle curvature-3 for scale data[1,2,1] on[0,1,2]. The four-layer[1,1,10,1] scale spline equals-0.35 at0.5. Authored endpoint jets independently specify a(s)=1+s squared; its middle1.25 cannot be replaced by linear1.5. Timing is observation only, and no finite sample sweep certifies a continuous bound.
@@ -245,11 +259,7 @@ function oracle(a: number, b: number, phi: number): number[] {
 /** Exact axis supports with the original binary64 summation allowance. */
 function outside(q: readonly number[], a: number, b: number): boolean {
   const allowance: number = 256 * Number.EPSILON * Math.max(a, b);
-  return (
-    !q.every(Number.isFinite) ||
-    Math.abs(q[0]!) > a + allowance ||
-    Math.abs(q[1]!) > b + allowance
-  );
+  return Math.abs(q[0]!) > a + allowance || Math.abs(q[1]!) > b + allowance;
 }
 
 /** Signed Cartesian curvature with the original cancellation allowance. */
@@ -257,7 +267,6 @@ function inward(q: readonly number[]): boolean {
   const first: number = q[2]! * q[5]!;
   const second: number = q[3]! * q[4]!;
   return (
-    !q.every(Number.isFinite) ||
     first - second < -64 * Number.EPSILON * (Math.abs(first) + Math.abs(second))
   );
 }
@@ -284,7 +293,10 @@ function part(a: number, b: number): IAutoMovieViewPart {
   };
 }
 
-/** Independent natural-spline values, copying, chain rules and an off-layer failure witness. */
+/**
+ * Independent natural-spline values, copying, chain rules and an off-layer
+ * failure witness.
+ */
 function interpolation(failures: string[]): void {
   const curves: IAutoMovieViewConic.ICurve[] = [1, 2, 1].map(
     (scale: number): IAutoMovieViewConic.ICurve =>

@@ -5,30 +5,52 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Read every grip and worn/mounted span on one prop in film order. Placement
- * records remain unchanged during this synchronous assembly.
+ * Every grip and worn/mounted span on one prop in film order: the spans the
+ * performance prepared (`IAutoMovieMotionHumanPerformanceState.grips`), or,
+ * while the schedule is resolved, those its placed actions give now.
  *
- * @param self The resolved state and its existing grip cache.
- * @param subject The prop whose spans are collected.
- * @returns The cached list or the newly assembled list with existing ownership.
+ * @param self The performance.
+ * @param subject The prop whose spans are read.
+ * @returns The spans.
  */
 export function HumanPerformanceGrips(
   self: IAutoMovieMotionHumanPerformanceState,
   subject: string,
 ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
-  const known: IAutoMovieMotionHumanPerformanceState.IGrip[] | undefined =
-    self.gripCache.get(subject);
-  if (known !== undefined) return known;
+  return self.grips.get(subject) ?? HumanPerformanceGrips.assemble(self, subject);
+}
+
+/** The assembly of a prop's spans. */
+export namespace HumanPerformanceGrips {
+  /**
+   * Collect every grip and worn/mounted span on one prop in film order from
+   * the placed actions, their holds, wears and mounts and the prop's own
+   * declaration, with no offset yet.
+   *
+   * @param self The performance.
+   * @param subject The prop whose spans are collected.
+   * @returns The spans.
+   */
+  export function assemble(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+  ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
+    return collect(self, subject);
+  }
+}
+
+/** The spans of {@link HumanPerformanceGrips.assemble}. */
+function collect(
+  self: IAutoMovieMotionHumanPerformanceState,
+  subject: string,
+): IAutoMovieMotionHumanPerformanceState.IGrip[] {
   const out: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
   const worn: IAutoMovieMotionHumanPerformanceState.IGrip[] = [];
 
   const definition: IAutoMovieMotionHumanProp | undefined =
     self.props.get(subject);
   // A fixture bears the hands that grip it and is never carried by them.
-  if (definition?.fixed === true) {
-    if (!self.resolving) self.gripCache.set(subject, out);
-    return out;
-  }
+  if (definition?.fixed === true) return out;
   const declared: IAutoMovieMotionHumanProp.IWorn | undefined =
     definition?.worn;
   if (declared !== undefined)
@@ -148,6 +170,5 @@ export function HumanPerformanceGrips(
       b: IAutoMovieMotionHumanPerformanceState.IGrip,
     ): number => a.from - b.from,
   );
-  if (!self.resolving) self.gripCache.set(subject, out);
   return out;
 }

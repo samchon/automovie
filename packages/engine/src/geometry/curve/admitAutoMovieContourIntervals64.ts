@@ -97,7 +97,6 @@ export function admitAutoMovieContourIntervals64(
         for (let slot: number = 0; slot < raw.length; slot++) {
           const id: number = raw[slot];
           if (
-            !Number.isSafeInteger(id) ||
             id < 0 ||
             id >= props.rings[k - 1 + side].length
           ) {

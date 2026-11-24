@@ -138,7 +138,7 @@ export namespace AutoMovieArchetypeManoeuvre {
     range: ISpeedRange,
     step: number,
   ): AutoMovieArchetypeCourse.ISample[][] {
-    if (!(Number.isInteger(wheel.files) && wheel.files >= 1))
+    if (!(wheel.files >= 1))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,

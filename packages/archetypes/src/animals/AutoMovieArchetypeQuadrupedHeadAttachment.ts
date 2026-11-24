@@ -37,11 +37,8 @@ export function AutoMovieArchetypeQuadrupedHeadAttachment(
   stemRadius: number,
 ): IAutoMovieVector3 {
   if (
-    ![head.poll, head.nose, hint].every((point: IAutoMovieVector3): boolean =>
-      [point.x, point.y, point.z].every(Number.isFinite),
-    ) ||
-    !(Number.isFinite(head.headRadius) && head.headRadius > 0) ||
-    !(Number.isFinite(stemRadius) && stemRadius > 0) ||
+    !(head.headRadius > 0) ||
+    !(stemRadius > 0) ||
     stemRadius > head.headRadius
   )
     throw new RangeError(
@@ -54,7 +51,7 @@ export function AutoMovieArchetypeQuadrupedHeadAttachment(
     head.nose.z - head.poll.z,
   );
   const inner: number = head.headRadius - stemRadius;
-  if (!(Number.isFinite(span) && span > 0) || inner === head.headRadius)
+  if (!(span > 0) || inner === head.headRadius)
     throw new RangeError(
       "The actual head axis and positive appendage inset must be representable",
     );
@@ -70,7 +67,5 @@ export function AutoMovieArchetypeQuadrupedHeadAttachment(
     y: nearest.pointB.y + (hint.y - nearest.pointB.y) * scale,
     z: nearest.pointB.z + (hint.z - nearest.pointB.z) * scale,
   };
-  if (![result.x, result.y, result.z].every(Number.isFinite))
-    throw new RangeError("The seated appendage root must be representable");
   return result;
 }

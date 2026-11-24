@@ -12,24 +12,20 @@ import type {
 import { stand } from "../actions/stand";
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
+import type { HumanKnot } from "../posture/HumanKnot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { knockdown } from "../reaction/knockdown";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
+import { floorArmRoom } from "./floorArmRoom";
 
 /** The alternatives of `HipsPosture`'s site. */
 type HipsPosture = "root" | "yaw" | "pitch" | "roll";
 
 /** The alternatives of `BetweenHeading`'s site. */
 type BetweenHeading = "yaw" | "pitch" | "roll";
-
-/** The record of `IBetweenFixed`'s site. */
-type IBetweenFixed = {
-  hips: ReturnType<typeof Vector3.prepareLerp>;
-  sunkFrom: number;
-  sunkTo: number;
-};
 
 /** The alternatives of `DisplayedFrameResult`'s site. */
 type DisplayedFrameResult = "root" | "yaw" | "pitch" | "roll";
@@ -139,13 +135,15 @@ export namespace floorEntry {
    * A floor law's posture with its way down taken from the entry: the law's own
    * posture once its way down is done or when it was entered standing, and
    * before that the blend from the displayed entry to the law's posture at the
-   * end of its way down, which is read once.
+   * end of its way down, which is prepared here over the base the law is
+   * written over.
    *
    * @param body The body.
    * @param entered The displayed entry; null when the law was entered standing.
    * @param at The law's second at the end of its way down.
    * @param weight How far down the body is at a second, in [0, 1].
    * @param posture The law's posture at a second over a base posture.
+   * @param base The base posture the law is written over at `at`.
    * @returns The posture at a second over a base posture.
    */
   export function down(
@@ -154,31 +152,35 @@ export namespace floorEntry {
     at: number,
     weight: (seconds: number) => number,
     posture: IAutoMovieMotionHumanPrimitive["write"],
+    base: IAutoMovieMotionHumanPosture,
   ): IAutoMovieMotionHumanPrimitive["write"] {
-    let arrived: IAutoMovieMotionHumanPosture | undefined;
-    let transition: ReturnType<typeof between> | undefined;
+    if (entered === null) return posture;
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const arrived: IAutoMovieMotionHumanPosture = GymnasticsFlight.frozen(
+      body,
+      posture(base, at, undefined, read, project),
+      read,
+      project,
+    );
+    const transition: ReturnType<typeof between> = between(
+      body,
+      entered,
+      arrived,
+    );
     return (
-      base: IAutoMovieMotionHumanPosture,
+      over: IAutoMovieMotionHumanPosture,
       seconds: number,
       before?: IAutoMovieMotionHumanPrimitive.Reader,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture => {
       const w: number = weight(seconds);
-      if (entered === null || w >= 1)
-        return posture(base, seconds, before, resolution, projection);
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        projection ?? prepareHumanPostureProjection(body);
-      arrived ??= GymnasticsFlight.frozen(
-        body,
-        posture(base, at, before, read, project),
-        read,
-        project,
-      );
-      transition ??= between(body, entered, arrived);
-      return transition(w, read, project);
+      return w >= 1
+        ? posture(over, seconds, before, resolution, projection)
+        : transition(w);
     };
   }
 
@@ -263,19 +265,17 @@ export namespace floorEntry {
    * swing the hips through the air between two tilted bodies, whose roots lie
    * far from their hips. Where the blended angles would put a limb deeper under
    * the floor than the two ends have it, the body is raised by the difference
-   * (`knockdown.prepareRest`). The endpoints stay unchanged for the
-   * transition's lifetime; their hip points and floor clearances are measured
-   * on the first interior query and kept with it.
+   * (`knockdown.prepareRest`). That rise is solved here at evenly spaced
+   * weights, as many as keep every arm within the audit's allowance between
+   * two of them (`floorArmRoom.count`), and read between them from a knot
+   * course (`prepareHumanKnotCourse`, Flash and Hogan's minimum-jerk path),
+   * so a read evaluates closed forms only.
    */
   export function between(
     body: IAutoMovieMotionHumanBody,
     from: IAutoMovieMotionHumanPosture,
     to: IAutoMovieMotionHumanPosture,
-  ): (
-    weight: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ) => IAutoMovieMotionHumanPosture {
+  ): (weight: number) => IAutoMovieMotionHumanPosture {
     const interpolate: (
       weight: number,
     ) => IAutoMovieMotionHumanPosture["joints"] = prepareHumanShapeBlend(
@@ -283,61 +283,68 @@ export namespace floorEntry {
       to.joints,
     );
     const turn: number = ((((to.yaw - from.yaw) % 360) + 540) % 360) - 180;
-    let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
-    let fixed: IBetweenFixed | undefined;
-    return (
-      weight: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      if (weight <= 0) return from;
-      if (weight >= 1) return to;
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        projection ?? prepareHumanPostureProjection(body);
-      const sunk: (posture: IAutoMovieMotionHumanPosture) => number = (
-        posture: IAutoMovieMotionHumanPosture,
-      ): number => {
-        floor ??= knockdown.prepareRest(body);
-        return Math.max(0, floor(posture, read, project) - posture.root.y);
-      };
-      fixed ??= {
-        hips: Vector3.prepareLerp(hips(body, from), hips(body, to)),
-        sunkFrom: sunk(from),
-        sunkTo: sunk(to),
-      };
+    const hipsAt: (weight: number) => IAutoMovieVector3 = Vector3.prepareLerp(
+      hips(body, from),
+      hips(body, to),
+    );
+    const carried = (weight: number): IAutoMovieMotionHumanPosture => {
       const lerp = (a: number, b: number): number => a + (b - a) * weight;
-      const joints: IAutoMovieMotionHumanPosture["joints"] =
-        interpolate(weight);
       const heading: Pick<IAutoMovieMotionHumanPosture, BetweenHeading> = {
         yaw: from.yaw + turn * weight,
         pitch: lerp(from.pitch, to.pitch),
         roll: lerp(from.roll, to.roll),
       };
-      const carried: IAutoMovieMotionHumanPosture = {
+      return {
         ...heading,
         root: Vector3.subtract(
-          fixed.hips(weight),
+          hipsAt(weight),
           Quaternion.rotateVector(
             humanPostureHeading(heading),
             body.rest.get("hips")!,
           ),
         ),
-        joints,
+        joints: interpolate(weight),
         limbs: {},
       };
+    };
 
-      // The floor is a constraint on the way: angles blended between two
-      // postures that rest on the floor can dip a limb under it, so the body
-      // is raised by whatever sinks deeper than the two ends themselves do.
-      const rise: number = Math.max(
-        0,
-        sunk(carried) - lerp(fixed.sunkFrom, fixed.sunkTo),
-      );
+    // The floor is a constraint on the way: angles blended between two
+    // postures that rest on the floor can dip a limb under it, so the body is
+    // raised by whatever sinks deeper than the two ends themselves do.
+    const floor: ReturnType<typeof knockdown.prepareRest> =
+      knockdown.prepareRest(body);
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+    const sunk = (posture: IAutoMovieMotionHumanPosture): number =>
+      Math.max(0, floor(posture, read, project) - posture.root.y);
+    const sunkFrom: number = sunk(from);
+    const sunkTo: number = sunk(to);
+    const n: number = floorArmRoom.count(body, from, to);
+    const knots: HumanKnot.IKnot[] = [];
+    const times: number[] = [];
+    for (let j: number = 0; j <= n; j++) {
+      const w: number = j / n;
+      const rise: number =
+        j === 0 || j === n
+          ? 0
+          : Math.max(0, sunk(carried(w)) - (sunkFrom + (sunkTo - sunkFrom) * w));
+      knots.push({ position: [rise], dwell: 0 });
+      times.push(w);
+    }
+    const rising: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
+      knots,
+      { kind: "fixed", times },
+    );
+    return (weight: number): IAutoMovieMotionHumanPosture => {
+      if (weight <= 0) return from;
+      if (weight >= 1) return to;
+      const posture: IAutoMovieMotionHumanPosture = carried(weight);
+      const rise: number = Math.max(0, rising.position(weight)[0]!);
       return rise === 0
-        ? carried
-        : { ...carried, root: { ...carried.root, y: carried.root.y + rise } };
+        ? posture
+        : { ...posture, root: { ...posture.root, y: posture.root.y + rise } };
     };
   }
 

@@ -80,9 +80,9 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanFirefight.IExtinguish = context.params;
-  const sweeps: number = p.sweeps ?? SWEEPS;
+  const sweeps: number = Math.round(p.sweeps ?? SWEEPS);
   const span: number = p.span ?? SPAN;
-  if (!(Number.isInteger(sweeps) && sweeps > 0 && span > 0 && span < 180))
+  if (!(sweeps > 0 && span > 0 && span < 180))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "sweeps",

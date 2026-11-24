@@ -43,8 +43,8 @@ import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  *    capture point and rate as STANDING begins, and after the cubic the caller
  *    follows the live authored capture point.
  *
- * The rate decays linearly once a state is done when the decay duration is a
- * number (l.287-306), never by default; only single support has a rate past its
+ * The rate decays linearly once a state is done when a decay duration is given
+ * (l.287-306), never by default; only single support has a rate past its
  * end, so the reference's standing exemption changes nothing.
  *
  * The plan's points ride on the frames the reference attaches them to: the
@@ -98,7 +98,7 @@ export function physicalIcpPlanner(
 
   // The rate's linear decay once done (l.287-306).
   let velocity: Tools.IFloor = output.velocity;
-  if (!Number.isNaN(plan.decay) && -remaining > 0.0) {
+  if (plan.decay !== undefined && -remaining > 0.0) {
     const factor: number = Math.min(
       Math.max(1.0 - -remaining / plan.decay, 0.0),
       1.0,
@@ -108,7 +108,7 @@ export function physicalIcpPlanner(
   return {
     position: output.position,
     velocity,
-    done: Number.isNaN(remaining) || remaining <= 0.0,
+    done: remaining <= 0.0,
   };
 }
 
@@ -137,8 +137,8 @@ export namespace physicalIcpPlanner {
     /** The swing duration, the state's duration, seconds. */
     duration: number;
 
-    /** The rate's decay duration once done, seconds; not a number for none. */
-    decay: number;
+    /** The rate's decay duration once done, seconds; undefined for none. */
+    decay: number | undefined;
 
     /** The segmented trajectory. */
     segments: Segments.ISegments;
@@ -152,13 +152,10 @@ export namespace physicalIcpPlanner {
     /** The transfer duration, the state's duration, seconds. */
     duration: number;
 
-    /** The rate's decay duration once done, seconds; not a number for none. */
-    decay: number;
+    /** The rate's decay duration once done, seconds; undefined for none. */
+    decay: number | undefined;
 
-    /**
-     * The cubic's duration, the transfer with not a number taken as zero,
-     * seconds.
-     */
+    /** The cubic's duration, the transfer's, seconds. */
     cubicDuration: number;
 
     /** The cubic's start, in the coordinates of the frame it rides on. */
@@ -212,8 +209,8 @@ export namespace physicalIcpPlanner {
     /** The least time on the exit pivot, seconds. */
     minimumTimeOnExit: number;
 
-    /** The rate's decay duration once done, seconds; not a number for none. */
-    velocityDecay: number;
+    /** The rate's decay duration once done, seconds; undefined for none. */
+    velocityDecay: number | undefined;
 
     /**
      * How far the support is shrunk before the centre of mass is projected for
@@ -245,7 +242,7 @@ export namespace physicalIcpPlanner {
    * | `maximumSplineDuration` | 0.5 s           | l.109-112                                                                            |
    * | `stepLengthFactor`      | 1/3             | l.48-49 and l.93-98, the exit pivot's (calculator l.217)                             |
    * | `minimumTimeOnExit`     | 0 s             | `AbstractICPPlannerParameters` l.49-52                                               |
-   * | `velocityDecay`         | not a number    | l.56-59                                                                              |
+   * | `velocityDecay`         | none            | l.56-59, not a number there                                                          |
    * | `safeDistance`          | 0.01 m          | l.62-66                                                                              |
    * | `chicken`               | 0.5             | `ReferenceCentroidalMomentumPivotLocationsCalculator` l.186-187                      |
    * | `holdShrink`            | 0.08 m          | `BalanceManager` l.265                                                               |
@@ -269,7 +266,7 @@ export namespace physicalIcpPlanner {
     maximumSplineDuration: 0.5,
     stepLengthFactor: 1.0 / 3.0,
     minimumTimeOnExit: 0.0,
-    velocityDecay: Number.NaN,
+    velocityDecay: undefined,
     safeDistance: 0.01,
     chicken: 0.5,
     holdShrink: 0.08,
@@ -311,15 +308,10 @@ export namespace physicalIcpPlanner {
     const corners = Tools.cornerPoints({
       entries: [entry, final, final],
       exits: [exit, final, final],
-      swings: [p.swing, Number.NaN, Number.NaN],
-      swingSplits: [p.swingSplit, Number.NaN, Number.NaN],
-      transfers: [p.transfer, p.finalTransfer, Number.NaN, Number.NaN],
-      transferSplits: [
-        p.transferSplit,
-        p.transferSplit,
-        Number.NaN,
-        Number.NaN,
-      ],
+      swings: [p.swing, undefined, undefined],
+      swingSplits: [p.swingSplit, 0, 0],
+      transfers: [p.transfer, p.finalTransfer, 0, 0],
+      transferSplits: [p.transferSplit, p.transferSplit, 0, 0],
       count: 2,
       omega: input.omega,
     });
@@ -467,8 +459,7 @@ export namespace physicalIcpPlanner {
 }
 
 /**
- * A double-support plan over the final transfer, a transfer that is not a
- * number taken as zero (l.611-620): the double-support cubic between two
+ * A double-support plan over the final transfer (l.611-620): the double-support cubic between two
  * capture points and rates (`ICPPlannerTrajectoryGenerator` l.39-105), its
  * start attached to the given frame and its end to the mid-feet frame
  * (`setInitialConditions` and `setFinalConditions` l.44-64). The reference
@@ -489,7 +480,7 @@ function transfer(
     kind: "transfer",
     duration: p.finalTransfer,
     decay: p.velocityDecay,
-    cubicDuration: Number.isNaN(p.finalTransfer) ? 0.0 : p.finalTransfer,
+    cubicDuration: p.finalTransfer,
     initial: { frame: initial, state: Tools.attach(frame(initial), from) },
     final: { frame: "midFeet", state: Tools.attach(middle, to) },
     fallback: middle,

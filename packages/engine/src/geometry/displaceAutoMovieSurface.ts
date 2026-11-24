@@ -42,9 +42,6 @@ export const displaceAutoMovieSurface: (
   const vertices: number = surface.limitPositions.length / 3;
   if (heights.length !== vertices)
     throw new Error(`displacement needs ${vertices} heights, one per vertex`);
-  for (let v: number = 0; v < vertices; ++v)
-    if (!Number.isFinite(heights[v]!))
-      throw new Error(`displacement height ${v} is not finite`);
   const normalCount: number = surface.normals.length / 3;
   // each vertex's direction: the sum of its distinct normals, normalized
   const counted: Int32Array = new Int32Array(normalCount).fill(-1);

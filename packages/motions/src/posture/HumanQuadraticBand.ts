@@ -1,7 +1,4 @@
-import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
-
 import { HumanQuadraticCholesky } from "./HumanQuadraticCholesky";
-import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticPolish } from "./HumanQuadraticPolish";
 import { HumanQuadraticResiduals } from "./HumanQuadraticResiduals";
 import { HumanQuadraticRow } from "./HumanQuadraticRow";
@@ -17,16 +14,10 @@ type IPolishResult = {
 };
 
 /** The alternatives of `PolishProductsResult`'s site. */
-type PolishProductsResult = "rows" | "transpose" | "productFiniteX";
+type PolishProductsResult = "rows" | "transpose";
 
 /** The alternatives of `ResidualsKnown`'s site. */
-type ResidualsKnown = "rows" | "transpose" | "productFiniteX";
-
-/** The alternatives of `ScaledRestoredEntry`'s site. */
-type ScaledRestoredEntry = "index" | "coef";
-
-/** The alternatives of `ScaledRawItem`'s site. */
-type ScaledRawItem = "index" | "coef";
+type ResidualsKnown = "rows" | "transpose";
 
 /** The record of `IScaledTranspose`'s site. */
 type IScaledTranspose = {
@@ -155,26 +146,6 @@ export namespace HumanQuadraticBand {
      */
     transpose: IScaledTranspose;
 
-    /**
-     * Original index/coef layout for exceptional zero restoration; one-shot
-     * wrappers borrow admitted rows, fixed models copy only zero-bearing rows.
-     * Absence means CSR already preserves that entire original row.
-     */
-    raw: readonly (
-      | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, ScaledRawItem>
-      | undefined
-    )[];
-
-    /**
-     * Lazily restored exceptional rows for this one-shot solve or fixed model;
-     * O(R) original-layout storage, excluded from prepared core and public
-     * iterates.
-     */
-    restored?: Map<
-      number,
-      Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, ScaledRestoredEntry>
-    >;
-
     /** Each row's scaled lower end. */
     lo: Float64Array;
 
@@ -287,8 +258,6 @@ export namespace HumanQuadraticBand {
    *   alpha*x+(1-alpha)*old during final-value emission.
    * @param alpha Existing ADMM relaxation coefficient, one when no mixing is
    *   requested.
-   * @returns Whether every final x component is finite, for the caller's
-   *   unchanged exceptional-product branch.
    */
   export function substitute(
     u: Work.IFactor,
@@ -296,8 +265,8 @@ export namespace HumanQuadraticBand {
     x: Float64Array,
     relaxed?: Float64Array,
     alpha: number = 1,
-  ): boolean {
-    return HumanQuadraticSubstitute(u, b, x, relaxed, alpha);
+  ): void {
+    HumanQuadraticSubstitute(u, b, x, relaxed, alpha);
   }
 
   /**
@@ -377,18 +346,9 @@ export namespace HumanQuadraticBand {
     for (let r: number = 0; r < s.m; ++r) {
       const change: number = delta[r]!;
       const scale: number = s.e[r]!;
-      if (Number.isFinite(change)) {
-        for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
-          const index: number = s.cols[a]!;
-          aty[index] = aty[index]! + (s.vals[a]! * change) / scale;
-        }
-      } else {
-        const row: ReturnType<typeof HumanQuadraticEntries> =
-          HumanQuadraticEntries(s, r);
-        for (let a: number = 0; a < row.index.length; ++a) {
-          const index: number = row.index[a]!;
-          aty[index] = aty[index]! + (row.coef[a]! * change) / scale;
-        }
+      for (let a: number = s.start[r]!; a < s.start[r + 1]!; ++a) {
+        const index: number = s.cols[a]!;
+        aty[index] = aty[index]! + (s.vals[a]! * change) / scale;
       }
     }
     let norm: number = 0;

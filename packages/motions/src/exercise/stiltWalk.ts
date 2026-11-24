@@ -110,8 +110,7 @@ export namespace stiltWalk {
             },
           );
     const step: number = STEP * body.measure.hipHeight;
-    const steps: number = p.steps ?? Math.max(2, Math.ceil(length / step) + 1);
-    HumanBound.whole("steps", steps);
+    const steps: number = HumanBound.whole("steps", p.steps ?? Math.max(2, Math.ceil(length / step) + 1));
     const stride: number = length / Math.max(1, steps - 1);
     const duration: number = steps * PERIOD + PERIOD / 2;
     const keys: Record<

@@ -161,7 +161,6 @@ const layZone: (
   const cells: number =
     (columns.max - columns.min + 1) * (rows.max - rows.min + 1);
   if (
-    !Number.isSafeInteger(cells) ||
     cells < 1 ||
     cells > AUTOMOVIE_MAX_PATTERN_CELLS
   )
@@ -243,16 +242,15 @@ const validatePattern: (
   atLeast(pattern.jointTolerance, 0, "pattern joint tolerance");
   atLeast(pattern.adjacency, 0, "pattern adjacency");
   if (
-    !Number.isFinite(pattern.minimumPiece) ||
     pattern.minimumPiece <= 0 ||
     pattern.minimumPiece > 1
   )
     throw new Error("pattern minimum piece must be a finite number in (0, 1]");
   if (pattern.grainToleranceDeg !== null)
     atLeast(pattern.grainToleranceDeg, 0, "pattern grain tolerance");
-  if (!Number.isSafeInteger(pattern.seed) || pattern.seed < 0)
+  if (pattern.seed < 0)
     throw new Error("pattern seed must be a safe integer >= 0");
-  if (!Number.isSafeInteger(pattern.variants) || pattern.variants < 1)
+  if (pattern.variants < 1)
     throw new Error("pattern variants must be a safe integer >= 1");
 
   const zoneIds: Set<string> = new Set();
@@ -261,7 +259,6 @@ const validatePattern: (
       if (zoneIds.has(zone.id))
         throw new Error(`pattern zone id "${zone.id}" must be unique`);
       zoneIds.add(zone.id);
-      finitePoint(zone.origin, `pattern zone "${zone.id}" origin`);
       positive(zone.period.u, `pattern zone "${zone.id}" period u`);
       positive(zone.period.v, `pattern zone "${zone.id}" period v`);
       positive(zone.reach.u, `pattern zone "${zone.id}" reach u`);
@@ -316,14 +313,8 @@ const validateCandidate: (
     );
   seen.add(candidate.id);
   const label: string = `pattern module "${zone.id}/${candidate.id}"`;
-  finitePoint(candidate.center, `${label} center`);
   positive(candidate.size.u, `${label} size u`);
   positive(candidate.size.v, `${label} size v`);
-  if (
-    !Number.isFinite(candidate.rotationDeg) ||
-    !Number.isFinite(candidate.grainDeg)
-  )
-    throw new Error(`${label} rotation and grain must be finite`);
   const corners: IAutoMoviePatternPoint[] = moduleCorners(candidate);
   for (const corner of corners)
     if (
@@ -362,8 +353,6 @@ const latticeRange: (
     max: Math.ceil((max + reach - origin) / period),
   };
   if (
-    !Number.isSafeInteger(range.min) ||
-    !Number.isSafeInteger(range.max) ||
     range.min > range.max
   )
     throw new Error("pattern lattice bounds must be ordered safe integers");
@@ -521,19 +510,11 @@ const spanOf: (polygon: readonly IAutoMoviePatternPoint[]) => IPatternSpan = (
   return span;
 };
 
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
-  point: IAutoMoviePatternPoint,
-  label: string,
-): void => {
-  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-    throw new Error(`${label} must be finite`);
-};
-
 const atLeast: (value: number, limit: number, label: string) => void = (
   value: number,
   limit: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value < limit)
+  if (value < limit)
     throw new Error(`${label} must be a finite number >= ${limit}`);
 };

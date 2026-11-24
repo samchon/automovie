@@ -101,10 +101,7 @@ export function resolveAutoMovieInspectionView(props: {
   camera: THREE.PerspectiveCamera | THREE.OrthographicCamera;
   record: IAutoMovieInspectionCamera;
 } {
-  if (
-    !(props.width > 0 && Number.isFinite(props.width)) ||
-    !(props.height > 0 && Number.isFinite(props.height))
-  )
+  if (!(props.width > 0) || !(props.height > 0))
     throw new Error(
       `Inspection picture ${props.width} x ${props.height} is not a positive size`,
     );

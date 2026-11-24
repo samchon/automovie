@@ -364,7 +364,7 @@ export namespace createTree {
    */
   export function branchCount(value: number | undefined): number {
     const count: number = value ?? 0;
-    if (!(Number.isInteger(count) && count >= 0 && count <= MAX_BRANCHES))
+    if (!(count >= 0 && count <= MAX_BRANCHES))
       throw new RangeError(
         `tree branches must be a whole number from 0 to ${MAX_BRANCHES}, but was ${value}`,
       );

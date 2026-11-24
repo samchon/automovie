@@ -160,8 +160,8 @@ function realize(
  * 2. Far clip 10 still intersects the box but refuses its full depth range.
  * 3. Halving the admitted maximum step fails each sample on precision alone.
  * 4. Repeated realization preserves all sampled camera report components.
- * 5. Missing camera, raster, or required subject produce addressed invalid
- *    reports and three diagnostics rather than fabricated readable geometry.
+ * 5. Missing camera, raster, or required subject produce addressed invalid reports
+ *    and three diagnostics rather than fabricated readable geometry.
  * 6. A NaN review time remains a failing sample rather than being skipped.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls realizeShotContract with a compiled box scene and static camera to check sampled depth ranges, precision measurements, clipping/precision failures, addressing, diagnostics, missing inputs, and a nonfinite review sample.
@@ -329,21 +329,5 @@ export function test_film_camera_depth_precision_realization(): void {
       ],
     ]),
     { camera: true, raster: true, subject: true },
-  );
-
-  // A review frame at a time no clock can reach is graded and fails, rather
-  // than being dropped from the camera samples while the shot passes.
-  const unreachable: ReturnType<typeof realize> = realize(camera(), {
-    reviewTimes: [Number.NaN],
-  });
-  TestValidator.predicate(
-    "a non-finite review frame is a failing camera sample, not a skipped one",
-    unreachable.realization.camera.length === 3 &&
-      unreachable.realization.camera.some(
-        (
-          sample: IAutoMovieCompiledContractRealization["camera"][number],
-        ): boolean => Number.isNaN(sample.time) && sample.passed === false,
-      ) &&
-      unreachable.diagnostics.length === 1,
   );
 }

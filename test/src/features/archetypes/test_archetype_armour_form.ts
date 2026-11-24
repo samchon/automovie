@@ -18,19 +18,20 @@ import { armourActual } from "../internal/armourActual";
  * Every real armour piece has actual visible/physical walls and empty cavities.
  *
  * Scenarios:
+ *
  * 1. All nineteen records have multiple actual mesh walls, one real hull per
  *    visible part, finite positive cell volumes and an empty body centre.
- * 2. Every helmet has an open neck; the source sallet and missing-visor armet
- *    have a free frontal ray. The actual close-helmet and associated-visored
- *    sallet retain lower face coverage. No missing visor is reconstructed.
- * 3. Torso shells retain a free neck/hem path and arm access, mail has real
- *    hollow sleeves, the hand has a thumb and closed mitten tip, and guards
- *    have actual open ends. These witnesses query current physical cells.
- * 4. Every mail record's actual nonoverlapping cell volume at the existing
- *    steel preset density equals its independent museum mass; it is expressly
- *    a uniform-wall material proxy, not measured historical wire or alloy.
- * 5. Independent producer calls own independent geometry, while exact rigid
- *    sector placements share one admitted cell only inside the same model.
+ * 2. Every helmet has an open neck; the source sallet and missing-visor armet have
+ *    a free frontal ray. The actual close-helmet and associated-visored sallet
+ *    retain lower face coverage. No missing visor is reconstructed.
+ * 3. Torso shells retain a free neck/hem path and arm access, mail has real hollow
+ *    sleeves, the hand has a thumb and closed mitten tip, and guards have
+ *    actual open ends. These witnesses query current physical cells.
+ * 4. Every mail record's actual nonoverlapping cell volume at the existing steel
+ *    preset density equals its independent museum mass; it is expressly a
+ *    uniform-wall material proxy, not measured historical wire or alloy.
+ * 5. Independent producer calls own independent geometry, while exact rigid sector
+ *    placements share one admitted cell only inside the same model.
  * 6. A fitted shirt wider than its selected record's sleeve spread refuses
  *    structurally instead of erasing sleeves or introducing a zero wall.
  *
@@ -84,7 +85,7 @@ export function test_archetype_armour_form(): void {
           continue;
         }
         const cellVolume: number = physicalHullMass(shape.points).volume;
-        if (!(Number.isFinite(cellVolume) && cellVolume > 0))
+        if (!(cellVolume > 0))
           findings.push(model + " has a nonpositive wall cell");
         volume += cellVolume;
       }
@@ -161,7 +162,10 @@ export function test_archetype_armour_form(): void {
       )
         findings.push(model + " fills a guard's open limb course");
 
-      /** The actual current convex cells, without an aggregate cavity-filling hull. */
+      /**
+       * The actual current convex cells, without an aggregate cavity-filling
+       * hull.
+       */
       function clear(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
         return Math.min(
           ...shapes.map(

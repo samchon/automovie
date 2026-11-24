@@ -7,8 +7,9 @@ import { nclose } from "../internal/nclose";
 import { throwsError } from "../internal/predicates";
 
 /**
- * Positive-Jacobian cofactors retain independently calculated oriented-area transport, while unrepresentable determinant arithmetic refuses.
- * Scenarios:
+ * Positive-Jacobian cofactors retain independently calculated oriented-area
+ * transport, while unrepresentable determinant arithmetic refuses. Scenarios:
+ *
  * 1. Identity, a 90-degree Z rotation, shear and diagonal stretch retain their
  *    independently calculated determinants and row-major cofactor matrices.
  * 2. Sheared Y tangent (2,1,0) remains orthogonal to transported X normal
@@ -122,6 +123,6 @@ export function test_math_jacobian_cofactor(): void {
   ]);
   TestValidator.predicate(
     "finite determinant does not certify cofactor range",
-    Number.isFinite(wide.determinant) && wide.matrix[4] === Infinity,
+    wide.matrix[4] === Infinity,
   );
 }

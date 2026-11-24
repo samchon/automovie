@@ -36,8 +36,6 @@ export function createAutoMovieMeshDepthSampler(
     axis
   ];
   const indices: number[] = triangleIndicesOf(mesh, "Depth sampling");
-  if (!mesh.positions.every(Number.isFinite))
-    throw new Error("Depth sampling needs finite complete triangle buffers.");
   const triangles: IProjectedTriangle[] = [];
   let minU: number = Infinity;
   let minV: number = Infinity;
@@ -56,8 +54,6 @@ export function createAutoMovieMeshDepthSampler(
     }
     const area: number =
       (b[0]! - a[0]!) * (c[1]! - a[1]!) - (b[1]! - a[1]!) * (c[0]! - a[0]!);
-    if (!Number.isFinite(area))
-      throw new Error("Projected triangle arithmetic must remain finite.");
     if (area === 0) continue;
     triangles.push({ a, b, c, area });
     minU = Math.min(minU, a[0]!, b[0]!, c[0]!);
@@ -65,11 +61,6 @@ export function createAutoMovieMeshDepthSampler(
     minV = Math.min(minV, a[1]!, b[1]!, c[1]!);
     maxV = Math.max(maxV, a[1]!, b[1]!, c[1]!);
   }
-  if (
-    triangles.length !== 0 &&
-    (!Number.isFinite(maxU - minU) || !Number.isFinite(maxV - minV))
-  )
-    throw new Error("Projected mesh extent must remain finite.");
   const resolution: number = 32;
   const cellU = (u: number): number =>
     Math.min(
@@ -104,8 +95,6 @@ export function createAutoMovieMeshDepthSampler(
     u: number,
     v: number,
   ): { minimum: number; maximum: number } | null => {
-    if (!Number.isFinite(u) || !Number.isFinite(v))
-      throw new Error("Surface query coordinates must be finite.");
     if (u < minU || u > maxU || v < minV || v > maxV) return null;
     let minimum: number = Infinity;
     let maximum: number = -Infinity;
@@ -119,8 +108,6 @@ export function createAutoMovieMeshDepthSampler(
       if (beta < -1e-10 || gamma < -1e-10 || beta + gamma > 1 + 1e-10) continue;
       const depth: number =
         a[2]! * (1 - beta - gamma) + b[2]! * beta + c[2]! * gamma;
-      if (!Number.isFinite(depth))
-        throw new Error("Interpolated surface depth must remain finite.");
       minimum = Math.min(minimum, depth);
       maximum = Math.max(maximum, depth);
     }

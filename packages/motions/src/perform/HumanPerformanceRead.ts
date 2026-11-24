@@ -155,10 +155,7 @@ export namespace HumanPerformanceRead {
     const read: Parameters<typeof HumanSegmentShown.bones>[4] =
       names === undefined
         ? undefined
-        : {
-            pose: poseBones.prepare(person.performer.body, names),
-            reading: poseBones.prepareRead(person.performer.body, names),
-          };
+        : { pose: poseBones.prepare(person.performer.body, names) };
     const prepare: ReturnType<typeof prepareHumanSegmentPose.queries> =
       prepareHumanSegmentPose.queries(person.performer.body);
     return (

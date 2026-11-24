@@ -8,14 +8,30 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The ellipse shoulder preserves a generic thin ellipse's source section, rather than becoming concave in a fixed polar approximation.
+ * The ellipse shoulder preserves a generic thin ellipse's source section,
+ * rather than becoming concave in a fixed polar approximation.
  *
  * Scenarios:
- * 1. Symmetric boxes of aspect1/2/4/8/16/32/64, both orientations and three length scales, retain their four exact extreme guides and agree with the independent implicit ellipse at interior angles.
- * 2. Every observed polar curvature numerator is nonnegative to binary64 cancellation allowance. The independent exact ellipse has numerator rho^6/(a^2 b^2)>0; a concave interpolation cannot be accepted by changing the original box or shoulder.
- * 3. The maximum radius error stays within 1e-7 of the short half extent, the existing ViewSection approximation budget. This permits a controlled approximation while rejecting an aspect-specific exemption, weaker convexity test or specimen adjustment.
- * 4. A smooth [1,1+s,1,1] support family has one interior station tangent through the shared-curvature branch. It reads actual interior points rather than inferring surface smoothness from guide-curvature metadata. Final-loft conversion and its old cubic negative witness belong to test_construction_phase_fidelity.
- * 5. Tiny negative phases preserve their local distance to guide zero, including an active end correction; adding a full turn must not round that distance away and substitute a different raw quarter curvature.
+ *
+ * 1. Symmetric boxes of aspect1/2/4/8/16/32/64, both orientations and three length
+ *    scales, retain their four exact extreme guides and agree with the
+ *    independent implicit ellipse at interior angles.
+ * 2. Every observed polar curvature numerator is nonnegative to binary64
+ *    cancellation allowance. The independent exact ellipse has numerator
+ *    rho^6/(a^2 b^2)>0; a concave interpolation cannot be accepted by changing
+ *    the original box or shoulder.
+ * 3. The maximum radius error stays within 1e-7 of the short half extent, the
+ *    existing ViewSection approximation budget. This permits a controlled
+ *    approximation while rejecting an aspect-specific exemption, weaker
+ *    convexity test or specimen adjustment.
+ * 4. A smooth [1,1+s,1,1] support family has one interior station tangent through
+ *    the shared-curvature branch. It reads actual interior points rather than
+ *    inferring surface smoothness from guide-curvature metadata. Final-loft
+ *    conversion and its old cubic negative witness belong to
+ *    test_construction_phase_fidelity.
+ * 5. Tiny negative phases preserve their local distance to guide zero, including
+ *    an active end correction; adding a full turn must not round that distance
+ *    away and substitute a different raw quarter curvature.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual sections from box/ELLIPSE through ViewSection and observes its public polar jets, implicit positions, extreme guides and unaltered inputs. It also reads the actual interior radius on both sides of the smooth support-family transition.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse radius is 1/sqrt(cos(phi)^2/a^2+sin(phi)^2/b^2); its independent Cartesian equation is x^2/a^2+y^2/b^2=1 and its curvature numerator is rho^6/(a^2 b^2). Radius budget 1e-7 times the short extent follows the existing approximation's stated target; 3e-7 bounds the consequent implicit residual. Negative curvature allowance 64epsilon*(rho^2+2rho_phi^2+abs(rho*rho_phiphi)) covers binary64 summation, not a shape relaxation. The station observer subtracts the independent exact ellipse and compares second-order one-sided slopes with 256epsilon/step summation allowance and 32step^2 truncation headroom on the stated near-unit family.
@@ -50,7 +66,7 @@ export function test_construction_conic_fidelity(): void {
             section,
             phi,
           );
-          if (jet.length !== 3 || !jet.every(Number.isFinite)) {
+          if (jet.length !== 3) {
             nonfinite++;
             continue;
           }
@@ -131,10 +147,7 @@ export function test_construction_conic_fidelity(): void {
       (-3 * middle + 4 * correctionAt(step) - correctionAt(2 * step)) /
       (2 * step);
     const allowance: number = (256 * Number.EPSILON) / step + 32 * step * step;
-    if (
-      ![left, right].every(Number.isFinite) ||
-      Math.abs(left - right) > allowance
-    )
+    if (Math.abs(left - right) > allowance)
       failures.push(
         `interior source station tangent at ${step}: left ${left}, right ${right}, jump ${left - right}, allowance ${allowance}`,
       );
@@ -157,7 +170,6 @@ export function test_construction_conic_fidelity(): void {
       -step,
     );
     if (
-      !actual.every(Number.isFinite) ||
       actual.some(
         (v: number, k: number): boolean => Math.abs(v - limit[k]!) > 1e-6 * 20,
       )

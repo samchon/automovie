@@ -36,23 +36,14 @@ export function admitQuadrupedPhase(
   const crossed: number = to - from;
   if (
     !(
-      Number.isSafeInteger(cells) &&
       cells > 0 &&
-      Number.isFinite(phase) &&
       phase >= 0 &&
-      Number.isFinite(seconds) &&
       seconds > 0 &&
-      Number.isFinite(stride) &&
       stride > 0 &&
-      Number.isFinite(advance) &&
       advance > 0 &&
       advance <= 1 &&
-      Number.isFinite(next) &&
       next > phase &&
       next <= cells &&
-      Number.isSafeInteger(from) &&
-      Number.isSafeInteger(to) &&
-      Number.isSafeInteger(crossed) &&
       crossed >= 0 &&
       crossed <= 1
     )
@@ -64,7 +55,7 @@ export function admitQuadrupedPhase(
       value: { phase, seconds, stride, cells, advance, next, crossed },
       feasible: {
         kind: "range",
-        minimum: Number.isFinite(seconds) && seconds > 0 ? seconds : null,
+        minimum: seconds > 0 ? seconds : null,
         maximum: null,
         unit: "s",
       },

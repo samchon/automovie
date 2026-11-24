@@ -151,7 +151,6 @@ function admit(mark: IAutoMovieMark): { segments: number; points: number } {
   ): number => {
     if (values.length % 3 !== 0)
       refuse(`holds ${values.length} ${name} components, not xyz triples`);
-    if (!values.every(Number.isFinite)) refuse(`holds a non-finite ${name}`);
     return values.length / 3;
   };
   const shape: IAutoMovieMark.Shape = mark.shape;

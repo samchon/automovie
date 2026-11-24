@@ -180,8 +180,6 @@ export namespace deriveHumanPosture {
     for (let i: number = 0; i < before.pose.joints.length; ++i) {
       const now: IAutoMovieJointPose = assembled.pose.joints[i]!;
       if (now === before.pose.joints[i]) continue;
-      for (const angle of [now.flexion, now.abduction, now.twist])
-        if (angle !== null && !Number.isFinite(angle)) return undefined;
       swapped.set(before.pose.joints[i]!, now);
     }
     const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {};

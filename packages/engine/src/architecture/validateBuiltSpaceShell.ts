@@ -41,13 +41,6 @@ export const validateBuiltSpaceShell: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  shell.vertices.forEach((vertex: IAutoMovieVector3, index: number): void =>
-    collector.finiteVector(
-      `${path}.vertices[${index}]`,
-      vertex,
-      "shell vertex",
-    ),
-  );
   if (shell.vertices.length < 4)
     collector.push(
       "range",
@@ -66,7 +59,6 @@ export const validateBuiltSpaceShell: (
   }
   const bad: number = shell.triangles.findIndex(
     (index: number): boolean =>
-      Number.isSafeInteger(index) === false ||
       index < 0 ||
       index >= shell.vertices.length,
   );
@@ -92,7 +84,7 @@ export const validateBuiltSpaceShell: (
     const area: number = Vector3.length(
       Vector3.cross(Vector3.subtract(b, a), Vector3.subtract(c, a)),
     );
-    if (!Number.isFinite(area) || area <= FACET_AREA_EPSILON) {
+    if (area <= FACET_AREA_EPSILON) {
       collector.push(
         "range",
         `${path}.triangles[${face}]`,
@@ -117,7 +109,7 @@ export const validateBuiltSpaceShell: (
       return;
     }
   const volume: number = builtSpaceShellVolume(shell);
-  if (!Number.isFinite(volume) || volume <= 0)
+  if (volume <= 0)
     collector.push(
       "range",
       `${path}.triangles`,

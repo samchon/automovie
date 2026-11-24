@@ -236,7 +236,7 @@ export namespace HumanSeidelProgram {
   export function value(row: Readonly<Row>, x: Readonly<Pair>): number {
     let result: number = row[2];
     for (let i: number = 0; i < 2; ++i)
-      result += row[i] === 0 && !Number.isFinite(x[i]) ? 0 : row[i]! * x[i]!;
+      result += row[i] === 0 ? 0 : row[i]! * x[i]!;
     return result;
   }
 }

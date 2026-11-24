@@ -16,6 +16,7 @@ import { HumanPerformanceContactBodies } from "./HumanPerformanceContactBodies";
 import { HumanPerformanceContactSpeed } from "./HumanPerformanceContactSpeed";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanSegment } from "./HumanSegment";
+import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 
 /** The record of `IContactsNearestBest`'s site. */
 type IContactsNearestBest = { subject: string; distance: number };
@@ -140,9 +141,6 @@ export namespace HumanPerformanceContacts {
         until: Infinity,
       });
     }
-
-    // A hold changes what the person shows from here on.
-    person.planning?.clear();
   }
 
   /**
@@ -157,23 +155,17 @@ export namespace HumanPerformanceContacts {
     entry: number,
     end: number,
   ): void {
-    let changed: boolean = false;
     let next: number = 0;
     for (const held of person.holds) {
-      if (held.source.entry === entry && held.from > end + 1e-9) {
-        changed = true;
-        continue;
-      }
+      if (held.source.entry === entry && held.from > end + 1e-9) continue;
       if (held.until > end + 1e-9 && held.takenBy === entry) {
         held.until = Infinity;
         delete held.riding;
         delete held.takenBy;
-        changed = true;
       }
       person.holds[next++] = held;
     }
     person.holds.length = next;
-    if (changed) person.planning?.clear();
   }
 
   /**
@@ -420,8 +412,9 @@ export namespace HumanPerformanceContacts {
 
       // A stop changes what its owner shows, and whoever reads the owner (a
       // strike aimed at it, a guard watching it) planned against the earlier
-      // showing, so everyone's memos go, not the owner's alone.
-      for (const person of people) HumanSegment.forget(person);
+      // showing, so every plan solves again on the stops now installed, in
+      // dependency order.
+      prepareHumanPerformancePlans(self);
       shown.clear();
       axes.clear();
     };

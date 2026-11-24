@@ -32,26 +32,19 @@ export namespace AutoMovieLoftPhaseSource {
       curves.length !== n ||
       !coordinates.every(
         (value: number, i: number): boolean =>
-          Number.isFinite(value) &&
-          (i === 0 ||
-            (value > coordinates[i - 1]! &&
-              Number.isFinite(value - coordinates[i - 1]!))),
+          i === 0 || value > coordinates[i - 1]!,
       )
     )
-      return "native phase source needs matching curves and at least two finite increasing coordinates";
+      return "native phase source needs matching curves and at least two increasing coordinates";
     for (const curve of curves) {
       if (curve.failure !== null || curve.quarters.length !== 4)
         return `native phase source is not admitted: ${curve.failure ?? "four quarters required"}`;
       if (
         !curve.quarters.every(
           (quarter: IAutoMovieViewConic.IQuarter): boolean =>
-            quarter.extents.every(
-              (value: number): boolean => Number.isFinite(value) && value > 0,
-            ) &&
-            Number.isFinite(quarter.shoulder) &&
+            quarter.extents.every((value: number): boolean => value > 0) &&
             quarter.shoulder > 0 &&
-            quarter.shoulder < 1 &&
-            quarter.guides.every(Number.isFinite),
+            quarter.shoulder < 1,
         )
       )
         return "native phase source has malformed quarter data";
@@ -71,12 +64,6 @@ export namespace AutoMovieLoftPhaseSource {
       identity,
       curvatures,
     );
-    if (
-      ![...curvatures, ...slopes].every((row: number[]): boolean =>
-        row.every(Number.isFinite),
-      )
-    )
-      return "native phase source cardinal jets are not finitely representable";
     return {
       coordinates: [...coordinates],
       curves: [...curves],
@@ -96,10 +83,9 @@ export namespace AutoMovieLoftPhaseSource {
     if (
       n < 2 ||
       source.curves.length !== n ||
-      !Number.isFinite(q) ||
       q < t[0]! ||
       q > t[n - 1]! ||
-      (change !== undefined && !change.every(Number.isFinite))
+      change !== undefined
     )
       throw new Error(
         "native phase station has no finite in-domain coordinate 2-jet",
@@ -116,12 +102,7 @@ export namespace AutoMovieLoftPhaseSource {
     ): IAutoMovieStationHermite.IEnd => {
       const slope: readonly number[] = source.slopes[index]!;
       const curvature: readonly number[] = source.curvatures[index]!;
-      if (
-        slope.length !== n ||
-        curvature.length !== n ||
-        !slope.every(Number.isFinite) ||
-        !curvature.every(Number.isFinite)
-      )
+      if (slope.length !== n || curvature.length !== n)
         throw new Error("native phase endpoint has malformed cardinal jets");
       return {
         value: Array.from({ length: n }, (_: unknown, j: number): number =>
@@ -157,10 +138,6 @@ export namespace AutoMovieLoftPhaseSource {
                 value * change[0] * change[0] + raw[1]![k]! * change[1],
             ),
           ];
-    if (!weights.every((row: number[]): boolean => row.every(Number.isFinite)))
-      throw new Error(
-        "native phase station weights are not finitely representable",
-      );
     return { source, weights };
   }
 
@@ -170,14 +147,11 @@ export namespace AutoMovieLoftPhaseSource {
     phi: number,
   ): [number, number] {
     validate(at);
-    if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     let radius: number = 0;
     for (let i: number = 0; i < at.source.curves.length; i++) {
       const weight: number = at.weights[0]![i]!;
       if (weight !== 0) radius += weight * read(at.source.curves[i]!, phi)[0];
     }
-    if (!Number.isFinite(radius))
-      throw new Error("native phase combination has a nonfinite point");
     return [radius * Math.cos(phi), radius * Math.sin(phi)];
   }
 
@@ -187,7 +161,6 @@ export namespace AutoMovieLoftPhaseSource {
     phi: number,
   ): number[][] {
     validate(at);
-    if (!Number.isFinite(phi)) throw new Error("native phase must be finite");
     const cosine: number = Math.cos(phi);
     const sine: number = Math.sin(phi);
     const rows: number[][] = Array.from({ length: 3 }, (): number[] =>
@@ -211,8 +184,6 @@ export namespace AutoMovieLoftPhaseSource {
           rows[order]![k] =
             rows[order]![k]! + at.weights[order]![i]! * native[k]!;
     }
-    if (!rows.every((row: number[]): boolean => row.every(Number.isFinite)))
-      throw new Error("native phase combination has a nonfinite jet");
     return rows;
   }
 }
@@ -227,8 +198,7 @@ function validate(at: IAutoMovieLoftPhaseSource.IStation): void {
     count < 2 ||
     at.weights.length !== 3 ||
     !at.weights.every(
-      (row: readonly number[]): boolean =>
-        row.length === count && row.every(Number.isFinite),
+      (row: readonly number[]): boolean => row.length === count,
     ) ||
     at.source.curves.some(
       (curve: IAutoMovieViewConic.ICurve): boolean =>
@@ -250,9 +220,5 @@ function read(
     curve,
     phi,
   );
-  if (!radius.every(Number.isFinite))
-    throw new Error(
-      `native phase source returned no finite radius jet: ${curve.failure ?? "invalid source data"}`,
-    );
   return radius;
 }

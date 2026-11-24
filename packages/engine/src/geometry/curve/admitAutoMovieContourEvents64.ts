@@ -50,7 +50,6 @@ export function admitAutoMovieContourEvents64(
       )
         reasons.push("Event name is empty or has conflicting owners");
       if (
-        !Number.isFinite(event.coordinateMm) ||
         !(
           event.beforeMm < event.coordinateMm &&
           event.coordinateMm < event.afterMm
@@ -66,9 +65,8 @@ export function admitAutoMovieContourEvents64(
       const finite: boolean =
         Array.isArray(terminal) &&
         terminal.length === 3 &&
-        [0, 1, 2].every(
-          (axis: number): boolean =>
-            Object.hasOwn(terminal, axis) && Number.isFinite(terminal[axis]),
+        [0, 1, 2].every((axis: number): boolean =>
+          Object.hasOwn(terminal, axis),
         );
       if (
         (terminal !== null && !finite) ||
@@ -83,11 +81,7 @@ export function admitAutoMovieContourEvents64(
           else
             for (let slot: number = 0; slot < raw.length; slot++) {
               const id: number = raw[slot];
-              if (
-                !Number.isSafeInteger(id) ||
-                id < 0 ||
-                id >= (side === 0 ? before : after).loops.length
-              )
+              if (id < 0 || id >= (side === 0 ? before : after).loops.length)
                 reasons.push(
                   `Event side ${side} has an invalid local loop at slot ${slot}`,
                 );

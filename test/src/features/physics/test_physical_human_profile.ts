@@ -15,31 +15,32 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 import { motionHumanBody } from "../internal/motionHumanBody";
 import { nclose } from "../internal/nclose";
+import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
 import { preparePhysicalHumanArmSwing } from "../internal/preparePhysicalHumanArmSwing";
 
 /**
  * A canonical polygon profile supplies anatomically anchored native tracking.
  *
  * Scenarios:
- * 1. The measured subject mass reaches the solver profile and its upper arms
- *    and thighs carry their reference mass shares. Reflection keeps the
- *    neutral center of mass on the sagittal plane.
- * 2. A negative thigh mass, a hand inertia that breaks the triangle
- *    inequality, a malformed joint frame and an out-of-domain axis each
- *    report their own admission path on the same Human profile.
+ *
+ * 1. The measured subject mass reaches the solver profile and its upper arms and
+ *    thighs carry their reference mass shares. Reflection keeps the neutral
+ *    center of mass on the sagittal plane.
+ * 2. A negative thigh mass, a hand inertia that breaks the triangle inequality, a
+ *    malformed joint frame and an out-of-domain axis each report their own
+ *    admission path on the same Human profile.
  * 3. A gravity-free shoulder ramp brings the elbow within two degrees of its
  *    eight-degree target by the end of the hold, preserving arm length and
  *    leading the target by no more than the peak lead of a critically damped
- *    second-order drive on the arm's moment of inertia. No motor
- *    demand exceeds its torque cap, and the native shoulder ends within two
- *    degrees of its authored rotation.
- * 4. The same native body and clock retain the neutral elbow when they receive
- *    a held neutral target.
+ *    second-order drive on the arm's moment of inertia. No motor demand exceeds
+ *    its torque cap, and the native shoulder ends within two degrees of its
+ *    authored rotation.
+ * 4. The same native body and clock retain the neutral elbow when they receive a
+ *    held neutral target.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the canonical provider, checks admission of its actual profile, and executes matched native tracking and neutral simulations. It reads the native elbow in the chest frame, rejects a missed deadline or overshoot, preserves upper-arm length, and reads torque-cap forecasts and the native shoulder error through `tracking` and `trackingAt`.
  * @evidence contracts/development/testing.md#independent-expectations The ANSUR case supplies body mass. Winter Table 4.1 gives Dempster mass shares. Neutral symmetry fixes the sagittal center. Planar trigonometry from the neutral elbow chord gives the target position and angular distance bounds without invoking the pose generator.
@@ -50,7 +51,7 @@ import { preparePhysicalHumanArmSwing } from "../internal/preparePhysicalHumanAr
 export async function test_physical_human_profile(): Promise<void> {
   const profile: IAutoMoviePhysicalProfile =
     motionHumanBody("m-average").profile;
-  const measuredMass: number = PEOPLE["m-average"].mass;
+  const measuredMass: number = MOTION_HUMAN_PEOPLE["m-average"].mass;
   TestValidator.equals(
     "canonical profile admission",
     validatePhysicalProfile(profile),
@@ -186,7 +187,7 @@ export async function test_physical_human_profile(): Promise<void> {
         )) /
       radian;
     const lead: number = swept - degrees * Math.min(1, frame.seconds / ramp);
-    if (lead > leadingAngle || !Number.isFinite(lead)) {
+    if (lead > leadingAngle) {
       leadingAngle = lead;
       leadingTime = frame.seconds;
     }
@@ -234,7 +235,9 @@ export async function test_physical_human_profile(): Promise<void> {
   );
   const decay: number = Math.exp(-omega * ramp);
   const leadLimit: number =
-    ((degrees / ramp) * (1 - decay) * Math.exp(-1 - (omega * ramp * decay) / (1 - decay))) /
+    ((degrees / ramp) *
+      (1 - decay) *
+      Math.exp(-1 - (omega * ramp * decay) / (1 - decay))) /
     omega;
   const findings: string[] = [];
   const targetLimit: number =

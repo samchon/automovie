@@ -64,7 +64,6 @@ function planHumanFloatBeside(
   } = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
   if (
-    ![seconds, transition].every(Number.isFinite) ||
     !(transition > 0 && transition < seconds)
   )
     throw new HumanRefusal({
@@ -74,15 +73,6 @@ function planHumanFloatBeside(
       feasible: null,
       reason: "a float needs a positive slide-off shorter than the action",
       fix: "Give a transition shorter than the total seconds.",
-    });
-  if (!Number.isFinite(water))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "water",
-      value: water,
-      feasible: null,
-      reason: "the surface must give a finite world height",
-      fix: "Set water to the surface's world height in metres.",
     });
   if (blocked.includes(side))
     throw new HumanRefusal({

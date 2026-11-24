@@ -115,9 +115,11 @@ export namespace AutoMovieMotionHumanLegPhrase {
   ): (share: number) => IAutoMovieMotionHumanFoot.IPlacement {
     const rotation: ReturnType<typeof Quaternion.prepareSlerp> =
       Quaternion.prepareSlerp(from.rotation, to.rotation);
-    let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    const ankle: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+      from.ankle,
+      to.ankle,
+    );
     return (share: number): IAutoMovieMotionHumanFoot.IPlacement => {
-      ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
       return {
         ankle: ankle(share),
         rotation: rotation(Math.min(1, Math.max(0, share))),

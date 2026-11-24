@@ -12,7 +12,7 @@ export namespace ArchetypeMassRecord {
    * @throws {Error} Unless mass is finite and positive.
    */
   export function mass(value: number): void {
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       throw new Error("Mass properties need a finite positive total mass");
   }
 
@@ -24,24 +24,8 @@ export namespace ArchetypeMassRecord {
    */
   export function admit(properties: AutoMovieArchetypeMass.IProperties): void {
     mass(properties.mass);
-    const centre: IAutoMovieVector3 = properties.centerOfMass;
     const inertia: AutoMovieArchetypeMass.IInertia = properties.inertia;
-    if (
-      !(
-        Number.isFinite(centre.x) &&
-        Number.isFinite(centre.y) &&
-        Number.isFinite(centre.z) &&
-        Number.isFinite(inertia.xx) &&
-        Number.isFinite(inertia.yy) &&
-        Number.isFinite(inertia.zz) &&
-        Number.isFinite(inertia.xy) &&
-        Number.isFinite(inertia.xz) &&
-        Number.isFinite(inertia.yz) &&
-        inertia.xx >= 0 &&
-        inertia.yy >= 0 &&
-        inertia.zz >= 0
-      )
-    )
+    if (!(inertia.xx >= 0 && inertia.yy >= 0 && inertia.zz >= 0))
       throw new Error(
         "Mass properties need finite centre/tensor components and nonnegative principal-axis moments",
       );

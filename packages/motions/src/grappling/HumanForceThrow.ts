@@ -200,7 +200,7 @@ export namespace HumanForceThrow {
     // native constructor proves that fact without inspecting callback samples.
     const end: number = Math.max(fall, integrateMotionTrajectory.STEP);
     const fixed: integrateAirborneRotation.ICachedHistory | undefined =
-      Number.isFinite(end)
+      end < Infinity
         ? integrateAirborneRotation.fixed(model, body.skeleton, local, {
             from: 0,
             to: end,

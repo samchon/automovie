@@ -4,7 +4,6 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { PhysicalHullScalarWitness } from "./PhysicalHullScalarWitness";
 import { physicalHullLoop } from "./physicalHullLoop";
 import { physicalHullPlanes } from "./physicalHullPlanes";
 import { physicalHullTriangles } from "./physicalHullTriangles";
@@ -56,36 +55,28 @@ export function physicalHullFaces(
   }
   const count: number = points.length;
   let extent: number = 0;
-  for (let i: number = 0; i < count; i++) {
-    // Preserve diagonal non-finite propagation while omitting only the
-    // duplicate reverse direction of each off-diagonal distance.
-    extent = Math.max(extent, Vector3.distance(points[i]!, points[i]!));
+  for (let i: number = 0; i < count; i++)
     for (let j: number = i + 1; j < count; j++)
       extent = Math.max(extent, Vector3.distance(points[i]!, points[j]!));
-  }
   const tolerance: number = 1e-9 * extent;
 
-  // A tolerance that is not finite admits no plane: no triple's area exceeds
-  // it. A translated array first tries its source's face triples, which are
-  // kept only when they verifiably bound these points.
+  // A translated array first tries its source's face triples, which are kept
+  // only when they verifiably bound these points.
   const shifted: readonly number[] | undefined = shiftedTriples(points);
   const carried: physicalHullPlanes.IResult | null =
-    shifted === undefined || !Number.isFinite(tolerance)
+    shifted === undefined
       ? null
       : physicalHullPlanes(points, extent, tolerance, shifted, true);
   const planes: physicalHullPlanes.IResult =
     carried ??
-    (Number.isFinite(tolerance)
-      ? physicalHullPlanes(
-          points,
-          extent,
-          tolerance,
-          physicalHullTriangles(points, tolerance),
-          false,
-        )!
-      : { triples: [], faces: [] });
+    physicalHullPlanes(
+      points,
+      extent,
+      tolerance,
+      physicalHullTriangles(points, tolerance),
+      false,
+    )!;
   const used: boolean[] = points.map((): boolean => false);
-  const nativeFaces: boolean = ordinaryMap(planes.faces);
   const faces: IAutoMoviePhysicalHullFaces.IFace[] = planes.faces.map(
     (face: physicalHullPlanes.IFace): IAutoMoviePhysicalHullFaces.IFace => {
       for (const index of face.loop) used[index] = true;
@@ -106,31 +97,10 @@ export function physicalHullFaces(
     tolerance,
   );
   HULLS.set(points, hull);
-  if (nativeFaces) PhysicalHullScalarWitness.topology(hull, faces);
   return hull;
 }
 
-/** Built-in face-array producer identities before any caller supplies points. */
-const ARRAY: ArrayConstructor = Array;
-const MAP: typeof Array.prototype.map = Array.prototype.map;
-const SPECIES: (() => unknown) | undefined = Object.getOwnPropertyDescriptor(
-  Array,
-  Symbol.species,
-)?.get;
 
-/** A native map over owned supporting planes allocates ordinary face objects. */
-function ordinaryMap(faces: readonly physicalHullPlanes.IFace[]): boolean {
-  return (
-    Array === ARRAY &&
-    Object.getPrototypeOf(faces) === ARRAY.prototype &&
-    !Object.hasOwn(faces, "map") &&
-    !Object.hasOwn(faces, "constructor") &&
-    Object.getOwnPropertyDescriptor(ARRAY.prototype, "constructor")?.value ===
-      ARRAY &&
-    Object.getOwnPropertyDescriptor(ARRAY.prototype, "map")?.value === MAP &&
-    Object.getOwnPropertyDescriptor(ARRAY, Symbol.species)?.get === SPECIES
-  );
-}
 /**
  * Each searched points array's face triples, which a translation of it starts
  * from.

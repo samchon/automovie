@@ -28,13 +28,7 @@ import type { IAutoMoviePlanVideoSceneCutsProps } from "@automovie/interface";
 export function planAutoMovieVideoSceneCuts(
   props: IAutoMoviePlanVideoSceneCutsProps,
 ): string[] {
-  if (
-    !(
-      Number.isFinite(props.threshold) &&
-      props.threshold >= 0 &&
-      props.threshold <= 100
-    )
-  )
+  if (!(props.threshold >= 0 && props.threshold <= 100))
     throw new Error(
       `A scene-cut threshold of ${props.threshold} is not a score from 0 to 100`,
     );

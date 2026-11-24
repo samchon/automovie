@@ -139,11 +139,7 @@ export namespace AutoMovieArchetypeEquineScramble {
     if (index === legs - 1)
       return refuse("A bank scramble needs a run-out leg over the top edge");
     const { friction, bound, entry, exit } = technique;
-    if (
-      !(Number.isFinite(friction) && friction >= 0) ||
-      typeof technique.source !== "string" ||
-      technique.source.length === 0
-    )
+    if (!(friction >= 0) || technique.source.length === 0)
       return refuse(
         "A bank scramble states the face's friction and its source",
       );
@@ -156,7 +152,7 @@ export namespace AutoMovieArchetypeEquineScramble {
       return refuse(
         `The face's grade ${grade} is steeper than a scramble's ${AutoMovieArchetypeEquineBank.STEEPEST}`,
       );
-    if (!(Number.isFinite(bound) && bound > 0 && bound <= leg.length))
+    if (!(bound > 0 && bound <= leg.length))
       return refuse("A bound covers a positive share of the face");
     if (grade * bound > CLIMB * reach)
       return refuse(
@@ -165,10 +161,7 @@ export namespace AutoMovieArchetypeEquineScramble {
     const span: AutoMovieArchetypeCourse.ILegSpan = plan.legSpans[index]!;
     const from: number = plan.when(span.from);
     const to: number = plan.when(span.from + span.span);
-    if (
-      ![entry, exit].every(Number.isFinite) ||
-      !(entry > 0 && exit > 0 && entry + exit <= to - from)
-    )
+    if (!(entry > 0 && exit > 0 && entry + exit <= to - from))
       return refuse(
         "A bank scramble blends in and out over positive blends within the face",
       );

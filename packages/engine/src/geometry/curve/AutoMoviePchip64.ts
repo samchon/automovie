@@ -30,7 +30,6 @@ export class AutoMoviePchip64 {
       xs.length < 2 ||
       values.length !== xs.length ||
       derivatives.length !== xs.length ||
-      ![...xs, ...values, ...derivatives].every(Number.isFinite) ||
       xs.some((x: number, i: number): boolean => i > 0 && x <= xs[i - 1]!)
     )
       throw new Error("Ordered finite spline coordinates required");
@@ -56,7 +55,7 @@ export class AutoMoviePchip64 {
    * results reject.
    */
   public at(x: number, derivative: boolean = false): number {
-    if (!Number.isFinite(x) || x < this.xs[0]! || x > this.xs.at(-1)!)
+    if (x < this.xs[0]! || x > this.xs.at(-1)!)
       throw new Error("Outside scalar spline coordinate range");
     let i: number = 0;
     while (i < this.xs.length - 2 && x >= this.xs[i + 1]!) i++;
@@ -65,8 +64,6 @@ export class AutoMoviePchip64 {
     const result: number = derivative
       ? (3 * c[0] * d + 2 * c[1]) * d + c[2]
       : ((c[0] * d + c[1]) * d + c[2]) * d + c[3];
-    if (!Number.isFinite(result))
-      throw new Error("Unresolved scalar spline arithmetic");
     return result;
   }
 
@@ -88,7 +85,6 @@ export class AutoMoviePchip64 {
       .slice(1)
       .map((y: number, i: number): number => (y - values[i]!) / h[i]!);
     if (
-      ![...xs, ...values, ...m].every(Number.isFinite) ||
       h.some((x: number): boolean => x <= 0)
     )
       throw new Error("Finite increasing spline coordinates required");

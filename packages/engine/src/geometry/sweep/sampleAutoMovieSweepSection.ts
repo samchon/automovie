@@ -47,7 +47,7 @@ export const sampleAutoMovieSweepSection: (
   props: IAutoMovieSampleSweepSection.IProps,
 ) => number[] = (props: IAutoMovieSampleSweepSection.IProps): number[] => {
   const { section, count }: typeof props = props;
-  if (!Number.isSafeInteger(count) || count < 3)
+  if (count < 3)
     throw new Error("section sampling needs an integer count of at least 3");
   const angles: number[] = Array.from(
     { length: count },
@@ -57,7 +57,7 @@ export const sampleAutoMovieSweepSection: (
     const m: number = section.radii.length;
     if (m < 3) throw new Error("radial section needs at least three radii");
     section.radii.forEach((r: number, k: number): void => {
-      if (!Number.isFinite(r) || r <= 0)
+      if (r <= 0)
         throw new Error(
           `radial section radius ${k} must be positive and finite`,
         );
@@ -71,7 +71,7 @@ export const sampleAutoMovieSweepSection: (
     });
     return angles.map((angle: number): number => {
       const value: number = radius(angle);
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0))
         throw new Error(
           `radial section is not positive and finite at angle ${angle}`,
         );
@@ -115,8 +115,6 @@ export const sampleAutoMovieSweepSection: (
   for (let i: number = 0; i <= samples; ++i) {
     const t: number = i / samples;
     const p: IAutoMovieSweepSection.IPoint = curve.point(t);
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
-      throw new Error("section curve is not finite");
     if (Math.hypot(p.x, p.y) === 0)
       throw new Error("section curve passes through its origin");
     const raw: number = Math.atan2(p.y, p.x);

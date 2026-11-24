@@ -18,7 +18,7 @@ export function ArchetypePendulumFrequency(
   body: AutoMovieArchetypeTrack.IPendulum,
 ): number {
   for (const axis of ["mass", "moment", "arm"] as const)
-    if (!(Number.isFinite(body[axis]) && body[axis] > 0))
+    if (!(body[axis] > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -29,26 +29,11 @@ export function ArchetypePendulumFrequency(
           "a pendulum needs finite positive mass, moment and gravity lever",
         fix: "give the physical pendulum's positive SI figures",
       });
-  if (!Number.isFinite(body.rest))
-    throw new AutoMovieArchetypeRefusal({
-      kind: "parameter",
-      archetype,
-      axis: "pendulum.rest",
-      value: body.rest,
-      feasible: null,
-      reason: "a pendulum needs finite neutral travel",
-      fix: "give the neutral travel in degrees",
-    });
   const weight: number = body.mass * AutoMovieGravity.STANDARD;
   const numerator: number = weight * body.arm;
   const squared: number = numerator / body.moment;
   const omega: number =
-    Number.isFinite(weight) &&
-    weight >= 2 ** -1022 &&
-    Number.isFinite(numerator) &&
-    numerator >= 2 ** -1022 &&
-    Number.isFinite(squared) &&
-    squared >= 2 ** -1022
+    weight >= 2 ** -1022 && numerator >= 2 ** -1022 && squared >= 2 ** -1022
       ? Math.sqrt(squared)
       : Math.exp(
           (Math.log(body.mass) +
@@ -57,7 +42,7 @@ export function ArchetypePendulumFrequency(
             Math.log(body.moment)) /
             2,
         );
-  if (!(Number.isFinite(omega) && omega > 0))
+  if (!(omega > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,

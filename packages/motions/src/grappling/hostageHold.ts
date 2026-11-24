@@ -55,7 +55,7 @@ export namespace hostageHold {
       ["back", back],
     ] as const)
       if (
-        !(value >= 0 && Number.isFinite(value)) ||
+        !(value >= 0) ||
         (axis === "duration" && value === 0)
       )
         throw new HumanRefusal({

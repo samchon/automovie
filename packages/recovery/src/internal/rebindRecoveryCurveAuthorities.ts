@@ -37,7 +37,7 @@ export function rebindRecoveryCurveAuthorities(
   ) => IAutoMovieRecoveryAuthorityRecord | undefined = (
     value: unknown,
   ): IAutoMovieRecoveryAuthorityRecord | undefined =>
-    value !== null && typeof value === "object" && !Array.isArray(value)
+    value !== null && typeof value === "object"
       ? (value as IAutoMovieRecoveryAuthorityRecord)
       : undefined;
   const required: (value: unknown) => IAutoMovieRecoveryAuthorityRecord = (
@@ -110,7 +110,7 @@ export function rebindRecoveryCurveAuthorities(
       required(originalGeometry);
     const target: IAutoMovieRecoveryAuthorityRecord =
       required(convertedGeometry);
-    if (typeof id !== "number" || !Number.isSafeInteger(id) || id < 0)
+    if (typeof id !== "number" || id < 0)
       throw new Error(
         "A curve binding requires an in-range integer control ID",
       );
@@ -133,8 +133,6 @@ export function rebindRecoveryCurveAuthorities(
       converted[1] * 0.001,
       converted[2] * 0.001,
     ];
-    if (!next.every(Number.isFinite))
-      throw new Error("Converted boundary coefficients must remain finite");
     let owners: Map<number, Readonly<AutoMovieVector3Tuple>> | undefined =
       pending.get(target);
     if (!owners) {
@@ -152,7 +150,7 @@ export function rebindRecoveryCurveAuthorities(
       );
     if (
       ![targetPoint.x, targetPoint.y, targetPoint.z].every(
-        (x: unknown): boolean => typeof x === "number" && Number.isFinite(x),
+        (x: unknown): boolean => typeof x === "number",
       )
     )
       throw new Error("A converted surface control must be a finite position");
@@ -315,7 +313,6 @@ export function rebindRecoveryCurveAuthorities(
           ] = spans(binding.curveName);
           if (
             typeof binding.span !== "number" ||
-            !Number.isSafeInteger(binding.span) ||
             binding.span < 0 ||
             !before[binding.span] ||
             !after[binding.span]
@@ -350,12 +347,6 @@ export function rebindRecoveryCurveAuthorities(
     )
       return;
     visited.add(original);
-    if (Array.isArray(original)) {
-      const target: readonly unknown[] = array(converted);
-      for (let i: number = 0; i < original.length; i++)
-        visit(original[i], target[i]);
-      return;
-    }
     const row: IAutoMovieRecoveryAuthorityRecord = required(original);
     const target: IAutoMovieRecoveryAuthorityRecord = required(converted);
     if (

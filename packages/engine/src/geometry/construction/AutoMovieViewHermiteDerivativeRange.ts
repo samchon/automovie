@@ -50,7 +50,6 @@ export function AutoMovieViewHermiteDerivativeRange(
     let lower: number = Infinity;
     let upper: number = -Infinity;
     for (const first of curve.first) {
-      if (!Number.isFinite(first)) throw new Error("nonfinite knot derivative");
       lower = Math.min(lower, first);
       upper = Math.max(upper, first);
     }
@@ -61,13 +60,11 @@ export function AutoMovieViewHermiteDerivativeRange(
       stage = "span " + i;
       const h: number = curve.xs[i + 1]! - curve.xs[i]!;
       if (
-        !Number.isFinite(curve.xs[i]!) ||
-        !Number.isFinite(curve.xs[i + 1]!) ||
-        !(Number.isFinite(h) && h > 0)
+        !(h > 0)
       )
         throw new Error("source interval is not finite and positive");
       const c: readonly number[] = curve.coefficients[i]!;
-      if (c.length !== 5 || !c.every(Number.isFinite))
+      if (c.length !== 5)
         throw new Error("quintic coefficients are not finite and complete");
       const d: Interval[] = [
         point(c[0]!),
@@ -138,7 +135,7 @@ function point(value: number): Interval {
 
 /** A proof that reaches a nonfinite endpoint is unavailable, not unbounded. */
 function enclose(lower: number, upper: number): Interval {
-  if (!(Number.isFinite(lower) && Number.isFinite(upper) && lower <= upper))
+  if (!(lower <= upper))
     throw new Error("outward enclosure is not finitely representable");
   return [lower, upper];
 }
@@ -164,7 +161,7 @@ function multiply(a: Interval, b: Interval): Interval {
 
 /** Every divisor is an actual positive span or a positive exact basis constant. */
 function divide(a: Interval, positive: number): Interval {
-  if (!(Number.isFinite(positive) && positive > 0))
+  if (!(positive > 0))
     throw new Error("outward division needs a finite positive divisor");
   return enclose(
     adjacent(a[0] / positive, false),

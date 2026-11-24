@@ -125,11 +125,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
     source: readonly IAutoMovieVector3[],
     fore: boolean,
   ): IPrepared {
-    if (
-      !Array.isArray(source) ||
-      source.length !== 5 ||
-      typeof fore !== "boolean"
-    )
+    if (source.length !== 5)
       throw new RangeError(
         "A quadruped limb requires five actual controls and a fore/hind branch",
       );
@@ -146,11 +142,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           point.z - source[index]!.z,
         ),
       );
-    if (
-      lengths.some(
-        (length: number): boolean => !(Number.isFinite(length) && length > 0),
-      )
-    )
+    if (lengths.some((length: number): boolean => !(length > 0)))
       throw new RangeError(
         "A quadruped limb requires four positive finite actual lengths",
       );
@@ -193,8 +185,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
      * lower resultant.
      */
     function piece(fold: number, oriented: boolean): IPiece {
-      if (!Number.isFinite(fold))
-        throw new RangeError("A quadruped limb fold must be finite degrees");
       const bend: number =
         neutralBend + branch * fold * AutoMovieArchetypeUnits.DEGREE;
       const terminal: number = oriented ? 0 : d;
@@ -204,14 +194,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       const lower: number = Math.hypot(z, y);
       const minimum: number = Math.abs(a - lower);
       const maximum: number = a + lower;
-      if (
-        !(
-          Number.isFinite(lower) &&
-          lower > 0 &&
-          Number.isFinite(maximum) &&
-          maximum > minimum
-        )
-      )
+      if (!(lower > 0 && maximum > minimum))
         throw new RangeError(
           "The folded quadruped carriage has no representable positive triangle band",
         );
@@ -266,7 +249,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
       const distance: number = Math.hypot(dy, dz);
       if (
         !(
-          Number.isFinite(distance) &&
           distance > 0 &&
           distance >= lower.minimum &&
           distance <= lower.maximum
@@ -285,7 +267,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
             : "The admitted quadruped triangle is unrepresentable",
         );
       }
-      if (triangle.clamped || !Number.isFinite(triangle.lift))
+      if (triangle.clamped)
         throw new RangeError(
           "A clamped or unrepresentable quadruped triangle cannot satisfy its goal",
         );
@@ -301,7 +283,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
         goal.y - elbow.y,
         goal.z - elbow.z,
       );
-      if (!(Number.isFinite(lowerDistance) && lowerDistance > 0))
+      if (!(lowerDistance > 0))
         throw new RangeError(
           "The solved quadruped lower carriage has no representable direction",
         );
@@ -374,7 +356,7 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
           direction.y,
           direction.z,
         );
-        if (!(Number.isFinite(magnitude) && magnitude > 0))
+        if (!(magnitude > 0))
           throw new RangeError(
             "A terminal direction must have representable positive magnitude",
           );
@@ -433,12 +415,6 @@ export namespace AutoMovieArchetypeQuadrupedLimb {
 
   /** Admit finite coordinates without dereferencing a missing/sparse control. */
   function finite(point: IAutoMovieVector3 | null | undefined): boolean {
-    return (
-      point !== null &&
-      point !== undefined &&
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z)
-    );
+    return point !== null && point !== undefined;
   }
 }

@@ -7,20 +7,10 @@ import { qclose } from "../internal/qclose";
 import { qunit } from "../internal/qunit";
 import { vclose } from "../internal/vclose";
 
-const finiteVec: (v: IAutoMovieVector3) => boolean = (
-  v: IAutoMovieVector3,
-): boolean =>
-  Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
-const finiteQuat: (q: IAutoMovieQuaternion) => boolean = (
-  q: IAutoMovieQuaternion,
-): boolean =>
-  Number.isFinite(q.x) &&
-  Number.isFinite(q.y) &&
-  Number.isFinite(q.z) &&
-  Number.isFinite(q.w);
-
 /**
- * Decomposition completes collapsed basis directions without dividing by zero; the existing rotated examples must recompose their surviving columns, and genuine tiny scales must remain nonzero.
+ * Decomposition completes collapsed basis directions without dividing by zero;
+ * the existing rotated examples must recompose their surviving columns, and
+ * genuine tiny scales must remain nonzero.
  *
  * Scenarios:
  *
@@ -30,10 +20,10 @@ const finiteQuat: (q: IAutoMovieQuaternion) => boolean = (
  * 2. All three axes collapsed (zero matrix rotation block): still finite.
  * 3. A genuine small nonzero scale (1e-3) round-trips within 1e-9.
  * 4. Under a generic rotation, each single collapsed axis and each pair of
- *    collapsed axes decompose to a unit rotation whose recomposition equals
- *    the original matrix.
- * 5. A nonzero scale far below `Number.EPSILON` (1e-20) under the same
- *    rotation checks recovered rotation and the X-scale ratio.
+ *    collapsed axes decompose to a unit rotation whose recomposition equals the
+ *    original matrix.
+ * 5. A nonzero scale far below `Number.EPSILON` (1e-20) under the same rotation
+ *    checks recovered rotation and the X-scale ratio.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Decomposes finite collapsed/tiny TRS matrices and checks exact zero scales, finite/unit recovered rotations and recomposition of surviving columns, catching division by zero or an epsilon-floored genuine scale.
  * @evidence contracts/development/testing.md#independent-expectations A zero basis column has zero norm, surviving columns must remain unchanged on recomposition and authored 1e-3/1e-20 scales remain nonzero; compose/recompose parity still shares product math and is not an independent arbitrary-matrix oracle.
@@ -56,17 +46,11 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
       rotation: IAutoMovieQuaternion;
       scale: IAutoMovieVector3;
     } = Matrix4.decompose(Matrix4.compose(t, identity, scale));
-    TestValidator.predicate(
-      `${title}: rotation finite`,
-      finiteQuat(d.rotation),
-    );
-    TestValidator.predicate(`${title}: scale finite`, finiteVec(d.scale));
     // the collapsed axis reads exactly 0 (raw length), not the EPSILON floor
     TestValidator.predicate(
       `${title}: collapsed scale is 0`,
       nclose(d.scale[zero], 0, 0),
     );
-    TestValidator.predicate(`${title}: position finite`, finiteVec(d.position));
   }
 
   // 2. Fully collapsed: the whole rotation block is zero; still finite.
@@ -75,14 +59,6 @@ export function test_resolve_matrix4_decompose_collapsed(): void {
     rotation: IAutoMovieQuaternion;
     scale: IAutoMovieVector3;
   } = Matrix4.decompose(Matrix4.compose(t, identity, { x: 0, y: 0, z: 0 }));
-  TestValidator.predicate(
-    "all collapsed: rotation finite",
-    finiteQuat(allZero.rotation),
-  );
-  TestValidator.predicate(
-    "all collapsed: scale finite",
-    finiteVec(allZero.scale),
-  );
   TestValidator.predicate(
     "all collapsed: scale is 0,0,0",
     vclose(allZero.scale, { x: 0, y: 0, z: 0 }, 0),

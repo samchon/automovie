@@ -44,22 +44,12 @@ export function fitAutoMovieRecoveryImageLoft(
   const cancelled: () => boolean = (): boolean => {
     cancellationCallback = true;
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationCallback = false;
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
 
     if (cancelled())
       return {
@@ -71,9 +61,7 @@ export function fitAutoMovieRecoveryImageLoft(
     if (
       !observation ||
       observation.method !== "fixed-background-channel-distance-v1" ||
-      typeof observation.objectId !== "string" ||
       !observation.objectId.trim() ||
-      typeof observation.frame !== "string" ||
       !observation.frame.trim() ||
       !["analytic", "photograph", "inconsistent-stress"].includes(
         observation.cohort,
@@ -81,15 +69,12 @@ export function fitAutoMovieRecoveryImageLoft(
       !policy ||
       policy.family !== "aligned-elliptical-sections" ||
       ![policy.maxViews, policy.maxRows, policy.maxSpans].every(
-        (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+        (value: number): boolean => value > 0,
       ) ||
-      !Number.isFinite(policy.maximumResidualPx) ||
       policy.maximumResidualPx <= 0 ||
       ![policy.minimumDirectionRatio, policy.minimumSplineRatio].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && value > 0 && value < 1,
+        (value: number): boolean => value > 0 && value < 1,
       ) ||
-      !Array.isArray(observation.views) ||
       observation.views.length < 3 ||
       observation.views.length > policy.maxViews
     )
@@ -162,11 +147,7 @@ export function fitAutoMovieRecoveryImageLoft(
         const [rx2, rz2]: [number, number] = radiiSolver.solve(squaredWidths);
         const [centreX, centreZ]: [number, number] =
           centreSolver.solve(midpoints);
-        if (
-          !(rx2 > 0) ||
-          !(rz2 > 0) ||
-          ![rx2, rz2, centreX, centreZ].every(Number.isFinite)
-        )
+        if (!(rx2 > 0) || !(rz2 > 0))
           throw new Error(
             "inconsistent-support: section equations do not admit finite positive ellipse axes",
           );

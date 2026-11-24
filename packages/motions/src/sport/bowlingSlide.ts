@@ -91,7 +91,7 @@ function plan(
   const leg: number = body.measure.thigh + body.measure.shank;
   const lead: AutoMovieHumanSide = params.hand === "left" ? "right" : "left";
   const trail: AutoMovieHumanSide = lead === "left" ? "right" : "left";
-  if (!(from > 0 && to > from && seconds > to && Number.isFinite(seconds)))
+  if (!(from > 0 && to > from && seconds > to))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "to",

@@ -93,11 +93,7 @@ export namespace AutoMovieArchetypeEquineStance {
         q: AutoMovieArchetypeEquineStanceCue.Cue,
       ): number => p.from - q.from,
     )) {
-      if (
-        ![cue.from, cue.entry, cue.hold, cue.exit].every(Number.isFinite) ||
-        !(cue.entry > 0 && cue.hold >= 0 && cue.exit > 0) ||
-        cue.from < last
-      )
+      if (!(cue.entry > 0 && cue.hold >= 0 && cue.exit > 0) || cue.from < last)
         refuse(
           animal.archetype,
           "phases",
@@ -116,12 +112,7 @@ export namespace AutoMovieArchetypeEquineStance {
         );
       if (
         cue.kind === "crowHops" &&
-        !(
-          Number.isInteger(cue.count) &&
-          cue.count >= 1 &&
-          cue.pitch > 0 &&
-          cue.pitch < 90
-        )
+        !(cue.count >= 1 && cue.pitch > 0 && cue.pitch < 90)
       )
         refuse(
           animal.archetype,
@@ -131,11 +122,7 @@ export namespace AutoMovieArchetypeEquineStance {
         );
       if (
         cue.kind === "spin" &&
-        !(
-          Number.isFinite(cue.degrees) &&
-          cue.degrees !== 0 &&
-          Math.abs(cue.degrees) <= 360
-        )
+        !(cue.degrees !== 0 && Math.abs(cue.degrees) <= 360)
       )
         refuse(
           animal.archetype,
@@ -150,10 +137,7 @@ export namespace AutoMovieArchetypeEquineStance {
           cue.pitch,
           "a set back drops the hindquarters between 0 and 45 degrees",
         );
-      if (
-        cue.kind === "stepAside" &&
-        !(Number.isFinite(cue.width) && cue.width > 0)
-      )
+      if (cue.kind === "stepAside" && !(cue.width > 0))
         refuse(
           animal.archetype,
           "width",

@@ -119,8 +119,6 @@ export function createAutoMovieSurfaceAppearance(input: {
                   : previousColor.getZ(Math.floor(index / 3)),
         ),
       );
-      if (!positions.every(Number.isFinite) || !colors.every(Number.isFinite))
-        throw new Error("Nonfinite surface source exceeds GPU f32 range");
       const geometry: THREE.BufferGeometry = originalGeometry.clone();
       const materials: THREE.Material[] = source.map(
         (material: (typeof source)[number]): THREE.Material => {
@@ -167,7 +165,7 @@ export function createAutoMovieSurfaceAppearance(input: {
   }
   return {
     update: (seconds: number): void => {
-      if (disposed || !Number.isFinite(seconds) || seconds < 0)
+      if (disposed || seconds < 0)
         throw new Error("Invalid surface-appearance update");
       for (const record of records) {
         const position: THREE.BufferAttribute = record.geometry.getAttribute(
@@ -197,18 +195,7 @@ export function createAutoMovieSurfaceAppearance(input: {
             seconds,
             record.mesh,
           );
-          if (
-            !sample ||
-            !Array.isArray(sample.color) ||
-            sample.color.length !== 3 ||
-            !sample.displacement ||
-            ![
-              ...sample.color,
-              sample.displacement.x,
-              sample.displacement.y,
-              sample.displacement.z,
-            ].every(Number.isFinite)
-          )
+          if (!sample || sample.color.length !== 3 || !sample.displacement)
             throw new Error(`Nonfinite surface response for ${record.bone}`);
           const delta: IAutoMovieVector3 =
             input.space === "posed-mesh" &&
@@ -225,14 +212,6 @@ export function createAutoMovieSurfaceAppearance(input: {
             record.colors[index * 3 + 1]! * sample.color[1],
             record.colors[index * 3 + 2]! * sample.color[2],
           ];
-          if (
-            !values.every((value: number): boolean =>
-              Number.isFinite(Math.fround(value)),
-            )
-          )
-            throw new Error(
-              `Nonfinite surface vertex result for ${record.bone}`,
-            );
           position.setXYZ(index, values[0]!, values[1]!, values[2]!);
           color.setXYZ(index, values[3]!, values[4]!, values[5]!);
           moved ||=

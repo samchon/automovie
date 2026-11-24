@@ -485,8 +485,9 @@ export namespace closeStrike {
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
       ): IAutoMovieMotionHumanPosture => build().posture(...args),
-      settle: (): void => {
+      prepare: (): void => {
         built = undefined;
+        build().prepare?.();
       },
     };
   }

@@ -358,7 +358,7 @@ const checkAsset: (props: {
   }
   for (const axis of ["width", "height"] as const) {
     const value: number = facts[axis];
-    if (!Number.isSafeInteger(value) || value <= 0)
+    if (value <= 0)
       props.out.push(
         "range",
         `${props.path}.${axis}`,

@@ -24,8 +24,7 @@ export function reconstructRecoveryOpen(
   if (
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
-    !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
-    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    !(graph.resolutionMm > 0) ||
     graph.maxVerticesPerRun < 4
   )
     throw new Error(
@@ -42,11 +41,7 @@ export function reconstructRecoveryOpen(
     section: number,
     arc: number,
   ): void => {
-    if (
-      !Number.isSafeInteger(arc) ||
-      arc < 0 ||
-      arc >= bundle.reports[section]!.open.length
-    )
+    if (arc < 0 || arc >= bundle.reports[section]!.open.length)
       throw new Error(
         "Open curve address does not match saved coefficient authority",
       );
@@ -75,8 +70,6 @@ export function reconstructRecoveryOpen(
     for (const pair of interval.pairs) {
       claim(0, pair.before);
       claim(1, pair.after);
-      if (typeof pair.reverseAfter !== "boolean")
-        throw new Error("Endpoint reversal must be explicit");
       const edge: Edge = {
         before: { section: i, arc: pair.before },
         after: { section: i + 1, arc: pair.after },
@@ -144,14 +137,13 @@ export function reconstructRecoveryOpen(
       (sum: number, h: number): number => sum + h,
       0,
     );
-    if (!(total > 0 && Number.isFinite(total)))
-      throw new Error("Open curve phase cannot be normalized");
+    if (!(total > 0)) throw new Error("Open curve phase cannot be normalized");
     let prefix: number = 0;
     const phaseIntervals: number[] = widths.map(
       (width: number, i: number): number => {
         const value: number =
           i + 1 === widths.length ? 1 - prefix : width / total;
-        if (!(value > 0 && Number.isFinite(value)))
+        if (!(value > 0))
           throw new Error(
             "Normalized open phase interval is not representable",
           );

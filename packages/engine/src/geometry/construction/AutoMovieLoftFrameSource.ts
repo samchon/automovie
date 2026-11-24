@@ -30,11 +30,7 @@ export namespace AutoMovieLoftFrameSource {
     for (const layer of chain.layers) {
       const jet: IAutoMovieViewAxisJet.IJet | null = axis.jet(layer.y);
       const frame: IAutoMovieLoftSectionFrame = jet?.value ?? axis.at(layer.y);
-      if (
-        !finite(frame) ||
-        (jet !== null && ![jet.value, jet.first, jet.second].every(finite))
-      )
-        return `axis has nonfinite frame data at station ${layer.y} mm`;
+
       const retained: IAutoMovieLoftChain.ILayer = {
         ...layer,
         frame,
@@ -101,9 +97,9 @@ export namespace AutoMovieLoftFrameSource {
       station,
       parameter,
     );
-    if (jet === null || ![jet.value, jet.first, jet.second].every(finite))
+    if (jet === null)
       throw new AutoMovieLoftAdmissionError(
-        `Retained axis has no finite analytic frame jet at station ${station} mm`,
+        `Retained axis has no analytic frame jet at station ${station} mm`,
       );
     return jet;
   }
@@ -124,10 +120,6 @@ export namespace AutoMovieLoftFrameSource {
     const axis: IAutoMovieViewAxis.IAxis | null = owner(a, b);
     if (axis !== null) {
       const value: IAutoMovieLoftSectionFrame = axis.at(s);
-      if (!finite(value))
-        throw new Error(
-          `Retained axis has no finite frame value at station ${s} mm`,
-        );
       return value;
     }
     if (
@@ -268,14 +260,3 @@ function same(
   );
 }
 
-/**
- * Finite actual frame components are required before publishing an analytic
- * jet.
- */
-function finite(frame: IAutoMovieLoftSectionFrame): boolean {
-  return (
-    frame.origin.every(Number.isFinite) &&
-    frame.u.every(Number.isFinite) &&
-    frame.v.every(Number.isFinite)
-  );
-}

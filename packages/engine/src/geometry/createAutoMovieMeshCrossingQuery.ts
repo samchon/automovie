@@ -88,7 +88,7 @@ function createQuery(
   ): IAutoMovieMeshCrossing[] => {
     const allPairs: boolean = options?.allPairs === true;
     const tolerance: number = options?.interiorTolerance ?? 0;
-    if (!Number.isFinite(tolerance) || tolerance < 0 || tolerance >= 0.5)
+    if (tolerance < 0 || tolerance >= 0.5)
       throw new Error(
         "Mesh crossing interior tolerance needs a finite [0, 0.5) value.",
       );

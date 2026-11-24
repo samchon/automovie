@@ -31,8 +31,6 @@ export function classifyAutoMoviePlaybackBoundary(
   const entries: readonly IAutoMoviePlaybackEntry[] = timeline.entries;
   if (
     entries.length === 0 ||
-    !Number.isFinite(before) ||
-    !Number.isFinite(after) ||
     before < 0 ||
     after < before ||
     after >= timeline.runtime

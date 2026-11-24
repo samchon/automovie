@@ -165,7 +165,7 @@ export class AutoMovieRasterSheet {
     this.strip = AutoMovieRasterSheet.caption(cellHeight, lines);
     if (
       ![capacity, columns, cellWidth, cellHeight, lines].every(
-        (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new Error(

@@ -459,11 +459,8 @@ function preparedWorkspace(
         near,
       };
       const admitted: boolean =
-        Number.isFinite(near.swivel) &&
-        Number.isInteger(near.branch) &&
         near.branch >= 0 &&
         near.branch <= 1 &&
-        Number.isFinite(near.tolerance) &&
         near.tolerance > 0;
       let candidate: ReturnType<typeof fitHingedChainBend> = null;
       if (admitted) {

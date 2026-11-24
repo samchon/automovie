@@ -79,7 +79,7 @@ function planHumanBikeGuide(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start }: typeof context = context;
   const duration: number = params.duration;
-  if (!(Number.isFinite(duration) && duration > REACH))
+  if (!(duration > REACH))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",

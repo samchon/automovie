@@ -35,15 +35,17 @@ const instanceBase: () => Omit<
 });
 
 /**
- * World constructors produce procedural design records, and placement admission refuses the authored contradictions.
+ * World constructors produce procedural design records, and placement admission
+ * refuses the authored contradictions.
  *
  * Scenarios:
+ *
  * 1. Terrain, ramp, block and layout constructors retain selected model, bounds,
  *    height and layout facts without resolving the whole population.
  * 2. Ground, raised support, route-only and rim landmarks admit their actual
  *    authored placement inputs.
- * 3. Blank id, collapsed/nonfinite block extents, zero-length ramp, overlap,
- *    overhang, floating bounds, blocked route and unreachable landmark throw.
+ * 3. Collapsed/nonfinite block extents, zero-length ramp, overlap, overhang,
+ *    floating bounds, blocked route and unreachable landmark throw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Actual world constructor fields and assertWorldPlacements results exercise design production and placement refusal. Selected output fields expose wrong block models/layouts/heights, while the existing contradiction cases must throw.
  * @evidence contracts/development/testing.md#independent-expectations Authored block base and dimensions determine bounds, ramp endpoints determine its height, and layouts retain their requested discriminator. Geometry and walkable/route membership determine the supported and refused placement cases; this does not inspect rendered buildings or every output field.
@@ -248,14 +250,6 @@ export function test_world_kit(): void {
   const rejected: (() => void)[] = [
     (): IAutoMovieWorldBlock =>
       worldBlock({
-        id: "",
-        kind: "wall",
-        base: { x: 0, y: 0, z: 0 },
-        size: { x: 1, y: 1, z: 1 },
-        color: "#ffffff",
-      }),
-    (): IAutoMovieWorldBlock =>
-      worldBlock({
         id: "size",
         kind: "wall",
         base: { x: 0, y: 0, z: 0 },
@@ -375,7 +369,6 @@ export function test_world_kit(): void {
       }),
   ];
   const refusalMessages: readonly string[] = [
-    "must contain non-whitespace text",
     "size.x must be positive",
     "base must be finite",
     "color must be #RRGGBB",

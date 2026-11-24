@@ -248,7 +248,7 @@ const sumBytes: (
   for (const texture of textures) {
     if (texture.bytes === null) return null;
     sum += texture.bytes;
-    if (!Number.isSafeInteger(sum)) return null;
+    if (sum > Number.MAX_SAFE_INTEGER) return null;
   }
   return sum;
 };

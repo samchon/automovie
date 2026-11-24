@@ -38,12 +38,7 @@ export function createMeshPhysicalPartitionMatcher(
     sources: (string | null)[];
     degenerate: number[];
   } => {
-    if (
-      Array.from(input.positions).some(
-        (value: number): boolean => !Number.isFinite(value),
-      )
-    )
-      throw new Error("A mesh physical partition needs finite XYZ tuples.");
+
     const indices: number[] = triangleIndicesOf(
       input,
       "mesh physical partition",

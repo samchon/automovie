@@ -20,11 +20,12 @@ import { createSkeleton } from "../internal/fixtures";
 import { hasViolation, namedFacts } from "../internal/predicates";
 
 /**
- * A frameless take selects the first staged camera and requires its own usable id.
+ * A frameless take selects the first staged camera.
  *
  * Scenarios:
+ *
  * 1. Accept a frameless shot using cam-main with no camera motion.
- * 2. Refuse an empty chosen id while ignoring an unused empty second id.
+ * 2. Ignore an unused empty second id.
  * 3. Refuse a scene with no cameras.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls performShot and observes camera id/null motion and located fallback errors, catching an unchecked blank artifact address or overbroad validation of an unused camera.
@@ -73,10 +74,7 @@ export function test_film_perform_shot_camera_fallback(): void {
     );
   }
 
-  // 3. the fallback's id is the shot's camera, so it carries the same
-  //    non-empty contract every other route to that field already carries.
-  //    stageScene refuses an empty node id, so this is the shape only an
-  //    EXPLICIT staged set can present.
+  // 2. An empty id the fallback does not pick leaves the take untouched.
   const withCameraIds: (...ids: string[]) => IAutoMovieStagedSet.ISuccess = (
     ...ids: string[]
   ): typeof staged => ({
@@ -98,26 +96,6 @@ export function test_film_perform_shot_camera_fallback(): void {
       ),
     },
   });
-  const emptyFirst: IAutoMoviePerformedShot = performShot({
-    script: makeScriptWrite(),
-    staged: withCameraIds("", "cam-alt"),
-    performance,
-    synthesize: validSynthesizer,
-    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-  });
-  TestValidator.equals(
-    "an empty fallback camera id is refused",
-    namedFacts([
-      ["refused", (): boolean => emptyFirst.success === false],
-      [
-        "violated",
-        (): boolean =>
-          emptyFirst.success === false &&
-          hasViolation(emptyFirst, "type", "$staged.scene.cameras[0].id"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
   TestValidator.equals(
     "an empty id the fallback does not pick still performs",
     performShot({

@@ -38,18 +38,11 @@ export function RecoveryDiskChart(
     count < 3 ||
     !input.triangles.length ||
     input.vertexKeys.length !== count ||
-    input.vertexKeys.some(
-      (key: string): boolean => typeof key !== "string" || !key.length,
-    ) ||
+    input.vertexKeys.some((key: string): boolean => !key.length) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     ) ||
-    !(
-      input.cornerDegrees > 0 &&
-      input.cornerDegrees < 180 &&
-      Number.isFinite(input.cornerDegrees)
-    )
+    !(input.cornerDegrees > 0 && input.cornerDegrees < 180)
   )
     fail(
       "finite positions, physical keys and a corner threshold in (0,180) are required",
@@ -78,10 +71,7 @@ export function RecoveryDiskChart(
   if (
     input.boundaryCycle.length < 3 ||
     boundary.size !== input.boundaryCycle.length ||
-    input.boundaryCycle.some(
-      (id: number): boolean =>
-        !Number.isSafeInteger(id) || id < 0 || id >= count,
-    )
+    input.boundaryCycle.some((id: number): boolean => id < 0 || id >= count)
   )
     fail("one unrepeated complete boundary cycle is required");
   type Edge = { a: number; b: number; face: number };
@@ -110,7 +100,7 @@ export function RecoveryDiskChart(
       u[0]! * v[1]! - u[1]! * v[0]!,
     ];
     const length: number = Math.hypot(...n);
-    if (!(length > 0 && Number.isFinite(length)))
+    if (!(length > 0))
       fail("a private triangle is degenerate or its normal is unrepresentable");
     return [n[0] / length, n[1] / length, n[2] / length];
   };
@@ -120,10 +110,7 @@ export function RecoveryDiskChart(
       if (
         triangle.length !== 3 ||
         new Set(triangle).size !== 3 ||
-        triangle.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) || id < 0 || id >= count,
-        )
+        triangle.some((id: number): boolean => id < 0 || id >= count)
       )
         fail("private triangle addresses are invalid");
       const word: string = [...triangle]
@@ -272,7 +259,7 @@ export function RecoveryDiskChart(
       den: ReturnType<typeof scaled> = scaled(denominator),
       fraction: number =
         (num.mantissa / den.mantissa) * 2 ** (num.shift - den.shift);
-    if (!(fraction > 0 && fraction < 1 && Number.isFinite(fraction)))
+    if (!(fraction > 0 && fraction < 1))
       fail("an interior boundary quarter is not representable");
     const key: string = `disk-boundary:${JSON.stringify([input.vertexKeys[first], input.vertexKeys[last]])}:${fraction}`;
     const point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
@@ -281,7 +268,6 @@ export function RecoveryDiskChart(
         fraction * (input.verticesMm[last]![k]! - input.verticesMm[first]![k]!),
     ) as [number, number, number];
     if (
-      !point.every(Number.isFinite) ||
       [first, last].some((id: number): boolean =>
         point.every(
           (x: number, k: number): boolean => x === input.verticesMm[id]![k],

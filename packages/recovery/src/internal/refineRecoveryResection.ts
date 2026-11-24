@@ -61,8 +61,6 @@ export function refineRecoveryResection(
         right.push(-residual[axis]! * weight);
       }
     }
-    if (!Number.isFinite(cost))
-      throw new Error("camera-resection: nonrepresentable robust objective");
     return { cost, rows, right };
   };
   let pose: IAutoMovieRecoveryMapPose = {
@@ -116,7 +114,7 @@ export function refineRecoveryResection(
         break;
       }
     } else damping *= 10;
-    if (!(damping > 0) || !Number.isFinite(damping))
+    if (!(damping > 0))
       throw new Error("camera-resection: exhausted representable damping");
   }
   return {

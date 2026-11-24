@@ -24,7 +24,7 @@ export function GhoshConicApproximationDisplacement(
     Math.abs(n[1]!),
     Math.abs(n[2]!),
   );
-  if (normalScale === 0 || !Number.isFinite(normalScale)) return undefined;
+  if (normalScale === 0) return undefined;
 
   // Scale d=L*t so all quadratic coefficients are dimensionless. This keeps
   // coefficient admission unchanged when the caller changes physical units.
@@ -60,17 +60,15 @@ export function GhoshConicApproximationDisplacement(
       roots = stable === 0 ? [-b / (2 * a)] : [stable / a, c / stable];
     }
   }
-  const valid: number[] = roots.filter(
-    (t: number): boolean =>
-      Number.isFinite(t) &&
-      l.every((value: number, index: number): boolean => {
-        const displacement: number =
-          t * (index === 0 ? m0 : index === 1 ? m1 : m2);
-        return (
-          value + displacement >=
-          -roundoff * (1 + Math.abs(value) + Math.abs(displacement))
-        );
-      }),
+  const valid: number[] = roots.filter((t: number): boolean =>
+    l.every((value: number, index: number): boolean => {
+      const displacement: number =
+        t * (index === 0 ? m0 : index === 1 ? m1 : m2);
+      return (
+        value + displacement >=
+        -roundoff * (1 + Math.abs(value) + Math.abs(displacement))
+      );
+    }),
   );
   if (valid.length === 2 && valid[0] === valid[1]) valid.pop();
   return valid.length === 1 ? valid[0]! * length : undefined;

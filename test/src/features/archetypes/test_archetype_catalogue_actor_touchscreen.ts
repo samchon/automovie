@@ -70,8 +70,11 @@ interface IWorst {
  * The canonical phone presents its seeded glass to the displayed index tip.
  *
  * Scenarios:
- * 1. Build 200 seeded phone colliders. Keep one fixed actor seed and the maintained 30-degree kiosk placement.
- * 2. Read the actual index tip at the glass stroke start, midpoint and end. Check the measured stroke duration.
+ *
+ * 1. Build 200 seeded phone colliders. Keep one fixed actor seed and the
+ *    maintained 30-degree kiosk placement.
+ * 2. Read the actual index tip at the glass stroke start, midpoint and end. Check
+ *    the measured stroke duration.
  * 3. Refuse a `to` endpoint beyond the physical screen.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the seeded case dimensions, glass placement, measured right index tip and adjacent forbidden endpoint.
@@ -181,8 +184,7 @@ export function test_archetype_catalogue_actor_touchscreen(): void {
           Vector3.scale(direction, u * width * 0.94),
         );
         const gap: number = Vector3.distance(tip, expected);
-        if (!(gap <= worst.gap))
-          worst = { gap: Number.isFinite(gap) ? gap : Infinity, seed, seconds };
+        if (!(gap <= worst.gap)) worst = { gap: gap, seed, seconds };
       }
       timing = Math.max(
         timing,

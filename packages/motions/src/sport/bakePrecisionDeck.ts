@@ -36,11 +36,9 @@ type ContactSample = NonNullable<IAutoMovieContactReceipt["samples"]>[number];
 export async function bakePrecisionDeck(
   input: IAutoMovieMotionHumanPrecisionDeck,
 ): Promise<IAutoMovieMotionHumanPrecisionDeck.IResult> {
-  const steps: number = input.duration * RATE;
+  const steps: number = Math.round(input.duration * RATE);
   if (
-    !Number.isSafeInteger(steps) ||
     steps < 1 ||
-    !Number.isSafeInteger(input.maximumSteps) ||
     input.maximumSteps < steps ||
     steps > 0xffffffff - 1
   )
@@ -48,9 +46,7 @@ export async function bakePrecisionDeck(
       "Deck duration must contain whole 120 Hz intervals inside its step budget",
     );
   if (
-    !Number.isFinite(input.release) ||
-    input.release < 0 ||
-    !Number.isFinite(input.release + input.duration)
+    !(input.release >= 0)
   )
     throw new RangeError("Deck release must be a nonnegative film second");
 

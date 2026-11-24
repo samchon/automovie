@@ -175,7 +175,7 @@ const positive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(value) === false || value <= 0)
+  if (value <= 0)
     collector.push(
       "range",
       path,
@@ -211,7 +211,7 @@ const unitPositive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(value) === false || value <= 0 || value > 1)
+  if (value <= 0 || value > 1)
     collector.push(
       "range",
       path,
@@ -282,7 +282,7 @@ const integer: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isInteger(value) === false || value < min || value > max)
+  if (value < min || value > max)
     collector.push(
       "range",
       path,

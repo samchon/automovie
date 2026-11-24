@@ -141,12 +141,13 @@ export namespace StrikingBlade {
     const other: AutoMovieHumanSide = tool.side === "left" ? "right" : "left";
     const trunkBones: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>(["chest", `${tool.side}UpperArm`]);
-    let trunkReader: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
+    const trunkReader: ReturnType<typeof HumanTrunk.prepareResolve> =
+      HumanTrunk.prepareResolve(body, trunkBones);
     const trunkAt: ReturnType<typeof HumanTrunk.prepareResolve> = (
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof HumanTrunk.resolve>[3],
     ): ReturnType<typeof HumanTrunk.resolve> =>
-      (trunkReader ??= HumanTrunk.prepareResolve(body, trunkBones))(
+      trunkReader(
         posture,
         resolution,
       );
@@ -189,14 +190,11 @@ export namespace StrikingBlade {
         : (StrikingHeld.holds(context, tool)[0]?.fingers ?? {});
     const supportingFingers: IAutoMovieMotionHumanPosture["joints"] =
       stroke.support === null ? {} : HumanHand.shape(other, "fist");
-    let preparedGoal: ReturnType<typeof StrikingHeld.prepareGoal> | undefined;
+    const preparedGoal: ReturnType<typeof StrikingHeld.prepareGoal> =
+      StrikingHeld.prepareGoal(context, tool, stroke.back);
     const goalFor = (
       at: IAutoMovieMotionHumanStrikingHeld.IHandFrame,
-    ): IAutoMovieHumanLimbGoal => {
-      if (preparedGoal === undefined)
-        preparedGoal = StrikingHeld.prepareGoal(context, tool, stroke.back);
-      return preparedGoal(at, { x: 0, y: 0, z: 0 });
-    };
+    ): IAutoMovieHumanLimbGoal => preparedGoal(at, { x: 0, y: 0, z: 0 });
 
     // How far the tool is from the entry hold to its path, in [0, 1].
     const present = (seconds: number): number =>
@@ -210,12 +208,11 @@ export namespace StrikingBlade {
       (read?.() ?? trunkAt(posture)).get(`${tool.side}UpperArm`)!.worldPosition;
 
     // The holding shoulder where the stroke starts and where it lands.
-    let ends: readonly [IAutoMovieVector3, IAutoMovieVector3] | undefined;
-    const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] =>
-      (ends ??= [
-        shoulderOf(base.posture(0)),
-        shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
-      ]);
+    const ends: readonly [IAutoMovieVector3, IAutoMovieVector3] = [
+      shoulderOf(base.posture(0)),
+      shoulderOf(turned(base.posture(clock.at("stroke")), stroke.turn ?? 0)),
+    ];
+    const borne = (): readonly [IAutoMovieVector3, IAutoMovieVector3] => ends;
     const progressAt = (seconds: number): number =>
       stroke.stop *
       AutoMovieMotionClock.through(
@@ -476,17 +473,16 @@ export namespace StrikingBlade {
     const duration: number = clock.duration;
     const ready: number = clock.at("strokeStart");
     const reach: number = ready > 0 ? ((15 / 8) * travel) / ready : 0;
-    let fastest: number | undefined;
+    const fastest: number = Math.max(
+      precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
+      reach,
+    );
     return courseArmGoal({
       context,
       side: tool.side,
       plan: goals,
       span: { start: 0, ready, relax: duration, end: duration },
-      pace: (): number =>
-        (fastest ??= Math.max(
-          precisionStrokePeak(goals.posture, `${tool.side}Arm`, duration),
-          reach,
-        )),
+      pace: (): number => fastest,
     });
   }
 }

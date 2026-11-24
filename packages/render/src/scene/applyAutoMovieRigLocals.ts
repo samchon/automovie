@@ -73,13 +73,6 @@ function validateLocal(local: IAutoMovieRigLocalTransform, name: string): void {
   if (
     t.length !== 3 ||
     q.length !== 4 ||
-    !Number.isFinite(t[0]) ||
-    !Number.isFinite(t[1]) ||
-    !Number.isFinite(t[2]) ||
-    !Number.isFinite(q[0]) ||
-    !Number.isFinite(q[1]) ||
-    !Number.isFinite(q[2]) ||
-    !Number.isFinite(q[3]) ||
     Math.abs(q[0] ** 2 + q[1] ** 2 + q[2] ** 2 + q[3] ** 2 - 1) > 1e-6
   )
     throw new Error(

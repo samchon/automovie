@@ -36,9 +36,7 @@ export function solveAutoMovieBoundedDisplacement(
   input: IAutoMovieSolveBoundedDisplacement.IInput,
 ): IAutoMovieSolveBoundedDisplacement.IResult {
   if (
-    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
-    !Number.isSafeInteger(input.maximumRounds) ||
     input.maximumRounds <= 0
   )
     throw new Error(

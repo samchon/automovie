@@ -5,14 +5,15 @@ import { TestValidator } from "@nestia/e2e";
  * A minimum-jerk foot swing stays inside its actual endpoint and lift domain.
  *
  * Scenarios:
+ *
  * 1. Literal dyadic phases recover the quintic's independently integrated
  *    coefficients and a symmetric lift with an exact middle apex.
- * 2. A complete dyadic phase grid is bounded, progresses monotonically and
- *    has the same lift in forward and reverse time.
- * 3. Adjacent phases near touchdown, liftoff and the apex never produce a
- *    negative clearance or an overshoot through cancellation at completion.
- * 4. Nonfinite phases refuse and mutating a result cannot change a later
- *    query. Existing ride tests verify actual feet, support and attachments.
+ * 2. A complete dyadic phase grid is bounded, progresses monotonically and has the
+ *    same lift in forward and reverse time.
+ * 3. Adjacent phases near touchdown, liftoff and the apex never produce a negative
+ *    clearance or an overshoot through cancellation at completion.
+ * 4. Nonfinite phases refuse and mutating a result cannot change a later query.
+ *    Existing ride tests verify actual feet, support and attachments.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States normalized phase, endpoint progress, nonnegative clearance, independent dyadic literals, binary64 boundary cases, invalid input and pure result ownership.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual profile used by all quadruped rides and checks its raw shares before they become geometric goals. A descending subtraction that creates negative lift is caught without a tolerance or a patched ride.
@@ -78,8 +79,6 @@ export function test_archetype_animal_swing_profile(): void {
     const actual: ReturnType<typeof AutoMovieArchetypeQuadrupedMotion.swing> =
       AutoMovieArchetypeQuadrupedMotion.swing(u);
     if (
-      !Number.isFinite(actual.along) ||
-      !Number.isFinite(actual.rise) ||
       actual.along < 0 ||
       actual.along > 1 ||
       actual.rise < 0 ||

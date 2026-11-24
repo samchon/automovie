@@ -50,8 +50,6 @@ export function EquineSwimPose(
   phases: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, number>>,
   neck: number,
 ): QuadrupedWorldPose.IPose {
-  if (!Number.isFinite(neck))
-    throw new RangeError("A swimming neck raise must be finite degrees");
   const frames: Map<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> =
     new Map(neutral);
 

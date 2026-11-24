@@ -1,7 +1,6 @@
 import { IAutoMovieMesh, IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { finiteVector } from "./finiteVector";
 
 /**
  * Build a boundary representation from planar convex polygonal faces.
@@ -52,9 +51,7 @@ export const buildAutoMoviePolyhedron = (
   faces.forEach((corners: readonly IAutoMovieVector3[], face: number): void => {
     if (corners.length < 3)
       throw new Error(`polyhedron face[${face}] needs at least three corners`);
-    corners.forEach((corner: IAutoMovieVector3, index: number): void =>
-      finiteVector(corner, `polyhedron face[${face}] corner[${index}]`),
-    );
+
     const normal: IAutoMovieVector3 = faceNormal(corners, face);
     const origin: IAutoMovieVector3 = corners[0]!;
     if (

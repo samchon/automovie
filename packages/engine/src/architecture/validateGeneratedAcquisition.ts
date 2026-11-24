@@ -82,14 +82,7 @@ export const validateGeneratedAcquisition: (
       `generated output digest ${acquisition.outputDigest} does not match the current bytes ${props.digest}`,
       acquisition.outputDigest,
     );
-  if (acquisition.seed !== null && !Number.isSafeInteger(acquisition.seed))
-    out.push(
-      "range",
-      `${root}.seed`,
-      `a recorded seed must be a whole number a provider could have used, but was ${acquisition.seed}`,
-      acquisition.seed,
-    );
-  else if (acquisition.reproducible && acquisition.seed === null)
+  if (acquisition.reproducible && acquisition.seed === null)
     out.push(
       "type",
       `${root}.seed`,

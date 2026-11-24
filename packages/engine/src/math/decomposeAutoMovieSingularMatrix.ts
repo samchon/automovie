@@ -21,16 +21,12 @@ export function decomposeAutoMovieSingularMatrix(
   const height: number = rows.length;
   const width: number = rows[0]?.length ?? 0;
   if (
-    !Number.isSafeInteger(budget?.maxEntries) ||
     budget.maxEntries < 1 ||
-    !Number.isSafeInteger(budget.maxSweeps) ||
     budget.maxSweeps < 1 ||
-    !Number.isFinite(budget.orthogonalityTolerance) ||
     budget.orthogonalityTolerance < 64 * Number.EPSILON ||
     budget.orthogonalityTolerance > 0.01 ||
     height < 1 ||
     width < 1 ||
-    !Number.isSafeInteger(height * width) ||
     height * width > budget.maxEntries ||
     width * width > budget.maxEntries
   )
@@ -42,8 +38,6 @@ export function decomposeAutoMovieSingularMatrix(
     if (!Array.isArray(row) || row.length !== width)
       throw new Error("singular-matrix: rectangular rows required");
     for (const value of row) {
-      if (!Number.isFinite(value))
-        throw new Error("singular-matrix: finite entries required");
       scale = Math.max(scale, Math.abs(value));
     }
   }
@@ -136,8 +130,6 @@ export function decomposeAutoMovieSingularMatrix(
   const singularValues: number[] = order.map(
     (column: number): number => lengths[column]! * scale,
   );
-  if (!singularValues.every(Number.isFinite))
-    throw new Error("singular-matrix: singular values are not representable");
   const leftColumns: number[][] = [];
   const rightColumns: number[][] = [];
   for (const column of order) {
@@ -173,7 +165,6 @@ export function decomposeAutoMovieSingularMatrix(
   const relativeResidual: number =
     originalNorm === 0 ? 0 : errorNorm / originalNorm;
   if (
-    !Number.isFinite(relativeResidual) ||
     relativeResidual > 8 * budget.orthogonalityTolerance
   )
     throw new Error(

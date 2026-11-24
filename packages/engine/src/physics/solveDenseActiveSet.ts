@@ -73,7 +73,7 @@ export function solveDenseActiveSet(
     for (let k: number = i + 1; k < n; k++) sum -= l[k]![i]! * x[k]!;
     x[i] = sum / l[i]![i]!;
   }
-  return x.every(Number.isFinite) ? x : null;
+  return x;
 }
 
 /** The program {@link solveDenseActiveSet} solves. */

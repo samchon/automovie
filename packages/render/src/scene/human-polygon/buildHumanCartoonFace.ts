@@ -49,31 +49,8 @@ export function buildHumanCartoonFace(
   const extent: THREE.Vector3 = new THREE.Vector3(...head.max).sub(
     new THREE.Vector3(...head.min),
   );
-  if (
-    ![...head.min, ...head.max].every(Number.isFinite) ||
-    Math.min(extent.x, extent.y, extent.z) <= 0 ||
-    typeof head.frontAt !== "function"
-  )
+  if (Math.min(extent.x, extent.y, extent.z) <= 0)
     throw new Error("Cartoon face needs finite positive polygon head bounds");
-
-  // Admission belongs to the pose evaluator; direct calls still need finite
-  // scalars before any geometry or material is acquired.
-  const poseValues: (number | undefined)[] = [
-    pose?.eyes?.left?.vertical,
-    pose?.eyes?.left?.horizontal,
-    pose?.eyes?.right?.vertical,
-    pose?.eyes?.right?.horizontal,
-    pose?.jaw?.opening,
-    pose?.jaw?.protrusion,
-    pose?.jaw?.lateralExcursion,
-  ];
-  if (
-    poseValues.some(
-      (value: number | undefined): boolean =>
-        value !== undefined && !Number.isFinite(value),
-    )
-  )
-    throw new Error("Cartoon face requires finite admitted eye and jaw values");
 
   const centreY: number = (head.min[1] + head.max[1]) / 2;
   const centreZ: number = (head.min[2] + head.max[2]) / 2;
@@ -119,7 +96,7 @@ export function buildHumanCartoonFace(
     side: "left" | "right",
     value: number,
   ): void => {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       throw new Error("Cartoon AU intensity must be in [0, 1]");
     const address: string = unit + "/" + side;
     if (used.has(address))

@@ -16,16 +16,14 @@ export function chooseRecoverySqpTightening(
     rows.length < 1 ||
     mixed.length < 1 ||
     selected.length !== multipliers.length ||
-    !(sqpNorm > 0 && sqpNorm < 1) ||
-    !Number.isFinite(sqpNorm) ||
-    !mixed.every(Number.isFinite)
+    !(sqpNorm > 0 && sqpNorm < 1)
   )
     throw new Error(
       "camera-sqp: admitted correction rows, dual and directions required",
     );
   const original: number = mixedNorm ** 2.5;
   const result: IAutoMovieRecoverySqpTightening = {
-    ceiling: Number.isFinite(original) ? original : null,
+    ceiling: original,
     value: null,
     descent: null,
     multiplierPrice: null,
@@ -38,21 +36,16 @@ export function chooseRecoverySqpTightening(
   for (let at: number = 0; at < objective.indices.length; at++) {
     const axis: number = objective.indices[at]!,
       coefficient: number = objective.values[at]!;
-    if (
-      !Number.isSafeInteger(axis) ||
-      axis < 0 ||
-      axis >= mixed.length ||
-      !Number.isFinite(coefficient)
-    )
+    if (axis < 0 || axis >= mixed.length)
       throw new Error(
         "camera-sqp: finite physical objective coordinates required",
       );
     slope += coefficient * mixed[axis]!;
   }
   const descent: number = -slope;
-  result.descent = Number.isFinite(descent) ? descent : null;
-  if (!(original > 0) || !Number.isFinite(original)) return result;
-  if (!(descent > 0) || !Number.isFinite(descent)) {
+  result.descent = descent;
+  if (!(original > 0)) return result;
+  if (!(descent > 0)) {
     result.reason = "descent-unresolved";
     return result;
   }
@@ -61,13 +54,7 @@ export function chooseRecoverySqpTightening(
   for (let at: number = 0; at < selected.length; at++) {
     const index: number = selected[at]!,
       multiplier: number = multipliers[at]!;
-    if (
-      !Number.isSafeInteger(index) ||
-      index <= previous ||
-      index >= rows.length ||
-      !Number.isFinite(multiplier) ||
-      multiplier < 0
-    )
+    if (index <= previous || index >= rows.length || multiplier < 0)
       throw new Error("camera-sqp: ordered original correction dual required");
     previous = index;
     const row: IAutoMovieSimplexAtom = rows[index]!;
@@ -77,30 +64,16 @@ export function chooseRecoverySqpTightening(
     for (let entry: number = 0; entry < row.values.length; entry++) {
       const axis: number = row.indices[entry]!,
         coefficient: number = row.values[entry]!;
-      if (
-        !Number.isSafeInteger(axis) ||
-        axis < 0 ||
-        axis >= mixed.length ||
-        !Number.isFinite(coefficient)
-      )
+      if (axis < 0 || axis >= mixed.length)
         throw new Error("camera-sqp: finite physical correction row required");
       norm = Math.hypot(norm, coefficient);
     }
     const product: number = multiplier * norm;
-    if (
-      !(norm > 0) ||
-      !Number.isFinite(norm) ||
-      !Number.isFinite(product) ||
-      (multiplier > 0 && !(product > 0))
-    ) {
+    if (!(norm > 0) || (multiplier > 0 && !(product > 0))) {
       result.reason = "multiplier-price-unresolved";
       return result;
     }
     price += product;
-    if (!Number.isFinite(price)) {
-      result.reason = "multiplier-price-unresolved";
-      return result;
-    }
   }
   result.multiplierPrice = price;
   if (price === 0) {
@@ -110,12 +83,7 @@ export function chooseRecoverySqpTightening(
   }
   const available: number = Math.sqrt(sqpNorm) * descent,
     cap: number = available / price;
-  if (
-    !(available > 0) ||
-    !Number.isFinite(available) ||
-    !(cap > 0) ||
-    !Number.isFinite(cap)
-  ) {
+  if (!(available > 0) || !(cap > 0)) {
     result.reason = "cap-unresolved";
     return result;
   }

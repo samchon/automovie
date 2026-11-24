@@ -43,16 +43,11 @@ export namespace AutoMovieSolidMeshIncidence {
     segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     period?: number,
   ): IAutoMovieSolidMeshIncidence.IWalk[] | string {
-    if (period !== undefined && !(Number.isFinite(period) && period > 0))
+    if (period !== undefined && !(period > 0))
       return "incidence period must be finite and positive";
     for (const entry of vertices) {
       const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
-      if (
-        !Number.isSafeInteger(id) ||
-        id < 0 ||
-        point.length !== 2 ||
-        !point.every(Number.isFinite)
-      )
+      if (id < 0 || point.length !== 2)
         return "incidence needs original nonnegative IDs and finite chart coordinates";
     }
     const halves: Halfedge[] = [];
@@ -67,9 +62,6 @@ export namespace AutoMovieSolidMeshIncidence {
       if (
         a === undefined ||
         b === undefined ||
-        !a.every(Number.isFinite) ||
-        !b.every(Number.isFinite) ||
-        !Number.isSafeInteger(segment.turn) ||
         (period === undefined && segment.turn !== 0)
       )
         return "incidence needs finite original endpoints and valid turns";
@@ -82,7 +74,6 @@ export namespace AutoMovieSolidMeshIncidence {
         a[1] - segment.turn * (period ?? 0),
       ];
       if (
-        ![...forward, ...reverse].every(Number.isFinite) ||
         (a[0] === forward[0] && a[1] === forward[1]) ||
         (b[0] === reverse[0] && b[1] === reverse[1])
       )
@@ -152,8 +143,6 @@ export namespace AutoMovieSolidMeshIncidence {
         ids.push(at.from);
         lifts.push(winding);
         winding += at.turn;
-        if (!Number.isSafeInteger(winding))
-          return "boundary winding is not a safe integer";
         edge = next[edge]!;
       }
       if (edge !== first)

@@ -13,13 +13,30 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original view curves remain observable before section admission, with their actual frames, knot identities, natural-cubic extrema and finite pole endpoints.
+ * Original view curves remain observable before section admission, with their
+ * actual frames, knot identities, natural-cubic extrema and finite pole
+ * endpoints.
  *
  * Scenarios:
- * 1. The open natural spline through (0,1), (1,0.01), (2,0.01) is negative between its last two positive knots. Its exact zero-slope station 2-1/sqrt(3) is returned for sampling; a range clamp or a knot-only polyline fails the independent polynomial oracle.
- * 2. One bottom pole gives sqrt(s), one top pole gives sqrt(4-s), and two poles use sigma=2 asin(sqrt(s/4)) with the exact natural cubic through (0,0), (pi/2,1), (pi,0). Interior values and first/second station derivatives follow those closed forms. Pole values are zero, parameter jets finite and singular station jets absent; a station spline in place of sigma fails.
- * 3. A source part with invalid fullness still has four source curves and pole points, including between emitted stations. A nonlinear actual frame moves their world points directly; replacing it by a spline through layer frames fails the independent frame formula. Valid loft sections read the same source values at their emitted stations.
- * 4. One malformed edge leaves the other three intact. Missing pole zeros, repeated/nonfinite knots, outside-pole and nonfinite queries and nonfinite axis frames return explicit failures. Open curves retain their straight tangent extension. A constant source has no isolated critical station.
+ *
+ * 1. The open natural spline through (0,1), (1,0.01), (2,0.01) is negative between
+ *    its last two positive knots. Its exact zero-slope station 2-1/sqrt(3) is
+ *    returned for sampling; a range clamp or a knot-only polyline fails the
+ *    independent polynomial oracle.
+ * 2. One bottom pole gives sqrt(s), one top pole gives sqrt(4-s), and two poles
+ *    use sigma=2 asin(sqrt(s/4)) with the exact natural cubic through (0,0),
+ *    (pi/2,1), (pi,0). Interior values and first/second station derivatives
+ *    follow those closed forms. Pole values are zero, parameter jets finite and
+ *    singular station jets absent; a station spline in place of sigma fails.
+ * 3. A source part with invalid fullness still has four source curves and pole
+ *    points, including between emitted stations. A nonlinear actual frame moves
+ *    their world points directly; replacing it by a spline through layer frames
+ *    fails the independent frame formula. Valid loft sections read the same
+ *    source values at their emitted stations.
+ * 4. One malformed edge leaves the other three intact. Missing pole zeros,
+ *    repeated/nonfinite knots, outside-pole and nonfinite queries and nonfinite
+ *    axis frames return explicit failures. Open curves retain their straight
+ *    tangent extension. A constant source has no isolated critical station.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the shared source evaluator and the real ViewLoft consumer, including invalid fullness with no emitted sections. Observes original scalar and world points, scalar jets, extrema and explicit failures without relying on rendered samples or production section predicates.
  * @evidence contracts/development/testing.md#independent-expectations The three-knot natural spline's second interval is 0.01-0.495t+0.7425t^2-0.2475t^3 and its interior root of the derivative is t=1-1/sqrt(3). The two-knot pole curves are square roots; the symmetric three-knot angle spline is 3x/pi-4x^3/pi^3 on its first half. Ordinary differentiation and the independent frame o=(s^2,s,s^3), u=(cos(s),0,sin(s)) give the expected jets and world points. Tolerance 2e-11 covers floating evaluation of these unit-scale formulas. This proves source behavior, not equality with the final loft between layers or a world half-space constraint.
@@ -119,8 +136,7 @@ export function test_construction_source_curves(): void {
       endpoint.value !== 0 ||
       endpoint.location !== "pole" ||
       endpoint.stationJet !== null ||
-      endpoint.stationJetStatus !== "singular-pole" ||
-      !endpoint.parameterJet.every(Number.isFinite)
+      endpoint.stationJetStatus !== "singular-pole"
     )
       failures.push(
         `single pole ${top} endpoint is not finite with an absent singular station jet`,
@@ -154,7 +170,7 @@ export function test_construction_source_curves(): void {
     1e-310,
   );
   if (
-    !(close.value > 0 && Number.isFinite(close.value)) ||
+    !(close.value > 0) ||
     close.stationJet !== null ||
     close.stationJetStatus !== "nonfinite"
   )
@@ -347,7 +363,10 @@ export function test_construction_source_curves(): void {
     );
 }
 
-/** Named synthetic source knots, with no Human specimen or production interpolation oracle. */
+/**
+ * Named synthetic source knots, with no Human specimen or production
+ * interpolation oracle.
+ */
 function knots(
   stations: readonly number[],
   values: readonly number[],

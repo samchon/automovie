@@ -13,8 +13,6 @@ import { armChainFault } from "../kinematics/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { validateRotationArtifact } from "../validation/validateRotationArtifact";
-import { validateVectorArtifact } from "../validation/validateVectorArtifact";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
 /**
@@ -113,7 +111,7 @@ export function gatePerformShotStageAction(
       return;
     }
     case "launch": {
-      if (!Number.isFinite(action.speed) || !(action.speed > 0))
+      if (!(action.speed > 0))
         out.push(
           "range",
           `${path}.speed`,
@@ -280,18 +278,7 @@ export function gatePerformShotStageAction(
       if (action.offset !== undefined) {
         const at: string = `${path}.offset`;
         const label: string = "attachment offset";
-        validateVectorArtifact(
-          action.offset.position,
-          `${at}.position`,
-          `${label} position`,
-          out.items,
-        );
-        validateRotationArtifact(
-          action.offset.rotation,
-          `${at}.rotation`,
-          `${label} rotation`,
-          out,
-        );
+        out.unitQuaternion(`${at}.rotation`, action.offset.rotation, `${label} rotation`);
       }
       for (const child of actors)
         if (child === action.parent)

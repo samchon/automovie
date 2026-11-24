@@ -58,12 +58,12 @@ import type {
 export function markAutoMovieContacts(
   props: IAutoMovieMarkContacts.IProps,
 ): IAutoMovieMark[] {
-  if (!(Number.isFinite(props.metresPerNewton) && props.metresPerNewton > 0))
+  if (!(props.metresPerNewton > 0))
     throw new Error(
       `markAutoMovieContacts: metres per newton ${props.metresPerNewton} is not positive and finite`,
     );
   const maximum: number | undefined = props.maximumLength;
-  if (maximum !== undefined && !(Number.isFinite(maximum) && maximum > 0))
+  if (maximum !== undefined && !(maximum > 0))
     throw new Error(
       `markAutoMovieContacts: maximum length ${maximum} is not positive and finite`,
     );
@@ -85,7 +85,7 @@ export function markAutoMovieContacts(
       }
     if (
       step === undefined ||
-      !(step.impulse > 0 && Number.isFinite(step.impulse)) ||
+      !(step.impulse > 0) ||
       step.separation > 0
     )
       continue;

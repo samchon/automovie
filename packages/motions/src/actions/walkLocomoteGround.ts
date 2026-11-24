@@ -9,12 +9,14 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { WALK_TICK } from "./WALK_TICK";
 import { runStance } from "./runStance";
 import { walkDescent } from "./walkDescent";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
+import { walkLocomoteLowering } from "./walkLocomoteLowering";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
 import { walkReachGround } from "./walkReachGround";
@@ -215,7 +217,56 @@ export namespace walkLocomoteGround {
         (swing.off + swing.on) / 2,
       );
     }
-    return { settle, end };
+
+    // The root's lowering, the one quantity a read would search for, solved
+    // here at every toe-off, mid-swing and heel strike, the take's two ends
+    // and the middle of each interval between them, and read between them
+    // from a knot course (`prepareHumanKnotCourse`, Flash and Hogan's
+    // minimum-jerk path through the knots), so a read places the stances
+    // under it with no root search.
+    const lowering: prepareHumanKnotCourse.ICourse = walkLocomoteLowering.prepare(
+      context.steps.duration,
+      swings,
+      (t: number): number => {
+        const feet: Feet = {
+          left: context.steps.foot("left", t),
+          right: context.steps.foot("right", t),
+        };
+        const amount: number = context.steps.amount(t);
+        return (
+          context.root(t).y -
+          ground(
+            context,
+            flights,
+            descents,
+            t,
+            feet,
+            amount,
+            context.pelvis(t, context.steps.phase(t), amount),
+            undefined,
+          ).root.y
+        );
+      },
+    );
+    return {
+      settle: (
+        t: number,
+        feet: Feet,
+        amount: number = context.steps.amount(t),
+        hips: Hips = context.pelvis(t, context.steps.phase(t), amount),
+        resolution?: Resolution,
+      ): walkReach.IGround =>
+        walkLocomoteLowering.placed(
+          context,
+          t,
+          feet,
+          amount,
+          hips,
+          resolution,
+          lowering.position(t)[0]!,
+        ),
+      end,
+    };
   }
 }
 

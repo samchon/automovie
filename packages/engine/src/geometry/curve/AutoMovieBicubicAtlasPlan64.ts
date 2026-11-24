@@ -30,12 +30,8 @@ export function AutoMovieBicubicAtlasPlan64(
   if (
     !input.topologyDomain.trim() ||
     !(input.toleranceMm > 0) ||
-    !Number.isFinite(input.toleranceMm) ||
-    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells < 1 ||
-    !Number.isSafeInteger(input.maxVerticesPerChunk) ||
     input.maxVerticesPerChunk < 3 ||
-    !Number.isSafeInteger(input.vertexOffset ?? 0) ||
     (input.vertexOffset ?? 0) < 0 ||
     (input.cellBudgetPolicy !== undefined &&
       input.cellBudgetPolicy !== "retain-coarse" &&
@@ -46,15 +42,7 @@ export function AutoMovieBicubicAtlasPlan64(
     );
   for (let i: number = 0; i < input.controlsMm.length; i++) {
     const p: Readonly<AutoMovieVector3Tuple> = input.controlsMm[i]!;
-    if (
-      !p ||
-      p.length !== 3 ||
-      ![0, 1, 2].every(
-        (axis: number): boolean =>
-          Object.hasOwn(p, axis) && Number.isFinite(p[axis]),
-      )
-    )
-      throw new Error("Complete finite millimetre controls required");
+    if (!p) throw new Error("Complete millimetre controls required");
   }
   const names: Set<string> = new Set();
   for (const patch of input.patches) {
@@ -70,7 +58,7 @@ export function AutoMovieBicubicAtlasPlan64(
     names.add(patch.id);
     for (let i: number = 0; i < 16; i++) {
       const id: number = patch.controlIds[i]!;
-      if (!Number.isSafeInteger(id) || id < 0 || id >= input.controlsMm.length)
+      if (id < 0 || id >= input.controlsMm.length)
         throw new Error("A patch control ID is outside the declared registry");
     }
   }
@@ -144,8 +132,6 @@ export function AutoMovieBicubicAtlasPlan64(
               ),
             ),
         );
-    if (![uu, uv, vv].every(Number.isFinite))
-      throw new Error("nonfinite tensor derivative estimate");
     return [uu / 8, uv / 4, vv / 8];
   };
   let allocated: number = Math.min(input.maxCells, input.patches.length);

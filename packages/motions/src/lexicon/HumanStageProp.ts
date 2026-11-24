@@ -179,7 +179,7 @@ function plan(
   const hand: AutoMovieHumanSide = params.hand ?? "right";
   const other: AutoMovieHumanSide = hand === "left" ? "right" : "left";
   const seconds: number = params.duration ?? beat.seconds;
-  if (!(seconds > 0 && Number.isFinite(seconds)))
+  if (!(seconds > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -188,14 +188,6 @@ function plan(
       fix: "give it a positive duration in seconds",
     });
   const at: IAutoMovieVector3 | undefined = params.at;
-  if (at !== undefined && ![at.x, at.y, at.z].every(Number.isFinite))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "at",
-      value: "nonfinite point",
-      reason: "a screen mark must be finite",
-      fix: "give the virtual set point as finite world coordinates",
-    });
   const clock: ReturnType<typeof AutoMovieMotionClock.phrase> =
     AutoMovieMotionClock.phrase({
       prepare: 0.19 * seconds,

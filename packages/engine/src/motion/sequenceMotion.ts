@@ -24,8 +24,6 @@ export const sequenceMotion: (
   for (const part of parts) {
     if (part.skeleton !== skeleton)
       throw new Error("sequence part skeletons must match");
-    if (!Number.isFinite(part.duration))
-      throw new Error("sequence part duration must be finite and positive");
     if (part.duration <= 0)
       throw new Error("sequence part duration must be finite and positive");
   }

@@ -134,12 +134,6 @@ export function solveAutoMovieQuadraticStep(
       s[row] = pair[0]! + pair[1]!;
     }
   }
-  if (
-    ![tau, kappa].every(Number.isFinite) ||
-    !x.every(Number.isFinite) ||
-    !z.every(Number.isFinite) ||
-    !s.every(Number.isFinite)
-  )
-    return undefined;
+
   return { x, z, s, tau, kappa };
 }

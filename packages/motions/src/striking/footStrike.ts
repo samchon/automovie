@@ -467,8 +467,9 @@ export namespace footStrike {
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
       ): IAutoMovieMotionHumanPosture => built.posture(...args),
-      settle: (): void => {
+      prepare: (): void => {
         built = build();
+        built.prepare?.();
       },
     };
   }

@@ -37,9 +37,7 @@ export function RecoveryChartRefinementClosure(
   ): number => (a < b ? -1 : a > b ? 1 : 0);
   if (
     !input ||
-    !Array.isArray(input.leaves) ||
     !input.leaves.length ||
-    !Number.isSafeInteger(input.maxLeaves) ||
     input.maxLeaves < input.leaves.length ||
     !input.request
   )
@@ -52,18 +50,12 @@ export function RecoveryChartRefinementClosure(
   for (const leaf of input.leaves) {
     if (
       !leaf ||
-      typeof leaf.id !== "string" ||
       !leaf.id.trim() ||
       names.has(leaf.id) ||
-      typeof leaf.root !== "string" ||
       !leaf.root.trim() ||
-      !Number.isSafeInteger(leaf.level) ||
       leaf.level < 0 ||
-      !Array.isArray(leaf.bounds) ||
       leaf.bounds.length !== 4 ||
-      !leaf.bounds.every(
-        (x: number): boolean => Number.isFinite(x) && x >= 0 && x <= 1,
-      ) ||
+      !leaf.bounds.every((x: number): boolean => x >= 0 && x <= 1) ||
       !(leaf.bounds[0] < leaf.bounds[1] && leaf.bounds[2] < leaf.bounds[3])
     )
       throw new Error(
@@ -169,11 +161,7 @@ export function RecoveryChartRefinementClosure(
   coverage();
   const split: (request: Split) => void = (request: Split): void => {
     const parent: Leaf | undefined = leaves.get(request.leaf);
-    if (
-      !parent ||
-      (request.axis !== 0 && request.axis !== 1) ||
-      !Number.isFinite(request.parameter)
-    )
+    if (!parent || (request.axis !== 0 && request.axis !== 1))
       throw new Error(
         "A closure split requires a retained leaf, axis and finite global phase",
       );
@@ -188,11 +176,7 @@ export function RecoveryChartRefinementClosure(
       throw new Error("A closure split is not representably inside its leaf");
     if (leaves.size >= input.maxLeaves)
       throw new Error("Private interface closure exceeds maxLeaves");
-    if (
-      !Number.isSafeInteger(parent.level + 1) ||
-      names.has(`${parent.id}.0`) ||
-      names.has(`${parent.id}.1`)
-    )
+    if (names.has(`${parent.id}.0`) || names.has(`${parent.id}.1`))
       throw new Error(
         "Closure child levels or names cannot be represented uniquely",
       );

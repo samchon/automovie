@@ -129,7 +129,7 @@ export namespace HumanPropSweepColliders {
       );
     if (!(seconds > contact.from && seconds <= contact.to)) return undefined;
     const gap: number = contact.at(seconds);
-    return Number.isFinite(gap) && gap > 0
+    return gap > 0 && gap < Infinity
       ? { kind: "clearance", seconds }
       : undefined;
   }
@@ -189,7 +189,7 @@ export namespace HumanPropSweepColliders {
 
     // With no thin collider, the floor permits a whole-span scan. A resolved
     // departure's engine certificate still exposes its later plane entry.
-    return Number.isFinite(least) ? least : Number.MAX_VALUE;
+    return least === Infinity ? Number.MAX_VALUE : least;
   }
 
   /**

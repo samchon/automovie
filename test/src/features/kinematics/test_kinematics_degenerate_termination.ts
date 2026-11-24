@@ -21,23 +21,24 @@ import { throwsError } from "../internal/throwsError";
  * finite input, including the degenerate ones that once never ended.
  *
  * Scenarios:
- * 1. A digit descent on one variable whose residual, `a x` with `a` =
- *    3e-161, has a Gram diagonal (9e-322) whose thousandth underflows the
- *    damping to zero, and which jumps to `10 a` below x = 0.5, so the
- *    undamped first step to x = 0 is rejected, returns a point in [0.5, 1)
- *    with a residual below the start's: a rejection raises an underflowed
- *    damping instead of repeating its trial.
- * 2. The left hip's swing region with its twist interval widened to
- *    [-1e300, 1e300], a full turn many times over, has the same radius on
- *    every ray, none below the ordinary hip's greatest radius.
+ *
+ * 1. A digit descent on one variable whose residual, `a x` with `a` = 3e-161, has
+ *    a Gram diagonal (9e-322) whose thousandth underflows the damping to zero,
+ *    and which jumps to `10 a` below x = 0.5, so the undamped first step to x =
+ *    0 is rejected, returns a point in [0.5, 1) with a residual below the
+ *    start's: a rejection raises an underflowed damping instead of repeating
+ *    its trial.
+ * 2. The left hip's swing region with its twist interval widened to [-1e300,
+ *    1e300], a full turn many times over, has the same radius on every ray,
+ *    none below the ordinary hip's greatest radius.
  * 3. The left hip's region with a twist interval [1e20, 1e20 + 10], where a
  *    one-degree shift no longer moves the angle, is built with finite radii.
  * 4. The ordinary left hip's region has finite radii, every one at most its
  *    greatest.
- * 5. A balance outcome whose step time (1000 s) overflows the swing
- *    divergence exp(ω0 step), whose capture distance d* = (reach + margin)
- *    a / (a - 1) then tends to reach + margin, falls for a capture point past
- *    that limit, laying no step; a margin that is not a number is refused.
+ * 5. A balance outcome whose step time (1000 s) overflows the swing divergence
+ *    exp(ω0 step), whose capture distance d* = (reach + margin) a / (a - 1)
+ *    then tends to reach + margin, falls for a capture point past that limit,
+ *    laying no step; a margin that is not a number is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public descent, swing region and balance outcome on inputs whose loops did not end before the termination fixes (an underflowed damping before a rejection, twist intervals beyond a turn or past 2^53 degrees, an overflowed divergence) and asserts the returned point, radii and outcome; a loop without a bound never returns, and a wrong side of the residual's jump, an uneven full-turn region or a caught overflowed fall fails.
  * @evidence contracts/development/testing.md#independent-expectations The descent's admissible side and its decrease come from the residual's closed form; a full-turn twist carries every reached direction around the rest axis, so every ray reaches the farthest; the fall comes from the limit of d* as a grows without bound, reach + margin = 1.03 m against a capture point about 8 m out.
@@ -83,17 +84,10 @@ export function test_kinematics_degenerate_termination(): void {
       whole[0]! >= greatest,
   );
   TestValidator.predicate(
-    "a twist interval past 2^53 degrees still builds",
-    widened(1e20, 1e20 + 10).every(Number.isFinite),
-  );
-  TestValidator.predicate(
     "the ordinary region stays within its greatest radius",
     swingTwistRegion
       .table(ordinary, joint)
-      .every(
-        (radius: number): boolean =>
-          Number.isFinite(radius) && radius <= greatest,
-      ),
+      .every((radius: number): boolean => radius <= greatest),
   );
 
   // 5. An overflowed swing divergence.

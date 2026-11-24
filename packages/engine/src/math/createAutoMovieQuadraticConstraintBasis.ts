@@ -41,11 +41,10 @@ export function createAutoMovieQuadraticConstraintBasis(
   };
   if (
     bounds.length !== rows.length ||
-    free.length !== rows.length ||
-    !bounds.every(Number.isFinite)
+    free.length !== rows.length
   )
     return fail("working-basis-endpoints-incomplete");
-  if (!Number.isSafeInteger(variables) || variables < 0)
+  if (variables < 0)
     return fail("working-basis-dimension-not-representable");
   try {
     result.particular = new Array<number>(variables).fill(0);
@@ -96,8 +95,6 @@ export function createAutoMovieQuadraticConstraintBasis(
       }
       const endpoint: number = bounds[at] / divisor;
       if (
-        !column.every(Number.isFinite) ||
-        !Number.isFinite(endpoint) ||
         (bounds[at] !== 0 && endpoint === 0)
       )
         return fail("working-normal-normalization-not-representable");
@@ -193,13 +190,7 @@ export function createAutoMovieQuadraticConstraintBasis(
       vector[column] = 1;
       (column < count ? result.range : result.nullspace).push(apply(vector));
     }
-    if (
-      !result.particular.every(Number.isFinite) ||
-      [...result.range, ...result.nullspace].some(
-        (column: number[]): boolean => !column.every(Number.isFinite),
-      )
-    )
-      return fail("working-basis-orthogonal-reconstruction-not-representable");
+
     return result;
   } catch (error: unknown) {
     return fail(

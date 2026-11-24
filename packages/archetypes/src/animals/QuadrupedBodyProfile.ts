@@ -48,22 +48,10 @@ export function QuadrupedBodyProfile(
     c.tailRadius,
     ...c.barRadii,
   ])
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       throw new RangeError(
         "Coarse quadruped lengths and radii must be positive and finite",
       );
-  for (const value of [
-    c.neckRootDrop,
-    c.tailDock,
-    c.inset,
-    c.neckPitch,
-    c.headPitch,
-    c.tailPitch,
-    ...c.forePitch,
-    ...c.hindPitch,
-  ])
-    if (!Number.isFinite(value))
-      throw new RangeError("Coarse quadruped construction must be finite");
   if (
     props.fore.length !== 4 ||
     props.hind.length !== 4 ||
@@ -114,10 +102,7 @@ export function QuadrupedBodyProfile(
   const inset: number = (barrel / h) * c.inset * height;
   if (
     [barrel, ...fore, ...hind, trunk, buttock, neckRadius, headRadius].some(
-      (value: number): boolean => !(value > 0 && Number.isFinite(value)),
-    ) ||
-    [rise, ahead, drop, muzzle, tailDrop, tailBack, inset].some(
-      (value: number): boolean => !Number.isFinite(value),
+      (value: number): boolean => !(value > 0),
     )
   )
     throw new RangeError(

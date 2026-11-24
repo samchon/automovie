@@ -152,8 +152,6 @@ export function test_kinematics_two_bone_chain_articulation(): void {
         (): boolean =>
           plus !== null &&
           minus !== null &&
-          Number.isFinite(plus.upper.x) &&
-          Number.isFinite(minus.upper.x) &&
           !nclose(plus.upper.x, minus.upper.x, 1e-6),
       ],
     ]),

@@ -46,7 +46,7 @@ export function markAutoMovieMeshClearance(
         );
       const front: number[] = [0, 0, 0];
       witness.vertices.forEach((vertex: number, k: number): void => {
-        if (!Number.isInteger(vertex) || vertex < 0 || vertex >= vertices)
+        if (vertex < 0 || vertex >= vertices)
           throw new Error(
             `markAutoMovieMeshClearance: witness ${ordinal} names vertex ${vertex}, outside the ${vertices} vertices of the front mesh`,
           );

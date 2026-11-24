@@ -26,8 +26,7 @@ export namespace HandrimMaterialTransfer {
       Vector3.dot(anchor.axis!, displaced.normal),
       Vector3.dot(anchor.normal, displaced.normal),
     );
-    const rate: number = angle / seconds;
-    return Number.isFinite(rate) ? rate : 0;
+    return seconds === 0 ? 0 : angle / seconds;
   }
 
   /**

@@ -111,7 +111,7 @@ const assertFinitePositive: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value <= 0)
+  if (value <= 0)
     throw new Error(`${label} must be finite and positive`);
 };
 
@@ -123,7 +123,7 @@ const assertFiniteNonnegative: (value: number, label: string) => void = (
   value: number,
   label: string,
 ): void => {
-  if (!Number.isFinite(value) || value < 0)
+  if (value < 0)
     throw new Error(`${label} must be finite and non-negative`);
 };
 
@@ -136,6 +136,6 @@ const assertInteger: (value: number, label: string, minimum: number) => void = (
   label: string,
   minimum: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < minimum)
+  if (value < minimum)
     throw new Error(`${label} must be an integer at least ${minimum}`);
 };

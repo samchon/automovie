@@ -17,10 +17,19 @@ import { nclose } from "../internal/nclose";
  * Optional resection evidence preserves the actual estimator and refusal path.
  *
  * Scenarios:
- * 1. Disabled and enabled tracing recover identical coefficients, support, proposal stream, counters and final-refinement report on independent skewed pinhole data with separated outliers, even if the observer mutates its event snapshot.
- * 2. Each real proposal and final refit has exactly one event; accepted projective coefficients reproduce the prescribed pixel chart and stable final membership agrees with the result.
- * 3. Insufficient pairs, coincident points, planar span and a deliberately nonrigid projective camera retain the first failing stage without qualifying diagnostic coefficients as a pose.
- * 4. A numerical-looking observer error propagates rather than becoming a counted proposal refusal.
+ *
+ * 1. Disabled and enabled tracing recover identical coefficients, support,
+ *    proposal stream, counters and final-refinement report on independent
+ *    skewed pinhole data with separated outliers, even if the observer mutates
+ *    its event snapshot.
+ * 2. Each real proposal and final refit has exactly one event; accepted projective
+ *    coefficients reproduce the prescribed pixel chart and stable final
+ *    membership agrees with the result.
+ * 3. Insufficient pairs, coincident points, planar span and a deliberately
+ *    nonrigid projective camera retain the first failing stage without
+ *    qualifying diagnostic coefficients as a pose.
+ * 4. A numerical-looking observer error propagates rather than becoming a counted
+ *    proposal refusal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the maintained initializer and robust estimator with and without the optional observer, comparing all result fields and event counts, raw projection, refusal stages and thrown observer identity.
  * @evidence contracts/development/testing.md#independent-expectations Prescribed three-dimensional coordinates and scalar pinhole projections define the camera; an anisotropic 3-by-3 projective block is intentionally nonrigid. An observer must preserve the unobserved result exactly, which is a side-effect invariant rather than a photographic accuracy oracle.
@@ -134,8 +143,7 @@ export function test_recovery_camera_resection_trace(): void {
           event.sample.length === 6 &&
           new Set(event.sample).size === 6 &&
           event.sample.every(
-            (i: number): boolean =>
-              Number.isInteger(i) && i >= 0 && i < fixture.points.length,
+            (i: number): boolean => i >= 0 && i < fixture.points.length,
           ),
       ) &&
       draws.filter(

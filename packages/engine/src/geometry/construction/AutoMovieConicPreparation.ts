@@ -71,10 +71,7 @@ export namespace AutoMovieConicPreparation {
     own: T,
   ): IAutoMovieConicHermite.IPatch<T> | string | null {
     if (
-      ![a, b, own, shared].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
-      ) ||
+      ![a, b, own, shared].every((value: T): boolean => ops.value(value) > 0) ||
       !(
         ops.value(r) > 0 &&
         ops.value(r) < 1 &&
@@ -147,13 +144,9 @@ export namespace AutoMovieConicPreparation {
     );
     if (
       ![native, deficit, height, ...weights].every(
-        (value: T): boolean =>
-          Number.isFinite(ops.value(value)) && ops.value(value) > 0,
+        (value: T): boolean => ops.value(value) > 0,
       ) ||
-      !(Number.isFinite(angle) && angle > 0) ||
-      !points
-        .flat()
-        .every((value: T): boolean => Number.isFinite(ops.value(value))) ||
+      !(angle > 0) ||
       !(
         ops.value(p) > 0 &&
         ops.value(p) < 1 &&
@@ -229,16 +222,11 @@ export namespace AutoMovieConicPreparation {
       extents.length !== 4 ||
       shoulders.length !== 4 ||
       curvatures.length !== 4 ||
-      !extents.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      ) ||
+      !extents.every((v: T): boolean => ops.value(v) > 0) ||
       !shoulders.every(
-        (v: T): boolean =>
-          Number.isFinite(ops.value(v)) && ops.value(v) > 0 && ops.value(v) < 1,
+        (v: T): boolean => ops.value(v) > 0 && ops.value(v) < 1,
       ) ||
-      !curvatures.every(
-        (v: T): boolean => Number.isFinite(ops.value(v)) && ops.value(v) > 0,
-      )
+      !curvatures.every((v: T): boolean => ops.value(v) > 0)
     )
       return {
         quarters: [],
@@ -288,11 +276,6 @@ export namespace AutoMovieConicPreparation {
           ops.multiply(ops.multiply(curvatures[(q + 1) % 4]!, b), b),
         ),
       ];
-      if (!guides.every((v: T): boolean => Number.isFinite(ops.value(v))))
-        return {
-          quarters: [],
-          failure: `quarter ${q}: shared guide jet is not finitely representable`,
-        };
       quarters.push({
         extents: [a, b],
         shoulder: r,

@@ -28,13 +28,10 @@ export function realizeAutoMovieConvexSupportLoft(
     !Array.isArray(input.loft.spans) ||
     !input.loft.spans.length ||
     ![input.maxPlanes, input.maxCells, input.maxVertices].every(
-      (n: number): boolean => Number.isSafeInteger(n) && n > 0,
+      (n: number): boolean => n > 0,
     ) ||
-    !Number.isSafeInteger(input.maxEvents) ||
     input.maxEvents < 0 ||
-    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
-    !Number.isFinite(input.minimumDirectionSine) ||
     input.minimumDirectionSine <= 0 ||
     input.minimumDirectionSine >= 1 ||
     typeof input.topologyDomain !== "string" ||
@@ -55,8 +52,6 @@ export function realizeAutoMovieConvexSupportLoft(
       names.has(plane.id) ||
       !Array.isArray(plane.normal) ||
       plane.normal.length !== 2 ||
-      !Number.isFinite(plane.normal[0]) ||
-      !Number.isFinite(plane.normal[1]) ||
       Math.abs(Math.hypot(...plane.normal) - 1) > 64 * Number.EPSILON
     )
       throw new Error(
@@ -83,10 +78,7 @@ export function realizeAutoMovieConvexSupportLoft(
       !field ||
       !Array.isArray(field.interval) ||
       field.interval.length !== 2 ||
-      !Number.isFinite(field.interval[0]) ||
-      !Number.isFinite(field.interval[1]) ||
       !(field.interval[0] < field.interval[1]) ||
-      !Number.isFinite(field.interval[1] - field.interval[0]) ||
       (previous !== undefined && previous.interval[1] !== field.interval[0]) ||
       !Array.isArray(field.offsets) ||
       field.offsets.length !== input.loft.planes.length
@@ -99,9 +91,6 @@ export function realizeAutoMovieConvexSupportLoft(
       if (
         !Array.isArray(coefficients) ||
         coefficients.length !== 4 ||
-        ![0, 1, 2, 3].every((q: number): boolean =>
-          Number.isFinite(coefficients[q]),
-        ) ||
         (previous !== undefined &&
           previous.offsets[plane][3] !== coefficients[0])
       )

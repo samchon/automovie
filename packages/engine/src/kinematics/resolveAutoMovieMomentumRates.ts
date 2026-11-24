@@ -44,14 +44,12 @@ export function resolveAutoMovieMomentumRates(
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   rates: ReadonlyMap<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>,
 ): IAutoMovieBodyMomentum {
-  if (!(Number.isFinite(model.mass) && model.mass > 0))
+  if (!(model.mass > 0))
     throw new Error("Instantaneous momentum needs finite positive total mass");
   if (posed.parts.length !== model.segments.length)
     throw new Error(
       "Instantaneous momentum needs this model's ordered posed parts",
     );
-  if (!finiteVector(posed.centre))
-    throw new Error("Instantaneous momentum needs a finite centre of mass");
 
   const partRates: IPartRate[] = [];
   let mass: number = 0;
@@ -71,7 +69,6 @@ export function resolveAutoMovieMomentumRates(
       );
     if (
       !(
-        Number.isFinite(part.mass) &&
         part.mass >= 0 &&
         Object.is(part.mass, segment.mass)
       )
@@ -95,10 +92,6 @@ export function resolveAutoMovieMomentumRates(
       y: rate.linear.y + (angular.z * x - angular.x * z),
       z: rate.linear.z + (angular.x * y - angular.y * x),
     };
-    if (!finiteVector(angular) || !finiteVector(linear))
-      throw new Error(
-        `Instantaneous momentum needs finite rates for ${segment.bone}`,
-      );
     partRates.push({ velocity: linear, angular });
     mass += part.mass;
     linearX += part.mass * linear.x;
@@ -141,12 +134,6 @@ export function resolveAutoMovieMomentumRates(
   }
   const linear: IAutoMovieVector3 = { x: linearX, y: linearY, z: linearZ };
   const angular: IAutoMovieVector3 = { x: angularX, y: angularY, z: angularZ };
-  if (
-    !finiteVector(velocity) ||
-    !finiteVector(linear) ||
-    !finiteVector(angular)
-  )
-    throw new Error("Instantaneous momentum exceeds finite arithmetic");
   return {
     centre: { x: posed.centre.x, y: posed.centre.y, z: posed.centre.z },
     velocity,
@@ -164,11 +151,3 @@ interface IPartRate {
   angular: IAutoMovieVector3;
 }
 
-/** Admit the current numeric vector without changing its frame or scale. */
-function finiteVector(value: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z)
-  );
-}

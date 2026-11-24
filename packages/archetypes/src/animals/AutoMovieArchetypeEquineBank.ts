@@ -162,11 +162,7 @@ export namespace AutoMovieArchetypeEquineBank {
     if (index === legs - 1)
       return refuse("A bank slide needs a run-out leg at the face's foot");
     const { friction, entry, exit } = technique;
-    if (
-      !(Number.isFinite(friction) && friction >= 0) ||
-      typeof technique.source !== "string" ||
-      technique.source.length === 0
-    )
+    if (!(friction >= 0) || technique.source.length === 0)
       return refuse("A bank slide states the face's friction and its source");
     const grade: number = -leg.rise! / leg.length;
     if (!(grade > friction))
@@ -183,10 +179,7 @@ export namespace AutoMovieArchetypeEquineBank {
       span.from + Math.min(span.span, REAR * Math.abs(behind)),
     );
     const to: number = plan.when(span.from + span.span);
-    if (
-      ![entry, exit].every(Number.isFinite) ||
-      !(entry > 0 && exit > 0 && entry + exit <= to - from)
-    )
+    if (!(entry > 0 && exit > 0 && entry + exit <= to - from))
       return refuse(
         "A bank slide sits and rises over positive blends within the face, once the hindquarters are over it",
       );

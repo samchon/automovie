@@ -188,7 +188,7 @@ export namespace HumanArmTrajectoryPairs {
     const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
     const out: Map<number, IPair> = new Map();
     const floor: number = cut / 1000;
-    const certifies: boolean = Number.isFinite(floor);
+    const certifies: boolean = floor < Infinity;
     const queries: ReturnType<typeof S.prepareGap>[] = [];
     for (const link of HumanArmTrajectoryLinks(c, a, k, placed)) {
       for (const shape of c.reachable[a]![k]!) {

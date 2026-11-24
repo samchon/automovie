@@ -127,21 +127,21 @@ function addSequenceBoundaries(
   shotDuration: number,
   sequence: ISequence,
 ): void {
-  if (!(Number.isFinite(sequence.duration) && sequence.duration > 0))
+  if (!(sequence.duration > 0))
     throw new Error(
       "camera clearance cannot sample a motion sequence without a finite positive duration",
     );
   const cycles: number = sequence.loop
     ? Math.ceil(shotDuration / sequence.duration)
     : 1;
-  if (!Number.isSafeInteger(cycles) || cycles < 0)
+  if (cycles < 0)
     throw new Error(
       "camera clearance cannot enumerate a motion sequence whose cycle count is not a non-negative safe integer",
     );
   for (let cycle: number = 0; cycle < cycles; cycle++)
     for (const time of sequence.times) {
       const absolute: number = cycle * sequence.duration + time;
-      if (Number.isFinite(absolute) && absolute > 0 && absolute < shotDuration)
+      if (absolute > 0 && absolute < shotDuration)
         result.add(absolute);
     }
 }
@@ -196,7 +196,7 @@ function clipLoopIsClosed(
     )
       return true;
     const width: number = track.values.length / track.times.length;
-    if (!(Number.isSafeInteger(width) && width > 0)) return false;
+    if (!(width > 0)) return false;
     const first: number[] = track.values.slice(0, width);
     const last: number[] = track.values.slice(track.values.length - width);
     if (track.channel.path !== "rotation") return sameComponents(first, last);

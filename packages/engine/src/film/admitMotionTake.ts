@@ -46,7 +46,7 @@ export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   ]);
   identifier(anchor.sequence, "$take.anchor.sequence");
   identifier(anchor.shot, "$take.anchor.shot");
-  if (!Number.isSafeInteger(anchor.entry) || (anchor.entry as number) < 0)
+  if ((anchor.entry as number) < 0)
     invalid("$take.anchor.entry", "expected a nonnegative safe integer");
   seconds(anchor.outputSeconds, "$take.anchor.outputSeconds");
   seconds(anchor.sourceSeconds, "$take.anchor.sourceSeconds");
@@ -116,7 +116,7 @@ function identifier(value: unknown, path: string): string {
 
 /** Check both persisted time coordinates in their own clocks. */
 function seconds(value: unknown, path: string): void {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+  if (typeof value !== "number" || value < 0)
     invalid(path, "expected finite nonnegative seconds");
 }
 

@@ -428,9 +428,7 @@ function level(
         ),
       ],
     });
-  return result.status === 1 &&
-    result.maximumViolation <= ACCEPTANCE &&
-    result.primal.every(Number.isFinite)
+  return result.status === 1 && result.maximumViolation <= ACCEPTANCE
     ? result.primal
     : null;
 }

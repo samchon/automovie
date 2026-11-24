@@ -46,15 +46,11 @@ export function extractRecoveryMeshSections(
   sectionLimit?: number,
   onSourceLineage?: (observation: IAutoMovieRecoverySourceLineage) => void,
 ): IAutoMovieRecoveryMeshSections {
-  if (
-    sectionLimit !== undefined &&
-    (!Number.isSafeInteger(sectionLimit) || sectionLimit < 2)
-  )
+  if (sectionLimit !== undefined && sectionLimit < 2)
     throw new Error("A checkpoint needs at least two automatic stations");
   if (
-    !(input.stepMm > 0 && Number.isFinite(input.stepMm)) ||
+    !(input.stepMm > 0) ||
     !(input.cornerDegrees > 0 && input.cornerDegrees < 180) ||
-    !Number.isSafeInteger(input.maxSections) ||
     input.maxSections < 2 ||
     (input.sourceOrientationSign !== 1 && input.sourceOrientationSign !== -1)
   )
@@ -65,8 +61,7 @@ export function extractRecoveryMeshSections(
   if (
     !vertices.length ||
     vertices.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     )
   )
     throw new Error("Finite physical mesh positions required");
@@ -75,10 +70,7 @@ export function extractRecoveryMeshSections(
     input.triangles.some(
       (t: number[]): boolean =>
         t.length !== 3 ||
-        t.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= vertices.length,
-        ),
+        t.some((i: number): boolean => i < 0 || i >= vertices.length),
     )
   )
     throw new Error("Valid source triangle addresses required");
@@ -111,7 +103,7 @@ export function extractRecoveryMeshSections(
   );
   const low: number = heights[0]!,
     high: number = heights[heights.length - 1]!;
-  if (!(high > low) || !Number.isFinite(high - low))
+  if (!(high > low))
     throw new Error("Mesh sweep has no representable physical extent");
   if (Math.ceil((high - low) / input.stepMm) > input.maxSections)
     throw new Error("Nominal station budget exhausted");

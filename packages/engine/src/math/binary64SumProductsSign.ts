@@ -15,7 +15,6 @@ export function binary64SumProductsSign(
     let integer: bigint = 1n;
     let exponent: number = 0;
     for (const value of factors) {
-      if (!Number.isFinite(value)) return undefined;
       view.setFloat64(0, value, false);
       const bits: bigint = view.getBigUint64(0, false);
       const field: number = Number((bits >> 52n) & 2047n);

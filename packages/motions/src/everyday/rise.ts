@@ -19,23 +19,18 @@ import type {
 import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
-import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { courseHumanLegs } from "../compose/courseHumanLegs";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanMountOff } from "../lexicon/HumanMountOff";
 import { HumanFrame } from "../posture/HumanFrame";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { HumanTrunk } from "./HumanTrunk";
 import { prepareBearingTrunkBalance } from "./prepareBearingTrunkBalance";
 import { prepareGroundedBalance } from "./prepareGroundedBalance";
 import { prepareRiseFeet } from "./prepareRiseFeet";
-import { prepareRisePalmRoll } from "./prepareRisePalmRoll";
 import { prepareSeatedRoot } from "./prepareSeatedRoot";
-import { riseRested } from "./riseRested";
+import { riseBody } from "./riseBody";
 import { riseSeatOff } from "./riseSeatOff";
 import { seated } from "./seated";
 import { seatedCourse } from "./seatedCourse";
@@ -400,108 +395,34 @@ export namespace rise {
     // continuing the swivel the course chose before it.
     const releasing: number = 0.3 * rising;
     const released: number = prepared + away + releasing;
-    // The rising body with its legs' goals at a second, before the hands.
-    const bodyAt = (t: number): IAutoMovieMotionHumanPosture => {
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-      if (t < prepared) {
-        const socket: IAutoMovieVector3 =
-          edged !== undefined ? edged(minimumJerk.share(t / edging)) : begin;
-        const root: IAutoMovieVector3 = entryRoot(socket);
-        return {
-          root,
-          yaw,
-          pitch: pitch0,
-          roll: 0,
-          joints,
-          limbs: legsAt(root, t),
-        };
-      }
-      const u: number = t - prepared;
-      const forward: number = minimumJerk.share(
-        (u - away) / (STOOD * rising - away),
-      );
-      const up: number = minimumJerk.share(
-        (u - away - LAG * rising) / ((STOOD - LAG) * rising - away),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: begin.x + (goal.x - begin.x) * forward,
-        y: begin.y + (goal.y - begin.y) * up,
-        z: begin.z + (goal.z - begin.z) * forward,
-      };
-      const pitch: number =
-        u < flex
-          ? pitchAt(u, peak)
-          : peak * (1 - minimumJerk.share((u - flex) / (rising - flex)));
-      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-        joints,
-        pitch,
-        HumanTrunk.pelvisLimit(
-          body,
-          seated.root(body, socket, { yaw, pitch: 0, roll: 0 }),
-          yaw,
-          drawn,
-        ),
-      );
-      const root: IAutoMovieVector3 = seated.root(body, socket, {
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-      });
-      return {
-        root,
-        yaw,
-        pitch: tilt.pitch,
-        roll: 0,
-        joints: tilt.joints,
-        limbs: legged(root, drawn),
-      };
-    };
-    // The legs planned once over the rise from the legs it is entered with,
-    // on the lowered body the hands rest on (`courseHumanLegs`): every reader
-    // places the thighs the hands lie on alike.
-    const legs: courseHumanLegs.Seeded = courseHumanLegs({
+    const rose: (seconds: number) => IAutoMovieMotionHumanPosture = riseBody({
+      context,
       body,
-      posture: (t: number): IAutoMovieMotionHumanPosture =>
-        lowerHumanPosture(body, bodyAt(t)),
-      span: { start: 0, end: duration },
-      instants: [prepared, seatOff],
-      entry: context.entry.pose,
+      yaw,
+      pitch0,
+      relaxed,
+      legged,
+      legsAt,
+      rests,
+      entryRoot,
+      edged,
+      edging,
+      begin,
+      goal,
+      drawn,
+      prepared,
+      away,
+      rising,
+      flex,
+      pitchAt,
+      peak,
+      duration,
+      seatOff,
+      releasing,
+      released,
+      STOOD,
+      LAG,
     });
-    const risingPosture: (seconds: number) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const t: number = Math.min(duration, Math.max(0, seconds));
-      return riseRested(
-        body,
-        legs(bodyAt(t), t),
-        rests,
-        yaw,
-        t < prepared
-          ? 1
-          : 1 - minimumJerk.share((t - prepared - away) / releasing),
-      );
-    };
-    const palmRoll: ReturnType<typeof prepareRisePalmRoll> =
-      prepareRisePalmRoll(
-        body,
-        risingPosture(seatOff),
-        (["left", "right"] as const).filter(
-          (side: AutoMovieHumanSide): boolean => rests?.[side] === undefined,
-        ),
-      );
-    const supported = (t: number): IAutoMovieMotionHumanPosture =>
-      palmRoll(
-        risingPosture(t),
-        minimumJerk.share((t - prepared) / away) *
-          (1 - minimumJerk.share((t - seatOff) / releasing)),
-      );
-    const bearing: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
-      AutoMovieMotionHumanArmChain.continued(body, released, supported);
-    const rose: (seconds: number) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture =>
-      seconds < released ? bearing(seconds) : risingPosture(seconds);
-
     const events: IAutoMovieMotionHumanActionPlan["events"] = [
       { name: "seatOff", share: share(seatOff) },
       { name: "standing", share: share(prepared + STOOD * rising) },

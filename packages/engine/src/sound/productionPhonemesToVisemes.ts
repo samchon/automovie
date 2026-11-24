@@ -28,8 +28,6 @@ export const productionPhonemesToVisemes: (
   props.chunks.forEach(
     (chunk: IAutoMovieProductionPhonemeChunk, index: number): void => {
       if (
-        Number.isFinite(chunk.startSample) === false ||
-        Number.isFinite(chunk.endSample) === false ||
         chunk.endSample <= chunk.startSample
       )
         throw new Error(

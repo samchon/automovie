@@ -25,8 +25,7 @@ export function physicalContactSupportRows(
   input: IAutoMoviePhysicalContactSupportRows.IInput,
 ): IAutoMovieLinearizePhysicalTargetRows.IRows[] {
   const profile: IAutoMoviePhysicalProfile = input.profile;
-  if (!Number.isFinite(input.floor))
-    throw new Error("Invalid physical contact floor");
+
   const floors: IAutoMovieLinearizePhysicalTargetRows.IRows[] =
     profile.segments.flatMap(
       (
@@ -71,13 +70,8 @@ export function physicalContactSupportRows(
             (segment: IAutoMoviePhysicalSegment): boolean =>
               segment.bone === support.bone,
           ) ||
-          !finite(support.point) ||
-          (support.localPoint !== undefined && !finite(support.localPoint)) ||
           (patch !== undefined &&
-            (!patch ||
-              !Number.isFinite(patch.floor) ||
-              !Array.isArray(patch.contacts) ||
-              !patch.contacts.length ||
+            (!patch.contacts.length ||
               new Set(patch.contacts).size !== patch.contacts.length ||
               patch.contacts.some(
                 (bone: string): boolean =>
@@ -87,16 +81,12 @@ export function physicalContactSupportRows(
                   ),
               ) ||
               (patch.floorPoints !== undefined &&
-                (!Array.isArray(patch.floorPoints) ||
-                  patch.floorPoints.length > 64 ||
+                (patch.floorPoints.length > 64 ||
                   patch.floorPoints.some(
                     (point: {
                       bone: string;
                       localPoint: IAutoMovieVector3;
-                    }): boolean =>
-                      !point ||
-                      !patch.contacts.includes(point.bone) ||
-                      !finite(point.localPoint),
+                    }): boolean => !patch.contacts.includes(point.bone),
                   )))))
         )
           throw new Error("Invalid physical contact support patch");
@@ -159,7 +149,3 @@ export function physicalContactSupportRows(
   ];
 }
 
-/** Missing or nonfinite declared geometry is refused rather than guessed. */
-function finite(point: IAutoMovieVector3): boolean {
-  return !!point && [point.x, point.y, point.z].every(Number.isFinite);
-}

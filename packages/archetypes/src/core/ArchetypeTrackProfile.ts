@@ -41,12 +41,6 @@ export function ArchetypeTrackProfile(
   seconds: number,
 ): IProfile {
   const span: number = to - from;
-  if (!Number.isFinite(span))
-    refuse(
-      "travel",
-      span,
-      "the difference between the two travels must be representable",
-    );
   const magnitude: number = Math.abs(span);
   return { value, crossing };
 
@@ -60,7 +54,7 @@ export function ArchetypeTrackProfile(
    * scalar.
    */
   function value(r: number, fromEnd: boolean): number {
-    if (!(Number.isFinite(r) && r >= 0 && r <= 1))
+    if (!(r >= 0 && r <= 1))
       refuse(
         "seconds",
         r,
@@ -74,8 +68,6 @@ export function ArchetypeTrackProfile(
       r * polynomial(r),
     );
     const result: number = fromEnd ? to - offset : from + offset;
-    if (!Number.isFinite(result))
-      refuse("travel", result, "the interpolated travel is not representable");
     return result;
   }
 
@@ -86,7 +78,6 @@ export function ArchetypeTrackProfile(
   function crossing(requested: number): IEvent {
     if (
       !(
-        Number.isFinite(requested) &&
         magnitude > 0 &&
         requested >= Math.min(from, to) &&
         requested <= Math.max(from, to)
@@ -118,7 +109,7 @@ export function ArchetypeTrackProfile(
       root = Math.exp(high);
     }
     const offset: number = ArchetypeMassArithmetic.product(seconds, root);
-    if (!(Number.isFinite(offset) && offset > 0 && offset < seconds))
+    if (!(offset > 0 && offset < seconds))
       refuse(
         "launch",
         requested,
@@ -131,12 +122,6 @@ export function ArchetypeTrackProfile(
         30 * (1 - root) * (1 - root),
         seconds,
         root * polynomial(root),
-      );
-    if (!Number.isFinite(rate))
-      refuse(
-        "launch",
-        requested,
-        "the launch rate is not representable over this duration",
       );
     return { offset, fromEnd, rate };
   }

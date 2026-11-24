@@ -47,4 +47,30 @@ export interface IAutoMovieMotionWeaponPath {
    * @returns World metres.
    */
   tail?(seconds: number): IAutoMovieVector3;
+
+  /**
+   * The chain of capsules along one limb this weapon is one of, when it is:
+   * the chain's axis ends at a film second and this capsule's place among
+   * them, so a reader of several capsules of one chain poses the limb once
+   * for a second. Absent for a weapon of its own.
+   */
+  chain?: IAutoMovieMotionWeaponPath.IChain;
+}
+
+/** Contracts supporting IAutoMovieMotionWeaponPath. */
+export namespace IAutoMovieMotionWeaponPath {
+  /** A limb's capsules read together (`IAutoMovieMotionWeaponPath.chain`). */
+  export interface IChain {
+    /**
+     * The capsules' axis ends at a film second on the free path, one more than
+     * the capsules: capsule `i` runs from end `i` to end `i + 1`.
+     *
+     * @param seconds Film seconds.
+     * @returns World metres.
+     */
+    ends(seconds: number): readonly IAutoMovieVector3[];
+
+    /** This capsule's index along the chain. */
+    index: number;
+  }
 }

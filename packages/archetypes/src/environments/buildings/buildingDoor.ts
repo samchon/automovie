@@ -116,11 +116,8 @@ export function buildingDoor(
       if (swing === undefined) return null;
       const { from, to, degrees } = swing;
       if (
-        !Number.isFinite(from) ||
-        !Number.isFinite(to) ||
         from < 0 ||
         to <= from ||
-        !Number.isFinite(degrees) ||
         degrees <= 0 ||
         degrees >= 180 ||
         degrees > hinge.travel!

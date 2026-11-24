@@ -75,7 +75,7 @@ export function observeAutoMovieCameraInspection(
     camera.projectionMatrix,
     camera.matrixWorldInverse,
   );
-  if (bounds === undefined || !projection.elements.every(Number.isFinite))
+  if (bounds === undefined)
     return classifyAutoMovieCameraInspection({
       framing: "unavailable",
       maxOcclusionRatio,
@@ -89,31 +89,25 @@ export function observeAutoMovieCameraInspection(
   );
   const framing: IAutoMovieCameraInspection.Framing =
     // Three orders the normalized inward planes right, left, bottom, top, far, near.
-    frustum.planes.some(
-      (plane: Plane): boolean =>
-        ![...plane.normal.toArray(), plane.constant].every(Number.isFinite),
-    )
-      ? "unavailable"
-      : outsidePlane(bounds, frustum.planes[5])
-        ? "before-near"
-        : outsidePlane(bounds, frustum.planes[4])
-          ? "past-far"
+    outsidePlane(bounds, frustum.planes[5])
+      ? "before-near"
+      : outsidePlane(bounds, frustum.planes[4])
+        ? "past-far"
+        : frustum.planes
+              .slice(0, 4)
+              .some((plane: Plane): boolean => outsidePlane(bounds, plane))
+          ? "outside"
           : frustum.planes
                 .slice(0, 4)
-                .some((plane: Plane): boolean => outsidePlane(bounds, plane))
-            ? "outside"
-            : frustum.planes
-                  .slice(0, 4)
-                  .some((plane: Plane): boolean =>
-                    crossesAutoMovieFrustumPlane(bounds, plane),
-                  )
-              ? "crosses-side"
-              : "possible";
+                .some((plane: Plane): boolean =>
+                  crossesAutoMovieFrustumPlane(bounds, plane),
+                )
+            ? "crosses-side"
+            : "possible";
   const triangleBudget: number = props.triangleBudget ?? 0;
   const witnesses: IAutoMovieCameraInspection.IWitnesses | undefined =
     (framing === "possible" || framing === "crosses-side") &&
     pixels === undefined &&
-    Number.isSafeInteger(triangleBudget) &&
     triangleBudget > 0
       ? sampleAutoMovieCameraOcclusion({
           scene,
@@ -157,10 +151,7 @@ function toBounds(input: IAutoMovieSubjectBox): Box3 | undefined {
 
 /** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
 function isFiniteBox(box: Box3): boolean {
-  return (
-    !box.isEmpty() &&
-    [...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
-  );
+  return !box.isEmpty();
 }
 
 /** Tests the most inward corner with slack scaled to distance arithmetic. */

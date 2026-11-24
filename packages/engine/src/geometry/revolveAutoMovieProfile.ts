@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { countAtLeast } from "./countAtLeast";
-import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 
 /**
@@ -113,7 +112,6 @@ export const revolveAutoMovieProfile: (
   countAtLeast(props.segments, 3, "revolve segments");
   props.profile.forEach(
     (point: IAutoMovieProfilePoint, index: number): void => {
-      finitePoint(point, `revolve profile[${index}]`);
       if (point.x < 0)
         throw new Error(`revolve profile[${index}] radius must be >= 0`);
     },

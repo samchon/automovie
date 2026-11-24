@@ -189,7 +189,7 @@ export function fitHingedClosedRoots(
   };
   const near: IAutoMovieSwivelNear | undefined = props.near;
   if (near !== undefined) {
-    if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance)) return null;
+    if (!(near.tolerance > 0)) return null;
     const branch: number = Math.min(near.branch, found.length - 1);
     const stop: IAutoMovieHingedArmSwivel.IStop = found[branch]!;
     const posed: ReturnType<typeof hingedArmSwivel.pose> = props.geometry.pose(

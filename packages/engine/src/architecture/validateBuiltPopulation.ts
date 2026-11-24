@@ -102,13 +102,6 @@ const validateSet: (
     collector,
   );
   finiteVector(set.anchor, `${path}.anchor`, "population anchor", collector);
-  if (!Number.isFinite(set.facingDeg))
-    collector.push(
-      "range",
-      `${path}.facingDeg`,
-      `population heading must be finite, but was ${set.facingDeg}`,
-      set.facingDeg,
-    );
   validateVariation(set.variation, `${path}.variation`, collector);
   validateLayout(set, `${path}.layout`, collector);
 };
@@ -170,18 +163,6 @@ const validateVariation: (
   if (rotation !== undefined)
     for (const axis of AXES) {
       const range: { min: number; max: number } = rotation[axis];
-      finiteNumber(
-        range.min,
-        `${path}.rotationDeg.${axis}.min`,
-        `population minimum ${axis} rotation`,
-        collector,
-      );
-      finiteNumber(
-        range.max,
-        `${path}.rotationDeg.${axis}.max`,
-        `population maximum ${axis} rotation`,
-        collector,
-      );
       ordered(
         range.min,
         range.max,
@@ -303,7 +284,7 @@ const validateLayout: (
     layout.kind === "lattice"
       ? layout.rows * layout.columns * layout.layers
       : layout.rows * layout.columns;
-  if (Number.isSafeInteger(capacity) && capacity < set.count)
+  if (capacity < set.count)
     collector.push(
       "range",
       path,
@@ -323,31 +304,11 @@ const positiveInteger: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isSafeInteger(value) || value <= 0)
+  if (value <= 0)
     collector.push(
       "range",
       path,
       `${label} must be an integer > 0, but was ${value}`,
-      value,
-    );
-};
-
-const finiteNumber: (
-  value: number,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-) => void = (
-  value: number,
-  path: string,
-  label: string,
-  collector: IAutoMovieViolationCollector,
-): void => {
-  if (!Number.isFinite(value))
-    collector.push(
-      "range",
-      path,
-      `${label} must be finite, but was ${value}`,
       value,
     );
 };
@@ -363,8 +324,6 @@ const finiteVector: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  for (const axis of AXES)
-    finiteNumber(value[axis], `${path}.${axis}`, `${label} ${axis}`, collector);
 };
 
 /** Report a range whose finite minimum lies above its finite maximum. */
@@ -381,7 +340,7 @@ const ordered: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (Number.isFinite(min) && Number.isFinite(max) && min > max)
+  if (min > max)
     collector.push(
       "range",
       path,
@@ -402,7 +361,7 @@ const positive: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value === undefined || !Number.isFinite(value) || value <= 0)
+  if (value === undefined || value <= 0)
     collector.push(
       "range",
       path,
@@ -423,7 +382,7 @@ const unitQuaternion: (
   collector: IAutoMovieViolationCollector,
 ): void => {
   const norm: number = Math.hypot(value.x, value.y, value.z, value.w);
-  if (!Number.isFinite(norm) || Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
+  if (Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
     collector.push(
       "range",
       path,

@@ -31,7 +31,7 @@ export const validateRange: (
   const aboveMin: boolean = inclusiveMin ? value >= min : value > min;
   const belowMax: boolean =
     max === Infinity ? true : inclusiveMax ? value <= max : value < max;
-  if (!Number.isFinite(value) || !aboveMin || !belowMax)
+  if (!aboveMin || !belowMax)
     pushViolation(
       violations,
       "range",

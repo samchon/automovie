@@ -68,11 +68,11 @@ const SHIFT: number = 0.25;
  * @evidence contracts/development/testing.md#distinguishing-cases A centred and a leaned stance: a tracker that left its centre of pressure at the stance's middle or under the root after the lean fails 3 and 4, one that asked less than the weight or pushed the body sideways fails 1 or 2. Whether the quiet stance steps is `test_physical_primitive_quiet_stance`'s; the split the allocator makes of a task is `test_physical_support_wrench`'s.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over one fixture file in the repository; the primitive's profile is built in closed form, and no native world, viewer or simulation runs.
  */
-export function test_physical_primitive_quiet_support(): void {
+export async function test_physical_primitive_quiet_support(): Promise<void> {
   const fixture: PhysicalBalanceReplay.IFixture =
-    PhysicalBalanceReplay.load(QUIET);
+    await PhysicalBalanceReplay.load(QUIET);
   const profile: IAutoMoviePhysicalProfile =
-    PhysicalBalanceReplay.stored(fixture);
+    await PhysicalBalanceReplay.stored(fixture);
   let index: number = fixture.records.length - 1;
   while (index >= 0 && fixture.records[index]!.kind !== "root") index--;
   if (index < 0) throw new Error(`${QUIET} holds no root tracker call`);

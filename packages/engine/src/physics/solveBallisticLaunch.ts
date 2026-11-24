@@ -6,17 +6,6 @@ import {
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "./AutoMovieGravity";
 
-const finiteVector: (v: IAutoMovieVector3) => boolean = (
-  v: IAutoMovieVector3,
-): boolean => {
-  if (!Number.isFinite(v.x)) return false;
-  if (!Number.isFinite(v.y)) return false;
-  return Number.isFinite(v.z);
-};
-
-const validArc: (arc: string) => arc is "direct" | "high" = (
-  arc: string,
-): arc is "direct" | "high" => arc === "direct" || arc === "high";
 
 /**
  * Solve the **launch velocity** that lands a projectile fired from `origin` at
@@ -48,12 +37,7 @@ export const solveBallisticLaunch: (
   gravity: IAutoMovieVector3 = AutoMovieGravity.DOWN,
   arc: "direct" | "high" = "direct",
 ): IAutoMovieBallisticSolution | null => {
-  if (!Number.isFinite(speed)) return null;
-  if (!(speed > 0)) return null;
-  if (!finiteVector(origin)) return null;
-  if (!finiteVector(target)) return null;
-  if (!finiteVector(gravity)) return null;
-  if (!validArc(arc)) return null;
+  if (speed <= 0) return null;
 
   const delta: IAutoMovieVector3 = Vector3.subtract(target, origin);
   const g: number = Vector3.length(gravity);

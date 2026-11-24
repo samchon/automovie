@@ -72,8 +72,6 @@ export namespace AutoMovieConstructionSplitSeam {
     // chord's span; coincident neighbours are refused with the spans below.
     const points: [number, number][] = [[0, 0]];
     for (const [along, depth] of input.knots) {
-      if (!(Number.isFinite(along) && Number.isFinite(depth)))
-        return `the seam's knot (${along}, ${depth}) mm is not finite`;
       if (!(along >= 0 && along <= chord))
         return `the seam's knot (${along}, ${depth}) mm stands beyond the chord's span [0, ${chord}] mm`;
       points.push([along, depth]);

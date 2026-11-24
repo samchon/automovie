@@ -12,10 +12,11 @@ import path from "node:path";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
- * Own append-only engine mesh buffers as immutable bounded JSON array fragments.
- * A published prefix is one indexed mesh: shared station vertices keep their actual
- * global index across chunks and runs. Source-free chunk ownership maps generated
- * triangles back to run, interval and patch records without carrying source faces.
+ * Own append-only engine mesh buffers as immutable bounded JSON array
+ * fragments. A published prefix is one indexed mesh: shared station vertices
+ * keep their actual global index across chunks and runs. Source-free chunk
+ * ownership maps generated triangles back to run, interval and patch records
+ * without carrying source faces.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Sequential vertex suffixes and already-declared global indices preserve the engine's shared boundary contract; byte-bound array fragments assemble the interface mesh without regenerating geometry.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One closure owns generated mesh placeholders, bounded pending arrays, fragment bindings and prefix publication.
@@ -143,15 +144,12 @@ export function createAutoMovieRecoveryMeshSpool(
       const count: number = chunk.positions.length / 3;
       if (
         chunk.vertexStart !== counts.vertices ||
-        !Number.isSafeInteger(count) ||
+        chunk.positions.length % 3 !== 0 ||
         chunk.normals.length !== chunk.positions.length ||
         chunk.physicalVertexIds.length !== count ||
         chunk.indices.length % 3 ||
-        chunk.positions.some((x: number): boolean => !Number.isFinite(x)) ||
-        chunk.normals.some((x: number): boolean => !Number.isFinite(x)) ||
         chunk.indices.some(
-          (x: number): boolean =>
-            !Number.isSafeInteger(x) || x < 0 || x >= counts.vertices + count,
+          (x: number): boolean => x < 0 || x >= counts.vertices + count,
         )
       )
         throw new Error(

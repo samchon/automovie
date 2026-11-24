@@ -82,14 +82,7 @@ function planWrite(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWrite>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanWrite = context.params;
-  if (
-    p.stroke.length < 2 ||
-    p.stroke.some(
-      (vertex: readonly [number, number]): boolean =>
-        !Number.isFinite(vertex[0]) ||
-        !Number.isFinite(vertex[1]),
-    )
-  )
+  if (p.stroke.length < 2)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "stroke",
@@ -97,7 +90,7 @@ function planWrite(
       reason: "a writing stroke needs at least two finite planar vertices",
       fix: "give [X, Z] vertices in metres on the surface",
     });
-  if (!(Number.isFinite(p.duration) && p.duration > 0))
+  if (!(p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -181,10 +174,7 @@ function planWrite(
         ? 0
         : previous.length +
           Vector3.length(Vector3.subtract(point, previous.point));
-    if (
-      !Number.isFinite(length) ||
-      (previous !== undefined && !(length > previous.length))
-    )
+    if (previous !== undefined && !(length > previous.length))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "stroke",

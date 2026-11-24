@@ -102,7 +102,7 @@ export function appendFlamesArtifact(
     else ids.add(cue.id);
 
     appendPlace(cue, path, staged, models, collector);
-    if (!Number.isSafeInteger(cue.seed) || cue.seed < 0)
+    if (cue.seed < 0)
       collector.push(
         "range",
         `${path}.seed`,
@@ -289,7 +289,6 @@ function appendSize(
       );
     else if (
       heatRelease > 0 &&
-      Number.isFinite(heatRelease) &&
       !(heskestadFlameHeight(heatRelease, diameter) > 0)
     )
       collector.push(

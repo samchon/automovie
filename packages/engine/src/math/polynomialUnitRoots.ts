@@ -4,9 +4,6 @@
  */
 export function polynomialUnitRoots(input: readonly number[]): number[] {
   let degree: number = input.length - 1;
-  for (const value of input)
-    if (!Number.isFinite(value))
-      throw new Error("Polynomial roots need finite coefficients");
   while (degree >= 0 && input[degree] === 0) degree--;
   if (degree <= 0) return [];
   let scale: number = 0;
@@ -75,6 +72,6 @@ function horner(
  */
 function keep(roots: number[], root: number): void {
   for (const kept of roots)
-    if (kept === root || (Number.isNaN(kept) && Number.isNaN(root))) return;
+    if (kept === root) return;
   roots.push(root);
 }

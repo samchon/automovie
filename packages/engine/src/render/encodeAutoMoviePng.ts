@@ -31,9 +31,9 @@ export const encodeAutoMoviePng: (
   props: IAutoMovieEncodePng.IProps,
 ) => string = (props: IAutoMovieEncodePng.IProps): string => {
   const { width, height, channels, pixels } = props;
-  if (!Number.isSafeInteger(width) || width < 1)
+  if (width < 1)
     throw new Error(`png width must be a positive integer, got ${width}`);
-  if (!Number.isSafeInteger(height) || height < 1)
+  if (height < 1)
     throw new Error(`png height must be a positive integer, got ${height}`);
   if (![1, 2, 3, 4].includes(channels))
     throw new Error(`png channels must be 1 to 4, got ${channels}`);

@@ -66,12 +66,12 @@ export const resolveAutoMovieDaylightRequest: (
     );
   const workplane: IAutoMovieAnalysisWorkplane = request.workplane;
   for (const axis of ["sizeU", "sizeV"] as const)
-    if (!Number.isFinite(workplane[axis]) || workplane[axis] <= 0)
+    if (workplane[axis] <= 0)
       throw new Error(
         `workplane ${axis} must be a finite number above zero, but was ${workplane[axis]}`,
       );
   for (const axis of ["countU", "countV"] as const)
-    if (!Number.isSafeInteger(workplane[axis]) || workplane[axis] < 1)
+    if (workplane[axis] < 1)
       throw new Error(
         `workplane ${axis} must be a whole number at or above one, but was ${workplane[axis]}`,
       );
@@ -80,14 +80,9 @@ export const resolveAutoMovieDaylightRequest: (
     throw new Error(
       `a workplane grid of ${cells} cells exceeds the ${AUTOMOVIE_ANALYSIS_MAX_SAMPLES}-sample bound one run may carry; measure a coarser grid or split the plane`,
     );
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(workplane.origin[axis]))
-      throw new Error(
-        `workplane origin ${axis} must be finite, but was ${workplane.origin[axis]}`,
-      );
   for (const key of ["axisU", "axisV"] as const) {
     const length: number = Vector3.length(workplane[key]);
-    if (!Number.isFinite(length) || length <= EPSILON)
+    if (length <= EPSILON)
       throw new Error(
         `workplane ${key} must be a finite non-zero in-plane direction`,
       );
@@ -100,7 +95,6 @@ export const resolveAutoMovieDaylightRequest: (
       "a workplane needs two non-parallel in-plane axes to have a normal",
     );
   if (
-    !Number.isSafeInteger(request.diffuseSamples) ||
     request.diffuseSamples < 1
   )
     throw new Error(
@@ -111,15 +105,10 @@ export const resolveAutoMovieDaylightRequest: (
     if (luminaires.has(luminaire.id))
       throw new Error(`luminaire id "${luminaire.id}" is declared twice`);
     luminaires.add(luminaire.id);
-    if (!Number.isFinite(luminaire.intensity) || luminaire.intensity < 0)
+    if (luminaire.intensity < 0)
       throw new Error(
         `luminaire "${luminaire.id}" intensity must be a finite number at or above zero, but was ${luminaire.intensity}`,
       );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(luminaire.position[axis]))
-        throw new Error(
-          `luminaire "${luminaire.id}" position ${axis} must be finite, but was ${luminaire.position[axis]}`,
-        );
   }
   assertAutoMovieAnalysisSolids(request.shades, "shading solid");
   assertAutoMovieAnalysisTargets(request.targets);

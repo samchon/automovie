@@ -89,7 +89,7 @@ export function createSeat(
   );
   const shared: boolean = kind === "bench" || kind === "sofa";
   const places: number = params.places ?? (shared ? 2 : 1);
-  if (!Number.isInteger(places) || places < 1 || places > (shared ? 4 : 1))
+  if (places < 1 || places > (shared ? 4 : 1))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "seat",

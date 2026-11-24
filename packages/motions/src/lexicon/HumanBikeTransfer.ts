@@ -63,15 +63,6 @@ function planHumanBikeTransfer(
   const { body, entry, params, start }: typeof context = context;
   const { line, mode, on }: typeof params = params;
   const mount: boolean = mode === "mount";
-  if (![line.x, line.z, line.heading].every(Number.isFinite))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "line",
-      value: line,
-      feasible: null,
-      reason: "the transition line needs a finite location and heading",
-      fix: "place the line in world metres and give its course heading in degrees",
-    });
 
   const seatedOnBicycle: boolean = entry.supports.some(
     (support): boolean =>
@@ -231,7 +222,7 @@ function planHumanBikeTransfer(
     if (qualifies(side, achieved.get(part)!)) plants.push(landing.from);
   }
   const plant: number = Math.min(...plants);
-  if (!Number.isFinite(plant))
+  if (plant === Infinity)
     throw new HumanRefusal({
       kind: "rule",
       axis: "line",

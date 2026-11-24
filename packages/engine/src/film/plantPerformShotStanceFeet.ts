@@ -326,7 +326,7 @@ function checkScopedGaitContacts(props: {
   out: IAutoMovieViolationCollector;
   path: string;
 }): void {
-  if (!Number.isFinite(props.period) || props.period <= 0) return;
+  if (props.period <= 0) return;
   const { indexAt, windowStarts } = props.scope;
   const contacted: Set<number> = new Set();
   for (const plant of props.plants)

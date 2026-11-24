@@ -21,29 +21,21 @@ type Target = IAutoMoviePhysicalSimulationInput.ITarget;
 export function preparePhysicalCoupledTargetSchedule(
   input: IAutoMoviePhysicalSimulationInput.IInput,
 ): IPhysicalCoupledTargetSchedule | undefined {
-  const end: number = input.duration * input.rate;
+  const end: number = Math.round(input.duration * input.rate);
   let steps: Map<number, Map<string, Body[]>> | undefined;
   for (const body of input.bodies)
     for (const [step, target] of body.targets.entries()) {
-      const label: unknown = target.coupledGroup;
+      const label: string | undefined = target.coupledGroup;
       if (label === undefined) continue;
-      if (
-        typeof label !== "string" ||
-        label.trim().length === 0 ||
-        !Number.isSafeInteger(end) ||
-        !Number.isSafeInteger(input.maximumSteps) ||
-        step < 1 ||
-        step > end ||
-        step > input.maximumSteps
-      )
+      if (step < 1 || step > end || step > input.maximumSteps)
         throw new AutoMoviePhysicalCoupledTargetError({
           step,
-          group: typeof label === "string" ? label : "",
+          group: label,
           members: [body.id],
           kind: "refused",
           reason: "declaration",
           detail:
-            "Expected a nonblank group id on a positive admitted output step.",
+            "Expected a coupled group on a positive admitted output step.",
         });
       if (body.mode.kind !== "kinematic" && target.strength === 0)
         throw new AutoMoviePhysicalCoupledTargetError({

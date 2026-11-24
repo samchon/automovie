@@ -58,19 +58,14 @@ export function resolveProductionSoundEventCues(
       throw new Error(
         `Event sound cue "${id}" requires one declared and realized event "${event}" in shot "${shot}".`,
       );
-    if (!Number.isSafeInteger(offsetFrames))
-      throw new Error(`Event sound cue "${id}" requires a whole-frame offset.`);
 
     if (props.eventCueAssets?.has(source.asset) !== true)
       throw new Error(
         `Event sound cue "${id}" references undeclared adopted asset "${source.asset}".`,
       );
     if (
-      !Number.isSafeInteger(source.durationFrames) ||
       source.durationFrames <= 0 ||
-      !Number.isSafeInteger(source.sourceDurationFrames) ||
       source.sourceDurationFrames <= 0 ||
-      !Number.isSafeInteger(source.sourceOffsetFrame) ||
       source.sourceOffsetFrame < 0 ||
       source.sourceOffsetFrame + source.durationFrames >
         source.sourceDurationFrames
@@ -79,14 +74,12 @@ export function resolveProductionSoundEventCues(
         `Event sound cue "${id}" must read a positive whole-frame trim inside asset "${source.asset}".`,
       );
 
-    if (!Number.isFinite(source.gain) || source.gain < 0 || source.gain > 4)
+    if (source.gain < 0 || source.gain > 4)
       throw new Error(
         `Event sound cue "${id}" requires finite gain in [0, 4].`,
       );
     if (
-      !Number.isSafeInteger(source.fadeInFrames) ||
       source.fadeInFrames < 0 ||
-      !Number.isSafeInteger(source.fadeOutFrames) ||
       source.fadeOutFrames < 0 ||
       source.fadeInFrames + source.fadeOutFrames > source.durationFrames
     )
@@ -100,8 +93,6 @@ export function resolveProductionSoundEventCues(
       const startFrame: number = occurrence.frame + offsetFrames;
       const endFrame: number = startFrame + source.durationFrames;
       if (
-        !Number.isSafeInteger(startFrame) ||
-        !Number.isSafeInteger(endFrame) ||
         startFrame < 0 ||
         endFrame > props.timeline.totalFrames
       )

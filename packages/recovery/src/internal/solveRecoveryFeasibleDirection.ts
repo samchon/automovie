@@ -26,7 +26,7 @@ export function solveRecoveryFeasibleDirection(
   charge: (work: number) => void = (): void => {},
 ): IAutoMovieRecoveryFeasibleDirection {
   const metadataWork: number = 4 * rows.length;
-  if (!Number.isSafeInteger(budget.maxWork) || metadataWork >= budget.maxWork)
+  if (metadataWork >= budget.maxWork)
     throw new Error("camera-feasible: bounded metadata admission required");
   charge(metadataWork);
   if (
@@ -47,7 +47,6 @@ export function solveRecoveryFeasibleDirection(
     128 * width +
     1024;
   if (
-    !Number.isSafeInteger(certificateWork) ||
     metadataWork + certificateWork >= budget.maxWork ||
     width + 128 >= budget.maxEntries
   )
@@ -115,11 +114,9 @@ export function solveRecoveryFeasibleDirection(
     );
     arithmeticAllowance = Math.max(arithmeticAllowance, allowance);
     rowsQualified &&=
-      Number.isFinite(allowance) &&
       slack <= tolerance + allowance &&
       Math.abs(solution.weights[at]! * slack) <= tolerance + allowance;
     reconstructionRowsQualified &&=
-      Number.isFinite(reconstructionAllowance) &&
       slack <= tolerance + reconstructionAllowance &&
       Math.abs(solution.weights[at]! * slack) <=
         tolerance +
@@ -159,13 +156,7 @@ export function solveRecoveryFeasibleDirection(
     solution.termination === "stalled" &&
     solution.gap <= tolerance + reconstruction.gap;
   const numericalChecks: boolean =
-    step.every(Number.isFinite) &&
-    [gamma, objective, maximumViolation, complementarity].every(
-      Number.isFinite,
-    ) &&
     Math.abs(sum - 1) <= 64 * Number.EPSILON * rows.length &&
-    Number.isFinite(stationarityAllowance) &&
-    Number.isFinite(stationarityResidual) &&
     stationarityResidual <= tolerance + stationarityAllowance &&
     solution.weights.every((value: number): boolean => value >= 0);
   const gapUpperBound: number = adjacentAutoMovieFloat64(

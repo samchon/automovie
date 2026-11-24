@@ -155,7 +155,7 @@ export namespace HumanBallPlay {
     to: number,
     offset: IAutoMovieVector3 = { x: 0, y: 0, z: 0 },
   ): IAutoMovieMotionHumanBallPlay.ICrossing | undefined {
-    if (!(Number.isFinite(from) && Number.isFinite(to) && to > from))
+    if (!(to > from))
       throw new RangeError("A gate window needs finite seconds with to > from");
     if (Math.abs(Vector3.length(gate.normal) - 1) > 1e-9)
       throw new RangeError("A gate normal must be a unit vector");

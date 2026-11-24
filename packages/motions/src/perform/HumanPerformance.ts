@@ -76,10 +76,13 @@ type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
  * entered it, re-solves every planted or gripping limb onto its goal so no
  * contact slides, and clamps to the range of motion ({@link HumanSegment}). A
  * person before their first action stands at their starting place. Additive
- * layers (gaze, breathing) apply over every action without cutting it. While
- * the schedule is resolved, a person's poses may read people whose actions are
- * not placed yet, so nothing is cached until every action is placed; then
- * caches and transition offsets start afresh.
+ * layers (gaze, breathing) apply over every action without cutting it. Once
+ * every action is placed, every stop committed and every flight resolved, the
+ * performance solves once every record its reads evaluate, each after what it
+ * reads (`prepareHumanPerformance`): the plans' own solutions, the props'
+ * spans and flights, each action's leg chain, swivel course, anchors and
+ * transition offset, the hits and the soft props. Every read after that is a
+ * pure function of its film second, in any order, and keeps nothing.
  *
  * A window of the performance can be baked through the engine's solver
  * (`simulate`); the baked performance shows the solved bodies inside the window
@@ -114,9 +117,8 @@ export class HumanPerformance {
    * Resolve a performance.
    *
    * @param input The chain seed, the performers, the props and the composition.
-   * @param observation Optional native airborne-work observer. This explicit
-   *   diagnostic request resolves a fresh performance instead of reading or
-   *   populating the whole-performance memo; the authored input and physical
+   * @param observation Optional native airborne-work observer, forwarded to
+   *   the airborne solve as a diagnostic; the authored input and physical
    *   admission are unchanged.
    */
   public constructor(

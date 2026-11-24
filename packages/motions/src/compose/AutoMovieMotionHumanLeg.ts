@@ -87,10 +87,12 @@ export namespace AutoMovieMotionHumanLeg {
   ): (progress: number) => IAutoMovieMotionHumanFoot.IPlacement {
     const turn: ReturnType<typeof Quaternion.prepareSlerp> =
       Quaternion.prepareSlerp(from.rotation, to.rotation);
-    let ankle: ReturnType<typeof Vector3.prepareLerp> | undefined;
+    const ankle: ReturnType<typeof Vector3.prepareLerp> = Vector3.prepareLerp(
+      from.ankle,
+      to.ankle,
+    );
     return (progress: number): IAutoMovieMotionHumanFoot.IPlacement => {
       const s: number = Math.min(1, Math.max(0, progress));
-      ankle ??= Vector3.prepareLerp(from.ankle, to.ankle);
       return { ankle: raised(ankle(s), clearance, s), rotation: turn(s) };
     };
   }
@@ -145,15 +147,16 @@ export namespace AutoMovieMotionHumanLeg {
   ): (
     posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPostureResult>,
   ) => IAutoMovieHumanLimbGoal {
-    let read: ReturnType<typeof placementReader> | undefined;
+    const point: IAutoMovieVector3 = placement.ankle;
+    const rotation: IAutoMovieQuaternion = placement.rotation;
+    const read: ReturnType<typeof placementReader> = placementReader(
+      body,
+      side,
+      rotation,
+    );
     return (
       posture: Pick<IAutoMovieMotionHumanPosture, PrepareGoalPosture>,
-    ): IAutoMovieHumanLimbGoal => {
-      const point: IAutoMovieVector3 = placement.ankle;
-      const rotation: IAutoMovieQuaternion = placement.rotation;
-      read ??= placementReader(body, side, rotation);
-      return read(posture, point, rotation, planted);
-    };
+    ): IAutoMovieHumanLimbGoal => read(posture, point, rotation, planted);
   }
 
   /**

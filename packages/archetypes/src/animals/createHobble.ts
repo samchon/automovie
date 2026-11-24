@@ -53,10 +53,7 @@ export function createHobble(
   cannon: number,
   params: createHobble.IParams,
 ): AutoMovieArchetype<never, never> {
-  if (
-    !(Number.isFinite(cannon) && cannon > 0) ||
-    !(Number.isFinite(params.strap) && params.strap > 0)
-  )
+  if (!(cannon > 0) || !(params.strap > 0))
     throw new RangeError(
       "A hobble closes round a cannon of positive radius with a strap of positive length",
     );

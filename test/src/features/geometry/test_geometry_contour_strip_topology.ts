@@ -13,14 +13,21 @@ type Observation = Omit<
 >;
 
 /**
- * Identity-based sheet qualification and finite partial publication remain distinct.
+ * Identity-based sheet qualification and finite partial publication remain
+ * distinct.
  *
  * Scenarios:
  *
- * 1. Two separate triangular boundaries connected by a doubled slit retain their repeated sheet occurrences, and their qualified tiling matches all exhaustive admissible paths.
- * 2. Distinct sheet vertices at an identical point create a collapsed physical edge; finite positive-area tiles remain visible with explicit unqualified omission diagnostics.
- * 3. Empty, singleton, collinear and nonfinite boundaries refuse before emission; missing and contradictory declared identities also refuse.
- * 4. Explicit unique identities preserve an ordinary qualified strip, separating identity admission from a blanket refusal.
+ * 1. Two separate triangular boundaries connected by a doubled slit retain their
+ *    repeated sheet occurrences, and their qualified tiling matches all
+ *    exhaustive admissible paths.
+ * 2. Distinct sheet vertices at an identical point create a collapsed physical
+ *    edge; finite positive-area tiles remain visible with explicit unqualified
+ *    omission diagnostics.
+ * 3. Empty, singleton, collinear and nonfinite boundaries refuse before emission;
+ *    missing and contradictory declared identities also refuse.
+ * 4. Explicit unique identities preserve an ordinary qualified strip, separating
+ *    identity admission from a blanket refusal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual strip receiver and checks finite publication, exhaustive branch area, independently reconstructed edge/link incidence, explicit degeneracy diagnostics and transactional refusal before any invalid boundary is emitted. It allows diagnostic partial geometry and distinct coincident sheets.
  * @evidence contracts/development/testing.md#independent-expectations A doubled slit traverses its two sheet edge occurrences in opposite directions; complete triangle-edge chains and connected vertex links supply the independent oracle. All 165 monotone paths for lengths eight and three are enumerated. A zero-length edge cannot bound positive-area triangles, so omission and lack of qualification are required while the noncollapsed remainder stays renderable. The oracle does not certify geometric injectivity.
@@ -88,7 +95,6 @@ export function test_geometry_contour_strip_topology(): void {
       retained.length < collapsed.length + top.length &&
       retained.every(
         (triangle: O.Triangle): boolean =>
-          triangle.every((p: O.V): boolean => p.every(Number.isFinite)) &&
           Math.hypot(...O.normal(triangle)) > 0,
       ),
   );

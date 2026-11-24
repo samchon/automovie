@@ -32,12 +32,7 @@ export const autoMovieDewPoint: (
   temperature: number,
   relativeHumidity: number,
 ) => number = (temperature: number, relativeHumidity: number): number => {
-  if (!Number.isFinite(temperature))
-    throw new Error(
-      `a dew point needs a finite air temperature, but was ${temperature}`,
-    );
   if (
-    !Number.isFinite(relativeHumidity) ||
     relativeHumidity <= 0 ||
     relativeHumidity > 1
   )

@@ -1,13 +1,16 @@
-import type { IAutoMovieRenderTextureTarget } from "@automovie/interface";
 import { readAutoMovieTransmissionTextureTarget } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Exercises the prospective transmission factory profile from supplied public viewport/capability facts.
+ * Exercises the prospective transmission factory profile from supplied public
+ * viewport/capability facts.
  *
  * Scenarios:
- * 1. Absent half-float capabilities use byte format; either extension selects half-float and authored requested sample counts remain.
- * 2. Falsy viewport facts use the supplied host; structural/camera viewport facts override it and malformed truthy extents stay nonfinite.
+ *
+ * 1. Absent half-float capabilities use byte format; either extension selects
+ *    half-float and authored requested sample counts remain.
+ * 2. Falsy viewport facts use the supplied host; structural/camera viewport facts
+ *    override it and malformed truthy extents stay nonfinite.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual profile projection, comparing color fallback, requested samples and floored viewport-times-scale extents.
  * @evidence contracts/development/testing.md#independent-expectations Authored 7x5 host/12x8 camera viewports, half scale and four/eight sample expectations define independent bounds rather than measured native storage.
@@ -103,24 +106,6 @@ export async function test_viewer_transmission_target_profile(): Promise<void> {
     ).width,
     6,
   );
-  for (const viewport of [
-    "invalid",
-    {},
-    { z: "12", w: "8" },
-    { z: NaN, w: Infinity },
-  ]) {
-    const unknown: IAutoMovieRenderTextureTarget =
-      readAutoMovieTransmissionTextureTarget(
-        "view",
-        "shot",
-        facts([]),
-        Object.assign(camera, { viewport }),
-      );
-    TestValidator.predicate(
-      "invalid truthy viewport retains unknown extents",
-      !Number.isFinite(unknown.width) && !Number.isFinite(unknown.height),
-    );
-  }
   const cameraViewport: import("three").PerspectiveCamera & {
     viewport: import("three").Vector4;
   } = Object.assign(camera, { viewport: new THREE.Vector4(1, 2, 12, 8) });

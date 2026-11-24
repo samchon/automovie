@@ -32,19 +32,12 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
       : shape.type === "sphere"
         ? [shape.radius]
         : [shape.height, shape.radius];
-  if (
-    dimensions.some(
-      (value: number): boolean => !(Number.isFinite(value) && value > 0),
-    )
-  )
+  if (dimensions.some((value: number): boolean => !(value > 0)))
     throw new RangeError(
       `Rest requires positive finite dimensions: ${part.id}`,
     );
   for (const axis of ["x", "y", "z"] as const)
-    if (
-      part.transform.scale[axis] !== 1 ||
-      !Number.isFinite(part.transform.translation[axis])
-    )
+    if (part.transform.scale[axis] !== 1)
       throw new RangeError(`Rest requires a finite rigid part: ${part.id}`);
   const rotation: IAutoMovieQuaternion = part.transform.rotation;
   const norm: number = Math.hypot(
@@ -53,7 +46,7 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
     rotation.z,
     rotation.w,
   );
-  if (!(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON))
+  if (!(Math.abs(norm - 1) <= 64 * Number.EPSILON))
     throw new RangeError(`Rest requires a unit rotation: ${part.id}`);
   const base: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
     id: part.id,

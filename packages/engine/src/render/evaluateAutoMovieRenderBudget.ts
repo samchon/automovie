@@ -66,12 +66,12 @@ export const evaluateAutoMovieRenderBudget: (
   } = props;
   const limit: number =
     props.maxContributors ?? AUTOMOVIE_RENDER_REPORT_MAX_CONTRIBUTORS;
-  if (!Number.isSafeInteger(limit) || limit < 1)
+  if (limit < 1)
     throw new Error(
       `render report contributor bound must be a positive safe integer, but was ${limit}`,
     );
   for (const [metric, value] of Object.entries(budget?.limits ?? {}))
-    if (!Number.isSafeInteger(value) || value < 0)
+    if (value < 0)
       throw new Error(
         `render budget limit for "${metric}" must be a safe integer at or above zero, but was ${value}`,
       );

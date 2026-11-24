@@ -142,8 +142,11 @@ export function edgeRescueFaller(
     root: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => ({ ...hang, root });
 
-  // The landed body's hips offset from its root, read once.
-  let landedHips: IAutoMovieVector3 | undefined;
+  // The landed body's hips offset from its root, the hang's own.
+  const landedHips: IAutoMovieVector3 = stuntFallPose.offset(
+    body,
+    at({ x: 0, y: 0, z: 0 }),
+  );
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
   ): IAutoMovieMotionHumanPosture => {
@@ -176,7 +179,7 @@ export function edgeRescueFaller(
         {
           x:
             landed.root.x +
-            (landedHips ??= stuntFallPose.offset(body, landed)).x,
+            landedHips.x,
           y: ground,
           z: landed.root.z + landedHips.z,
         },

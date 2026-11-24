@@ -188,10 +188,11 @@ export namespace knockdown {
       ];
     })();
 
-    // The heading that faces the blow, so the back falls away from it.
-    let cached: number | undefined;
-    const heading: () => number = (): number => {
-      if (cached !== undefined) return cached;
+    // The heading that faces the blow, so the back falls away from it: the
+    // blow is read at the look before the start, solved once the performance
+    // is placed (`prepare`); a read before reads it there.
+    let prepared: number | undefined;
+    const solve = (): number => {
       const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
         ReactionSource.at(
           context,
@@ -203,9 +204,9 @@ export namespace knockdown {
         entry.root,
         entry.yaw,
       );
-      cached = (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
-      return cached;
+      return (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
     };
+    const heading: () => number = (): number => prepared ?? solve();
 
     const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (
       yaw: number,
@@ -247,8 +248,8 @@ export namespace knockdown {
               },
             ],
           ),
-          settle: (): void => {
-            cached = undefined;
+          prepare: (): void => {
+            prepared = solve();
           },
         },
         clock,

@@ -55,8 +55,6 @@ export function createHumanPerformancePerson(
     segments: [],
     overlays: [],
     initial,
-    cache: new Map(),
-    resolving: true,
     holds: [],
     stops: new Map(),
     // A windowed layer waits until the schedule gives its instants.

@@ -38,16 +38,6 @@ export function createDeer(
   createCohortQuadruped.Affordance,
   AutoMovieArchetypeQuadrupedBody.Dimension
 > {
-  if (params.antlers !== undefined && typeof params.antlers !== "boolean")
-    throw new AutoMovieArchetypeRefusal({
-      kind: "parameter",
-      archetype: "deer",
-      axis: "antlers",
-      value: params.antlers,
-      feasible: { kind: "alternatives", values: ["true", "false"] },
-      reason: "antler presence must be a boolean request",
-      fix: "supply true, false or leave the cohort's default",
-    });
   if (params.lead !== undefined && params.mass === undefined)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
@@ -111,7 +101,7 @@ export function createDeer(
       const root: number = base.x - rig.poll.x;
       const lateral: number = a.tipWidth / 2 - root;
       const rise: number = Math.sqrt(a.curve * a.curve - lateral * lateral);
-      if (!(Number.isFinite(rise) && rise > 0))
+      if (!(rise > 0))
         throw new RangeError(
           "The seated antler must preserve a positive beam rise at its declared length and tip spacing",
         );

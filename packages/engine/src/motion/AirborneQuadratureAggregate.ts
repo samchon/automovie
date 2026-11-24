@@ -74,10 +74,6 @@ export function AirborneQuadratureAggregate<
       const a: number = left.value[i]!;
       const b: number = right.value[i]!;
       const sum: number = a + b;
-      if (!Number.isFinite(sum))
-        throw new Error(
-          "AirborneTakeoffQuadrature produced a non-finite integral",
-        );
       const back: number = sum - a;
       const lost: number = a - (sum - back) + (b - back);
       node.value[i] = sum;
@@ -119,7 +115,7 @@ export function AirborneQuadratureAggregate<
         if (component === 0 || weight === 0) continue;
         const product: number = component * weight;
         const bound: number =
-          !Number.isFinite(product) || product === Number.MAX_VALUE
+          product === Number.MAX_VALUE
             ? Infinity
             : adjacentAutoMovieFloat64(product, true);
         total = upperSum(total, bound);
@@ -218,7 +214,6 @@ function upperSum(a: number, b: number): number {
   if (a === 0) return b;
   if (b === 0) return a;
   const sum: number = a + b;
-  if (!Number.isFinite(sum)) return Infinity;
   const back: number = sum - a;
   const lost: number = a - (sum - back) + (b - back);
   return lost > 0

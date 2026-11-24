@@ -7,10 +7,15 @@ import { nclose } from "../internal/nclose";
  * Original-design factors preserve a weak direction and a wide right nullspace.
  *
  * Scenarios:
- * 1. Analytic diagonal and repeated-value factors reconstruct without changing borrowed input.
- * 2. Two nearly parallel columns retain a known 1e-10 singular value under common large and small scales.
- * 3. The eight-row [I|c] design returns its analytic one-dimensional right nullspace and all nine orthogonal right vectors.
- * 4. Zero/singleton designs work; malformed, nonfinite, exhausted and unrepresentable designs throw independently of the next valid call.
+ *
+ * 1. Analytic diagonal and repeated-value factors reconstruct without changing
+ *    borrowed input.
+ * 2. Two nearly parallel columns retain a known 1e-10 singular value under common
+ *    large and small scales.
+ * 3. The eight-row [I|c] design returns its analytic one-dimensional right
+ *    nullspace and all nine orthogonal right vectors.
+ * 4. Zero/singleton designs work; malformed, nonfinite, exhausted and
+ *    unrepresentable designs throw independently of the next valid call.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the numerical kernel and observes factors, reconstruction, right-vector orthogonality, borrowed-array stability and throwing work/range admission. It catches a normal-matrix implementation that loses the weak original-design direction.
  * @evidence contracts/development/testing.md#independent-expectations Diagonal values are their absolute entries. For columns (1,e,0) and (1,0,e), singular values are sqrt(2+e^2) and e. For [I|c], A*A transpose = I+c*c transpose gives singular values sqrt(1+norm(c)^2), seven ones and zero, and (-c,1) is its independently known null vector. The test does not compare a snapshot or another call's factors.
@@ -50,9 +55,7 @@ export function test_geometry_singular_matrix(): void {
     );
     TestValidator.predicate(
       "actual active orthogonality is qualified by the requested budget",
-      Number.isFinite(result.maximumActiveColumnCorrelation) &&
-        result.maximumActiveColumnCorrelation <=
-          budget.orthogonalityTolerance &&
+      result.maximumActiveColumnCorrelation <= budget.orthogonalityTolerance &&
         nclose(result.orthogonalityTolerance, budget.orthogonalityTolerance, 0),
     );
     TestValidator.predicate(

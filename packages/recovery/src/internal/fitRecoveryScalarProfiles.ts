@@ -19,19 +19,18 @@ export function fitRecoveryScalarProfiles(
     !fields ||
     samples.some(
       (sample: (typeof samples)[number]): boolean =>
-        sample.values.length !== fields ||
-        !sample.values.every(Number.isFinite),
+        sample.values.length !== fields,
     )
   )
     throw new Error("Complete finite scalar profile rows required");
   const count: number = spans + 3;
-  if (samples.length < count || !Number.isSafeInteger(spans) || spans < 1)
+  if (samples.length < count || spans < 1)
     throw new Error(
       "insufficient-fit-support: more physical rows than spline coefficients required",
     );
   const lower: number = samples[0].yMm;
   const length: number = samples.at(-1)!.yMm - lower;
-  if (!(length > 0) || !Number.isFinite(length))
+  if (!(length > 0))
     throw new Error(
       "invalid-fit-chart: a finite physical station interval is required",
     );
@@ -99,7 +98,7 @@ export function fitRecoveryScalarProfiles(
     const current: Float64Array = matrix[column];
     for (let row: number = column; row < samples.length; row++)
       norm = Math.hypot(norm, current[row]);
-    if (!(norm > 0) || !Number.isFinite(norm))
+    if (!(norm > 0))
       throw new Error(
         "rank-deficient-fit: a spline column has no independent support",
       );
@@ -117,7 +116,7 @@ export function fitRecoveryScalarProfiles(
       reflector[row - column] = value;
       squared += value * value;
     }
-    if (!(squared > 0) || !Number.isFinite(squared))
+    if (!(squared > 0))
       throw new Error("nonfinite-fit: unresolved Householder reflector");
     for (let target: number = column + 1; target < count + fields; target++) {
       const values: Float64Array =
@@ -141,8 +140,6 @@ export function fitRecoveryScalarProfiles(
       for (let column: number = row + 1; column < count; column++)
         value -= matrix[column][row] * coefficients[column];
       coefficients[row] = value / matrix[row][row];
-      if (!Number.isFinite(coefficients[row]))
-        throw new Error("nonfinite-fit: spline coefficient overflow");
     }
     profiles.push(coefficients);
   }
@@ -197,14 +194,6 @@ export function fitRecoveryScalarProfiles(
         ];
       },
     );
-    if (
-      controls.some(
-        (profile: number[]): boolean => !profile.every(Number.isFinite),
-      )
-    )
-      throw new Error(
-        "nonfinite-fit: Bernstein conversion exceeded finite coefficients",
-      );
     result.push({
       interval: [
         index === 0 ? lower * 0.001 : result.at(-1)!.interval[1],

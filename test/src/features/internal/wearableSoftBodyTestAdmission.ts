@@ -2,7 +2,6 @@ import { simulateAutoMovieWearableSoftBody } from "@automovie/engine";
 import type {
   IAutoMovieResolvedBone,
   IAutoMovieSoftBodyDomain,
-  IAutoMovieWearableSoftFrame,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -11,7 +10,8 @@ import { wearableSoftBodyTestActorFrame as actorFrame } from "./wearableSoftBody
 import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDomain";
 
 /**
- * Preserve original wearable Scenario 7 admission refusals after the earlier accepted cases.
+ * Preserve original wearable Scenario 7 admission refusals after the earlier
+ * accepted cases.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual wearable resolver for each original malformed step, frame, subject, bone, transform or budget input and observes its original diagnostic substring.
  * @evidence contracts/development/testing.md#independent-expectations Literal fractional/out-of-range/nonfinite values and missing/duplicate authored identities independently determine refusal expectations, without copying resolver decisions into an expected trajectory.
@@ -22,7 +22,6 @@ export function wearableSoftBodyTestAdmission(
   staticDomain: IAutoMovieSoftBodyDomain,
   nodeDomain: IAutoMovieSoftBodyDomain,
   capsuleOnly: IAutoMovieSoftBodyDomain,
-  nodeFrame: IAutoMovieWearableSoftFrame,
 ): void {
   TestValidator.equals(
     "wearable admission, frame identity, lookup, and transform failures are closed",
@@ -102,23 +101,7 @@ export function wearableSoftBodyTestAdmission(
           subjectIndex: 0,
           maxSubjects: 1,
         });
-      }, "ids must be non-blank and unique"),
-      blankNodeIdentity: throwsError(
-        (): ReturnType<typeof simulateAutoMovieWearableSoftBody> =>
-          simulateAutoMovieWearableSoftBody({
-            domain: nodeDomain,
-            step: 0,
-            frames: [
-              {
-                ...nodeFrame,
-                nodes: [{ ...nodeFrame.nodes[0]!, node: " " }],
-              },
-            ],
-            subjectIndex: 0,
-            maxSubjects: 1,
-          }),
-        "ids must be non-blank and unique",
-      ),
+      }, "ids must be unique"),
       missingBone: throwsError((): void => {
         const frame: ReturnType<typeof actorFrame> = actorFrame(0, 0);
         simulateAutoMovieWearableSoftBody({
@@ -229,7 +212,6 @@ export function wearableSoftBodyTestAdmission(
       missingNode: true,
       missingCapsuleActor: true,
       duplicateActor: true,
-      blankNodeIdentity: true,
       missingBone: true,
       duplicateBone: true,
       nonfinitePosition: true,

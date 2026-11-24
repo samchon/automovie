@@ -78,11 +78,7 @@ export function readAutoMovieCollisionInstances(
     };
     mesh.getMatrixAt(index, instance);
     // A zero-scale instance is a withdrawn member that rasterizes nothing.
-    if (
-      instance.determinant() === 0 &&
-      instance.elements.every(Number.isFinite)
-    )
-      continue;
+    if (instance.determinant() === 0) continue;
     const placement: THREE.Matrix4 = new THREE.Matrix4().multiplyMatrices(
       mesh.matrixWorld,
       instance,
@@ -247,11 +243,6 @@ function cycleBounds(
         result.union(
           box.clone().applyMatrix4(exactSample(take, cycle, part, sample)),
         );
-    if (
-      !readAutoMovieCollisionTopology.finite(result.min) ||
-      !readAutoMovieCollisionTopology.finite(result.max)
-    )
-      result = null;
   }
   byGeometry.set(geometry, result);
   return result;

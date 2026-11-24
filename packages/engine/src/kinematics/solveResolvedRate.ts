@@ -41,22 +41,12 @@ export function solveResolvedRate(
   if (
     size === 0 ||
     goalRate.length !== size ||
-    rowScale.length !== size ||
-    !Number.isSafeInteger(size * size)
+    rowScale.length !== size
   )
     return { status: "unsupported" };
-  for (let row: number = 0; row < size; ++row) {
-    if (
-      jacobian[row]?.length !== size ||
-      !Number.isFinite(goalRate[row]) ||
-      !Number.isFinite(rowScale[row]) ||
-      !(rowScale[row]! > 0)
-    )
+  for (let row: number = 0; row < size; ++row)
+    if (jacobian[row]!.length !== size || rowScale[row]! <= 0)
       return { status: "unsupported" };
-    for (let column: number = 0; column < size; ++column)
-      if (!Number.isFinite(jacobian[row]![column]))
-        return { status: "unsupported" };
-  }
 
   const scaled: number[][] = jacobian.map(
     (row: readonly number[], index: number): number[] =>
@@ -66,23 +56,16 @@ export function solveResolvedRate(
     (value: number, row: number): number => value / rowScale[row]!,
   );
   for (let row: number = 0; row < size; ++row) {
-    if (
-      !Number.isFinite(right[row]) ||
-      (goalRate[row] !== 0 && right[row] === 0)
-    )
+    if (goalRate[row] !== 0 && right[row] === 0)
       return { status: "unrepresentable" };
     for (let column: number = 0; column < size; ++column)
-      if (
-        !Number.isFinite(scaled[row]![column]) ||
-        (jacobian[row]![column] !== 0 && scaled[row]![column] === 0)
-      )
+      if (jacobian[row]![column] !== 0 && scaled[row]![column] === 0)
         return { status: "unrepresentable" };
   }
   const solve: ReturnType<typeof prepareLinearSystem> =
     prepareLinearSystem(scaled);
   if (solve === null) return { status: "singular" };
   const velocity: number[] = solve(right);
-  if (!velocity.every(Number.isFinite)) return { status: "unrepresentable" };
   const inverse: number[][] = [];
   const identity: number[] = new Array<number>(size).fill(0);
   const inverseRows: number[] = new Array<number>(size).fill(0);
@@ -90,7 +73,6 @@ export function solveResolvedRate(
     identity[column] = 1;
     const values: number[] = solve(identity);
     identity[column] = 0;
-    if (!values.every(Number.isFinite)) return { status: "unrepresentable" };
     inverse.push(values);
     for (let row: number = 0; row < size; ++row)
       inverseRows[row]! += Math.abs(values[row]!);
@@ -137,8 +119,7 @@ export function solveResolvedRate(
     dot(scratch, jacobian[row]!, velocity, -goalRate[row]!);
     const error: number = scratch[0]! + scratch[1]!;
     const magnitude: number = scratch[2]! + scratch[3]!;
-    if (!Number.isFinite(error) || !Number.isFinite(magnitude))
-      return { status: "unrepresentable" };
+
     residual.push(error);
     componentwiseBackwardError = Math.max(
       componentwiseBackwardError,
@@ -160,15 +141,10 @@ export function solveResolvedRate(
         ? 0
         : Infinity
       : residualNorm / denominator;
+  // A nonzero error against a zero magnitude has no relative size.
   if (
-    ![
-      conditionEstimate,
-      inverseDefect,
-      componentwiseBackwardError,
-      normwiseBackwardError,
-      denominator,
-      ...scaledResidual,
-    ].every(Number.isFinite)
+    componentwiseBackwardError === Infinity ||
+    normwiseBackwardError === Infinity
   )
     return { status: "unrepresentable" };
   return {

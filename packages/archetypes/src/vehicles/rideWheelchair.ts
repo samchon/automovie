@@ -167,12 +167,9 @@ export namespace rideWheelchair {
       ): number => a.catchAt - b.catchAt,
     )) {
       if (
-        !Number.isFinite(hold.catchAt) ||
         hold.catchAt < 0 ||
         hold.catchAt > ride.duration ||
-        !Number.isFinite(hold.releaseAt) ||
         !(hold.catchAt < hold.releaseAt) ||
-        !Number.isFinite(hold.degrees) ||
         Math.abs(hold.degrees) > 180 ||
         (hold.side !== undefined &&
           hold.side !== "left" &&

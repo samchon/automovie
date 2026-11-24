@@ -146,7 +146,7 @@ function positive(key: string, text: string | null | undefined): number | null {
 /** The number a text spells, NaN for blank or malformed text. */
 function finite(text: string): number {
   const value: number = text.trim() === "" ? Number.NaN : Number(text);
-  return Number.isFinite(value) ? value : Number.NaN;
+  return value;
 }
 
 /** The cut a text spells, in either of its two forms. */
@@ -168,7 +168,6 @@ function section(
   );
   if (axis !== null) {
     const offset: number = finite(halves[1]!);
-    if (Number.isNaN(offset)) return refuse();
     const sign: number = axis[1] === "-" ? -1 : 1;
     return {
       point: {
@@ -191,7 +190,6 @@ function section(
   if (
     point!.length !== 3 ||
     normal!.length !== 3 ||
-    [...point!, ...normal!].some(Number.isNaN) ||
     normal!.every((component: number): boolean => component === 0)
   )
     return refuse();

@@ -118,7 +118,7 @@ function plan(
         "a held work drives an articulation, moves the prop or takes a prop",
       fix: "give `drive`, `at` or `take`",
     });
-  if (!(Number.isFinite(p.duration) && p.duration > 0))
+  if (!(p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",

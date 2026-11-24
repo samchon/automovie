@@ -184,8 +184,7 @@ export const HumanAssistedTransfer: IAutoMovieMotionHumanAssistedTransfer.ILaw =
     ): IAutoMovieMotionHumanActionPlan => {
       const { params }: typeof context = context;
       const seconds: number = params.seconds ?? PHASE;
-      const { x, y, z }: IAutoMovieVector3 = params.clasp;
-      if (![x, y, z, seconds].every(Number.isFinite) || seconds <= 0)
+      if (!(seconds > 0))
         return humanAssistedTransferSeat.refuse(
           "seconds",
           seconds,

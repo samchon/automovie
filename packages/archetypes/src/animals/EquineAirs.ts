@@ -110,7 +110,7 @@ export namespace EquineAirs {
     cue: AutoMovieArchetypeEquineStanceCue.ICourbette,
     levade: EquineStanceRows.IPlan,
   ): EquineStanceRows.IPlan {
-    if (!(Number.isInteger(cue.leaps) && cue.leaps > 0))
+    if (!(cue.leaps > 0))
       throw new RangeError(
         "A courbette takes a positive whole number of leaps",
       );

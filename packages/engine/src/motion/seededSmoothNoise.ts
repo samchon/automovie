@@ -119,7 +119,7 @@ function admit(duration: number, maxFrequency: number, terms: number): void {
   if (
     !(duration > 0) ||
     !(maxFrequency > 0) ||
-    !(Number.isSafeInteger(terms) && terms > 0)
+    !(terms > 0)
   )
     throw new Error(
       "Smooth noise needs a positive duration, frequency and term count",

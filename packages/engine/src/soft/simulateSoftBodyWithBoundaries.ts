@@ -5,7 +5,6 @@ import {
   type IAutoMovieSoftBodyObserver,
   IAutoMovieSoftBodyState,
   IAutoMovieSoftCollider,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { simulateSoftBodyCore } from "./simulateSoftBodyCore";
@@ -63,7 +62,6 @@ export const simulateSoftBodyWithBoundaries: (
     const particles: Set<number> = new Set<number>();
     for (const anchor of boundary.anchors) {
       if (
-        !Number.isSafeInteger(anchor.particle) ||
         anchor.particle < 0 ||
         anchor.particle >= domain.lattice.columns * domain.lattice.rows
       )
@@ -79,7 +77,6 @@ export const simulateSoftBodyWithBoundaries: (
           `soft body "${domain.id}" moving boundary[${index}] repeats anchor particle ${anchor.particle}`,
         );
       particles.add(anchor.particle);
-      assertVector(anchor.position, `moving boundary[${index}] anchor`);
     }
     for (const particle of boundary.released ?? []) {
       if (!movingAnchorParticles.has(particle))
@@ -108,9 +105,7 @@ export const simulateSoftBodyWithBoundaries: (
           `soft body "${domain.id}" moving boundary[${index}] capsule "${capsule.id}" is not an authored body capsule`,
         );
       capsules.add(capsule.id);
-      assertVector(capsule.from, `moving boundary[${index}] capsule from`);
-      assertVector(capsule.to, `moving boundary[${index}] capsule to`);
-      if (!Number.isFinite(capsule.radius) || capsule.radius <= 0)
+      if (capsule.radius <= 0)
         throw new Error(
           `soft body "${domain.id}" moving boundary[${index}] capsule radius must be finite and positive`,
         );
@@ -124,15 +119,3 @@ export const simulateSoftBodyWithBoundaries: (
   return simulateSoftBodyCore(domain, step, state, boundaries, observer);
 };
 
-/** Refuse a nonfinite resolved moving-boundary vector. */
-const assertVector: (value: IAutoMovieVector3, label: string) => void = (
-  value: IAutoMovieVector3,
-  label: string,
-): void => {
-  if (
-    !Number.isFinite(value.x) ||
-    !Number.isFinite(value.y) ||
-    !Number.isFinite(value.z)
-  )
-    throw new Error(`${label} must contain finite coordinates`);
-};

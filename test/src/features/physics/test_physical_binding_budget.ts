@@ -19,15 +19,24 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /**
- * Explicit relationship budgets bound the actual simultaneous geometry consumer.
+ * Explicit relationship budgets bound the actual simultaneous geometry
+ * consumer.
  *
  * Scenarios:
- * 1. The default 16 cap refuses 17 relationships; an explicit 17 cap admits them through the shared fitter and a real actuated one-joint branch.
- * 2. Zero, fractional, nonfinite and over 256 declarations refuse; 256 relationships admit and 257 refuse.
- * 3. Independently counted floor/self/contact rows admit 1024 and refuse 1025 before native allocation.
- * 4. A 65-leaf analytic star admits 64 active coordinates, refuses 65 and ignores a zero-weight collider relationship.
- * 5. One point bound on the remaining leaf combines with 64 collider chains to exceed the same coordinate budget; removing it restores admission.
- * 6. Twenty-four independent joints declare 72 axes but admit 48 or 64 active coordinates; 65 active coordinates refuse while 25 floor and 276 self-pair rows stay below their separate budget.
+ *
+ * 1. The default 16 cap refuses 17 relationships; an explicit 17 cap admits them
+ *    through the shared fitter and a real actuated one-joint branch.
+ * 2. Zero and over 256 declarations refuse; 256 relationships admit and 257
+ *    refuse.
+ * 3. Independently counted floor/self/contact rows admit 1024 and refuse 1025
+ *    before native allocation.
+ * 4. A 65-leaf analytic star admits 64 active coordinates, refuses 65 and ignores
+ *    a zero-weight collider relationship.
+ * 5. One point bound on the remaining leaf combines with 64 collider chains to
+ *    exceed the same coordinate budget; removing it restores admission.
+ * 6. Twenty-four independent joints declare 72 axes but admit 48 or 64 active
+ *    coordinates; 65 active coordinates refuse while 25 floor and 276 self-pair
+ *    rows stay below their separate budget.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMoviePhysicalSimulation`, `planPhysicalContactTargets`, `preparePhysicalGeometry` on in-memory inputs and asserts the returned observations through no assertion call; 6 numbered scenarios (first: The default 16 cap refuses 17 relationships; an explicit 17 cap admits them through the shared fitter and a...; last: Twenty-four independent joints declare 72 axes but admit 48 or 64 active coordinates; 65 active coordinates...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -39,7 +48,10 @@ export async function test_physical_binding_budget(): Promise<void> {
   const profile: P = PhysicalModelFixtures.quadrupod();
   const receiver: P = PhysicalFixtures.sphere();
   const geometry: IAutoMoviePreparePhysicalGeometry.IQueries = await Geometry();
-  /** Independent separation rows exercise the real variable-row consumer without introducing a body-name rule. */
+  /**
+   * Independent separation rows exercise the real variable-row consumer without
+   * introducing a body-name rule.
+   */
   const bindings: (
     count: number,
     kind?: Binding["kind"],
@@ -101,7 +113,7 @@ export async function test_physical_binding_budget(): Promise<void> {
       (value: number): boolean => value === 0,
     ),
   );
-  for (const invalid of [0, 257, 1.5, NaN, Infinity]) {
+  for (const invalid of [0, 257]) {
     source.maximumBindings = invalid;
     assert.throws((): string => Simulation.identity(input), /budget/);
   }

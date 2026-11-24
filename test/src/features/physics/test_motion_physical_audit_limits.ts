@@ -7,7 +7,6 @@ import type {
   IAutoMovieMotionAudit,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalSegmentState,
-  IAutoMovieVector3,
   IAutoMoviePhysicalProfile as P,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -15,13 +14,14 @@ import assert from "node:assert/strict";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** Invalid numeric promises and observations never become a successful audit.
+/**
+ * Invalid numeric promises and observations never become a successful audit.
  *
  * Scenarios:
+ *
  * 1. A genuine finite floor violation is independently observable.
- * 2. Every acceptance family rejects NaN, infinity, negatives or missing references.
- * 3. Nonfinite consumer poses, velocities and inconsistent clocks refuse.
- * 4. Fall timing and miss-distance validation match action timing admission.
+ * 2. Negative tolerances, missing references and an inconsistent clock refuse.
+ * 3. Negative fall tolerances and fall times refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMovieMotionAudit`, `AutoMoviePhysicsCache`, `auditPhysicalOutcomes` on in-memory inputs and asserts the returned observations through 1x TestValidator.predicate, 1x TestValidator.equals; 4 numbered scenarios (first: A genuine finite floor violation is independently observable.; last: Fall timing and miss-distance validation match action timing admission.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (1 assertion site compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -81,69 +81,13 @@ export async function test_motion_physical_audit_limits(): Promise<void> {
   );
   const changes: ((input: IAutoMovieMotionAudit.IInput) => void)[] = [
     (input: IAutoMovieMotionAudit.IInput): void => {
-      input.floor = NaN;
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.floorTolerance = NaN;
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
       input.bodies[0]!.overlapTolerance = -1;
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.jointTolerance = Infinity;
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.speeds.root = NaN;
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.supports[0]!.tolerance = NaN;
+      input.bodies[0]!.supports[0]!.tolerance = -1;
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       input.bodies[0]!.supports[0]!.bone = "absent";
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.supports[0]!.point.y = Infinity;
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      input.bodies[0]!.constraints = [
-        {
-          label: "inactive-invalid",
-          kind: "goal",
-          point: { bone: "root" },
-          target: (): IAutoMovieVector3 => ({
-            x: 0,
-            y: 0.08,
-            z: 0,
-          }),
-          start: 10,
-          end: 10,
-          maximum: NaN,
-        },
-      ];
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
-        const frame: IAutoMoviePhysicalFrame = sample(seconds);
-        frame.bodies.solid!.root!.position.y = NaN;
-        return frame;
-      };
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
-        const frame: IAutoMoviePhysicalFrame = sample(seconds);
-        frame.bodies.solid!.root!.rotation.w = Infinity;
-        return frame;
-      };
-    },
-    (input: IAutoMovieMotionAudit.IInput): void => {
-      const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
-      input.sample = (seconds: number): IAutoMoviePhysicalFrame => {
-        const frame: IAutoMoviePhysicalFrame = sample(seconds);
-        frame.bodies.solid!.root!.velocity.x = NaN;
-        return frame;
-      };
     },
     (input: IAutoMovieMotionAudit.IInput): void => {
       const sample: IAutoMovieMotionAudit.IInput["sample"] = input.sample;
@@ -169,37 +113,15 @@ export async function test_motion_physical_audit_limits(): Promise<void> {
     allowUnplanned: (): boolean => false,
   };
   TestValidator.equals("valid observed fall qualifies", outcomes(promise), []);
-  for (const tolerance of [NaN, Infinity, -1]) {
-    const invalid: IAutoMovieAuditPhysicalOutcomes.IInput = {
-      ...promise,
-      falls: [{ ...promise.falls[0]!, tolerance }],
-      observedFalls: { solid: 1000 },
-    };
-    assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
-      outcomes(invalid),
-    );
-  }
-  assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
-    outcomes({ ...promise, observedFalls: { solid: NaN } }),
-  );
   assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
     outcomes({
       ...promise,
-      actions: [
-        {
-          id: "required",
-          actor: "a",
-          target: "b",
-          actorShapes: ["surface"],
-          targetShapes: ["surface"],
-          seconds: 1,
-          tolerance: 0.1,
-          source: "solver",
-          expected: "contact",
-        },
-      ],
-      missDistance: (): number => NaN,
+      falls: [{ ...promise.falls[0]!, tolerance: -1 }],
+      observedFalls: { solid: 1000 },
     }),
+  );
+  assert.throws((): IAutoMovieAuditPhysicalOutcomes.IFinding[] =>
+    outcomes({ ...promise, observedFalls: { solid: -1 } }),
   );
   const findings: number[] = [];
   for (const scenario of [

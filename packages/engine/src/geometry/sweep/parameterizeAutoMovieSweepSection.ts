@@ -37,17 +37,15 @@ export const parameterizeAutoMovieSweepSection: (
       section.down,
     ];
     half.forEach((h: number): void => {
-      if (!Number.isFinite(h) || h <= 0)
+      if (h <= 0)
         throw new Error("superellipse half-axes must be positive and finite");
     });
     section.exponents.forEach((n: number): void => {
-      if (!Number.isFinite(n) || n < 1 || n > 20)
+      if (n < 1 || n > 20)
         throw new Error("superellipse exponents must lie in [1, 20]");
     });
     const cx: number = section.centre?.x ?? 0;
     const cy: number = section.centre?.y ?? 0;
-    if (!Number.isFinite(cx) || !Number.isFinite(cy))
-      throw new Error("superellipse centre must be finite");
     return {
       segments: 4,
       point: (t: number): IAutoMovieSweepSection.IPoint => {
@@ -66,10 +64,6 @@ export const parameterizeAutoMovieSweepSection: (
     };
   }
   const points: IAutoMovieSweepSection.IPoint[] = section.points;
-  points.forEach((p: IAutoMovieSweepSection.IPoint, k: number): void => {
-    if (!Number.isFinite(p.x) || !Number.isFinite(p.y))
-      throw new Error(`section point ${k} is not finite`);
-  });
   const m: number = points.length;
   const at = (k: number): IAutoMovieSweepSection.IPoint =>
     points[((k % m) + m) % m]!;

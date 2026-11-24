@@ -10,9 +10,11 @@ import { boxModel, material } from "../internal/renderFixtures";
  *
  * Scenarios:
  *
- * 1. One declaration resolves directly, while a blank or absent id is refused.
- * 2. Repeated complete records remain one definition even when model order and nested object property insertion differ.
- * 3. Any conflicting complete record is refused, and the diagnostic lists its model population in stable code-unit order under either input order.
+ * 1. One declaration resolves directly, while an absent id is refused.
+ * 2. Repeated complete records remain one definition even when model order and
+ *    nested object property insertion differ.
+ * 3. Any conflicting complete record is refused, and the diagnostic lists its
+ *    model population in stable code-unit order under either input order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves actual cross-model materials and checks borrowed identity, property-order equivalence, blank/absent refusal and canonical conflict diagnostics rather than accepting whichever model is supplied first.
  * @evidence contracts/development/testing.md#independent-expectations The complete authored fabric record and lexically ordered alpha/beta/zeta model names supply the expected definition and error text. Equal floating-valued records are checked by selected record identity, not by exact numeric deep equality; no Three material is created.
@@ -92,13 +94,8 @@ export function test_render_material_resolution(): void {
     ].every((resolved: IAutoMovieMaterial): boolean => resolved === fabric),
   );
   TestValidator.equals(
-    "blank and absent ids are explicit refusals",
+    "absent ids are explicit refusals",
     [
-      throwsError(
-        (): IAutoMovieMaterial =>
-          resolveAutoMovieMaterial({ models: [alpha], material: "  " }),
-        "must not be blank",
-      ),
       throwsError(
         (): IAutoMovieMaterial =>
           resolveAutoMovieMaterial({
@@ -108,7 +105,7 @@ export function test_render_material_resolution(): void {
         ['material "missing"', "is absent"],
       ),
     ],
-    [true, true],
+    [true],
   );
 
   const beta: IAutoMovieModel = boxModel({

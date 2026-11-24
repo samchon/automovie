@@ -25,11 +25,7 @@ export function spendRecoverySceneWork(
     jointIterationAttempts:
       budget.maxJointFits * budget.maxRefinementIterations,
   };
-  if (
-    !Number.isSafeInteger(amount) ||
-    amount < 0 ||
-    amount > limits[kind] - work[kind]
-  ) {
+  if (amount < 0 || amount > limits[kind] - work[kind]) {
     const error: Error = new Error(`camera-scene-budget: ${kind} exhausted`);
     error.name = "RecoverySceneBudget";
     throw error;

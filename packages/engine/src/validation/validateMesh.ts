@@ -98,7 +98,7 @@ export const validateMesh: (
     );
     for (let index: number = 0; index < mesh.reliefWeights.length; ++index) {
       const value: number = mesh.reliefWeights[index]!;
-      if (!Number.isFinite(value) || value < 0)
+      if (value < 0)
         collector.push(
           "range",
           `${path}.reliefWeights[${index}]`,
@@ -113,7 +113,7 @@ export const validateMesh: (
     for (let i: number = 0; i < mesh.indices.length; ++i) {
       const index: number = mesh.indices[i]!;
       const valid: boolean =
-        Number.isInteger(index) && index >= 0 && index < vertexCount;
+        index >= 0 && index < vertexCount;
       if (!valid)
         collector.push(
           "range",
@@ -187,16 +187,6 @@ const validateTupleBuffer: (
       buffer.length,
     );
 
-  for (let i: number = 0; i < buffer.length; ++i) {
-    const value: number = buffer[i]!;
-    if (!Number.isFinite(value))
-      collector.push(
-        "range",
-        `${path}[${i}]`,
-        `value must be finite, but was ${value}`,
-        value,
-      );
-  }
 };
 
 /**
@@ -310,7 +300,7 @@ const validateMeshSkin: (
   for (let i: number = 0; i < skin.boneIndices.length; ++i) {
     const index: number = skin.boneIndices[i]!;
     const valid: boolean =
-      Number.isInteger(index) && index >= 0 && index < skin.joints.length;
+      index >= 0 && index < skin.joints.length;
     if (!valid)
       collector.push(
         "range",
@@ -326,13 +316,7 @@ const validateMeshSkin: (
   for (let vertex: number = 0; vertex < vertexCount; ++vertex) {
     const offset: number = vertex * 4;
     const weights: number[] = skin.weights.slice(offset, offset + 4);
-    if (
-      weights.length === 4 &&
-      Number.isFinite(weights[0]) &&
-      Number.isFinite(weights[1]) &&
-      Number.isFinite(weights[2]) &&
-      Number.isFinite(weights[3])
-    ) {
+    if (weights.length === 4) {
       const sum: number = weights.reduce(
         (a: number, b: number): number => a + b,
         0,
@@ -436,20 +420,6 @@ const validateMeshTargets: (
       );
     points.forEach((point: IAutoMovieDrivenCurvePoint, k: number): void => {
       const pp: string = `${tp}.driver.curve.points[${k}]`;
-      if (!Number.isFinite(point.source))
-        collector.push(
-          "range",
-          `${pp}.source`,
-          "curve source must be finite",
-          point.source,
-        );
-      if (!Number.isFinite(point.output))
-        collector.push(
-          "range",
-          `${pp}.output`,
-          "curve output must be finite",
-          point.output,
-        );
       if (k > 0 && !(point.source > points[k - 1]!.source))
         collector.push(
           "range",

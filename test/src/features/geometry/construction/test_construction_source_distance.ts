@@ -11,13 +11,25 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Fixed-chart squared-distance stations retain the original source and its parameterization.
+ * Fixed-chart squared-distance stations retain the original source and its
+ * parameterization.
  *
  * Scenarios:
- * 1. A straight line has its orthogonal projection at a closed-form station. Natural cubic source spans in station and both root parameters have a known degree-five distance derivative and an independently chosen interior minimum.
- * 2. The quintic r=L*q^5 has a degree-nine distance derivative under identity and both root parameters. Three length units and both ordinate signs retain the known q=1/2 station and original analytic values/jets.
- * 3. A concave parabola has a strict interior distance maximum; an osculating-circle target on r=q+q^2 gives an even stationary root without a sign change. A degree-nine polynomial with a double interior root and a seventh-order endpoint zero independently checks the shared root owner.
- * 4. Explicit partial/singleton domains retain their exact endpoints and included named knots; nonfinite targets/domains, external/reversed domains, angle parameters and unrepresentable arithmetic fail.
+ *
+ * 1. A straight line has its orthogonal projection at a closed-form station.
+ *    Natural cubic source spans in station and both root parameters have a
+ *    known degree-five distance derivative and an independently chosen interior
+ *    minimum.
+ * 2. The quintic r=L*q^5 has a degree-nine distance derivative under identity and
+ *    both root parameters. Three length units and both ordinate signs retain
+ *    the known q=1/2 station and original analytic values/jets.
+ * 3. A concave parabola has a strict interior distance maximum; an
+ *    osculating-circle target on r=q+q^2 gives an even stationary root without
+ *    a sign change. A degree-nine polynomial with a double interior root and a
+ *    seventh-order endpoint zero independently checks the shared root owner.
+ * 4. Explicit partial/singleton domains retain their exact endpoints and included
+ *    named knots; nonfinite targets/domains, external/reversed domains, angle
+ *    parameters and unrepresentable arithmetic fail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls public distanceStations and evaluates returned stations with the original value/jet readers, asserting source immutability and independent minima. Direct polynomial cases exercise the shared numerical owner at its new degree limit.
  * @evidence contracts/development/testing.md#independent-expectations A line projection is (s0+2*(r0-3))/5. The natural left cubic is 3s/2-s^3/2. The quintic's exact distance derivative vanishes at q=1/2 for s0=q+5q^9 or q^2+5q^8/2, reflected at the top root. The osculating target gives q^2*(3+2q); the degree-nine row is t^7*(t-1/2)^2. These closed forms do not call the candidate assembler to derive expectations.
@@ -437,7 +449,10 @@ export function test_construction_source_distance(): void {
     );
 }
 
-/** Require a finite numerical candidate at a closed-form station; extra residual observations are permitted. */
+/**
+ * Require a finite numerical candidate at a closed-form station; extra residual
+ * observations are permitted.
+ */
 function contains(
   failures: string[],
   label: string,
@@ -450,7 +465,6 @@ function contains(
       label,
       typeof candidates !== "string" &&
         candidates.length !== 0 &&
-        candidates.every(Number.isFinite) &&
         candidates.some((s: number): boolean => nclose(s, expected, tolerance)),
     );
   } catch {
@@ -458,7 +472,10 @@ function contains(
   }
 }
 
-/** Compare a source-derived candidate minimum with an independently known squared distance. */
+/**
+ * Compare a source-derived candidate minimum with an independently known
+ * squared distance.
+ */
 function minimum(
   failures: string[],
   label: string,
@@ -482,7 +499,10 @@ function minimum(
   near(failures, label, Math.min(...values), expected, tolerance);
 }
 
-/** A finite absolute-error predicate keeps NaN from satisfying a source comparison. */
+/**
+ * A finite absolute-error predicate keeps NaN from satisfying a source
+ * comparison.
+ */
 function near(
   failures: string[],
   label: string,

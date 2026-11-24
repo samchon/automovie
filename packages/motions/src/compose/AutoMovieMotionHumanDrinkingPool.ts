@@ -28,14 +28,10 @@ export function AutoMovieMotionHumanDrinkingPool(
   sides: number = 1,
   span: number = AutoMovieMotionHumanTouchUpright.SPAN,
 ): AutoMovieMotionHumanDrinkingPool.IPool {
-  let range: AutoMovieMotionHumanDrinkingSwivel.IRanged | undefined;
+  const range: AutoMovieMotionHumanDrinkingSwivel.IRanged =
+    AutoMovieMotionHumanDrinkingSwivel.ranged(body, posture, side);
   const ranged: () => AutoMovieMotionHumanDrinkingSwivel.IRanged =
-    (): AutoMovieMotionHumanDrinkingSwivel.IRanged =>
-      (range ??= AutoMovieMotionHumanDrinkingSwivel.ranged(
-        body,
-        posture,
-        side,
-      ));
+    (): AutoMovieMotionHumanDrinkingSwivel.IRanged => range;
   return {
     read: AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
     bounds: (): ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =>

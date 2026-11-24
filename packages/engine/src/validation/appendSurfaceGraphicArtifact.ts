@@ -115,7 +115,7 @@ function appendBox(
   ] as const) {
     const start: number = layer[corner];
     const extent: number = layer[size];
-    if (Number.isFinite(start + extent) && start + extent > 1)
+    if (start + extent > 1)
       collector.push(
         "range",
         `${path}.${size}`,
@@ -150,7 +150,6 @@ function appendFeedLayer(
       layer.camera,
     );
   if (
-    !Number.isSafeInteger(layer.pixels) ||
     layer.pixels < 1 ||
     layer.pixels > 2048
   )

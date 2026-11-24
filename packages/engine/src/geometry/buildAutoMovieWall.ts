@@ -5,7 +5,6 @@ import {
   type IAutoMovieWallOpening,
 } from "@automovie/interface";
 
-import { finitePoint } from "./finitePoint";
 import { positive } from "./positive";
 
 /**
@@ -57,7 +56,6 @@ export const buildAutoMovieWall: (
       if (ids.has(opening.id))
         throw new Error(`wall opening id "${opening.id}" must be unique`);
       ids.add(opening.id);
-      finitePoint(opening, `wall opening[${index}]`);
       positive(opening.width, `wall opening[${index}] width`);
       positive(opening.height, `wall opening[${index}] height`);
       if (

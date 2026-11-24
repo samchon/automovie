@@ -137,7 +137,7 @@ export namespace AutoMovieArchetypeFracture {
     rest: AutoMovieArchetype.IProps<Id, Dimension>,
     hit: IHit,
   ): IBroken<Id, Dimension> | null {
-    if (!(Number.isFinite(hit.energy) && hit.energy >= 0))
+    if (!(hit.energy >= 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -147,17 +147,11 @@ export namespace AutoMovieArchetypeFracture {
         reason: "a hit needs finite nonnegative kinetic energy",
         fix: "give a finite energy at least zero",
       });
-    if (!finiteVector(hit.momentum))
-      throw momentumRefusal(
-        rest.archetype,
-        hit.momentum,
-        "a hit needs finite momentum components",
-      );
 
     const threshold: number | undefined = rest.contact?.fracture;
     if (rest.fractures.length === 0 || threshold === undefined) return null;
 
-    if (!(Number.isFinite(threshold) && threshold > 0))
+    if (!(threshold > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: rest.archetype,
@@ -186,7 +180,7 @@ export namespace AutoMovieArchetypeFracture {
       );
       const masses: number[] = parts.map((p: IAutoMovieModelPart): number => {
         const value: number | undefined = rest.masses[p.id];
-        if (!(value !== undefined && Number.isFinite(value) && value >= 0))
+        if (!(value !== undefined && value >= 0))
           throw massRefusal(
             rest.archetype,
             value,
@@ -195,7 +189,7 @@ export namespace AutoMovieArchetypeFracture {
         return value;
       });
       const mass: number = ArchetypeMassArithmetic.sum(masses);
-      if (!(Number.isFinite(mass) && mass > 0))
+      if (!(mass > 0))
         throw massRefusal(
           rest.archetype,
           mass,
@@ -271,7 +265,7 @@ export namespace AutoMovieArchetypeFracture {
     const total: number = ArchetypeMassArithmetic.sum(
       fragments.map((f: FragmentRecord): number => f.props.properties.mass),
     );
-    if (!(Number.isFinite(total) && total > 0))
+    if (!(total > 0))
       throw massRefusal(
         rest.archetype,
         total,
@@ -283,12 +277,6 @@ export namespace AutoMovieArchetypeFracture {
       y: hit.momentum.y / total,
       z: hit.momentum.z / total,
     };
-    if (!finiteVector(velocity))
-      throw momentumRefusal(
-        rest.archetype,
-        hit.momentum,
-        "the hit's momentum over the fragments' mass produces a non-finite velocity",
-      );
 
     const energy: ReturnType<typeof ArchetypeFractureEnergy> =
       ArchetypeFractureEnergy(hit.energy, total, hit.momentum);
@@ -336,35 +324,6 @@ export namespace AutoMovieArchetypeFracture {
         }),
       ),
     };
-  }
-
-  /** Admit each physical vector component without a magnitude cutoff. */
-  function finiteVector(value: IAutoMovieVector3): boolean {
-    return (
-      Number.isFinite(value.x) &&
-      Number.isFinite(value.y) &&
-      Number.isFinite(value.z)
-    );
-  }
-
-  /**
-   * Keep invalid momentum and unrepresentable output in the author's refusal
-   * contract.
-   */
-  function momentumRefusal(
-    archetype: string,
-    value: IAutoMovieVector3,
-    reason: string,
-  ): AutoMovieArchetypeRefusal {
-    return new AutoMovieArchetypeRefusal({
-      kind: "parameter",
-      archetype,
-      axis: "momentum",
-      value,
-      reason,
-      feasible: null,
-      fix: "give finite momentum components whose fragment velocity is finite",
-    });
   }
 
   /** Refuse unsupported mass before the shared mass-property arithmetic sees it. */

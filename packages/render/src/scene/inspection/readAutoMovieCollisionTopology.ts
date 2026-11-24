@@ -109,31 +109,11 @@ export namespace readAutoMovieCollisionTopology {
     local: THREE.Box3,
     matrix: THREE.Matrix4,
   ): IAutoMovieSubjectBox | null {
-    if (!matrix.elements.every(Number.isFinite)) return null;
     const box: THREE.Box3 = local.clone().applyMatrix4(matrix);
-    return finite(box.min) && finite(box.max)
-      ? {
-          min: { x: box.min.x, y: box.min.y, z: box.min.z },
-          max: { x: box.max.x, y: box.max.y, z: box.max.z },
-        }
-      : null;
-  }
-
-  /**
-   * All three coordinates are finite in double and single precision.
-   *
-   * @param point A world or local point.
-   * @returns Whether the GPU can represent it.
-   */
-  export function finite(point: THREE.Vector3): boolean {
-    return (
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z) &&
-      Number.isFinite(Math.fround(point.x)) &&
-      Number.isFinite(Math.fround(point.y)) &&
-      Number.isFinite(Math.fround(point.z))
-    );
+    return {
+      min: { x: box.min.x, y: box.min.y, z: box.min.z },
+      max: { x: box.max.x, y: box.max.y, z: box.max.z },
+    };
   }
 }
 
@@ -158,11 +138,6 @@ function extract(
     if (vertex >= positions.count) return null;
     bounds.expandByPoint(point.fromBufferAttribute(positions, vertex));
   }
-  if (
-    !readAutoMovieCollisionTopology.finite(bounds.min) ||
-    !readAutoMovieCollisionTopology.finite(bounds.max)
-  )
-    return null;
   return {
     positions,
     triangles,
@@ -240,12 +215,6 @@ function poseSurface(
     const a: number = topology.triangles[i]!;
     const b: number = topology.triangles[i + 1]!;
     const c: number = topology.triangles[i + 2]!;
-    if (
-      !readAutoMovieCollisionTopology.finite(values[a]!) ||
-      !readAutoMovieCollisionTopology.finite(values[b]!) ||
-      !readAutoMovieCollisionTopology.finite(values[c]!)
-    )
-      return null;
     ab.subVectors(values[b]!, values[a]!);
     ac.subVectors(values[c]!, values[a]!);
     if (

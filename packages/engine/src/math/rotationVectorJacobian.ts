@@ -18,7 +18,6 @@ export namespace rotationVectorJacobian {
     derivative: IAutoMovieVector3,
   ): IAutoMovieVector3 | null {
     const theta: number = Math.hypot(r.x, r.y, r.z);
-    if (!Number.isFinite(theta) || !finite(derivative)) return null;
     if (theta === 0 || parallel(r, derivative))
       return { x: derivative.x, y: derivative.y, z: derivative.z };
     const half: number = theta / 2;
@@ -44,7 +43,6 @@ export namespace rotationVectorJacobian {
     rate: IAutoMovieVector3,
   ): IAutoMovieVector3 | null {
     const theta: number = Math.hypot(r.x, r.y, r.z);
-    if (!Number.isFinite(theta) || !finite(rate)) return null;
     if (theta === 0) return { x: rate.x, y: rate.y, z: rate.z };
     if (parallel(r, rate) && (theta < 2 * Math.PI || commuting(r, rate)))
       return { x: rate.x, y: rate.y, z: rate.z };
@@ -96,13 +94,6 @@ export namespace rotationVectorJacobian {
     }
   }
 
-  /**
-   * A numerical probe must reject before a physical callback sees invalid
-   * rates.
-   */
-  function finite(v: IAutoMovieVector3): boolean {
-    return Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z);
-  }
 
   /** Apply I+p[r]+q[r]^2 without allocating the two cross products. */
   function transform(
@@ -119,10 +110,6 @@ export namespace rotationVectorJacobian {
       y: v.y + p * ay + q * (r.z * ax - r.x * az),
       z: v.z + p * az + q * (r.x * ay - r.y * ax),
     };
-    return Number.isFinite(result.x) &&
-      Number.isFinite(result.y) &&
-      Number.isFinite(result.z)
-      ? result
-      : null;
+    return result;
   }
 }

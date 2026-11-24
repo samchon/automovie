@@ -69,13 +69,6 @@ export const validateAutoMovieEnvironmentContext: (
     );
   out.direction(`${root}.north`, context.north, "site north");
   out.direction(`${root}.ground.up`, context.ground.up, "reference ground up");
-  if (!Number.isFinite(context.ground.elevation))
-    out.push(
-      "range",
-      `${root}.ground.elevation`,
-      `reference ground elevation must be finite, but was ${context.ground.elevation}`,
-      context.ground.elevation,
-    );
   const up: IAutoMovieVector3 | null = usable(context.ground.up)
     ? Vector3.normalize(context.ground.up)
     : null;
@@ -120,45 +113,26 @@ export const validateAutoMovieEnvironmentContext: (
       );
     instantIds.add(instant.id);
     owned(instant.id, `${path}.id`, "instant id");
-    if (!Number.isFinite(instant.time))
+    if (previous !== null && instant.time <= previous)
       out.push(
         "range",
         `${path}.time`,
-        `instant time must be finite, but was ${instant.time}`,
+        `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
         instant.time,
       );
-    else {
-      if (previous !== null && instant.time <= previous)
-        out.push(
-          "range",
-          `${path}.time`,
-          `instants must be strictly increasing in time, but ${instant.time} follows ${previous}`,
-          instant.time,
-        );
-      previous = instant.time;
-    }
+    previous = instant.time;
     out.direction(`${path}.sun`, instant.sun, "sun direction");
     for (const [key, label] of [
       ["directNormalIlluminance", "direct normal illuminance"],
       ["diffuseHorizontalIlluminance", "diffuse horizontal illuminance"],
     ] as const)
-      if (!Number.isFinite(instant[key]) || instant[key] < 0)
+      if (instant[key] < 0)
         out.push(
           "range",
           `${path}.${key}`,
           `${label} must be a finite number at or above zero, but was ${instant[key]}`,
           instant[key],
         );
-    if (
-      instant.outdoorAirTemperature !== null &&
-      !Number.isFinite(instant.outdoorAirTemperature)
-    )
-      out.push(
-        "range",
-        `${path}.outdoorAirTemperature`,
-        `outdoor air temperature must be null or finite, but was ${instant.outdoorAirTemperature}`,
-        instant.outdoorAirTemperature,
-      );
     if (instant.outdoorRelativeHumidity !== null)
       out.range(
         `${path}.outdoorRelativeHumidity`,
@@ -170,7 +144,6 @@ export const validateAutoMovieEnvironmentContext: (
     if (
       up !== null &&
       usable(instant.sun) &&
-      Number.isFinite(instant.directNormalIlluminance) &&
       instant.directNormalIlluminance > 0 &&
       Vector3.dot(Vector3.normalize(instant.sun), up) <= 0
     )
@@ -221,5 +194,5 @@ const usable: (value: IAutoMovieVector3) => boolean = (
   value: IAutoMovieVector3,
 ): boolean => {
   const length: number = Vector3.length(value);
-  return Number.isFinite(length) && length > AXIS_EPSILON;
+  return length > AXIS_EPSILON;
 };

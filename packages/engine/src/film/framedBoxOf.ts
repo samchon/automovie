@@ -29,13 +29,18 @@ import { midpoint } from "../math/midpoint";
  * @returns A new framed box sharing no object with `box`.
  */
 export function framedBoxOf(box: IAutoMovieSubjectBox): IAutoMovieFramedBox {
-  const radius: number =
-    Math.hypot(box.max.x - box.min.x, box.max.z - box.min.z) / 2;
+  // A coordinate difference can overflow only past half the largest double;
+  // the halves are then subtracted instead.
+  const extent: number = Math.max(
+    Math.abs(box.min.x),
+    Math.abs(box.max.x),
+    Math.abs(box.min.z),
+    Math.abs(box.max.z),
+  );
   const halfDiagonal: number =
-    !Number.isFinite(radius) &&
-    [box.min.x, box.max.x, box.min.z, box.max.z].every(Number.isFinite)
+    extent > Number.MAX_VALUE / 2
       ? Math.hypot(box.max.x / 2 - box.min.x / 2, box.max.z / 2 - box.min.z / 2)
-      : radius;
+      : Math.hypot(box.max.x - box.min.x, box.max.z - box.min.z) / 2;
   return {
     base: {
       x: midpoint(box.min.x, box.max.x),

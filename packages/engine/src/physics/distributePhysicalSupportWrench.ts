@@ -21,23 +21,10 @@ export function distributePhysicalSupportWrench(
   input: IAutoMovieDistributePhysicalSupportWrench.IInput,
 ): IAutoMovieDistributePhysicalSupportWrench.IResult {
   if (
-    !Number.isFinite(input.maximumForce) ||
     input.maximumForce < 0 ||
     input.points.length > 1024 ||
-    ![
-      input.origin,
-      input.force,
-      input.torque,
-      ...input.points.map(
-        (point: (typeof input.points)[number]): IAutoMovieVector3 =>
-          point.point,
-      ),
-    ].every((value: IAutoMovieVector3): boolean =>
-      [value.x, value.y, value.z].every(Number.isFinite),
-    ) ||
     input.points.some(
-      (point: (typeof input.points)[number]): boolean =>
-        !Number.isFinite(point.friction) || point.friction < 0,
+      (point: (typeof input.points)[number]): boolean => point.friction < 0,
     )
   )
     throw new Error("Invalid support wrench allocation");
@@ -194,8 +181,7 @@ export function distributePhysicalSupportWrench(
     });
   if (
     result.status !== 1 ||
-    result.maximumViolation > 1e-6 ||
-    !result.primal.every(Number.isFinite)
+    result.maximumViolation > 1e-6
   )
     throw new Error(
       `Support wrench solve failed: ${result.status}/${result.maximumViolation}`,

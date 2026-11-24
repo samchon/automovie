@@ -103,6 +103,19 @@ export interface IAutoMovieMotionHumanPrimitive {
    *   given it.
    */
   prepare?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
+
+  /**
+   * Solve what the primitive reads of other performers over its span once the
+   * performance has placed every action: the composed plan's `prepare`
+   * (`IAutoMovieMotionHumanActionPlan.prepare`) calls it, in the order the
+   * primitives write. Until then `write` reads them as the placed performance
+   * shows them; from then on it evaluates only what this solved. None for a
+   * primitive that reads nobody.
+   *
+   * @param before The posture so far at any second of the action, as `write` is
+   *   given it.
+   */
+  ready?(before: IAutoMovieMotionHumanPrimitive.Reader): void;
 }
 
 /**

@@ -46,11 +46,7 @@ export function buildingPlans(
         : previous.elevation + previous.height + 2 * slab;
     const elevation: number = level.elevation ?? minimum;
     const height: number = positive(level.height ?? 2.8, `${path}.height`);
-    if (
-      !Number.isFinite(elevation) ||
-      !Number.isFinite(elevation + height + 2 * slab) ||
-      (previous !== undefined && elevation < minimum)
-    )
+    if (previous !== undefined && elevation < minimum)
       throw new Error(
         `${path}.elevation must be finite and clear the previous storey and both slabs`,
       );
@@ -284,8 +280,7 @@ function addCut(
 
 /** Admit a strictly positive finite metre dimension and retain its value. */
 function positive(value: number, path: string): number {
-  if (!Number.isFinite(value) || value <= 0)
-    throw new Error(`${path} must be positive and finite`);
+  if (value <= 0) throw new Error(`${path} must be positive and finite`);
   return value;
 }
 

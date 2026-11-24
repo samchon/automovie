@@ -38,8 +38,7 @@ import type {
  * on the trunk, so a read of this performer made while its own following is
  * being evaluated sees its body without that hand correction, and the mutual
  * reads end there. The target is read once, as the plan is made, the read
- * placing the partner first in the schedule's demand order; settle keeps
- * nothing to drop.
+ * placing the partner first in the schedule's demand order.
  *
  * @param context The attack's context.
  * @param planned The target point the attack was planned on, read at its start,
@@ -47,7 +46,7 @@ import type {
  * @param contact The decisive instant, seconds since the action's start;
  *   positive.
  * @returns The follower: the displacement at a second since the action's start,
- *   world metres, and a settle with nothing left to drop.
+ *   world metres.
  */
 export function HumanSwordFollow(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
@@ -58,7 +57,6 @@ export function HumanSwordFollow(
   if (target === undefined || target.kind === "point" || target.kind === "none")
     return {
       at: (): IAutoMovieVector3 => ({ x: 0, y: 0, z: 0 }),
-      settle: (): void => {},
     };
 
   // The target where it is at the decisive instant, read once as the plan is
@@ -93,7 +91,6 @@ export function HumanSwordFollow(
       seconds <= 0
         ? { x: 0, y: 0, z: 0 }
         : superposeMinimumJerk.position({ x: 0, y: 0, z: 0 }, [unit], seconds),
-    settle: (): void => {},
   };
 }
 
@@ -106,8 +103,5 @@ export namespace HumanSwordFollow {
      * world metres.
      */
     at: (seconds: number) => IAutoMovieVector3;
-
-    /** Drop the read made before the performance settled. */
-    settle: () => void;
   }
 }

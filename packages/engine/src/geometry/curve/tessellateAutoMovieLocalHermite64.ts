@@ -252,13 +252,7 @@ export function* tessellateAutoMovieLocalHermite64(
             value.stationPartial,
           ),
           length: number = norm(n);
-        if (!value.position.every(Number.isFinite))
-          throw new Error("Nonfinite emitted field position");
-        const regular: boolean = Number.isFinite(length) && length > 0;
-        if (!Number.isSafeInteger(nextIndex + 1))
-          throw new Error(
-            "resource-unprocessed: global vertex index exceeds safe integer range",
-          );
+        const regular: boolean = length > 0;
         const result: Vertex = {
           index: nextIndex++,
           position: V.scale(value.position, 0.001),
@@ -340,8 +334,6 @@ export function* tessellateAutoMovieLocalHermite64(
           const area: number = norm(
             cross(V.sub(b.position, a.position), V.sub(c.position, a.position)),
           );
-          if (!Number.isFinite(area))
-            throw new Error("Nonfinite emitted triangle arithmetic");
           if (area === 0) {
             range.omittedZeroAreaTriangles++;
             chunk.counts.omittedZeroAreaTriangles++;

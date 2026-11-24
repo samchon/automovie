@@ -7,17 +7,18 @@ import type {
  * Measure cold planning and fixed-rate pose reads of an already staged test
  * performance when its label is requested in AUTOMOVIE_PROFILE_MOTION.
  *
- * The terminal record reports totalWallSeconds from construction through the last
- * 30 Hz frame or exact endpoint. Refusals propagate after recording completed
- * frames and successful subject and prop reads, including a partial frame.
+ * The terminal record reports totalWallSeconds from construction through the
+ * last 30 Hz frame or exact endpoint. Refusals propagate after recording
+ * completed frames and successful subject and prop reads, including a partial
+ * frame.
  *
  * @param label The authored case's stable name.
  * @param build Its ordinary performance construction, called once.
  * @param subjects The displayed performers whose poses the film needs.
- * @param action When supplied, read only the named action's visible span on the first subject.
+ * @param action When supplied, read only the named action's visible span on the
+ *   first subject.
  * @param props Held or moving props whose display frames the shot uses.
  * @returns The same performance used by the test.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the opt-in, interval, timing boundaries, units and reuse.
  * @evidence contracts/development/implementation.md#principled-implementation Captures process CPU and monotonic wall time around one real construction and separately around one pose call per selected subject per 30 Hz grid time, with the exact final endpoint.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure An unselected case does only its usual work. A selected case records plan and display independently.
@@ -69,7 +70,7 @@ export function profileHumanMotion(
     const from: number = segment?.entryTime ?? 0;
     const end: number = segment?.end ?? filmDuration;
     duration = end - from;
-    if (!(Number.isFinite(duration) && duration > 0))
+    if (!(duration > 0))
       throw new Error("the profiled action has no positive finite span");
 
     displayStart = mark();

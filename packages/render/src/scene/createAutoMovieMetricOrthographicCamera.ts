@@ -21,21 +21,11 @@ export function createAutoMovieMetricOrthographicCamera(input: {
 }): THREE.OrthographicCamera {
   if (
     !input ||
-    !Number.isSafeInteger(input.width) ||
     input.width < 1 ||
-    !Number.isSafeInteger(input.height) ||
     input.height < 1 ||
-    !Number.isFinite(input.pixelPitchMeters) ||
     input.pixelPitchMeters <= 0 ||
-    !Array.isArray(input.principalPointPx) ||
     input.principalPointPx.length !== 2 ||
-    !Number.isFinite(input.principalPointPx[0]) ||
-    !Number.isFinite(input.principalPointPx[1]) ||
-    !Number.isFinite(input.azimuthRadians) ||
-    !Number.isFinite(input.distanceMeters) ||
     input.distanceMeters <= 0 ||
-    !Number.isFinite(input.nearMeters) ||
-    !Number.isFinite(input.farMeters) ||
     input.nearMeters <= 0 ||
     input.farMeters <= input.nearMeters
   )
@@ -48,11 +38,7 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   const top: number = input.principalPointPx[1] * input.pixelPitchMeters;
   const bottom: number =
     (input.principalPointPx[1] - input.height) * input.pixelPitchMeters;
-  if (
-    ![left, right, top, bottom].every(Number.isFinite) ||
-    !(left < right) ||
-    !(bottom < top)
-  )
+  if (!(left < right) || !(bottom < top))
     throw new Error(
       "Metric orthographic frustum exceeds finite representable chart limits",
     );
@@ -73,13 +59,7 @@ export function createAutoMovieMetricOrthographicCamera(input: {
   camera.rotation.y = -input.azimuthRadians;
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
-  if (
-    !camera.projectionMatrix.elements.every(Number.isFinite) ||
-    !camera.matrixWorld.elements.every(Number.isFinite) ||
-    !camera.matrixWorldInverse.elements.every(Number.isFinite) ||
-    !camera.projectionMatrixInverse.elements.every(Number.isFinite) ||
-    camera.projectionMatrix.determinant() === 0
-  )
+  if (camera.projectionMatrix.determinant() === 0)
     throw new Error(
       "Metric orthographic native projection or inverse is nonfinite or singular",
     );

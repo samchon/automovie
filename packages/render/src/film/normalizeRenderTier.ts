@@ -24,10 +24,8 @@ export const normalizeRenderTier: (
   const value: Readonly<IAutoMovieProductionRenderTier> = tier ?? FINAL_TIER;
   if (
     (value.kind !== "proxy" && value.kind !== "final") ||
-    Number.isFinite(value.resolutionScale) === false ||
     value.resolutionScale <= 0 ||
     value.resolutionScale > 1 ||
-    Number.isSafeInteger(value.frameStep) === false ||
     value.frameStep <= 0 ||
     value.frameStep > 16 ||
     (value.kind === "final" &&

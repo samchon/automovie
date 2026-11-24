@@ -26,12 +26,11 @@ import { roundProductionGridTick } from "./roundProductionGridTick";
 export function productionFrameBoundaryToGridTick(
   props: IAutoMovieProductionFrameBoundaryToGridTick.IProps,
 ): number {
-  if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
+  if (props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,
     );
   if (
-    Number.isSafeInteger(props.ticksPerSecond) === false ||
     props.ticksPerSecond <= 0
   )
     throw new Error(

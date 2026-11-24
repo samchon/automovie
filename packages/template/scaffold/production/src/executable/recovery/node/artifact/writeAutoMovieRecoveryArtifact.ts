@@ -7,17 +7,19 @@ import fs from "node:fs";
 import path from "node:path";
 
 /**
- * Atomically publish a plain JSON artifact without one complete serialized string.
- * Arrays, data-only plain records and JSON primitive values retain JSON.stringify ordering and
- * encoding. Nonplain objects are outside this publication contract. Input geometry
- * remains caller-owned; bounded staging does not bound the generating model's memory.
- * Process termination can leave a private temporary file but cannot publish its partial bytes.
- * A failed encode/read/write/publication preserves its original thrown value even
- * if descriptor or temporary-file cleanup also fails. Cleanup failure after an
- * otherwise successful publication remains a failure, rather than a success digest.
- * Optional array sources bind engine-generated plain-array spool files to placeholder array
- * identities. Their complete SHA-256 and bracket bytes are checked while copying only their
- * interiors. Item populations are producer metadata, not a second JSON parsing certificate.
+ * Atomically publish a plain JSON artifact without one complete serialized
+ * string. Arrays, data-only plain records and JSON primitive values retain
+ * JSON.stringify ordering and encoding. Nonplain objects are outside this
+ * publication contract. Input geometry remains caller-owned; bounded staging
+ * does not bound the generating model's memory. Process termination can leave a
+ * private temporary file but cannot publish its partial bytes. A failed
+ * encode/read/write/publication preserves its original thrown value even if
+ * descriptor or temporary-file cleanup also fails. Cleanup failure after an
+ * otherwise successful publication remains a failure, rather than a success
+ * digest. Optional array sources bind engine-generated plain-array spool files
+ * to placeholder array identities. Their complete SHA-256 and bracket bytes are
+ * checked while copying only their interiors. Item populations are producer
+ * metadata, not a second JSON parsing certificate.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Recursive JSON token emission and bounded shallow-array chunks preserve the generating records and numeric values. A same-directory temporary file is closed before a nonoverwriting hard-link publication, and the returned hash covers the written UTF-8 bytes.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One publication helper owns encoding, incremental hashing and atomic filesystem transfer; numerical producers and consumers retain all geometry decisions.
@@ -138,11 +140,7 @@ export function writeAutoMovieRecoveryArtifact(
         flush();
         let written: boolean = false;
         for (const source of sources) {
-          if (
-            !Number.isSafeInteger(source.items) ||
-            source.items < 0 ||
-            !/^[0-9a-f]{64}$/i.test(source.sha256)
-          )
+          if (source.items < 0 || !/^[0-9a-f]{64}$/i.test(source.sha256))
             throw new Error("Invalid generating spool binding");
           const handle: number = fs.openSync(source.path, "r");
           try {

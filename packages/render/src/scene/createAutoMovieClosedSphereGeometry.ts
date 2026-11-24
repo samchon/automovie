@@ -22,12 +22,7 @@ export function createAutoMovieClosedSphereGeometry(
   widthSegments: number = 32,
   heightSegments: number = 16,
 ): THREE.SphereGeometry {
-  if (
-    !Number.isFinite(radius) ||
-    radius <= 0 ||
-    !Number.isFinite(widthSegments) ||
-    !Number.isFinite(heightSegments)
-  )
+  if (radius <= 0)
     throw new Error(
       "A closed sphere requires a positive finite radius and finite segment counts",
     );
@@ -70,15 +65,7 @@ export function createAutoMovieClosedSphereGeometry(
   for (let vertex: number = 0; vertex < position.count; vertex++) {
     origin.fromBufferAttribute(position, vertex);
     firstEdge.fromBufferAttribute(normal, vertex);
-    if (
-      !Number.isFinite(origin.x) ||
-      !Number.isFinite(origin.y) ||
-      !Number.isFinite(origin.z) ||
-      !Number.isFinite(firstEdge.x) ||
-      !Number.isFinite(firstEdge.y) ||
-      !Number.isFinite(firstEdge.z) ||
-      firstEdge.lengthSq() === 0
-    ) {
+    if (firstEdge.lengthSq() === 0) {
       geometry.dispose();
       throw new Error(
         "A closed sphere requires finite positions and nonzero finite normals at stored precision",

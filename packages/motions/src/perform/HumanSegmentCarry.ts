@@ -51,8 +51,8 @@ export namespace HumanSegmentCarry {
     seconds: number,
   ): IAutoMovieMotionHumanSegment.IHeld[] {
     const out: IAutoMovieMotionHumanSegment.IHeld[] = [];
-    let left: boolean | undefined;
-    let right: boolean | undefined;
+    const left: boolean = HumanSegment.drives(segment.plan, "left");
+    const right: boolean = HumanSegment.drives(segment.plan, "right");
     let ridingLeft: boolean = false;
     let ridingRight: boolean = false;
     for (const held of person.holds) {
@@ -70,10 +70,7 @@ export namespace HumanSegmentCarry {
         )
       )
         continue;
-      const driven: boolean =
-        held.side === "left"
-          ? (left ??= HumanSegment.drives(segment.plan, held.side))
-          : (right ??= HumanSegment.drives(segment.plan, held.side));
+      const driven: boolean = held.side === "left" ? left : right;
       if (driven) continue;
       const earlier: boolean = held.side === "left" ? ridingLeft : ridingRight;
       if (held.riding === true) {
@@ -107,8 +104,8 @@ export namespace HumanSegmentCarry {
    * @param holds The holds to carry.
    * @param resolution Optional exact FK reader or lazy supplier from this same
    *   synchronous person's evaluation; never stored in the hold or result.
-   * @param prepared Optional same-body parent preparation, borrowed by the
-   *   first actual source-pose capture and never retained in h.carry.
+   * @param prepared Optional same-body parent preparation, borrowed by a
+   *   source-pose capture read before the performance is prepared.
    * @returns Each holding arm with its goal.
    */
   export function carries(
@@ -124,20 +121,23 @@ export namespace HumanSegmentCarry {
         : prepareHumanPoseResolution(resolution);
     // Attached to its frame's bone (`on`), the goal is carried into the
     // world by that bone of the pose being fitted, whatever placed it: the
-    // evaluation and the planted refit after its clamp alike.
+    // evaluation and the planted refit after its clamp alike. The carry the
+    // performance prepared, or, while the schedule is resolved, the one the
+    // holding action's pose gives now.
     return holds.map(
       (
         h: IAutoMovieMotionHumanSegment.IHeld,
       ): [CarriesResult, IAutoMovieHumanLimbGoal] => {
-        h.carry ??= capture(person, h, read, prepared);
+        const carry: IAutoMovieMotionHumanSegment.ICarry =
+          h.carry ?? capture(person, h, read, prepared);
         return [
           h.side === "left" ? "leftArm" : "rightArm",
           {
-            point: h.carry.position,
-            rotation: h.carry.rotation,
-            bend: h.carry.elbow,
-            on: h.carry.frame,
-            reference: h.carry.reference,
+            point: carry.position,
+            rotation: carry.rotation,
+            bend: carry.elbow,
+            on: carry.frame,
+            reference: carry.reference,
             planted: true,
           },
         ];
@@ -224,9 +224,16 @@ export namespace HumanSegmentCarry {
    * names none and rides the frame rigidly attached to the robot's root body,
    * the hips (REP 120, "Coordinate Frames for Humanoid Robots", public domain:
    * `base_link` "is rigidly attached to the robot root body", the waist
-   * recommended as that body).
+   * recommended as that body). The performance captures every hold's carry
+   * once when it is prepared (`IAutoMovieMotionHumanSegment.IHeld.carry`).
+   *
+   * @param person The person.
+   * @param held The hold.
+   * @param resolution Optional exact FK reader of the same evaluation.
+   * @param prepared Optional same-body preparation.
+   * @returns The holding arm in its frame.
    */
-  function capture(
+  export function capture(
     person: IAutoMovieMotionHumanSegment.IPerson,
     held: IAutoMovieMotionHumanSegment.IHeld,
     resolution?: ReturnType<typeof prepareHumanPoseResolution>,

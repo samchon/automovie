@@ -20,16 +20,10 @@ export function interpolateAutoMovieTrianglePoint(
   if (
     points.length !== 3 ||
     weights.length !== 3 ||
-    !Array.from(points).every(
-      (p: IAutoMovieVector3): boolean =>
-        p !== undefined && p !== null && [p.x, p.y, p.z].every(Number.isFinite),
-    ) ||
-    !Array.from(weights).every(
-      (w: number): boolean => Number.isFinite(w) && w >= 0,
-    )
+    weights.some((w: number): boolean => w < 0)
   )
     throw new Error(
-      "Triangle seating requires three finite points and nonnegative finite weights.",
+      "Triangle seating requires three points and nonnegative weights.",
     );
   let low: number = 0,
     high: number = 0;
@@ -49,9 +43,5 @@ export function interpolateAutoMovieTrianglePoint(
     ): IAutoMovieVector3 => Vector3.add(sum, Vector3.scale(p, weights[at])),
     Vector3.create(),
   );
-  if (![point.x, point.y, point.z].every(Number.isFinite))
-    throw new Error(
-      "Triangle seating requires representable weighted coordinates.",
-    );
   return point;
 }

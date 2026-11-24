@@ -29,8 +29,6 @@ export function measureAutoMovieGeometryFilmTime(
   const globalFrame: number = Math.round(raw);
 
   if (
-    Number.isFinite(raw) === false ||
-    Number.isSafeInteger(globalFrame) === false ||
     globalFrame < 0 ||
     globalFrame >= timeline.totalFrames ||
     Math.abs(raw - globalFrame) >

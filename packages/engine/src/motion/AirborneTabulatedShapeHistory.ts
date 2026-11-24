@@ -104,9 +104,9 @@ export function AirborneTabulatedShapeHistory(
   uniformCentre?: (index: number, centre: IAutoMovieVector3) => void,
 ): integrateAirborneRotation.ICachedHistory {
   const { from, to, step }: { from: number; to: number; step: number } = span;
-  if (!Number.isFinite(from) || !Number.isFinite(to) || !(to > from))
+  if (!(to > from))
     throw new Error("A tabulated shape history needs a finite increasing span");
-  if (!Number.isFinite(step) || !(step > 0))
+  if (!(step > 0))
     throw new Error("A tabulated shape history needs a positive finite step");
   const statistics: AirborneShapeStatistics.IStatistics | undefined =
     AirborneShapeStatistics.borrow(observation);
@@ -117,7 +117,7 @@ export function AirborneTabulatedShapeHistory(
   // keeps a span that is a whole number of steps, up to the rounding of the
   // division, at that number.
   const intervals: number = Math.max(1, Math.ceil((to - from) / step - 1e-9));
-  if (!Number.isSafeInteger(intervals) || intervals >= MAX_KNOTS)
+  if (intervals >= MAX_KNOTS)
     throw new Error("A tabulated shape history step needs too many knots");
   const turn: number = span.turn ?? Infinity;
   if (!(turn > 0))

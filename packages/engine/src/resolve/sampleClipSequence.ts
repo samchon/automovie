@@ -19,10 +19,6 @@ export const sampleClipSequence: (
   clips: readonly IAutoMovieClip[],
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
-  if (!Number.isFinite(seconds))
-    throw new Error(
-      `sampleClipSequence seconds must be finite, but was ${seconds}`,
-    );
   const sampledByClip: Map<
     IAutoMovieClip,
     Map<string, IAutoMovieSampledChannel>

@@ -43,8 +43,8 @@ interface IInterval {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture;
 
-  /** Prepare the target-dependent constants again from settled observations. */
-  settle(): void;
+  /** Prepare the target-dependent constants again from the placed observations. */
+  prepare(): void;
 }
 
 /** A contact the root can keep through an interval. */
@@ -302,7 +302,7 @@ export function prepareSupportInterval(
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): IAutoMovieMotionHumanPosture =>
       stationary ?? write(w, resolution, projection),
-    settle: (): void => {
+    prepare: (): void => {
       prepared = prepare();
       stationary = still();
     },

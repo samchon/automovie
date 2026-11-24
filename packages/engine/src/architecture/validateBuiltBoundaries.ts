@@ -77,11 +77,6 @@ export const validateBuiltBoundaries: (
       if (boundary.face === undefined) return;
       const face: IAutoMovieBoundaryFace = boundary.face;
       const before: number = collector.items.length;
-      collector.finiteVector(
-        `${path}.face.origin`,
-        face.origin,
-        "boundary face origin",
-      );
       collector.unitQuaternion(
         `${path}.face.rotation`,
         face.rotation,

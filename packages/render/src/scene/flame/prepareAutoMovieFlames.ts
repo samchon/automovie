@@ -116,8 +116,6 @@ export function prepareAutoMovieFlames(
   let disposed: boolean = false;
   return {
     apply: (seconds: number): void => {
-      if (!Number.isFinite(seconds))
-        throw new RangeError(`Flames cannot be sampled at ${seconds} s`);
       cues.forEach((cue: IAutoMovieFlameCue, index: number): void => {
         const mesh: THREE.Mesh = meshes[index]!;
         mesh.visible =

@@ -40,31 +40,20 @@ export class AutoMoviePchipField64 {
      */
     derivatives?: IAutoMoviePchipField64.Derivatives,
   ) {
-    if (
-      x.length < 2 ||
-      x.length !== y.length ||
-      !y.flat().every(Number.isFinite)
-    )
-      throw new Error("Finite PCHIP supports required");
+    if (x.length < 2 || x.length !== y.length)
+      throw new Error("PCHIP supports required");
     if (!Array.isArray(y[0]))
       throw new Error("Dense PCHIP component rows required");
     const dimension: number = y[0]!.length;
     for (let i: number = 0; i < x.length; ++i) {
       const row: readonly number[] | undefined = y[i];
-      if (
-        !Number.isFinite(x[i]!) ||
-        !Array.isArray(row) ||
-        row.length !== dimension
-      )
+      if (!Array.isArray(row) || row.length !== dimension)
         throw new Error("Dense matching finite PCHIP supports required");
-      for (let k: number = 0; k < dimension; ++k)
-        if (!Number.isFinite(row[k]!))
-          throw new Error("Dense matching finite PCHIP components required");
     }
     const h: number[] = x
       .slice(1)
       .map((v: number, i: number): number => v - x[i]!);
-    if (h.some((v: number): boolean => !Number.isFinite(v) || v <= 0))
+    if (h.some((v: number): boolean => v <= 0))
       throw new Error("Increasing PCHIP coordinates required");
     const m: number[][] = h.map((w: number, i: number): number[] =>
       y[i]!.map((v: number, k: number): number => (y[i + 1]![k]! - v) / w),
@@ -84,9 +73,6 @@ export class AutoMoviePchipField64 {
     ): void => {
       if (!Array.isArray(row) || row.length !== dimension)
         throw new Error("PCHIP derivative rows must match component count");
-      for (let k: number = 0; k < dimension; ++k)
-        if (!Number.isFinite(row[k]!))
-          throw new Error("PCHIP derivatives must be dense and finite");
       this.derivatives[index] = Array.from(row);
     };
     if (Array.isArray(derivatives)) {
@@ -118,8 +104,6 @@ export class AutoMoviePchipField64 {
         return [t / width, (slope - d0) / width - t, d0, y[i]![k]!];
       }),
     );
-    if (!this.coefficients.flat(2).every(Number.isFinite))
-      throw new Error("Unresolved PCHIP coefficients");
   }
 
   /**
@@ -133,7 +117,6 @@ export class AutoMoviePchipField64 {
    * slope by rounding.
    */
   public at(value: number, derivative: boolean | 0 | 1 | 2 = false): number[] {
-    if (!Number.isFinite(value)) throw new Error("PCHIP query must be finite");
     if (
       derivative !== false &&
       derivative !== true &&
@@ -153,8 +136,6 @@ export class AutoMoviePchipField64 {
             ? (3 * c[0]! * s + 2 * c[1]!) * s + c[2]!
             : ((c[0]! * s + c[1]!) * s + c[2]!) * s + c[3]!,
     );
-    if (!result.every(Number.isFinite))
-      throw new Error("Unresolved vector PCHIP arithmetic");
     return result;
   }
 }

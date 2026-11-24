@@ -155,12 +155,8 @@ export const materializeProductionFilmEffects = (
 const validateCue = (cue: FilmEffectCue): void => {
   if (
     cue.recipe !== "world-zone" ||
-    Number.isSafeInteger(cue.startFrame) === false ||
     cue.startFrame < 0 ||
-    Number.isSafeInteger(cue.durationFrames) === false ||
     cue.durationFrames <= 0 ||
-    Number.isSafeInteger(cue.startFrame + cue.durationFrames) === false ||
-    Number.isFinite(cue.intensity) === false ||
     cue.intensity < 0 ||
     cue.intensity > 1
   )
@@ -177,9 +173,7 @@ const groupShotIntervals = (
   const output: Map<string, IAutoMovieShotEffectFilmInterval[]> = new Map();
   for (const interval of intervals) {
     if (
-      Number.isSafeInteger(interval.startFrame) === false ||
       interval.startFrame < 0 ||
-      Number.isSafeInteger(interval.endFrame) === false ||
       interval.endFrame <= interval.startFrame
     )
       throw new AutoMovieFilmEffectRuntimeError(

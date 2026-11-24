@@ -7,8 +7,6 @@ import type {
   IAutoMovieRecoveryTensorRealization,
 } from "@automovie/interface";
 
-import { readRecoveryMetadata as read } from "../internal/readRecoveryMetadata";
-
 /**
  * Admit ordinary-family ownership and generate saved analytic tensors through
  * the engine. Each published endpoint curve references the tensor's coefficient
@@ -35,8 +33,7 @@ export function realizeAutoMovieRecoveryTensorFamilies(
   > = new Map();
   for (const section of bundle.loft.sections)
     for (const loop of section.loops) {
-      const name: unknown = read(loop, ["curve", "name"]);
-      if (typeof name !== "string" || name.length === 0) continue;
+      const name: string = loop.curve.name;
       if (curves.has(name))
         throw new Error("One saved curve name has multiple coefficient owners");
       curves.set(name, loop.curve);
@@ -45,7 +42,6 @@ export function realizeAutoMovieRecoveryTensorFamilies(
     names: Set<string> = new Set();
   for (const family of bundle.tensorFamilies ?? []) {
     if (
-      !family.id ||
       names.has(family.id) ||
       family.geometry.topologyDomain !== family.id ||
       family.boundaries.length !== 2 ||
@@ -71,8 +67,6 @@ export function realizeAutoMovieRecoveryTensorFamilies(
         bundle.loft.intervals?.[address.interval]?.groups[address.group];
       const key: string = `${address.interval}:${address.group}`;
       if (
-        !Number.isSafeInteger(address.interval) ||
-        !Number.isSafeInteger(address.group) ||
         !group?.supported ||
         group.before.length !== 1 ||
         group.after.length !== 1 ||
@@ -172,7 +166,6 @@ export function realizeAutoMovieRecoveryTensorFamilies(
             family.geometry.controls[id];
           const saved: readonly number[] = curve.spans[span]![k]!;
           if (
-            !Number.isSafeInteger(id) ||
             id < 0 ||
             !point ||
             saved[0] * 0.001 !== point.x ||

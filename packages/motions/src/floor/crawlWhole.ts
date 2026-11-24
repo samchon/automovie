@@ -33,6 +33,7 @@ export function crawlWhole(
     body,
     entered,
     clock,
+    standing,
   }: crawlWhole.IPrepared = prepared;
   return {
     channels: [
@@ -70,6 +71,7 @@ export function crawlWhole(
             (seconds: number): number =>
               clock.progress("start", "down", seconds),
             crawling,
+            standing,
           ),
   };
 }
@@ -104,5 +106,8 @@ export namespace crawlWhole {
 
     /** The `clock` `crawl.plan` prepared. */
     clock: IAutoMovieMotionClock;
+
+    /** The standing posture the crawl's base holds, its way down written over it. */
+    standing: IAutoMovieMotionHumanPosture;
   }
 }

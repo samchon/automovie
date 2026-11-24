@@ -10,7 +10,6 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { projectileDragFlight } from "./projectileDragFlight";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
 
 /** A projectile model faces +Z; a velocity attitude turns that onto the flight. */
 const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
@@ -18,16 +17,6 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
 /** The identity rotation, a launch rotation left unstated. */
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 
-const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
-  name: string,
-  vector: IAutoMovieVector3,
-): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(vector[axis]))
-      throw new RangeError(
-        `projectile ${name}.${axis} must be finite, but was ${vector[axis]}`,
-      );
-};
 
 /**
  * Evaluate a {@link IAutoMovieProjectile} at time `t` seconds. Without drag, the
@@ -45,11 +34,6 @@ export const projectileAt: (
   p: IAutoMovieProjectile,
   t: number,
 ): IAutoMovieProjectileState => {
-  if (!Number.isFinite(t))
-    throw new RangeError(`projectile time must be finite, but was ${t}`);
-  assertFiniteVector("origin", p.origin);
-  assertFiniteVector("velocity", p.velocity);
-  assertFiniteVector("gravity", p.gravity);
 
   const state: IAutoMovieProjectileState =
     p.drag === undefined
@@ -72,7 +56,6 @@ export const projectileAt: (
             : IDENTITY,
       };
     case "spin":
-      assertFiniteVector("attitude axis", p.attitude.axis);
       return {
         ...state,
         rotation: Quaternion.normalize(

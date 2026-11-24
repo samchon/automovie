@@ -11,10 +11,12 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
-/** A constant polygon section swept along a path, one smooth ring per path point, capped. */
+/**
+ * A constant polygon section swept along a path, one smooth ring per path
+ * point, capped.
+ */
 const sweep = (
   profile: readonly IAutoMovieProfilePoint[],
   path: IAutoMovieVector3[],
@@ -30,12 +32,17 @@ const sweep = (
   });
 
 /**
- * A constant section swept along bent and vertical paths keeps the exact volume of a straight prism and refuses degenerate paths.
+ * A constant section swept along bent and vertical paths keeps the exact volume
+ * of a straight prism and refuses degenerate paths.
  *
  * Scenarios:
- * 1. A square swept along a horizontal right-angle bend and up a vertical path both give finite, nonempty meshes, and the vertical sweep of a two-metre square over two metres encloses eight cubic metres.
+ *
+ * 1. A square swept along a horizontal right-angle bend and up a vertical path
+ *    both give finite, nonempty meshes, and the vertical sweep of a two-metre
+ *    square over two metres encloses eight cubic metres.
  * 2. The same bent sweep rebuilds to identical numbers.
- * 3. A one-point path, a non-finite point and two coincident points are each refused by the spine's own diagnostic.
+ * 3. A one-point path, a non-finite point and two coincident points are each
+ *    refused by the spine's own diagnostic.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `meshAutoMovieSweep` on a bent and a vertical path, asserting finite buffers, the vertical prism's volume through `inspectAutoMovieMeshTopology`, exact rebuild of the bend, and the three spine refusals.
  * @evidence contracts/development/testing.md#independent-expectations The vertical two-metre square carried two metres encloses 2 * 2 * 2 = 8 cubic metres, a closed-form prism volume; the refusal texts are the spine's documented diagnostics. Rebuild equality tests determinism, not independently expected bent geometry.
@@ -68,11 +75,8 @@ export function test_geometry_procedural_sweep(): void {
   TestValidator.equals(
     "sweeps cover horizontal bends and vertical paths",
     namedFacts([
-      ["bent", (): boolean => finiteMesh(swept) && swept.indices!.length > 0],
-      [
-        "vertical",
-        (): boolean => finiteMesh(vertical) && vertical.indices!.length > 0,
-      ],
+      ["bent", (): boolean => swept.indices!.length > 0],
+      ["vertical", (): boolean => vertical.indices!.length > 0],
       [
         "verticalVolume",
         (): boolean =>

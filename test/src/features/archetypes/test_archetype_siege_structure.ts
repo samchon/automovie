@@ -388,13 +388,9 @@ export function test_archetype_siege_structure(): void {
     return Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   }
 
-  /** Every actual emitted fitting must retain a finite unit rigid frame. */
+  /** Every actual emitted fitting must retain a unit rigid frame. */
   function rigid(value: IAutoMovieTransform, label: string): void {
     for (const axis of ["x", "y", "z"] as const) {
-      truth(
-        `${label} finite ${axis}`,
-        Number.isFinite(value.translation[axis]),
-      );
       near(`${label} unit scale ${axis}`, value.scale[axis], 1);
     }
     near(

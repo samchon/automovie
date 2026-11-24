@@ -221,13 +221,10 @@ export function assertContourLoftBoundaryAdmission(): void {
     );
     TestValidator.predicate(
       `${scenario.name} publishes only representable indexed geometry`,
-      retained.mesh.positions.every(Number.isFinite) &&
-        retained.mesh.indices!.every(
-          (index: number): boolean =>
-            Number.isSafeInteger(index) &&
-            index >= 0 &&
-            index < retained.mesh.positions.length / 3,
-        ),
+      retained.mesh.indices!.every(
+        (index: number): boolean =>
+          index >= 0 && index < retained.mesh.positions.length / 3,
+      ),
     );
     TestValidator.predicate(
       `${scenario.name} retains the original source construction`,

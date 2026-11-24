@@ -182,13 +182,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
         );
       const fixed: number | undefined = this.#fixed[name];
       if (fixed !== undefined) {
-        if (
-          !(
-            Number.isFinite(fixed) &&
-            fixed >= band.minimum &&
-            fixed <= band.maximum
-          )
-        )
+        if (!(fixed >= band.minimum && fixed <= band.maximum))
           throw new AutoMovieArchetypeRefusal({
             kind: "parameter",
             archetype: this.archetype,

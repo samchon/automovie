@@ -39,15 +39,6 @@ export function createAutoMoviePhysicalPoseAdapter(
       if (
         !bones.has(bone) ||
         !pose ||
-        ![
-          pose.position.x,
-          pose.position.y,
-          pose.position.z,
-          pose.rotation.x,
-          pose.rotation.y,
-          pose.rotation.z,
-          pose.rotation.w,
-        ].every(Number.isFinite) ||
         Math.abs(
           Math.hypot(
             pose.rotation.x,
@@ -71,10 +62,7 @@ export function createAutoMoviePhysicalPoseAdapter(
               Math.abs(ancestor.scale.x - 1),
               Math.abs(ancestor.scale.y - 1),
               Math.abs(ancestor.scale.z - 1),
-            ) > 1e-5 ||
-            ![ancestor.scale.x, ancestor.scale.y, ancestor.scale.z].every(
-              Number.isFinite,
-            )
+            ) > 1e-5
           )
             throw new Error(
               "Physical bone display requires metre-scale rig ancestors",

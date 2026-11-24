@@ -58,7 +58,7 @@ export function createAutoMovieSignedMeshQuery(
   options?: IAutoMovieSignedMeshQueryOptions,
 ): (point: readonly number[]) => IAutoMovieSignedMeshQueryHit {
   const indices: number[] = triangleIndicesOf(mesh, "Signed mesh queries");
-  if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
+  if (indices.length === 0)
     throw new Error("Signed mesh queries need a nonempty finite surface.");
   const positions: number[] = mesh.positions.slice();
   const identities: Map<string, number> = new Map();
@@ -103,7 +103,7 @@ export function createAutoMovieSignedMeshQuery(
     const bb: number = dot(ac, ac);
     const abac: number = dot(ab, ac);
     const determinant: number = aa * bb - abac * abac;
-    if (!(determinant > 0) || !Number.isFinite(determinant))
+    if (!(determinant > 0))
       throw new Error(
         `Signed mesh triangle arithmetic must have finite positive rank: triangle ${at / 3}, vertices ${source.join(",")}, determinant ${determinant}, points ${JSON.stringify(points)}.`,
       );
@@ -213,7 +213,7 @@ export function createAutoMovieSignedMeshQuery(
     buildAutoMovieMeshQueryHierarchy(triangles);
   let recent: ITriangle | undefined;
   return (point: readonly number[]): IAutoMovieSignedMeshQueryHit => {
-    if (point.length !== 3 || !point.every(Number.isFinite))
+    if (point.length !== 3)
       throw new Error("Signed mesh queries require finite XYZ coordinates.");
     let extent2: number = 0;
     for (let axis: number = 0; axis < 3; axis++)
@@ -222,8 +222,6 @@ export function createAutoMovieSignedMeshQuery(
           Math.abs(point[axis]! - root.low[axis]!),
           Math.abs(point[axis]! - root.high[axis]!),
         ) ** 2;
-    if (!Number.isFinite(extent2))
-      throw new Error("Signed mesh query arithmetic must remain finite.");
     const best: IBest = {
       seed: recent,
       hit: undefined,
@@ -332,7 +330,7 @@ const cross = (a: readonly number[], b: readonly number[]): number[] => [
 ];
 const unit = (vector: readonly number[]): number[] => {
   const length: number = Math.hypot(...vector);
-  if (!(length > 0) || !Number.isFinite(length))
+  if (!(length > 0))
     throw new Error("Signed mesh features need finite nonzero normals.");
   return vector.map((value: number): number => value / length);
 };

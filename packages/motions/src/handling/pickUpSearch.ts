@@ -110,15 +110,10 @@ export function pickUpSearch(
           ): number =>
             judged.reduce(
               (worst: number, j: number, i: number): number =>
-                Number.isNaN(j)
-                  ? worst
-                  : Math.max(
-                      worst,
-                      j /
-                        (Number.isFinite(bounds[i])
-                          ? bounds[i]!
-                          : StrikingRoll.MISS),
-                    ),
+                Math.max(
+                  worst,
+                  j / (bounds[i] === Infinity ? StrikingRoll.MISS : bounds[i]!),
+                ),
               0,
             ),
         };

@@ -61,8 +61,6 @@ export function HumanPropFracture<
     at(
       seconds: number,
     ): readonly IAutoMovieMotionHumanPropFracture.IPlaced<Piece>[] | null {
-      if (!Number.isFinite(seconds))
-        throw new RangeError("A fracture frame requires finite film seconds.");
       if (seconds < start) return null;
 
       const placed: IAutoMovieMotionHumanPropFracture.IPlaced<Piece>[] = [];
@@ -93,7 +91,7 @@ function flight(
   let height: number = Infinity;
   for (const shape of shapes)
     height = Math.min(height, physicalShapeBounds(frame, shape).min.y);
-  if (!Number.isFinite(height) || height < 0)
+  if (!(height >= 0 && height < Infinity))
     throw new RangeError(
       "A departing fragment needs finite colliders on or above the floor at the fracture.",
     );
@@ -120,8 +118,6 @@ function flight(
       ? height / (impactSpeed / 2 - velocity.y / 2)
       : velocity.y / gravity + impactSpeed / gravity;
   const landed: IAutoMovieVector3 = projectileAt(projectile, stop).position;
-  if (![landed.x, landed.y, landed.z].every(Number.isFinite))
-    throw new RangeError("A departing fragment needs a finite floor position.");
   const rest: IAutoMovieVector3 = {
     ...landed,
     y: frame.position.y - height,

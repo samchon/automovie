@@ -100,19 +100,13 @@ export function resolveAutoMovieContactEvents(
   for (const w of input.weapons) {
     if (ids.has(w.id)) throw new Error(`Repeated contact weapon ${w.id}`);
     ids.add(w.id);
-    if (
-      (w.from !== undefined && !Number.isFinite(w.from)) ||
-      (w.to !== undefined && !Number.isFinite(w.to)) ||
-      (w.from !== undefined && w.to !== undefined && w.to < w.from)
-    )
+    if (w.from !== undefined && w.to !== undefined && w.to < w.from)
       throw new Error(
-        `Contact weapon ${w.id} has a live span that is not finite or ends before it begins`,
+        `Contact weapon ${w.id} has a live span that ends before it begins`,
       );
     if (
       w.tailRadius !== undefined &&
-      (w.tail === undefined ||
-        !Number.isFinite(w.tailRadius) ||
-        w.tailRadius < 0)
+      (w.tail === undefined || w.tailRadius < 0)
     )
       throw new Error(
         `Contact weapon ${w.id} has a tail radius without a tail, or one that is not a finite non-negative length`,

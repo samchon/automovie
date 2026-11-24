@@ -26,13 +26,10 @@ export function solvePhysicalChainTarget(
   input: IAutoMovieSolvePhysicalChainTarget.IInput,
 ): IAutoMovieSolvePhysicalChainTarget.IResult {
   if (
-    !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
     input.iterations > 64 ||
-    !(input.tolerance > 0) ||
-    !Number.isFinite(input.tolerance) ||
-    input.chain.length < 2 ||
-    ![input.goal.x, input.goal.y, input.goal.z].every(Number.isFinite)
+    input.tolerance <= 0 ||
+    input.chain.length < 2
   )
     throw new Error("Invalid physical chain target or work budget");
   const targets: Record<string, IAutoMovieRigidTransform> = {
@@ -265,7 +262,7 @@ function solve3(
     c[0]![1]! * (c[1]![0]! * c[2]![2]! - c[1]![2]! * c[2]![0]!) +
     c[0]![2]! * (c[1]![0]! * c[2]![1]! - c[1]![1]! * c[2]![0]!);
   const d: number = det3(m);
-  if (!(Math.abs(d) > 0) || !Number.isFinite(d)) return undefined;
+  if (d === 0) return undefined;
   const v: number[] = [r.x, r.y, r.z];
   const replaced = (k: number): number[][] =>
     m.map((row: readonly number[], i: number): number[] =>

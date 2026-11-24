@@ -92,7 +92,7 @@ const readIterations: (iterations: number | null) => number = (
   iterations: number | null,
 ): number => {
   if (iterations === null) return DEFAULT_ITERATIONS;
-  if (!Number.isSafeInteger(iterations) || iterations <= 0)
+  if (iterations <= 0)
     throw new Error(
       `world driver iterative IK iterations must be a positive integer within the safe-integer range, but was ${iterations}`,
     );

@@ -50,13 +50,7 @@ export function createStartingGate(
   createStartingGate.Dimension
 > {
   const stalls: number = params.stalls ?? createStartingGate.STALLS;
-  if (
-    !(
-      Number.isInteger(stalls) &&
-      stalls >= 1 &&
-      stalls <= createStartingGate.MOST_STALLS
-    )
-  )
+  if (!(stalls >= 1 && stalls <= createStartingGate.MOST_STALLS))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "startingGate",

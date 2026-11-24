@@ -63,7 +63,7 @@ export async function sampleAutoMovieInspectionTrails(props: {
    */
   seek: (seconds: number) => Promise<void>;
 }): Promise<IAutoMovieInspectionTrail[]> {
-  if (props.times.length === 0 || !props.times.every(Number.isFinite))
+  if (props.times.length === 0)
     throw new Error("Trail times must be one or more finite seconds");
   const times: number[] = [...props.times].sort(
     (a: number, b: number): number => a - b,

@@ -13,7 +13,7 @@ export function stepRecoveryMapSeedPose(
   step: readonly number[],
 ): IAutoMovieRecoveryMapPose {
   const radius: number = Math.hypot(...pose.translation);
-  if (!Number.isFinite(radius) || Math.abs(radius - 1) > 1e-10)
+  if (Math.abs(radius - 1) > 1e-10)
     throw new Error("camera-map: unit seed translation required");
   const result: IAutoMovieRecoveryMapPose = stepRecoveryRelativePose(
     pose,
@@ -24,8 +24,6 @@ export function stepRecoveryMapSeedPose(
     result.translation[axis] =
       pose.translation[axis]! +
       radius * (result.translation[axis]! - pose.translation[axis]! / radius);
-    if (!Number.isFinite(result.translation[axis]))
-      throw new Error("camera-map-chart: nonrepresentable seed update");
   }
   return result;
 }

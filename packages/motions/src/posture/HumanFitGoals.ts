@@ -46,11 +46,6 @@ export namespace HumanFitGoals {
     angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[],
     centre?: IAutoMovieMotionHumanFitGoals.ICentre,
   ): IReading {
-    if (
-      centre !== undefined &&
-      !Object.values(centre.point).every(Number.isFinite)
-    )
-      throw new Error("A centre-of-mass goal needs finite world coordinates");
     return {
       angles: angles.map(
         (target: IAutoMovieMotionHumanFitGoals.IAngle): number =>
@@ -180,7 +175,7 @@ export namespace HumanFitGoals {
           throw new Error("A centre goal names an unknown world axis");
         }
         const length: number = Vector3.length(axis);
-        if (!(length > 0) || !Object.values(axis).every(Number.isFinite))
+        if (!(length > 0))
           throw new Error(
             "A centre goal needs finite nonzero projection directions",
           );

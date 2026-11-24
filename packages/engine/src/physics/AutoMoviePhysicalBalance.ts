@@ -74,23 +74,10 @@ export namespace AutoMoviePhysicalBalance {
   ): IAutoMoviePhysicalBalance.IResult {
     const height: number = input.center.y - input.floor;
     if (
-      !(input.gravity > 0) ||
-      !Number.isFinite(input.gravity) ||
-      !(input.maximumStep > 0) ||
-      !Number.isFinite(input.maximumStep) ||
-      !Number.isFinite(input.margin) ||
+      input.gravity <= 0 ||
+      input.maximumStep <= 0 ||
       input.margin < 0 ||
-      (input.inset !== undefined &&
-        !(Number.isFinite(input.inset) && input.inset >= 0)) ||
-      ![
-        input.center.x,
-        input.center.y,
-        input.center.z,
-        input.velocity.x,
-        input.velocity.y,
-        input.velocity.z,
-        input.floor,
-      ].every(Number.isFinite)
+      (input.inset !== undefined && input.inset < 0)
     )
       throw new Error("Invalid physical balance state or limits");
     const omega: number =
@@ -144,7 +131,6 @@ export namespace AutoMoviePhysicalBalance {
     const timing: IAutoMoviePhysicalBalance.IAssessInput["swing"] =
       input.swing &&
       input.swing.acceleration > 0 &&
-      Number.isFinite(input.swing.acceleration) &&
       input.swing.ramp >= 0 &&
       input.swing.height >= 0 &&
       (input.swing.landing === undefined || input.swing.landing >= 0)

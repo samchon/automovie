@@ -210,8 +210,7 @@ export namespace useTool {
         : "right");
     // Four cycles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanUseTool.IParams.cycles`).
-    const cycles: number = context.params.count ?? 4;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", context.params.count ?? 4);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       context.params.manner,

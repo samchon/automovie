@@ -212,7 +212,6 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value === null || value === undefined) return false;
   if (value.kind === "basis")
     return (
-      Number.isInteger(value.order) &&
       value.order > 0 &&
       Array.isArray(value.rows) &&
       value.rows.length === 3 &&
@@ -236,10 +235,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
     ) &&
     [...value.inputs.extents, ...value.inputs.shoulders].every(
       (jet: readonly number[], q: number): boolean =>
-        Array.isArray(jet) &&
-        finiteRow(jet, 3) &&
-        jet[0]! > 0 &&
-        (q < 4 || jet[0]! < 1),
+        Array.isArray(jet) && jet[0]! > 0 && (q < 4 || jet[0]! < 1),
     )
   );
 }
@@ -251,7 +247,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
 function finiteRow(value: unknown, width: number): boolean {
   if (!Array.isArray(value) || value.length !== width) return false;
   for (let q: number = 0; q < width; q++)
-    if (!Object.hasOwn(value, q) || !Number.isFinite(value[q])) return false;
+    if (!Object.hasOwn(value, q)) return false;
   return true;
 }
 
@@ -271,7 +267,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
       const left: unknown = a[q];
       const right: unknown = b[q];
       if (typeof left === "number") {
-        if (!Number.isFinite(left) || left !== right) return false;
+        if (left !== right) return false;
       } else if (
         numeric ||
         !Array.isArray(left) ||
@@ -282,8 +278,7 @@ function same(a: unknown, b: unknown, numeric: boolean = false): boolean {
     }
     return true;
   }
-  if (a === b && (a === null || typeof a !== "object"))
-    return typeof a !== "number" || Number.isFinite(a);
+  if (a === b && (a === null || typeof a !== "object")) return true;
   if (
     a === null ||
     b === null ||

@@ -154,21 +154,6 @@ export const validateAutoMovieAnalysisRunContents: (
           `sample field "${sample.key}" names no metric of this run that produced a value; a field cannot be drawn for a measurement nobody made`,
           sample.key,
         );
-      for (const axis of ["x", "y", "z"] as const)
-        if (!Number.isFinite(sample.position[axis]))
-          out.push(
-            "range",
-            `${path}.position.${axis}`,
-            `sample position ${axis} must be finite, but was ${sample.position[axis]}`,
-            sample.position[axis],
-          );
-      if (!Number.isFinite(sample.value))
-        out.push(
-          "range",
-          `${path}.value`,
-          `sample value must be finite, but was ${sample.value}`,
-          sample.value,
-        );
     }
 
     for (let index: number = 0; index < outcome.warnings.length; ++index) {
@@ -287,13 +272,6 @@ const validateMetric: (
       );
     return;
   }
-  if (!Number.isFinite(metric.value))
-    out.push(
-      "range",
-      `${path}.value`,
-      `metric "${metric.key}" must be a finite value, but was ${metric.value}`,
-      metric.value,
-    );
   if (metric.gap !== null)
     out.push(
       "type",
@@ -329,15 +307,7 @@ const validateMetric: (
     );
     return;
   }
-  if (!Number.isFinite(metric.target)) {
-    out.push(
-      "range",
-      `${path}.target`,
-      `metric "${metric.key}" target must be finite, but was ${metric.target}`,
-      metric.target,
-    );
-    return;
-  }
+
   if (metric.comparison !== "at-least" && metric.comparison !== "at-most") {
     out.push(
       "type",

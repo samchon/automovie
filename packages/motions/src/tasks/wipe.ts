@@ -166,8 +166,7 @@ export namespace wipe {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     // Three circles when the author names none, the contract's default
     // (`IAutoMovieMotionHumanWipe.IParams.cycles`).
-    const cycles: number = context.params.count ?? 3;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       context.params.manner,

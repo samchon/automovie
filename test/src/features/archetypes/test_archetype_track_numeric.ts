@@ -12,28 +12,29 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Physical admission and pendulum phase conditioning keep
- * supported motions finite without fixed-time-step stiffness or erased angles.
+ * Physical admission and pendulum phase conditioning keep supported motions
+ * finite without fixed-time-step stiffness or erased angles.
  *
  * Scenarios:
- * 1. Every custom physical field is admitted by its own axis, and a slider
- *    cannot be made a hinge by supplying pendulum figures.
- * 2. Intermediate product scale retains omega=sqrt(m*g*A/I), checked at the
+ *
+ * 1. Every custom physical field is admitted by its own axis, and a slider cannot
+ *    be made a hinge by supplying pendulum figures.
+ * 2. Intermediate product scale retains omega=sqrt(m_g_A/I), checked at the
  *    small-angle quarter event using independently factored square roots.
- * 3. MIN degree amplitude remains MIN at a short sample. Nonlinear point
- *    pendulums with finite omega/phase solve in tau=omega*t even when the
- *    seconds-clock RK4 was stiff or omega squared was unrepresentable.
- * 4. Scaling mass/arm/moment as (2^-600,2^600,2^600) scales time by 2^300
- *    while preserving the same dimensionless nonlinear trajectory exactly.
- *    A MIN-mass, 2^974-moment swing crosses after MAX/2 seconds without an
+ * 3. MIN degree amplitude remains MIN at a short sample. Nonlinear point pendulums
+ *    with finite omega/phase solve in tau=omega*t even when the seconds-clock
+ *    RK4 was stiff or omega squared was unrepresentable.
+ * 4. Scaling mass/arm/moment as (2^-600,2^600,2^600) scales time by 2^300 while
+ *    preserving the same dimensionless nonlinear trajectory exactly. A
+ *    MIN-mass, 2^974-moment swing crosses after MAX/2 seconds without an
  *    overflowing physical-time bracket; impossible phase grid count or final
  *    launch rate is still unsupported.
- * 5. A valid wide hinge still refuses separatrix/outside-well releases, while
- *    both near-boundary signs and an explicitly shifted stable rest remain valid.
- *    A final phase maps to the exact clock end; an interior phase whose offset
+ * 5. A valid wide hinge still refuses separatrix/outside-well releases, while both
+ *    near-boundary signs and an explicitly shifted stable rest remain valid. A
+ *    final phase maps to the exact clock end; an interior phase whose offset
  *    rounds to duration is refused instead of becoming that endpoint.
- * 6. AGM admits positive finite inputs, lies between geometric/arithmetic
- *    bounds at extreme scale and rounds distinct subnormal means in both orders.
+ * 6. AGM admits positive finite inputs, lies between geometric/arithmetic bounds
+ *    at extreme scale and rounds distinct subnormal means in both orders.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States physical domains and phase/time similarity; profile-specific conditioning belongs to the dedicated profile numeric unit.
  * @evidence contracts/development/testing.md#behavioral-verification Uses real public Builder, swing and agm, reads actual launch fields, and observes high-frequency ROM and exact phase similarity without replacing implementation.
@@ -128,7 +129,7 @@ export function test_archetype_track_numeric(): void {
     const reach: number = Math.abs(release - rest);
     for (const sample of [0, 0.5, 1]) {
       const travel: number = control.travel(sample);
-      if (!(Number.isFinite(travel) && Math.abs(travel - rest) <= reach + 1e-6))
+      if (!(Math.abs(travel - rest) <= reach + 1e-6))
         findings.push("a supported stable rest well lost its actual reach");
     }
   }
@@ -192,8 +193,7 @@ export function test_archetype_track_numeric(): void {
     !(
       endpoint.launch !== null &&
       nclose(endpoint.launch.seconds, endpoint.end, 0) &&
-      nclose(endpoint.travel(endpoint.launch.seconds), endpointTravel, 0) &&
-      Number.isFinite(endpoint.launch.rate)
+      nclose(endpoint.travel(endpoint.launch.seconds), endpointTravel, 0)
     )
   )
     findings.push(
@@ -264,7 +264,7 @@ export function test_archetype_track_numeric(): void {
       });
     for (const share of [0, 0.25, 0.5, 0.75, 1]) {
       const travel: number = track.travel(share * seconds);
-      if (!(Number.isFinite(travel) && Math.abs(travel) <= 90 + 1e-6))
+      if (!(Math.abs(travel) <= 90 + 1e-6))
         findings.push(
           "a phase-conditioned point pendulum exceeded its physical reach",
         );
@@ -367,13 +367,7 @@ export function test_archetype_track_numeric(): void {
     [Number.MAX_VALUE / 4, Number.MAX_VALUE / 2],
   ] as const) {
     const result: number = AutoMovieArchetypeTrack.agm(a, b);
-    if (
-      !(
-        Number.isFinite(result) &&
-        result >= Math.sqrt(a) * Math.sqrt(b) &&
-        result <= a + (b - a) / 2
-      )
-    )
+    if (!(result >= Math.sqrt(a) * Math.sqrt(b) && result <= a + (b - a) / 2))
       findings.push("AGM escaped its finite geometric/arithmetic bounds");
   }
   for (const [a, b, expected] of [

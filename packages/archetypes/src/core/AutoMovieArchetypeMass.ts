@@ -354,15 +354,7 @@ export namespace AutoMovieArchetypeMass {
       Math.abs(direction.y),
       Math.abs(direction.z),
     );
-    if (
-      !(
-        Number.isFinite(scale) &&
-        scale > 0 &&
-        Number.isFinite(through.x) &&
-        Number.isFinite(through.y) &&
-        Number.isFinite(through.z)
-      )
-    )
+    if (!(scale > 0))
       throw new Error(
         "A moment needs a finite point and finite nonzero line direction",
       );
@@ -397,7 +389,7 @@ export namespace AutoMovieArchetypeMass {
       ArchetypeMassArithmetic.product(properties.mass, across.y, across.y),
       ArchetypeMassArithmetic.product(properties.mass, across.z, across.z),
     ]);
-    if (!(Number.isFinite(result) && result >= 0))
+    if (!(result >= 0))
       throw new Error("A line moment must have finite nonnegative inertia");
     return result;
   }
@@ -442,11 +434,11 @@ function weightOf(
 ): number {
   const fixed: number | undefined = shares[id];
   const relative: number = density[id] ?? 1;
-  if (fixed === undefined && !(Number.isFinite(relative) && relative > 0))
+  if (fixed === undefined && !(relative > 0))
     throw new Error(`Part ${id} needs finite positive relative density`);
   const result: number | null =
     fixed ?? ArchetypeMassArithmetic.localProduct(volume, relative);
-  if (!(result !== null && Number.isFinite(result) && result >= 0))
+  if (!(result !== null && result >= 0))
     throw new Error(
       `Part ${id} needs a representable finite ${fixed === undefined ? "positive local volume-density product" : "nonnegative authored mass weight"}`,
     );

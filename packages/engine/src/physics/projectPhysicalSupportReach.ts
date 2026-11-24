@@ -15,24 +15,13 @@ import { Vector3 } from "../math/Vector3";
 export function projectPhysicalSupportReach(
   input: IAutoMovieProjectPhysicalSupportReach.IInput,
 ): IAutoMovieProjectPhysicalSupportReach.IResult {
-  const finite: (value: IAutoMovieVector3) => boolean = (
-    value: IAutoMovieVector3,
-  ): boolean => !!value && [value.x, value.y, value.z].every(Number.isFinite);
   if (
-    !Array.isArray(input.supports) ||
-    !Number.isFinite(input.maximumTranslation) ||
     input.maximumTranslation < 0 ||
-    !Number.isSafeInteger(input.iterations) ||
     input.iterations < 1 ||
     input.iterations > 64 ||
-    !Number.isFinite(input.tolerance) ||
     input.tolerance < 0 ||
-    Array.from(input.supports).some(
+    input.supports.some(
       (support: (typeof input.supports)[number]): boolean =>
-        !support ||
-        !finite(support.origin) ||
-        !finite(support.target) ||
-        !Number.isFinite(support.radius) ||
         support.radius <= 0,
     )
   )

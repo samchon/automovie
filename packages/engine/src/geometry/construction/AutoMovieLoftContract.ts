@@ -48,10 +48,6 @@ export namespace AutoMovieLoftContract {
       );
     for (let k: number = 0; k < values.length; k++) {
       const v: number = values[k]!;
-      if (!Number.isFinite(v))
-        throw new Error(
-          `${producer}: layer ${k} stands at ${v}, not a finite station in millimetres`,
-        );
       if (k > 0 && !(v - values[k - 1]! >= least))
         throw new Error(
           `${producer}: layer ${k} stands ${v - values[k - 1]!} mm over layer ${k - 1}; stations must rise by at least ${least} mm`,
@@ -101,16 +97,6 @@ export namespace AutoMovieLoftContract {
     let area: number = 0;
     for (let i: number = 0; i < points.length; i++) {
       const p: readonly [number, number, number] = points[i]!;
-      if (
-        !(
-          Number.isFinite(p[0]) &&
-          Number.isFinite(p[1]) &&
-          Number.isFinite(p[2])
-        )
-      )
-        throw new Error(
-          `${producer}: layer ${layer} point ${i} is [${p.join(", ")}], not finite`,
-        );
       const q: readonly [number, number, number] =
         points[(i + 1) % points.length]!;
       area += p[0] * q[2] - q[0] * p[2];

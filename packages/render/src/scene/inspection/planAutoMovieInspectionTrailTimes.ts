@@ -37,7 +37,7 @@ export function planAutoMovieInspectionTrailTimes(
 ): number[] {
   const reach: number = props.request.reach;
   const ticks: number = props.request.ticks;
-  if (!(Number.isFinite(props.durationSeconds) && props.durationSeconds > 0))
+  if (!(props.durationSeconds > 0))
     throw new Error(
       `Trail running time ${props.durationSeconds} is not a positive number of seconds`,
     );
@@ -45,14 +45,7 @@ export function planAutoMovieInspectionTrailTimes(
     throw new Error(
       `Trail second ${props.seconds} is outside the subject's ${props.durationSeconds} seconds`,
     );
-  if (
-    !(
-      Number.isFinite(reach) &&
-      reach > 0 &&
-      Number.isFinite(ticks) &&
-      ticks > 0
-    )
-  )
+  if (!(reach > 0 && ticks > 0))
     throw new Error(
       `Trail reach ${reach} and ticks ${ticks} are not positive finite numbers`,
     );

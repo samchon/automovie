@@ -169,7 +169,7 @@ const validateVoid: (
         bulges.length,
       );
     bulges.forEach((bulge: number, bulgeIndex: number): void => {
-      if (!Number.isFinite(bulge) || Math.abs(bulge) > 1)
+      if (Math.abs(bulge) > 1)
         collector.push(
           "range",
           `${profilePath}.bulges[${bulgeIndex}]`,

@@ -24,7 +24,9 @@ type OfWhole = "steps" | "loads";
 type OfSolveResult = "steps" | "loads";
 
 /**
- * A soft prop's whole solve, made on first read and kept.
+ * A soft prop's whole solve: the one the performance prepared
+ * (`IAutoMovieMotionHumanPerformanceState.soft`), or, before, the one the
+ * placed performance gives now.
  *
  * @param state The performance.
  * @param subject The soft prop.
@@ -36,9 +38,14 @@ export function HumanPerformanceSoft(
   state: IAutoMovieMotionHumanPerformanceState,
   subject: string,
 ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-  const known: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined =
-    state.soft.get(subject);
-  if (known !== undefined) return known;
+  return state.soft.get(subject) ?? solve(state, subject);
+}
+
+/** A soft prop's whole solve from the placed performance. */
+function solve(
+  state: IAutoMovieMotionHumanPerformanceState,
+  subject: string,
+): IAutoMovieMotionHumanPerformanceSoft.ISolved {
   const prop: IAutoMovieMotionHumanProp | undefined = state.props.get(subject);
   const domain: IAutoMovieSoftBodyDomain | undefined = prop?.soft;
   if (domain === undefined)
@@ -68,7 +75,7 @@ export function HumanPerformanceSoft(
     HumanPerformanceSoftBoundary.seed(state, domain, span, count);
 
   const grips: HumanPerformanceSoftBoundary.IGripAnchor[] = [];
-  const solve = (
+  const simulate = (
     upto: number,
     record: boolean,
   ): Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfSolveResult> => {
@@ -191,7 +198,7 @@ export function HumanPerformanceSoft(
     HumanPerformanceSoftBoundary.prepareBones(state, seed, windows, count, dt);
   for (const window of windows) {
     const k: number = Math.min(count, Math.round(window.from / dt));
-    const positions: Float64Array = solve(k, false).steps[k]!;
+    const positions: Float64Array = simulate(k, false).steps[k]!;
     const socket: IAutoMovieVector3 = HumanPerformanceSoftBoundary.gripSocket(
       state,
       bones,
@@ -226,14 +233,12 @@ export function HumanPerformanceSoft(
     });
   }
   const whole: Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfWhole> =
-    solve(count, true);
-  const out: IAutoMovieMotionHumanPerformanceSoft.ISolved = {
+    simulate(count, true);
+  return {
     dt,
     steps: whole.steps,
     loads: whole.loads,
   };
-  if (!state.resolving) state.soft.set(subject, out);
-  return out;
 }
 
 /**
@@ -265,6 +270,23 @@ export function HumanPerformanceSoft(
  * solver's multipliers).
  */
 export namespace HumanPerformanceSoft {
+  /**
+   * Solve a soft prop over the placed performance: what the performance
+   * prepares once every action, stop and flight is resolved.
+   *
+   * @param state The performance.
+   * @param subject The soft prop.
+   * @returns The solve.
+   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
+   *   domain's step budget.
+   */
+  export function prepare(
+    state: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+  ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
+    return solve(state, subject);
+  }
+
   /**
    * The particles a soft domain anchors to a hand bone (`actor-bone` on
    * `leftHand` or `rightHand`): a lanyard or a cord the hand holds from the

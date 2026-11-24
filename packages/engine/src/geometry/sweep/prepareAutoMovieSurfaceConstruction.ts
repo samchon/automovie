@@ -37,7 +37,7 @@ export function prepareAutoMovieSurfaceConstruction(
   ];
   for (const kind of kinds) {
     const count: number = samples[kind];
-    if (!Number.isSafeInteger(count) || count < (kind === "station" ? 3 : 1))
+    if (count < (kind === "station" ? 3 : 1))
       throw new Error(
         `construction ${kind} count must be a positive safe integer${kind === "station" ? " of at least three" : ""}`,
       );

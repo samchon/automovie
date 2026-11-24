@@ -53,18 +53,6 @@ export function HumanPerformanceStagedFlightRotation(
     w: supplied.w,
   };
   if (
-    ![
-      start,
-      from,
-      to,
-      to - from,
-      somersault,
-      twist,
-      frame.x,
-      frame.y,
-      frame.z,
-      frame.w,
-    ].every(Number.isFinite) ||
     !(to > from) ||
     !(Math.hypot(frame.x, frame.y, frame.z, frame.w) > 0)
   )
@@ -76,10 +64,13 @@ export function HumanPerformanceStagedFlightRotation(
         "staged flight needs finite turns, a positive finite span and a nonzero finite axis frame",
       fix: "give finite turn counts and a valid flight interval and frame",
     });
-  if (
-    !props.turnedLanding &&
-    (!Number.isInteger(somersaultTurns) || !Number.isInteger(twistTurns))
-  )
+  // The whole flight's turn must close onto the landing's orientation: a
+  // rotation of angle zero, whose quaternion's scalar part is plus or minus one.
+  const closing: IAutoMovieQuaternion = Quaternion.multiply(
+    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, somersault),
+    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, twist),
+  );
+  if (!props.turnedLanding && Math.abs(closing.w) < 1 - CLOSED)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "turns",
@@ -118,3 +109,9 @@ export function HumanPerformanceStagedFlightRotation(
     orientation,
   });
 }
+
+/**
+ * How far below one the closing turn's scalar part may fall and still read as
+ * closed: the rounding of a quaternion of whole revolutions.
+ */
+const CLOSED: number = 1e-9;

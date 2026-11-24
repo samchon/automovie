@@ -16,12 +16,6 @@ export function mountHumanCartoonFace(
       "position",
     ) as THREE.BufferAttribute;
     for (let i: number = 0; i < positions.count; i++) {
-      if (
-        !Number.isFinite(positions.getX(i)) ||
-        !Number.isFinite(positions.getY(i)) ||
-        !Number.isFinite(positions.getZ(i))
-      )
-        throw new Error("Cartoon mark exceeds finite geometry coordinates");
       const y: number = THREE.MathUtils.clamp(
         positions.getY(i),
         head.min[1],
@@ -53,21 +47,8 @@ export function mountHumanCartoonFace(
           }
         }
       }
-      if (!Number.isFinite(x))
-        throw new Error(
-          "Polygon front returned a non-finite cartoon attachment",
-        );
       const mountedX: number = x + positions.getX(i) - head.max[0];
 
-      // Refuse numeric storage overflow without restoring clinical pose limits.
-      if (
-        !Number.isFinite(Math.fround(mountedX)) ||
-        !Number.isFinite(Math.fround(y)) ||
-        !Number.isFinite(Math.fround(z))
-      )
-        throw new Error(
-          "Cartoon attachment exceeds finite Float32 coordinates",
-        );
       positions.setXYZ(i, mountedX, y, z);
     }
     positions.needsUpdate = true;

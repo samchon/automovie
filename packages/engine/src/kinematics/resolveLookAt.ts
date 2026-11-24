@@ -190,6 +190,6 @@ const add: (angle: number | null, turn: number) => number | null = (
   turn: number,
 ): number | null => (angle === null && turn === 0 ? null : (angle ?? 0) + turn);
 
-/** Clamp a weight to `[0, 1]`, reading a non-finite value as `0`. */
+/** Clamp a weight to `[0, 1]`. */
 const unit: (value: number) => number = (value: number): number =>
-  Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0;
+  Math.max(0, Math.min(1, value));

@@ -24,14 +24,12 @@ export function readRecoveryEventCurveControls(
   const start: number = piece.source.start,
     end: number = piece.source.end;
   if (
-    !Number.isFinite(start) ||
-    !Number.isFinite(end) ||
     start < 0 ||
     start > 1 ||
     end < 0 ||
     end > 1 ||
     start === end ||
-    !(piece.width > 0 && Number.isFinite(piece.width))
+    !(piece.width > 0)
   )
     throw new Error(
       "An occurrence requires a positive chart width and nonempty oriented normalized native interval",

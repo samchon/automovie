@@ -87,8 +87,7 @@ export function resumeAutoMovieRecoveryContours<
       planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
-        (axis: [number, number, number]): boolean =>
-          finiteVector(axis) && Math.hypot(...axis) > 0,
+        (axis: [number, number, number]): boolean => Math.hypot(...axis) > 0,
       )
     )
       return {
@@ -137,10 +136,6 @@ export function resumeAutoMovieRecoveryContours<
       const origin: [number, number, number] = frame.n.map(
         (value: number): number => value * saved.coordinateMm,
       ) as [number, number, number];
-      if (!finiteVector(origin))
-        throw new Error(
-          "Contour resume origin exceeds finite millimetre coordinates",
-        );
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,
@@ -213,7 +208,7 @@ export function resumeAutoMovieRecoveryContours<
         : Math.max(0, raw.pts.length - 1);
       const faces: number = lineage.exactSourceTriangleIds!.length;
       const upper: number = 3 * faces;
-      if (!Number.isSafeInteger(upper) || edges > upper)
+      if (edges > upper)
         throw new Error(
           "Exact cut edge count exceeds its source-triangle emission bound",
         );
@@ -385,13 +380,6 @@ export function resumeAutoMovieRecoveryContours<
 /** A raw contour's address: its saved coordinate and raw contour ordinal. */
 function address(coordinateMm: number, contourIndex: number): string {
   return `${coordinateMm}/${contourIndex}`;
-}
-
-/** Whether every component of a computed millimetre vector is finite. */
-function finiteVector(value: readonly [number, number, number]): boolean {
-  return value.every((component: number): boolean =>
-    Number.isFinite(component),
-  );
 }
 
 /** Whether a saved section's frame equals the resumed plane frame exactly. */

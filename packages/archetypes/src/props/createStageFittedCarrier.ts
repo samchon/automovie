@@ -208,9 +208,7 @@ function envelope(
     shaft.geometry.shape.radius,
   );
   if (
-    ![tip, guardTop, radius].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    ) ||
+    ![tip, guardTop, radius].every((value: number): boolean => value > 0) ||
     !(tip - guardTop > GAP)
   )
     throw invalidEnvelope(display.id);

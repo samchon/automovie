@@ -20,14 +20,20 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 /** Two target steps: the relationship is planned per step, so one is enough. */
 const DURATION: number = 1 / 120;
 
-/** Collider relationships follow a moved receiver through generic bounded IK.
+/**
+ * Collider relationships follow a moved receiver through generic bounded IK.
  *
  * Scenarios:
- * 1. Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the receiver's surface.
- * 2. The fitted source collider, queried natively against the receiver, is a geometric receipt without a solver impulse.
- * 3. The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse before solver allocation.
  *
- * Solver impulses and checkpoint continuation belong to the native simulation units.
+ * 1. Moving only a target sphere changes an independent primitive limb's fitted
+ *    pose, and both fits reach the receiver's surface.
+ * 2. The fitted source collider, queried natively against the receiver, is a
+ *    geometric receipt without a solver impulse.
+ * 3. The valid relationship is admitted; unknown colliders, unsupported
+ *    compression and a zero normal refuse before solver allocation.
+ *
+ * Solver impulses and checkpoint continuation belong to the native simulation
+ * units.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `planPhysicalContactTargets` on in-memory inputs and asserts the returned observations through 2x TestValidator.equals; 3 numbered scenarios (first: Moving only a target sphere changes an independent primitive limb's fitted pose, and both fits reach the...; last: The valid relationship is admitted; unknown colliders, unsupported compression and malformed normals refuse...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -160,11 +166,7 @@ export async function test_physical_contact_binding(): Promise<void> {
   for (const invalid of [
     { ...binding, compression: 1 },
     { ...binding, target: { ...binding.target, shape: "absent" } },
-    ...[null, false, 0, "", [], new Map()].map((normal: unknown): Binding => {
-      const invalid: Binding = structuredClone(binding);
-      Reflect.set(invalid.target, "normal", normal);
-      return invalid;
-    }),
+    { ...binding, target: { ...binding.target, normal: { x: 0, y: 0, z: 0 } } },
   ]) {
     const bad: IAutoMoviePhysicalSimulationInput.IInput =
       structuredClone(input);

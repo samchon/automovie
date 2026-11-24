@@ -8,23 +8,25 @@ import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
  * The fixtures replayed: one biped's and one quadruped's recovery, the
  * controller's two paths; a name branch shows on any frame of either.
  */
-const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.json"];
+const FIXTURES: readonly string[] = [
+  "human_recover_z.json",
+  "quad_recover_z.json",
+];
 
 /**
  * The balance controller has no anatomy branch: renaming every bone and the
  * body leaves its behaviour unchanged. At three recorded key frames, the first,
  * middle and last kinds, of a biped and a quadruped replay fixture,
  * `advancePhysicalBalance` and `trackPhysicalRoot`, given the recorded inputs
- * with every name replaced, return and write exactly the renamed outputs of
- * the same call on the original names.
+ * with every name replaced, return and write exactly the renamed outputs of the
+ * same call on the original names.
  *
  * The renaming is order-preserving. Each bone becomes `n` and its rank among
- * the bones' names in code-unit order, so a sort or a tie broken by name
- * keeps its order. The body and its profile become `subject`. A name is
- * replaced wherever it appears as a value or as a part of a `+`-joined list
- * of limbs, and as a key of a dictionary keyed by names. A schema's field
- * keeps its key even where it shares a bone's name, as the primitive's root
- * `body` does.
+ * the bones' names in code-unit order, so a sort or a tie broken by name keeps
+ * its order. The body and its profile become `subject`. A name is replaced
+ * wherever it appears as a value or as a part of a `+`-joined list of limbs,
+ * and as a key of a dictionary keyed by names. A schema's field keeps its key
+ * even where it shares a bone's name, as the primitive's root `body` does.
  *
  * Scenarios:
  *
@@ -42,16 +44,16 @@ const FIXTURES: readonly string[] = ["human_recover_z.json", "quad_recover_z.jso
  * @evidence contracts/development/testing.md#distinguishing-cases A branch on a bone's name, its side read from a `left` or `right` prefix, or the profile's id, say `profile.id === "human"`, changes an output at some recorded frame; order-dependent ties are kept equal by the order-preserving names, so only a name's meaning can part the runs. The recorded outputs themselves are `test_physical_balance_replay`'s.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over the replay fixtures in the repository; no native world, viewer or simulation run.
  */
-export function test_physical_disturbance_anatomy(): void {
+export async function test_physical_disturbance_anatomy(): Promise<void> {
   const failures: string[] = [];
   for (const file of FIXTURES) {
     const fixture: PhysicalBalanceReplay.IFixture =
-      PhysicalBalanceReplay.load(file);
+      await PhysicalBalanceReplay.load(file);
     // The biped's profile as its fixture stores it, digest-checked; the
     // primitive's is built in closed form.
     const built: IAutoMoviePhysicalProfile =
       fixture.subject === "human"
-        ? PhysicalBalanceReplay.stored(fixture)
+        ? await PhysicalBalanceReplay.stored(fixture)
         : PhysicalModelFixtures.quadrupod();
     // The first record of each key-frame kind the recording kept.
     const reasons: Set<string> = new Set();

@@ -276,7 +276,7 @@ export namespace HumanPopulation {
     from: number,
     samples: number,
   ): IAutoMovieMotionHumanPopulation.ICycle {
-    if (!(samples % 1 === 0 && samples > 0 && samples < 2 ** 32))
+    if (!(samples > 0 && samples < 2 ** 32))
       throw new HumanRefusal({
         kind: "parameter",
         performer: template,

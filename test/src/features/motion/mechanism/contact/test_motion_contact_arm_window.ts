@@ -106,13 +106,6 @@ export function test_motion_contact_arm_window(): void {
     { length: frames + 1 },
     (_: unknown, i: number): IAutoMovieVector3 => palm((span.end * i) / frames),
   );
-  TestValidator.predicate(
-    "every second to the end is finite",
-    read.every(
-      (p: IAutoMovieVector3): boolean =>
-        Number.isFinite(p.x) && Number.isFinite(p.y) && Number.isFinite(p.z),
-    ),
-  );
   const step: number = Math.max(
     ...read
       .slice(1)

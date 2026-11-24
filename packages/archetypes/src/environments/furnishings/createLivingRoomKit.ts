@@ -44,7 +44,7 @@ export function createLivingRoomKit(
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const gap: number = params.tableGap ?? createLivingRoomKit.TABLE_GAP;
-    if (!(Number.isFinite(gap) && gap >= 0))
+    if (!(gap >= 0))
       throw new Error(
         `${context.id} tableGap needs a finite nonnegative distance: ${gap}`,
       );

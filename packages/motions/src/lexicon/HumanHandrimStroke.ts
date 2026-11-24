@@ -144,7 +144,7 @@ function planHumanHandrimStroke(
     push,
     recovery,
   })) {
-    if (!Number.isFinite(value) || value <= 0)
+    if (!(value > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis,
@@ -160,7 +160,7 @@ function planHumanHandrimStroke(
         fix: "give a positive duration in seconds for this phase",
       });
   }
-  if (!(Number.isFinite(duration) && approach < release && release < duration))
+  if (!(approach < release && release < duration))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",
@@ -198,7 +198,7 @@ function planHumanHandrimStroke(
       );
     if (
       geometry === undefined ||
-      !(Number.isFinite(geometry.radius) && geometry.radius! > 0)
+      !(geometry.radius! > 0)
     )
       return HumanHandrimStrokeRefuseRim(on, rim, side);
     return { side, rim, geometry };

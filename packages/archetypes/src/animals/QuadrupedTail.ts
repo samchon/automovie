@@ -34,9 +34,6 @@ export namespace QuadrupedTail {
    */
   export const REST: number = 0.001;
 
-  /** Each source animal's prepared world pose. */
-  const POSES: WeakMap<object, unknown> = new WeakMap();
-
   /**
    * Carry a posed model's tail over the footing beneath it.
    *
@@ -142,16 +139,10 @@ export namespace QuadrupedTail {
     const bounded: number = Math.max(-limit, Math.min(limit, turn));
 
     // Applied as the tail bone's parent-local rotation, so the rig turns it about its own joint.
-    let prepared: QuadrupedWorldPose.IPrepared<Id, D> | undefined = POSES.get(
+    const prepared: QuadrupedWorldPose.IPrepared<Id, D> = QuadrupedWorldPose(
       animal,
-    ) as QuadrupedWorldPose.IPrepared<Id, D> | undefined;
-    if (prepared === undefined) {
-      prepared = QuadrupedWorldPose(
-        animal,
-        QuadrupedCarriage.of(animal, species),
-      );
-      POSES.set(animal, prepared);
-    }
+      QuadrupedCarriage.of(animal, species),
+    );
     const pose: QuadrupedWorldPose.IPose = prepared.read(model, placement);
     const parent: IAutoMovieQuaternion = Quaternion.multiply(
       pose.root.rotation,

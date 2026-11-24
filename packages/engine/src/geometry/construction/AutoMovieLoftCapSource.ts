@@ -62,8 +62,6 @@ export namespace AutoMovieLoftCapSource {
     chain: IAutoMovieLoftChain,
     station: number,
   ): IAutoMovieLoftCapSource.ISource | null {
-    if (!Number.isFinite(station))
-      throw new Error("A loft station must be finite.");
     const first: number = chain.layers[0]!.y;
     const last: number = chain.layers[chain.layers.length - 1]!.y;
     if (station >= first && station <= last) return null;
@@ -156,8 +154,7 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
     source === null ||
     typeof source !== "object" ||
     !Array.isArray(source.point) ||
-    source.point.length !== 3 ||
-    !source.point.every(Number.isFinite)
+    source.point.length !== 3
   )
     throw new Error(
       `The retained original ${pole.end} cap of ${chain.name} is malformed.`,
@@ -171,7 +168,6 @@ function check(chain: IAutoMovieLoftChain, pole: Pole): void {
     native === null ||
     source.station !== native.data.domain[pole.end === "bottom" ? 0 : 1] ||
     source.adjacent !== layer.y ||
-    !Number.isFinite(source.station) ||
     !(pole.end === "bottom"
       ? source.station < layer.y
       : source.station > layer.y) ||

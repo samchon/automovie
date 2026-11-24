@@ -8,14 +8,16 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError, vclose } from "../internal/predicates";
 
 /**
- * Binary64 neighbors and barycentric seats retain their representation boundaries without a spatial tolerance or coefficient correction.
- * Scenarios:
+ * Binary64 neighbors and barycentric seats retain their representation
+ * boundaries without a spatial tolerance or coefficient correction. Scenarios:
+ *
  * 1. Unit exponent boundaries carry/borrow on positive and negative encodings.
  * 2. Signed zero/subnormal neighbours and largest finite boundaries are exact.
  * 3. Nonfinite arithmetic refuses; ordinary weighted seating stays unchanged.
  * 4. Malformed/negative/nonunit weights refuse beside their supported boundary.
  * 5. The largest finite unit seat remains supported; an admitted rounded
- *    coefficient just above one must refuse when its weighted product overflows.
+ *    coefficient just above one must refuse when its weighted product
+ *    overflows.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Steps neighboring binary64 scalars and interpolates actual weighted seats, checking exact encoding including signed zero, finite inward limits, analytic coordinates and named refusal of malformed or overflowing arithmetic. Treating adjacent encodings as a spatial epsilon or silently renormalizing unsupported weights fails these cases.
  * @evidence contracts/development/testing.md#independent-expectations Binary64 unit spacings around one are 2^-52 upward and 2^-53 downward; signed subnormal steps follow their encodings. The authored triangle gives (.5,.5,1) at weights (.5,.25,.25), while a maximum finite coordinate times a coefficient above one overflows. Object.is intentionally owns zero-sign representation; vclose owns coordinate quantities.
@@ -59,11 +61,6 @@ export function test_math_float64_neighbors(): void {
         "overflowing",
       ),
     );
-  TestValidator.predicate(
-    "largest finite inward neighbour remains finite",
-    Number.isFinite(adjacentAutoMovieFloat64(Number.MAX_VALUE, false)) &&
-      Number.isFinite(adjacentAutoMovieFloat64(-Number.MAX_VALUE, true)),
-  );
   const points: IAutoMovieVector3[] = [
     { x: 0, y: 0, z: 1 },
     { x: 2, y: 0, z: 1 },

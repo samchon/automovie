@@ -54,10 +54,6 @@ export const autoMovieAnalysisMetric: (
     throw new Error(
       `analysis metric "${key}" carries both a value and a gap; a measured metric has no gap`,
     );
-  if (!Number.isFinite(value))
-    throw new Error(
-      `analysis metric "${key}" must be a finite value, but was ${value}`,
-    );
   const target: IAutoMovieAnalysisTarget | undefined = props.targets.find(
     (entry: IAutoMovieAnalysisTarget): boolean => entry.key === key,
   );

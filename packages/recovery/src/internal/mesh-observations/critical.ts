@@ -35,11 +35,7 @@ export function critical(
   const direction: AutoMovieVector3Tuple = norm(axis);
   if (dot(direction, direction) === 0)
     throw new Error("Critical height axis is zero");
-  if (
-    scalarHeights &&
-    (scalarHeights.length !== skin.vertices.length ||
-      !scalarHeights.every(Number.isFinite))
-  )
+  if (scalarHeights && scalarHeights.length !== skin.vertices.length)
     throw new Error("PL scalar chart must align with source vertices");
   const heights: readonly number[] =
     scalarHeights ??
@@ -64,9 +60,7 @@ export function critical(
     for (let i: number = 0; i < skin.vertices.length; i++) {
       const canonical: number = skin.canon[i]!;
       if (
-        !Number.isFinite(heights[i]) ||
         skin.vertices[i]!.length !== 3 ||
-        !skin.vertices[i]!.every(Number.isFinite) ||
         canonical < 0 ||
         canonical >= skin.vertices.length
       )
@@ -101,8 +95,7 @@ export function critical(
       boundaryPolicy &&
       (triangle.length !== 3 ||
         triangle.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= skin.vertices.length,
+          (i: number): boolean => i < 0 || i >= skin.vertices.length,
         ))
     )
       throw new Error(
@@ -123,11 +116,7 @@ export function critical(
         u[2]! * v[0]! - u[0]! * v[2]!,
         u[0]! * v[1]! - u[1]! * v[0]!,
       );
-      if (
-        new Set(t).size !== 3 ||
-        faces.has(id) ||
-        !(area > 0 && Number.isFinite(area))
-      )
+      if (new Set(t).size !== 3 || faces.has(id) || !(area > 0))
         for (const vertex of t) invalidStars.add(vertex);
       faces.add(id);
       // Count source uses before Set-based links can erase duplicate or collapsed incidence.

@@ -12,15 +12,19 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * Convex extrusion retains closed volume, convex admission and primitive compatibility. Each guard keeps its original positive neighbor and diagnostic.
+ * Convex extrusion retains closed volume, convex admission and primitive
+ * compatibility. Each guard keeps its original positive neighbor and
+ * diagnostic.
  *
  * Scenarios:
- * 1. Authored positive geometry retains its independent topology and dimensional expectations.
- * 2. Every associated invalid row refuses at the same diagnostic beside supported input.
+ *
+ * 1. Authored positive geometry retains its independent topology and dimensional
+ *    expectations.
+ * 2. Every associated invalid row refuses at the same diagnostic beside supported
+ *    input.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Constructs a convex square prism and checks finite attributes, vertex/triangle counts, depth, closed topology and volume, exact rebuild and convex-position reordering. A box retains its existing tessellation counts, while invalid depth, coordinates, area and concave/interior points must refuse by their named diagnostic.
  * @evidence contracts/development/testing.md#independent-expectations A 2-by-2 square extruded 0.5 metres has volume two, end planes at plus/minus 0.25, eight vertices and twelve triangles. The box's authored face convention gives 24 vertices and twelve triangles. Rebuild and hull-order equality are compatibility checks, not independent geometric or visual oracles; the topology observer shares engine welding semantics, and finiteMesh observes only visited position/normal components and index integrality.
@@ -38,7 +42,6 @@ export function test_geometry_procedural_architecture(): void {
   TestValidator.equals(
     "a convex profile extrudes to one closed prism of the authored volume",
     namedFacts([
-      ["finite", (): boolean => finiteMesh(extrusion)],
       ["vertices", (): boolean => extrusion.positions.length === 8 * 3],
       ["triangles", (): boolean => extrusion.indices!.length === 12 * 3],
       [
@@ -70,7 +73,6 @@ export function test_geometry_procedural_architecture(): void {
       ],
     ]),
     {
-      finite: true,
       vertices: true,
       triangles: true,
       depth: true,

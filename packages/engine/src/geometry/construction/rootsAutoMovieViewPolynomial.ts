@@ -16,7 +16,7 @@
 export function rootsAutoMovieViewPolynomial(
   coefficients: readonly number[],
 ): number[] {
-  if (coefficients.length > 10 || !coefficients.every(Number.isFinite))
+  if (coefficients.length > 10)
     throw new RangeError(
       "source polynomial roots need at most ten finite coefficients (degree at most nine)",
     );

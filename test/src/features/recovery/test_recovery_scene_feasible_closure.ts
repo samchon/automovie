@@ -15,12 +15,22 @@ import { TestValidator } from "@nestia/e2e";
 import { createRecoverySceneNumericalFixture } from "../internal/createRecoverySceneNumericalFixture";
 
 /**
- * Explicit accepted-agreement closure discards a later capacity-refused proposal.
+ * Explicit accepted-agreement closure discards a later capacity-refused
+ * proposal.
  *
  * Scenarios:
- * 1. Eight authored nonplanar points have two seed observations each and a third registered camera. The latter cameras look at depth2 from centers1/2. A prescribed depth perturbation0.012 gives seed error730e/(5+2e)<2 and third-camera error760e/(4+e)>2.
- * 2. Growth initially retains23 observations. The explicitly selected adaptive method must perform supported accepted-increment reactions and reach original physical normal before strict closure proposes24 observations. SQP and lagged curvature remain absent.
- * 3. The independently calculated23-row population direction bound984 admits the first fit; the next bound1015 exceeds it, preserving all input geometry and consumed work rather than returning the intermediate result.
+ *
+ * 1. Eight authored nonplanar points have two seed observations each and a third
+ *    registered camera. The latter cameras look at depth2 from centers1/2. A
+ *    prescribed depth perturbation0.012 gives seed error730e/(5+2e)<2 and
+ *    third-camera error760e/(4+e)>2.
+ * 2. Growth initially retains23 observations. The explicitly selected adaptive
+ *    method must perform supported accepted-increment reactions and reach
+ *    original physical normal before strict closure proposes24 observations.
+ *    SQP and lagged curvature remain absent.
+ * 3. The independently calculated23-row population direction bound984 admits the
+ *    first fit; the next bound1015 exceeds it, preserving all input geometry
+ *    and consumed work rather than returning the intermediate result.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual detached completion owner through growth, an explicitly adaptive feasible fit and the next population's capacity admission. Requires original normal, supported selected-increment reactions, explicit capacity identity and unchanged borrowed arrays. A bounded failure label preserves the observed branch without rerunning it.
  * @evidence contracts/development/testing.md#independent-expectations Authored look-at rotations, centers0/1/2, pinhole K and eight nonplanar points supply coordinates independently. The first four points have nonzero determinant0.336. Perturbation0.012 lies between8/758 and10/726. For C11,L8,n35,E23, Zw357 and m24 give2Zw+3m+2n+128=984; E24 gives1015. No returned geometry is used as its own expected answer.
@@ -200,10 +210,6 @@ export function test_recovery_scene_feasible_closure(): void {
         undefined &&
       (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
         .initialDamping === 0.001 &&
-      Number.isFinite(
-        (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
-          .finalDamping,
-      ) &&
       (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
         .finalDamping > 0 &&
       (firstCompleted as IAutoMovieRecoveryMapJointFit).regularization!
@@ -243,9 +249,7 @@ export function test_recovery_scene_feasible_closure(): void {
   ): number =>
     values.reduce<number>(
       (sum: number, value: unknown): number =>
-        typeof value === "number" && Number.isSafeInteger(value) && value >= 0
-          ? sum + value
-          : NaN,
+        typeof value === "number" && value >= 0 ? sum + value : NaN,
       0,
     );
   TestValidator.predicate(

@@ -28,7 +28,7 @@ export function compileAutoMovieSweepProfile(
   )
     throw new Error(`${what} must span the spine from at 0 to at 1`);
   entries.forEach((knot: IAutoMovieSweep.IKnot): void => {
-    if (!Number.isFinite(knot.value) || knot.value <= 0)
+    if (knot.value <= 0)
       throw new Error(`${what} values must be positive and finite`);
   });
   const curve: (u: number) => number = interpolateAutoMovieSpline({
@@ -37,7 +37,7 @@ export function compileAutoMovieSweepProfile(
   });
   return (u: number): number => {
     const value: number = curve(u);
-    if (!(value > 0) || !Number.isFinite(value))
+    if (!(value > 0))
       throw new Error(`${what} is not positive and finite at u ${u}`);
     return value;
   };

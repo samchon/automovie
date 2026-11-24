@@ -36,17 +36,6 @@ export function orientAutoMovieSolidChart(
   const by: number = b[1];
   const cx: number = c[0];
   const cy: number = c[1];
-  if (
-    !(
-      Number.isFinite(ax) &&
-      Number.isFinite(ay) &&
-      Number.isFinite(bx) &&
-      Number.isFinite(by) &&
-      Number.isFinite(cx) &&
-      Number.isFinite(cy)
-    )
-  )
-    throw new RangeError("Chart orientation needs finite coordinates");
 
   // Axis-aligned constraints need only order comparisons, even at extreme scales.
   if (ax === bx)
@@ -80,8 +69,6 @@ export function orientAutoMovieSolidChart(
     normal(y1) &&
     normal(left) &&
     normal(right) &&
-    Number.isFinite(determinant) &&
-    Number.isFinite(bound) &&
     bound > 0 &&
     Math.abs(determinant) > bound
   )
@@ -107,7 +94,7 @@ export function orientAutoMovieSolidChart(
 
 /** Whether a value is finite and of at least the smallest normal magnitude. */
 function normal(value: number): boolean {
-  return Number.isFinite(value) && Math.abs(value) >= NORMAL;
+  return Math.abs(value) >= NORMAL;
 }
 
 /**

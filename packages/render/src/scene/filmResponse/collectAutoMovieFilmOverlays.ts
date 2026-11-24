@@ -13,9 +13,7 @@ export function collectAutoMovieFilmOverlays(
     const material: unknown =
       "material" in object ? object.material : undefined;
     if (material === undefined || object.layers.mask === 0) return;
-    const materials: unknown[] = Array.isArray(material)
-      ? material
-      : [material];
+    const materials: unknown[] = [material];
     if (
       materials.length !== 0 &&
       materials.every(

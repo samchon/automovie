@@ -59,21 +59,17 @@ export function compileAttach(props: compileAttach.IProps): IAutoMovieClip {
   // `performShot` rejects a zero-span coupling before it reaches here; this
   // precondition, the one `projectileTrajectory` enforces, keeps any other
   // caller from baking duplicate key times.
-  if (!Number.isFinite(props.duration) || !(props.duration > 0))
+  if (!(props.duration > 0))
     throw new RangeError(
       `attach follow duration must be finite and > 0 seconds, but was ${props.duration}`,
     );
   // A rate that is not finite and positive would bake no key (NaN), one key
   // pair (zero or negative), or never stop sampling (infinity).
-  if (!Number.isFinite(fps) || !(fps > 0))
+  if (!(fps > 0))
     throw new RangeError(
       `attach follow fps must be a finite number > 0, but was ${fps}`,
     );
   const count: number = Math.max(1, Math.round(props.duration * fps));
-  if (!Number.isSafeInteger(count))
-    throw new RangeError(
-      "attach follow interval count must be a safe integer so sampling can advance",
-    );
   const attachment: IAutoMovieAttachment = {
     parentBone: props.bone,
     offset:

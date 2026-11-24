@@ -61,7 +61,7 @@ export namespace wireFlight {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWireFlight.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const seconds: number = context.params.duration;
-    if (!(seconds > 0) || !Number.isFinite(seconds))
+    if (!(seconds > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "duration",

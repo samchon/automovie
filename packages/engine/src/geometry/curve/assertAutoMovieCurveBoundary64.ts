@@ -50,8 +50,7 @@ export function assertAutoMovieCurveBoundary64(
     for (let i: number = 0; i < 3; i++)
       if (
         !Object.hasOwn(v, i) ||
-        typeof v[i] !== "number" ||
-        !Number.isFinite(v[i])
+        typeof v[i] !== "number"
       )
         throw new Error("Dense finite derivative vector required");
   };

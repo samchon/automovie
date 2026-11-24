@@ -96,7 +96,6 @@ export function faceAutoMovieSolidMesh(
           prepared.chart.get(id)![1] + triangle.lifts[k]! * period,
       );
       if (
-        !phases.every(Number.isFinite) ||
         Math.max(...phases) - Math.min(...phases) >= period / 2
       )
         return refuse(

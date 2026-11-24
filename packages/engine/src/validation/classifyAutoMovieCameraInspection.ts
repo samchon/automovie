@@ -17,8 +17,6 @@ export function classifyAutoMovieCameraInspection(
 
   if (
     pixels !== undefined &&
-    Number.isSafeInteger(pixels.isolated) &&
-    Number.isSafeInteger(pixels.visible) &&
     pixels.visible >= 0 &&
     pixels.visible <= pixels.isolated
   ) {
@@ -27,7 +25,6 @@ export function classifyAutoMovieCameraInspection(
     const ratio: number = (pixels.isolated - pixels.visible) / pixels.isolated;
     const status: "measured" | "within-limit" | "above-limit" =
       maxOcclusionRatio === undefined ||
-      !Number.isFinite(maxOcclusionRatio) ||
       maxOcclusionRatio < 0 ||
       maxOcclusionRatio > 1
         ? "measured"

@@ -37,8 +37,6 @@ export function AutoMovieConstructionPortRadialRange(
   const a: number = loop.semi[0] * 1000;
   const b: number = loop.semi[1];
   if (
-    !Number.isFinite(clock) ||
-    ![y0, p0, a, b, originalShare].every(Number.isFinite) ||
     !(a > 0 && b > 0 && originalShare > 0) ||
     !(loop.sense === 1 || loop.sense === -1)
   )
@@ -46,7 +44,6 @@ export function AutoMovieConstructionPortRadialRange(
       "Port radial range needs a finite clock, centre, positive axes/share and signed phase sense.",
     );
   if (
-    ![...station, ...phase].every(Number.isFinite) ||
     !(station[0] < station[1] && phase[0] < phase[1])
   )
     throw new Error(
@@ -68,8 +65,6 @@ export function AutoMovieConstructionPortRadialRange(
     );
     if (
       !(
-        Number.isFinite(s) &&
-        Number.isFinite(t) &&
         s >= station[0] &&
         s <= station[1] &&
         t >= phase[0] &&
@@ -148,7 +143,7 @@ export function AutoMovieConstructionPortRadialRange(
         : Math.min(stationLimit, phaseLimit);
   if (
     maximum === null ||
-    !(Number.isFinite(maximum) && maximum > originalShare)
+    !(maximum > originalShare)
   )
     throw new Error(
       "Port radial range has no representable positive outer endpoint beyond its original control.",

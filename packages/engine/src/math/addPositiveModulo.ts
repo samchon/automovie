@@ -20,11 +20,10 @@ export const addPositiveModulo: (
 ) => number = (value: number, offset: number, period: number): number => {
   const left: number = positiveModulo(value, period);
   const right: number = positiveModulo(offset, period);
-  const sum: number = left + right;
+  // The sum overflows exactly when right exceeds the room above left.
+  const overflows: boolean = right > Number.MAX_VALUE - left;
   return positiveModulo(
-    !Number.isFinite(sum) && Number.isFinite(left) && Number.isFinite(right)
-      ? left - (period - right)
-      : sum,
+    overflows ? left - (period - right) : left + right,
     period,
   );
 };

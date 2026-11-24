@@ -16,13 +16,27 @@ import { nclose } from "../internal/nclose";
 type Piece = Parameters<typeof measureAutoMovieCurveLength64>[0][number];
 
 /**
- * Original world derivatives supply physical curve lengths without a fitted curve.
+ * Original world derivatives supply physical curve lengths without a fitted
+ * curve.
  *
  * Scenarios:
- * 1. Lines, helices, a parabola with its asinh antiderivative and a three-dimensional quintic Pythagorean-hodograph curve have independent lengths. Unequal pieces, reversed parameters, world reflections and three length units retain them.
- * 2. Actual natural/quintic Outline station jets measure a folded-back source and a monotone named-height course with nonzero axis drift. Original prepared records remain unchanged; finite zero speed is allowed.
- * 3. Original cubic Bernstein controls retain local-parameter length despite unequal phase widths; the shared API and wrapper both meet the analytic 13/3 mm length. Legacy finite-final returns also retain subnormal rounding and finite quadrature of a curve with endpoint-only speed overflow, while strict source admission still refuses them.
- * 4. Closed-domain queries and the declared finite evaluation budget are observed. Invalid domains/subdivisions, nonfinite endpoint/interior derivatives, unrepresentable widths/nodes/contributions and callback exceptions fail explicitly.
+ *
+ * 1. Lines, helices, a parabola with its asinh antiderivative and a
+ *    three-dimensional quintic Pythagorean-hodograph curve have independent
+ *    lengths. Unequal pieces, reversed parameters, world reflections and three
+ *    length units retain them.
+ * 2. Actual natural/quintic Outline station jets measure a folded-back source and
+ *    a monotone named-height course with nonzero axis drift. Original prepared
+ *    records remain unchanged; finite zero speed is allowed.
+ * 3. Original cubic Bernstein controls retain local-parameter length despite
+ *    unequal phase widths; the shared API and wrapper both meet the analytic
+ *    13/3 mm length. Legacy finite-final returns also retain subnormal rounding
+ *    and finite quadrature of a curve with endpoint-only speed overflow, while
+ *    strict source admission still refuses them.
+ * 4. Closed-domain queries and the declared finite evaluation budget are observed.
+ *    Invalid domains/subdivisions, nonfinite endpoint/interior derivatives,
+ *    unrepresentable widths/nodes/contributions and callback exceptions fail
+ *    explicitly.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public source-length API, original Outline jet readers and existing cubic wrapper; verifies physical lengths, source immutability, query confinement, fixed work and explicit failure without replacing any foreign callback or global.
  * @evidence contracts/development/testing.md#independent-expectations A line's norm is13; a helix has constant speed. The parabola antiderivative is t*sqrt(1+4*t*t)/2+asinh(2*t)/4. The quintic derivative [1-t*t-t^4,2*t,2*t*t] has speed1+t*t+t^4 and length23/15. Total variation of the known natural source gives14; the monotone quintic height with X=2Y gives sqrt(5). Cubic PH plus a3mm line gives13/3. The large monotone cubic has exact lengthA and endpoint derivative3A beyond binary64; minimum-subnormal weighted terms round to zero by IEEE754 ties-to-even. No quadrature implementation derives these expectations.
@@ -120,7 +134,7 @@ export function test_geometry_source_curve_length(): void {
     check(
       failures,
       "observed difference is finite nonnegative",
-      Number.isFinite(measured.differenceMm) && measured.differenceMm >= 0,
+      measured.differenceMm >= 0,
     );
   }
 
@@ -294,11 +308,7 @@ export function test_geometry_source_curve_length(): void {
       13 / 3,
       2e-12,
     );
-    check(
-      failures,
-      "cubic difference is finite",
-      Number.isFinite(wrapped.differenceMm) && wrapped.differenceMm >= 0,
-    );
+    check(failures, "cubic difference is finite", wrapped.differenceMm >= 0);
   }
   check(
     failures,
@@ -529,7 +539,10 @@ export function test_geometry_source_curve_length(): void {
     );
 }
 
-/** Collect independent finite scalar comparisons without stopping the inspection at its first finding. */
+/**
+ * Collect independent finite scalar comparisons without stopping the inspection
+ * at its first finding.
+ */
 function near(
   failures: string[],
   label: string,
@@ -553,7 +566,10 @@ function check(failures: string[], label: string, condition: boolean): void {
   }
 }
 
-/** Require explicit refusal while letting the complete round inspect every supplied failure cause. */
+/**
+ * Require explicit refusal while letting the complete round inspect every
+ * supplied failure cause.
+ */
 function refuses(
   failures: string[],
   label: string,

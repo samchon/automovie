@@ -43,10 +43,8 @@ export function terrainTrees(
     const scale: number = trees.scale ?? 1;
     const [x, z]: IAutoMovieTerrainRecipe.Point = trees.center;
     if (
-      ![x, z, trees.radius, scale].every(Number.isFinite) ||
       trees.radius <= 0 ||
       scale <= 0 ||
-      !Number.isInteger(trees.count) ||
       trees.count < 1 ||
       trees.count > 100_000
     )

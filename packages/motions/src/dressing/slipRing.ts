@@ -1,10 +1,9 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
   IAutoMovieAffordance,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -12,7 +11,6 @@ import type {
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanColliders,
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPosture,
@@ -29,17 +27,16 @@ import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanAr
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
-import { AutoMovieMotionHumanPartnerClear } from "../compose/AutoMovieMotionHumanPartnerClear";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanTrunkLean } from "../handling/HumanTrunkLean";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { StrikingBody } from "../striking/StrikingBody";
 import { HumanWornItem } from "./HumanWornItem";
+import { slipRingLean } from "./slipRingLean";
+import { slipRingSteady } from "./slipRingSteady";
 
 /**
  * Where along the proximal phalanx a ring rests, as a share from its base joint
@@ -218,83 +215,16 @@ function planSlipRing(
       bend(side),
     );
 
-  // The steadying palm takes the partner's forearm a third of the way
-  // from the wrist to the elbow, from the side facing the steadying
-  // shoulder, its fingers toward the partner's wrist: on the presented
-  // hand the two hands converged and their forearms crossed (25 mm,
-  // then 22.8 mm on either side of the hand). The palm lies the forearm's
-  // radius off its axis toward the steadying shoulder and faces back
-  // onto it, so the steadying arm comes in from its own side.
-  const wrist: IAutoMovieVector3 = bones.get(
-    `${hand}Hand` as AutoMovieHumanoidBone,
-  )!.worldPosition;
-  const elbow: IAutoMovieVector3 = bones.get(
-    `${hand}LowerArm` as AutoMovieHumanoidBone,
-  )!.worldPosition;
-  const grasped: IAutoMovieVector3 = Vector3.lerp(wrist, elbow, 1 / 3);
-  const along: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(wrist, elbow),
-  );
-  const shoulder: IAutoMovieVector3 = poseBones(body, context.entry.pose).get(
-    `${steady}UpperArm`,
-  )!.worldPosition;
-  const toward: IAutoMovieVector3 = Vector3.subtract(shoulder, grasped);
-  const outward: IAutoMovieVector3 = Vector3.normalize(
-    Vector3.subtract(toward, Vector3.scale(along, Vector3.dot(toward, along))),
-  );
-  // The palm lies on the partner's forearm collider itself, not one
-  // radius off the axis shared by the whole limb (contacts.md, "Contact
-  // between performers": penetration is measured against each part's own
-  // collider): a ray in from the steadying side onto the forearm's
-  // colliders finds the place and its facing (`HumanColliders.cast`), as
-  // the embrace lays its palms. It starts a forearm's length out, beyond
-  // any of the forearm's colliders, and runs twice that.
-  const lowerArm: AutoMovieHumanoidBone =
-    `${hand}LowerArm` as AutoMovieHumanoidBone;
-  const hit: IAutoMovieMotionHumanColliders.IHit | undefined =
-    HumanColliders.cast(
-      partner.body,
-      new Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>([
-        [lowerArm, bones.get(lowerArm)!],
-      ]),
-      Vector3.add(
-        grasped,
-        Vector3.scale(outward, partner.body.measure.forearm),
-      ),
-      Vector3.scale(outward, -1),
-      2 * partner.body.measure.forearm,
-    );
-  if (hit === undefined)
-    throw new HumanRefusal({
-      kind: "reach",
-      axis: "partner",
-      value: p.partner,
-      reason: `no collider of the partner's ${lowerArm} lies on the steadying hand's way in`,
-      fix: "have the partner present the forearm toward the steadying hand",
-    });
-  const under: IAutoMovieMotionHumanArmTarget.ITarget =
-    AutoMovieMotionHumanArmTarget.prepareTarget(
-      body,
-      steady,
-      "palm",
-      "flat",
-    )({
-      point: hit.point,
-      rotation: HumanHand.align(
-        HumanHand.offset(body, steady, "palm", "flat"),
-        {
-          normal: Vector3.scale(hit.normal, -1),
-          forward: Vector3.normalize(
-            Vector3.subtract(
-              along,
-              Vector3.scale(hit.normal, Vector3.dot(along, hit.normal)),
-            ),
-          ),
-        },
-      ),
-      bend: bend(steady),
-    });
-
+  const under: IAutoMovieMotionHumanArmTarget.ITarget = slipRingSteady({
+    context,
+    p,
+    body,
+    partner,
+    bones,
+    hand,
+    steady,
+    bend,
+  });
   // Each hand's place before and after, and the phases on one clock.
   const pose: ReturnType<typeof poseBones> = poseBones(
     body,
@@ -399,116 +329,17 @@ function planSlipRing(
     relax: steadying.at("relax"),
     end: steadying.duration,
   };
-  // A presented hand beyond the standing arms (a small partner's hand
-  // before a tall dresser, or the forearm the steadying palm takes) is
-  // reached by the least hinge at the hips that brings both wrists the
-  // plan asks at the stroke's end within their arms (`HumanTrunkLean`),
-  // as `dressPartner` reaches a region, eased in over the reach and out
-  // over the return on the minimum-jerk profile (Flash and Hogan 1985):
-  // the dresser keeps its standoff instead of an arm held past its reach.
-  const asked: IAutoMovieMotionHumanPosture = plan.posture(
-    clock.at("strokeEnd"),
-  );
-  const wrists: HumanTrunkLean.IWrist[] = [side, steady].flatMap(
-    (arm: AutoMovieHumanSide): HumanTrunkLean.IWrist[] => {
-      const goal: IAutoMovieHumanLimbGoal | undefined =
-        asked.limbs[`${arm}Arm`];
-      return goal === undefined || goal.on !== undefined
-        ? []
-        : [
-            {
-              side: arm,
-              point: goal.point,
-              rotation: goal.rotation ?? Quaternion.identity(),
-            },
-          ];
-    },
-  );
-  const forward: number =
-    wrists.length === 0 ? 0 : HumanTrunkLean.least(context, wrists);
-  // The hinge comes in with the steadying hand's reach and goes out with
-  // its return, the first and last arm to move.
-  const hinge: (seconds: number) => number = (seconds: number): number =>
-    forward *
-    (seconds <= grasping.relax
-      ? minimumJerk.share(
-          grasping.ready > 0
-            ? Math.min(1, Math.max(0, seconds / grasping.ready))
-            : 1,
-        )
-      : 1 -
-        minimumJerk.share(
-          Math.min(
-            1,
-            Math.max(
-              0,
-              (seconds - grasping.relax) / (grasping.end - grasping.relax),
-            ),
-          ),
-        ));
-  const leaned: IAutoMovieMotionHumanActionPlan =
-    forward > 0
-      ? {
-          ...HumanTrunkLean.moving(plan, forward),
-          posture: (
-            seconds: number,
-            channels?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[1],
-            resolution?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[2],
-            projection?: Parameters<
-              IAutoMovieMotionHumanActionPlan["posture"]
-            >[3],
-          ): IAutoMovieMotionHumanPosture =>
-            HumanTrunkLean.lean(
-              body,
-              plan.posture(seconds, channels, resolution, projection),
-              hinge(seconds),
-            ),
-        }
-      : plan;
-  // The partner's body is both arms' obstacle (`AutoMovieMotionHumanPartnerClear`),
-  // except the presented hand, its fingers and its forearm, which the
-  // ring goes onto and the steadying palm lies under: those are the
-  // steadying arm's rests and no obstacle to the ring hand.
-  const presented: (bone: AutoMovieHumanoidBone) => boolean = (
-    bone: AutoMovieHumanoidBone,
-  ): boolean =>
-    bone === `${hand}Hand` ||
-    bone === `${hand}LowerArm` ||
-    (bone.startsWith(hand) && /(Thumb|Index|Middle|Ring|Little)/.test(bone));
-  const cleared: IAutoMovieMotionHumanActionPlan = {
-    ...leaned,
-    posture: (
-      seconds: number,
-      channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture => {
-      const segments: IAutoMovieMotionHumanColliders.IPlaced[] =
-        AutoMovieMotionHumanPartnerClear.at(partner, context.start + seconds);
-      const clear: IAutoMovieMotionHumanColliders.IPlaced[] = segments.filter(
-        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-          !presented(s.bone),
-      );
-      const rests: IAutoMovieMotionHumanColliders.IPlaced[] = segments.filter(
-        (s: IAutoMovieMotionHumanColliders.IPlaced): boolean =>
-          presented(s.bone),
-      );
-      return AutoMovieMotionHumanPartnerClear.onto(
-        AutoMovieMotionHumanPartnerClear.onto(
-          leaned.posture(seconds, channels, resolution, projection),
-          `${side}Arm`,
-          clear,
-        ),
-        `${steady}Arm`,
-        clear,
-        rests,
-      );
-    },
-  };
+  const cleared: IAutoMovieMotionHumanActionPlan = slipRingLean({
+    context,
+    body,
+    plan,
+    clock,
+    side,
+    steady,
+    grasping,
+    partner,
+    hand,
+  });
   const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
     context,
     plan: cleared,

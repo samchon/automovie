@@ -13,7 +13,6 @@ export function* RecoveryChartFitRows(
   sample: Parameters<IAutoMovieRecoveryChartFitRows.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartFitRows.Operation> {
   if (
-    ![sample.u, sample.v, ...sample.pointMm].every(Number.isFinite) ||
     sample.u < 0 ||
     sample.u > 1 ||
     sample.v < 0 ||
@@ -57,9 +56,6 @@ export function* RecoveryChartFitRows(
       );
     for (const direction of sample.physicalJet.directions) {
       if (
-        ![direction.du, direction.dv, ...direction.targetMm].every(
-          Number.isFinite,
-        ) ||
         direction.targetMm.length !== 3 ||
         (direction.du === 0 && direction.dv === 0)
       )
@@ -72,10 +68,6 @@ export function* RecoveryChartFitRows(
           direction.du * du[id % 4]! * v[Math.floor(id / 4)]! +
           direction.dv * u[id % 4]! * dv[Math.floor(id / 4)]!,
       );
-      if (!coefficients.every(Number.isFinite))
-        throw new Error(
-          "A physical derivative observation is not representable",
-        );
       yield {
         kind: "physical-gradient",
         coefficients,

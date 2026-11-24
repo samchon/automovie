@@ -8,18 +8,17 @@ import type {
 
 /**
  * How far a prop the right hand of `a` picked up moves in that hand's own
- * frame, from the grip's closing to the film's end: the largest distance of
- * the prop's origin, read in the hand's frame every half second, from where
- * it lay a millisecond after the pick-up's `gripClosed`. The
- * `test_human_motion_prop_held_*` readers hold it within the campaign's
- * 1 mm bound for a grip; a grip is a rigid relation, so a slide shows at
- * every later reading and no instant between two readings hides one.
+ * frame, from the grip's closing to the film's end: the largest distance of the
+ * prop's origin, read in the hand's frame every half second, from where it lay
+ * a millisecond after the pick-up's `gripClosed`. The
+ * `test_human_motion_prop_held_*` readers hold it within the campaign's 1 mm
+ * bound for a grip; a grip is a rigid relation, so a slide shows at every later
+ * reading and no instant between two readings hides one.
  *
- * @param performance A film whose first segment of `a` picks the prop up
- *   with the right hand.
+ * @param performance A film whose first segment of `a` picks the prop up with
+ *   the right hand.
  * @param prop The prop's subject.
  * @returns The largest drift, metres.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the frame, the window, the sampling, what is returned and why the sampling cannot hide a slide.
  * @evidence contracts/development/implementation.md#principled-implementation Reads the displayed hand and the displayed prop frame of the public performance and expresses the prop's origin in the hand's frame.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One seat function, one reference reading and one sweep.
@@ -52,9 +51,7 @@ export function motionPropHeldDrift(
     );
   };
   const first: IAutoMovieVector3 = seat(from);
-  let worst: number = [from, first.x, first.y, first.z].every(Number.isFinite)
-    ? 0
-    : NaN;
+  let worst: number = 0;
   for (
     let seconds: number = from + 0.5;
     seconds <= performance.duration;

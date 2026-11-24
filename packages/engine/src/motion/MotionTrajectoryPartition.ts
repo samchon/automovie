@@ -17,7 +17,7 @@ export function MotionTrajectoryPartition(
   t0: number,
   t1: number,
 ): MotionTrajectoryPartition.IPartition {
-  if (!(Number.isFinite(t0) && Number.isFinite(t1) && t1 > t0))
+  if (!(t1 > t0))
     throw new Error(
       "A reusable trajectory partition needs a finite forward interval",
     );
@@ -37,7 +37,7 @@ export function MotionTrajectoryPartition(
       let end: number | undefined = ends.get(start);
       if (end === undefined) return false;
       const limit: number = maximumStep ?? (end - start) / 2;
-      if (!(Number.isFinite(limit) && limit > 0 && limit < end - start))
+      if (!(limit > 0 && limit < end - start))
         return false;
       do {
         const middle: number = start + (end - start) / 2;

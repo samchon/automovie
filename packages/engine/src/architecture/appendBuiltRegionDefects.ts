@@ -33,7 +33,7 @@ export const appendBuiltRegionDefects: (
   collector: IAutoMovieViolationCollector,
 ): void => {
   const area: number = polygonDoubleArea(region);
-  if (!Number.isFinite(area) || Math.abs(area) <= BUILT_PLANAR_EPSILON)
+  if (Math.abs(area) <= BUILT_PLANAR_EPSILON)
     collector.push(
       "range",
       path,

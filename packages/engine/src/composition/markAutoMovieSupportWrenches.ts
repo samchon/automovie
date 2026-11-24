@@ -43,11 +43,11 @@ import type {
 export function markAutoMovieSupportWrenches(
   props: IAutoMovieMarkSupportWrenches.IProps,
 ): IAutoMovieMark[] {
-  if (!(Number.isFinite(props.interval) && props.interval > 0))
+  if (!(props.interval > 0))
     throw new Error(
       `markAutoMovieSupportWrenches: interval ${props.interval} is not positive and finite`,
     );
-  if (!(Number.isFinite(props.metresPerNewton) && props.metresPerNewton > 0))
+  if (!(props.metresPerNewton > 0))
     throw new Error(
       `markAutoMovieSupportWrenches: metres per newton ${props.metresPerNewton} is not positive and finite`,
     );

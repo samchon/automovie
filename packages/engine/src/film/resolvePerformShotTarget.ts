@@ -10,7 +10,6 @@ import {
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 
 /**
  * Gate one positional target of a performance and resolve it to a world point,
@@ -72,13 +71,8 @@ export function resolvePerformShotTarget(
   if (!validateTargetIds(context, target, path, props.label)) return null;
   if (
     (target.kind === "node" && !context.nodePositions.has(target.node)) ||
-    (target.kind === "point" && !isFiniteStageVector3(target.point)) ||
     (target.kind === "group" &&
-      target.nodes.length + (target.formations?.length ?? 0) === 0) ||
-    (target.kind !== "node" &&
-      target.kind !== "bone" &&
-      target.kind !== "point" &&
-      target.kind !== "group")
+      target.nodes.length + (target.formations?.length ?? 0) === 0)
   ) {
     context.out.push(
       "type",
@@ -93,10 +87,7 @@ export function resolvePerformShotTarget(
     resolveTargetPoint(target, context.nodePositions, context.formationPoints);
   if (
     point === null ||
-    point === undefined ||
-    !Number.isFinite(point.x) ||
-    !Number.isFinite(point.y) ||
-    !Number.isFinite(point.z)
+    point === undefined
   ) {
     context.out.push(
       "type",

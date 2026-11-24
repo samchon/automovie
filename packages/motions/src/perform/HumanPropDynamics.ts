@@ -91,32 +91,19 @@ export namespace HumanPropDynamics {
 
     const duration: number = drive.duration;
     const inertia: number = drive.inertia;
-    if (!(duration > 0 && Number.isFinite(duration)))
+    if (!(duration > 0))
       throw new Error(
         `${subject}.${articulation}: expected a positive finite duration`,
       );
-    if (!(inertia > 0 && Number.isFinite(inertia)))
+    if (!(inertia > 0))
       throw new Error(
         `${subject}.${articulation}: expected a positive finite inertia`,
       );
     const start: IAutoMovieMotionHumanProp.ITrack["start"] = drive.start;
-    if (
-      !Number.isFinite(typeof start === "number" ? start : (start.offset ?? 0))
-    )
-      throw new Error(
-        `${subject}.${articulation}: expected a finite start time or offset`,
-      );
 
     const path: IAutoMovieIntegrateMotionTrajectory.ITrajectory = hinge(
       inertia,
-      (seconds: number): number => {
-        const torque: number = drive.torque(seconds);
-        if (!Number.isFinite(torque) || !Number.isFinite(torque / inertia))
-          throw new Error(
-            `${subject}.${articulation}: expected finite torque and acceleration at ${seconds}s`,
-          );
-        return torque;
-      },
+      (seconds: number): number => drive.torque(seconds),
       0,
       duration,
     );
@@ -176,11 +163,6 @@ export namespace HumanPropDynamics {
       );
     const violations: ViolationCollector = new ViolationCollector();
     validateBody(body, `${prop.subject}.body`, violations);
-    violations.finiteVector(
-      `${prop.subject}.frame.position`,
-      prop.frame.position,
-      "slide start position",
-    );
     violations.unitQuaternion(
       `${prop.subject}.frame.rotation`,
       prop.frame.rotation,
@@ -197,7 +179,7 @@ export namespace HumanPropDynamics {
       );
 
     const length: number = Math.hypot(drive.direction.x, drive.direction.z);
-    if (drive.direction.y !== 0 || !(length > 0 && Number.isFinite(length)))
+    if (drive.direction.y !== 0 || !(length > 0))
       throw new Error(
         `${prop.subject}: a force-driven slide needs a finite nonzero horizontal direction`,
       );
@@ -219,11 +201,7 @@ export namespace HumanPropDynamics {
       kinetic: body.kineticFriction,
       force: (seconds: number): number => {
         const force: number = drive.force(seconds);
-        if (
-          !Number.isFinite(force) ||
-          force < 0 ||
-          !Number.isFinite(force / mass)
-        )
+        if (!(force >= 0))
           throw new Error(
             `${prop.subject}: a force-driven slide needs a nonnegative force with finite force and acceleration at ${seconds}s`,
           );

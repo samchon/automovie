@@ -58,14 +58,12 @@ export function preparePlaybackTimeline(
       const end: number = start + played;
       if (
         rate !== 1 &&
-        (!Number.isFinite(rate) ||
-          !(rate > 0) ||
-          !Number.isFinite(end) ||
+        (!(rate > 0) ||
           !(played > 0) ||
           !(end > start))
       )
         throw new Error(
-          `sequence.shots[${index}].playbackRate must be finite and positive and produce a representable output span`,
+          `sequence.shots[${index}].playbackRate must be positive and produce a representable output span`,
         );
       entries.push({
         entry: index,

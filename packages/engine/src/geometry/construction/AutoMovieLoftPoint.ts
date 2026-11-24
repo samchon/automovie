@@ -68,7 +68,7 @@ export namespace AutoMovieLoftPoint {
         for (let k: number = 0; k < 3; k++) q[k]! += h * n[k]!;
       }
       AutoMovieLoftReliefCompose.point(q, chain.reliefs ?? [], s, t);
-      if (source !== null && !q.every(Number.isFinite))
+      if (source !== null)
         throw new Error("The actual native point has no finite world value.");
       return q;
     };
@@ -142,8 +142,6 @@ export namespace AutoMovieLoftPoint {
         }
       }
       AutoMovieLoftReliefCompose.phase({ p, t: dt }, chain.reliefs ?? [], s, t);
-      if (![...p, ...dt].every(Number.isFinite))
-        throw new Error("The actual phase-only world reading is nonfinite.");
       return { p, t: dt };
     };
   }
@@ -250,8 +248,7 @@ export namespace AutoMovieLoftPoint {
         N - 1,
         Math.floor(((((t / (2 * Math.PI)) % 1) + 1) % 1) * N),
       );
-      if (Number.isInteger(i))
-        for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
+      for (let d: number = -1; d <= 2; d++) fill((i + d + N) % N);
       const p: [number, number, number, number] = AutoMovieSplineCurve.evaluate(
         c,
         N,

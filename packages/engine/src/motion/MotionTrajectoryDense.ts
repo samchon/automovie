@@ -146,7 +146,6 @@ export function MotionTrajectoryDense(props: {
     );
   }
   const base: MotionTrajectoryRead.IDenseStep = { t, h, x, q, terms, turns };
-  if (!finite(base)) return null;
   if (props.defect === undefined) return { step: base, error: 0 };
   const defect: NonNullable<
     IAutoMovieIntegrateMotionTrajectory.IProps["rotationDefect"]
@@ -186,8 +185,6 @@ export function MotionTrajectoryDense(props: {
                 c[4],
               ),
           );
-    if (!finiteQuaternion(orientation) || !state.every(Number.isFinite))
-      return null;
     const rate: IAutoMovieIntegrateMotionTrajectory.IRate = props.rate(
       t + u * h,
       state,
@@ -197,7 +194,7 @@ export function MotionTrajectoryDense(props: {
       r,
       rate.w!,
     );
-    return algebra === null || !rate.dx.every(Number.isFinite)
+    return algebra === null
       ? null
       : { rate, algebra };
   };
@@ -255,7 +252,6 @@ export function MotionTrajectoryDense(props: {
   );
   if (left === null || right === null) return null;
   const u: MotionTrajectoryRead.IDenseStep = fit(left, right);
-  if (!finite(u)) return null;
   const refinedLeft: ISample | null = sample(
     u,
     MotionTrajectoryPolynomial.NODES[0],
@@ -266,14 +262,12 @@ export function MotionTrajectoryDense(props: {
   );
   if (refinedLeft === null || refinedRight === null) return null;
   const v: MotionTrajectoryRead.IDenseStep = fit(refinedLeft, refinedRight);
-  if (!finite(v)) return null;
 
   // The extrema belong to the actual paired polynomials, not a time grid.
   const nodes: number[] = METHOD_NODES.slice();
   for (const axis of AXES) {
     const deltaD: number = u.turns[3]![axis] - v.turns[3]![axis];
     const deltaE: number = u.turns[4]![axis] - v.turns[4]![axis];
-    if (!Number.isFinite(deltaD) || !Number.isFinite(deltaE)) return null;
     const scale: number = Math.max(Math.abs(deltaD), Math.abs(deltaE));
     if (scale === 0) continue;
     const d: number = deltaD / scale;
@@ -309,7 +303,7 @@ export function MotionTrajectoryDense(props: {
         r,
         MotionTrajectoryRotation.curveDerivative(step.turns, at, h),
       );
-      if (rate === null || !finiteQuaternion(orientation)) return null;
+      if (rate === null) return null;
       const same: boolean =
         previousQ !== undefined &&
         previousW !== undefined &&
@@ -350,23 +344,3 @@ export function MotionTrajectoryDense(props: {
   return { step: v, error };
 }
 
-/** Admit finite numeric coefficients before invoking a physical callback. */
-function finite(step: MotionTrajectoryRead.IDenseStep): boolean {
-  return (
-    step.terms.every((c: number[]): boolean => c.every(Number.isFinite)) &&
-    step.turns.every(
-      (v: IAutoMovieVector3): boolean =>
-        Number.isFinite(v.x) && Number.isFinite(v.y) && Number.isFinite(v.z),
-    )
-  );
-}
-
-/** A malformed numerical trial rejects before it can look like a model error. */
-function finiteQuaternion(q: IAutoMovieQuaternion): boolean {
-  return (
-    Number.isFinite(q.x) &&
-    Number.isFinite(q.y) &&
-    Number.isFinite(q.z) &&
-    Number.isFinite(q.w)
-  );
-}

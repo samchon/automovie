@@ -45,7 +45,7 @@ export function minimizeAutoMovieMeshClearance(
   axis: "x" | "y" | "z",
   clearance: number = 0,
 ): IAutoMovieMinimizeMeshClearance.IResult {
-  if (!Number.isFinite(clearance) || clearance < 0)
+  if (clearance < 0)
     throw new Error("Minimum mesh clearance must be finite and nonnegative.");
   const witnesses: IAutoMovieMeshClearanceWitness[] = [];
   const measured: { triangle: number; minimum: number }[] =

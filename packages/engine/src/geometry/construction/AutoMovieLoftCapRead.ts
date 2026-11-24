@@ -30,10 +30,6 @@ export namespace AutoMovieLoftCapRead {
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
     const frame: IAutoMovieLoftSectionFrame = owner.axis.at(station);
-    if (!finite(frame))
-      throw new AutoMovieLoftAdmissionError(
-        "The original cap axis has no finite frame value.",
-      );
     const collapsed: boolean =
       station === owner.station &&
       inputs.extents.every((x: number): boolean => x === 0);
@@ -50,8 +46,6 @@ export namespace AutoMovieLoftCapRead {
     const local: ((phi: number) => IAutoMovieLoftSectionPhase) | null =
       collapsed ? null : AutoMovieLoftSectionNative.phase(inputs);
     return (phi: number): IAutoMovieLoftPhaseReading => {
-      if (!Number.isFinite(phi))
-        throw new AutoMovieLoftAdmissionError("A cap phase must be finite.");
       let p: [number, number, number];
       let t: [number, number, number];
       if (local === null) {
@@ -71,10 +65,6 @@ export namespace AutoMovieLoftCapRead {
         phi,
         collapsed,
       );
-      if (![...p, ...t].every(Number.isFinite))
-        throw new AutoMovieLoftAdmissionError(
-          "The original cap world value/phase is nonfinite.",
-        );
       return { p, t };
     };
   }
@@ -130,6 +120,6 @@ export namespace AutoMovieLoftCapRead {
  */
 function finite(frame: IAutoMovieLoftSectionFrame): boolean {
   return [frame.origin, frame.u, frame.v].every(
-    (row: number[]): boolean => row.length === 3 && row.every(Number.isFinite),
+    (row: number[]): boolean => row.length === 3,
   );
 }

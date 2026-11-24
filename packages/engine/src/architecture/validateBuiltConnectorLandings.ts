@@ -59,7 +59,7 @@ export const validateBuiltConnectorLandings: (
           landing.space,
         );
       seen.add(landing.space);
-      if (!Number.isFinite(landing.at) || landing.at <= 0 || landing.at >= 1)
+      if (landing.at <= 0 || landing.at >= 1)
         collector.push(
           "range",
           `${landingPath}.at`,

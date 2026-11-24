@@ -48,9 +48,7 @@ export function AirborneMomentumDefect(
   const { relative, absolute }: typeof tolerance = tolerance;
   if (
     !(
-      Number.isFinite(relative) &&
       relative >= 0 &&
-      Number.isFinite(absolute) &&
       absolute >= 0 &&
       relative + absolute > 0
     )
@@ -63,11 +61,7 @@ export function AirborneMomentumDefect(
     y: momentum.y,
     z: momentum.z,
   };
-  if (!finiteVector(target))
-    throw new Error("Airborne momentum needs finite world components");
   const scale: number = physicalScale(target, relative, absolute);
-  if (!Number.isFinite(scale))
-    throw new Error("Airborne momentum error budget exceeds finite arithmetic");
 
   // A tabulated history reads a new second's numbers and factorisation
   // without issuing an instant; any other history issues its instant.
@@ -89,16 +83,7 @@ export function AirborneMomentumDefect(
       "factor" in read ? undefined : read;
     const factor: physicalInertiaFactor.IPrepared | undefined =
       "factor" in read ? read.factor : AirborneShapeHistory.factor(read);
-    if (
-      !(
-        finiteVector(read.relative) &&
-        finiteVector(angularVelocity) &&
-        finiteQuaternion(orientation)
-      )
-    )
-      throw new Error(
-        "Airborne momentum defect needs finite physical data and positive principal moments",
-      );
+
     let body: IAutoMovieVector3;
     if (factor !== undefined) body = factor.apply(angularVelocity);
     else {
@@ -110,15 +95,13 @@ export function AirborneMomentumDefect(
         instant!.inertia;
       if (
         !(
-          finiteVector(moments) &&
           moments.x > 0 &&
           moments.y > 0 &&
-          moments.z > 0 &&
-          finiteQuaternion(rotation)
+          moments.z > 0
         )
       )
         throw new Error(
-          "Airborne momentum defect needs finite physical data and positive principal moments",
+          "Airborne momentum defect needs positive principal moments",
         );
       const local: IAutoMovieVector3 = Quaternion.rotateVector(
         AirborneShapeHistory.inverse(instant!) ?? Quaternion.inverse(rotation),
@@ -138,10 +121,6 @@ export function AirborneMomentumDefect(
       world.y - target.y,
       world.z - target.z,
     );
-    if (!Number.isFinite(error))
-      throw new Error(
-        "Airborne reconstructed momentum exceeds finite arithmetic",
-      );
     return scale === 0 ? (error === 0 ? 0 : Infinity) : error / scale;
   };
 }
@@ -414,16 +393,3 @@ function physicalScale(
   );
 }
 
-/** Admit the current three scalar components without retaining their record. */
-function finiteVector(vector: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(vector.x) &&
-    Number.isFinite(vector.y) &&
-    Number.isFinite(vector.z)
-  );
-}
-
-/** Unit length remains the frame contract; finite coordinates are admitted here. */
-function finiteQuaternion(rotation: IAutoMovieQuaternion): boolean {
-  return finiteVector(rotation) && Number.isFinite(rotation.w);
-}

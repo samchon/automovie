@@ -78,10 +78,6 @@ export namespace QuadrupedRigDelta {
         now.translation,
         Quaternion.rotateVector(rotation, old.translation),
       );
-      if (![translation.x, translation.y, translation.z].every(Number.isFinite))
-        throw new RangeError(
-          `Quadruped ${bone} has an unrepresentable carrier delta`,
-        );
       deltas.set(bone, { rotation, translation });
     }
     return deltas;
@@ -125,15 +121,13 @@ export namespace QuadrupedRigDelta {
     if (frame === undefined || frame === null)
       throw new RangeError(`Quadruped ${id} has no rigid frame`);
     for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(frame.translation[axis]) || frame.scale[axis] !== 1)
+      if (frame.scale[axis] !== 1)
         throw new RangeError(
           `Quadruped ${id} requires a finite unit-scale frame`,
         );
     const q: IAutoMovieTransform["rotation"] = frame.rotation;
     const length: number = Math.hypot(q.x, q.y, q.z, q.w);
-    if (
-      !(Number.isFinite(length) && Math.abs(length - 1) <= 64 * Number.EPSILON)
-    )
+    if (!(Math.abs(length - 1) <= 64 * Number.EPSILON))
       throw new RangeError(`Quadruped ${id} requires a unit rotation`);
   }
 }

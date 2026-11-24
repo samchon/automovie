@@ -147,7 +147,7 @@ export namespace AutoMovieMotionClock {
     span: readonly IAutoMovieMotionClockPhase[],
     count: number,
   ): IAutoMovieMotionClockPhase[] {
-    if (!(count % 1 === 0 && count > 0))
+    if (!(count > 0))
       throw new Error("A movement repeats a positive whole number of times");
     return Array.from(
       { length: count },

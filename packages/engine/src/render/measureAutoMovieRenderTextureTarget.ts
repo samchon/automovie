@@ -15,11 +15,9 @@ export function measureAutoMovieRenderTextureTarget(
   target: IAutoMovieRenderTextureTarget,
 ): number | null {
   if (
-    !Number.isSafeInteger(target.samples) ||
     target.samples < 0 ||
     target.formats.length === 0 ||
     target.depthBytesPerTexel === null ||
-    !Number.isSafeInteger(target.depthBytesPerTexel) ||
     target.depthBytesPerTexel < 0 ||
     (target.faces !== undefined && target.faces !== 1 && target.faces !== 6)
   )
@@ -38,7 +36,7 @@ export function measureAutoMovieRenderTextureTarget(
     });
     if (resolved === null || base === null) return null;
     total += resolved + base * target.samples;
-    if (!Number.isSafeInteger(total)) return null;
+    if (total > Number.MAX_SAFE_INTEGER) return null;
   }
   if (target.depthBytesPerTexel !== 0) {
     const depth: number | null = measureAutoMovieTextureStorage({
@@ -50,5 +48,5 @@ export function measureAutoMovieRenderTextureTarget(
     total += depth * (1 + target.samples);
   }
   total *= target.faces ?? 1;
-  return Number.isSafeInteger(total) ? total : null;
+  return total > Number.MAX_SAFE_INTEGER ? null : total;
 }

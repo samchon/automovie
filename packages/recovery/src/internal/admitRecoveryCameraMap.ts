@@ -7,9 +7,8 @@ import type {
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
 /** The supplied charts and pixel count of a prepared view pair. */
-type PreparedPair = ReturnType<
-  IAutoMovieRecoveryCameraPairAdmissionOperation.Operation
->;
+type PreparedPair =
+  ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation>;
 
 /**
  * Prepare the three-view map's supplied charts before image allocation. The
@@ -40,7 +39,7 @@ export function admitRecoveryCameraMap(
       sum + view.width * view.height,
     0,
   );
-  if (!Number.isSafeInteger(pixels) || pixels > input.budget.maxPixels)
+  if (pixels > input.budget.maxPixels)
     throw new Error(
       "invalid-camera-map: aggregate pixels exceed the map pixel budget",
     );

@@ -98,12 +98,12 @@ export namespace StrikingAim {
   /**
    * Track a target.
    *
-   * @param aim The target's point at a film second; called only at seconds at
-   *   or before the one evaluated.
+   * @param aim The target's point at a film second; called once at each
+   *   observation and a step before it, when the tracker is made.
    * @param timing The timing.
    * @param offset A fixed offset added to every prediction (the declared
    *   accuracy and the seeded scatter), world metres.
-   * @returns The tracker, memoising each observation.
+   * @returns The tracker, every observation's prediction made when it is.
    */
   export function track(
     aim: (seconds: number) => IAutoMovieVector3,
@@ -111,18 +111,14 @@ export namespace StrikingAim {
     offset: IAutoMovieVector3,
   ): IAutoMovieMotionHumanStrikingAim.ITracker {
     const times: number[] = observations(timing);
-    const predictions: Map<number, IAutoMovieVector3> = new Map();
-    const prediction = (k: number): IAutoMovieVector3 => {
-      let p: IAutoMovieVector3 | undefined = predictions.get(k);
-      if (p === undefined) {
-        p = Vector3.add(
-          predict(aim, times[k]!, timing.impact, timing.step),
-          offset,
-        );
-        predictions.set(k, p);
-      }
-      return p;
-    };
+
+    // Every observation's prediction, made once here in observation order:
+    // the knots of the corrections the tracker superposes.
+    const predictions: readonly IAutoMovieVector3[] = times.map(
+      (t: number): IAutoMovieVector3 =>
+        Vector3.add(predict(aim, t, timing.impact, timing.step), offset),
+    );
+    const prediction = (k: number): IAutoMovieVector3 => predictions[k]!;
     const planned: IAutoMovieVector3 = prediction(0);
     const started: (
       seconds: number,

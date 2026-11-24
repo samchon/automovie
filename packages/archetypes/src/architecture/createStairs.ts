@@ -57,7 +57,7 @@ export function createStairs(
       params,
     );
   const steps: number = params.steps ?? 12;
-  if (!Number.isInteger(steps) || steps < 2 || steps > createStairs.STEPS)
+  if (steps < 2 || steps > createStairs.STEPS)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "stairs",

@@ -22,28 +22,29 @@ import { nclose } from "../../internal/nclose";
  * Different output densities consume an already common native endpoint.
  *
  * Scenarios:
- * 1. All four end pairings, three uniform unit scales and the actual 256/64
- *    orders retain complete circle world2 and both original adjacent intervals.
- * 2. A nonzero phase-constant lift2 survives without coefficient conversion.
- *    Whole native fullness/physical2, frame2, lift2, stale bindings, poles,
+ *
+ * 1. All four end pairings, three uniform unit scales and the actual 256/64 orders
+ *    retain complete circle world2 and both original adjacent intervals.
+ * 2. A nonzero phase-constant lift2 survives without coefficient conversion. Whole
+ *    native fullness/physical2, frame2, lift2, stale bindings, poles,
  *    unavailable derivatives and unsupported phase-dependent lift refuse.
  * 3. Real source leaves with 24/40 own phase grids publish one shared 24-point
  *    cycle and a final skin. Both faces use its exact vertex IDs, every shared
- *    edge has one incident triangle from each face in opposite directions.
- *    All adjacent-strip mesh vertices replay the independent circle directly
- *    and every triangle faces outward. Ring samples and section orders differ.
+ *    edge has one incident triangle from each face in opposite directions. All
+ *    adjacent-strip mesh vertices replay the independent circle directly and
+ *    every triangle faces outward. Ring samples and section orders differ.
  * 4. A part subtree that consumes the proposed end rolls back completely,
  *    preserving the outer host and a named shared-end diagnostic.
- * 5. Legal nested continuations share both ends of the same middle leaf;
- *    an outer mismatch preserves its named refusal and rolls both walks back.
+ * 5. Legal nested continuations share both ends of the same middle leaf; an outer
+ *    mismatch preserves its named refusal and rolls both walks back.
  *
  * Expectations come from r(y)=3+y+y^2 and elementary differentiation, not
  * compatibility controls. Source2 equality covers all phases by the native
  * family; the observed phase sweep additionally checks the actual consumer.
  * Binary64 oracle allowance is an absolute 2e-8 per component, in its declared
- * mm/station/radian units, for native inverse arithmetic.
- * One synchronous CPU question owns only synthetic sources, starts no process
- * or viewer, and collects every scenario before reporting its findings.
+ * mm/station/radian units, for native inverse arithmetic. One synchronous CPU
+ * question owns only synthetic sources, starts no process or viewer, and
+ * collects every scenario before reporting its findings.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `engine`, `interface` on in-memory inputs and asserts the returned observations through 1x TestValidator.predicate; 5 numbered scenarios (first: All four end pairings, three uniform unit scales and the actual 256/64; last: Legal nested continuations share both ends of the same middle leaf;). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (1 assertion site compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -72,7 +73,10 @@ export function test_construction_native_continuation(): void {
   );
 }
 
-/** Every made scenario runs even when another scenario has a refusal or exception. */
+/**
+ * Every made scenario runs even when another scenario has a refusal or
+ * exception.
+ */
 function collect(name: string, failures: string[], job: () => void): void {
   try {
     job();
@@ -83,7 +87,10 @@ function collect(name: string, failures: string[], job: () => void): void {
   }
 }
 
-/** Preserve whole native source data and every compatibility row at its own order. */
+/**
+ * Preserve whole native source data and every compatibility row at its own
+ * order.
+ */
 function equivalent(
   scale: number,
   hostEnd: "bottom" | "top",
@@ -164,7 +171,10 @@ function equivalent(
   }
 }
 
-/** The actual skin must consume the same ring across unequal native and tessellation densities. */
+/**
+ * The actual skin must consume the same ring across unequal native and
+ * tessellation densities.
+ */
 function skin(failures: string[]): void {
   const host: IAutoMovieViewPart = Made.source("skin.host", 256, 24);
   const part: IAutoMovieViewPart = Made.source("skin.part", 64, 40, 1);
@@ -230,7 +240,10 @@ function skin(failures: string[]): void {
   meshStrip(real.mesh, vertices, [host.name, part.name], failures);
 }
 
-/** Observe actual adjacent mesh triangles by face, never reconstructing product geometry from them. */
+/**
+ * Observe actual adjacent mesh triangles by face, never reconstructing product
+ * geometry from them.
+ */
 function meshStrip(
   mesh: IAutoMovieConstructionRealization.IMesh,
   ring: readonly number[],
@@ -299,7 +312,7 @@ function meshStrip(
       (b[0]! - a[0]!) * (c[1]! - a[1]!) - (b[1]! - a[1]!) * (c[0]! - a[0]!);
     const facing: number =
       nx * (a[0]! + b[0]! + c[0]!) + nz * (a[2]! + b[2]! + c[2]!);
-    if (!(Number.isFinite(facing) && facing > 0))
+    if (!(facing > 0))
       failures.push(
         `Mesh strip face ${face} has a degenerate or inward triangle.`,
       );
@@ -335,7 +348,10 @@ function position(
     .map((value: number): number => 1000 * value);
 }
 
-/** A nested continuation consuming the same part end must leave only the outer host. */
+/**
+ * A nested continuation consuming the same part end must leave only the outer
+ * host.
+ */
 function rollback(failures: string[]): void {
   const a: IAutoMovieViewPart = Made.source("rollback.host", 256, 24);
   const b: IAutoMovieViewPart = Made.source("rollback.part", 64, 40, 1);
@@ -395,7 +411,10 @@ function tree(host: string, part: string): IAutoMovieConstructionContinuation {
   };
 }
 
-/** Solid surface chart names map directly to the physical station/phase derivative contract. */
+/**
+ * Solid surface chart names map directly to the physical station/phase
+ * derivative contract.
+ */
 function surfaceJet(
   surface: IAutoMovieSolidSurface,
   station: number,
@@ -420,7 +439,10 @@ function surfaceJet(
   );
 }
 
-/** Both chart coordinates receive sign; the mixed second derivative therefore keeps its sign. */
+/**
+ * Both chart coordinates receive sign; the mixed second derivative therefore
+ * keeps its sign.
+ */
 function jets(
   actual: IAutoMovieLoftSurfaceJet,
   expected: IAutoMovieLoftSurfaceJet,
@@ -440,7 +462,10 @@ function jets(
     );
 }
 
-/** Independent finite arithmetic budget, unrelated to mesh chord or density admission. */
+/**
+ * Independent finite arithmetic budget, unrelated to mesh chord or density
+ * admission.
+ */
 function close(
   actual: readonly number[],
   expected: readonly number[],
@@ -450,7 +475,7 @@ function close(
   if (
     actual.some(
       (value: number, index: number): boolean =>
-        !Number.isFinite(value) || !nclose(value, expected[index]!, 2e-8),
+        !nclose(value, expected[index]!, 2e-8),
     )
   )
     failures.push(`${label}: actual ${actual}, expected ${expected}`);

@@ -53,9 +53,7 @@ export namespace AutoMoviePeriodicCubic {
     ] => {
       try {
         if (
-          m < 3 ||
-          !values.every(Number.isFinite) ||
-          !M.every(Number.isFinite)
+          m < 3
         )
           throw new Error(
             "needs at least three finite controls and curvatures",
@@ -91,7 +89,7 @@ export namespace AutoMoviePeriodicCubic {
 
 /** Refuse an unrepresentable enclosure instead of returning an infinity. */
 function finite(low: number, high: number): Interval {
-  if (!(Number.isFinite(low) && Number.isFinite(high) && low <= high))
+  if (!(low <= high))
     throw new Error("finite ordered enclosure is not representable");
   return [low, high];
 }

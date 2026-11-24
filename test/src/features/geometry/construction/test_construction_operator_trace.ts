@@ -1,3 +1,7 @@
+import {
+  AutoMovieConstructionSplitBand as Band,
+  AutoMovieConstructionSeeds as Seeds,
+} from "@automovie/engine";
 import type {
   IAutoMovieBlendColumn,
   IAutoMovieConstructionSearchSeed,
@@ -6,10 +10,6 @@ import type {
   IAutoMovieConstructionSplitBandTrace,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
-import {
-  AutoMovieConstructionSplitBand as Band,
-  AutoMovieConstructionSeeds as Seeds,
-} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -18,8 +18,14 @@ import { nclose } from "../../internal/nclose";
  * Existing strip and seed results survive detached observation of their work.
  *
  * Scenarios:
- * 1. Four parallel ribbons on S(s,t)=(cos(t),s,sin(t)) have common scale1 and a settled first local pass. Observed and unobserved actual surfaces retain the analytic point and station derivatives at twelve addresses.
- * 2. A transverse pair of planes meets at [0,0,0]; disjoint parallel planes terminate on a singular Newton step at gap2. Observation changes neither returned result and retains each actual termination's update count; candidate completion records that count as not applicable.
+ *
+ * 1. Four parallel ribbons on S(s,t)=(cos(t),s,sin(t)) have common scale1 and a
+ *    settled first local pass. Observed and unobserved actual surfaces retain
+ *    the analytic point and station derivatives at twelve addresses.
+ * 2. A transverse pair of planes meets at [0,0,0]; disjoint parallel planes
+ *    terminate on a singular Newton step at gap2. Observation changes neither
+ *    returned result and retains each actual termination's update count;
+ *    candidate completion records that count as not applicable.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual strip and bounded seed producers with and without optional observers, then reads actual strip surfaces and real event payloads.
  * @evidence contracts/development/testing.md#independent-expectations Unit-spaced parallel ribbons give the linear cross curve with first [0,1,0] and second zero, so the monotonicity predicate holds at1 and all log targets are0. Plane equations give the unique fixed-phase transverse meeting and the disjoint gap2 with a singular Jacobian.
@@ -131,20 +137,29 @@ export function test_construction_operator_trace(): void {
             failures.push("trace changed actual surface " + key);
       }
   }
-  const prepared: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> | undefined =
-    events.find(
-      (
-        event: IAutoMovieConstructionSplitBandTrace.Event,
-      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
-        event.kind === "prepared",
-    );
-  const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
-    events.find(
-      (
-        event: IAutoMovieConstructionSplitBandTrace.Event,
-      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
-        event.kind === "local-pass",
-    );
+  const prepared:
+    | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }>
+    | undefined = events.find(
+    (
+      event: IAutoMovieConstructionSplitBandTrace.Event,
+    ): event is Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "prepared" }
+    > => event.kind === "prepared",
+  );
+  const pass:
+    | Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "local-pass" }
+      >
+    | undefined = events.find(
+    (
+      event: IAutoMovieConstructionSplitBandTrace.Event,
+    ): event is Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "local-pass" }
+    > => event.kind === "local-pass",
+  );
   if (prepared === undefined)
     failures.push("actual prepared/common-factor event missing");
   else {
@@ -254,9 +269,7 @@ export function test_construction_operator_trace(): void {
       trace.some(
         (event: IAutoMovieConstructionSeedTrace.IEvent): boolean =>
           event.kind === "meet-end" &&
-          (event.iteration === null ||
-            !Number.isInteger(event.iteration) ||
-            event.iteration < 0),
+          (event.iteration === null || event.iteration < 0),
       )
     )
       failures.push("actual Newton termination lost its accepted-update count");

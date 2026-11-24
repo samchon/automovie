@@ -246,12 +246,8 @@ function addOpening(
   const shift: number = opening.offset ?? 0;
   const center: number = wallWidth / 2 + (turn ? -shift : shift);
   if (
-    !Number.isFinite(center) ||
-    !Number.isFinite(width) ||
     width <= 0 ||
-    !Number.isFinite(height) ||
     height <= 0 ||
-    !Number.isFinite(sill) ||
     sill < 0 ||
     sill + height >= level.height ||
     center - width / 2 <= thickness / 2 ||

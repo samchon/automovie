@@ -2,7 +2,7 @@
 export function createRecoveryMapTangent(
   t: readonly [number, number, number],
 ): [number, number, number][] {
-  if (!t.every(Number.isFinite) || Math.abs(Math.hypot(...t) - 1) > 1e-10)
+  if (Math.abs(Math.hypot(...t) - 1) > 1e-10)
     throw new Error("camera-map: unit seed translation required");
   let least: number = 0;
   for (let at: number = 1; at < 3; at++)

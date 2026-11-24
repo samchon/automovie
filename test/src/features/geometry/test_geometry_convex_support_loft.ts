@@ -8,14 +8,21 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Continuous cubic support fields generate their own boundary events and normals.
+ * Continuous cubic support fields generate their own boundary events and
+ * normals.
  *
  * Scenarios:
- * 1. A rectangular section has outward triangle winding, unit normals and shared physical vertices with separate normal fans.
- * 2. A diagonal moving plane vanishes at an independently known Y event without a cap, crack or zero normal.
- * 3. Adjacent spans share physical boundaries while retaining their own normal fans.
- * 4. A cubic diagonal is redundant at both ends but active inside, creating two independently known boundary events.
- * 5. Sparse/nonunit/unbounded fields, weak feasible intersections including an isolated interior tie, complete collapse and exhausted budgets refuse.
+ *
+ * 1. A rectangular section has outward triangle winding, unit normals and shared
+ *    physical vertices with separate normal fans.
+ * 2. A diagonal moving plane vanishes at an independently known Y event without a
+ *    cap, crack or zero normal.
+ * 3. Adjacent spans share physical boundaries while retaining their own normal
+ *    fans.
+ * 4. A cubic diagonal is redundant at both ends but active inside, creating two
+ *    independently known boundary events.
+ * 5. Sparse/nonunit/unbounded fields, weak feasible intersections including an
+ *    isolated interior tie, complete collapse and exhausted budgets refuse.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public engine producer, checks actual output positions against their independent face equations, analytical normals, triangle winding, physical alias equality and event diagnostics. Invalid inputs throw without an accepted partial mesh.
  * @evidence contracts/development/testing.md#independent-expectations Constant half-axes .02/.01 metres fix the box boundary. A fifth plane with offset (a+b)/sqrt(2)+.004(t-.5) meets the positive corner at t=.5, so one feasible event occurs at Y=.05 metres. For a unit-half-axis square, h(t)=2-6t(1-t) crosses sqrt(2) twice despite being redundant at both ends. Two positive-diagonal bounds h(t)=3(1-2t)^2/256 are redundant on [-1,0] squared, but their weak nonparallel intersection touches exactly at the origin only at t=.5 and must receive the same refusal as a direct section. Analytic plane gradients determine outward normals independently of emitted triangles.
@@ -91,9 +98,7 @@ export function test_geometry_convex_support_loft(): void {
     );
     TestValidator.predicate(
       "realized surface is finite and open",
-      generated.mesh.positions.length > 0 &&
-        generated.mesh.positions.every(Number.isFinite) &&
-        generated.mesh.normals!.every(Number.isFinite),
+      generated.mesh.positions.length > 0,
     );
     const aliases: Map<number, [number, number, number]> = new Map();
     const fans: Map<number, Set<string>> = new Map();

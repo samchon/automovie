@@ -233,7 +233,7 @@ export namespace rowBoat {
    */
   export function bind(ride: Ride, start: number): RigidCarrierSample.IBinding {
     const source: IBindingSource | undefined = SOURCES.get(ride);
-    if (source === undefined || !Number.isFinite(start))
+    if (source === undefined)
       throw new RangeError(
         "A bound rowboat needs a native course and a finite film second.",
       );

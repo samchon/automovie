@@ -17,6 +17,4 @@ export const propBoxAxisIsSound = (
   box: IAutoMoviePropBox,
   axis: "x" | "y" | "z",
 ): boolean =>
-  Number.isFinite(box.min[axis]) &&
-  Number.isFinite(box.max[axis]) &&
   box.min[axis] < box.max[axis];

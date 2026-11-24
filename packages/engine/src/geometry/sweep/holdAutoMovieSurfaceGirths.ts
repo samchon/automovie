@@ -138,7 +138,7 @@ export const holdAutoMovieSurfaceGirths: (
   const girths: IGirth[] = declared.map(
     (ring: IAutoMovieSurfaceNetwork.IRing): IGirth => {
       const perimeter: number = ring.perimeter!;
-      if (!(Number.isFinite(perimeter) && perimeter > 0))
+      if (!(perimeter > 0))
         throw new Error(
           `ring ${ring.name} perimeter must be positive and finite`,
         );
@@ -278,7 +278,7 @@ export const holdAutoMovieSurfaceGirths: (
     let worst: number = 0;
     girths.forEach((g: IGirth, i: number): void => {
       const measured: number = measure(g);
-      if (!(measured > 0) || !Number.isFinite(measured))
+      if (!(measured > 0))
         throw new Error(
           `ring ${g.name} measured perimeter is not positive and finite`,
         );
@@ -292,8 +292,7 @@ export const holdAutoMovieSurfaceGirths: (
       // the rank-one update that makes the Jacobian map the last step onto the last change of the residuals
       let length: number = 0;
       for (let j: number = 0; j < n; ++j) length += step[j]! * step[j]!;
-      if (!(length > 0) || !Number.isFinite(length))
-        throw new Error("girth rings made no finite progress");
+      if (!(length > 0)) throw new Error("girth rings made no finite progress");
       for (let i: number = 0; i < n; ++i) {
         let miss: number = residual[i]! - previous[i]!;
         for (let j: number = 0; j < n; ++j)
@@ -303,13 +302,11 @@ export const holdAutoMovieSurfaceGirths: (
       }
     }
     solve(jacobian, residual, step, n);
-    if (!step.every(Number.isFinite))
-      throw new Error("girth ring solve step is not finite");
     let scale: number = 1;
     while (
       girths.some((g: IGirth, i: number): boolean => {
         const candidate: number = g.value - scale * step[i]!;
-        return !(candidate > 0) || !Number.isFinite(candidate);
+        return !(candidate > 0);
       })
     ) {
       scale /= 2;

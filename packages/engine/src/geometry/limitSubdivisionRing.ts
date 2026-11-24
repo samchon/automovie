@@ -334,7 +334,7 @@ const unit: (a: readonly number[], vertex: number) => number[] = (
   vertex: number,
 ): number[] => {
   const size: number = length(a);
-  if (!(size > 0) || !Number.isFinite(size))
+  if (!(size > 0))
     throw new Error(
       `subdivision limit normal at vertex ${vertex} is undefined`,
     );

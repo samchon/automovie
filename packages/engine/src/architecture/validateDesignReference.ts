@@ -389,15 +389,7 @@ const validatePrimitive: (
   primitive.points.forEach(
     (point: IAutoMovieDesignPoint, pointIndex: number): void => {
       for (const axis of ["x", "y"] as const) {
-        if (!Number.isFinite(point[axis])) {
-          out.push(
-            "range",
-            `${path}.points[${pointIndex}].${axis}`,
-            `observed point ${axis} must be finite, but was ${point[axis]}`,
-            point[axis],
-          );
-          continue;
-        }
+
         // A mark outside the sheet it was read from was not on the sheet. The
         // check is here rather than in the frame because the frame states its
         // own extent honestly; it is the reading that has to stay inside it.

@@ -6,11 +6,11 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import LEDGER from "./MOTION_HUMAN_LEDGER.json";
 import { MotionHumanSweepChain } from "./MotionHumanSweepChain";
 import { motionHumanBody } from "./motionHumanBody";
 import { motionHumanLaw } from "./motionHumanLaw";
 import { motionHumanLawSweepCell } from "./motionHumanLawSweepCell";
+import { motionHumanLedger } from "./motionHumanLedger";
 
 /**
  * The universal sweep of the action laws: every law is staged over a covering
@@ -460,12 +460,12 @@ export namespace motionHumanLawSweep {
    * @evidence contracts/development/implementation.md#reuse-equivalent-work Reuses staged and the canonical body-fixture owner rather than duplicating parameter-consumption logic.
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Returns complaint strings without an added cap; row bookkeeping stays call-local and no scene or film is retained here.
    */
-  export function unstaged(table: Readonly<Record<string, Stage>>): string[] {
+  export async function unstaged(
+    table: Readonly<Record<string, Stage>>,
+  ): Promise<string[]> {
     const out: string[] = [];
-    for (const { law, rows } of LEDGER.laws as {
-      law: string;
-      rows: { row: string }[];
-    }[]) {
+    const ledger: motionHumanLedger.ILedger = await motionHumanLedger();
+    for (const { law, rows } of ledger.laws) {
       const stage: Stage | undefined = table[law];
       if (stage === undefined) {
         out.push(`${law}: no stage`);

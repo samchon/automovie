@@ -45,33 +45,30 @@ export function prepareJumpFlight(
     duration,
   );
 
-  return Object.assign(
-    (
-      share: number,
-      centre: IAutoMovieVector3,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): HumanPosturePreparation.IPlaced => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const prepared: HumanPosturePreparation.IPrepared = curve(
-        share,
-        read,
-        projection,
-      );
-      return HumanPosturePreparation.placed(
-        prepared,
-        model,
-        requested,
-        centre,
-        read,
-      );
-    },
-    { prepare: curve.prepare },
-  );
+  return (
+    share: number,
+    centre: IAutoMovieVector3,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
+  ): HumanPosturePreparation.IPlaced => {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
+    const prepared: HumanPosturePreparation.IPrepared = curve(
+      share,
+      read,
+      projection,
+    );
+    return HumanPosturePreparation.placed(
+      prepared,
+      model,
+      requested,
+      centre,
+      read,
+    );
+  };
 }
 
-/** Native jump flight shape and its owned preparation seam. */
+/** Native jump flight shape reader. */
 export namespace prepareJumpFlight {
   /** Read the achieved shape at the requested ballistic centre. */
   export interface IReader {
@@ -85,8 +82,5 @@ export namespace prepareJumpFlight {
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
     ): HumanPosturePreparation.IPlaced;
-
-    /** Prepare the free shape's canonical continuation anchor after placement. */
-    prepare(): void;
   }
 }

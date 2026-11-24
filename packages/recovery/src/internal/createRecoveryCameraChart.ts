@@ -29,11 +29,7 @@ export function createRecoveryCameraChart(
     0,
     1,
   ];
-  if (
-    !(fx > 0 && fy > 0) ||
-    !matrix.every(Number.isFinite) ||
-    !inverse.every(Number.isFinite)
-  )
+  if (!(fx > 0 && fy > 0))
     throw new Error(
       "camera-chart: pinhole calibration inverse is not representable",
     );

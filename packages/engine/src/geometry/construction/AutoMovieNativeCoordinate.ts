@@ -31,8 +31,7 @@ export namespace AutoMovieNativeCoordinate {
   ): IAutoMovieNativeCoordinate.IResult {
     if (
       (component !== 0 && component !== 1) ||
-      (half !== 1 && half !== -1) ||
-      !Number.isFinite(target)
+      (half !== 1 && half !== -1)
     )
       fail(
         "Native coordinate inverse needs a finite target and a declared coordinate/half.",
@@ -94,7 +93,7 @@ export namespace AutoMovieNativeCoordinate {
       Number.EPSILON *
       Math.max(1, Math.abs(target), ...inputs.extents.map(Math.abs));
     if (
-      !(Number.isFinite(best.residual) && Math.abs(best.residual) <= allowance)
+      !(Math.abs(best.residual) <= allowance)
     )
       fail(
         "Native coordinate inverse has no admitted original-point residual.",

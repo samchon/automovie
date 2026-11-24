@@ -231,12 +231,11 @@ export namespace AquaticScull {
     // handles swept: the hold fitted instant by instant on the branch and
     // swivel the instant before chose, clear of the body, at the strokes'
     // own pace (the handles' fastest speed, precisionStrokePeak).
-    let fastest: number | undefined;
-    const pace = (): number =>
-      (fastest ??= Math.max(
-        precisionStrokePeak(goals.posture, "leftArm", duration),
-        precisionStrokePeak(goals.posture, "rightArm", duration),
-      ));
+    const fastest: number = Math.max(
+      precisionStrokePeak(goals.posture, "leftArm", duration),
+      precisionStrokePeak(goals.posture, "rightArm", duration),
+    );
+    const pace = (): number => fastest;
     return courseArmGoal({
       context,
       plan: goals,

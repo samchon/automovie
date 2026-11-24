@@ -37,9 +37,7 @@ export function HumanQuadraticAdmission(
     rows,
   }: IAutoMovieMotionHumanQuadraticProgram.IProblem = problem;
   if (
-    !Number.isSafeInteger(n) ||
     n < 0 ||
-    !Number.isSafeInteger(band) ||
     band < 0 ||
     p.length !== n ||
     q.length !== n ||
@@ -59,19 +57,11 @@ export function HumanQuadraticAdmission(
     if (row === undefined || row.length < Math.min(band + 1, n - i))
       throw new RangeError(`Malformed quadratic curvature row ${i}`);
     const value: number = q[i]!;
-    if (!linear || !Object.is(value, prepared!.q[i])) {
-      if (value !== 0 && !Number.isFinite(value))
-        throw new RangeError(`Quadratic linear term entry ${i} must be finite`);
-      linear = false;
-    }
+    if (!linear || !Object.is(value, prepared!.q[i])) linear = false;
     if (curvature && row.length !== previous?.length) curvature = false;
     for (let j: number = 0; j < row.length; ++j) {
       const coefficient: number = row[j]!;
       if (curvature && Object.is(coefficient, previous![j])) continue;
-      if (coefficient !== 0 && !Number.isFinite(coefficient))
-        throw new RangeError(
-          `Quadratic curvature row ${i} entry ${j} must be finite`,
-        );
       curvature = false;
     }
   }
@@ -84,11 +74,10 @@ export function HumanQuadraticAdmission(
     const coefficients: readonly number[] = row.coef;
     if (
       indices.length !== coefficients.length ||
-      !(Number.isFinite(row.l) || row.l === -Infinity) ||
-      !(Number.isFinite(row.u) || row.u === Infinity) ||
+      !(row.l < Infinity) ||
+      !(row.u > -Infinity) ||
       row.l > row.u ||
-      (row.weight !== undefined &&
-        (!Number.isFinite(row.weight) || row.weight < 0))
+      (row.weight !== undefined && !(row.weight >= 0))
     )
       throw new RangeError(`Malformed quadratic row ${r}`);
 
@@ -108,13 +97,9 @@ export function HumanQuadraticAdmission(
       const knownCoefficient: boolean =
         knownIndex && matchingRows && Object.is(coef, prepared!.vals[at]);
       if (
-        (!sharedIndices &&
-          !knownIndex &&
-          (!Number.isInteger(index) ||
-            index < 0 ||
-            index >= n ||
-            index > MAX_CSR)) ||
-        (nonzero && !knownCoefficient && !Number.isFinite(coef))
+        !sharedIndices &&
+        !knownIndex &&
+        (index < 0 || index >= n || index > MAX_CSR)
       )
         throw new RangeError(`Malformed quadratic row ${r} entry ${a}`);
       if (!sharedIndices) {

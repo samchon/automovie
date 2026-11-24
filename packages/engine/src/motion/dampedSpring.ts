@@ -3,13 +3,6 @@ import type {
   IAutoMovieSpringStep,
 } from "@automovie/interface";
 
-const assertFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value)) throw new Error(`${label} must be finite`);
-};
-
 /**
  * Advance a one-dimensional damped spring one fixed timestep (semi-implicit
  * Euler): a generic numeric integrator for **secondary motion**, a value that
@@ -40,12 +33,6 @@ export const dampedSpring: (
   params: IAutoMovieSpringParams,
   dt: number,
 ): IAutoMovieSpringStep => {
-  assertFinite("spring current", current);
-  assertFinite("spring velocity", velocity);
-  assertFinite("spring target", target);
-  assertFinite("spring stiffness", params.stiffness);
-  assertFinite("spring damping", params.damping);
-  assertFinite("spring dt", dt);
   if (params.stiffness < 0)
     throw new Error("spring stiffness must be non-negative");
   if (params.damping < 0)

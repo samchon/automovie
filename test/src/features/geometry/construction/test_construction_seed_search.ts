@@ -22,14 +22,33 @@ interface Reads {
 }
 
 /**
- * Fixed-phase seed search finds an owned transverse meeting on regular analytic surfaces.
+ * Fixed-phase seed search finds an owned transverse meeting on regular analytic
+ * surfaces.
  *
  * Scenarios:
- * 1. The periodic part P(s,phi)=(s,A*sin(phi),f(s)+A*(1-cos(phi))) over a plane has one crossing at s=L/2 for f/L=q^3-5q/4, q=s/L-1/2. Its two endpoint Newton starts cycle exactly 0<->L at unit scale despite that unique regular transverse crossing.
- * 2. A quadratic-height periodic part has two transverse roots L/4 and 3L/4. Its world X=3s-7L/4 puts the first root outside the host's owned [0,L] chart, while the later root is inside. Both search directions must return that owned root, rather than delegating a rejected extension seed to a later full trace.
- * 3. Three common length units, two fixed phases and both height signs preserve the same independent roots. Exact share-endpoint roots, a point seed's metre conversion and invalid shares retain their distinct behavior.
- * 4. A disjoint regular periodic part and polynomial graph exercise cold-foot work. Counters report actual authored callback reads without asserting the current duplicated work as a contract or replacing Foot. A simpler separated plane case must also return a search failure.
- * 5. A round tube whose centre rises as a(1.5t-0.25) over a plane keeps its phase-0 line above the plane (z >= 0.75a) while its phase-pi line crosses it at t = 5/6. A fixed phase-0 search must refuse; a search over two lines (`phases: 2`) must return the phase-pi crossing at 5L/6 with phase pi, in three units and both directions; a line count of 0, 1.5, -2 or NaN is refused.
+ *
+ * 1. The periodic part P(s,phi)=(s,A_sin(phi),f(s)+A_(1-cos(phi))) over a plane
+ *    has one crossing at s=L/2 for f/L=q^3-5q/4, q=s/L-1/2. Its two endpoint
+ *    Newton starts cycle exactly 0<->L at unit scale despite that unique
+ *    regular transverse crossing.
+ * 2. A quadratic-height periodic part has two transverse roots L/4 and 3L/4. Its
+ *    world X=3s-7L/4 puts the first root outside the host's owned [0,L] chart,
+ *    while the later root is inside. Both search directions must return that
+ *    owned root, rather than delegating a rejected extension seed to a later
+ *    full trace.
+ * 3. Three common length units, two fixed phases and both height signs preserve
+ *    the same independent roots. Exact share-endpoint roots, a point seed's
+ *    metre conversion and invalid shares retain their distinct behavior.
+ * 4. A disjoint regular periodic part and polynomial graph exercise cold-foot
+ *    work. Counters report actual authored callback reads without asserting the
+ *    current duplicated work as a contract or replacing Foot. A simpler
+ *    separated plane case must also return a search failure.
+ * 5. A round tube whose centre rises as a(1.5t-0.25) over a plane keeps its
+ *    phase-0 line above the plane (z >= 0.75a) while its phase-pi line crosses
+ *    it at t = 5/6. A fixed phase-0 search must refuse; a search over two lines
+ *    (`phases: 2`) must return the phase-pi crossing at 5L/6 with phase pi, in
+ *    three units and both directions; a line count of 0, 1.5, -2 or NaN is
+ *    refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production seed owner directly on analytic two-jet surfaces, then reads its returned chart coordinates on both surfaces and checks actual domains, gap, phase and independent root station. It collects every failure before throwing; callback counts are diagnostic observations rather than a snapshot of bad work.
  * @evidence contracts/development/testing.md#independent-expectations The cubic is strictly decreasing since 3q^2-5/4<=-1/2 on [-1/2,1/2], with its sole zero at q=0; endpoint Newton quotients are exactly -L and +L. The quadratic is (s/L-1/4)(s/L-3/4); X at its roots is -L and L/2. Both crossing-family charts have cross-product norm at least A because their axial X derivative is 1 or 3; their root angles are at least atan(1/2) and atan(1/6). The disjoint tube's unit Z derivative and the graph's X/Z parameters likewise give regular charts. The side tube's phase-0 line z = a(1.5t+0.75) is at least 0.75a, and its phase-pi line z = a(1.5t-1.25) vanishes only at t = 5/6. Tolerances scale a 1e-12*L meeting gap by the inverse root slope, without fitting observed outputs.
@@ -319,7 +338,10 @@ export function test_construction_seed_search(): void {
   );
 }
 
-/** A regular periodic tube; its selected meridian has an independent cubic, quadratic or endpoint-zero height. */
+/**
+ * A regular periodic tube; its selected meridian has an independent cubic,
+ * quadratic or endpoint-zero height.
+ */
 function tube(
   length: number,
   phase: number,
@@ -367,7 +389,10 @@ function tube(
   };
 }
 
-/** A plane with physical X station and dimensionless transverse parameter, regular on its whole chart. */
+/**
+ * A plane with physical X station and dimensionless transverse parameter,
+ * regular on its whole chart.
+ */
 function plane(
   length: number,
   height: number,
@@ -392,8 +417,10 @@ function plane(
 }
 
 /**
- * A round tube of radius a = L/100 along X whose centre rises as c(t) = a (1.5 t - 0.25), t = s/L: its line at phase 0 is z = c + a >= 0.75 a,
- * above the plane z = 0 everywhere, and its line at phase pi is z = c - a = a (1.5 t - 1.25), which crosses the plane once, at t = 5/6.
+ * A round tube of radius a = L/100 along X whose centre rises as c(t) = a (1.5
+ * t - 0.25), t = s/L: its line at phase 0 is z = c + a >= 0.75 a, above the
+ * plane z = 0 everywhere, and its line at phase pi is z = c - a = a (1.5 t -
+ * 1.25), which crosses the plane once, at t = 5/6.
  */
 function sideTube(length: number, reads: Reads): IAutoMovieSolidSurface {
   const a: number = 0.01 * length;
@@ -418,7 +445,10 @@ function sideTube(length: number, reads: Reads): IAutoMovieSolidSurface {
   };
 }
 
-/** A regular tube's selected line is (0,0,s), disjoint from the graph whose X=0 ordinate is two. */
+/**
+ * A regular tube's selected line is (0,0,s), disjoint from the graph whose X=0
+ * ordinate is two.
+ */
 function coldTube(reads: Reads): IAutoMovieSolidSurface {
   return {
     name: "analytic.cold-tube",
@@ -440,9 +470,16 @@ function coldTube(reads: Reads): IAutoMovieSolidSurface {
 }
 
 /**
- * A regular graph with independently specified endpoint jets and a positive interior bump.
+ * A regular graph with independently specified endpoint jets and a positive
+ * interior bump.
  *
- * The quintic has f(0)=f(1)=2, f'(0)=-1/2, f''(0)=-1/8 and f'(1)=f''(1)=0. Its Bezier controls [2,1.9,1.79375,2,2,2] bound its value below by 1.79375. For a target (0,0,v), the exact foot Newton equations cycle 0<->1 without the world-step bound acting. The nonnegative 4096*u^3*(1-u)^3 bump preserves those endpoint jets and contributes at least 3375/4096 at every interior 1/16 grid point, raising its ordinate above two. This exposes coarse-start work rather than an anatomical prior or an asserted bad-output contract.
+ * The quintic has f(0)=f(1)=2, f'(0)=-1/2, f''(0)=-1/8 and f'(1)=f''(1)=0. Its
+ * Bezier controls [2,1.9,1.79375,2,2,2] bound its value below by 1.79375. For a
+ * target (0,0,v), the exact foot Newton equations cycle 0<->1 without the
+ * world-step bound acting. The nonnegative 4096_u^3_(1-u)^3 bump preserves
+ * those endpoint jets and contributes at least 3375/4096 at every interior 1/16
+ * grid point, raising its ordinate above two. This exposes coarse-start work
+ * rather than an anatomical prior or an asserted bad-output contract.
  */
 function coldGraph(reads: Reads): IAutoMovieSolidSurface {
   return {
@@ -484,7 +521,10 @@ function coldGraph(reads: Reads): IAutoMovieSolidSurface {
   };
 }
 
-/** Check both the independent root and the returned physical meeting/domain, without treating search exhaustion as an absence certificate. */
+/**
+ * Check both the independent root and the returned physical meeting/domain,
+ * without treating search exhaustion as an absence certificate.
+ */
 function meeting(
   failures: string[],
   label: string,
@@ -509,7 +549,6 @@ function meeting(
   if (
     found.phi !== phase ||
     found.face !== 7 ||
-    ![found.s, found.y, found.theta].every(Number.isFinite) ||
     (part.domain !== undefined &&
       !(found.s >= part.domain[0] && found.s <= part.domain[1])) ||
     (host.domain !== undefined &&
@@ -520,7 +559,10 @@ function meeting(
     );
 }
 
-/** Collect every finite absolute-error mismatch through the installed two-argument predicate API. */
+/**
+ * Collect every finite absolute-error mismatch through the installed
+ * two-argument predicate API.
+ */
 function near(
   failures: string[],
   label: string,

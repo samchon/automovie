@@ -43,12 +43,9 @@ export function prepareRecoveryFeasibleMapReporting(
   }
   charge(64);
   if (
-    !Number.isSafeInteger(reporting.sceneEntries) ||
     reporting.sceneEntries <= 0 ||
-    !Number.isSafeInteger(reporting.fitEntries) ||
     reporting.fitEntries > reporting.sceneEntries ||
     reporting.fitEntries > options.maxResidentLinearEntries - 512 ||
-    !Number.isSafeInteger(reporting.reservedEntries) ||
     reporting.reservedEntries <= 0
   )
     throw new Error("camera-feasible: owned reporting capacity required");

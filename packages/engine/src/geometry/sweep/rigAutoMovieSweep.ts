@@ -110,7 +110,7 @@ export const rigAutoMovieSweep: (
     open();
     if (
       !cell.every(
-        (value: number): boolean => Number.isFinite(value) && value >= 0,
+        (value: number): boolean => value >= 0,
       )
     )
       throw new Error("a sweep probe cell must be finite and nonnegative");
@@ -178,7 +178,7 @@ export const rigAutoMovieSweep: (
           positive ||= wu! > 0 && wv! > 0 && value > 0;
           r += wu! * wv! * value;
         }
-        if (!Number.isFinite(r) || r < 0 || (positive && r === 0))
+        if (r < 0 || (positive && r === 0))
           throw new Error("averaged sweep radius is not representable");
         slots.push(scale(at));
         xs.push(r * Math.cos(angle));
@@ -203,8 +203,6 @@ export const rigAutoMovieSweep: (
         py += s * y[k]!;
       }
       if (
-        !Number.isFinite(px) ||
-        !Number.isFinite(py) ||
         (positive && px === 0 && py === 0)
       )
         throw new Error("scaled sweep sample is not representable");
@@ -264,11 +262,7 @@ export const rigAutoMovieSweep: (
         const nz: number = rx * ay - ry * ax;
         const size: number = Math.hypot(nx, ny, nz);
         if (
-          !(size > 0) ||
-          !Number.isFinite(size) ||
-          !Number.isFinite(ax) ||
-          !Number.isFinite(ay) ||
-          !Number.isFinite(az)
+          !(size > 0)
         )
           throw new Error("sweep probe is not representable");
         const o: number = 6 * p;
@@ -324,12 +318,12 @@ export const rigAutoMovieSweep: (
       );
     for (let k: number = 0; k < scaleU.length; ++k) {
       const g: number = factor(scaleU[k]!);
-      if (!(Number.isFinite(g) && g > 0))
+      if (!(g > 0))
         throw new Error(
           `girth factor at u ${scaleU[k]} is not positive and finite`,
         );
       const value: number = surface.scale(scaleU[k]!) * g;
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0))
         throw new Error("girth scale is not positive and finite");
       girthWork[k] = g;
       girthWork[scaleU.length + k] = value;

@@ -28,9 +28,10 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
 /**
  * The fits and physical gates of a free-leg curve (`prepareHumanFreeCurve`):
  * the ordinary cold solve, the independent observation of a native output with
- * its fixed-epoch ROM admission, and the correction of an actual target from a
- * prior anchor under the original branch, swivel and rotation gates, read from
- * the curve's body, authoring, angular resolution and ROM scorers.
+ * its ROM admission, and the correction of an actual target from a prior anchor
+ * under the original branch, swivel and rotation gates, read from the curve's
+ * body, authoring, angular resolution and ROM scorers. The observed bones of
+ * each set of leg goals are prepared once here; nothing is stored on a read.
  *
  * @param scope What the curve builds the fits from.
  * @returns The fits.
@@ -38,15 +39,16 @@ import type { prepareHumanPostureProjection } from "./prepareHumanPostureProject
 export function HumanFreeCurveFit(
   scope: HumanFreeCurveFit.IScope,
 ): HumanFreeCurveFit.IFits {
-  const {
-    body,
-    at,
-    tolerance,
-    radians,
-    legality,
-    checked,
-    observations,
-  }: HumanFreeCurveFit.IScope = scope;
+  const { body, at, tolerance, radians, legality }: HumanFreeCurveFit.IScope =
+    scope;
+
+  // The observed bones depend only on which legs' goals a posture holds, so
+  // each of the three sets and its bound demand is prepared here.
+  const sets: Record<ObservedSide, IObserved> = {
+    left: observedOf(body, ["left"]),
+    right: observedOf(body, ["right"]),
+    both: observedOf(body, ["left", "right"]),
+  };
   /**
    * Actual current admission/solve remains the ordinary owner in every
    * fallback.
@@ -85,22 +87,10 @@ export function HumanFreeCurveFit(
       ][];
     if (limbs.length === 0) return undefined;
 
-    // The observed bones depend only on which sides' goals the posture
-    // holds, in their order: read once per curve for each such sequence.
-    let code: number = 0;
-    for (const [limb] of limbs) code = 3 * code + (limb === "leftLeg" ? 1 : 2);
-    let observed: IObserved | undefined = observations.get(code);
-    if (observed === undefined) {
-      const names: Set<AutoMovieHumanoidBone> = new Set();
-      for (const [limb] of limbs) {
-        const side: AutoMovieHumanSide = limb === "leftLeg" ? "left" : "right";
-        names.add(`${side}UpperLeg`);
-        names.add(`${side}LowerLeg`);
-        names.add(`${side}Foot`);
-      }
-      observed = { names, read: poseBones.prepare(body, names) };
-      observations.set(code, observed);
-    }
+    const left: boolean = raw.limbs.leftLeg !== undefined;
+    const right: boolean = raw.limbs.rightLeg !== undefined;
+    const observed: IObserved =
+      sets[left && right ? "both" : left ? "left" : "right"];
     const names: ReadonlySet<AutoMovieHumanoidBone> = observed.names;
     const source: HumanPosturePreparation.IObservation | undefined =
       HumanPosturePreparation.source(prepared, names, resolution);
@@ -191,35 +181,17 @@ export function HumanFreeCurveFit(
     return { seeds, rotations };
   }
 
-  /**
-   * Pure fixed-epoch ROM admission reuses only exactly equal actual nullable
-   * coordinates.
-   */
+  /** Whether a joint's coordinates lie within its range of motion. */
   function legal(
     bone: AutoMovieHumanoidBone,
     flexion: number | null,
     abduction: number | null,
     twist: number | null,
   ): boolean {
-    const previous:
-      | readonly [number | null, number | null, number | null]
-      | undefined = checked.get(bone);
-    if (
-      previous !== undefined &&
-      Object.is(previous[0], flexion) &&
-      Object.is(previous[1], abduction) &&
-      Object.is(previous[2], twist)
-    )
-      return true;
-    if (
-      !(
-        (legality.get(bone)?.({ bone, flexion, abduction, twist }) ??
-          Infinity) <= ROM_TOLERANCE
-      )
-    )
-      return false;
-    checked.set(bone, [flexion, abduction, twist]);
-    return true;
+    return (
+      (legality.get(bone)?.({ bone, flexion, abduction, twist }) ??
+        Infinity) <= ROM_TOLERANCE
+    );
   }
 
   /**
@@ -322,19 +294,10 @@ export namespace HumanFreeCurveFit {
     radians: number;
 
     /** Each bone's prepared ROM overshoot scorer. */
-    legality: Map<
+    legality: ReadonlyMap<
       AutoMovieHumanoidBone,
       (joint: IAutoMovieJointPose) => number
     >;
-
-    /** Each bone's last admitted coordinates. */
-    checked: Map<
-      AutoMovieHumanoidBone,
-      readonly [number | null, number | null, number | null]
-    >;
-
-    /** The observed bones of each sequence of leg goals. */
-    observations: Map<number, IObserved>;
   }
 
   /** The fits. */
@@ -390,11 +353,11 @@ export namespace HumanFreeCurveFit {
     ) => ICorrection;
   }
   /**
-   * The bones a curve observes for one sequence of leg goals, and the rig's bound
+   * The bones a curve observes for one set of leg goals, and the rig's bound
    * demand of them.
    */
   export interface IObserved {
-    /** The legs' hip, knee and ankle bones, in the goals' order. */
+    /** The legs' hip, knee and ankle bones. */
     names: ReadonlySet<AutoMovieHumanoidBone>;
 
     /** Those bones of a pose, read through the bound demand. */
@@ -429,6 +392,23 @@ type ICorrection3 = { kind: CorrectionKind };
 
 /** The alternatives of `CorrectionKind`'s site. */
 type CorrectionKind = "refine" | "unusable";
+
+/** Which legs' goals a posture holds. */
+type ObservedSide = "left" | "right" | "both";
+
+/** The hip, knee and ankle bones of some legs, and their bound demand. */
+function observedOf(
+  body: IAutoMovieMotionHumanBody,
+  sides: readonly AutoMovieHumanSide[],
+): IObserved {
+  const names: Set<AutoMovieHumanoidBone> = new Set();
+  for (const side of sides) {
+    names.add(`${side}UpperLeg`);
+    names.add(`${side}LowerLeg`);
+    names.add(`${side}Foot`);
+  }
+  return { names, read: poseBones.prepare(body, names) };
+}
 
 /** The record of `ICorrection2`'s site. */
 type ICorrection2 = {

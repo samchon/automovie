@@ -89,8 +89,7 @@ export namespace multiplyQuaternionInto {
       const aw: number = a.w;
       if (
         a[second] !== 0 ||
-        a[third] !== 0 ||
-        !Number.isFinite(av + aw + b.x + b.y + b.z + b.w)
+        a[third] !== 0
       )
         return read(a, b, visit, context);
       const wx: number = aw * b.x;
@@ -105,7 +104,6 @@ export namespace multiplyQuaternionInto {
       const y: number = index === 0 ? wy - sz : index === 1 ? wy + sw : wy + sx;
       const z: number = index === 0 ? wz + sy : index === 1 ? wz - sx : wz + sw;
       const w: number = ww - (index === 0 ? sx : index === 1 ? sy : sz);
-      if (!Number.isFinite(x + y + z + w)) return read(a, b, visit, context);
       const rx: number = x !== 0 ? x : vectorComponent("x", a, b);
       const ry: number = y !== 0 ? y : vectorComponent("y", a, b);
       const rz: number = z !== 0 ? z : vectorComponent("z", a, b);
@@ -151,8 +149,7 @@ export namespace multiplyQuaternionInto {
         a[bk] !== 0 ||
         a[ck] !== 0 ||
         b[ak] !== 0 ||
-        b[ck] !== 0 ||
-        !Number.isFinite(av + aw + bv + bw)
+        b[ck] !== 0
       ) {
         multiplyQuaternionInto(target, a, b);
         return;
@@ -162,10 +159,7 @@ export namespace multiplyQuaternionInto {
       const cross: number = av * bv;
       const pc: number = positive ? cross : -cross;
       const pw: number = aw * bw;
-      if (!Number.isFinite(pa + pb + pc + pw)) {
-        multiplyQuaternionInto(target, a, b);
-        return;
-      }
+
       const ra: number = pa !== 0 ? pa : vectorComponent(ak, a, b);
       const rb: number = pb !== 0 ? pb : vectorComponent(bk, a, b);
       const rc: number = pc !== 0 ? pc : vectorComponent(ck, a, b);
@@ -187,7 +181,6 @@ function cardinal(axis: IAutoMovieVector3): number | undefined {
   const x: number = axis.x;
   const y: number = axis.y;
   const z: number = axis.z;
-  if (!Number.isFinite(x + y + z)) return undefined;
   if (x !== 0 && y === 0 && z === 0) return 0;
   if (x === 0 && y !== 0 && z === 0) return 1;
   return x === 0 && y === 0 && z !== 0 ? 2 : undefined;

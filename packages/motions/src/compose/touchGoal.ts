@@ -48,13 +48,12 @@ export function touchGoal(
   const hint: IAutoMovieVector3 = HumanFrame.local(held, props.bend);
   const from: IAutoMovieVector3 | undefined =
     props.from === undefined ? undefined : HumanFrame.local(held, props.from);
-  let wave: ((seconds: number) => number) | undefined;
-  const oscillation: (seconds: number) => number = (seconds: number): number =>
-    (wave ??= AutoMovieMotionClock.prepareWave(
+  const oscillation: (seconds: number) => number =
+    AutoMovieMotionClock.prepareWave(
       clock,
       ["strokeStart", "strokeEnd"],
       props.count,
-    ))(seconds);
+    );
   return (
     posture: IAutoMovieMotionHumanPosture,
     seconds: number,

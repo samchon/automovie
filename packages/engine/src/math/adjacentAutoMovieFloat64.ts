@@ -21,8 +21,6 @@ export function adjacentAutoMovieFloat64(
   value: number,
   upper: boolean,
 ): number {
-  if (!Number.isFinite(value))
-    throw new Error("Adjacent binary64 needs a representable finite value.");
   if (value === 0) return upper ? Number.MIN_VALUE : -Number.MIN_VALUE;
   bits.setFloat64(0, value);
   const high: number = bits.getUint32(0);
@@ -35,9 +33,5 @@ export function adjacentAutoMovieFloat64(
     bits.setUint32(4, low - 1);
   }
   const result: number = bits.getFloat64(0);
-  if (!Number.isFinite(result))
-    throw new Error(
-      "Adjacent binary64 beyond the largest finite magnitude is an overflowing infinity.",
-    );
   return result;
 }

@@ -38,7 +38,6 @@ export function HumanFormation(
       const capacity: number = HumanFormation.capacity(block.layout);
       if (
         !(
-          block.count % 1 === 0 &&
           block.count > 0 &&
           block.count <= capacity
         )
@@ -150,7 +149,7 @@ export namespace HumanFormation {
       ++b;
     }
     if (
-      !(index % 1 === 0 && index >= 0) ||
+      !(index >= 0) ||
       b === formation.blocks.length
     )
       throw new RangeError(

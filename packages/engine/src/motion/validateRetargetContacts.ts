@@ -43,8 +43,6 @@ export function validateRetargetContacts(
       );
       collector.range(`${base}.end`, hand.end, 0, duration, "hand contact end");
       if (
-        Number.isFinite(hand.start) &&
-        Number.isFinite(hand.end) &&
         hand.end < hand.start
       )
         collector.push(

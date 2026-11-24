@@ -88,12 +88,10 @@ export const registerAutoMovieSurfaceVertices: (
         for (const axis of [0, 2]) {
           const below: number = entry.cell[axis]!;
           const above: number = entry.cell[axis + 1]!;
-          cell[axis] = Number.isFinite(below)
-            ? below
-            : Number.isFinite(above)
-              ? above
-              : 0;
-          cell[axis + 1] = Number.isFinite(above) ? above : cell[axis]!;
+          // An unbounded side keeps the initial Infinity sentinel.
+          cell[axis] =
+            below !== Infinity ? below : above !== Infinity ? above : 0;
+          cell[axis + 1] = above !== Infinity ? above : cell[axis]!;
         }
         entry.cell = cell;
         entry.write = sweepRig(entry.sweep).sample(entry.u, entry.v, cell);

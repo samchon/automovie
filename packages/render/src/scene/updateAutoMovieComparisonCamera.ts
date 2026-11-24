@@ -34,25 +34,16 @@ export function updateAutoMovieComparisonCamera(input: {
     source.scale.x !== 1 ||
     source.scale.y !== 1 ||
     source.scale.z !== 1 ||
-    !Number.isFinite(source.fov) ||
     source.fov <= 0 ||
     source.fov >= 180 ||
-    !Number.isFinite(source.zoom) ||
     source.zoom <= 0 ||
     source.filmOffset !== 0 ||
     source.view?.enabled === true ||
-    !source.position.toArray().every(Number.isFinite) ||
-    !source.quaternion.toArray().every(Number.isFinite) ||
     Math.abs(source.quaternion.lengthSq() - 1) > 64 * Number.EPSILON ||
-    !Number.isFinite(halfHeight) ||
     halfHeight <= 0 ||
-    !Number.isFinite(halfWidth) ||
     halfWidth <= 0 ||
-    !Number.isFinite(source.near) ||
     source.near <= 0 ||
-    !Number.isFinite(source.far) ||
     source.far <= source.near ||
-    !Number.isFinite(input.halfSeparation) ||
     input.halfSeparation <= 0
   )
     throw new Error(
@@ -72,11 +63,7 @@ export function updateAutoMovieComparisonCamera(input: {
   comparison.quaternion.copy(source.quaternion);
   comparison.updateMatrixWorld(true);
   comparison.updateProjectionMatrix();
-  if (
-    !comparison.projectionMatrix.elements.every(Number.isFinite) ||
-    !comparison.projectionMatrixInverse.elements.every(Number.isFinite) ||
-    comparison.projectionMatrix.determinant() === 0
-  )
+  if (comparison.projectionMatrix.determinant() === 0)
     throw new Error("Comparison projection exceeds native finite chart limits");
   input.offset
     .setFromMatrixColumn(source.matrixWorld, 0)

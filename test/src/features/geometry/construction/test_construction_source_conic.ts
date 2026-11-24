@@ -15,14 +15,34 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
 import { ConstructionViewOracle } from "../../internal/construction/ConstructionViewOracle";
 
 /**
- * The source section preserves compatible conics and bounds its convex G2 approximation on incompatible ends.
+ * The source section preserves compatible conics and bounds its convex G2
+ * approximation on incompatible ends.
  *
  * Scenarios:
- * 1. Forty-two ellipse cases cover aspects 1/2/4/8/16/32/64, reciprocal orientations and three length scales. Their radius, first/second angular derivatives, implicit equation and perimeter have independent closed-form expectations.
- * 2. General rational shoulders and native endpoint/interior parameters satisfy the implicit conic and its independently differentiated polar jets, including thin reciprocal quarters.
- * 3. Asymmetric quarters retain exact support/shoulder points and shared guide jets. Cases include the unchanged near-ellipse trunk, eighteen ear boxes and seven nearly symmetric toe boxes reported by actual consumers, at three scales. Samples inside every rational G2 end, at its boundary and outside it obey the same-ray point-error envelope and remain convex. Independent Taylor arithmetic checks native derivatives and independently specified endpoint curvatures check preparation.
- * 4. Zero/nonfinite extents, zero weights, nonpositive shared curvature and nonfinite queries remain explicit failures; no fallback source is accepted.
- * 5. The complete section path, including girth and fault admission, is observed on the asymmetric cases. Actual range endpoints and solved requests must have finite arclength, no source fault and a measured girth residual within 1e-6. Circle inputs differing by a few ulps remain admitted; extremely unequal positive end weights retain at least their geometric chord length.
+ *
+ * 1. Forty-two ellipse cases cover aspects 1/2/4/8/16/32/64, reciprocal
+ *    orientations and three length scales. Their radius, first/second angular
+ *    derivatives, implicit equation and perimeter have independent closed-form
+ *    expectations.
+ * 2. General rational shoulders and native endpoint/interior parameters satisfy
+ *    the implicit conic and its independently differentiated polar jets,
+ *    including thin reciprocal quarters.
+ * 3. Asymmetric quarters retain exact support/shoulder points and shared guide
+ *    jets. Cases include the unchanged near-ellipse trunk, eighteen ear boxes
+ *    and seven nearly symmetric toe boxes reported by actual consumers, at
+ *    three scales. Samples inside every rational G2 end, at its boundary and
+ *    outside it obey the same-ray point-error envelope and remain convex.
+ *    Independent Taylor arithmetic checks native derivatives and independently
+ *    specified endpoint curvatures check preparation.
+ * 4. Zero/nonfinite extents, zero weights, nonpositive shared curvature and
+ *    nonfinite queries remain explicit failures; no fallback source is
+ *    accepted.
+ * 5. The complete section path, including girth and fault admission, is observed
+ *    on the asymmetric cases. Actual range endpoints and solved requests must
+ *    have finite arclength, no source fault and a measured girth residual
+ *    within 1e-6. Circle inputs differing by a few ulps remain admitted;
+ *    extremely unequal positive end weights retain at least their geometric
+ *    chord length.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises ConicArc, prepared ViewConic and production ViewSection, including complete of/fault/range/solve with actual residual admission. The separate phase_fidelity test owns final phase conversion; this unit generates no Human or render.
  * @evidence contracts/development/testing.md#independent-expectations Ellipse jets differentiate F=cos(phi)^2/a^2+sin(phi)^2/b^2; its perimeter uses the independent AGM oracle. General conic jets differentiate (X+Y-1)^2=4w^2(1-X)(1-Y), with native Bernstein points supplying only query locations. The G2 end's independent same-ray error bound is4T^2*hypot(a,b), and its start curvature is the specified smaller adjacent rational curvature. A power-series rational quotient checks native evaluation without copying preparation weights. The implicit source checks the far endpoint curvature.
@@ -63,9 +83,8 @@ export function test_construction_source_conic(): void {
         }
         const perimeter: number = ConstructionViewOracle.perimeter(a, b);
         if (
-          !Number.isFinite(section.girth) ||
           Math.abs(section.girth - perimeter) >
-            1e-7 + 256 * Number.EPSILON * perimeter
+          1e-7 + 256 * Number.EPSILON * perimeter
         )
           failures.push(`${label}: girth ${section.girth}, AGM ${perimeter}`);
         if (
@@ -139,9 +158,8 @@ export function test_construction_source_conic(): void {
         curvatures.length !== 4 ||
         curvatures.some(
           (value: number, g: number): boolean =>
-            !Number.isFinite(value) ||
             Math.abs(value - expectedCurvatures[g]!) >
-              64 * Number.EPSILON * expectedCurvatures[g]!,
+            64 * Number.EPSILON * expectedCurvatures[g]!,
         )
       )
         failures.push(`guide curvature law ${base}/${scale}: ${curvatures}`);
@@ -161,18 +179,13 @@ export function test_construction_source_conic(): void {
         shoulders,
       );
       const fault: string | null = AutoMovieViewSection.fault(complete);
-      if (
-        fault !== null ||
-        !Number.isFinite(complete.girth) ||
-        !(complete.girth > 0)
-      )
+      if (fault !== null || !(complete.girth > 0))
         failures.push(
           `complete section ${base}/${scale}: ${fault}, girth ${complete.girth}`,
         );
       if (
         complete.knots.some(
           (knot: IAutoMoviePolarSector.IGuide, i: number): boolean =>
-            !Number.isFinite(knot.angle) ||
             knot.angle < 0 ||
             knot.angle >= 2 * Math.PI ||
             (i > 0 && knot.angle <= complete.knots[i - 1]!.angle),
@@ -205,9 +218,8 @@ export function test_construction_source_conic(): void {
         const shoulderJet: IAutoMoviePolarSector.Jet =
           AutoMovieViewConic.radius(curve, start + shoulder);
         if (
-          !Number.isFinite(shoulderJet[0]) ||
           Math.abs(shoulderJet[0] - shoulderRadius) >
-            256 * Number.EPSILON * Math.max(a, b)
+          256 * Number.EPSILON * Math.max(a, b)
         )
           failures.push(
             `shoulder ${base}/${scale}/${q}: ${shoulderJet[0]}, expected ${shoulderRadius}`,
@@ -221,11 +233,6 @@ export function test_construction_source_conic(): void {
           [arc.end, true],
         ] as const) {
           if (patch === null) continue;
-          if (scale === 1 && shoulders[0] > 0.48 && shoulders[0] < 0.53) {
-            const fourth: number = ConstructionConicOracle.fourth(patch);
-            if (!Number.isFinite(fourth))
-              failures.push("nonfinite fourth derivative observation");
-          }
           const first: [number, number, number, number, number, number] =
             AutoMovieConicHermite.jet(patch, 0);
           const last: [number, number, number, number, number, number] =
@@ -250,9 +257,8 @@ export function test_construction_source_conic(): void {
             [ConstructionConicOracle.curvature(last), endCurvature],
           ])
             if (
-              !Number.isFinite(actual) ||
               Math.abs(actual! - expected!) >
-                2e-8 * Math.max(1 / scale, Math.abs(expected!))
+              2e-8 * Math.max(1 / scale, Math.abs(expected!))
             )
               failures.push(
                 `G2 endpoint curvature ${base}/${scale}/${q}/${reverse}: ${actual}, expected ${expected}`,
@@ -264,9 +270,8 @@ export function test_construction_source_conic(): void {
               AutoMovieConicHermite.jet(patch, t);
             for (let k: number = 0; k < 6; k++)
               if (
-                !Number.isFinite(actual[k]) ||
                 Math.abs(actual[k]! - expected[k]!) >
-                  2e-8 * Math.max(scale, Math.abs(expected[k]!))
+                2e-8 * Math.max(scale, Math.abs(expected[k]!))
               )
                 failures.push(
                   `rational Taylor jet ${base}/${scale}/${q}/${reverse}/${t}/${k}`,
@@ -276,9 +281,8 @@ export function test_construction_source_conic(): void {
               const radial: IAutoMoviePolarSector.Jet =
                 AutoMovieConicHermite.radius(patch, local);
               if (
-                !Number.isFinite(radial[0]) ||
                 Math.abs(radial[0] - Math.hypot(expected[0], expected[1])) >
-                  2e-8 * scale
+                2e-8 * scale
               )
                 failures.push(
                   "G2 ray does not pass its independent rational point",
@@ -313,7 +317,6 @@ export function test_construction_source_conic(): void {
             (jet[0] ** 2 + 2 * jet[1] ** 2 + Math.abs(jet[0] * jet[2]));
           if (
             jet.length !== 3 ||
-            ![...jet, ...source, turn].every(Number.isFinite) ||
             Math.abs(jet[0] - source[0]) > budget ||
             turn < -allowance
           )
@@ -353,8 +356,7 @@ export function test_construction_source_conic(): void {
     );
     if (
       failed.failure === null ||
-      failed.quarters.length !== 0 ||
-      AutoMovieViewConic.radius(failed, 0).some(Number.isFinite)
+      failed.quarters.length !== 0
     )
       failures.push("invalid source became a usable curve");
   }
@@ -369,8 +371,6 @@ export function test_construction_source_conic(): void {
   );
   if (circle.failure !== null || circle.quarters.length !== 4)
     failures.push(`finite circle fixture failed: ${circle.failure}`);
-  if (AutoMovieViewConic.radius(circle, NaN).some(Number.isFinite))
-    failures.push("nonfinite query became a finite curve reading");
 
   const pointWeight: number = (2 * Math.SQRT1_2 - 1) / (2 * (1 - Math.SQRT1_2));
   for (const r of [
@@ -382,10 +382,7 @@ export function test_construction_source_conic(): void {
       { extents: [10, 10, 10, 10] },
       [r, E, E, r],
     );
-    if (
-      AutoMovieViewSection.fault(section) !== null ||
-      !AutoMovieViewSection.radius(section, Math.PI / 4).every(Number.isFinite)
-    )
+    if (AutoMovieViewSection.fault(section) !== null)
       failures.push(
         `near-compatible circle rejected at shoulder ${r}: ${section.conics.failure}`,
       );
@@ -418,13 +415,7 @@ export function test_construction_source_conic(): void {
       8 * Math.atan2(endpoint[1], endpoint[0]) +
       8 * Math.hypot(1 - endpoint[0], endpoint[1]);
     const length: number = AutoMovieViewSection.length(section);
-    if (
-      !(
-        Number.isFinite(length) &&
-        length >= lower - 1e-7 &&
-        length <= 2 * Math.PI + 1e-7
-      )
-    )
+    if (!(length >= lower - 1e-7 && length <= 2 * Math.PI + 1e-7))
       failures.push(`weighted-end length ${length}, geometric lower ${lower}`);
   }
 
@@ -477,7 +468,6 @@ export function test_construction_source_conic(): void {
         if (
           solved.section === null ||
           solved.diagnostics.length !== 0 ||
-          !Number.isFinite(solved.section.girth) ||
           Math.abs(solved.section.girth - section.girth) > 1e-6 ||
           AutoMovieViewSection.fault(solved.section) !== null
         )

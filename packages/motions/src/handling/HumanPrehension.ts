@@ -288,8 +288,10 @@ export namespace HumanPrehension {
     shapes: Parameters<typeof shape>[0],
     peak: number,
   ): (u: number) => ReturnType<typeof shape> {
-    let opening: ReturnType<typeof prepareHumanShapeBlend> | undefined;
-    let closing: ReturnType<typeof prepareHumanShapeBlend> | undefined;
+    const opening: ReturnType<typeof prepareHumanShapeBlend> =
+      prepareHumanShapeBlend(shapes.entry, shapes.open);
+    const closing: ReturnType<typeof prepareHumanShapeBlend> =
+      prepareHumanShapeBlend(shapes.open, shapes.closed);
     return (u: number): ReturnType<typeof shape> => {
       const s: number = Math.min(1, Math.max(0, u));
       const opens: boolean = s <= peak;
@@ -297,8 +299,8 @@ export namespace HumanPrehension {
         ? minimumJerk.share(s / peak)
         : minimumJerk.share((s - peak) / (1 - peak));
       const blend: ReturnType<typeof prepareHumanShapeBlend> = opens
-        ? (opening ??= prepareHumanShapeBlend(shapes.entry, shapes.open))
-        : (closing ??= prepareHumanShapeBlend(shapes.open, shapes.closed));
+        ? opening
+        : closing;
       return blend(w);
     };
   }

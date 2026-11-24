@@ -103,8 +103,8 @@ type IHumanQuadraticInteriorWarmed = {
  * @returns The unscaled variables, each row's value (a hard row's within its
  *   interval) and multiplier, with status `solved`; undefined when the method
  *   did not converge.
- * @throws {RangeError} For malformed or nonfinite input or noninvertible
- *   scaling, as `HumanQuadraticProgram.solve` throws.
+ * @throws {RangeError} For malformed input or noninvertible scaling, as
+ *   `HumanQuadraticProgram.solve` throws.
  */
 export function HumanQuadraticInterior(
   problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,

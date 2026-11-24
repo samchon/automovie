@@ -9,37 +9,37 @@ import { TestValidator } from "@nestia/e2e";
 import { qunit } from "../internal/qunit";
 
 /**
- * A noncommuting orientation's public curve meets its prescribed body rate
- * on both sides of each integration knot.
+ * A noncommuting orientation's public curve meets its prescribed body rate on
+ * both sides of each integration knot.
  *
- * The exact motion q(t)=Rx(2t) Ry(3t) has body angular velocity
- * (2 cos(3t), 3, 2 sin(3t)) radians per second: conjugating the first X rate
- * by Ry(-3t) gives its XZ components. Its changing rate does not commute
- * with the step's accumulated turn. A constant-axis trajectory cannot
- * expose that distinction.
+ * The exact motion q(t)=Rx(2t) Ry(3t) has body angular velocity (2 cos(3t), 3,
+ * 2 sin(3t)) radians per second: conjugating the first X rate by Ry(-3t) gives
+ * its XZ components. Its changing rate does not commute with the step's
+ * accumulated turn. A constant-axis trajectory cannot expose that distinction.
  *
  * At a public knot tau, r(s)=log(q(tau)^-1 q(tau+s)) is a rotation vector
- * expressed in that actual orientation's frame. Its derivative at zero is
- * the prescribed body rate even when the integrated attitude has global
- * error. The one-sided formulas (-4r(-e)+r(-2e))/(2e) and
- * (4r(e)-r(2e))/(2e) cancel the quadratic term. With e=1e-5 s their cubic
- * truncation is O(e squared); the existing trajectory rate bound is 1e-6
- * rad/s. Relative quaternions and their logarithms are formed here from
- * observed components, without reading integration coefficients or stages.
+ * expressed in that actual orientation's frame. Its derivative at zero is the
+ * prescribed body rate even when the integrated attitude has global error. The
+ * one-sided formulas (-4r(-e)+r(-2e))/(2e) and (4r(e)-r(2e))/(2e) cancel the
+ * quadratic term. With e=1e-5 s their cubic truncation is O(e squared); the
+ * existing trajectory rate bound is 1e-6 rad/s. Relative quaternions and their
+ * logarithms are formed here from observed components, without reading
+ * integration coefficients or stages.
  *
  * Scenarios:
- * 1. Fixed RK4 and adaptive DP read the same prescribed noncommuting rate.
- *    A 0.25 s initial step and a deliberately coarse adaptive local budget
- *    expose knot consistency; global attitude accuracy is not asserted here.
- * 2. Both one-sided rates and their difference satisfy the existing rate
- *    bound. An absent interior knot, nonfinite value, nonunit quaternion or
- *    difference stencil crossing a neighboring knot is an explicit failure.
- * 3. An orientation-only state still returns an owned empty vector. Adding
- *    an element to it changes neither another read nor any array borrowed
- *    by the completed callback; playback makes no new callback calls.
  *
- * This deferred unit does not change either representative sample, its
- * input, its physical tolerance or its execution selection.
+ * 1. Fixed RK4 and adaptive DP read the same prescribed noncommuting rate. A 0.25
+ *    s initial step and a deliberately coarse adaptive local budget expose knot
+ *    consistency; global attitude accuracy is not asserted here.
+ * 2. Both one-sided rates and their difference satisfy the existing rate bound. An
+ *    absent interior knot, nonfinite value, nonunit quaternion or difference
+ *    stencil crossing a neighboring knot is an explicit failure.
+ * 3. An orientation-only state still returns an owned empty vector. Adding an
+ *    element to it changes neither another read nor any array borrowed by the
+ *    completed callback; playback makes no new callback calls.
+ *
+ * This deferred unit does not change either representative sample, its input,
+ * its physical tolerance or its execution selection.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the exact noncommuting motion, body frame, independently differentiated rate, one-sided observer, seconds/radian units, unchanged numerical rate bound, stencil precondition and empty-state ownership.
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual public fixed/adaptive orientations at their published knots and nearby instants, then observes body derivatives, C1 agreement, finite/unit values and empty-vector replay after caller mutation.
@@ -181,13 +181,7 @@ export function test_motion_engine_trajectory_sampling(): void {
     for (const [index, seconds] of interior.entries()) {
       const before: number = path.times[index]!;
       const after: number = path.times[index + 2]!;
-      if (
-        !(
-          Number.isFinite(seconds) &&
-          seconds - 2 * epsilon > before &&
-          seconds + 2 * epsilon < after
-        )
-      ) {
+      if (!(seconds - 2 * epsilon > before && seconds + 2 * epsilon < after)) {
         findings.push(`${mode}: unobservable knot stencil at ${seconds}`);
         continue;
       }
@@ -220,7 +214,7 @@ export function test_motion_engine_trajectory_sampling(): void {
           rate.y - expected.y,
           rate.z - expected.z,
         );
-        if (!(Number.isFinite(error) && error <= limit))
+        if (!(error <= limit))
           findings.push(
             `${mode}: body rate error ${error} at ${seconds}, side ${direction}`,
           );
@@ -235,7 +229,7 @@ export function test_motion_engine_trajectory_sampling(): void {
           rates[0]!.y - rates[1]!.y,
           rates[0]!.z - rates[1]!.z,
         );
-        if (!(Number.isFinite(jump) && jump <= limit))
+        if (!(jump <= limit))
           findings.push(`${mode}: body rate jumps ${jump} at ${seconds}`);
       }
     }

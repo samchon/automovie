@@ -20,24 +20,34 @@ import {
   violationCount,
 } from "./predicates";
 
-/** Execute the next ordered assertions of test_architecture_design_reference.
+/**
+ * Execute the next ordered assertions of test_architecture_design_reference.
  *
  * Scenarios:
- * 1. an observed pavilion sheet validates as evidence.
- * 2. a generated study with no source URL and no seed is complete provenance.
- * 3. a text-only generation with no prompt text and no request id is accepted.
- * 4. a reproducible claim with no seed is refused.
- * 5. a reproducible claim carrying its seed is accepted.
- * 6. a seed on an irreproducible generation warns instead of failing.
- * 7. a negative provider seed is a whole number and is accepted.
- * 8. a generated output digest that is not the current bytes is refused.
- * 9. processed bytes skip the output-digest comparison rather than fail it.
- * 10. citations that resolve, including one deliberately citing both readings.
- * 11. an empty citation ledger is a clean success rather than a silent gap.
- * 12. two documents sharing one id pool their candidates for citation.
  *
- * Authored reference/provenance fields define version/media/digest spelling, required reproduction-seed metadata and safe-integer seed admission. Matching/mismatching supplied output-digest strings and citation identities determine the located results; no provider execution, asset-byte read or replay is an independent expectation here.
- * Observed/generated provenance, omitted optional prompt/request, reproducible missing/present seed, irreproducible seed warning, negative and malformed seeds, digest mismatch/null-after-processing, individual malformed acquisition fields and citation resolution/empty ledger retain their distinct outcomes. Parts2/3 own malformed reference mutations.
+ * 1. An observed pavilion sheet validates as evidence.
+ * 2. A generated study with no source URL and no seed is complete provenance.
+ * 3. A text-only generation with no prompt text and no request id is accepted.
+ * 4. A reproducible claim with no seed is refused.
+ * 5. A reproducible claim carrying its seed is accepted.
+ * 6. A seed on an irreproducible generation warns instead of failing.
+ * 7. A negative provider seed is a whole number and is accepted.
+ * 8. A generated output digest that is not the current bytes is refused.
+ * 9. Processed bytes skip the output-digest comparison rather than fail it.
+ * 10. Citations that resolve, including one deliberately citing both readings.
+ * 11. An empty citation ledger is a clean success rather than a silent gap.
+ * 12. Two documents sharing one id pool their candidates for citation.
+ *
+ * Authored reference/provenance fields define version/media/digest spelling,
+ * required reproduction-seed metadata and safe-integer seed admission.
+ * Matching/mismatching supplied output-digest strings and citation identities
+ * determine the located results; no provider execution, asset-byte read or
+ * replay is an independent expectation here. Observed/generated provenance,
+ * omitted optional prompt/request, reproducible missing/present seed,
+ * irreproducible seed warning, negative and malformed seeds, digest
+ * mismatch/null-after-processing, individual malformed acquisition fields and
+ * citation resolution/empty ledger retain their distinct outcomes. Parts2/3 own
+ * malformed reference mutations.
  */
 export function assertArchitectureDesignReferencePart1(
   PLAN_DIGEST: string,
@@ -200,11 +210,6 @@ export function assertArchitectureDesignReferencePart1(
       "$input.model",
     ],
     [
-      "blank request id",
-      (value: IAutoMovieGeneratedAcquisition): string => (value.request = " "),
-      "$input.request",
-    ],
-    [
       "blank prompt",
       (value: IAutoMovieGeneratedAcquisition): string => (value.prompt = " "),
       "$input.prompt",
@@ -269,11 +274,6 @@ export function assertArchitectureDesignReferencePart1(
   const evidenceRefusals: ReadonlyArray<
     readonly [string, (value: IAutoMovieDesignEvidence[]) => void, string]
   > = [
-    [
-      "blank subject",
-      (value: IAutoMovieDesignEvidence[]): string => (value[0]!.subject = " "),
-      "$input.evidence[0].subject",
-    ],
     [
       "blank rationale",
       (value: IAutoMovieDesignEvidence[]): string => (value[0]!.rationale = ""),

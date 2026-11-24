@@ -179,8 +179,7 @@ export function test_architecture_built_opening(): void {
         inspectAutoMovieMeshTopology(solidWall);
       return (
         cutTopology.triangles > solidTopology.triangles &&
-        cutTopology.volume < solidTopology.volume &&
-        cutTopology.nonFinite === 0
+        cutTopology.volume < solidTopology.volume
       );
     })(),
   );

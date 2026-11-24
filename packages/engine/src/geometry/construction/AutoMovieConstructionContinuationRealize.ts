@@ -109,7 +109,7 @@ export function AutoMovieConstructionContinuationRealize(
       return fail(
         `the part face's ${node.partEnd} end was cut away or shared by its subtree`,
       );
-    if (!(Number.isInteger(hostChain.samples) && hostChain.samples >= 3))
+    if (!(hostChain.samples >= 3))
       return fail("the shared ring needs at least three host phase samples");
     const partChain: IAutoMovieLoftChain = state.chains.get(node.partFace)!;
     AutoMovieConstructionRing.create(body, {

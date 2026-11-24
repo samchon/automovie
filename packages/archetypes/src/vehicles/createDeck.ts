@@ -72,7 +72,7 @@ export function createDeck(
     number
   > = draw.dimensions(createDeck.BANDS);
   const { length, beam }: createDeck.IParams = params;
-  if (!(Number.isFinite(length) && length > 0))
+  if (!(length > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",
@@ -82,7 +82,7 @@ export function createDeck(
       reason: `a deck of ${length} m has no length`,
       fix: "give the stretch of deck's length in metres",
     });
-  if (!(Number.isFinite(beam) && beam > 2 * d.breadth))
+  if (!(beam > 2 * d.breadth))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "deck",

@@ -32,14 +32,9 @@ export function rootsAutoMovieViewSinPolynomial(
   if (
     coefficients.length < 1 ||
     coefficients.length > 5 ||
-    !coefficients.every(Number.isFinite) ||
-    !Number.isFinite(amplitude) ||
-    !Number.isFinite(offset) ||
-    !Number.isFinite(span) ||
     !(span > 0) ||
     offset < 0 ||
     offset + span > Math.PI ||
-    !interval.every(Number.isFinite) ||
     !(interval[0] >= 0 && interval[0] < interval[1] && interval[1] <= 1)
   )
     return "affine source root needs finite degree-four terms and an increasing angular subinterval inside [0,pi]";
@@ -73,7 +68,7 @@ export function rootsAutoMovieViewSinPolynomial(
       ),
     );
     amplitudes.push(amplitudes[order - 1]! * span);
-    if (!Number.isFinite(amplitudes[order]!) || amplitudes[order] === 0)
+    if (amplitudes[order] === 0)
       return "affine source trigonometric derivatives are not finitely representable";
   }
   const value: (order: number, t: number) => number = (

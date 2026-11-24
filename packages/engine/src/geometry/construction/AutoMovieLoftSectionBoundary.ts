@@ -31,12 +31,7 @@ export namespace AutoMovieLoftSectionBoundary {
       first === undefined ||
       last === null ||
       last === undefined ||
-      !(
-        Number.isFinite(first.station) &&
-        Number.isFinite(last.station) &&
-        Number.isFinite(last.station - first.station) &&
-        last.station > first.station
-      ) ||
+      !(last.station > first.station) ||
       !valid(first.inputs) ||
       !valid(last.inputs)
     )
@@ -129,8 +124,7 @@ export namespace AutoMovieLoftSectionBoundary {
     });
     if (
       !restored.every(
-        (v: number, q: number): boolean =>
-          Number.isFinite(v) && v > 0 && (q < 4 || v < 1),
+        (v: number, q: number): boolean => v > 0 && (q < 4 || v < 1),
       )
     )
       return "The native continuation value overflows, underflows or reaches a shoulder boundary.";
@@ -215,13 +209,7 @@ function admit(
     !valid(b.inputs) ||
     !control(bridge.controls[0]) ||
     !control(bridge.controls[1]) ||
-    !(
-      Number.isFinite(a.station) &&
-      Number.isFinite(b.station) &&
-      Number.isFinite(b.station - a.station) &&
-      b.station > a.station
-    ) ||
-    !Number.isFinite(station) ||
+    !(b.station > a.station) ||
     station < a.station ||
     station > b.station
   )
@@ -251,7 +239,6 @@ function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
       (jet: Scalar, q: number): boolean =>
         Array.isArray(jet) &&
         jet.length === 3 &&
-        jet.every(Number.isFinite) &&
         jet[0] > 0 &&
         (q < 4 || jet[0] < 1),
     )
@@ -267,8 +254,7 @@ function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
     value !== null &&
     value !== undefined &&
     [value.value, value.slope, value.curvature].every(
-      (row: number[]): boolean =>
-        Array.isArray(row) && row.length === 8 && row.every(Number.isFinite),
+      (row: number[]): boolean => Array.isArray(row) && row.length === 8,
     )
   );
 }

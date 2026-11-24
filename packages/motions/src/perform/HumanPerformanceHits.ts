@@ -81,29 +81,37 @@ export namespace HumanPerformanceHits {
     self: IAutoMovieMotionHumanPerformanceState,
     subject?: string,
   ): readonly IAutoMovieInteractionEvent[] {
-    let all: readonly IAutoMovieInteractionEvent[] | undefined = self.resolving
-      ? undefined
-      : self.hits;
-    if (all === undefined) {
-      const read: IReadBones = reading(self);
-      all = [
-        ...melee(self, read),
-        ...blasts(self, read),
-        ...flights(self, read),
-      ].sort(
-        (
-          a: IAutoMovieInteractionEvent,
-          b: IAutoMovieInteractionEvent,
-        ): number =>
-          a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
-      );
-      if (!self.resolving) self.hits = all;
-    }
+    // The hits the performance prepared, or, while the schedule is resolved,
+    // those the placed performance gives now.
+    const all: readonly IAutoMovieInteractionEvent[] =
+      self.hits ?? solve(self);
     return subject === undefined
       ? all
       : all.filter(
           (h: IAutoMovieInteractionEvent): boolean => h.target === subject,
         );
+  }
+
+  /**
+   * Every hit of the performance as it is placed now, in time order with ties
+   * by event id: what the performance prepares once every action, stop and
+   * flight is resolved (`IAutoMovieMotionHumanPerformanceState.hits`).
+   *
+   * @param self The placed performance.
+   * @returns The hits.
+   */
+  export function solve(
+    self: IAutoMovieMotionHumanPerformanceState,
+  ): IAutoMovieInteractionEvent[] {
+    const read: IReadBones = reading(self);
+    return [
+      ...melee(self, read),
+      ...blasts(self, read),
+      ...flights(self, read),
+    ].sort(
+      (a: IAutoMovieInteractionEvent, b: IAutoMovieInteractionEvent): number =>
+        a.time - b.time || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0),
+    );
   }
 
   /** The melee stops. */
@@ -315,23 +323,17 @@ export namespace HumanPerformanceHits {
    * never their query results.
    */
   function reading(self: IAutoMovieMotionHumanPerformanceState): IReadBones {
-    let readers:
-      | Map<
-          IAutoMovieMotionHumanSegment.IPerson,
-          Partial<
-            Record<
-              EntryItemEntry,
-              ReturnType<typeof HumanPerformanceRead.prepareBones>
-            >
-          >
-        >
-      | undefined;
+    const readers: Map<
+      IAutoMovieMotionHumanSegment.IPerson,
+      Partial<
+        Record<EntryItemEntry, ReturnType<typeof HumanPerformanceRead.prepareBones>>
+      >
+    > = new Map();
     return (
       who: IAutoMovieMotionHumanSegment.IPerson,
       seconds: number,
       kind: ReadingKind,
     ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      readers ??= new Map();
       let sources:
         | Partial<
             Record<

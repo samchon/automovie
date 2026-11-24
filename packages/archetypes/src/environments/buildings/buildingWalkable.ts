@@ -103,7 +103,7 @@ function insetRing(
     const normal: IAutoMovieProfilePoint = normals[i]!;
     const advance: number =
       (to.x - from.x) * normal.y - (to.y - from.y) * normal.x;
-    if (!Number.isFinite(advance) || advance <= 0)
+    if (advance <= 0)
       throw new Error(
         `${path} has a collapsed wall setback; widen the room or use thinner walls`,
       );

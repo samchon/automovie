@@ -28,7 +28,7 @@ export function createRecoveryPoseModel(
       (at === least ? 1 : 0) - value * t[least]!,
   );
   const norm: number = Math.hypot(...projection);
-  if (!(norm > 0) || !Number.isFinite(norm))
+  if (!(norm > 0))
     throw new Error("camera-refinement: unresolved tangent basis");
   const a: [number, number, number] = [
     projection[0]! / norm,

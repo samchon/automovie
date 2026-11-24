@@ -45,7 +45,6 @@ export const formationSlotPosition: (
   reform: IAutoMovieFormationReform | null = null,
 ): IAutoMovieVector3 => {
   if (
-    Number.isSafeInteger(slot) === false ||
     slot < 0 ||
     slot >= formation.count
   )

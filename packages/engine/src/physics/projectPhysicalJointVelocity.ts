@@ -46,7 +46,7 @@ export function projectPhysicalJointVelocity(
   dt: number,
   order?: readonly IAutoMoviePhysicalJointAxis["axis"][],
 ): IAutoMovieVector3 {
-  if (!(dt > 0) || !Number.isFinite(dt))
+  if (dt <= 0)
     throw new Error("Invalid physical joint velocity timestep");
   const velocity: IAutoMovieVector3 = { ...requested };
   if (order !== undefined) {

@@ -21,8 +21,7 @@ export function inPhysicalFloorBounds(
     shape,
   );
   return (
-    Number.isFinite(bounds.min.y) &&
-    Number.isFinite(bounds.max.y) &&
+
     bounds.min.x >= floor.min.x &&
     bounds.max.x <= floor.max.x &&
     bounds.min.z >= floor.min.z &&

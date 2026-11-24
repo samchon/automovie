@@ -26,11 +26,9 @@ export namespace AutoMoviePhysicalTracking {
     strength: number,
   ): IAutoMoviePhysicalTracking.IResult {
     if (
-      !(dt > 0) ||
-      !Number.isFinite(dt) ||
+      dt <= 0 ||
       strength < 0 ||
-      strength > 1 ||
-      !Number.isFinite(strength)
+      strength > 1
     )
       throw new Error("Invalid physical tracking timestep or strength");
     const delta: IAutoMovieQuaternion = Quaternion.multiply(
@@ -57,7 +55,7 @@ export namespace AutoMoviePhysicalTracking {
       const k: number = axis.stiffness * strength;
       const d: number = axis.damping * strength;
       const effective: number = inertia[axis.axis];
-      if (!(effective > 0) || !Number.isFinite(effective))
+      if (effective <= 0)
         throw new Error("Invalid effective angular inertia");
       const raw: number =
         (k * error[axis.axis] - (d + k * dt) * velocity[axis.axis]) /

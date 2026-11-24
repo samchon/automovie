@@ -85,15 +85,6 @@ export namespace ArchetypeCourseTimed {
       refuse("samples", samples.length, "a timed course needs two samples");
     samples.forEach(
       (sample: AutoMovieArchetypeCourse.ISample, i: number): void => {
-        for (const name of ["seconds", "x", "z"] as const)
-          if (!Number.isFinite(sample[name]))
-            refuse(
-              `samples[${i}].${name}`,
-              sample[name],
-              "a sample must be finite",
-            );
-        if (sample.y !== undefined && !Number.isFinite(sample.y))
-          refuse(`samples[${i}].y`, sample.y, "a sample must be finite");
         if (i > 0 && !(sample.seconds > samples[i - 1]!.seconds))
           refuse(
             `samples[${i}].seconds`,

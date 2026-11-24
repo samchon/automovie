@@ -23,11 +23,10 @@ export function affordanceLeadingTravel(
   follower: number,
   domain?: IAutoMovieAffordanceTravelRange.IResult,
 ): number | null {
-  if (!Number.isFinite(follower)) return null;
   if ((follows.ratio === undefined) === (follows.table === undefined))
     return null;
   if (follows.table === undefined) {
-    if (!Number.isFinite(follows.ratio) || follows.ratio === 0) return null;
+    if (follows.ratio === 0) return null;
     if (domain !== undefined) {
       const end: number | null | undefined = endpoint(
         follows,
@@ -38,7 +37,7 @@ export function affordanceLeadingTravel(
       if (end !== undefined) return end;
     }
     const leader: number = follower / follows.ratio;
-    return Number.isFinite(leader) ? leader : null;
+    return leader;
   }
   const table: [number, number][] = follows.table;
   if (table.length < 2) return null;
@@ -48,7 +47,6 @@ export function affordanceLeadingTravel(
   if (direction === 0) return null;
   for (let k: number = 0; k < table.length; k++) {
     const row: [number, number] = table[k]!;
-    if (!Number.isFinite(row[0]) || !Number.isFinite(row[1])) return null;
     if (
       k > 0 &&
       (!(row[0] > table[k - 1]![0]) ||
@@ -84,7 +82,7 @@ export function affordanceLeadingTravel(
   const [x0, y0]: [number, number] = table[low]!;
   const [x1, y1]: [number, number] = table[high]!;
   const leader: number = x0 + ((x1 - x0) * (follower - y0)) / (y1 - y0);
-  return Number.isFinite(leader) ? leader : null;
+  return leader;
 }
 
 /**
@@ -102,7 +100,6 @@ function endpoint(
     [domain.maximum, 1],
   ] as const) {
     if (bound === null) continue;
-    if (!Number.isFinite(bound)) return null;
     const image: number = affordanceFollowedTravel(follows, bound);
     if (direction * sign * (follower - image) > 0) return null;
     if (follower === image) return bound;

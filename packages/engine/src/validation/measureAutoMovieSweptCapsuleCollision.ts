@@ -74,12 +74,8 @@ export function measureAutoMovieSweptCapsuleCollision(
   props: Sweep.IProps,
 ): Sweep.IResult {
   if (
-    !Number.isFinite(props.startSeconds) ||
-    !Number.isFinite(props.endSeconds) ||
     !(props.endSeconds > props.startSeconds) ||
-    !Number.isFinite(props.maxPenetration) ||
     props.maxPenetration < 0 ||
-    !Number.isSafeInteger(props.maxIntervals) ||
     props.maxIntervals < 0
   )
     throw new Error("Invalid swept collision clock or work limit");
@@ -95,8 +91,7 @@ export function measureAutoMovieSweptCapsuleCollision(
       ? "displayed"
       : "proxy";
   const radius: number = first.radius + second.radius;
-  if (!Number.isFinite(radius))
-    return { status: "deferred", reason: "precision", compared: 0 };
+
   const upper: number = up(up(radius) - props.maxPenetration);
   const lower: number = Math.max(0, down(down(radius) - props.maxPenetration));
   if (upper <= 0) return { status: "clear", basis, compared: 0 };
@@ -178,14 +173,7 @@ export function measureAutoMovieSweptCapsuleCollision(
 function admissible(span: Sweep.ISpan): boolean {
   return (
     (span.basis === "displayed" || span.basis === "proxy") &&
-    Number.isFinite(span.radius) &&
-    span.radius > 0 &&
-    [span.a0, span.a1, span.b0, span.b1].every(
-      (point: IAutoMovieVector3): boolean =>
-        AXES.every((axis: keyof IAutoMovieVector3): boolean =>
-          Number.isFinite(point[axis]),
-        ),
-    )
+    span.radius > 0
   );
 }
 
@@ -345,12 +333,12 @@ function along(segment: ISample["first"], point: IAutoMovieVector3): number {
   }
   if (width === 0) return 0;
   const fraction: number = (point[chosen] - segment[0].value[chosen]) / width;
-  return Number.isFinite(fraction) ? Math.max(0, Math.min(1, fraction)) : 0;
+  return Math.max(0, Math.min(1, fraction));
 }
 
 /** Return the next larger binary64 value, including at zero and overflow. */
 function up(value: number): number {
-  if (Number.isNaN(value) || value === Infinity) return value;
+  if (value === Infinity) return value;
   if (value === 0) return Number.MIN_VALUE;
   BITS.setFloat64(0, value);
   const bits: bigint = BITS.getBigUint64(0);

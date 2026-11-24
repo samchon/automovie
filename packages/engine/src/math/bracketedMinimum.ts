@@ -29,9 +29,7 @@ export function bracketedMinimum(
   tolerance: number,
   limit: number = 64,
 ): { at: number; value: number } {
-  if (!Number.isFinite(low) || !Number.isFinite(high))
-    throw new Error("A bracketed minimum needs two finite ends");
-  if (!(tolerance > 0) || !Number.isFinite(tolerance))
+  if (!(tolerance > 0))
     throw new Error("A bracketed minimum needs a positive finite tolerance");
   let a: number = Math.min(low, high);
   let b: number = Math.max(low, high);

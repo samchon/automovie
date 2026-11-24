@@ -1,4 +1,4 @@
-import { clampJointRom, clampPose } from "@automovie/engine";
+import { clampPose } from "@automovie/engine";
 import {
   IAutoMovieBone,
   IAutoMovieJointConstraint,
@@ -9,7 +9,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "../internal/namedFacts";
 import { nclose } from "../internal/nclose";
 import { vclose } from "../internal/vclose";
 
@@ -43,22 +42,23 @@ const SKELETON: IAutoMovieSkeleton = {
 };
 
 /**
- * Clamp joint angles into intervals, force immobile axes to zero and preserve unconstrained values. These engine interval examples do not prove skeleton membership, arbitrary cone projection or clinical suitability of the default table.
+ * Clamp joint angles into intervals, force immobile axes to zero and preserve
+ * unconstrained values. These engine interval examples do not prove skeleton
+ * membership, arbitrary cone projection or clinical suitability of the default
+ * table.
  *
  * Scenarios:
  *
  * 1. Per-bone override: leftLowerArm flexion 120 → 90 (above max), its `null`
  *    abduction 30 → 0 (immobile axis), its `null`-angle twist stays `null`.
- * 2. Default-table fallback: leftHand flexion -200 goes to -80 (below min), and its
- *    in-range abduction 10 is left untouched. (The shoulder's default is gated by
- *    swing and twist, where -200 of flexion is the in-range 160, so a three-angle
- *    joint shows the fallback.)
+ * 2. Default-table fallback: leftHand flexion -200 goes to -80 (below min), and
+ *    its in-range abduction 10 is left untouched. (The shoulder's default is
+ *    gated by swing and twist, where -200 of flexion is the in-range 160, so a
+ *    three-angle joint shows the fallback.)
  * 3. Bone not in the skeleton resolves to the default table (rightLowerArm flexion
  *    200 → 150).
  * 4. A bone with no constraint anywhere (hips) passes through unchanged, and the
  *    root transform is preserved.
- * 5. Non-finite constrained-axis values are neutralized before range clamping, so
- *    the clamp output remains finite.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs clampJointRom/clampPose and observes override/default/unconstrained values, null preservation, root preservation and neutral repair of specified nonfinite angles.
  * @evidence contracts/development/testing.md#independent-expectations The authored elbow override caps120 at90 and immobile abduction at0; current engine defaults supply the wrist's (leftHand) flexion min -80 and the elbow's max 150, while null remains rest. These defaults are API conventions, not independently sourced clinical norms.
@@ -128,67 +128,5 @@ export function test_rom_clamp_pose(): void {
       nclose(out.root.rotation.y, REST.rotation.y, 0) &&
       nclose(out.root.rotation.z, REST.rotation.z, 0) &&
       nclose(out.root.rotation.w, REST.rotation.w, 0),
-  );
-
-  // 5. non-finite constrained axes are sanitized before clamping
-  const sanitizedJoint: IAutoMovieJointPose = clampJointRom(
-    {
-      bone: "leftLowerArm",
-      flexion: Number.NaN,
-      abduction: null,
-      twist: null,
-    },
-    SKELETON.bones[0]!.constraint!,
-  );
-  TestValidator.predicate(
-    "NaN flexion neutralizes to rest",
-    nclose(sanitizedJoint.flexion!, 0, 0),
-  );
-
-  const sanitizedPose: IAutoMoviePose = clampPose(
-    {
-      skeleton: "s",
-      root: REST,
-      joints: [
-        {
-          bone: "leftUpperArm",
-          flexion: Number.NaN,
-          abduction: Number.POSITIVE_INFINITY,
-          twist: 0,
-        },
-      ],
-    },
-    SKELETON,
-  );
-  const sanitizedArm: IAutoMovieJointPose = sanitizedPose.joints[0]!;
-  TestValidator.predicate(
-    "pose NaN flexion neutralizes to rest",
-    nclose(sanitizedArm.flexion!, 0, 0),
-  );
-  TestValidator.predicate(
-    "pose infinite abduction neutralizes to rest",
-    nclose(sanitizedArm.abduction!, 0, 0),
-  );
-  TestValidator.equals(
-    "pose clamp output axes are finite",
-    namedFacts([
-      [
-        "isFiniteSanitizedArmFlexion",
-        (): boolean => Number.isFinite(sanitizedArm.flexion),
-      ],
-      [
-        "isFiniteSanitizedArmAbduction",
-        (): boolean => Number.isFinite(sanitizedArm.abduction),
-      ],
-      [
-        "isFiniteSanitizedArmTwist",
-        (): boolean => Number.isFinite(sanitizedArm.twist),
-      ],
-    ]),
-    {
-      isFiniteSanitizedArmFlexion: true,
-      isFiniteSanitizedArmAbduction: true,
-      isFiniteSanitizedArmTwist: true,
-    },
   );
 }

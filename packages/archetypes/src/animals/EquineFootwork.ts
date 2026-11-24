@@ -144,7 +144,7 @@ export namespace EquineFootwork {
       const leg: rideQuadruped.ILeg = course.legs[index]!;
       const technique: Technique | undefined = leg.equineFootwork;
       if (technique === undefined) continue;
-      if (technique === null || typeof technique !== "object")
+      if (technique === null)
         refuse(index, "Equine footwork requires an authored technique record");
       if (archetype !== "horse" && archetype !== "pony")
         refuse(index, "Equine footwork requires a horse or pony source");
@@ -263,7 +263,6 @@ export namespace EquineFootwork {
           if (
             leg.reverse ||
             index !== course.legs.length - 1 ||
-            ![seconds, entry, advance].every(Number.isFinite) ||
             !(
               advance > 0 &&
               from >= first &&

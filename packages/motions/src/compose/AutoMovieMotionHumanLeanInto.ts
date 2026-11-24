@@ -82,35 +82,33 @@ export namespace AutoMovieMotionHumanLeanInto {
     // posture tipped there: the centre held where the unleaned body with its
     // arm placed has it, so a pitch of 0 shifts nothing. Only when balance
     // is asked (`props.balance`); otherwise the hips stay where they stand.
-    let held: number | undefined;
-    const steps: Map<number, number> = new Map();
-    const step: (index: number) => number = (index: number): number => {
-      let back: number | undefined = steps.get(index);
-      if (back === undefined) {
-        back =
-          index === 0 || props.balance !== true
-            ? 0
-            : HumanBalance.shift(
-                props.body,
-                (shift: number): IAutoMovieMotionHumanPosture =>
-                  weighed(
-                    AutoMovieMotionHumanLean.tip(
-                      props.body,
-                      props.standing,
-                      Math.min(limit, index * KNOT),
-                      shift,
-                    ),
+    // Every knot the pitch can reach, 0 to the limit, solved here.
+    const held: number | undefined =
+      props.balance === true
+        ? HumanBalance.offset(props.body, weighed(props.standing))
+        : undefined;
+    const steps: readonly number[] = Array.from(
+      { length: Math.ceil(limit / KNOT) + 1 },
+      (_: unknown, index: number): number =>
+        index === 0 || held === undefined
+          ? 0
+          : HumanBalance.shift(
+              props.body,
+              (shift: number): IAutoMovieMotionHumanPosture =>
+                weighed(
+                  AutoMovieMotionHumanLean.tip(
+                    props.body,
+                    props.standing,
+                    Math.min(limit, index * KNOT),
+                    shift,
                   ),
-                HumanBalance.RANGE,
-                (held ??= HumanBalance.offset(
-                  props.body,
-                  weighed(props.standing),
-                )),
-              );
-        steps.set(index, back);
-      }
-      return back;
-    };
+                ),
+              HumanBalance.RANGE,
+              held,
+            ),
+    );
+    const step: (index: number) => number = (index: number): number =>
+      steps[index]!;
     // Between two steps the shift is carried in proportion, so it follows
     // the pitch continuously.
     const back: (pitch: number) => number = (pitch: number): number => {

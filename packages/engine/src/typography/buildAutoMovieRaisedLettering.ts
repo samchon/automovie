@@ -43,7 +43,7 @@ const TOLERANCE: number = 0.00005;
 export function buildAutoMovieRaisedLettering(
   props: IAutoMovieBuildTextGeometry.IRaisedProps,
 ): IAutoMovieMesh {
-  if (!Number.isFinite(props.depth) || props.depth <= 0)
+  if (props.depth <= 0)
     throw new Error(
       `Raised lettering depth must be finite and positive, not ${props.depth}`,
     );

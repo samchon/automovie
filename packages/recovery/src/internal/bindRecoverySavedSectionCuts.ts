@@ -31,7 +31,6 @@ export function bindRecoverySavedSectionCuts(
     if (
       !record ||
       record.coordinateMm !== input.saved.coordinateMm ||
-      !Number.isSafeInteger(record.contourIndex) ||
       record.contourIndex < 0 ||
       record.contourIndex >= input.contours.length ||
       records.has(record.contourIndex)
@@ -64,19 +63,13 @@ export function bindRecoverySavedSectionCuts(
       const population: Set<number> =
         publication.kind === "closed" ? closed : open;
       if (
-        !Number.isSafeInteger(ordinal) ||
         ordinal < 0 ||
         population.has(ordinal) ||
-        typeof publication.curveName !== "string" ||
         !publication.curveName.trim()
       )
         return refuse("invalid or repeated caller curve reference");
       population.add(ordinal);
-    } else if (
-      publication.kind === "failed" &&
-      (typeof publication.diagnostic !== "string" ||
-        !publication.diagnostic.trim())
-    )
+    } else if (publication.kind === "failed" && !publication.diagnostic.trim())
       return refuse("failed publication has no saved diagnostic");
     records.set(record.contourIndex, record);
   }
@@ -149,12 +142,9 @@ export function bindRecoverySavedSectionCuts(
 
 function validFaces(value: readonly number[], count: number): boolean {
   return (
-    Array.isArray(value) &&
     Array.from(value).every(
-      (face: number): boolean =>
-        Number.isSafeInteger(face) && face >= 0 && face < count,
-    ) &&
-    new Set(value).size === value.length
+      (face: number): boolean => face >= 0 && face < count,
+    ) && new Set(value).size === value.length
   );
 }
 

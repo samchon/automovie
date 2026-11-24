@@ -49,7 +49,7 @@ export function AutoMovieArchetypeQuadrupedHead<
   let capsuleShare: number | undefined = share;
   let earShare: number | undefined = undefined;
   if (ears !== undefined && share !== undefined) {
-    if (!(Number.isFinite(share) && share > 0))
+    if (!(share > 0))
       throw new RangeError(
         "A physical head with pinnae requires a finite positive source budget or volume allocation",
       );
@@ -59,7 +59,7 @@ export function AutoMovieArchetypeQuadrupedHead<
         radius: head.headRadius,
         height: Vector3.length(Vector3.subtract(head.nose, head.poll)),
       });
-    if (solid === null || !Number.isFinite(solid.volume + ears.volume))
+    if (solid === null)
       throw new RangeError(
         "The complete head must have representable positive solid volume",
       );

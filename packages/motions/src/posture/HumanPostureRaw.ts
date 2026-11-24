@@ -11,46 +11,19 @@ import type {
  */
 export namespace HumanPostureRaw {
   /**
-   * Whether the posture lies in the raw proof domain: no digit goals, finite
-   * root and angles, finite joint triples, only free leg goals and an optional
-   * finite rigid rotation.
+   * Whether the posture lies in the raw proof domain: no digit goals and only
+   * free leg goals.
    */
   export function eligible(posture: IAutoMovieMotionHumanPosture): boolean {
-    if (
-      posture.digits !== undefined ||
-      !vector(posture.root) ||
-      ![posture.yaw, posture.pitch, posture.roll].every(Number.isFinite)
-    )
-      return false;
-    for (const joint of Object.values(posture.joints))
-      if (joint === undefined || !joint.every(Number.isFinite)) return false;
-    for (const [limb, goal] of Object.entries(posture.limbs)) {
-      if ((limb !== "leftLeg" && limb !== "rightLeg") || goal === undefined)
-        return false;
+    if (posture.digits !== undefined) return false;
+    for (const [limb, goal] of Object.entries(posture.limbs))
       if (
-        !free(goal) ||
-        !vector(goal.point) ||
-        !vector(goal.bend) ||
-        (goal.rotation !== undefined &&
-          ![
-            goal.rotation.x,
-            goal.rotation.y,
-            goal.rotation.z,
-            goal.rotation.w,
-          ].every(Number.isFinite))
+        (limb !== "leftLeg" && limb !== "rightLeg") ||
+        goal === undefined ||
+        !free(goal)
       )
         return false;
-    }
-    return (
-      posture.rotation === undefined ||
-      (vector(posture.rotation.about) &&
-        [
-          posture.rotation.turn.x,
-          posture.rotation.turn.y,
-          posture.rotation.turn.z,
-          posture.rotation.turn.w,
-        ].every(Number.isFinite))
-    );
+    return true;
   }
   /** Copy original demands and apply one world-metre displacement per goal. */
   export function translated(
@@ -76,15 +49,6 @@ export namespace HumanPostureRaw {
     if (out.rotation !== undefined)
       out.rotation.about = Vector3.add(out.rotation.about, delta);
     return out;
-  }
-
-  /** Check the existing three finite vector reads in x/y/z order. */
-  export function vector(value: IAutoMovieVector3): boolean {
-    return (
-      Number.isFinite(value.x) &&
-      Number.isFinite(value.y) &&
-      Number.isFinite(value.z)
-    );
   }
 
   /**

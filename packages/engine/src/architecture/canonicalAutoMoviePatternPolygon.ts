@@ -28,10 +28,6 @@ export const canonicalAutoMoviePatternPolygon: (
   polygon: readonly IAutoMoviePatternPoint[],
   label: string,
 ): IAutoMoviePatternPoint[] => {
-  polygon.forEach((point: IAutoMoviePatternPoint, index: number): void => {
-    if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-      throw new Error(`${label}[${index}] must be finite`);
-  });
   const hull: IAutoMoviePatternPoint[] = convexHull2D(
     polygon.map(
       (point: IAutoMoviePatternPoint): IAutoMovieVector3 => ({

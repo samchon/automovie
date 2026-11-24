@@ -47,7 +47,7 @@ export function createBedroomKit(
     ): number | undefined =>
       seed === undefined ? undefined : deriveArchetypeSeed(seed, role);
     const chestGap: number = params.chestGap ?? createBedroomKit.CHEST_GAP;
-    if (!(Number.isFinite(chestGap) && chestGap >= 0))
+    if (!(chestGap >= 0))
       throw new Error(
         `${context.id} chestGap needs a finite nonnegative distance: ${chestGap}`,
       );

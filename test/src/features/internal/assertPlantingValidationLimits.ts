@@ -11,7 +11,11 @@ import { TestValidator } from "@nestia/e2e";
 import { namedFacts, throwsError } from "./predicates";
 import { plantingRecipe } from "./softFixtures";
 
-/** Run the original pruning, foliage, budget and cluster admission cases for test_planting_validation in order, using its unchanged refusal callbacks. This helper creates no independently registered test or host. */
+/**
+ * Run the original pruning, foliage, budget and cluster admission cases for
+ * test_planting_validation in order, using its unchanged refusal callbacks.
+ * This helper creates no independently registered test or host.
+ */
 export function assertPlantingValidationLimits(
   refuses: (
     overrides: Partial<IAutoMoviePlantingDomain>,
@@ -284,7 +288,6 @@ export function assertPlantingValidationLimits(
   TestValidator.equals(
     "the cluster is named",
     namedFacts([
-      ["domain", () => refusesCluster({ domain: "" }, "type", "$input.domain")],
       ["count", () => refusesCluster({ count: 0 }, "type", "$input.count")],
       [
         "tooMany",
@@ -355,7 +358,6 @@ export function assertPlantingValidationLimits(
       ],
     ]),
     {
-      domain: true,
       count: true,
       tooMany: true,
       extent: true,

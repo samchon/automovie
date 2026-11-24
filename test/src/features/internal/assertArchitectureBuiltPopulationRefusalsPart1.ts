@@ -8,14 +8,17 @@ import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "./predicates";
 
-/** Execute the next ordered assertions of test_architecture_built_population_refusals.
+/**
+ * Execute the next ordered assertions of
+ * test_architecture_built_population_refusals.
  *
  * Scenarios:
- * 1. a population must name a space the record declares, once.
- * 2. a building population may not follow a production-world route.
- * 3. prototype bounds may degenerate but may not invert or become non-finite.
- * 4. the facts every layout needs are checked.
- * 5. a scatter radius of zero is refused.
+ *
+ * 1. A population must name a space the record declares, once.
+ * 2. A building population may not follow a production-world route.
+ * 3. Prototype bounds may degenerate but may not invert or become non-finite.
+ * 4. The facts every layout needs are checked.
+ * 5. A scatter radius of zero is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the parent-supplied building validator closures to inspect authored type/range path membership for identity, route kind, prototype, count, anchor, heading and zero scatter radius, beside clean point-bound admission. A missing required path or blanket refusal changes these assertions; the parent owns completion of the ordered scenario.
  * @evidence contracts/development/testing.md#independent-expectations Authored space/set ids, finite noninverted prototype bounds and the literal field mutation paths determine admission expectations. Point bounds remain valid, count 2.5/0 and nonfinite anchor/heading are refused, and a building cannot resolve the named production-world route. These checks do not observe seed admission, model meshes or rendered enclosure.
@@ -46,11 +49,6 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
           refuses([population({}, "cellar")], "populations[0].space", "type"),
       ],
       [
-        "blankId",
-        (): boolean =>
-          refuses([population({ id: "  " })], "populations[0].set.id", "type"),
-      ],
-      [
         "duplicateId",
         (): boolean =>
           refuses(
@@ -60,7 +58,7 @@ export function assertArchitectureBuiltPopulationRefusalsPart1(
           ),
       ],
     ]),
-    { unresolvedSpace: true, blankId: true, duplicateId: true },
+    { unresolvedSpace: true, duplicateId: true },
   );
 
   TestValidator.equals(

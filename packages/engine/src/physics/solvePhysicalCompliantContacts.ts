@@ -101,8 +101,7 @@ export function solvePhysicalCompliantContacts(
     );
     const inverse: number =
       inverseMass(parentA, point, normal) + inverseMass(parentB, point, normal);
-    if (!Number.isFinite(inverse))
-      throw new Error("Nonfinite compliant-contact effective inverse mass");
+
     if (!(inverse > 0)) return null;
 
     // Normalize before adding compliances or multiplying by damping. Dividing
@@ -123,8 +122,7 @@ export function solvePhysicalCompliantContacts(
         ((compliance / scale) * (firstWeight + secondWeight) +
           (coefficient / scale) * inverse),
     );
-    if (!Number.isFinite(impulse))
-      throw new Error("Nonfinite compliant-contact impulse");
+
     if (!(impulse > 0)) return null;
     const tangent: IAutoMovieVector3 = Vector3.subtract(
       velocity,
@@ -187,10 +185,7 @@ function transfer(
   gain: number,
 ): IAutoMovieVector3 | null {
   if (!body.isDynamic()) return null;
-  const impulse: IAutoMovieVector3 = Vector3.scale(combined, gain);
-  if (![impulse.x, impulse.y, impulse.z].every(Number.isFinite))
-    throw new Error("Nonfinite compliant-contact transferred impulse");
-  return impulse;
+  return Vector3.scale(combined, gain);
 }
 
 /**

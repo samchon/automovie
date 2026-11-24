@@ -118,8 +118,6 @@ export const validateAutoMovieFormationSlotMotions: (
         `must reference participating compiled formation "${cue.formation}"`,
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -133,7 +131,6 @@ export const validateAutoMovieFormationSlotMotions: (
       new Set(cue.slots).size !== cue.slots.length ||
       cue.slots.some(
         (slot: number): boolean =>
-          Number.isSafeInteger(slot) === false ||
           slot < 0 ||
           (compiled !== undefined && slot >= compiled.count),
       )
@@ -168,10 +165,8 @@ export const validateAutoMovieFormationSlotMotions: (
       if (
         [state.offset.x, state.offset.y, state.offset.z].some(
           (number: number): boolean =>
-            Number.isFinite(number) === false ||
             Math.abs(number) > 1_000_000_000,
         ) ||
-        Number.isFinite(state.facingOffsetDeg) === false ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )
         fail(

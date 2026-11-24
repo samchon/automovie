@@ -26,11 +26,6 @@ export interface IAutoMovieMeshTopology {
    */
   degenerateTriangles: number[];
 
-  /**
-   * Components of the position, normal, UV, colour and relief-weight buffers
-   * that are not finite numbers.
-   */
-  nonFinite: number;
 
   /** Edges of non-degenerate triangles used by exactly one triangle. */
   boundaryEdges: number;

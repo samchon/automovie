@@ -4,8 +4,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { PhysicalHullScalarWitness } from "./PhysicalHullScalarWitness";
-import { createPhysicalHullShape } from "./createPhysicalHullShape";
 import { physicalShapeQuery } from "./physicalShapeQuery";
 
 /**
@@ -57,58 +55,4 @@ export namespace physicalShapeSegmentDistance {
   ): ReturnType<typeof physicalShapeQuery.prepare> {
     return physicalShapeQuery.prepare(pose, shape);
   }
-
-  /**
-   * Open one synchronous trial of actual point queries against unchanged posed
-   * hulls.
-   *
-   * @returns A lazy point-reader factory and a check of the actual reached hull
-   *   dependencies.
-   */
-  export function pointTrial(): IAutoMoviePhysicalShapePointTrial {
-    const witness: PhysicalHullScalarWitness = new PhysicalHullScalarWitness();
-    const reached: Set<IAutoMoviePhysicalShape> = new Set();
-    return {
-      prepare: (
-        pose: IAutoMovieRigidTransform,
-        shape: IAutoMoviePhysicalShape,
-      ) => {
-        const query: ReturnType<typeof physicalShapeQuery.prepare> =
-          physicalShapeQuery.prepare(pose, shape, witness);
-        let visited: boolean = false;
-        return (point: IAutoMovieVector3): number => {
-          if (!visited) {
-            reached.add(shape);
-            visited = true;
-          }
-          return query(point, point);
-        };
-      },
-      status: (): "untouched" | "unsupported" | "current" =>
-        !witness.current() ||
-        [...reached].some(
-          (shape: IAutoMoviePhysicalShape): boolean =>
-            !createPhysicalHullShape.current(shape),
-        )
-          ? "unsupported"
-          : witness.touched()
-            ? "current"
-            : "untouched",
-    };
-  }
-}
-
-/** A scalar hull operation checks reached topology only after actual point use. */
-interface IAutoMoviePhysicalShapePointTrial {
-  /** Prepare a fixed shape reader without prewalking an unvisited hull. */
-  prepare(
-    pose: IAutoMovieRigidTransform,
-    shape: IAutoMoviePhysicalShape,
-  ): (point: IAutoMovieVector3) => number;
-
-  /**
-   * No actual read, unproved backing, or all actual scalar hull operands remain
-   * proved.
-   */
-  status(): "untouched" | "unsupported" | "current";
 }

@@ -33,9 +33,9 @@ export namespace AutoMovieAxisDirection {
       ),
     );
     let normalNorm: number = Math.hypot(...vector);
-    if (!Number.isFinite(normalNorm) || normalNorm < MINIMUM_NORMAL) {
+    if (normalNorm < MINIMUM_NORMAL) {
       const magnitude: number = Math.max(...up.map(Math.abs));
-      if (Number.isFinite(magnitude) && magnitude > 0) {
+      if (magnitude > 0) {
         const scaled: AutoMovieVector3Tuple = up.map(
           (value: number): number => value / magnitude,
         ) as AutoMovieVector3Tuple;
@@ -51,7 +51,7 @@ export namespace AutoMovieAxisDirection {
         // Scaling an enormous tangent component must not erase a representable raw normal.
         if (
           scaledNorm > 0 ||
-          !(Number.isFinite(normalNorm) && normalNorm > 0)
+          !(normalNorm > 0)
         ) {
           targetNorm = Math.hypot(...scaled);
           vector = scaledVector;
@@ -71,10 +71,10 @@ export namespace AutoMovieAxisDirection {
     norm: number = Math.hypot(...vector),
   ): AutoMovieVector3Tuple {
     if (!(norm > 0)) return vector;
-    if (Number.isFinite(norm) && norm >= MINIMUM_NORMAL)
+    if (norm >= MINIMUM_NORMAL)
       return AutoMovieSolidVector.scale(vector, 1 / norm);
     const magnitude: number = Math.max(...vector.map(Math.abs));
-    if (!(Number.isFinite(magnitude) && magnitude > 0)) return vector;
+    if (!(magnitude > 0)) return vector;
     const scaled: AutoMovieVector3Tuple = vector.map(
       (value: number): number => value / magnitude,
     ) as AutoMovieVector3Tuple;
@@ -90,7 +90,7 @@ export namespace AutoMovieAxisDirection {
     direction: AutoMovieVector3Tuple,
     squaredNorm: number = AutoMovieSolidVector.dot(direction, direction),
   ): AutoMovieVector3Tuple {
-    if (Number.isFinite(squaredNorm) && squaredNorm >= MINIMUM_NORMAL)
+    if (squaredNorm >= MINIMUM_NORMAL)
       return AutoMovieSolidVector.sub(
         vector,
         AutoMovieSolidVector.scale(

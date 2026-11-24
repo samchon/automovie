@@ -257,7 +257,7 @@ export function planAutoMovieSurfaceRigPatches(
           `${what} loops differ in count, ${a.length} and ${b.length}`,
         );
       const tension: number = patch.tension ?? 1;
-      if (!(tension > 0) || !Number.isFinite(tension))
+      if (!(tension > 0))
         throw new Error(`${what} tension must be positive`);
       const n: number = a.length;
       const fromIndex: number[] = a.map((x: IAutoMovieSurfaceSample): number =>

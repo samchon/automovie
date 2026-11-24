@@ -36,12 +36,8 @@ export function assembleAutoMovieRecoveryFieldComplex(
     policy.maxCells,
     policy.maxVertices,
   ])
-    if (!Number.isSafeInteger(size) || size < 1)
-      throw new Error("Finite chart assembly budgets are required");
-  if (
-    !input.id.trim() ||
-    !(policy.toleranceMm > 0 && Number.isFinite(policy.toleranceMm))
-  )
+    if (size < 1) throw new Error("Finite chart assembly budgets are required");
+  if (!input.id.trim() || !(policy.toleranceMm > 0))
     throw new Error(
       "A named complex and positive physical tolerance are required",
     );
@@ -120,7 +116,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
               !id.trim() ||
               net.some(
                 (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-                  point.length !== 3 || !point.every(Number.isFinite),
+                  point.length !== 3,
               )
             )
               throw new Error(

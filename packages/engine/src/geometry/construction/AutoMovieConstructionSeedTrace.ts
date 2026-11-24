@@ -16,18 +16,18 @@ export namespace AutoMovieConstructionSeedTrace {
     sink({
       ...event,
       phase:
-        event.phase !== null && Number.isFinite(event.phase)
+        event.phase !== null
           ? event.phase
           : null,
       start:
-        event.start !== null && Number.isFinite(event.start)
+        event.start !== null
           ? event.start
           : null,
       chart:
-        event.chart !== null && event.chart.every(Number.isFinite)
+        event.chart !== null
           ? [...event.chart]
           : null,
-      gap: event.gap !== null && Number.isFinite(event.gap) ? event.gap : null,
+      gap: event.gap !== null ? event.gap : null,
     });
   }
 }

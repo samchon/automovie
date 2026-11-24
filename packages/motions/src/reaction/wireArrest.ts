@@ -53,7 +53,7 @@ export namespace wireArrest {
       ["duration", lower, lower > 0],
       ["deceleration", bound, bound > 0],
     ] as const)
-      if (!(ok && Number.isFinite(value)))
+      if (!ok)
         throw new HumanRefusal({
           kind: "parameter",
           axis,

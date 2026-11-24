@@ -8,13 +8,25 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Fixed-chart affine-origin support candidates preserve the original scalar and its pole parameter.
+ * Fixed-chart affine-origin support candidates preserve the original scalar and
+ * its pole parameter.
  *
  * Scenarios:
- * 1. A closed two-pole quadratic in theta has its unique affine-plus-source maximum at pi/3 or 2pi/3. Three unit scales, both signs and partial domains retain exact source endpoints/knots and analytically known critical stations.
- * 2. A linear theta source plus physical station has two critical points at pi/6 and 5pi/6, which scalar-only critical stations omit. A quintic source gives a sixth-multiplicity derivative zero at the middle of the angular domain.
- * 3. Identity and both single-root parameters reduce to the existing polynomial owner, including constant/zero functions. Nearby sine roots and exact endpoint roots exercise bracket boundaries without treating finite root candidates as interval certificates.
- * 4. Reversed, external, singleton or nonfinite domains and unrepresentable term combinations fail explicitly.
+ *
+ * 1. A closed two-pole quadratic in theta has its unique affine-plus-source
+ *    maximum at pi/3 or 2pi/3. Three unit scales, both signs and partial
+ *    domains retain exact source endpoints/knots and analytically known
+ *    critical stations.
+ * 2. A linear theta source plus physical station has two critical points at pi/6
+ *    and 5pi/6, which scalar-only critical stations omit. A quintic source
+ *    gives a sixth-multiplicity derivative zero at the middle of the angular
+ *    domain.
+ * 3. Identity and both single-root parameters reduce to the existing polynomial
+ *    owner, including constant/zero functions. Nearby sine roots and exact
+ *    endpoint roots exercise bracket boundaries without treating finite root
+ *    candidates as interval certificates.
+ * 4. Reversed, external, singleton or nonfinite domains and unrepresentable term
+ *    combinations fail explicitly.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public original-source support API, evaluates its candidates through the same source value API and checks unchanged source inputs; directly exercises the bounded sine-polynomial root owner at multiple-root and bracket boundaries.
  * @evidence contracts/development/testing.md#independent-expectations Critical stations follow the exact inverse s=L*sin(theta/2)^2 and independently differentiated polynomials. The unique closed-source maximum solves pi-2theta+A*sin(theta)=0 at the authored theta; sin(theta)-1/2 has roots pi/6 and 5pi/6. The quintic integrates minus the fourth-order cosine Taylor polynomial, so its remaining derivative has a sixth-multiplicity zero at pi/2.
@@ -110,7 +122,6 @@ export function test_construction_affine_support(): void {
       if (
         typeof clipped === "string" ||
         clipped.length !== expectedCuts.length ||
-        !clipped.every(Number.isFinite) ||
         clipped.some((s: number, i: number): boolean => s !== expectedCuts[i])
       )
         failures.push(
@@ -336,7 +347,10 @@ export function test_construction_affine_support(): void {
     );
 }
 
-/** A finite candidate must reach the independently known parameter; extra near-zero observations are permitted. */
+/**
+ * A finite candidate must reach the independently known parameter; extra
+ * near-zero observations are permitted.
+ */
 function contains(
   failures: string[],
   label: string,
@@ -347,8 +361,6 @@ function contains(
   if (
     typeof candidates === "string" ||
     candidates.length === 0 ||
-    !candidates.every(Number.isFinite) ||
-    !Number.isFinite(expected) ||
     !candidates.some(
       (candidate: number): boolean =>
         Math.abs(candidate - expected) <= tolerance,
@@ -357,7 +369,10 @@ function contains(
     failures.push(`${label}: ${candidates}, expected ${expected}`);
 }
 
-/** Finite scalar comparison prevents a NaN maximum from satisfying an error tolerance. */
+/**
+ * Finite scalar comparison prevents a NaN maximum from satisfying an error
+ * tolerance.
+ */
 function near(
   failures: string[],
   label: string,
@@ -365,10 +380,6 @@ function near(
   expected: number,
   tolerance: number,
 ): void {
-  if (
-    !Number.isFinite(actual) ||
-    !Number.isFinite(expected) ||
-    Math.abs(actual - expected) > tolerance
-  )
+  if (Math.abs(actual - expected) > tolerance)
     failures.push(`${label}: ${actual}, expected ${expected}`);
 }

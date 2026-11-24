@@ -202,7 +202,6 @@ export const validatePlantingInstallations: (
             irrigation.port,
           );
         if (
-          !Number.isFinite(irrigation.demandLitresPerDay) ||
           irrigation.demandLitresPerDay <= 0
         )
           out.push(
@@ -428,5 +427,5 @@ const freeSurfaceAt: (
   const cell: number = row * domain.grid.columns + column;
   const level: number =
     domain.grid.origin.y + domain.bed[cell] + domain.depth[cell];
-  return Number.isFinite(level) ? level : null;
+  return level;
 };

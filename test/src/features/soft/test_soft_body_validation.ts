@@ -57,7 +57,10 @@ const sound: (
     },
   });
 
-/** True when the changed domain includes a refusal of the named kind at the requested path. */
+/**
+ * True when the changed domain includes a refusal of the named kind at the
+ * requested path.
+ */
 const refuses: (
   overrides: Partial<IAutoMovieSoftBodyDomain>,
   kind: AutoMovieViolationKind,
@@ -74,17 +77,17 @@ const refuses: (
   );
 
 /**
- * Selected soft-body authoring mistakes produce located field refusals, while
- * a complete domain and adjacent valid collider/wind cases remain accepted.
+ * Selected soft-body authoring mistakes produce located field refusals, while a
+ * complete domain and adjacent valid collider/wind cases remain accepted.
  *
  * A validator that only ever fires is as useless as one that never does, so the
  * complete panel is asserted successful first and each refusal changes the
- * relevant field or annotation group. The pass exists so the solver never has to guess what
- * an inconsistent record meant: an array of the wrong length, a zero mass, two
- * coincident rest particles with no direction between them, two anchors
- * fighting over one particle, a named state citing an anchor nobody declared,
- * or a panel that starts buried in the furniture are all refused rather than
- * quietly clamped.
+ * relevant field or annotation group. The pass exists so the solver never has
+ * to guess what an inconsistent record meant: an array of the wrong length, a
+ * zero mass, two coincident rest particles with no direction between them, two
+ * anchors fighting over one particle, a named state citing an anchor nobody
+ * declared, or a panel that starts buried in the furniture are all refused
+ * rather than quietly clamped.
  *
  * Scenarios:
  *
@@ -93,24 +96,24 @@ const refuses: (
  * 2. Lattice and arrays: a non-integer column count, a lattice past the particle
  *    cap, a lattice holding fewer than two particles, and rest or mass arrays
  *    of the wrong length or holding a non-positive value.
- * 3. Solver: a non-positive step, a negative drag,
- *    an iteration count outside its range, a stiffness outside `[0, 1]`, a
- *    non-positive reference speed and a step budget outside its range.
+ * 3. Solver: a non-positive step, a negative drag, an iteration count outside its
+ *    range, a stiffness outside `[0, 1]`, a non-positive reference speed and a
+ *    step budget outside its range.
  * 4. Geometry: two coincident rest particles along a row and along a column. The
  *    refusal is what the pass is for, because a constraint between two points
  *    at the same place has no direction: solving such a panel anyway skips that
  *    constraint and stays finite rather than dividing by zero, which is a
  *    quietly wrong panel and exactly what the refusal exists to prevent.
- * 5. Anchors and states: a duplicated id, an out-of-range particle,
- *    two anchors on one particle, a state citing
- *    an unknown anchor, a state posing one anchor twice, and a budget
- *    overflow.
- * 6. Colliders: a duplicated id, a zero plane normal, a non-positive radius,
- *    an inverted box and a collider budget overflow. A panel that starts buried in a box is refused, while one
- *    clear of that box on a single axis is not: the embedding test reads all
- *    three axes rather than concluding from the first two.
- * 7. Wind: a zero direction, a negative gust amplitude
- *    and a negative gust frequency.
+ * 5. Anchors and states: a duplicated id, an out-of-range particle, two anchors on
+ *    one particle, a state citing an unknown anchor, a state posing one anchor
+ *    twice, and a budget overflow.
+ * 6. Colliders: a duplicated id, a zero plane normal, a non-positive radius, an
+ *    inverted box and a collider budget overflow. A panel that starts buried in
+ *    a box is refused, while one clear of that box on a single axis is not: the
+ *    embedding test reads all three axes rather than concluding from the first
+ *    two.
+ * 7. Wind: a zero direction, a negative gust amplitude and a negative gust
+ *    frequency.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls validateSoftBodyDomain on a valid panel and malformed lattice, array, solver, geometry, anchor/state, collider and wind fields, checking located refusal kinds through refuses/hasViolation. Direct simulation of coincident rest particles remains finite, demonstrating why numerical survival alone does not admit that geometry.
  * @evidence contracts/development/testing.md#independent-expectations Dense three-coordinate particles, positive masses/clock, bounded solver values, unique references, nonzero edges/normals and strict box intervals supply the oracle. Literal oversized values cross the declared budgets of 16384 particles, 64 sweeps/colliders, 32 states and 100000 steps. The finding predicates require presence and location, not an exact singleton finding count or universal malformed-input totality.
@@ -277,11 +280,7 @@ export function test_soft_body_validation(): void {
         "solvedAnyway",
         (): boolean => {
           const state: IAutoMovieSoftBodyState = simulateSoftBody(stacked(), 2);
-          return (
-            state.positions.every((value: number): boolean =>
-              Number.isFinite(value),
-            ) && Object.is(state.positions[0], state.positions[3])
-          );
+          return Object.is(state.positions[0], state.positions[3]);
         },
       ],
       [

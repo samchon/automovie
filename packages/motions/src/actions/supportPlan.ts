@@ -218,8 +218,8 @@ export function supportPlan(
     ),
     contacts,
     yields,
-    settle: (): void => {
-      for (const interval of intervals) interval.settle();
+    prepare: (): void => {
+      for (const interval of intervals) interval.prepare();
     },
     posture: (
       t: number,

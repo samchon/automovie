@@ -70,8 +70,6 @@ export namespace measureAutoMovieMeshGap {
     const indices: number[] = triangleIndicesOf(mesh, label);
     if (indices.length === 0)
       throw new Error(`${label} needs at least one triangle`);
-    if (!mesh.positions.every(Number.isFinite))
-      throw new Error(`${label} needs finite positions`);
     const triangles: ITriangle[] = [];
     for (let at: number = 0; at < indices.length; at += 3) {
       const corners: Float64Array = new Float64Array(9);

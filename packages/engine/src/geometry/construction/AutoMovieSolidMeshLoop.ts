@@ -86,7 +86,7 @@ export namespace AutoMovieSolidMeshLoop {
       return raw;
     }
     let eager: boolean =
-      period !== undefined && (!Number.isFinite(period) || period <= 0);
+      period !== undefined && (period <= 0);
     return (
       u: number,
       v: number,
@@ -150,8 +150,6 @@ export namespace AutoMovieSolidMeshLoop {
           // exists only when they stay inside half a period, so every
           // point's nearest lift is the one the segments read.
           const narrow: boolean =
-            Number.isFinite(first) &&
-            Number.isFinite(last) &&
             (period === undefined || last - first < period / 2);
           state.box = [
             low,
@@ -248,9 +246,7 @@ export namespace AutoMovieSolidMeshLoop {
         const y: unknown = Object.getOwnPropertyDescriptor(point, "1")?.value;
         if (
           typeof x !== "number" ||
-          typeof y !== "number" ||
-          !Number.isFinite(x) ||
-          !Number.isFinite(y)
+          typeof y !== "number"
         )
           return null;
         chart.push([x, y]);
@@ -272,7 +268,7 @@ export namespace AutoMovieSolidMeshLoop {
             axis,
             String(k),
           )?.value;
-          if (typeof value !== "number" || !Number.isFinite(value))
+          if (typeof value !== "number")
             return false;
         }
       }

@@ -4,7 +4,6 @@ import type {
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
   IAutoMovieSkeleton,
-  IAutoMovieTrack,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -234,11 +233,10 @@ export function test_motion_engine_node_clip_lowering(): void {
         source.tracks[0] = {
           ...source.tracks[0]!,
           channel: {
-            kind: "bone",
-            node: "pelvis-node",
-            bone: "hips",
-            path: "rotation",
-          } as unknown as IAutoMovieTrack["channel"],
+            kind: "pointer",
+            pointer: "/nodes/0/rotation",
+            valueType: "quaternion",
+          },
         };
         lower({
           clip: source,

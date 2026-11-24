@@ -377,7 +377,7 @@ function error(
 ): IAutoMovieVector3 {
   if (
     target.bound !== undefined &&
-    (!(target.bound >= 0) || !Number.isFinite(target.bound))
+    !(target.bound >= 0)
   )
     throw new Error("A point bound must be finite nonnegative metres");
   const axes: readonly ErrorAxesItem[] = target.axes ?? ["x", "y", "z"];

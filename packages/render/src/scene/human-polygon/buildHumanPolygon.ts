@@ -61,13 +61,7 @@ export function buildHumanPolygon(
   const bones: Map<string, IAutoMovieHumanBindBone> = new Map();
   const placements: Map<string, IAutoMovieHumanBonePlacement> = new Map();
   for (const bone of output.bones) {
-    if (
-      bones.has(bone.bone) ||
-      !(bone.radius > 0) ||
-      !Number.isFinite(bone.radius) ||
-      !bone.position.every(Number.isFinite) ||
-      (bone.tip !== null && !bone.tip.every(Number.isFinite))
-    )
+    if (bones.has(bone.bone) || !(bone.radius > 0))
       throw new Error(`Invalid polygon skeleton bone: ${bone.bone}`);
     bones.set(bone.bone, bone);
   }

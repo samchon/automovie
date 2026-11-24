@@ -78,7 +78,7 @@ export function poseArchetypeSpanGrips(
             current.length,
           );
         if (
-          !(Number.isFinite(held) && held > 0) ||
+          !(held > 0) ||
           before < held / 2 - roundoff ||
           after < held / 2 - roundoff
         )
@@ -100,7 +100,7 @@ export function poseArchetypeSpanGrips(
         contact.frame.rotation;
       const norm: number = Math.hypot(q.x, q.y, q.z, q.w);
       if (
-        !(Number.isFinite(norm) && Math.abs(norm - 1) <= 64 * Number.EPSILON) ||
+        !(Math.abs(norm - 1) <= 64 * Number.EPSILON) ||
         ![
           contact.frame.scale.x,
           contact.frame.scale.y,

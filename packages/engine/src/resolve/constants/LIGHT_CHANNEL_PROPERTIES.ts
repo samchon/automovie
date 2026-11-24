@@ -16,14 +16,14 @@ const UNIT_QUATERNION_EPSILON = 1e-6;
  * rotation. Without it, a track could state through time a light `commitScene`
  * would refuse outright, which is exactly what the bounds exist to prevent.
  *
- * A component that is not a finite number yields NO fault: the shared
+ * A component that is not a number yields NO fault: the shared
  * track-shape contract reports that at the offending index, and one mistake
  * earns one violation.
  */
 const unitQuaternionFault = (value: readonly unknown[]): string | null => {
   const components = value.filter(
     (component): component is number =>
-      typeof component === "number" && Number.isFinite(component),
+      typeof component === "number",
   );
   if (components.length !== value.length) return null;
   const length = Math.hypot(...components);

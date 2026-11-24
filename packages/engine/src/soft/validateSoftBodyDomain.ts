@@ -65,7 +65,7 @@ export const validateSoftBodyDomain: (
   // past the exactly representable integers is the largest lattice anyone can
   // declare, and requiring exactness here let precisely those through the cap
   // that exists to stop them.
-  if (Number.isFinite(count) && count > SOFT_MAX_PARTICLES)
+  if (count > SOFT_MAX_PARTICLES)
     out.push(
       "range",
       `${root}.lattice`,
@@ -73,7 +73,7 @@ export const validateSoftBodyDomain: (
       count,
       count - SOFT_MAX_PARTICLES,
     );
-  if (Number.isSafeInteger(count) && count < 2)
+  if (count < 2)
     out.push(
       "range",
       `${root}.lattice`,
@@ -192,7 +192,7 @@ export const validateSoftBodyDomain: (
       `${root}.solver.fixedStepSeconds`,
       `a position-based step may not travel further than the shortest constraint: dt·referenceSpeed/shortestRestLength <= 1, but the travel number is ${travel}`,
       domain.solver.fixedStepSeconds,
-      Number.isFinite(travel) ? travel - 1 : undefined,
+      travel - 1,
     );
 
   validateSoftAnchors(out, root, domain, count);

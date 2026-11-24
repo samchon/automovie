@@ -79,14 +79,10 @@ export namespace AutoMovieViewCurves {
     } catch (error: unknown) {
       return `${curve.name} at ${station}: the actual source axis failed: ${error instanceof Error ? (error.stack ?? error.message) : String(error)}`;
     }
-    if (![...frame.origin, ...frame.u, ...frame.v].every(Number.isFinite))
-      return `${curve.name} at ${station}: the actual axis frame is nonfinite`;
     const direction: readonly number[] = frame[curve.direction];
     const point: [number, number, number] = [0, 1, 2].map(
       (c: number): number => frame.origin[c]! + scalar.value * direction[c]!,
     ) as [number, number, number];
-    if (!point.every(Number.isFinite))
-      return `${curve.name} at ${station}: the world source point is nonfinite`;
     return { scalar, frame, point };
   }
 }

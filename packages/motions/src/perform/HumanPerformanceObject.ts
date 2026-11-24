@@ -10,9 +10,6 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 
-/** The record of `IPoseLast`'s site. */
-type IPoseLast = { seconds: number; posed: IAutoMovieMotionHumanProp.IPosed };
-
 /** The record of `IPointResult`'s site. */
 type IPointResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
 
@@ -42,8 +39,9 @@ export namespace HumanPerformanceObject {
   /**
    * Every writer of a prop's articulations in film order, with its independent
    * degree resolved once: each placed action's drives, clipped to its active
-   * span, and the prop's own tracks from their instants. Kept only after all
-   * actions and their final clipped ends have been placed.
+   * span, and the prop's own tracks from their instants: those the
+   * performance prepared once every action and its final clipped end was
+   * placed, or, while the schedule is resolved, those placed now.
    *
    * @param self The performance.
    * @param prop The prop.
@@ -53,10 +51,21 @@ export namespace HumanPerformanceObject {
     self: IAutoMovieMotionHumanPerformanceState,
     prop: IAutoMovieMotionHumanProp,
   ): readonly IWriter[] {
-    const known: readonly IWriter[] | undefined = self.writers.get(
-      prop.subject,
-    );
-    if (known !== undefined) return known;
+    return self.writers.get(prop.subject) ?? collect(self, prop);
+  }
+
+  /**
+   * Collect a prop's writers from the placed actions and its tracks
+   * ({@link writers}): what the performance prepares.
+   *
+   * @param self The performance.
+   * @param prop The prop.
+   * @returns The writers, by their start.
+   */
+  export function collect(
+    self: IAutoMovieMotionHumanPerformanceState,
+    prop: IAutoMovieMotionHumanProp,
+  ): IWriter[] {
     const out: IWriter[] = [];
     const byId: ReadonlyMap<string, IAutoMovieAffordance> = new Map(
       (prop.affordances ?? []).map(
@@ -103,8 +112,6 @@ export namespace HumanPerformanceObject {
       });
     }
     out.sort((a: IWriter, b: IWriter): number => a.from - b.from);
-    if (!self.resolving) self.writers.set(prop.subject, out);
-
     return out;
   }
 
@@ -171,9 +178,7 @@ export namespace HumanPerformanceObject {
   }
 
   /**
-   * A prop posed at its state at a film second, the last one read kept per
-   * prop, so the many reads of one instant (every contact of every hand at a
-   * frame) pose it once.
+   * A prop posed at its state at a film second.
    *
    * @param self The performance.
    * @param prop The prop, which articulates.
@@ -185,14 +190,7 @@ export namespace HumanPerformanceObject {
     prop: IAutoMovieMotionHumanProp,
     seconds: number,
   ): IAutoMovieMotionHumanProp.IPosed {
-    const last: IPoseLast | undefined = self.posed.get(prop.subject);
-    if (last !== undefined && last.seconds === seconds && !self.resolving)
-      return last.posed;
-    const posed: IAutoMovieMotionHumanProp.IPosed = prop.articulate!(
-      state(self, prop, seconds),
-    );
-    if (!self.resolving) self.posed.set(prop.subject, { seconds, posed });
-    return posed;
+    return prop.articulate!(state(self, prop, seconds));
   }
 
   /**

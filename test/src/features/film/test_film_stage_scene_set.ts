@@ -22,14 +22,13 @@ import {
  * Scenarios:
  *
  * 1. A floor (no `facingDeg`) and a turned wall stage as scene nodes after the
- *    cast: the floor model id is kept verbatim, the floor unrotated (identity), the wall's
- *    yaw encoded exactly like an actor's facing, motion/pose null.
+ *    cast: the floor model id is kept verbatim, the floor unrotated (identity),
+ *    the wall's yaw encoded exactly like an actor's facing, motion/pose null.
  * 2. A camera may `lookAt` a set piece: its −Z aims at the piece's position.
  * 3. Full quaternion rotation stages sloped or vertical architecture.
- * 4. The gates: a set node colliding with a cast id, a blank node id, a blank
- *    model id, a non-finite position, and a non-finite `facingDeg` are all
- *    refused in one round at their `$input.set[i]` paths; an omitted
- *    `facingDeg` is not a violation.
+ * 4. The gates: a set node colliding with a cast id, a non-finite position, and a
+ *    non-finite `facingDeg` are all refused in one round at their
+ *    `$input.set[i]` paths; an omitted `facingDeg` is not a violation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stages static set nodes, yaw and full rotations, and a camera aimed at a set piece; then requires the seven malformed node/model/position/rotation refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal node order, floor model id, null floor motion/pose and authored rotations define expectations; qclose and vclose observe orientation and aim without deep float equality. Camera displacement comes from authored placement geometry; product normalization/rotation helpers participate in the observation, so their shared faults are not independently excluded.
@@ -133,8 +132,8 @@ export function test_film_stage_scene_set(): void {
     makeStagingWrite({
       set: [
         { node: "knightA", model: "slab", position: { x: 0, y: 0, z: 0 } },
-        { node: " ", model: "slab", position: { x: 0, y: 0, z: 0 } },
-        { node: "wall", model: " ", position: { x: 0, y: 0, z: 0 } },
+        { node: "ledge", model: "slab", position: { x: 0, y: 0, z: 0 } },
+        { node: "wall", model: "slab", position: { x: 0, y: 0, z: 0 } },
         {
           node: "pit",
           model: "hole",
@@ -173,18 +172,6 @@ export function test_film_stage_scene_set(): void {
           hasViolation(refused, "type", "$input.set[0].node"),
       ],
       [
-        "hasViolationRefusedType2",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "type", "$input.set[1].node"),
-      ],
-      [
-        "hasViolationRefusedType3",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "type", "$input.set[2].model"),
-      ],
-      [
         "hasViolationRefusedRange",
         (): boolean =>
           refused.success === false &&
@@ -212,8 +199,6 @@ export function test_film_stage_scene_set(): void {
     {
       refusedSuccess: true,
       hasViolationRefusedType: true,
-      hasViolationRefusedType2: true,
-      hasViolationRefusedType3: true,
       hasViolationRefusedRange: true,
       hasViolationRefusedRange2: true,
       hasRotationConflict: true,

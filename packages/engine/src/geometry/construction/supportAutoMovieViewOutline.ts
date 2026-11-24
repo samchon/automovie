@@ -31,10 +31,7 @@ export function supportAutoMovieViewOutline(
   domain: readonly [number, number],
 ): number[] | string {
   if (
-    !Number.isFinite(slope) ||
-    !Number.isFinite(valueScale) ||
     domain.length !== 2 ||
-    !domain.every(Number.isFinite) ||
     !(domain[0] < domain[1]) ||
     domain[0] < outline.domain[0] ||
     domain[1] > outline.domain[1]
@@ -82,8 +79,6 @@ export function supportAutoMovieViewOutline(
       polynomial[0] = polynomial[0]! + factor * x0;
       polynomial[1] = polynomial[1]! + factor * h;
     }
-    if (!polynomial.every(Number.isFinite))
-      return `affine source support interval ${i} has unrepresentable derivative coefficients`;
     const roots: number[] | string =
       p?.type === "angle"
         ? rootsAutoMovieViewSinPolynomial(
@@ -100,8 +95,6 @@ export function supportAutoMovieViewOutline(
       return `affine source support interval ${i}: ${roots}`;
     for (const t of roots) {
       const station: number = AutoMovieViewParameter.station(p, x0 + h * t);
-      if (!Number.isFinite(station))
-        return `affine source support interval ${i} has an unrepresentable station`;
       if (station > domain[0] && station < domain[1]) result.push(station);
     }
   }

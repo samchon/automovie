@@ -44,7 +44,7 @@ function resolution(
   side: AutoMovieHumanSide,
   strain: number,
 ): number {
-  if (!Number.isFinite(strain)) return Infinity;
+  if (strain === Infinity) return Infinity;
   const range = (
     bone: AutoMovieHumanoidBone,
   ): IAutoMovieJointConstraint | null =>
@@ -153,8 +153,8 @@ export function touchSide(
   // Feasibility first: a hand whose goal no elbow place allows loses to
   // one whose goal is held, whatever the other's strain. Its resolution is
   // infinite, so the tie below would keep it.
-  if (Number.isFinite(left) !== Number.isFinite(right))
-    return Number.isFinite(left) ? "left" : "right";
+  if ((left === Infinity) !== (right === Infinity))
+    return right === Infinity ? "left" : "right";
   return right - left >
     resolution(body, "left", left) + resolution(body, "right", right)
     ? "left"

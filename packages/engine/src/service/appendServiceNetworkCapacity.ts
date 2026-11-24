@@ -26,7 +26,7 @@ export function appendServiceNetworkCapacity(
       // hydraulic or electrical one: nothing here diversifies, and
       // `serviceAnalysisSupport` says so by name.
       const load: number = serviceSystemLoad({ network, system });
-      if (Number.isFinite(system.capacity) && load > system.capacity)
+      if (load > system.capacity)
         out.push(
           "range",
           `${root}.systems[${index}].capacity`,

@@ -77,13 +77,5 @@ export function AutoMovieLoftWorldJet(
     st: dst,
     tt: dtt,
   };
-  if (
-    !Object.values(out).every((row: AutoMovieVector3Tuple): boolean =>
-      row.every(Number.isFinite),
-    )
-  )
-    throw new AutoMovieLoftAdmissionError(
-      "The actual frame/local product has no finite required world total2.",
-    );
   return out;
 }

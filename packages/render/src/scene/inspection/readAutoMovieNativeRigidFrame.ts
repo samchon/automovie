@@ -16,9 +16,9 @@ export function readAutoMovieNativeRigidFrame(
   const scale = new Vector3();
   matrix.decompose(position, rotation, scale);
   if (
-    !(Number.isFinite(scale.x) && scale.x > 0) ||
-    !(Number.isFinite(scale.y) && scale.y > 0) ||
-    !(Number.isFinite(scale.z) && scale.z > 0) ||
+    !(scale.x > 0) ||
+    !(scale.y > 0) ||
+    !(scale.z > 0) ||
     !(Math.abs(rotation.length() - 1) <= tolerance)
   )
     return undefined;

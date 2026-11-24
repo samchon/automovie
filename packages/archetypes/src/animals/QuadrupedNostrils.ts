@@ -66,7 +66,7 @@ export namespace QuadrupedNostrils {
       );
     const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
     const length: number = Vector3.length(span);
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       throw new RangeError(
         "Nostrils need a head with a finite positive length",
       );

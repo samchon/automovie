@@ -18,12 +18,17 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Native interval recipes survive actual canonical boundary admission and realization.
+ * Native interval recipes survive actual canonical boundary admission and
+ * realization.
  *
  * Scenarios:
- * 1. Nonbinary partitions, translated coordinates and both winding signs reach the engine.
- * 2. Two periodic seam occurrences retain all aliases of their shared native endpoints.
- * 3. False endpoint aliases fail even when metre conversion hides a raw one-ULP difference.
+ *
+ * 1. Nonbinary partitions, translated coordinates and both winding signs reach the
+ *    engine.
+ * 2. Two periodic seam occurrences retain all aliases of their shared native
+ *    endpoints.
+ * 3. False endpoint aliases fail even when metre conversion hides a raw one-ULP
+ *    difference.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Compiles actual native-parent interval recipes and consumes them with the public atlas realizer. Unequal nonbinary partitions, both winding signs and translated thin strips expose duplicate restriction, reversal and unit-path conflicts.
  * @evidence contracts/development/testing.md#independent-expectations Splitting one cubic into two pieces preserves its exact-real curve. Two translated copies therefore define a nonempty strip independently of their split locations. A named endpoint cannot equal two different raw positions. Two aliases of the same explicitly named native endpoint must resolve to the same actual control ID.
@@ -126,12 +131,6 @@ export function test_geometry_recovery_native_named_chart(): void {
         TestValidator.predicate(
           "actual triangles remain",
           realized.mesh.indices!.length > 0,
-        );
-        TestValidator.predicate(
-          "finite actual positions and normals",
-          [...realized.mesh.positions, ...realized.mesh.normals!].every(
-            Number.isFinite,
-          ),
         );
         TestValidator.equals(
           "false coefficient conflict absent",

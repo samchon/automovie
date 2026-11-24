@@ -134,8 +134,7 @@ export namespace climbLadder {
   ): IAutoMovieMotionHumanClimbLadder.IPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const count: number = context.params.rungs ?? 3;
-    HumanBound.whole("rungs", count);
+    const count: number = HumanBound.whole("rungs", context.params.rungs ?? 3);
     const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder(
       context,
       context.params.ladder,

@@ -63,12 +63,5 @@ export const validateSolidPlanes: (
       plane.normal,
       `${label} plane normal`,
     );
-    if (!Number.isFinite(plane.offset))
-      out.push(
-        "range",
-        `${path}[${index}].offset`,
-        `${label} plane offset must be finite, but was ${plane.offset}`,
-        plane.offset,
-      );
   }
 };

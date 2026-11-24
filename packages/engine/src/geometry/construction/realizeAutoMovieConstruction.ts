@@ -518,17 +518,11 @@ export function realizeAutoMovieConstruction(
     for (const [k, fill] of (construction.fills ?? []).entries()) {
       const scale: number = AutoMovieConstructionViews.SCALE;
       const radius: number = fill.radius * scale;
-      if (
-        !(
-          fill.point.every(Number.isFinite) &&
-          radius > 0 &&
-          Number.isFinite(radius)
-        )
-      ) {
+      if (!(radius > 0)) {
         report(
           construction.name,
           "fill",
-          `fill ${k}: its point is not finite or its radius not positive`,
+          `fill ${k}: its radius is not positive`,
         );
         continue;
       }

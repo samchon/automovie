@@ -22,7 +22,6 @@ export const validateSoftNumeric: (
   max: number,
 ): void => {
   if (
-    !Number.isFinite(value) ||
     (exclusive ? value <= min : value < min) ||
     value > max
   )

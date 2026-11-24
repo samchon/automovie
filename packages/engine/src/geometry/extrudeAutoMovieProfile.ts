@@ -6,7 +6,6 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
-import { finitePoint } from "./finitePoint";
 import { meshOf } from "./meshOf";
 import { positive } from "./positive";
 
@@ -58,9 +57,7 @@ export const extrudeAutoMovieProfile = (
 const profileHull = (
   profile: readonly IAutoMovieProfilePoint[],
 ): IAutoMovieProfilePoint[] => {
-  profile.forEach((point: IAutoMovieProfilePoint, index: number): void =>
-    finitePoint(point, `profile[${index}]`),
-  );
+
   const hull: IAutoMovieProfilePoint[] = convexHull2D(
     profile.map(
       (point: IAutoMovieProfilePoint): IAutoMovieVector3 => ({

@@ -211,7 +211,7 @@ export function test_motion_instrument_piano_chord(): void {
       transferredBones.get(surface.bone)!,
     ).point;
     const gap: number = Vector3.length(Vector3.subtract(tip, depressed));
-    if (!Number.isFinite(gap) || gap <= 0.005 !== contacts)
+    if (gap <= 0.005 !== contacts)
       findings.push(
         `${region} is ${gap} m from the transferred ${transfer.key}`,
       );

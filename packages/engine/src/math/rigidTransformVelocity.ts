@@ -31,27 +31,11 @@ export function rigidTransformVelocity(
   current: Readonly<Pick<IAutoMovieTransform, "translation" | "rotation">>,
   elapsedSeconds: number,
 ): IAutoMovieRigidTransformVelocity.IResult {
-  if (!Number.isFinite(elapsedSeconds) || elapsedSeconds <= 0)
+  if (elapsedSeconds <= 0)
     throw new RangeError("Rigid velocity requires positive finite seconds");
 
   const admission: IAutoMovieViolationCollector = new ViolationCollector();
   for (const frame of [previous, current]) {
-    admission.finiteVector(
-      "translation",
-      frame.translation,
-      "WORLD translation",
-    );
-    if (
-      ![
-        frame.rotation.x,
-        frame.rotation.y,
-        frame.rotation.z,
-        frame.rotation.w,
-      ].every(Number.isFinite)
-    )
-      throw new RangeError(
-        "Rigid velocity requires finite quaternion components",
-      );
     admission.unitQuaternion("rotation", frame.rotation, "WORLD rotation");
   }
   if (admission.items.length !== 0)
@@ -97,11 +81,6 @@ export function rigidTransformVelocity(
           y: ((imaginary.y / sine) * angle) / elapsedSeconds,
           z: ((imaginary.z / sine) * angle) / elapsedSeconds,
         };
-  if (
-    ![...Object.values(linear), ...Object.values(angular)].every(
-      Number.isFinite,
-    )
-  )
-    throw new RangeError("Rigid velocity arithmetic is not representable");
+
   return { linear, angular };
 }

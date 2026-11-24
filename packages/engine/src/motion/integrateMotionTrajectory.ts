@@ -66,11 +66,11 @@ export function integrateMotionTrajectory(
 ): IAutoMovieIntegrateMotionTrajectory.ITrajectory {
   const h: number = props.h ?? integrateMotionTrajectory.STEP;
   const { t0, t1 } = props;
-  if (!(Number.isFinite(t0) && Number.isFinite(t1) && t1 > t0))
+  if (!(t1 > t0))
     throw new Error(
       `integrateMotionTrajectory: the interval ${t0} to ${t1} is not finite and forward`,
     );
-  if (!(Number.isFinite(h) && h > 0))
+  if (!(h > 0))
     throw new Error(`integrateMotionTrajectory: the step ${h} is not positive`);
   if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
     throw new Error(
@@ -106,8 +106,7 @@ export function integrateMotionTrajectory(
   if (props.tolerance !== undefined) {
     const { relative, absolute } = props.tolerance;
     if (
-      !(relative >= 0 && absolute >= 0 && relative + absolute > 0) ||
-      !Number.isFinite(relative + absolute)
+      !(relative >= 0 && absolute >= 0 && relative + absolute > 0)
     )
       throw new Error(
         `integrateMotionTrajectory: the tolerance ${relative} relative and ${absolute} absolute is not finite, non-negative and non-zero`,
@@ -117,7 +116,7 @@ export function integrateMotionTrajectory(
       let dimensions: number = 0;
       let valid: boolean = true;
       for (const width of blocks) {
-        if (!Number.isSafeInteger(width) || width <= 0) {
+        if (width <= 0) {
           valid = false;
           break;
         }
@@ -163,10 +162,6 @@ export function integrateMotionTrajectory(
 
   // A step so fine that the count passes 2^53 (Infinity for a subnormal
   // step over a whole second) leaves a grid no index counts exactly.
-  if (!Number.isSafeInteger(steps))
-    throw new Error(
-      `integrateMotionTrajectory: the step ${h} gives ${steps} steps, past a safe-integer count`,
-    );
   const times: number[] = [t0];
   const xs: number[][] = [[...props.x0]];
   const qs: (IAutoMovieQuaternion | null)[] = [

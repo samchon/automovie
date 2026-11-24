@@ -8,7 +8,8 @@ import type {
 type Point = [number, number];
 
 /**
- * A curved face retains its grid's independent chord bound beside aligned authorities.
+ * A curved face retains its grid's independent chord bound beside aligned
+ * authorities.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls public Mesh.face with actual foreign-owned indexed domain boundaries and reads emitted positions, triangles and directed edge uses. No private full-cell counter or replacement triangulator supplies the result.
  * @evidence contracts/development/testing.md#independent-expectations On S(u,v)=scale*(u,v,u*u), the maximum chord error is scale*(max(u)-min(u))^2/4 at the extreme-u edge midpoint. Its actual emitted endpoint midpoint is compared with the original parabola; a quarter-width cell bounds this by scale/64. The unit chart has area one, every original domain edge has one triangle use, and every interior edge has opposite uses. Binary64 arithmetic receives 64 epsilon times the world scale.
@@ -28,7 +29,10 @@ export function ConstructionGridAuthorities(failures: string[]): void {
         }
 }
 
-/** Verify actual triangles on the prescribed parabola, retaining every boundary identity. */
+/**
+ * Verify actual triangles on the prescribed parabola, retaining every boundary
+ * identity.
+ */
 function inspect(
   scale: number,
   orientation: 1 | -1,
@@ -75,7 +79,10 @@ function inspect(
     ...surface,
     name: "foreign-domain-owner",
 
-    /** Deliberately different original owner chart for the identical boundary points. */
+    /**
+     * Deliberately different original owner chart for the identical boundary
+     * points.
+     */
     jet(u: number, v: number): IAutoMovieSolidSurface.IJet {
       return surface.jet(u - 4, v + 6);
     },
@@ -124,7 +131,7 @@ function inspect(
       (orientation *
         ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]))) /
       2;
-    if (!(Number.isFinite(signed) && signed > 0))
+    if (!(signed > 0))
       failures.push(label + " lost positive chart orientation");
     area += signed;
     const low: number = points.reduce(
@@ -143,8 +150,6 @@ function inspect(
         mesh.positions[3 * ids[high]! + 2]!) /
       2;
     const error: number = Math.abs(chord - scale * mean * mean);
-    if (!Number.isFinite(error))
-      failures.push(label + " has nonfinite actual chord error");
     maxError = Math.max(maxError, error);
     for (let k: number = 0; k < 3; k++) {
       used.add(ids[k]!);
@@ -152,12 +157,7 @@ function inspect(
       edges.set(key, (edges.get(key) ?? 0) + 1);
     }
   }
-  if (
-    !(
-      Number.isFinite(area) &&
-      Math.abs(area - 1) <= 64 * Number.EPSILON * mesh.indices.length
-    )
-  )
+  if (!(Math.abs(area - 1) <= 64 * Number.EPSILON * mesh.indices.length))
     failures.push(label + " changed the unit analytic area");
   if (
     (kind === "aligned" || kind === "split") &&

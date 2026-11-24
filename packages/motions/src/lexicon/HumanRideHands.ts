@@ -83,7 +83,7 @@ export function HumanRideHands(
     base.kind === "seated" && base.seat?.workingSeat === true;
   // In fixed-seat rowing most thorax inclination comes from the pelvic
   // swing (Agius et al. 2023, §4.1), about the seat that stays planted.
-  let bearing: IAutoMovieVector3 | undefined;
+  const bearing: IAutoMovieVector3 = seatSocket.socket(context.body, seated);
   const bow = (degrees: number): IAutoMovieMotionHumanPosture => {
     if (degrees === 0) return seated;
     if (!fixedSeat) return HumanMountRider.leant(seated, degrees);
@@ -97,7 +97,7 @@ export function HumanRideHands(
       ...angles,
       root: seatSocket.root(
         context.body,
-        (bearing ??= seatSocket.socket(context.body, seated)),
+        bearing,
         angles,
       ),
     };
@@ -345,7 +345,7 @@ export function HumanRideHands(
     working = fixedSeatGripPosture(
       context.body,
       seated,
-      (bearing ??= seatSocket.socket(context.body, seated)),
+      bearing,
       seatFrame,
       reach(points),
       points,

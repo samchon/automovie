@@ -38,8 +38,6 @@ export function incircleAutoMovieSolidChart(
   d: Readonly<AutoMovieVector2Tuple>,
 ): number {
   const values: number[] = [a[0], a[1], b[0], b[1], c[0], c[1], d[0], d[1]];
-  if (!values.every(Number.isFinite))
-    throw new RangeError("Chart in-circle needs finite coordinates");
   const adx: number = a[0] - d[0];
   const ady: number = a[1] - d[1];
   const bdx: number = b[0] - d[0];
@@ -68,8 +66,6 @@ export function incircleAutoMovieSolidChart(
         value === 0 ||
         (Math.abs(value) >= SMALLEST && Math.abs(value) <= LARGEST),
     ) &&
-    Number.isFinite(determinant) &&
-    Number.isFinite(bound) &&
     Math.abs(determinant) > bound
   )
     return determinant > 0 ? 1 : -1;

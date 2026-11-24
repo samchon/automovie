@@ -96,22 +96,8 @@ export namespace AutoMovieSolidMeshPlan {
       AutoMovieSolidMeshConstraints.split(vertices, constraints, period);
     if (typeof split === "string") return split;
     const edges: IAutoMovieSolidMeshConstraints.ISegment[] = [...split];
-    const entries: [number, Readonly<AutoMovieVector2Tuple>][] = [...vertices];
-    if (entries.length === 0) return { triangles: [], constraints: split };
-    let lower: number = Infinity;
-    let upper: number = -Infinity;
-    let bottom: number = Infinity;
-    let top: number = -Infinity;
-    for (const entry of entries) {
-      lower = Math.min(lower, entry[1][0]);
-      upper = Math.max(upper, entry[1][0]);
-      bottom = Math.min(bottom, entry[1][1]);
-      top = Math.max(top, entry[1][1]);
-    }
-    const width: number = upper - lower || 1;
-    const height: number = period ?? (top - bottom || 1);
-    if (!(Number.isFinite(width) && Number.isFinite(height)))
-      return "visibility chart spans are not representable";
+    if (vertices.size === 0) return { triangles: [], constraints: split };
+
     let boundaries: Component[] | string = components(
       vertices,
       edges,
@@ -253,12 +239,6 @@ function components(
       ],
     );
     if (
-      !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-        point.every(Number.isFinite),
-      )
-    )
-      return "visibility face cover coordinates are not representable";
-    if (
       walk.winding === 0 &&
       points.length === 3 &&
       new Set(walk.vertices).size === 3 &&
@@ -355,32 +335,16 @@ function bridge(
             period === undefined
               ? 0
               : Math.round((first[1] - last[1]) / period);
-          if (!Number.isSafeInteger(nearest)) {
-            if (taken(a, b)) continue;
-            return "visibility bridge cover image is not representable";
-          }
           for (
             let turn: number = period === undefined ? 0 : nearest - 1;
             turn <= (period === undefined ? 0 : nearest + 1);
             turn++
           ) {
             const phase: number = last[1] + turn * span;
-            if (
-              !Number.isSafeInteger(turn) ||
-              !Number.isFinite(last[0]) ||
-              !Number.isFinite(phase)
-            ) {
-              if (taken(a, b)) break;
-              return "visibility bridge endpoint is not representable";
-            }
             if (period !== undefined && Math.abs(phase - first[1]) > period / 2)
               continue;
             const length: number =
               (last[0] - first[0]) ** 2 + (scale * (phase - first[1])) ** 2;
-            if (!Number.isFinite(length)) {
-              if (taken(a, b)) break;
-              return "visibility bridge length is not representable";
-            }
             visit(a, b, turn, length);
           }
         }
@@ -507,11 +471,10 @@ function centroid(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return point.every(Number.isFinite) &&
-    points.every(
-      (corner: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-        orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
-    )
+  return points.every(
+    (corner: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
+      orientAutoMovieSolidChart(corner, points[(index + 1) % 3]!, point) > 0,
+  )
     ? point
     : "visibility triangle has no represented strict centroid";
 }
@@ -547,11 +510,7 @@ function images(
   if (period === undefined) return [0];
   const middle: Readonly<AutoMovieVector2Tuple> = midpoint(a, b);
   const nearest: number = Math.round((middle[1] - value) / period);
-  return Number.isSafeInteger(nearest) &&
-    Number.isSafeInteger(nearest - 1) &&
-    Number.isSafeInteger(nearest + 1)
-    ? [nearest - 1, nearest, nearest + 1]
-    : null;
+  return [nearest - 1, nearest, nearest + 1];
 }
 
 /** Exact closed segment membership on the represented native points. */
@@ -598,8 +557,6 @@ function clear(
         point[0],
         point[1] + turn * (period ?? 0),
       ];
-      if (!lifted.every(Number.isFinite))
-        return "visibility vertex cover coordinates are not representable";
       if (on(a, b, lifted)) return false;
     }
   }
@@ -619,8 +576,6 @@ function clear(
         last[0],
         last[1] + (turn + edge.turn) * (period ?? 0),
       ];
-      if (![...c, ...d].every(Number.isFinite))
-        return "visibility edge cover coordinates are not representable";
       if (
         orientAutoMovieSolidChart(a, b, c) *
           orientAutoMovieSolidChart(a, b, d) <

@@ -135,7 +135,6 @@ export function prepareArticulatedRig<Bone extends string>(
           const allowed: IAutoMovieAngleRange | null | undefined =
             node.limits?.[axis];
           if (
-            !Number.isFinite(value) ||
             (node.limits !== null &&
               (allowed === null
                 ? value !== 0
@@ -190,12 +189,11 @@ function rigid(raw: IAutoMovieTransform): IAutoMovieTransform {
     w: turn.w,
   };
   for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(translation[axis]) || raw.scale[axis] !== 1)
+    if (raw.scale[axis] !== 1)
       throw new RangeError(
         "Articulated transforms need finite position and unit scale",
       );
   if (
-    ![rotation.x, rotation.y, rotation.z, rotation.w].every(Number.isFinite) ||
     Math.max(
       Math.abs(rotation.x),
       Math.abs(rotation.y),
@@ -221,7 +219,7 @@ function range(raw: IAutoMovieAngleRange | null): IAutoMovieAngleRange | null {
   if (raw === null) return null;
   const min: number = raw.min;
   const max: number = raw.max;
-  if (!(Number.isFinite(min) && Number.isFinite(max) && min <= max))
+  if (!(min <= max))
     throw new RangeError(
       "Articulated limits need finite ordered degree endpoints",
     );

@@ -75,8 +75,8 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanFirefight.IBeatFlames = context.params;
-  const count: number = p.count ?? COUNT;
-  if (!(Number.isInteger(count) && count > 0))
+  const count: number = Math.round(p.count ?? COUNT);
+  if (!(count > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "count",

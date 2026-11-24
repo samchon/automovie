@@ -47,7 +47,6 @@ export const validateMaterialProcedural: (
       surface.kind,
     );
   if (
-    !Number.isSafeInteger(surface.seed) ||
     surface.seed < 0 ||
     surface.seed > 4294967295
   )

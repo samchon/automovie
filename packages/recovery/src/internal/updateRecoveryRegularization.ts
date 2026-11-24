@@ -14,7 +14,7 @@ export function updateRecoveryRegularization(
   actualDecrease: number,
   predictedDecrease: number | null,
 ): IAutoMovieRecoveryRegularizationUpdate {
-  if (!(damping > 0 && Number.isFinite(damping)))
+  if (!(damping > 0))
     throw new Error(
       "camera-regularization: positive finite previous damping required",
     );
@@ -23,11 +23,8 @@ export function updateRecoveryRegularization(
     reason: "decrease-unsupported",
     previousDamping: damping,
     damping,
-    actualDecrease: Number.isFinite(actualDecrease) ? actualDecrease : null,
-    predictedDecrease:
-      predictedDecrease !== null && Number.isFinite(predictedDecrease)
-        ? predictedDecrease
-        : null,
+    actualDecrease: actualDecrease,
+    predictedDecrease: predictedDecrease !== null ? predictedDecrease : null,
     ratio: null,
     factor: null,
   };
@@ -41,7 +38,7 @@ export function updateRecoveryRegularization(
   )
     return result;
   const ratio: number = result.actualDecrease / result.predictedDecrease;
-  if (!(ratio > 0 && Number.isFinite(ratio))) {
+  if (!(ratio > 0)) {
     result.reason = "ratio-unsupported";
     return result;
   }
@@ -50,7 +47,7 @@ export function updateRecoveryRegularization(
     ratio >= 1 ? 1 / 3 : Math.max(1 / 3, 1 - (2 * ratio - 1) ** 3);
   result.factor = factor;
   const next: number = damping * factor;
-  if (!(next > 0 && Number.isFinite(next))) {
+  if (!(next > 0)) {
     result.reason = "damping-unsupported";
     return result;
   }

@@ -105,25 +105,13 @@ export const validateBuiltSpaces: (
               planeIndex: number,
             ): void => {
               const planePath: string = `${cellPath}.planes[${planeIndex}]`;
-              collector.finiteVector(
-                `${planePath}.normal`,
-                plane.normal,
-                "plane normal",
-              );
               const length: number = Vector3.length(plane.normal);
-              if (!Number.isFinite(length) || length <= PLANE_NORMAL_EPSILON)
+              if (length <= PLANE_NORMAL_EPSILON)
                 collector.push(
                   "range",
                   `${planePath}.normal`,
                   "plane normal must have finite non-zero computed length",
                   plane.normal,
-                );
-              if (!Number.isFinite(plane.offset))
-                collector.push(
-                  "range",
-                  `${planePath}.offset`,
-                  `plane offset must be finite, but was ${plane.offset}`,
-                  plane.offset,
                 );
             },
           );

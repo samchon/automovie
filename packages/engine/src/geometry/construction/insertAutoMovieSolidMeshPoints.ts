@@ -97,7 +97,7 @@ export function insertAutoMovieSolidMeshPoints(
   period?: number,
   indexed: boolean = false,
 ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-  if (period !== undefined && !(Number.isFinite(period) && period > 0))
+  if (period !== undefined && !(period > 0))
     return "interior insertion needs a finite positive period";
   const constrained: Set<number> = new Set(
     constraints.flatMap(
@@ -267,17 +267,6 @@ function locate(
           vertices.get(id)![1] + (triangle.lifts[k]! - lift) * (period ?? 0),
         ],
       );
-      if (
-        !Number.isSafeInteger(lift) ||
-        !triangle.lifts.every((corner: number): boolean =>
-          Number.isSafeInteger(corner - lift),
-        ) ||
-        !point.every(Number.isFinite) ||
-        !chart.every((corner: Readonly<AutoMovieVector2Tuple>): boolean =>
-          corner.every(Number.isFinite),
-        )
-      )
-        return "interior point cover is not representable";
       const signs: [number, number, number] = [
         orientAutoMovieSolidChart(chart[0]!, chart[1]!, point),
         orientAutoMovieSolidChart(chart[1]!, chart[2]!, point),
@@ -380,10 +369,7 @@ function describe(
           },
         ),
       },
-      (_key: string, value: unknown): unknown =>
-        typeof value === "number" && !Number.isFinite(value)
-          ? "nonfinite:" + String(value)
-          : value,
+      (_key: string, value: unknown): unknown => value,
     )
   );
 }
@@ -456,8 +442,6 @@ function cavity(
         first: triangle.lifts[k]! - hit.lift,
         last: triangle.lifts[next]! - hit.lift,
       };
-      if (![edge.first, edge.last].every(Number.isSafeInteger))
-        return "interior cavity cover is not representable";
       const identity: string = key(edge.a, edge.b, edge.last - edge.first);
       const previous: Boundary | undefined = boundary.get(identity);
       if (previous !== undefined) {
@@ -500,8 +484,6 @@ function cavity(
     if (at < 0)
       return "interior cavity neighbour lost its shared original endpoint";
     const lift: number = triangle.lifts[at]! - edge.first;
-    if (!Number.isSafeInteger(lift))
-      return "interior cavity point image is not representable";
     const failure: string | undefined = add({
       index: next,
       lift,
@@ -529,8 +511,6 @@ function cavity(
   );
   for (const edge of boundary.values()) {
     const lifts: [number, number, number] = [0, edge.first, edge.last];
-    if (!lifts.every(Number.isSafeInteger))
-      return "interior cavity output cover is not representable";
     result.push({ vertices: [id, edge.a, edge.b], lifts });
   }
   return result;
@@ -557,18 +537,8 @@ function admitted(
     b[0],
     b[1] + edge.last * (period ?? 0),
   ];
-  if (
-    ![...visibleA, ...visibleB].every(Number.isFinite) ||
-    orientAutoMovieSolidChart(visibleA, visibleB, point) <= 0
-  )
-    return false;
+  if (orientAutoMovieSolidChart(visibleA, visibleB, point) <= 0) return false;
   const points: Readonly<AutoMovieVector2Tuple>[] = [point, visibleA, visibleB];
-  if (
-    !points.every((value: Readonly<AutoMovieVector2Tuple>): boolean =>
-      value.every(Number.isFinite),
-    )
-  )
-    return false;
   const span: number =
     Math.max(points[0]![1], points[1]![1], points[2]![1]) -
     Math.min(points[0]![1], points[1]![1], points[2]![1]);
@@ -581,11 +551,8 @@ function admitted(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return (
-    center.every(Number.isFinite) &&
-    points.every(
-      (value: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-        orientAutoMovieSolidChart(value, points[(index + 1) % 3]!, center) > 0,
-    )
+  return points.every(
+    (value: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
+      orientAutoMovieSolidChart(value, points[(index + 1) % 3]!, center) > 0,
   );
 }

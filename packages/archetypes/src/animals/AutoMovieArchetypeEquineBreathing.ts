@@ -342,15 +342,13 @@ export namespace AutoMovieArchetypeEquineBreathing {
     );
     let last: number = -Infinity;
     for (const effort of sorted) {
-      const fault: string | null =
-        !(Number.isFinite(effort.from) && Number.isFinite(effort.seconds)) ||
-        !(effort.seconds > 0)
-          ? "a recovery needs a finite positive window"
-          : !(effort.rate >= REST_RATE && effort.depth >= REST_DEPTH)
-            ? `a recovery starts at or above the rest rate ${REST_RATE} per minute and depth ${REST_DEPTH} m`
-            : effort.from < last
-              ? "recoveries do not overlap"
-              : null;
+      const fault: string | null = !(effort.seconds > 0)
+        ? "a recovery needs a finite positive window"
+        : !(effort.rate >= REST_RATE && effort.depth >= REST_DEPTH)
+          ? `a recovery starts at or above the rest rate ${REST_RATE} per minute and depth ${REST_DEPTH} m`
+          : effort.from < last
+            ? "recoveries do not overlap"
+            : null;
       if (fault !== null)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",

@@ -45,7 +45,7 @@ import { setPhysicalTargetJointRotation } from "./setPhysicalTargetJointRotation
 export function resolvePhysicalSupportRedundancy(
   input: IAutoMovieResolvePhysicalSupportRedundancy.IInput,
 ): Record<string, IAutoMovieRigidTransform> {
-  if (!(input.tolerance > 0) || !Number.isFinite(input.tolerance))
+  if (input.tolerance <= 0)
     throw new Error("Invalid support redundancy tolerance");
   const coordinates: {
     joint: IAutoMoviePhysicalJoint;

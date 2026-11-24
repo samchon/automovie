@@ -91,14 +91,11 @@ export function archetypeCatalogueRideContact(
       const band: IAutoMovieArchetypeBand | undefined =
         model.provenance.bands.seatHeight;
       if (
-        !(
-          Number.isFinite(seatHeight) &&
-          (band !== undefined
-            ? seatHeight >= band.minimum &&
-              seatHeight <= band.maximum &&
-              band.source.length > 0
-            : model.provenance.figures.seatHeight !== undefined)
-        )
+        !(band !== undefined
+          ? seatHeight >= band.minimum &&
+            seatHeight <= band.maximum &&
+            band.source.length > 0
+          : model.provenance.figures.seatHeight !== undefined)
       )
         record(
           failures,
@@ -192,7 +189,7 @@ export function archetypeCatalogueRideContact(
           Math.max(z.low - local.z, local.z - z.high, 0),
         );
         if (!(gap <= worst)) {
-          worst = Number.isFinite(gap) ? gap : Infinity;
+          worst = gap;
           worstTime = seconds;
           worstSeed = seed;
         }

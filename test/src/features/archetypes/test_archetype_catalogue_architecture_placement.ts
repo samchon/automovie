@@ -219,7 +219,7 @@ export function test_archetype_catalogue_architecture_placement(): void {
     );
     TestValidator.predicate(
       model.name + " clears the real occupied volume with both feet",
-      Number.isFinite(clearance) &&
+      clearance !== Infinity &&
         clearance > 0 &&
         terminal.get("leftFoot")!.worldPosition.z > far &&
         terminal.get("rightFoot")!.worldPosition.z > far,

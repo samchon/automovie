@@ -27,9 +27,7 @@
  */
 export function carriedRate(duration: number, elapsed: number): number {
   if (
-    !Number.isFinite(elapsed) ||
-    !(duration > 0) ||
-    !Number.isFinite(duration)
+    !(duration > 0)
   )
     throw new Error(
       "A carried rate needs a finite elapsed time and a positive duration",

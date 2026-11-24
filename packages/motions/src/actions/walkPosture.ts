@@ -54,12 +54,14 @@ export function walkPosture(
   channels?: readonly AutoMovieMotionHumanChannel[],
   resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
 ) => IAutoMovieMotionHumanPosture {
-  let upright: IAutoMovieMotionHumanStandUpright.IAlignment | undefined;
-  let relaxed: IAutoMovieMotionHumanPosture["joints"] | undefined;
-  let abduction: number | undefined;
-  const shapes: Partial<
-    Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
-  > = {};
+  const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
+    standUpright(body);
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);
+  const abduction: number = stand.abduction(body);
+  const shapes: Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]> = {
+    left: HumanHand.shape("left", "relaxed"),
+    right: HumanHand.shape("right", "relaxed"),
+  };
   const rest: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
     left: body.rest.get("leftLowerLeg")!,
     right: body.rest.get("rightLowerLeg")!,
@@ -87,7 +89,7 @@ export function walkPosture(
     // The inclination grows and fades with the gait, leaving and joining
     // upright standing while its pelvis share turns about the fixed hips.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      (upright ??= standUpright(body)).joints,
+      upright.joints,
       gait.lean * amount,
     );
     const swinging: boolean =
@@ -95,7 +97,7 @@ export function walkPosture(
       channels.includes("leftArm") ||
       channels.includes("rightArm");
     const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...(swinging ? (relaxed ??= stand.relaxed(body)) : {}),
+      ...(swinging ? relaxed : {}),
       ...inclined.joints,
       hips,
       leftToes: [reached.left.toes, 0, 0],
@@ -109,8 +111,8 @@ export function walkPosture(
       // up to that angle about its hip. The tilt, the authored abduction and
       // the gait's elbow come in and go with the gait, so a walk leaves and
       // joins the relaxed standing arms.
-      const rest: number = (abduction ??= stand.abduction(body));
-      const bent: number = (relaxed ??= stand.relaxed(body)).leftLowerArm![0];
+      const rest: number = abduction;
+      const bent: number = relaxed.leftLowerArm![0];
       const held: number = rest + (walkPosture.PELVIS + elbows) * amount;
       const elbow: number = bent + (gait.arms.elbow - bent) * amount;
       joints.leftUpperArm = [-gait.arms.shoulder * arms * swing, held, 0];
@@ -122,7 +124,7 @@ export function walkPosture(
         if (channels?.includes(`${side}Hand`))
           Object.assign(
             joints,
-            (shapes[side] ??= HumanHand.shape(side, "relaxed")),
+            shapes[side],
           );
     }
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};

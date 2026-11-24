@@ -23,12 +23,6 @@ export namespace AutoMovieViewJointedCourse {
   ): IAutoMovieViewJointedCourse.ICourse | string {
     const m: number = centres.length;
     if (m < 2) return `${m} centres, at least two needed`;
-    if (
-      !centres.every((p: AutoMovieVector3Tuple): boolean =>
-        p.every(Number.isFinite),
-      )
-    )
-      return "joint centres are not finite";
     if (halves.length !== m - 2)
       return `${halves.length} half lengths for ${m - 2} interior centres`;
     const directions: AutoMovieVector3Tuple[] = [];
@@ -36,7 +30,7 @@ export namespace AutoMovieViewJointedCourse {
     for (let i: number = 0; i + 1 < m; i++) {
       const d: AutoMovieVector3Tuple = sub(centres[i + 1]!, centres[i]!);
       const l: number = Math.hypot(d[0], d[1], d[2]);
-      if (!(l > 0 && Number.isFinite(l)))
+      if (!(l > 0))
         return `centres ${i} and ${i + 1} have no finite positive separation`;
       directions.push(AutoMovieAxisDirection.unit(d, l));
       lengths.push(l);
@@ -53,7 +47,7 @@ export namespace AutoMovieViewJointedCourse {
       const angle: number = Math.atan2(ln, dot(a, b));
       if (!(angle < Math.PI - 1e-9))
         return `segments ${i - 1} and ${i} are opposite`;
-      if (!(Number.isFinite(h) && h >= 0 && (angle === 0 || h > 0)))
+      if (!(h >= 0 && (angle === 0 || h > 0)))
         return `half length ${h} at centre ${i} must be finite and nonnegative, and positive for a nonzero turn`;
       const axis: AutoMovieVector3Tuple =
         ln > 0 ? AutoMovieAxisDirection.unit(n, ln) : [0, 0, 0];

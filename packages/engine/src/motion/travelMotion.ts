@@ -11,29 +11,6 @@ import { Quaternion } from "../math/Quaternion";
 const IDENTITY_ROT: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 const IDENTITY_SCALE: IAutoMovieVector3 = { x: 1, y: 1, z: 1 };
 
-const assertFiniteVector: (label: string, vector: IAutoMovieVector3) => void = (
-  label: string,
-  vector: IAutoMovieVector3,
-): void => {
-  if (!Number.isFinite(vector.x)) throw new Error(`${label}.x must be finite`);
-  if (!Number.isFinite(vector.y)) throw new Error(`${label}.y must be finite`);
-  if (!Number.isFinite(vector.z)) throw new Error(`${label}.z must be finite`);
-};
-
-const assertFiniteQuaternion: (
-  label: string,
-  quaternion: IAutoMovieQuaternion,
-) => void = (label: string, quaternion: IAutoMovieQuaternion): void => {
-  if (!Number.isFinite(quaternion.x))
-    throw new Error(`${label}.x must be finite`);
-  if (!Number.isFinite(quaternion.y))
-    throw new Error(`${label}.y must be finite`);
-  if (!Number.isFinite(quaternion.z))
-    throw new Error(`${label}.z must be finite`);
-  if (!Number.isFinite(quaternion.w))
-    throw new Error(`${label}.w must be finite`);
-};
-
 /**
  * Repeat an admitted in-place clip a positive safe-integer number of cycles and
  * add velocity times global seconds to its root. Velocity uses the receiving
@@ -53,13 +30,9 @@ export const travelMotion: (
   velocity: IAutoMovieVector3,
   facing?: IAutoMovieQuaternion,
 ): IAutoMovieMotion => {
-  if (!Number.isSafeInteger(cycles))
-    throw new Error("travel cycles must be a positive integer");
   if (cycles < 1) throw new Error("travel cycles must be a positive integer");
-  assertFiniteVector("travel velocity", velocity);
-  if (facing !== undefined) assertFiniteQuaternion("travel facing", facing);
   const duration: number = cycles * base.duration;
-  if (!Number.isFinite(duration) || duration <= 0)
+  if (duration <= 0)
     throw new Error("travel duration must be finite and positive");
 
   const keyframes: IAutoMovieKeyframe[] = [];
@@ -80,7 +53,6 @@ export const travelMotion: (
       }
       const globalT: number = c * base.duration + k.time;
       if (
-        !Number.isFinite(globalT) ||
         (keyframes.length > 0 &&
           globalT <= keyframes[keyframes.length - 1]!.time)
       )
@@ -98,7 +70,6 @@ export const travelMotion: (
         y: (baseTranslation?.y ?? 0) + velocity.y * globalT,
         z: (baseTranslation?.z ?? 0) + velocity.z * globalT,
       };
-      assertFiniteVector("travel root translation", translation);
       keyframes.push({
         ...k,
         time: globalT,

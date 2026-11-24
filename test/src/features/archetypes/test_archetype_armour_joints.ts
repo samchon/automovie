@@ -13,30 +13,31 @@ import { armourJointObservation } from "../internal/armourJointObservation";
  * Actual helmet and limb walls retain positive shared joints and their gauge.
  *
  * Scenarios:
+ *
  * 1. Both open/associated-visored sallets and missing/surviving-visored closed
  *    helmets, unfitted and at authored head radii0.1/0.3m, at both original
- *    1.5/3mm plate band ends retain shared actual row/sector faces.
- *    The0.3m regression exposes face-dependent
- *    rescaling that previously left each wall's gauge correct but opened gaps.
- * 2. Those same actual cell planes retain the independent original head+pad
- *    cavity and exact normal gauge at the original1e-12 positional precision;
- *    unfitted ellipses retain at least the authored gauge with equality on
- *    their thinnest face, and every actual inner row/sector edge meets.
- * 3. Both brimmed records, fitted and unfitted at both original plate band
- *    ends, share their actual bowl-base inner edge and have positive actual
+ *    1.5/3mm plate band ends retain shared actual row/sector faces. The0.3m
+ *    regression exposes face-dependent rescaling that previously left each
+ *    wall's gauge correct but opened gaps.
+ * 2. Those same actual cell planes retain the independent original head+pad cavity
+ *    and exact normal gauge at the original1e-12 positional precision; unfitted
+ *    ellipses retain at least the authored gauge with equality on their
+ *    thinnest face, and every actual inner row/sector edge meets.
+ * 3. Both brimmed records, fitted and unfitted at both original plate band ends,
+ *    share their actual bowl-base inner edge and have positive actual
  *    cross-section intersection area with the brim.
  * 4. Head radius0.148m with1.5mm plate refuses structurally for both brimmed
  *    records when the real padded bowl course cannot join the source rim.
  *    Valid0.1m cases ensure that refusal is not an always-reject substitute.
- * 5. Every gauntlet, vambrace and greave record, fitted and unfitted at both
- *    plate band ends, keeps a shared circumferential face at every sector
- *    boundary. Unfitted guards/cuffs retain at least the authored gauge and
- *    fitted ones retain exact gauge. Guards retain their actual record or
- *    independently supplied segment length without axial shrinkage.
+ * 5. Every gauntlet, vambrace and greave record, fitted and unfitted at both plate
+ *    band ends, keeps a shared circumferential face at every sector boundary.
+ *    Unfitted guards/cuffs retain at least the authored gauge and fitted ones
+ *    retain exact gauge. Guards retain their actual record or independently
+ *    supplied segment length without axial shrinkage.
  *
- * The radii are authored geometric regression inputs, not anthropometric
- * bands. Expected contacts are read from transformed emitted cells; no
- * generating lattice dimensions or expected profile vertices are reproduced.
+ * The radii are authored geometric regression inputs, not anthropometric bands.
+ * Expected contacts are read from transformed emitted cells; no generating
+ * lattice dimensions or expected profile vertices are reproduced.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States actual row/sector/brim joint observations, causal head-size regressions, fitted exact/unfitted minimum gauge, independent guard lengths and original plate/pad precision.
  * @evidence contracts/development/testing.md#behavioral-verification Builds public actual pieces, matches transformed cell corners, measures noncollinear shared faces and clips actual bowl/brim sections; independently reads real hull-plane support and structured refusal instead of accepting individually valid disconnected cells.
@@ -130,12 +131,7 @@ export function test_archetype_armour_joints(): void {
             EPSILON,
           );
           if (
-            !(
-              Math.abs(top - base) <= EPSILON &&
-              shared.count >= 2 &&
-              Number.isFinite(area) &&
-              area > 0
-            )
+            !(Math.abs(top - base) <= EPSILON && shared.count >= 2 && area > 0)
           )
             findings.push(
               model +
@@ -246,7 +242,10 @@ export function test_archetype_armour_joints(): void {
     [],
   );
 
-  /** Every bowl's row/sector joints and gauge are observed from its actual cells. */
+  /**
+   * Every bowl's row/sector joints and gauge are observed from its actual
+   * cells.
+   */
   function bowlCourse(
     label: string,
     cells: ReadonlyMap<string, readonly IAutoMovieVector3[]>,
@@ -301,7 +300,6 @@ export function test_archetype_armour_joints(): void {
   ): number {
     const gauge: number = armourJointObservation.gauge(points, EPSILON);
     if (
-      !Number.isFinite(gauge) ||
       gauge < thickness - EPSILON ||
       (fitted && Math.abs(gauge - thickness) > EPSILON)
     )
@@ -317,9 +315,7 @@ export function test_archetype_armour_joints(): void {
   ): void {
     const contact: ReturnType<typeof armourJointObservation.shared> =
       armourJointObservation.shared(first, second, EPSILON);
-    if (
-      !(contact.count >= 4 && Number.isFinite(contact.area) && contact.area > 0)
-    )
+    if (!(contact.count >= 4 && contact.area > 0))
       findings.push(label + " has no positive shared actual wall face");
   }
 }

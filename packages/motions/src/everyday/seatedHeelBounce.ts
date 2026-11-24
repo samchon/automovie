@@ -82,7 +82,7 @@ export namespace seatedHeelBounce {
     const { body, entry, params } = context;
     const { side, count: beats, cadence, amplitude } = params;
     const duration: number = beats / cadence;
-    if (!(beats % 1 === 0 && beats >= 1))
+    if (!(beats >= 1))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "count",

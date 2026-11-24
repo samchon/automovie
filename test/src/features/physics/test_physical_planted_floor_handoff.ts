@@ -30,11 +30,13 @@ import { vclose } from "../internal/vclose";
 type Poses = Record<string, IAutoMovieRigidTransform>;
 
 /**
- * Planted geometry stays on its declared plane through floor and contact fitting.
+ * Planted geometry stays on its declared plane through floor and contact
+ * fitting.
  *
  * Scenarios:
- * 1. Independent supports tilted 6° and −5° lift a sole edge by 10 mm or more,
- *    far outside the 0.2 mm display bound. Floor fitting returns them to an
+ *
+ * 1. Independent supports tilted 6° and −5° lift a sole edge by 10 mm or more, far
+ *    outside the 0.2 mm display bound. Floor fitting returns them to an
  *    explicitly feasible flat pose within its tolerance. Re-tilted −5° and 6°,
  *    the contact fit restores the original world goals and both whole patches
  *    while an additional point relationship is active.
@@ -204,9 +206,8 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
   );
   const expectedResidual: number = Math.hypot(endpointError, gap);
   if (
-    !Number.isFinite(residual) ||
-    (!nclose(gap, 0, displayedTolerance) &&
-      !nclose(residual, expectedResidual, tolerance))
+    !nclose(gap, 0, displayedTolerance) &&
+    !nclose(residual, expectedResidual, tolerance)
   )
     findings.push(
       `elevated planted patch: signed floor gap ${gap}, XYZ error ${endpointError}, residual ${residual}, expected ${expectedResidual}`,
@@ -256,7 +257,10 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     );
   }
 
-  /** Require each planted sole of an unfitted stage to break the displayed bound, so passing needs the fit. */
+  /**
+   * Require each planted sole of an unfitted stage to break the displayed
+   * bound, so passing needs the fit.
+   */
   function disturbed(stage: string, poses: Poses): void {
     for (const bone of planted) {
       const pose: IAutoMovieRigidTransform = poses[bone]!;
@@ -276,7 +280,10 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     }
   }
 
-  /** Tilt only one support about its admitted joint anchor by an angle in degrees. */
+  /**
+   * Tilt only one support about its admitted joint anchor by an angle in
+   * degrees.
+   */
   function tilt(poses: Poses, bone: string, angle: number): void {
     const joint: IAutoMoviePhysicalJoint = profile.joints.find(
       (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === bone,
@@ -289,7 +296,10 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     );
   }
 
-  /** Evaluate exact box corners in the carrier frame independently of floor fitting. */
+  /**
+   * Evaluate exact box corners in the carrier frame independently of floor
+   * fitting.
+   */
   function corners(bone: string, undersideOnly: boolean): IAutoMovieVector3[] {
     const shape: IAutoMoviePhysicalShape = profile.segments.find(
       (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
@@ -312,7 +322,10 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     return points;
   }
 
-  /** Measure the whole displayed box against floor zero, including its signed gap. */
+  /**
+   * Measure the whole displayed box against floor zero, including its signed
+   * gap.
+   */
   function minimum(poses: Poses, bone: string): number {
     const pose: IAutoMovieRigidTransform = poses[bone]!;
     return Math.min(
@@ -323,7 +336,10 @@ export async function test_physical_planted_floor_handoff(): Promise<void> {
     );
   }
 
-  /** Check the original XYZ point, complete plane and signed display gap together. */
+  /**
+   * Check the original XYZ point, complete plane and signed display gap
+   * together.
+   */
   function verify(stage: string, poses: Poses): void {
     for (const bone of planted) {
       const pose: IAutoMovieRigidTransform = poses[bone]!;

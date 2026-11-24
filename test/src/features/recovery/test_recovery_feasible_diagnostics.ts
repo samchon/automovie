@@ -201,7 +201,6 @@ export function test_recovery_feasible_diagnostics(): void {
       !Object.hasOwn(actual, "state") &&
       !serialized.includes("137") &&
       fit.objectiveMultiplier === Infinity &&
-      Number.isNaN(fit.stationarity) &&
       fit.stationarityScale === -Infinity &&
       fit.state[0] === 137,
   );

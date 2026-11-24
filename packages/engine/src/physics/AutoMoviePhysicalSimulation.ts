@@ -21,7 +21,6 @@ import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulation
 import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
-import { freezePhysicalRecord } from "./freezePhysicalRecord";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 import { physicalInputDigest } from "./physicalInputDigest";
 import { planPhysicalSimulationSteps } from "./planPhysicalSimulationSteps";
@@ -122,7 +121,6 @@ export class AutoMoviePhysicalSimulation {
         };
     }
     admitPhysicalSimulation(owned);
-    freezePhysicalRecord(owned);
     return { owned, schedule: preparePhysicalCoupledTargetSchedule(owned) };
   }
 
@@ -198,8 +196,6 @@ export class AutoMoviePhysicalSimulation {
         progress,
         coupling,
       );
-      freezePhysicalRecord(cache);
-      if (fits) freezePhysicalRecord(fits);
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,
@@ -475,9 +471,6 @@ export class AutoMoviePhysicalSimulation {
             progress,
           );
       }
-      freezePhysicalRecord(cache);
-      freezePhysicalRecord(diagnostics);
-      if (fits) freezePhysicalRecord(fits);
       return new AutoMoviePhysicalSimulation(
         owned,
         cache,

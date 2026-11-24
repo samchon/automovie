@@ -46,9 +46,6 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   const { turnSeconds, holdSeconds, side, offset, rollDegrees, tuckDegrees } =
     params;
   if (
-    ![floorY, turnSeconds, holdSeconds, offset, rollDegrees, tuckDegrees].every(
-      Number.isFinite,
-    ) ||
     !(
       turnSeconds > 0 &&
       holdSeconds >= 0 &&
@@ -71,14 +68,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   const sternal: number = sideOff + turnSeconds;
   const extended: number = sternal - start;
   const end: number = rest.duration + extended;
-  if (
-    !(
-      Number.isFinite(end) &&
-      start < sideOn &&
-      sideOn <= sideOff &&
-      sideOff < sternal
-    )
-  )
+  if (!(start < sideOn && sideOn <= sideOff && sideOff < sternal))
     throw new RangeError("The roll clock is unrepresentable");
   const sign: number = side === "left" ? 1 : -1;
 
@@ -191,7 +181,7 @@ export function AutoMovieArchetypeQuadrupedLateralRest<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeQuadrupedLateralRestPlan.ISample<Id, D> {
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > end)
+    if (seconds < 0 || seconds > end)
       throw new RangeError("Lateral rest time lies outside the authored clip");
     if (seconds < start || seconds >= sternal) {
       const original: AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, D> =
@@ -267,7 +257,7 @@ function support(
       body = Math.min(body, height);
     bounds.push({ id: part.id, height });
   }
-  if (!Number.isFinite(lowest) || !Number.isFinite(body))
+  if (lowest === Infinity || body === Infinity)
     throw new RangeError("Lateral rest requires the actual supported body");
   return {
     lowest,

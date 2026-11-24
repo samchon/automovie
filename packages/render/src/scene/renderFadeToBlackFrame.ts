@@ -25,7 +25,7 @@ export const renderFadeToBlackFrame: (
   weight: number,
   transparent: boolean = false,
 ): void => {
-  if (!Number.isFinite(weight) || weight < 0 || weight > 1)
+  if (weight < 0 || weight > 1)
     throw new Error("Film fade weight must be finite and inside [0, 1].");
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),

@@ -133,9 +133,6 @@ export namespace AutoMovieLoftSectionConnect {
       const [first, last]: readonly [number, number] = bounds(span);
       if (
         !(
-          Number.isFinite(first) &&
-          Number.isFinite(last) &&
-          Number.isFinite(last - first) &&
           last > first
         )
       )
@@ -228,9 +225,6 @@ function create(
   const to: number = upper.y;
   if (
     !(
-      Number.isFinite(from) &&
-      Number.isFinite(to) &&
-      Number.isFinite(to - from) &&
       to > from
     )
   )

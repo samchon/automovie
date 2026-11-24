@@ -53,19 +53,25 @@ export namespace floorArmRoom {
   /**
    * Prepare the clearance of one floor law's key-to-key blends.
    *
-   * The first interior query of a blend reads the rooms of its two keys and of
-   * evenly spaced blends between them, as many as `samples` shows keep any dip
-   * between two readings within the audit's self-penetration allowance; a blend
-   * whose arms stay within their allowance at every one of those is then left
-   * exactly as blended with no further reading, so only a blend that carries an
-   * arm through the body pays a posture resolve per query.
+   * Each blend's two keys and evenly spaced blends between them are read here,
+   * as many as `samples` shows keep any dip between two readings within the
+   * audit's self-penetration allowance; a blend whose arms stay within their
+   * allowance at every one of those is left exactly as blended, so only a
+   * blend that carries an arm through the body pays a posture resolve per
+   * query.
    *
    * @param body The body.
+   * @param keys Each blend's posture at a weight, in the law's key order.
+   * @param read An exact FK reader for this preparation.
+   * @param project The body's projection.
    * @returns The blend at a weight with its arms kept within the keys' blended
    *   room.
    */
   export function prepare(
     body: IAutoMovieMotionHumanBody,
+    keys: readonly ((weight: number) => IAutoMovieMotionHumanPosture)[],
+    read: ReturnType<typeof prepareHumanPoseResolution>,
+    project: ReturnType<typeof prepareHumanPostureProjection>,
   ): (
     index: number,
     weight: number,
@@ -73,21 +79,18 @@ export namespace floorArmRoom {
     read: ReturnType<typeof prepareHumanPoseResolution>,
     project: ReturnType<typeof prepareHumanPostureProjection>,
   ) => IAutoMovieMotionHumanPosture {
-    const blends: IPrepareBlendsItem[] = [];
-    return (index, weight, keyed, read, project) => {
-      const posture: IAutoMovieMotionHumanPosture = keyed(weight);
-      if (!(weight > 0 && weight < 1)) return posture;
-      const allowed = (ends: IPrepareAllowedEnds, w: number): Rooms => ({
-        left: ends.from.left + (ends.to.left - ends.from.left) * w,
-        right: ends.from.right + (ends.to.right - ends.from.right) * w,
-      });
-      let blend: IPrepareBlend | undefined = blends[index];
-      if (blend === undefined) {
+    const reached: readonly IReachesItemResult[] = reaches(body);
+    const allowed = (ends: IPrepareAllowedEnds, w: number): Rooms => ({
+      left: ends.from.left + (ends.to.left - ends.from.left) * w,
+      right: ends.from.right + (ends.to.right - ends.from.right) * w,
+    });
+    const blends: readonly IPrepareBlendsItem[] = keys.map(
+      (keyed: (weight: number) => IAutoMovieMotionHumanPosture): IPrepareBlend => {
         const ends: IPrepareEnds = {
           from: rooms(body, posed(body, keyed(0), read, project)),
           to: rooms(body, posed(body, keyed(1), read, project)),
         };
-        const count: number = samples(body, keyed(0), keyed(1));
+        const count: number = samples(reached, keyed(0), keyed(1));
         let flagged: boolean = false;
         for (let i: number = 1; i < count && !flagged; i++) {
           const w: number = i / count;
@@ -95,13 +98,35 @@ export namespace floorArmRoom {
           const limit: Rooms = allowed(ends, w);
           flagged = at.left > limit.left || at.right > limit.right;
         }
-        blend = { ...ends, flagged };
-        blends[index] = blend;
-      }
+        return { ...ends, flagged };
+      },
+    );
+    return (index, weight, keyed, read, project) => {
+      const posture: IAutoMovieMotionHumanPosture = keyed(weight);
+      if (!(weight > 0 && weight < 1)) return posture;
+      const blend: IPrepareBlend = blends[index]!;
       return blend.flagged
         ? cleared(body, posture, allowed(blend, weight), read, project)
         : posture;
     };
+  }
+
+  /**
+   * The evenly spaced shares of a blend between two postures a reading keeps
+   * every arm within the audit's self-penetration allowance between
+   * (`samples`): never fewer than `SCAN`.
+   *
+   * @param body The body.
+   * @param from The blend's first posture.
+   * @param to Its last.
+   * @returns The count of intervals.
+   */
+  export function count(
+    body: IAutoMovieMotionHumanBody,
+    from: IAutoMovieMotionHumanPosture,
+    to: IAutoMovieMotionHumanPosture,
+  ): number {
+    return samples(reaches(body), from, to);
   }
 }
 
@@ -127,12 +152,12 @@ export namespace floorArmRoom {
  * that keeps that within the allowance.
  */
 function samples(
-  body: IAutoMovieMotionHumanBody,
+  reached: readonly IReachesItemResult[],
   from: IAutoMovieMotionHumanPosture,
   to: IAutoMovieMotionHumanPosture,
 ): number {
   let rate: number = 0;
-  for (const { bone, reach } of reaches(body)) {
+  for (const { bone, reach } of reached) {
     const a: readonly [number, number, number] = from.joints[bone] ?? ZERO;
     const b: readonly [number, number, number] = to.joints[bone] ?? ZERO;
     rate +=
@@ -164,17 +189,8 @@ const READ: ReadonlySet<string> = new Set<string>([
   "rightLowerArm",
   "rightHand",
 ]);
-/** The record of `IREACHESItem`'s site. */
-type IREACHESItem = { bone: AutoMovieHumanoidBone; reach: number };
-
-/** Each body's joint reaches, read once. */
-const REACHES: WeakMap<IAutoMovieMotionHumanBody, IREACHESItem[]> =
-  new WeakMap();
 /** The record of `IReachesOutItem`'s site. */
 type IReachesOutItem = { bone: AutoMovieHumanoidBone; reach: number };
-
-/** The record of `IReachesKnownItem`'s site. */
-type IReachesKnownItem = { bone: AutoMovieHumanoidBone; reach: number };
 
 /** The record of `IReachesItemResult`'s site. */
 type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
@@ -185,8 +201,6 @@ type IReachesItemResult = { bone: AutoMovieHumanoidBone; reach: number };
  * it to a read collider's farthest bound, metres.
  */
 function reaches(body: IAutoMovieMotionHumanBody): IReachesItemResult[] {
-  const known: IReachesKnownItem[] | undefined = REACHES.get(body);
-  if (known) return known;
   const profile: IAutoMovieMotionHumanBody["profile"] = body.profile;
   const pose = (bone: string): IAutoMovieRigidTransform =>
     profile.segments.find((segment): boolean => segment.bone === bone)!.neutral;
@@ -253,7 +267,6 @@ function reaches(body: IAutoMovieMotionHumanBody): IReachesItemResult[] {
       reach: reach(joint.child),
     });
   }
-  REACHES.set(body, out);
   return out;
 }
 /** The posture with each arm kept within its allowed room. */
@@ -265,19 +278,20 @@ function cleared(
   project: ReturnType<typeof prepareHumanPostureProjection>,
 ): IAutoMovieMotionHumanPosture {
   let pose: IAutoMoviePose = posed(body, posture, read, project);
-  let joints: IAutoMovieMotionHumanPosture["joints"] | undefined;
+  const joints: IAutoMovieMotionHumanPosture["joints"] = { ...posture.joints };
+  let turnedAny: boolean = false;
   for (const side of ["left", "right"] as const) {
     const blended: IAutoMovieMotionHumanArmClearance.IArm = arm(pose, side);
     if (HumanArmClearance.room(body, pose, side, blended) <= allowed[side])
       continue;
     const turned: IAutoMovieMotionHumanArmClearance.IArm =
       HumanArmClearance.cleared(body, pose, side, blended, allowed[side]);
-    joints ??= { ...posture.joints };
     joints[`${side}UpperArm`] = turned.upper;
     joints[`${side}LowerArm`] = turned.lower;
+    turnedAny = true;
     pose = HumanArmClearance.posed(pose, side, turned);
   }
-  return joints === undefined ? posture : { ...posture, joints };
+  return turnedAny ? { ...posture, joints } : posture;
 }
 
 /** The room each arm of a resolved pose lacks, degrees. */

@@ -36,11 +36,7 @@ export function linearizeRecoveryPoseResiduals(
     );
     const denominator: number = Math.hypot(l1[0], l1[1], l2[0], l2[1]);
     const incidence: number = y[0]! * l2[0] + y[1]! * l2[1] + l2[2];
-    if (
-      !(denominator > 0) ||
-      !Number.isFinite(denominator) ||
-      !Number.isFinite(incidence)
-    )
+    if (!(denominator > 0))
       throw new Error("camera-refinement: undefined epipolar normal");
     const residual: number = incidence / denominator;
     const row: number[] = [];
@@ -61,10 +57,6 @@ export function linearizeRecoveryPoseResiduals(
         (l2[1] / denominator) * (dl2[1] / denominator);
       row.push(de / denominator - residual * relativeNormDerivative);
     }
-    if (!Number.isFinite(residual) || !row.every(Number.isFinite))
-      throw new Error(
-        "camera-refinement: nonrepresentable residual derivative",
-      );
     residuals.push(residual);
     jacobian.push(row);
   }

@@ -263,8 +263,7 @@ export namespace AutoMovieArchetypeMaterial {
     archetype: string,
   ): number | null {
     if (explicit === undefined) return null;
-    if (Number.isFinite(explicit) && explicit >= 0 && explicit <= 1)
-      return explicit;
+    if (explicit >= 0 && explicit <= 1) return explicit;
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,

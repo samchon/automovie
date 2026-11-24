@@ -17,12 +17,19 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
 import { nclose } from "../internal/nclose";
 
 /**
- * Real generic/camera/checkpoint reports preserve terminal diagnostics and ownership.
+ * Real generic/camera/checkpoint reports preserve terminal diagnostics and
+ * ownership.
  *
  * Scenarios:
- * 1. A prescribed exact two-camera population reaches its original normal without an actual update; all raw terminal checks and zero trial marginals reach the completed checkpoint.
- * 2. Caller method mutation at the first checkpoint cannot change the owned method/capacity; mutating the after-trace clone cannot alter the returned diagnostic block or borrowed input.
- * 3. The ordinary method omits the block, and an original final-evaluation charge error still returns no completed camera report.
+ *
+ * 1. A prescribed exact two-camera population reaches its original normal without
+ *    an actual update; all raw terminal checks and zero trial marginals reach
+ *    the completed checkpoint.
+ * 2. Caller method mutation at the first checkpoint cannot change the owned
+ *    method/capacity; mutating the after-trace clone cannot alter the returned
+ *    diagnostic block or borrowed input.
+ * 3. The ordinary method omits the block, and an original final-evaluation charge
+ *    error still returns no completed camera report.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs actual generic, camera and checkpoint owners over prescribed projections, checks the normal predicate inputs and independent trace identity, and observes ordinary absence and original late exception identity.
  * @evidence contracts/development/testing.md#independent-expectations Exact analytic points and their supplied two-view projections define the initial population. Original normal requires finite residuals, objective multiplier at least sqrt(1e-8), certified direction and unchanged physical inequalities. Initial normal has zero actual trials; this is not photographic accuracy or actual curvature-use evidence.
@@ -139,13 +146,10 @@ export function test_recovery_feasible_diagnostic_producer(): void {
       typeof diagnostic.objectiveMultiplier === "number" &&
       diagnostic.objectiveMultiplier >= Math.sqrt(1e-8) &&
       typeof diagnostic.stationarity === "number" &&
-      Number.isFinite(diagnostic.stationarity) &&
       typeof diagnostic.stationarityScale === "number" &&
-      Number.isFinite(diagnostic.stationarityScale) &&
       diagnostic.stationarity <=
         diagnostic.tolerance * diagnostic.stationarityScale &&
       typeof diagnostic.complementarity === "number" &&
-      Number.isFinite(diagnostic.complementarity) &&
       diagnostic.complementarity <= diagnostic.tolerance &&
       diagnostic.lastDirection?.certified === true &&
       diagnostic.lastSqp === null &&

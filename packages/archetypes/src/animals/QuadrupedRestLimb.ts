@@ -31,14 +31,7 @@ export function QuadrupedRestLimb(
     .map((point: IAutoMovieVector3, index: number): number =>
       Vector3.length(Vector3.subtract(point, source[index]!)),
     );
-  if (
-    lengths.some(
-      (length: number): boolean => !(Number.isFinite(length) && length > 0),
-    ) ||
-    ![root.x, root.y, root.z, foot.x, foot.y, foot.z, ...distal].every(
-      Number.isFinite,
-    )
-  )
+  if (lengths.some((length: number): boolean => !(length > 0)))
     throw new RangeError(
       "Resting limb data must be finite with positive lengths",
     );

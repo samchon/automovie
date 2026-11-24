@@ -66,6 +66,9 @@ const DOUBLINGS: number = 8;
  * @param step The hip's largest vertical step a frame of the caller's planned
  *   course, metres, which eases each leg's reach over a soft band
  *   (`walkReachShort.prepare`); a hard reach when absent.
+ * @param solved The root's lowering already solved for this instant in
+ *   preparation, metres; the stances are then placed under it with no root
+ *   search. Solved here when absent.
  * @returns The pelvis and each stance as reached.
  */
 export function walkReachGround(
@@ -84,6 +87,7 @@ export function walkReachGround(
   ) => IGroundTilt,
   dorsal: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
   step?: number,
+  solved?: number,
 ): walkReach.IGround {
   const { yaw, pivots, hips: upright }: walkReach.IPelvis = planned;
 
@@ -238,7 +242,8 @@ export function walkReachGround(
   const fading: AutoMovieHumanSide[] = walkReach.SIDES.filter(
     (side: AutoMovieHumanSide): boolean => bearing[side] && weights[side] < 1,
   );
-  let drop: number = 0;
+  let drop: number = solved ?? 0;
+  if (solved === undefined)
   for (let mask: number = 0; mask < 1 << fading.length; mask++) {
     let part: number = 1;
     share = { left: bearing.left ? 1 : 0, right: bearing.right ? 1 : 0 };

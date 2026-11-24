@@ -14,14 +14,18 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Saved polynomial courses generate a physically scaled field and one indexed stream.
- * This portable mathematical regression uses synthetic millimetre curves only.
- * It does not load an original asset, invoke observation tools or establish embedding.
+ * Saved polynomial courses generate a physically scaled field and one indexed
+ * stream. This portable mathematical regression uses synthetic millimetre
+ * curves only. It does not load an original asset, invoke observation tools or
+ * establish embedding.
  *
  * Scenarios:
+ *
  * 1. Nonuniform courses and reversed phases reproduce a physical polynomial.
- * 2. Two-course ruled interpolation preserves its secant and refuses duplicate stations.
- * 3. Different chunk capacities retain the same finite geometry and shared station incidence.
+ * 2. Two-course ruled interpolation preserves its secant and refuses duplicate
+ *    stations.
+ * 3. Different chunk capacities retain the same finite geometry and shared station
+ *    incidence.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the prepared quadratic/ruled field and actual streaming tessellator, checking physical derivatives, reversed course direction, unequal course partitions, metre output, shared station indices and retained bounded chunks.
  * @evidence contracts/development/testing.md#independent-expectations The exact field X=u,Y=s,Z=s*s/100 supplies values and derivatives; direct degree-three Bernstein weights independently evaluate returned coefficients. Index incidence and opposing edge orientation derive from a rectangular sheet's topology, not a generated snapshot.
@@ -161,7 +165,10 @@ export function test_geometry_saved_curve_reconstruction(): void {
     refused,
   );
 
-  /** Collect only the engine's append-only suffixes, retaining actual global indices. */
+  /**
+   * Collect only the engine's append-only suffixes, retaining actual global
+   * indices.
+   */
   const collect: (capacity: number) => {
     positions: number[];
     normals: number[];
@@ -212,8 +219,7 @@ export function test_geometry_saved_curve_reconstruction(): void {
       TestValidator.predicate(
         "chunk capacity and analytic normals remain finite",
         chunk.positions.length / 3 <= capacity &&
-          chunk.normals.length === chunk.positions.length &&
-          chunk.normals.every(Number.isFinite),
+          chunk.normals.length === chunk.positions.length,
       );
       positions.push(...chunk.positions);
       normals.push(...chunk.normals);

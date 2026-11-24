@@ -79,12 +79,7 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   )
     return null;
   const box: THREE.Box3 = new THREE.Box3().setFromBufferAttribute(points);
-  if (
-    !finite(box.min) ||
-    !finite(box.max) ||
-    AXES.some((axis) => box.min[axis] >= box.max[axis])
-  )
-    return null;
+  if (AXES.some((axis) => box.min[axis] >= box.max[axis])) return null;
   const codes: number[] = [];
   for (let i: number = 0; i < points.count; ++i) {
     const point: number[] = [points.getX(i), points.getY(i), points.getZ(i)];
@@ -136,7 +131,6 @@ function placeBox(
   const center: THREE.Vector3 = box
     .getCenter(new THREE.Vector3())
     .applyMatrix4(matrix);
-  if (!finite(center)) return null;
   const shapeBase = { id, material: "displayed", transform: IDENTITY };
   let shape: IAutoMoviePhysicalShape;
   if ([e[1], e[2], e[4], e[6], e[8], e[9]].every((x) => x === 0)) {
@@ -146,11 +140,7 @@ function placeBox(
     halfExtents.multiply(
       new THREE.Vector3(Math.abs(e[0]!), Math.abs(e[5]!), Math.abs(e[10]!)),
     );
-    if (
-      !finite(halfExtents) ||
-      AXES.some((key) => Math.fround(halfExtents[key]) <= 0)
-    )
-      return null;
+    if (AXES.some((key) => Math.fround(halfExtents[key]) <= 0)) return null;
     shape = { ...shapeBase, kind: "box", halfExtents };
   } else {
     const points: THREE.Vector3[] = [];
@@ -160,7 +150,6 @@ function placeBox(
           points.push(
             new THREE.Vector3(x, y, z).applyMatrix4(matrix).sub(center),
           );
-    if (!points.every(finite)) return null;
     shape = { ...shapeBase, kind: "hull", points };
   }
   return {
@@ -179,21 +168,7 @@ function finiteAffine(matrix: THREE.Matrix4): boolean {
   const e = matrix.elements;
   const determinant: number = matrix.determinant();
   return (
-    e.every(Number.isFinite) &&
-    e[3] === 0 &&
-    e[7] === 0 &&
-    e[11] === 0 &&
-    e[15] === 1 &&
-    Number.isFinite(determinant) &&
-    determinant !== 0
-  );
-}
-
-/** Check admission shared by geometry, bounds and live posed witnesses. */
-function finite(point: THREE.Vector3): boolean {
-  return AXES.every(
-    (axis) =>
-      Number.isFinite(point[axis]) && Number.isFinite(Math.fround(point[axis])),
+    e[3] === 0 && e[7] === 0 && e[11] === 0 && e[15] === 1 && determinant !== 0
   );
 }
 
@@ -275,7 +250,7 @@ export namespace readAutoMovieDisplayedBox {
         r * Math.hypot(e[1], e[5], e[9]),
         r * Math.hypot(e[2], e[6], e[10]),
       );
-      return r >= 0 && finite(center) && finite(extent)
+      return r >= 0
         ? { min: center.clone().sub(extent), max: center.add(extent) }
         : null;
     } catch (_error) {

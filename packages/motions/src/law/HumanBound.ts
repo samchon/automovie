@@ -18,21 +18,21 @@ import { HumanRefusal } from "./HumanRefusal";
  */
 export namespace HumanBound {
   /**
-   * A count: a whole number not below a floor.
+   * A count: the value rounded to the nearest whole number, not below a floor.
    *
    * @param axis The parameter's name.
    * @param value The value given.
    * @param minimum The least count; 1 when absent.
-   * @returns The value.
-   * @throws {HumanRefusal} When the value is not a whole number or is below the
-   *   floor.
+   * @returns The whole count.
+   * @throws {HumanRefusal} When the count is below the floor.
    */
   export function whole(
     axis: string,
     value: number,
     minimum: number = 1,
   ): number {
-    if (Number.isInteger(value) && value >= minimum) return value;
+    const count: number = Math.round(value);
+    if (count >= minimum) return count;
     throw refuse(axis, value, {
       kind: "range",
       minimum,
@@ -58,7 +58,7 @@ export namespace HumanBound {
     minimum: number,
     unit: string = "",
   ): number {
-    if (Number.isFinite(value) && value >= minimum) return value;
+    if (value >= minimum) return value;
     throw refuse(axis, value, { kind: "range", minimum, maximum: null, unit });
   }
 
@@ -78,7 +78,7 @@ export namespace HumanBound {
     minimum: number,
     unit: string = "",
   ): number {
-    if (Number.isFinite(value) && value > minimum) return value;
+    if (value > minimum) return value;
     throw refuse(axis, value, {
       kind: "range",
       minimum,

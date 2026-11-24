@@ -37,39 +37,29 @@ export function prepareSupportContactForm(
   contact: IAutoMovieMotionHumanSupport.IContact,
   aimed: IAutoMovieVector3 | null,
 ) => supportContact.IForm {
-  let feet: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> | undefined;
-
-  /** Read the exact quiet toe frames once, retaining only body-local directions. */
-  const toeNormal: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
-    side: AutoMovieHumanSide,
-  ): IAutoMovieVector3 => {
-    let observed: IAutoMovieVector3 | undefined = feet?.[side];
-    if (observed === undefined) {
-      const bones: ReturnType<typeof poseBones> = poseBones(
-        body,
-        resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
-        undefined,
-        HumanBoneGroups.TOES,
-      );
-
-      /** Re-express world down in a measured toe's local rotation. */
-      const normal: (foot: AutoMovieHumanSide) => IAutoMovieVector3 = (
-        foot: AutoMovieHumanSide,
-      ): IAutoMovieVector3 =>
-        Quaternion.rotateVector(
-          Quaternion.inverse(bones.get(`${foot}Toes`)!.worldRotation),
+  // The quiet stance's toe frames, read once here when normals are wanted,
+  // keeping only world down in each toe's local rotation. A canonical rig
+  // may omit a toe bone, which then has no normal.
+  const feet: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+  if (normals) {
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      resolveHumanPosture(body, stand.posture(body, { x: 0, y: 0, z: 0 }, 0)),
+      undefined,
+      HumanBoneGroups.TOES,
+    );
+    for (const side of ["left", "right"] as const)
+      if (bones.has(`${side}Toes`))
+        feet[side] = Quaternion.rotateVector(
+          Quaternion.inverse(bones.get(`${side}Toes`)!.worldRotation),
           { x: 0, y: -1, z: 0 },
         );
-      observed = normal(side);
-      feet ??= {};
-      feet[side] = observed;
+  }
 
-      // A canonical rig may omit the unrequested counterpart's toe bone.
-      const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-      if (bones.has(`${other}Toes`)) feet[other] = normal(other);
-    }
-    return { ...observed };
-  };
+  /** A toe's prepared local down. */
+  const toeNormal: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
+    side: AutoMovieHumanSide,
+  ): IAutoMovieVector3 => ({ ...feet[side]! });
   return (
     c: IAutoMovieMotionHumanSupport.IContact,
     aimed: IAutoMovieVector3 | null,

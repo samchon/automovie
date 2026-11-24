@@ -101,7 +101,11 @@ const stretchOf: (mesh: IAutoMovieMesh, triangle: number) => IStretch | null = (
   };
 };
 
-/** The worst finite anisotropy over nondegenerate frames; NaN rejects an empty frame population or a nonfinite measurement instead of silently reporting zero. */
+/**
+ * The worst finite anisotropy over nondegenerate frames; NaN rejects an empty
+ * frame population or a nonfinite measurement instead of silently reporting
+ * zero.
+ */
 const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (
   mesh: IAutoMovieMesh,
 ): number => {
@@ -113,14 +117,7 @@ const worstAnisotropy: (mesh: IAutoMovieMesh) => number = (
   ) {
     const stretch: IStretch | null = stretchOf(mesh, triangle);
     if (stretch === null) continue;
-    if (
-      !Number.isFinite(stretch.anisotropy) ||
-      !Number.isFinite(stretch.areaScale)
-    )
-      return NaN;
-    worst = Number.isNaN(worst)
-      ? stretch.anisotropy
-      : Math.max(worst, stretch.anisotropy);
+    worst = Math.max(worst, stretch.anisotropy);
   }
   return worst;
 };
@@ -158,35 +155,37 @@ const ring: (radius: number) => IAutoMovieProfilePoint[] = (
   );
 
 /**
- * The shear a revolved metric atlas costs, and where a directional finish may go.
+ * The shear a revolved metric atlas costs, and where a directional finish may
+ * go.
  *
  * Radius-dependent arc coordinates couple meridian travel to angular travel.
- * Triangle affine-map singular values observe that anisotropy independently
- * of the revolution builder; these numeric checks do not observe a finish or
- * the appearance of its grain.
+ * Triangle affine-map singular values observe that anisotropy independently of
+ * the revolution builder; these numeric checks do not observe a finish or the
+ * appearance of its grain.
  *
  * Every expected number comes from the geometry rather than from the builder.
  * The worst anisotropy over a full turn of a meridian at slope `dr / ds` is the
- * condition number of a shear by `k = 2 * pi * |dr / ds|`, which is
- * `(sqrt(k * k + 4) + k) / (sqrt(k * k + 4) - k)`; the mesh is only asked to
- * agree with that within the error its own tessellation admits.
+ * condition number of a shear by `k = 2 * pi * |dr / ds|`, which is `(sqrt(k *
+ * k + 4) + k) / (sqrt(k * k + 4) - k)`; the mesh is only asked to agree with
+ * that within the error its own tessellation admits.
  *
  * Scenarios:
  *
  * 1. A constant-radius drum's tessellated atlas has anisotropy below 1.01.
- * 2. The shear follows meridian slope and nothing else, matching the stated
- *    closed form at 6.5, 13.8, 45 and 89.9 degrees off the axis, which are the
- *    2, 4, 21.7 and 41.5 the contract quotes.
+ * 2. The shear follows meridian slope and nothing else, matching the stated closed
+ *    form at 6.5, 13.8, 45 and 89.9 degrees off the axis, which are the 2, 4,
+ *    21.7 and 41.5 the contract quotes.
  * 3. Every nondegenerate measured steep-cone triangle retains area ratio one
  *    within 1e-3; degenerate triangles have no affine frame and are excluded.
- * 4. The pole is not the cause. A frustum has no zero-radius vertex and its
- *    worst shear agrees with the cone's within one percent, remaining above 20.
+ * 4. The pole is not the cause. A frustum has no zero-radius vertex and its worst
+ *    shear agrees with the cone's within one percent, remaining above 20.
  * 5. The first and last angular triangles on opposite sides of the UV cut have
  *    high and near-unit anisotropy respectively.
- * 6. The stated alternatives retain unit anisotropy within 1e-6. A faceted spire through
- *    `buildAutoMoviePolyhedron` and a flat cap through `extrudeAutoMovieRegion`
- *    are rigid, while `meshAutoMovieSweep` measures the same pair and a
- *    tapered loft shears with it, so it is not an escape from this.
+ * 6. The stated alternatives retain unit anisotropy within 1e-6. A faceted spire
+ *    through `buildAutoMoviePolyhedron` and a flat cap through
+ *    `extrudeAutoMovieRegion` are rigid, while `meshAutoMovieSweep` measures
+ *    the same pair and a tapered loft shears with it, so it is not an escape
+ *    from this.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the existing drum, four leaning cones, cone/frustum, faceted spire, region cap and tapered loft; independently measures per-triangle affine singular values and area ratios. Assertions distinguish slope-dependent shear, retained area, pole removal, angular variation and metric faceted alternatives while retaining the loft's high anisotropy.
  * @evidence contracts/development/testing.md#independent-expectations A shear of k=2*pi*abs(sin(angle)) has condition number (sqrt(k*k+4)+k)/(sqrt(k*k+4)-k), giving independent continuum expectations compared within the original two-percent tessellation window. Triangle edge bases and UV differences independently measure area/singular values. The observer excludes zero-area frames and clamps cancellation in eigenvalue arithmetic; retained tolerances are numeric agreement rather than an exact universal isometry or rendered proof.

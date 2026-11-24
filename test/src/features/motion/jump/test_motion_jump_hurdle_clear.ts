@@ -113,7 +113,7 @@ export function test_motion_jump_hurdle_clear(): void {
       }
       TestValidator.predicate(
         `the ${side} ${point} passes the bar's plane above its top (${lowest.toFixed(3)} of ${top.toFixed(3)} m)`,
-        Number.isFinite(lowest) && lowest > top,
+        lowest !== Infinity && lowest > top,
       );
     }
   const hips: number = film.bones("a", when(clear!, "clear")).get("hips")!

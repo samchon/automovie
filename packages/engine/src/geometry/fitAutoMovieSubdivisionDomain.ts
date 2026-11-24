@@ -42,13 +42,8 @@ export function fitAutoMovieSubdivisionDomain(
 ): IAutoMovieFitSubdivisionDomain.IResult {
   let level: IAutoMovieSubdivisionLevel = admitSubdivisionCage(props.cage);
   const old: number = level.topology.vertexCount;
-  if (
-    props.controlPositions.length !== 3 * old ||
-    props.controlPositions.some((x: number): boolean => !Number.isFinite(x))
-  )
-    throw new Error(
-      "fitting control positions must be finite source vertex triples",
-    );
+  if (props.controlPositions.length !== 3 * old)
+    throw new Error("fitting control positions must be source vertex triples");
   if (props.anchors.length !== old || props.limitTargets.length !== old)
     throw new Error("fitting constraints must match the source vertex count");
   for (let i: number = 0; i < old; i++)
@@ -60,12 +55,8 @@ export function fitAutoMovieSubdivisionDomain(
         "fitting constraints must be dense boolean anchors and target rows",
       );
   for (const target of props.limitTargets)
-    if (
-      target !== null &&
-      (target.length !== 3 ||
-        target.some((x: number): boolean => !Number.isFinite(x)))
-    )
-      throw new Error("fitting limit target must be a finite metre triple");
+    if (target !== null && target.length !== 3)
+      throw new Error("fitting limit target must be a metre triple");
   for (let e: number = 0; e < level.topology.edgeSharpness.length; e++) {
     if (
       level.topology.edgeSharpness[e] === 0 ||
@@ -81,11 +72,7 @@ export function fitAutoMovieSubdivisionDomain(
     }
   }
   for (const face of props.regionFaces)
-    if (
-      !Number.isSafeInteger(face) ||
-      face < 0 ||
-      face >= props.cage.faces.length
-    )
+    if (face < 0 || face >= props.cage.faces.length)
       throw new Error("fitting region face is out of range");
   const coarseStencil: IAutoMovieSubdivisionStencil =
     stencilAutoMovieSubdivisionLimit(props.cage.faces, old);

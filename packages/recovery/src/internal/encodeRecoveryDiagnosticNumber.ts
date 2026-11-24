@@ -4,7 +4,6 @@ import type { AutoMovieDiagnosticNumber } from "@automovie/interface";
 export function encodeRecoveryDiagnosticNumber(
   value: number,
 ): AutoMovieDiagnosticNumber {
-  if (Number.isFinite(value)) return value;
-  if (Number.isNaN(value)) return "NaN";
+  if (value !== Infinity && value !== -Infinity) return value;
   return value > 0 ? "+Infinity" : "-Infinity";
 }

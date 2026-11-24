@@ -82,13 +82,6 @@ export const validateAutoMovieMaterialAssembly: (
       `material assembly sense must be one of ${SENSES.join(", ")}, but was "${String(assembly.sense)}"`,
       assembly.sense,
     );
-  if (!Number.isFinite(assembly.offset))
-    collector.push(
-      "range",
-      `${root}.offset`,
-      `material assembly offset must be finite, but was ${assembly.offset}`,
-      assembly.offset,
-    );
   for (const face of ["first", "last"] as const)
     if (!EXPOSURES.includes(assembly.faces[face]))
       collector.push(
@@ -132,7 +125,7 @@ export const validateAutoMovieMaterialAssembly: (
         `material layer substance must be one of ${SUBSTANCES.join(", ")}, but was "${String(layer.substance)}"`,
         layer.substance,
       );
-    if (!Number.isFinite(layer.thickness) || layer.thickness < 0)
+    if (layer.thickness < 0)
       collector.push(
         "range",
         `${path}.thickness`,
@@ -186,31 +179,18 @@ export const validateAutoMovieMaterialAssembly: (
     0,
   );
   if (
-    Number.isFinite(assembly.offset) &&
     layers.every(
       (layer: IAutoMovieMaterialLayer): boolean =>
-        Number.isFinite(layer.thickness) && layer.thickness >= 0,
+        layer.thickness >= 0,
     )
   ) {
     const direction: number = assembly.sense === "positive" ? 1 : -1;
     let cursor: number = assembly.offset;
     for (const layer of layers) cursor += direction * layer.thickness;
-    if (
-      !Number.isFinite(total) ||
-      !Number.isFinite(cursor) ||
-      !Number.isFinite(assembly.offset + direction * total)
-    )
-      collector.push(
-        "range",
-        `${root}.layers`,
-        "material assembly must produce finite total thickness and signed layer endpoints",
-        total,
-      );
   }
 
   if (props.host !== undefined) {
     if (
-      Number.isFinite(props.host.thickness) === false ||
       props.host.thickness <= 0
     )
       collector.push(

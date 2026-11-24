@@ -29,7 +29,7 @@ export function compareAutoMovieRasters(
   const count: number = after.width * after.height;
   if (before.pixels.length !== count * 4 || after.pixels.length !== count * 4)
     throw new Error("Raster pixels do not match its size");
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new Error("Comparison tolerance must be a non-negative number");
 
   const pixels: Uint8ClampedArray = new Uint8ClampedArray(count * 4);

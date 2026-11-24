@@ -21,13 +21,14 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * Six unarmed marchers of mixed stature travel in two ranks to a shared beat.
  *
  * Scenarios:
- * 1. The marchers keep their files within 0.12 m laterally and follow their
- *    rank's travel within 0.30 m at early and late slowdowns.
+ *
+ * 1. The marchers keep their files within 0.12 m laterally and follow their rank's
+ *    travel within 0.30 m at early and late slowdowns.
  * 2. At five consecutive interior beats of the 100 BPM track, every marcher
- *    strikes within 0.10 s of the beat, using the left foot on odd beats and the
- *    right on even beats.
- * 3. Each marcher's observed travel speed changes with the same course while
- *    their steps stay on the beat.
+ *    strikes within 0.10 s of the beat, using the left foot on odd beats and
+ *    the right on even beats.
+ * 3. Each marcher's observed travel speed changes with the same course while their
+ *    steps stay on the beat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the cast, course measures, beat rate and synchronized-foot requirement.
  * @evidence contracts/development/testing.md#behavioral-verification Composes the public march with both a moving station and a shared cue track, then reads displayed roots and heel-strike events. Both witnesses lag uniform travel at the authored average speed by more than one step allowance. A default cadence misses the authored beats. Speed windows inside each course leg catch a misaligned clock that moves past the authored slowdown early.
@@ -114,8 +115,6 @@ export function test_motion_ensemble_synchronized_parade(): void {
         seconds,
       ).root;
       if (
-        !Number.isFinite(root.x) ||
-        !Number.isFinite(root.z) ||
         Math.abs(root.x - x) > 0.12 ||
         Math.abs(root.z - (advance - rank)) > 0.3
       )
@@ -129,7 +128,7 @@ export function test_motion_ensemble_synchronized_parade(): void {
       const last: number = performance.posture(member.subject, seconds + period)
         .root.z;
       const speed: number = (last - first) / period;
-      if (!Number.isFinite(speed) || Math.abs(speed - expected) > 0.15)
+      if (!(Math.abs(speed - expected) <= 0.15))
         findings.push(
           `${member.subject} moves at ${speed.toFixed(3)} m/s from ${seconds} s, expected near ${expected.toFixed(3)} m/s`,
         );

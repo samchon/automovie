@@ -155,7 +155,7 @@ export namespace physicalInertiaTensor {
           const part:
             | IAutoMovieCombinePhysicalMassProperties.IPart
             | undefined = parts[index];
-          if (!Number.isInteger(index) || index < 0 || part === undefined)
+          if (index < 0 || part === undefined)
             throw new Error(
               "A prepared intrinsic tensor needs an existing integer part index",
             );

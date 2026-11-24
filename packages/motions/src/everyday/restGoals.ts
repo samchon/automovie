@@ -99,45 +99,56 @@ export function restGoals(
     )
   )
     requested.add("hips");
-  let anatomy: ReturnType<typeof poseBones> | undefined;
-  let neck:
-    | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    | undefined;
-  const region = (side: AutoMovieHumanSide): HumanTrunk.ISurface => {
-    anatomy ??= poseBones(
-      body,
-      resolveHumanPosture.seeded(
+  // The posed surfaces the places lay a hand on, and the neck a chin rest
+  // casts back onto, each posed once here when a place reads it.
+  const laid: readonly IAutoMovieMotionHumanRest.Place[] = Object.values(
+    places,
+  );
+  const anatomy: ReturnType<typeof poseBones> | undefined = laid.some(
+    (place: IAutoMovieMotionHumanRest.Place): boolean =>
+      place === "pocket" ||
+      place === "hip" ||
+      place === "behindHead" ||
+      place === "chinRest",
+  )
+    ? poseBones(
         body,
-        posture,
-        undefined,
-        {},
+        resolveHumanPosture.seeded(
+          body,
+          posture,
+          undefined,
+          {},
+          undefined,
+          requested,
+        ).pose,
         undefined,
         requested,
-      ).pose,
-      undefined,
-      requested,
-    );
+      )
+    : undefined;
+  const neck:
+    | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+    | undefined = laid.includes("chinRest") ? necked(body, posture) : undefined;
+  const region = (side: AutoMovieHumanSide): HumanTrunk.ISurface => {
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       body.surfaces.regions[targets[side]!];
     return resolveAutoMovieHumanoidSurfaces.pointNormal(
       frame,
-      anatomy.get(frame.bone)!,
+      anatomy!.get(frame.bone)!,
     );
   };
   const frame: IAutoMovieMotionHumanFrame = {
     origin: posture.root,
     yaw: posture.yaw,
   };
-  let direction: HumanFrame.IPrepared | undefined;
+  const direction: HumanFrame.IPrepared = HumanFrame.prepare({
+    origin: { x: 0, y: 0, z: 0 },
+    yaw: frame.yaw,
+  });
   const dir: (x: number, y: number, z: number) => IAutoMovieVector3 = (
     x: number,
     y: number,
     z: number,
-  ): IAutoMovieVector3 =>
-    (direction ??= HumanFrame.prepare({
-      origin: { x: 0, y: 0, z: 0 },
-      yaw: frame.yaw,
-    })).direction({ x, y, z });
+  ): IAutoMovieVector3 => direction.direction({ x, y, z });
   // The hint rides the root and the heading only, as the rest places were
   // captured: a standing rest does not pitch or roll the trunk.
   const elbow: (
@@ -319,7 +330,7 @@ export function restGoals(
           rear > 0
             ? HumanColliders.cast(
                 body,
-                (neck ??= necked(body, posture)),
+                neck!,
                 chin.point,
                 back,
                 rear,

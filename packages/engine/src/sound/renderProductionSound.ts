@@ -165,11 +165,6 @@ const assertFiniteProductionPcm: (
 ) => void = (samples: Float32Array, source: string): void => {
   if (samples.length === 0)
     throw new Error(`Production sound ${source} supplied empty PCM.`);
-  for (let index: number = 0; index < samples.length; ++index)
-    if (Number.isFinite(samples[index]) === false)
-      throw new Error(
-        `Production sound ${source} contains a non-finite PCM sample at index ${index}.`,
-      );
 };
 
 /**
@@ -344,13 +339,9 @@ const cueSampleRanges: (
   cue: IAutoMovieProductionSoundPlan["cues"][number],
 ): ICueSampleRanges => {
   if (
-    Number.isSafeInteger(cue.sourceDurationFrames) === false ||
     cue.sourceDurationFrames <= 0 ||
-    Number.isSafeInteger(cue.sourceOffsetFrame) === false ||
     cue.sourceOffsetFrame < 0 ||
-    Number.isSafeInteger(cue.durationFrames) === false ||
     cue.durationFrames <= 0 ||
-    Number.isSafeInteger(cue.startFrame) === false ||
     cue.startFrame < 0 ||
     cue.sourceOffsetFrame + cue.durationFrames > cue.sourceDurationFrames ||
     cue.startFrame + cue.durationFrames > plan.totalFrames

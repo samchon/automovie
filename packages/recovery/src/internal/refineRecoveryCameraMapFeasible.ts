@@ -191,8 +191,6 @@ export function refineRecoveryCameraMapFeasible(
           )
             return null;
         }
-        if (!Number.isFinite(cost) || !Number.isFinite(square))
-          throw new Error("camera-feasible: nonrepresentable actual objective");
         initialSquaredError ??= square;
         return cost;
       },
@@ -335,7 +333,6 @@ export function refineRecoveryCameraMapFeasible(
               if (
                 selected.some(
                   (row: number, at: number): boolean =>
-                    !Number.isSafeInteger(row) ||
                     row < 1 ||
                     row > observations ||
                     (at > 0 && row <= selected[at - 1]!),
@@ -368,7 +365,6 @@ export function refineRecoveryCameraMapFeasible(
                   );
                   const value: number =
                     (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
-                  if (!Number.isFinite(value)) return null;
                   values.push(value);
                   at++;
                 }
@@ -409,11 +405,7 @@ export function refineRecoveryCameraMapFeasible(
                   currentBlocks === null ||
                   currentGradient === null ||
                   increment.length !== width ||
-                  !(
-                    Number.isFinite(oldCost) &&
-                    Number.isFinite(newCost) &&
-                    newCost < oldCost
-                  )
+                  !(newCost < oldCost)
                 )
                   throw new Error(
                     "camera-regularization: selected current-base actual decrease required",

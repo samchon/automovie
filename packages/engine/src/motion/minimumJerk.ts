@@ -35,7 +35,6 @@ type IReading = IAutoMovieMinimumJerk.IProfile | number;
 
 /** One admission/clipping/polynomial owner, evaluating only demanded fields. */
 function evaluate(u: number, demand: IDemand): IReading {
-  if (!Number.isFinite(u)) throw new Error("Minimum-jerk time must be finite");
   if (u <= 0) return demand === "profile" ? { s: 0, ds: 0, dds: 0 } : 0;
   if (u >= 1)
     return demand === "profile"
@@ -86,8 +85,6 @@ export namespace minimumJerk {
    * and has no closed-form inverse. A nonfinite share is refused.
    */
   export function time(travel: number): number {
-    if (!Number.isFinite(travel))
-      throw new Error("A minimum-jerk share must be finite");
     if (travel <= 0) return 0;
     if (travel >= 1) return 1;
     return bracketedBisection(

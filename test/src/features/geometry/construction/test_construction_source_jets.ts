@@ -16,13 +16,31 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Authored source jets reproduce their polynomial, while an explicit scalar hull range bounds complete source spans without changing default natural curves.
+ * Authored source jets reproduce their polynomial, while an explicit scalar
+ * hull range bounds complete source spans without changing default natural
+ * curves.
  *
  * Scenarios:
- * 1. Shared normalized jets reproduce f(t)=1-(2t-1)^4 through three knots at two scales. The middle is the exact maximum, both one-sided first/second jets agree, and the same admitted source is consumed by curve inspection and real loft sections.
- * 2. A quintic whose derivative has four independently known roots reports all four; a cubic stationary inflection reports its repeated zero-slope root. Null components retain natural derivatives and an explicit cubic is reproduced between knots and on its tangent extension.
- * 3. A two-pole synthetic sole with every interior knot on the physical floor overshoots with the default natural curve. The explicit [-height,0] range contains every complete span at dense independent observations and keeps finite closing values, without changing the default curve. This proves a fixed-frame scalar bound, not a moving world median or final loft fidelity between layers.
- * 4. Conflicting authored hulls are refused even when the independent curve itself is bounded, distinguishing sufficient hull admission from a necessary condition. Invalid bounds/jets and outside knots fail explicitly. Unit conversion preserves source parameters, normalized jets, signed ranges and dimensionless fullness jets.
+ *
+ * 1. Shared normalized jets reproduce f(t)=1-(2t-1)^4 through three knots at two
+ *    scales. The middle is the exact maximum, both one-sided first/second jets
+ *    agree, and the same admitted source is consumed by curve inspection and
+ *    real loft sections.
+ * 2. A quintic whose derivative has four independently known roots reports all
+ *    four; a cubic stationary inflection reports its repeated zero-slope root.
+ *    Null components retain natural derivatives and an explicit cubic is
+ *    reproduced between knots and on its tangent extension.
+ * 3. A two-pole synthetic sole with every interior knot on the physical floor
+ *    overshoots with the default natural curve. The explicit [-height,0] range
+ *    contains every complete span at dense independent observations and keeps
+ *    finite closing values, without changing the default curve. This proves a
+ *    fixed-frame scalar bound, not a moving world median or final loft fidelity
+ *    between layers.
+ * 4. Conflicting authored hulls are refused even when the independent curve itself
+ *    is bounded, distinguishing sufficient hull admission from a necessary
+ *    condition. Invalid bounds/jets and outside knots fail explicitly. Unit
+ *    conversion preserves source parameters, normalized jets, signed ranges and
+ *    dimensionless fullness jets.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads shared source values/jets/critical stations, production section values, original curve points and ConstructionViews conversion; explicit failures remain visible without substituting a curve.
  * @evidence contracts/development/testing.md#independent-expectations Closed forms are f(t)=8t-24t^2+32t^3-16t^4 and the integral of (t-.1)(t-.3)(t-.7)(t-.9). The bounded counterexample 16t^2(1-t)^2 has a control hull reaching1.6, so rejecting its hull cannot prove curve overflow. A fixed worldY=height+edge translates the scalar sole range directly. Finite comparisons use 2e-9 times scale for binary64 polynomial/parameter arithmetic; C2 comparisons approach an internal knot from both sides without requiring bit equality.
@@ -43,7 +61,7 @@ export function test_construction_source_jets(): void {
     expected: number,
     scale: number = 1,
   ): void => {
-    if (!(Number.isFinite(expected) && nclose(actual, expected, 2e-9 * scale)))
+    if (!nclose(actual, expected, 2e-9 * scale))
       failures.push(`${name}: ${actual}, expected ${expected}`);
   };
   const f: (t: number) => number = (t: number): number => 1 - (2 * t - 1) ** 4;
@@ -329,13 +347,7 @@ export function test_construction_source_jets(): void {
     const s: number = (100 * i) / 512;
     naturalMinimum = Math.min(naturalMinimum, read(unconstrained, s).value);
     const actual: IAutoMovieViewOutline.IReading = read(bounded, s);
-    if (
-      !(
-        actual.value >= -5 - 1e-12 &&
-        actual.value <= 1e-12 &&
-        Number.isFinite(actual.value)
-      )
-    )
+    if (!(actual.value >= -5 - 1e-12 && actual.value <= 1e-12))
       failures.push(`bounded sole at${s}: ${actual.value}`);
   }
   if (!(naturalMinimum < -5.001))
@@ -496,7 +508,10 @@ export function test_construction_source_jets(): void {
   );
 }
 
-/** Prepare a synthetic source through the real admission seam, preserving any explicit diagnostic as a test failure. */
+/**
+ * Prepare a synthetic source through the real admission seam, preserving any
+ * explicit diagnostic as a test failure.
+ */
 function prepare(
   outline: IAutoMovieViewPart.IOutline,
   ends: IAutoMovieViewOutline.IEnds = {},
@@ -511,7 +526,10 @@ function prepare(
   return result;
 }
 
-/** Read the shared original source value and its explicitly qualified analytic station jets. */
+/**
+ * Read the shared original source value and its explicitly qualified analytic
+ * station jets.
+ */
 function read(
   outline: IAutoMovieViewOutline.IOutline,
   station: number,

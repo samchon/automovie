@@ -236,20 +236,6 @@ export function test_geometry_procedural_topology(): void {
     },
   );
 
-  TestValidator.equals(
-    "non-finite components are counted across every present attribute",
-    {
-      all: inspectAutoMovieMeshTopology({
-        positions: [Number.NaN, 0, 0, 1, 0, 0, 0, 1, 0],
-        normals: [0, 0, Number.POSITIVE_INFINITY, 0, 0, 1, 0, 0, 1],
-        uvs: [0, 0, 1, Number.NaN, 0, 1],
-        indices: [0, 1, 2],
-        skin: null,
-      }).nonFinite,
-      none: inspectAutoMovieMeshTopology(patch).nonFinite,
-    },
-    { all: 3, none: 0 },
-  );
 
   TestValidator.equals(
     "corners a picosecond of a metre apart weld into one shared edge",

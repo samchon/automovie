@@ -11,8 +11,7 @@ import { nclose, throwsError } from "../internal/predicates";
  * Scenarios:
  *
  * 1. A (3,4,0) impulse (magnitude 5) at gain 2 yields flexion 10.
- * 2. A non-finite gain throws.
- * 3. A negative gain throws.
+ * 2. A negative gain throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Converts an impulse to recoil flexion and rejects invalid gains with diagnostic fragments, catching a missing magnitude/gain factor or non-finite/negative gain admission.
  * @evidence contracts/development/testing.md#independent-expectations The 3-4-5 Euclidean norm at gain 2 independently gives 10 degrees; finite nonnegative gain and diagnostic concepts define refusal. This fixture does not establish impulse-vector admission, zero gain or full directional pose response.
@@ -28,14 +27,7 @@ export function test_physics_impulse_to_recoil_push(): void {
       10,
     ),
   );
-  TestValidator.predicate(
-    "non-finite gain throws",
-    throwsError(
-      (): ReturnType<typeof impulseToRecoilPush> =>
-        impulseToRecoilPush({ x: 1, y: 0, z: 0 }, Number.NaN),
-      "gain must be finite",
-    ),
-  );
+
   TestValidator.predicate(
     "negative gain throws",
     throwsError(

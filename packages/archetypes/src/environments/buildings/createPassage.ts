@@ -39,20 +39,13 @@ export function createPassage(
   const recipe: createPassage.IProps = structuredClone(props);
   const depth: number = recipe.thickness ?? 0.18;
   const color: string = recipe.color ?? "#aaa398";
-  if (
-    !Number.isFinite(recipe.width) ||
-    recipe.width <= 0 ||
-    !Number.isFinite(depth) ||
-    depth <= 0
-  )
+  if (recipe.width <= 0 || depth <= 0)
     throw new Error(
       "passage width and thickness must be finite positive metres",
     );
   if (
     recipe.kind === "stairs" &&
-    (!Number.isInteger(recipe.steps) ||
-      recipe.steps < 2 ||
-      recipe.steps > createStairs.STEPS)
+    (recipe.steps < 2 || recipe.steps > createStairs.STEPS)
   )
     throw new Error(
       `stair flight needs 2 to ${createStairs.STEPS} steps; join taller flights at a named intermediate landing`,
@@ -60,15 +53,12 @@ export function createPassage(
   if (
     recipe.kind === "ramp" &&
     recipe.maximumSlope !== undefined &&
-    (!Number.isFinite(recipe.maximumSlope) || recipe.maximumSlope <= 0)
+    recipe.maximumSlope <= 0
   )
     throw new Error(
       "ramp maximumSlope must be a finite positive rise/run ratio",
     );
-  if (
-    recipe.clearHeight !== undefined &&
-    (!Number.isFinite(recipe.clearHeight) || recipe.clearHeight <= 0)
-  )
+  if (recipe.clearHeight !== undefined && recipe.clearHeight <= 0)
     throw new Error("passage clearHeight must be finite positive metres");
 
   return (
@@ -94,7 +84,7 @@ export function createPassage(
     const run: number = Math.hypot(difference.x, difference.z);
     const rise: number = difference.y;
     const endpoints: string = `passage "${context.id}" between "${landingName(recipe.from)}" and "${landingName(recipe.to)}"`;
-    if (!Number.isFinite(run) || run <= 1e-9 || !Number.isFinite(rise))
+    if (run <= 1e-9)
       throw new Error(
         `${endpoints} requires horizontally separated finite landings`,
       );

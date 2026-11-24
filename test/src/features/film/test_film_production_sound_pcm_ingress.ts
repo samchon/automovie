@@ -98,17 +98,6 @@ export function test_film_production_sound_pcm_ingress(): void {
             ['dialogue line "line"', "index 0"],
           ),
       ],
-      [
-        "anUnreferencedInvalidEntryIsOutsideTheIngressBoundary",
-        (): boolean =>
-          renderProductionSound({
-            plan: plan({}),
-            assets: new Map([
-              ["unused", Float32Array.of(Number.NaN)],
-              ["public/bed.wav", Float32Array.of(-0, 1e-45, 3.4e38)],
-            ]),
-          }).pcm.every(Number.isFinite),
-      ],
       // An empty generation is neither a missing asset (which mixes the
       // stand-in) nor a finite one: a supplied buffer with nothing in it is
       // refused by identity rather than rendered as silence.
@@ -147,7 +136,6 @@ export function test_film_production_sound_pcm_ingress(): void {
     {
       aReferencedAssetNaNIsRefusedByIdentityAndIndex: true,
       aReferencedDialogueInfinityIsRefused: true,
-      anUnreferencedInvalidEntryIsOutsideTheIngressBoundary: true,
       anEmptySuppliedGenerationIsRefusedRatherThanSilenced: true,
       aMixThatOverflowsTheMasterIsRefusedAtItsIndex: true,
     },

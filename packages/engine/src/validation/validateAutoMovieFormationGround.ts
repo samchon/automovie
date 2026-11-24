@@ -371,7 +371,6 @@ export const validateAutoMovieFormationGround: (
       for (const slot of cue.slots) {
         if (
           members.has(slot) ||
-          Number.isSafeInteger(slot) === false ||
           slot < 0 ||
           slot >= formation.count
         )

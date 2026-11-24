@@ -22,11 +22,7 @@ export const sampleFormationCycleMatrix: (
   position: number,
   take: IAutoMovieFormationCycleTake = cycle.active,
 ): THREE.Matrix4 => {
-  if (
-    Number.isSafeInteger(part) === false ||
-    part < 0 ||
-    part >= cycle.names.length
-  )
+  if (part < 0 || part >= cycle.names.length)
     throw new RangeError(
       `Formation cycle part ${part} is outside 0..${cycle.names.length - 1}.`,
     );

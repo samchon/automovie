@@ -114,11 +114,8 @@ export namespace firstAutoMovieContactImpact {
     // step that is not finite, or a count past 2^53 where `next + 1` stops
     // moving, gives a scan that never reaches the span's end.
     if (
-      !(Number.isFinite(from) && Number.isFinite(input.to)) ||
-      !(Number.isFinite(input.step) && input.step > 0) ||
-      !Number.isSafeInteger(
-        Math.max(0, Math.ceil((input.to - from) / input.step)),
-      )
+      input.step <= 0 ||
+      Math.ceil((input.to - from) / input.step) > Number.MAX_SAFE_INTEGER
     )
       throw new RangeError(
         `A contact scan needs a finite span and a positive finite step with a safe-integer count, got ${from} to ${input.to} by ${input.step}`,
@@ -301,7 +298,6 @@ export namespace firstAutoMovieContactImpact {
                 "Unknown initial contact departure certificate",
               );
             if (
-              !Number.isFinite(proof.seconds) ||
               !(proof.seconds > from && proof.seconds <= until)
             )
               throw new RangeError(
@@ -312,7 +308,7 @@ export namespace firstAutoMovieContactImpact {
               proof.seconds,
               sampleAutoMovieContactWeapon(weapon, proof.seconds, stops),
             );
-            if (!(Number.isFinite(clearance) && clearance > 0))
+            if (!(clearance > 0))
               throw new RangeError(
                 "Contact departure has no positive clearance",
               );
@@ -380,7 +376,7 @@ export namespace firstAutoMovieContactImpact {
           // it read that step.
           let lo: number = previous;
           let clear: number = cleared ?? measure(lo);
-          while (!Number.isFinite(clear) && inside - lo > RESOLUTION) {
+          while (clear === Infinity && inside - lo > RESOLUTION) {
             const mid: number = (lo + inside) / 2;
 
             // Past 2^23 s adjacent doubles lie farther apart than the
@@ -393,7 +389,7 @@ export namespace firstAutoMovieContactImpact {
               clear = d;
             }
           }
-          if (Number.isFinite(clear) && inside - lo > RESOLUTION) {
+          if (clear !== Infinity && inside - lo > RESOLUTION) {
             const ends: readonly [number, number, number, number] = [
               lo,
               clear,

@@ -2,8 +2,8 @@ import type { RecoveryFileVectorTable } from "./RecoveryFileVectorTable";
 import type { RecoveryFileVectorTableInput } from "./RecoveryFileVectorTableInput";
 
 /**
- * Keep a private binary64 vector table behind at most three reusable pages.
- * The caller owns its exclusive file and descriptor. Reads return copied triples;
+ * Keep a private binary64 vector table behind at most three reusable pages. The
+ * caller owns its exclusive file and descriptor. Reads return copied triples;
  * writes retain their logical order while private disk flushes may be delayed.
  * Final bytes are meaningful only after finish and successful descriptor close.
  * Failed operations latch their original thrown value and cannot be reused.
@@ -21,7 +21,6 @@ export function createRecoveryFileVectorTable(
 ): RecoveryFileVectorTable {
   if (
     !input ||
-    !Number.isSafeInteger(input.maxRows) ||
     input.maxRows < 1 ||
     input.maxRows > Math.floor(Number.MAX_SAFE_INTEGER / 24) ||
     typeof input.read !== "function" ||
@@ -72,7 +71,7 @@ export function createRecoveryFileVectorTable(
       const count: number = writing
         ? input.write(page.buffer, done, length - done, page.base * 24 + done)
         : input.read(page.buffer, done, length - done, page.base * 24 + done);
-      if (!Number.isSafeInteger(count) || count <= 0 || count > length - done)
+      if (count <= 0 || count > length - done)
         throw new Error("Vector table transfer made invalid or zero progress");
       done += count;
     }
@@ -115,8 +114,6 @@ export function createRecoveryFileVectorTable(
     if (!Array.isArray(value) || value.length !== 3)
       throw new Error("A complete three-scalar vector is required");
     const copy: [number, number, number] = [value[0]!, value[1]!, value[2]!];
-    if (!copy.every(Number.isFinite))
-      throw new Error("Generated contour table value is not finite");
     return copy;
   };
   const store: (index: number, value: readonly number[]) => void = (
@@ -132,7 +129,7 @@ export function createRecoveryFileVectorTable(
     page.dirty = true;
   };
   const existing: (index: number) => void = (index: number): void => {
-    if (!Number.isSafeInteger(index) || index < 0 || index >= rows)
+    if (index < 0 || index >= rows)
       throw new Error("Vector table address is outside its logical rows");
   };
   return {

@@ -215,7 +215,6 @@ export namespace Vector3 {
   const extremeScale: (largest: number) => number = (
     largest: number,
   ): number =>
-    Number.isFinite(largest) &&
     largest > 0 &&
     (largest < 2 ** -511 || largest > 2 ** 511)
       ? largest

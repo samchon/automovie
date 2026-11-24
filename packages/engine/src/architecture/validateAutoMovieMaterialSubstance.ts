@@ -101,7 +101,7 @@ const above: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value !== null && (!Number.isFinite(value) || value <= limit))
+  if (value !== null && (value <= limit))
     collector.push(
       "range",
       path,
@@ -124,7 +124,7 @@ const atLeast: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (value !== null && (!Number.isFinite(value) || value < limit))
+  if (value !== null && (value < limit))
     collector.push(
       "range",
       path,

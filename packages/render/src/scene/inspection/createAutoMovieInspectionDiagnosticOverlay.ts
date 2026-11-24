@@ -147,9 +147,6 @@ function select(
     if (
       finding.category !== "error" ||
       point === undefined ||
-      !Number.isFinite(point.x) ||
-      !Number.isFinite(point.y) ||
-      !Number.isFinite(point.z) ||
       (time !== undefined && time.filmSeconds !== diagnostics.time.filmSeconds)
     )
       continue;

@@ -73,7 +73,7 @@ export function blockBeat(
       blocking.beat,
     );
 
-  if (!Number.isFinite(blocking.duration) || !(blocking.duration > 0))
+  if (!(blocking.duration > 0))
     out.push(
       "range",
       "$input.duration",
@@ -96,22 +96,21 @@ export function blockBeat(
       let predecessor: number = -Infinity;
       (intent.anchors ?? []).forEach(
         (anchor: IAutoMovieTimingAnchor, j: number): void => {
-          const finite: boolean = Number.isFinite(anchor.t);
-          if (!finite || anchor.t < 0 || anchor.t > blocking.duration)
+          if (anchor.t < 0 || anchor.t > blocking.duration)
             out.push(
               "range",
               `$input.actors[${i}].anchors[${j}].t`,
               `anchor "${anchor.cue}" must land within [0, ${blocking.duration}] (the beat), but was ${anchor.t}`,
               anchor.t,
             );
-          if (finite && anchor.t < predecessor)
+          if (anchor.t < predecessor)
             out.push(
               "range",
               `$input.actors[${i}].anchors[${j}].t`,
               `anchor "${anchor.cue}" (t=${anchor.t}) runs before its predecessor (t=${predecessor}): the list order is the causal order`,
               anchor.t,
             );
-          if (finite) predecessor = anchor.t;
+          predecessor = anchor.t;
         },
       );
     },

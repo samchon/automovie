@@ -54,11 +54,6 @@ export const importedNodeClipToAutoMovieMotion: (
       );
     skeletonBones.add(bone.bone);
     sourceBones.set(bone.bone, bone);
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(bone.rest.translation[axis]))
-        throw new Error(
-          `imported motion source bone "${bone.bone}" rest translation.${axis} must be finite`,
-        );
     finiteUnitQuaternion(
       [
         bone.rest.rotation.x,
@@ -264,10 +259,7 @@ const finiteUnitQuaternion: (
   node: string,
   time: number,
 ): IAutoMovieQuaternion => {
-  if (value.some((component: number): boolean => !Number.isFinite(component)))
-    throw new Error(
-      `imported motion node "${node}" quaternion at ${time} must contain only finite components`,
-    );
+
   const quaternion: IAutoMovieQuaternion = {
     x: value[0]!,
     y: value[1]!,

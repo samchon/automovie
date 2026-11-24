@@ -65,7 +65,7 @@ export function measureAutoMovieCameraNearClip(
   props: IProps,
 ): measureAutoMovieCameraNearClip.IResult {
   const { camera, meshes, triangleBudget } = props;
-  if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
+  if (triangleBudget < 0)
     return {
       status: "unmeasured",
       reason: "Invalid near-clip triangle budget.",
@@ -79,14 +79,6 @@ export function measureAutoMovieCameraNearClip(
     camera.coordinateSystem,
     camera.reversedDepth,
   );
-  if (
-    !projection.elements.every(Number.isFinite) ||
-    frustum.planes.some(
-      (plane: Plane): boolean =>
-        ![...plane.normal.toArray(), plane.constant].every(Number.isFinite),
-    )
-  )
-    return { status: "unmeasured", reason: "Non-finite delivery projection." };
 
   // Three orders the normalized inward planes right, left, bottom, top, far, near.
   const sides: Plane[] = frustum.planes.slice(0, 4);
@@ -101,11 +93,7 @@ export function measureAutoMovieCameraNearClip(
     const { min, max } = props.bounds;
     world.min.set(min.x, min.y, min.z);
     world.max.set(max.x, max.y, max.z);
-    if (
-      [...world.min.toArray(), ...world.max.toArray()].every(Number.isFinite) &&
-      !world.isEmpty() &&
-      excluded(world)
-    )
+    if (!world.isEmpty() && excluded(world))
       return { status: "clear", triangles: 0 };
   }
   if (meshes === undefined)
@@ -173,11 +161,6 @@ export function measureAutoMovieCameraNearClip(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
-          if (!corners[k]!.toArray().every(Number.isFinite))
-            return {
-              status: "unmeasured",
-              reason: "A drawn subject vertex is not finite.",
-            };
         }
         let count: number = 3;
         for (let k: number = 0; k < 3; ++k) polygon[k]!.copy(corners[k]!);

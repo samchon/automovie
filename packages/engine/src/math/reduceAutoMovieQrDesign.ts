@@ -22,12 +22,6 @@ export function reduceAutoMovieQrDesign(
     width < 1 ||
     rows.length < width ||
     right.length !== rows.length ||
-    !right.every(Number.isFinite) ||
-    !Number.isSafeInteger(budget?.maxEntries) ||
-    !Number.isSafeInteger(budget.maxWork) ||
-    !Number.isSafeInteger(rows.length * width) ||
-    !Number.isSafeInteger(retainedEntries) ||
-    !Number.isSafeInteger(work) ||
     rows.length * width > budget.maxEntries ||
     retainedEntries > budget.maxEntries ||
     work > budget.maxWork
@@ -36,7 +30,7 @@ export function reduceAutoMovieQrDesign(
       "qr-design: finite rectangular rows and bounded work required",
     );
   for (const row of rows)
-    if (row.length !== width || !row.every(Number.isFinite))
+    if (row.length !== width)
       throw new Error("qr-design: finite rectangular rows required");
   const upper: number[][] = Array.from({ length: width }, (): number[] =>
     new Array<number>(width + 1).fill(0),
@@ -50,7 +44,7 @@ export function reduceAutoMovieQrDesign(
       if (b === 0) continue;
       const a: number = upper[column]![column]!;
       const norm: number = Math.hypot(a, b);
-      if (!(norm > 0) || !Number.isFinite(norm))
+      if (!(norm > 0))
         throw new Error("qr-design: unrepresentable orthogonal rotation");
       const cosine: number = a / norm;
       const sine: number = b / norm;
@@ -59,8 +53,6 @@ export function reduceAutoMovieQrDesign(
         const second: number = incoming[entry]!;
         const retained: number = cosine * first + sine * second;
         const remaining: number = -sine * first + cosine * second;
-        if (!Number.isFinite(retained) || !Number.isFinite(remaining))
-          throw new Error("qr-design: unrepresentable transformed cell");
         upper[column]![entry] = retained;
         incoming[entry] = remaining;
         transformedCells++;
@@ -71,8 +63,6 @@ export function reduceAutoMovieQrDesign(
       orthogonalResidualNorm,
       incoming[width]!,
     );
-    if (!Number.isFinite(orthogonalResidualNorm))
-      throw new Error("qr-design: unrepresentable orthogonal residual");
   }
   return {
     rows: upper.map((row: number[]): number[] => row.slice(0, width)),

@@ -171,8 +171,6 @@ const cellOf: (
   );
   if (
     !(
-      Number.isFinite(column) &&
-      Number.isFinite(row) &&
       column >= 0 &&
       row >= 0 &&
       column < domain.grid.columns &&

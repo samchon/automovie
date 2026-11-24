@@ -428,19 +428,11 @@ export namespace rest {
     // and each clearance key sees the same arrived trunk and leg pose.
     // The rest's changing finger shape and base sway stay in write().
     if (context.carrier === undefined && planned !== undefined && arrive > 0) {
-      let prepared:
-        | ReturnType<typeof AutoMovieMotionHumanArmCarryCourse.fixed>
-        | undefined;
+      const prepared: ReturnType<
+        typeof AutoMovieMotionHumanArmCarryCourse.fixed
+      > = AutoMovieMotionHumanArmCarryCourse.fixed(body, planned, from, sides);
       HumanPreparedPlayback.attach(plan, body, {
         mode: "posture",
-        prepare: (): void => {
-          prepared ??= AutoMovieMotionHumanArmCarryCourse.fixed(
-            body,
-            planned,
-            from,
-            sides,
-          );
-        },
         phases: [
           {
             from: 0,
@@ -451,7 +443,6 @@ export namespace rest {
               resolution,
               projection,
             ): HumanPreparedPlayback.ISample | undefined =>
-              prepared === undefined ||
               !prepareHumanPoseResolution.isNativeSource(resolution) ||
               (projection !== undefined && projection !== body.projection)
                 ? undefined

@@ -60,14 +60,14 @@ export function climbStairsRocker(
     );
     const rise: ReturnType<typeof walkLeg.prepareHeelRise> =
       walkLeg.prepareHeelRise(body, side, ball, heading, walkLeg.ROCKER);
-    let turned: ReturnType<typeof HumanFoot.preparePivot> | undefined;
+    const turned: ReturnType<typeof HumanFoot.preparePivot> =
+      HumanFoot.preparePivot(body, side, "mtp", ball, heading);
     return (
       hip: IAutoMovieVector3,
       dorsal: number,
     ): IAutoMovieClimbStairsRocker => {
       const reached: number = rise(hip, pitch, dorsal);
       if (reached === pitch) return { placement, flexion: 0 };
-      turned ??= HumanFoot.preparePivot(body, side, "mtp", ball, heading);
       return { placement: turned(reached), flexion: pitch - reached };
     };
   }

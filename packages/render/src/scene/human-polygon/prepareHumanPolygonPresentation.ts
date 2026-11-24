@@ -48,24 +48,9 @@ function unitRotation(
   w: number,
   label: string,
 ): Quaternion {
-  if (
-    ![x, y, z, w].every(Number.isFinite) ||
-    Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6
-  )
+  if (Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6)
     throw new Error(`Invalid polygon rotation: ${label}`);
   return new Quaternion(x, y, z, w).normalize();
-}
-
-/** Admit the metre translation of a rigid frame. */
-function finitePosition(
-  x: number,
-  y: number,
-  z: number,
-  label: string,
-): Vector3 {
-  if (![x, y, z].every(Number.isFinite))
-    throw new Error(`Invalid polygon position: ${label}`);
-  return new Vector3(x, y, z);
 }
 
 /**
@@ -78,7 +63,7 @@ function boneFrame(
   if (placement.position.length !== 3 || placement.rotation.length !== 4)
     throw new Error(`Invalid polygon placement: ${placement.bone}`);
   return {
-    position: finitePosition(...placement.position, placement.bone),
+    position: new Vector3(...placement.position),
     rotation: unitRotation(...placement.rotation, placement.bone),
   };
 }
@@ -93,7 +78,7 @@ function actorFrame(
   const { position, rotation }: IAutoMovieRigidTransform =
     actorFrameAt(seconds);
   return {
-    position: finitePosition(position.x, position.y, position.z, "actor frame"),
+    position: new Vector3(position.x, position.y, position.z),
     rotation: unitRotation(
       rotation.x,
       rotation.y,
@@ -127,13 +112,7 @@ export function prepareHumanPolygonPresentation(
     if (cue.subject !== subject) continue;
     if (!bones.has(cue.bone))
       throw new Error(`Unsupported polygon cue target: ${cue.bone}`);
-    if (
-      !Number.isFinite(cue.at) ||
-      cue.at < 0 ||
-      !Number.isFinite(cue.duration) ||
-      cue.duration < 0 ||
-      !Number.isFinite(cue.at + cue.duration)
-    )
+    if (cue.at < 0 || cue.duration < 0)
       throw new Error(`Invalid polygon cue timing: ${cue.bone}`);
     firstCue = Math.min(firstCue, cue.at);
 
@@ -154,7 +133,7 @@ export function prepareHumanPolygonPresentation(
     // skeletal placements use the drawing's separate squared-norm tolerance.
     const { x, y, z, w }: IAutoMoviePolygonBodyCue["rotation"] = cue.rotation;
     const norm: number = Math.hypot(x, y, z, w);
-    if (![x, y, z, w].every(Number.isFinite) || Math.abs(norm - 1) > 1e-6)
+    if (Math.abs(norm - 1) > 1e-6)
       throw new Error(`Invalid polygon rotation: ${cue.bone}`);
     const timing: IAutoMoviePolygonCueTiming = {
       at: cue.at,
@@ -165,11 +144,10 @@ export function prepareHumanPolygonPresentation(
     if (cue.kind === "bend") {
       prepared = { ...timing, kind: cue.kind, bone: cue.bone };
     } else if (cue.kind === "detach") {
-      const translation: Vector3 = finitePosition(
+      const translation: Vector3 = new Vector3(
         cue.translation.x,
         cue.translation.y,
         cue.translation.z,
-        cue.bone,
       );
       const released: Map<string, IAutoMoviePolygonFrame> = new Map();
       const selected: Set<string> = new Set(subtree);
@@ -205,8 +183,6 @@ export function prepareHumanPolygonPresentation(
   }
 
   return (seconds: number): AutoMoviePolygonPose => {
-    if (!Number.isFinite(seconds))
-      throw new Error("Invalid polygon drawing time");
     const pose: AutoMoviePolygonPose = poseAt(seconds);
     if (seconds < firstCue) return pose;
     const live: Map<string, IAutoMovieHumanBonePlacement> = new Map(

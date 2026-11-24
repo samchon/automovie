@@ -103,7 +103,7 @@ function numbers(
   if (typeof value !== "object" || value === null) return false;
   for (const key of keys) {
     const scalar: unknown = field(value, key)?.value;
-    if (typeof scalar !== "number" || !Number.isFinite(scalar)) return false;
+    if (typeof scalar !== "number") return false;
     words.push(scalar);
   }
   return true;
@@ -158,7 +158,7 @@ function range(value: unknown, words: AutoMovieClinicalWords): boolean {
 function optional(value: unknown, words: AutoMovieClinicalWords): boolean {
   if (
     value !== undefined &&
-    (typeof value !== "number" || !Number.isFinite(value))
+    (typeof value !== "number")
   )
     return false;
   words.push(value);

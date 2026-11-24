@@ -328,7 +328,7 @@ function least(
     });
   });
   const largest: number = Math.max(...step.map(Math.abs));
-  if (!Number.isFinite(largest) || largest === 0) return undefined;
+  if (largest === 0) return undefined;
   return largest > region
     ? step.map((v: number): number => (v * region) / largest)
     : step;

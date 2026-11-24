@@ -102,13 +102,7 @@ export namespace AutoMovieArchetypeEquineTie {
       !(tie.radius > 0 && tie.tether > 0 && tie.tether <= length) ||
       phases.some(
         (phase: IPhase): boolean =>
-          !(
-            Number.isFinite(phase.from) &&
-            phase.carry > 0 &&
-            Number.isInteger(phase.wraps) &&
-            phase.wraps >= 1 &&
-            phase.wrap > 0
-          ),
+          !(phase.carry > 0 && phase.wraps >= 1 && phase.wrap > 0),
       ) ||
       (tie.untie !== undefined && !(tie.untie.from >= end(tie.tie)))
     )

@@ -57,13 +57,8 @@ export namespace AutoMovieLoftViewFullSource {
     const stations: Station[] = [];
 
     /** Each capability admits the actual owned physical domain before reading. */
-    const admit = (s: number, t: number): void => {
-      if (
-        !Number.isFinite(s) ||
-        !Number.isFinite(t) ||
-        s < domain[0] ||
-        s > domain[1]
-      )
+    const admit = (s: number): void => {
+      if (s < domain[0] || s > domain[1])
         throw new AutoMovieLoftAdmissionError(
           "Full native query is outside its actual source domain.",
         );
@@ -80,19 +75,7 @@ export namespace AutoMovieLoftViewFullSource {
       if (typeof values === "string")
         throw new AutoMovieLoftAdmissionError(values);
       const frame: IAutoMovieLoftSectionFrame = axis.at(s);
-      if (
-        frame === null ||
-        typeof frame !== "object" ||
-        ![frame.origin, frame.u, frame.v].every(
-          (row: V): boolean =>
-            Array.isArray(row) &&
-            row.length === 3 &&
-            row.every(Number.isFinite),
-        )
-      )
-        throw new AutoMovieLoftAdmissionError(
-          "The original native axis has no finite frame value.",
-        );
+
       const pole: boolean = source.caps.some(
         (cap: IAutoMovieLoftViewSource.ISource["caps"][number]): boolean =>
           cap.pole === s,
@@ -117,7 +100,7 @@ export namespace AutoMovieLoftViewFullSource {
     return {
       domain,
       point: (s: number, t: number): V => {
-        admit(s, t);
+        admit(s);
         const at: Station = station(s);
         const local: [number, number] | null =
           at.local === null ? null : at.local(t);
@@ -126,14 +109,10 @@ export namespace AutoMovieLoftViewFullSource {
             ? [...at.frame.origin]
             : AutoMovieLoftFrame.place(at.frame, local[0], local[1]);
         AutoMovieLoftReliefCompose.point(p, reliefs, s, t, at.local === null);
-        if (!p.every(Number.isFinite))
-          throw new AutoMovieLoftAdmissionError(
-            "The full native Point0 is nonfinite.",
-          );
         return p;
       },
       jet: (s: number, t: number): IAutoMovieSolidSurface.IJet => {
-        admit(s, t);
+        admit(s);
         if (
           source.caps.some(
             (cap: IAutoMovieLoftViewSource.ISource["caps"][number]): boolean =>
@@ -156,14 +135,6 @@ export namespace AutoMovieLoftViewFullSource {
           tt: bare.vv,
         };
         AutoMovieLoftReliefCompose.jet(full, reliefs, s, t);
-        if (
-          !Object.values(full).every((row: V): boolean =>
-            row.every(Number.isFinite),
-          )
-        )
-          throw new AutoMovieLoftAdmissionError(
-            "The complete frame/local/lift/relief total2 is nonfinite.",
-          );
         return {
           p: full.p,
           u: full.s,

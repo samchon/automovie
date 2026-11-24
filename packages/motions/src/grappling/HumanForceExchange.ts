@@ -92,7 +92,7 @@ export namespace HumanForceExchange {
         denominator;
       if (t > 0 && u >= 0 && u <= 1) nearest = Math.min(nearest, t);
     }
-    return inside && Number.isFinite(nearest) ? nearest : 0;
+    return inside && nearest < Infinity ? nearest : 0;
   }
 
   /**

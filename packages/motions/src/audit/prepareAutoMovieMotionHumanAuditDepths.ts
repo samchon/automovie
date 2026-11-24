@@ -65,11 +65,22 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       };
     },
   );
-  let inverses: IAutoMovieQuaternion[] | undefined;
 
-  // Each hull's faces, read off the engine's hull of its points at the
-  // hull's first probe: the same record every probe read before.
-  let hulls: IAutoMoviePhysicalHullFaces.IFace[][] | undefined;
+  // Each hull's inverse turn and faces, read off the engine's hull of its
+  // points, here, so a probe reads them only.
+  const inverses: (IAutoMovieQuaternion | undefined)[] = b.shapes.map(
+    (shape: IAutoMoviePhysicalShape): IAutoMovieQuaternion | undefined =>
+      shape.kind === "hull"
+        ? Quaternion.inverse(shape.transform.rotation)
+        : undefined,
+  );
+  const hulls: (IAutoMoviePhysicalHullFaces.IFace[] | undefined)[] =
+    b.shapes.map(
+      (
+        shape: IAutoMoviePhysicalShape,
+      ): IAutoMoviePhysicalHullFaces.IFace[] | undefined =>
+        shape.kind === "hull" ? physicalHullFaces(shape.points).faces : undefined,
+    );
   return (
     probes: readonly IAutoMovieVector3[],
     a: IAutoMovieMotionHumanColliders.IPlaced,
@@ -99,7 +110,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
       const lx: number = position.x + (probe.x + rw * tx + (ry * tz - rz * ty));
       const ly: number = position.y + (probe.y + rw * ty + (rz * tx - rx * tz));
       const lz: number = position.z + (probe.z + rw * tz + (rx * ty - ry * tx));
-      let local: IAutoMovieVector3 | undefined;
+      const local: IAutoMovieVector3 = { x: lx, y: ly, z: lz };
       let deepest: number = 0;
       let roomy: number = -Infinity;
       for (let s: number = 0; s < b.shapes.length; s++) {
@@ -121,19 +132,13 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         if (room !== undefined) roomy = Math.max(roomy, ball.radius - apart);
         if (apart >= ball.radius) continue;
         if (shape.kind !== "hull") {
-          local ??= { x: lx, y: ly, z: lz };
           deepest = Math.max(
             deepest,
             -physicalShapeSegmentDistance(IDENTITY, shape, local, local),
           );
           continue;
         }
-        let unturn: IAutoMovieQuaternion | undefined = inverses?.[s];
-        if (unturn === undefined) {
-          unturn = Quaternion.inverse(shape.transform.rotation);
-          if (inverses === undefined) inverses = [];
-          inverses[s] = unturn;
-        }
+        const unturn: IAutoMovieQuaternion = inverses[s]!;
         // The probe in the hull's frame: `unturn * (local - position)`.
         const vx: number = lx - shape.transform.position.x;
         const vy: number = ly - shape.transform.position.y;
@@ -145,13 +150,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         const py: number = vy + unturn.w * uy + (unturn.z * ux - unturn.x * uz);
         const pz: number = vz + unturn.w * uz + (unturn.x * uy - unturn.y * ux);
         let inside: number = Infinity;
-        let faces: IAutoMoviePhysicalHullFaces.IFace[] | undefined = hulls?.[s];
-        if (faces === undefined) {
-          faces = physicalHullFaces(shape.points).faces;
-          if (hulls === undefined) hulls = [];
-          hulls[s] = faces;
-        }
-        for (const face of faces) {
+        for (const face of hulls[s]!) {
           inside = Math.min(
             inside,
             face.offset -

@@ -84,10 +84,7 @@ export function buildPolygonShotActor(input: {
       }: IAutoMovieRigidTransform = actorFrameAt(seconds);
       const { x: tx, y: ty, z: tz }: IAutoMovieVector3 = translation;
       const { x, y, z, w }: IAutoMovieQuaternion = orientation;
-      if (
-        ![tx, ty, tz, x, y, z, w].every(Number.isFinite) ||
-        Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6
-      )
+      if (Math.abs(x ** 2 + y ** 2 + z ** 2 + w ** 2 - 1) > 1e-6)
         throw new Error(`Invalid staging frame for polygon actor ${subject}`);
       const position: Vector3 = new Vector3(tx, ty, tz);
       const rotation: Quaternion = new Quaternion(x, y, z, w).normalize();

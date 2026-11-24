@@ -12,8 +12,9 @@ interface RecoveryImageFixtureInput {
 /**
  * Rasterize analytic opaque sections independently of recovery and atlas code.
  * Cubic half-axes and translating centres have closed-form support under the
- * supplied orthographic chart; an optional independent interval formula supplies
- * other analytic sections. Box support is a distinct ellipse-family negative.
+ * supplied orthographic chart; an optional independent interval formula
+ * supplies other analytic sections. Box support is a distinct ellipse-family
+ * negative.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Supplies real RGB8 pixel populations whose support must be extracted rather than injecting expected observed rows or fitted controls.
  * @evidence contracts/development/testing.md#independent-expectations Raster inclusion uses analytic ellipse or box support and explicit pixel centres, with no recovery fitter, spline evaluator, atlas generator or renderer import. One fixed pixel-centre vector serves every row/view; supplied intervals use two binary searches of the same inclusive comparisons on an increasing chart, then copy the fixed RGB triplet into that exact contiguous range. Other charts/default formulas retain their direct inclusion scan.
@@ -79,7 +80,7 @@ export function recoveryImageFixture(
           }
           let first: number = 0,
             end: number = width;
-          if (interval !== undefined && pitch > 0 && Number.isFinite(pitch)) {
+          if (interval !== undefined && pitch > 0) {
             let lower: number = 0,
               upper: number = width;
             while (lower < upper) {

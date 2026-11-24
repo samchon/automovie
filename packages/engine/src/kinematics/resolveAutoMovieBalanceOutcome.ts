@@ -63,12 +63,11 @@ export function resolveAutoMovieBalanceOutcome(
       length > 0 &&
       reach > 0 &&
       step > 0 &&
-      (props.first === undefined || props.first > 0) &&
-      Number.isFinite(props.margin)
+      (props.first === undefined || props.first > 0)
     )
   )
     throw new Error(
-      "The balance outcome needs a positive mass, pendulum length, reach and step time, and a finite margin",
+      "The balance outcome needs a positive mass, pendulum length, reach and step time",
     );
   if (props.support.length === 0)
     throw new Error("The balance outcome needs a support point");

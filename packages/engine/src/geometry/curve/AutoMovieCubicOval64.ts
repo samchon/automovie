@@ -26,7 +26,7 @@ export namespace AutoMovieCubicOval64 {
     ];
     if (
       ![diameterU, diameterV].every(
-        (v: number): boolean => Number.isFinite(v) && v >= 0,
+        (v: number): boolean => v >= 0,
       )
     )
       throw new Error("Nonnegative finite section diameters required");
@@ -56,8 +56,6 @@ export namespace AutoMovieCubicOval64 {
   ): number {
     if (
       !(
-        Number.isFinite(circumference) &&
-        Number.isFinite(fixedDiameter) &&
         fixedDiameter > 0 &&
         circumference > 2 * fixedDiameter
       )
@@ -88,10 +86,8 @@ export namespace AutoMovieCubicOval64 {
     intervals: number = 256,
   ): number {
     if (
-      ![breadth, depth].every(Number.isFinite) ||
       breadth <= 0 ||
       depth <= 0 ||
-      !Number.isInteger(intervals) ||
       intervals < 2 ||
       intervals % 2 !== 0
     )
@@ -124,7 +120,6 @@ export namespace AutoMovieCubicOval64 {
     breadthOverDepth: number = 1,
   ): IAutoMovieCubicOval64.IAxesBySimpsonResult {
     if (
-      ![girthMm, breadthOverDepth].every(Number.isFinite) ||
       girthMm <= 0 ||
       breadthOverDepth <= 0
     )
@@ -138,7 +133,7 @@ export namespace AutoMovieCubicOval64 {
     const depthMm: number = depth * scale;
     if (
       ![breadthMm, depthMm].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       throw new RangeError(
@@ -158,7 +153,6 @@ export namespace AutoMovieCubicOval64 {
     breadthMm: number,
   ): number {
     if (
-      ![girthMm, breadthMm].every(Number.isFinite) ||
       breadthMm <= 0 ||
       girthMm <= 2 * breadthMm
     )

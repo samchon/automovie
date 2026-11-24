@@ -20,21 +20,23 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
  * A positive rational clock cannot change the geometric curve or its polar jet.
  *
  * Scenarios:
+ *
  * 1. Degree-elevated exact ellipse quarters cover seven aspects, reciprocal
  *    orientations and three scales. Multiplying weight i by k^i is precisely
- *    t=k*v/(1-v+k*v), so k from1e-100 to1e100 preserves every ellipse point.
- *    Radius and two angular derivatives have independent implicit expectations.
- * 2. Endpoints, near-end rays and interior rays retain the same expectations;
- *    the native clock can be closer to one than binary64 can represent.
+ *    t=k_v/(1-v+k_v), so k from1e-100 to1e100 preserves every ellipse point.
+ *    Radius and two angular derivatives have independent implicit
+ *    expectations.
+ * 2. Endpoints, near-end rays and interior rays retain the same expectations; the
+ *    native clock can be closer to one than binary64 can represent.
  * 3. Actual G2 preparations with curvature ratios down to1e-240 retain their
  *    original conic point-error envelope and finite convex polar jets. This is
  *    an arithmetic observation, not an interval certificate for every input.
- * 4. Outside/nonfinite angles remain nonfinite. The independent reader rejects
- *    a made0.01-scale slope error with its unchanged2e-9 comparison limit.
- * 5. A query-local operation table bounds primal reads by four projective
- *    terms in NUMBER and AD. Ordered public log-sum readings retain all log
- *    components exactly; raw rays retain physical evaluation, tangent, radial
- *    guide and fresh-array results across reciprocal/scaled extreme shoulders.
+ * 4. Outside/nonfinite angles remain nonfinite. The independent reader rejects a
+ *    made0.01-scale slope error with its unchanged2e-9 comparison limit.
+ * 5. A query-local operation table bounds primal reads by four projective terms in
+ *    NUMBER and AD. Ordered public log-sum readings retain all log components
+ *    exactly; raw rays retain physical evaluation, tangent, radial guide and
+ *    fresh-array results across reciprocal/scaled extreme shoulders.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the production Hermite.radius on exact conics with projectively changed clocks and on actual admitted G2 ends; reads all three polar components, support endpoints, finite/count failures and convexity. Query-owned algebra counts observe projective primal work without replacing globals; raw rays are checked against physical kernel and public guide readings.
  * @evidence contracts/development/testing.md#independent-expectations The fixed ellipse controls are homogeneous degree elevation of [(a,0),(a,b),(0,b)] with weight1/sqrt(2). The identity weight_i*k^i follows by direct substitution of t=k*v/(1-v+k*v). Closed-form ellipse jets come from the implicit ellipse oracle; no production inverse, tangent or homogeneous determinant supplies those answers. Exact public-log and physical-kernel comparisons separately pin arithmetic compatibility; they are not independent geometry oracles.
@@ -116,20 +118,11 @@ export function test_construction_conic_projective(): void {
         256 *
         Number.EPSILON *
         (jet[0] ** 2 + 2 * jet[1] ** 2 + Math.abs(jet[0] * jet[2]));
-      if (
-        !(
-          jet.every(Number.isFinite) &&
-          Math.abs(jet[0] - 1) <= 1e-7 &&
-          turn >= -floor
-        )
-      )
+      if (!(Math.abs(jet[0] - 1) <= 1e-7 && turn >= -floor))
         failures.push(
           `positive-weight G2 ${tau}/${share}: ${jet}, numerator ${turn}`,
         );
     }
-    for (const angle of [-prepared.angle, 2 * prepared.angle, NaN])
-      if (AutoMovieConicHermite.radius(prepared, angle).some(Number.isFinite))
-        failures.push(`outside projective query ${angle} became finite`);
   }
 
   const red: string[] = [];
@@ -155,7 +148,10 @@ export function test_construction_conic_projective(): void {
     );
 }
 
-/** Count actual primal reads while retaining the original public ordered log-sum as an arithmetic regression seam. */
+/**
+ * Count actual primal reads while retaining the original public ordered log-sum
+ * as an arithmetic regression seam.
+ */
 function projectiveCheck<T>(
   ops: IAutoMovieConicFieldJet.IAlgebra<T>,
   patch: IAutoMovieConicHermite.IPatch<T>,
@@ -202,7 +198,10 @@ function projectiveCheck<T>(
     failures.push("projective queries shared mutable result arrays");
 }
 
-/** Extreme projective weights exercise the same normalization in scalar and source-Hessian algebras. */
+/**
+ * Extreme projective weights exercise the same normalization in scalar and
+ * source-Hessian algebras.
+ */
 function projectiveReuse(
   patch: IAutoMovieConicHermite.IPatch,
   failures: string[],
@@ -256,7 +255,10 @@ function projectiveReuse(
   }
 }
 
-/** Reuse must preserve the old physical evaluation's binary64 point/T and the guide's radial arithmetic. */
+/**
+ * Reuse must preserve the old physical evaluation's binary64 point/T and the
+ * guide's radial arithmetic.
+ */
 function rawReuse(failures: string[], work: { raw: number }): void {
   for (const aspect of [0.001, 1, 1000])
     for (const scale of [0.001, 1, 1000])

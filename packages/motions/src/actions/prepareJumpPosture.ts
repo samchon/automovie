@@ -98,7 +98,7 @@ export function prepareJumpPosture(
   const flying: IAutoMovieMotionHumanActionPlan["posture"] = (
     ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
   ): IAutoMovieMotionHumanPosture =>
-    HumanPosturePreparation.articulated(placedAt(...args)) && placedAt(...args).posture;
+    HumanPosturePreparation.articulated(placedAt(...args));
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
     _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -133,7 +133,6 @@ export function prepareJumpPosture(
   const playback: HumanPreparedPlayback.ISource = {
     mode: "fitted",
     prepare: (): void => {
-      flight.prepare();
       turning.prepareLanding();
     },
     phases: [
@@ -141,16 +140,11 @@ export function prepareJumpPosture(
       {
         from: fixed.from,
         to: fixed.to,
+        // The display reads the same articulation the plan's posture gives,
+        // so both evaluate one joints-only posture by forward kinematics.
         sample: (
           ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-        ): HumanPreparedPlayback.ISample => {
-          const placed: HumanPosturePreparation.IPlaced = placedAt(...args);
-          return {
-            posture: placed.posture,
-            takeFit: (): ReturnType<HumanPosturePreparation.IPlaced["fit"]> =>
-              placed.fit(),
-          };
-        },
+        ): HumanPreparedPlayback.ISample => ({ posture: flying(...args) }),
       },
       { from: fixed.to, to: phase.settled, sample: landed },
       { from: phase.settled, to: fixed.duration, sample: landed },

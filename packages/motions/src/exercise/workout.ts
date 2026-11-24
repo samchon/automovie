@@ -125,8 +125,7 @@ export namespace workout {
     const p: IAutoMovieMotionHumanWorkout.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const kind: IAutoMovieMotionHumanWorkoutKind = KINDS[p.kind];
-    const reps: number = p.count ?? kind.count;
-    HumanBound.whole("count", reps);
+    const reps: number = HumanBound.whole("count", p.count ?? kind.count);
     if (p.hold !== undefined) HumanBound.least("hold", p.hold, 0, "s");
     const stay: boolean = p.stay === true;
     const floor: workoutFloorStance.IEntry = workoutFloorStance(context, kind);
@@ -325,6 +324,7 @@ export namespace workout {
             (seconds: number): number =>
               minimumJerk.share(clock.progress("enter", work, seconds)),
             workoutPosture,
+            entered,
           );
     const channels: AutoMovieMotionHumanChannel[] = [
       "root",

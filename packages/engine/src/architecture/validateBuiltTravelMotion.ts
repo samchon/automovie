@@ -39,25 +39,22 @@ export const validateBuiltTravelMotion: (
   label: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  collector.finiteVector(`${path}.axis`, motion.axis, `${label} travel axis`);
   const length: number = Vector3.length(motion.axis);
-  if (!Number.isFinite(length) || length <= AXIS_EPSILON)
+  if (length <= AXIS_EPSILON)
     collector.push(
       "range",
       `${path}.axis`,
       `${label} travel axis must have finite non-zero computed length`,
       motion.axis,
     );
-  if (motion.kind === "revolute")
-    collector.finiteVector(`${path}.pivot`, motion.pivot, `${label} pivot`);
-  if (!Number.isFinite(motion.min) || motion.min > 0)
+  if (motion.min > 0)
     collector.push(
       "range",
       `${path}.min`,
       `${label} travel is measured from its rest pose, so the lowest value must be a finite number <= 0, but was ${motion.min}`,
       motion.min,
     );
-  if (!Number.isFinite(motion.max) || motion.max < 0)
+  if (motion.max < 0)
     collector.push(
       "range",
       `${path}.max`,

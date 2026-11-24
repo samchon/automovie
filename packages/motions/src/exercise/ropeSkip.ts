@@ -223,6 +223,6 @@ export const ropeSkip = {
 function ordered(times: readonly number[]): boolean {
   return times.every(
     (time: number, i: number): boolean =>
-      Number.isFinite(time) && (i === 0 || times[i - 1]! < time),
+      i === 0 || times[i - 1]! < time,
   );
 }

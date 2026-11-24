@@ -54,7 +54,7 @@ export namespace AutoMovieArchetypeSite {
       ["u", u],
       ["v", v],
     ] as const)
-      if (!(Number.isFinite(value) && value >= 0 && value <= 1))
+      if (!(value >= 0 && value <= 1))
         throw new AutoMovieArchetypeRefusal({
           kind: "site",
           archetype,

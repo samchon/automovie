@@ -178,7 +178,8 @@ export namespace knee {
     let built: KneeGeometry.IGeometry | undefined;
     let settled: boolean = false;
     let shown: object = {};
-    let partner: IAutoMovieMotionHumanPerformerReader | undefined;
+    const partner: IAutoMovieMotionHumanPerformerReader | undefined =
+      p.at.kind === "person" ? context.performer(p.at.subject) : undefined;
     const geometry = (): KneeGeometry.IGeometry => {
       if (built === undefined || !settled) {
         built = KneeGeometry.solve(context, side, feet, carriage, built);
@@ -270,8 +271,7 @@ export namespace knee {
         ? guardAt(posture, resolution, projection)
         : {};
       if (arms && p.at.kind === "person") {
-        const other: IAutoMovieMotionHumanPerformerReader = (partner ??=
-          context.performer(p.at.subject));
+        const other: IAutoMovieMotionHumanPerformerReader = partner!;
         const nape: IAutoMovieVector3 = other
           // The clinching hands hold the nape, so they follow it by touch,
           // a held limb's feedback delay behind (`HumanPerception.HELD`).
@@ -439,10 +439,11 @@ export namespace knee {
       contacts,
       contact: impact,
       record,
-      settle: (): void => {
+      prepare: (): void => {
         settled = false;
         shown = {};
         ride = undefined;
+        geometry();
       },
       ...(p.at.kind === "person"
         ? {

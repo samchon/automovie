@@ -1,6 +1,5 @@
 import {
   IAutoMovieModel,
-  IAutoMovieVector3,
   type IAutoMovieWorldBlock,
 } from "@automovie/interface";
 
@@ -18,11 +17,10 @@ export const worldBlock: (
   input: IAutoMovieWorldBlock.IInput,
 ): IAutoMovieWorldBlock => {
   for (const [name, value] of Object.entries(input.size))
-    if (Number.isFinite(value) === false || value <= 0)
+    if (value <= 0)
       throw new Error(
         `World block "${input.id}" size.${name} must be positive.`,
       );
-  assertVector(input.base, `World block "${input.id}" base`);
   if (/^#[0-9a-f]{6}$/i.test(input.color) === false)
     throw new Error(`World block "${input.id}" color must be #RRGGBB.`);
   const model: IAutoMovieModel = {
@@ -96,11 +94,3 @@ export const worldBlock: (
   };
 };
 
-/** Refuse a nonfinite base component before grounded-box arithmetic. */
-const assertVector: (value: IAutoMovieVector3, field: string) => void = (
-  value: IAutoMovieVector3,
-  field: string,
-): void => {
-  if ([value.x, value.y, value.z].every(Number.isFinite) === false)
-    throw new Error(`${field} must be finite.`);
-};

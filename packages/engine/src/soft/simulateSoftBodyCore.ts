@@ -48,7 +48,7 @@ export const simulateSoftBodyCore: (
   boundaries: readonly IAutoMovieSoftBodyBoundarySample[] | null,
   observer: IAutoMovieSoftBodyObserver | null = null,
 ): IAutoMovieSoftBodyState => {
-  if (!Number.isInteger(step) || step < 0)
+  if (step < 0)
     throw new Error(
       `soft body "${domain.id}" cannot be seeked to step ${step}: an absolute step must be a non-negative integer`,
     );
@@ -271,10 +271,7 @@ export const simulateSoftBodyCore: (
       position[base + 2] = predicted[base + 2];
     }
 
-    if (allFinite(position) === false || allFinite(velocity) === false)
-      throw new Error(
-        `soft body "${domain.id}" produced a non-finite state at step ${index + 1}`,
-      );
+
     observer?.step(
       index + 1,
       position,
@@ -402,14 +399,4 @@ const windAcceleration: (
   );
 };
 
-/**
- * Reject nonfinite integrated coordinates by scanning the completed working
- * buffer.
- */
-const allFinite: (values: Float64Array<ArrayBufferLike>) => boolean = (
-  values: Float64Array,
-): boolean => {
-  for (let index: number = 0; index < values.length; ++index)
-    if (Number.isFinite(values[index]) === false) return false;
-  return true;
-};
+

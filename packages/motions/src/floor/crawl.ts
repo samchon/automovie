@@ -171,8 +171,7 @@ export namespace crawl {
     const bear: boolean = context.params.kind === "bear";
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const cycles: number = context.params.count ?? 3;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       context.params.manner,
@@ -421,6 +420,7 @@ export namespace crawl {
       body,
       entered,
       clock,
+      standing,
     });
     const kneesDown: number =
       down?.knees ?? (context.entry.base.kind === "kneeling" ? 0 : DOWN);

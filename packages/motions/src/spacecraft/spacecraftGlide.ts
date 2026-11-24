@@ -55,8 +55,7 @@ function plan(
     !(
       p.ramp > 0 &&
       catchAt > p.ramp &&
-      duration > catchAt &&
-      Number.isFinite(duration)
+      duration > catchAt
     )
   )
     throw new HumanRefusal({
@@ -111,8 +110,7 @@ function plan(
     z: 0,
   });
   if (
-    !Number.isFinite(distance) ||
-    distance <= ALIGNMENT ||
+    !(distance > ALIGNMENT) ||
     Math.abs(direction.y) > ALIGNMENT ||
     Math.abs(Vector3.dot(direction, along)) < 1 - ALIGNMENT ||
     Vector3.dot(inward, arrivalInward) < 1 - ALIGNMENT ||
@@ -144,14 +142,6 @@ function plan(
       fix: "place the performer upright beside the departure rail before the start of this clip",
     });
   const speed: number = distance / catchAt;
-  if (!Number.isFinite(speed))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "clock",
-      value: { ramp: p.ramp, coast: p.coast },
-      reason: "the rail spacing and clock must yield a finite glide speed",
-      fix: "increase ramp or coast in seconds",
-    });
   const rampDistance: number = 0.5 * speed * p.ramp;
   const surface: IAutoMovieMotionHumanHand.IFrame = HumanHand.offset(
     context.body,
@@ -210,7 +200,6 @@ function plan(
   const clearance: number = p.handClearance;
   if (
     !(
-      Number.isFinite(clearance) &&
       clearance > 0 &&
       clearance <= clearanceLimit
     )

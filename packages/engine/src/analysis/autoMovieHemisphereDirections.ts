@@ -33,12 +33,12 @@ export const autoMovieHemisphereDirections: (
   props: IAutoMovieHemisphereDirections.IProps,
 ): IAutoMovieVector3[] => {
   const count: number = props.count;
-  if (!Number.isSafeInteger(count) || count < 1)
+  if (count < 1)
     throw new Error(
       `hemisphere sample count must be a positive safe integer, but was ${count}`,
     );
   const length: number = Vector3.length(props.normal);
-  if (!Number.isFinite(length) || length <= AXIS_EPSILON)
+  if (length <= AXIS_EPSILON)
     throw new Error("hemisphere sampling needs a finite, non-zero normal");
   const normal: IAutoMovieVector3 = Vector3.normalize(props.normal);
   // Duff et al.'s branchless orthonormal basis: `sign + normal.z` is never zero

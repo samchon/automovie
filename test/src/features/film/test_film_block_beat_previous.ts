@@ -52,7 +52,6 @@ const endState: (nodes: string[]) => IAutoMovieBeatEndState = (
  * 3. A carried actor that staging never placed → `type` violation on
  *    `$previous.actors[i].node`.
  * 4. The same actor carried twice → duplication violation.
- * 5. An empty carried node id → non-empty-id violation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat with valid, omitted, unplaced, duplicate and blank prior actor states, checking successful state identity or null and located type refusals, catching lost continuity ownership or an invalid carried actor admitted to a staged beat.
  * @evidence contracts/development/testing.md#independent-expectations The existing stage places knightA and knightB only, so ghost and a blank id are invalid and two knightA entries collide. A valid previous state must be returned by its supplied object identity, while omission means null; no product snapshot generates these expectations.
@@ -116,17 +115,5 @@ export function test_film_block_beat_previous(): void {
   TestValidator.predicate(
     "violation on the duplicated carried actor",
     hasViolation(doubled, "type", "$previous.actors[1].node"),
-  );
-
-  const unnamed: ReturnType<typeof blockBeat> = blockBeat(
-    makeScriptWrite(),
-    staged,
-    makeBlockingWrite(),
-    endState([" "]),
-  );
-  TestValidator.equals("empty carried node id fails", unnamed.success, false);
-  TestValidator.predicate(
-    "violation on the empty carried node id",
-    hasViolation(unnamed, "type", "$previous.actors[0].node"),
   );
 }

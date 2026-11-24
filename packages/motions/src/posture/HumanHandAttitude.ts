@@ -218,34 +218,38 @@ function wrist(
   forearm: IAutoMovieQuaternion,
   rotation: IAutoMovieQuaternion,
 ) => [number, number, number] {
-  let found: IAutoMovieBone | undefined;
-  let inverse: IAutoMovieQuaternion | undefined;
-  let axes:
-    | Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-    | undefined;
-  let domain: IAutoMovieJointRotationDomain | undefined;
-  let clamp: ((joint: IAutoMovieJointPose) => IAutoMovieJointPose) | undefined;
+  // The hand's rest, axes, rotation domain and range clamp, prepared once.
+  const found: IAutoMovieBone | undefined = readHumanBone(body, hand);
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+    found?.rest.rotation ?? Quaternion.identity(),
+  );
+  const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
+    skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
+  const domain: IAutoMovieJointRotationDomain = {
+    bone: hand,
+    constraint: getConstraint(hand, found?.constraint ?? null),
+  };
+  const clamp: (joint: IAutoMovieJointPose) => IAutoMovieJointPose =
+    clampJointToSkeleton.resolved(
+      hand,
+      found,
+      (): IAutoMovieJointRotationFrame | undefined =>
+        domain.constraint === null ||
+        domain.constraint.swingTwist === undefined ||
+        domain.constraint.swingTwist === null
+          ? undefined
+          : swingTwistRange.fromAxes(hand, axes[hand]),
+    );
   return (
     forearm: IAutoMovieQuaternion,
     rotation: IAutoMovieQuaternion,
   ): [number, number, number] => {
-    if (inverse === undefined) {
-      found = readHumanBone(body, hand);
-      inverse = Quaternion.inverse(
-        found?.rest.rotation ?? Quaternion.identity(),
-      );
-    }
     const local: IAutoMovieQuaternion = Quaternion.normalize(
       Quaternion.multiply(
         inverse,
         Quaternion.multiply(Quaternion.inverse(forearm), rotation),
       ),
     );
-    axes ??= skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
-    domain ??= {
-      bone: hand,
-      constraint: getConstraint(hand, found?.constraint ?? null),
-    };
     const angles: ReturnType<typeof decomposeJointRotation> =
       decomposeJointRotation(
         local,
@@ -253,16 +257,6 @@ function wrist(
         HUMANOID_REST_FRAME[hand],
         domain,
       );
-    clamp ??= clampJointToSkeleton.resolved(
-      hand,
-      found,
-      (): IAutoMovieJointRotationFrame | undefined =>
-        domain!.constraint === null ||
-        domain!.constraint.swingTwist === undefined ||
-        domain!.constraint.swingTwist === null
-          ? undefined
-          : swingTwistRange.fromAxes(hand, axes![hand]),
-    );
     const joint: IAutoMovieJointPose = clamp({
       bone: hand,
       flexion: angles.flexion,

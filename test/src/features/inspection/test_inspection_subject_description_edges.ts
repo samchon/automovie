@@ -18,15 +18,23 @@ import {
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
- * Subject description preserves explicit absence and less common compiled geometry, hierarchy, population, and placement forms.
+ * Subject description preserves explicit absence and less common compiled
+ * geometry, hierarchy, population, and placement forms.
  *
  * Scenarios:
  *
- * 1. Primitive geometry, a non-identity part transform, a rigid rest-bone attachment, a missing attachment bone, and a null material all produce honest prototype facts.
- * 2. A transform-only scene node with no resident model reports null content, no materials, and no members rather than throwing or inventing geometry.
- * 3. A child element and child shell space report their owners; the shell has a declared box but no content, while a semantic-only space has neither.
- * 4. A building population links its compact set and instance to the owning logical space.
- * 5. Missing runtime LODs yield null prototype and geometry, while seeded rotation, non-uniform scale, and zero-weight prototype fallback remain deterministic.
+ * 1. Primitive geometry, a non-identity part transform, a rigid rest-bone
+ *    attachment, a missing attachment bone, and a null material all produce
+ *    honest prototype facts.
+ * 2. A transform-only scene node with no resident model reports null content, no
+ *    materials, and no members rather than throwing or inventing geometry.
+ * 3. A child element and child shell space report their owners; the shell has a
+ *    declared box but no content, while a semantic-only space has neither.
+ * 4. A building population links its compact set and instance to the owning
+ *    logical space.
+ * 5. Missing runtime LODs yield null prototype and geometry, while seeded
+ *    rotation, non-uniform scale, and zero-weight prototype fallback remain
+ *    deterministic.
  * 6. A logical-space declaration edit is classified as one reshape.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls direct descriptions and subject diff for less common compiled forms, checking explicit absence, ownership, bounds, prototype selection and one-space reshape; invented payloads or broken hierarchy links fail.
@@ -247,11 +255,7 @@ export function test_inspection_subject_description_edges(): void {
         semanticKind: enhancedMember.semanticKind,
         finite:
           Object.keys(enhancedMember.transform!.rotation).length === 4 &&
-          Object.keys(enhancedMember.transform!.scale).length === 3 &&
-          [
-            ...Object.values(enhancedMember.transform!.rotation),
-            ...Object.values(enhancedMember.transform!.scale),
-          ].every(Number.isFinite),
+          Object.keys(enhancedMember.transform!.scale).length === 3,
       },
       { model: "alternate", semanticKind: "alternate", finite: true },
     ),

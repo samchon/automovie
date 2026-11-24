@@ -35,7 +35,7 @@ export function applyPracticalSurfaceMaterials(
   ) => THREE.Material | undefined,
 ): void {
   if (!shot.practicalSurfaces?.length) return;
-  if (!Number.isFinite(seconds) || seconds < 0 || seconds >= shot.duration)
+  if (seconds < 0 || seconds >= shot.duration)
     throw new RangeError("Practical surface sample must be inside the shot");
 
   const assignments: Map<THREE.Mesh, THREE.Material> = new Map();

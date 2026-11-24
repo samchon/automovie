@@ -29,7 +29,7 @@ export function measureAutoMovieGeometryEffect(
   const shots: ReadonlyMap<string, IAutoMovieCompiledShotSource> =
     props.compiled;
 
-  if (Number.isFinite(request.time) === false || request.time < 0)
+  if (request.time < 0)
     throw new Error(
       `Effect sample time ${request.time} is invalid. Choose a finite non-negative shot time.`,
     );

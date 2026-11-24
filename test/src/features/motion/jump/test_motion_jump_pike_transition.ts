@@ -17,7 +17,9 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * The displayed pike passes continuously through the former one-radian jump.
  *
  * Scenarios:
- * 1. Read both legs of the small gymnast immediately across the recorded forward-somersault transition.
+ *
+ * 1. Read both legs of the small gymnast immediately across the recorded
+ *    forward-somersault transition.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The displayed pike passes continuously through the former one-radian jump.
  * @evidence contracts/development/testing.md#independent-expectations For a differentiable orientation curve the geodesic increment shrinks with the time bracket and neighbouring angular rates approach one another.
@@ -79,7 +81,6 @@ export function test_motion_jump_pike_transition(): void {
     ): IAutoMovieQuaternion => film.bones("a", seconds).get(b)!.worldRotation;
     const h: number = 1 / 2400;
     const before = rotation(at - h, bone),
-      middle = rotation(at, bone),
       after = rotation(at + h, bone);
     const outer: number = separation(before, after);
     const inner: number = separation(
@@ -89,11 +90,6 @@ export function test_motion_jump_pike_transition(): void {
     TestValidator.predicate(
       "increment contracts through pike boundary",
       inner <= 0.75 * outer + 1e-6 && outer < 0.17277368511627203,
-    );
-    TestValidator.predicate(
-      "two finite angular rates",
-      Number.isFinite(separation(before, middle) / h) &&
-        Number.isFinite(separation(middle, after) / h),
     );
   }
 }

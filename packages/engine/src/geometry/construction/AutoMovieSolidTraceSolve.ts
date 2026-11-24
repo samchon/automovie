@@ -483,7 +483,7 @@ export namespace AutoMovieSolidTraceSolve {
       ]);
       const t: number =
         Math.abs(target - current.t - step) === 0 ? target : current.t + step;
-      if (!Number.isFinite(t) || t === current.t) return null;
+      if (t === current.t) return null;
       const next: IAutoMovieSolidIntersection.IPoint | null = solve(
         part,
         host,

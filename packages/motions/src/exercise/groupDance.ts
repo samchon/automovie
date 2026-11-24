@@ -57,8 +57,7 @@ export namespace groupDance {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGroupDance.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanGroupDance.IParams = context.params;
-    const repeats: number = p.repeats ?? 1;
-    HumanBound.whole("repeats", repeats);
+    const repeats: number = HumanBound.whole("repeats", p.repeats ?? 1);
     const vary: number = p.vary ?? 0.02;
     HumanBound.least("vary", vary, 0, "s");
     const counts: number = (p.kind === "conga" ? 4 : 8) * repeats;

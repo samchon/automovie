@@ -55,7 +55,7 @@ export const matchAutoMovieAssemblyJunction: (
 ) => IAutoMovieAssemblyJunction = (
   props: IAutoMovieMatchAssemblyJunction.IProps,
 ): IAutoMovieAssemblyJunction => {
-  if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
+  if (props.tolerance < 0)
     throw new Error("junction tolerance must be a finite number >= 0");
   const left: Map<string, IRoleSpan> = rolesOf(props.left);
   const right: Map<string, IRoleSpan> = rolesOf(props.right);

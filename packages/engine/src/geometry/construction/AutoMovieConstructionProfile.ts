@@ -147,7 +147,6 @@ export namespace AutoMovieConstructionProfile {
         !guide.id ||
         guideIds.has(guide.id) ||
         record === undefined ||
-        !Number.isFinite(guide.clock) ||
         guide.clock < record.piece.clock[0] ||
         guide.clock > record.piece.clock[1]
       )
@@ -215,8 +214,6 @@ export namespace AutoMovieConstructionProfile {
         const current: Piece | undefined = records[face];
         return (
           current !== undefined &&
-          Number.isFinite(u) &&
-          Number.isFinite(v) &&
           u >= current.surface.domain![0] &&
           u <= current.surface.domain![1] &&
           (current.surface.period !== undefined || (v >= 0 && v <= 1))
@@ -231,8 +228,6 @@ export namespace AutoMovieConstructionProfile {
         if (
           current === undefined ||
           current.surface.period !== undefined ||
-          !Number.isFinite(u) ||
-          !Number.isFinite(v) ||
           u < current.surface.domain![0] ||
           u > current.surface.domain![1] ||
           (v >= 0 && v <= 1)
@@ -256,7 +251,6 @@ export namespace AutoMovieConstructionProfile {
       phase: AutoMovieConstructionProfilePhase.create(source, definition),
       section: (station: number): readonly string[] => {
         if (
-          !Number.isFinite(station) ||
           station < 1000 * definition.domain[0] ||
           station > 1000 * definition.domain[1]
         )
@@ -325,13 +319,7 @@ export namespace AutoMovieConstructionProfile {
  * clocks.
  */
 function interval(value: readonly [number, number]): boolean {
-  return (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    value.every(Number.isFinite) &&
-    value[1] > value[0] &&
-    Number.isFinite(value[1] - value[0])
-  );
+  return Array.isArray(value) && value.length === 2 && value[1] > value[0];
 }
 
 /** Check this actual boundary query without claiming whole-domain equivalence. */

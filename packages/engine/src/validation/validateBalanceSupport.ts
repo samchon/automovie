@@ -122,10 +122,8 @@ export const validateBalanceSupport: (
     let missingSupport: boolean = false;
     let unreachableSupport: boolean = false;
     const temporalInvalid: boolean =
-      !Number.isFinite(support.start) ||
-      !Number.isFinite(support.end) ||
       support.end <= support.start;
-    const marginInvalid: boolean = !Number.isFinite(margin) || margin < 0;
+    const marginInvalid: boolean = margin < 0;
 
     if (centerMissing)
       collector.push(
@@ -300,7 +298,7 @@ const weightedCenterOfMass: (
  * Only a boolean returns and no rate history is retained.
  */
 const isPositiveFinite: (value: number) => boolean = (value: number): boolean =>
-  Number.isFinite(value) && value > 0;
+  value > 0;
 
 /**
  * Round a diagnostic quantity to three decimals with

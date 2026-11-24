@@ -117,10 +117,8 @@ export namespace AutoMovieCollisionSource {
    * @returns The generator record, or undefined for an anonymous batch.
    */
   export function instances(mesh: THREE.InstancedMesh): IInstances | undefined {
-    const record: unknown = mesh.userData[KEY];
-    return isRecord(record, "instances")
-      ? (record.source as IInstances)
-      : undefined;
+    const record: IRecord | undefined = mesh.userData[KEY];
+    return record?.kind === "instances" ? record.source : undefined;
   }
 
   /**
@@ -130,8 +128,8 @@ export namespace AutoMovieCollisionSource {
    * @returns The cord record, or undefined for any other surface.
    */
   export function cord(object: THREE.Object3D): ICord | undefined {
-    const record: unknown = object.userData[KEY];
-    return isRecord(record, "cord") ? (record.source as ICord) : undefined;
+    const record: IRecord | undefined = object.userData[KEY];
+    return record?.kind === "cord" ? record.source : undefined;
   }
 }
 
@@ -144,16 +142,7 @@ const ASSEMBLIES: WeakMap<
   Map<THREE.Object3D, THREE.Matrix4>
 > = new WeakMap();
 
-/** Accept only this module's own tagged record. */
-function isRecord(
-  value: unknown,
-  kind: "instances" | "cord",
-): value is { kind: string; source: unknown } {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "kind" in value &&
-    value.kind === kind &&
-    "source" in value
-  );
-}
+/** This module's own tagged record on a drawn object. */
+type IRecord =
+  | { kind: "instances"; source: AutoMovieCollisionSource.IInstances }
+  | { kind: "cord"; source: AutoMovieCollisionSource.ICord };

@@ -65,15 +65,8 @@ export namespace AutoMovieLoftSectionLegacy {
               ),
         ),
     );
-    if (
-      !rows.every(
-        (row: number[]): boolean =>
-          row.length === 2 * chain.order && row.every(Number.isFinite),
-      )
-    )
-      throw new Error(
-        "The requested legacy basis rows are incomplete or nonfinite.",
-      );
+    if (!rows.every((row: number[]): boolean => row.length === 2 * chain.order))
+      throw new Error("The requested legacy basis rows are incomplete.");
     return order === 0
       ? { kind: "value", order: chain.order, rows: [rows[0]!] }
       : {
@@ -122,14 +115,10 @@ export namespace AutoMovieLoftSectionLegacy {
   ): IAutoMovieLoftSectionLegacy.IPrepared {
     if (
       rows.length !== 3 ||
-      !rows.every(
-        (row: readonly number[]): boolean =>
-          row.length === 2 * order && row.every(Number.isFinite),
-      ) ||
-      !Number.isFinite(displacement)
+      !rows.every((row: readonly number[]): boolean => row.length === 2 * order)
     )
       throw new Error(
-        "A basis extension needs complete finite endpoint coefficient2 and displacement.",
+        "A basis extension needs complete endpoint coefficient2.",
       );
     const value: number[] = rows[0].map(
       (v: number, q: number): number =>
@@ -137,16 +126,10 @@ export namespace AutoMovieLoftSectionLegacy {
         displacement * rows[1][q]! +
         0.5 * displacement * displacement * rows[2][q]!,
     );
-    if (!value.every(Number.isFinite))
-      throw new Error("The declared basis extension has no finite value row.");
     if (derivative === 0) return { kind: "value", order, rows: [value] };
     const first: number[] = rows[1].map(
       (v: number, q: number): number => v + displacement * rows[2][q]!,
     );
-    if (!first.every(Number.isFinite))
-      throw new Error(
-        "The declared basis extension has no finite physical first derivative row.",
-      );
     return { kind: "jet", order, rows: [value, first, [...rows[2]]] };
   }
 }
@@ -156,14 +139,5 @@ export namespace AutoMovieLoftSectionLegacy {
  * partials.
  */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
-  if (
-    !Object.values(out).every(
-      (row: unknown): boolean =>
-        Array.isArray(row) && row.every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "The actual basis field has no finite requested local reading.",
-    );
   return out;
 }

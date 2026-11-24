@@ -38,11 +38,11 @@ export const motionToClip: (
   const { motion, skeleton }: typeof props = props;
   const prefix: string = props.nodePrefix ?? "";
   const sampleRate: number = props.sampleRate ?? DEFAULT_SAMPLE_RATE;
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0)
+  if (sampleRate <= 0)
     throw new Error(
       `motionToClip sampleRate must be a finite number > 0, but was ${sampleRate}`,
     );
-  if (!Number.isFinite(motion.duration) || motion.duration <= 0)
+  if (motion.duration <= 0)
     throw new Error(
       `motionToClip motion "${motion.id}" duration must be a finite number > 0, but was ${motion.duration}`,
     );

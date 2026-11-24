@@ -63,7 +63,7 @@ export function solveAirborneTakeoff(
   props: IAutoMovieSolveAirborneTakeoff.IProps,
 ): IAutoMovieSolveAirborneTakeoff.ISolution {
   const flight: number = props.t1 - props.t0;
-  if (!(Number.isFinite(flight) && flight > 0))
+  if (!(flight > 0))
     throw new Error(
       `The take-off needs a positive finite flight, got ${flight}`,
     );
@@ -74,12 +74,11 @@ export function solveAirborneTakeoff(
   // The continuation halves a missed stage down to the share the tolerance
   // resolves, tolerance / |request|; a tolerance or request that is not a
   // positive finite number leaves no such share to stop at.
-  if (!(Number.isFinite(tolerance) && tolerance > 0))
+  if (!(tolerance > 0))
     throw new Error(
       `The take-off needs a positive finite tolerance, got ${tolerance}`,
     );
-  if (!(Number.isFinite(props.somersault) && Number.isFinite(props.twist)))
-    throw new Error("The take-off needs a finite somersault and twist request");
+
   const axes: IAutoMovieQuaternion = props.frame ?? Quaternion.identity();
   const frame: IAutoMovieQuaternion = Quaternion.normalize(
     Quaternion.multiply(props.q0, axes),

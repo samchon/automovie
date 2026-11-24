@@ -37,13 +37,6 @@ export function validateSceneEnvironment(
   if (value.background !== null)
     validateColor(value.background, "$input.background", out);
   finiteRange(value.intensity, 0, false, "$input.intensity", "intensity", out);
-  if (!Number.isFinite(value.rotationDeg))
-    out.push(
-      "range",
-      "$input.rotationDeg",
-      "environment rotation must be finite degrees",
-      value.rotationDeg,
-    );
   finiteRange(value.exposure, 0, true, "$input.exposure", "exposure", out);
   if (props.lights !== undefined) {
     const profile: IAutoMovieResolveShadowProfile.IResult =
@@ -67,7 +60,6 @@ function finiteRange(
   max: number = Infinity,
 ): void {
   if (
-    !Number.isFinite(value) ||
     (exclusive ? value <= min : value < min) ||
     value > max
   )

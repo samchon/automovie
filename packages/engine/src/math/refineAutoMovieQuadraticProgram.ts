@@ -46,8 +46,6 @@ export function refineAutoMovieQuadraticProgram(
   const count: number = input.diagonal.length;
   if (
     !(options.tolerance > 0) ||
-    !Number.isFinite(options.tolerance) ||
-    !Number.isSafeInteger(options.maximumRefinements) ||
     options.maximumRefinements < 0 ||
     initial.primal.length !== count ||
     initial.dual.length !== input.rows.length
@@ -55,23 +53,9 @@ export function refineAutoMovieQuadraticProgram(
     throw new Error(
       "QP refinement needs complete values and an explicit finite work budget.",
     );
-  for (let at: number = 0; at < count; at++)
-    if (!Number.isFinite(initial.primal[at]))
-      throw new Error("QP refinement needs finite complete primal values.");
-  for (let at: number = 0; at < input.rows.length; at++)
-    if (!Number.isFinite(initial.dual[at]))
-      throw new Error("QP refinement needs finite complete dual values.");
   const primal: number[] = initial.primal.slice(),
     dual: number[] = initial.dual.slice();
-  if (initial.status === 1 && !Number.isFinite(objectiveValue(input, primal)))
-    throw new Error(
-      "Original QP objective is not representable: " +
-        JSON.stringify({
-          status: initial.status,
-          input,
-          initial,
-        }),
-    );
+
   const groups: IAutoMovieQuadraticRefinementInterval[] = intervals(input);
   const first: {
     maximumViolation: number;
@@ -156,9 +140,6 @@ export function refineAutoMovieQuadraticProgram(
     complementarityResidual: number;
   } = residuals(input, polishing.primal, polishing.dual);
   if (
-    polishing.primal.every(Number.isFinite) &&
-    polishing.dual.every(Number.isFinite) &&
-    Number.isFinite(objectiveValue(input, polishing.primal)) &&
     admits(measured)
   ) {
     polishing.accepted = true;

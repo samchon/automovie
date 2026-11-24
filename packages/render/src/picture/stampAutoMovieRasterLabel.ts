@@ -20,8 +20,7 @@ export function stampAutoMovieRasterLabel(
   scale: number,
   at: IAutoMovieRasterPoint = { x: 0, y: 0 },
 ): void {
-  if (!Number.isSafeInteger(scale) || scale <= 0)
-    throw new Error("Label scale must be a positive integer");
+  if (scale <= 0) throw new Error("Label scale must be a positive integer");
   const pad: number = scale * 2;
   const boxWidth: number = Math.min(
     raster.width,

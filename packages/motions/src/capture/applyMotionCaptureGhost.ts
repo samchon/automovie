@@ -32,10 +32,12 @@ export function applyMotionCaptureGhost(
     opacity,
     depthWrite: false,
   });
+  // three's own type flag (`Mesh.isMesh`) tells a mesh among the objects.
   root.traverse((object: THREE.Object3D): void => {
-    if (object instanceof THREE.Mesh) {
-      object.material = material;
-      object.renderOrder = 5;
+    const mesh: THREE.Mesh = object as THREE.Mesh;
+    if (mesh.isMesh === true) {
+      mesh.material = material;
+      mesh.renderOrder = 5;
     }
   });
   return (): void => material.dispose();

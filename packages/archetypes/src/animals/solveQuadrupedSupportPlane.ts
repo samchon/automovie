@@ -19,7 +19,7 @@ export function solveQuadrupedSupportPlane(
   const side: number = ankle.x - root.x;
   const drop: number = root.y - ankle.y;
   const span: number = Math.hypot(side, drop);
-  if (!(Number.isFinite(span) && span > 0))
+  if (!(span > 0))
     throw new RangeError(
       "The lateral ankle does not define a finite support plane",
     );

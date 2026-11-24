@@ -22,13 +22,7 @@ export function chooseQuadrupedBodyRoot(
   preferred: number,
   coordinateScale: number,
 ): number {
-  if (
-    ![range.minimum, range.maximum, preferred, coordinateScale].every(
-      Number.isFinite,
-    ) ||
-    range.minimum > range.maximum ||
-    !(coordinateScale > 0)
-  )
+  if (range.minimum > range.maximum || !(coordinateScale > 0))
     throw new RangeError(
       "The quadruped body-root interval must be finite and ordered",
     );

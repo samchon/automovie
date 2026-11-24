@@ -40,11 +40,6 @@ export namespace QuadrupedCarriage {
     parts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
     contacts: Readonly<Record<string, AutoMovieArchetypeQuadrupedBody.Bone>>;
   } {
-    if (!Array.isArray(animal.parts) || !Array.isArray(animal.affordances))
-      throw new RangeError(
-        "Quadruped carriage requires actual part and contact arrays",
-      );
-
     const bones: ReadonlySet<string> = new Set<string>([
       "trunk",
       "hindquarters",
@@ -110,10 +105,10 @@ export namespace QuadrupedCarriage {
     };
   }
 
-  /** A missing or empty identity cannot name an explicit carrier. */
+  /** A missing identity cannot name an explicit carrier. */
   function identity(value: string | undefined, label: string): string {
-    if (typeof value !== "string" || value.trim().length === 0)
-      throw new RangeError(`Quadruped ${label} requires a nonempty identity`);
+    if (value === undefined)
+      throw new RangeError(`Quadruped ${label} requires an identity`);
     return value;
   }
 
@@ -127,7 +122,7 @@ export namespace QuadrupedCarriage {
     required: boolean,
   ): ReadonlySet<string> {
     if (values === undefined && !required) return new Set<string>();
-    if (!Array.isArray(values))
+    if (values === undefined)
       throw new RangeError(`Quadruped ${label} must be an identity array`);
 
     const result: Set<string> = new Set();

@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import { dive } from "./dive";
 
 /**
@@ -26,7 +25,7 @@ import { dive } from "./dive";
 export function diveFootRoll(
   prepared: diveFootRoll.IPrepared,
 ): (side: AutoMovieHumanSide) => dive.FootRoll {
-  const { feet, body, entry, up }: diveFootRoll.IPrepared = prepared;
+  const { feet, body, up }: diveFootRoll.IPrepared = prepared;
   return (side: AutoMovieHumanSide): dive.FootRoll => {
     const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
     const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");

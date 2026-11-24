@@ -18,6 +18,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropLaunch,
+  IAutoMoviePose,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
@@ -99,8 +100,25 @@ export function poleVaultFinish(
     Vector3.scale(ahead, last.velocity.forward + omega * out.y),
     { x: 0, y: last.velocity.up - omega * forth, z: 0 },
   );
+  // The flight keeps the articulation the swing reached at the release: the
+  // hands' goals on the pole are let go, their solved angles kept.
+  const releasedPose: IAutoMoviePose = resolveHumanPosture(body, released);
+  const articulation: IAutoMovieMotionHumanPosture = {
+    root: released.root,
+    yaw: released.yaw,
+    pitch: released.pitch,
+    roll: released.roll,
+    joints: {},
+    limbs: {},
+  };
+  for (const joint of releasedPose.joints)
+    articulation.joints[joint.bone] = [
+      joint.flexion ?? 0,
+      joint.abduction ?? 0,
+      joint.twist ?? 0,
+    ];
   const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
-    prepareGymnasticsPlacement(body, model, released);
+    prepareGymnasticsPlacement(body, model, articulation);
   const flying: (t: number) => IAutoMovieMotionHumanPosture = (
     t: number,
   ): IAutoMovieMotionHumanPosture =>

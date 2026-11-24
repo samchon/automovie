@@ -26,7 +26,21 @@ export function HumanMountFlight(
 ): (side: AutoMovieHumanSide, t: number) => HumanMountFlight.IFlown {
   const { body, hipsAt, places, push }: HumanMountFlight.IProps = props;
   const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-  const departed: Partial<Record<AutoMovieHumanSide, number>> = {};
+  // Each ankle's distance from its hip as it leaves.
+  const departure = (side: AutoMovieHumanSide): number => {
+    const ankle: IAutoMovieVector3 = props.onFloor[side]
+      ? side === push
+        ? props.left().goal.point
+        : props.floor[side]
+      : props.starts[side].ankle;
+    return Vector3.length(
+      Vector3.subtract(ankle, hipsAt(props.flight[side][0])[side]),
+    );
+  };
+  const departed: Record<AutoMovieHumanSide, number> = {
+    left: departure("left"),
+    right: departure("right"),
+  };
   return (side: AutoMovieHumanSide, t: number): HumanMountFlight.IFlown => {
     const [leaves, arrives]: readonly [number, number] = props.flight[side];
     const share: number = minimumJerk.share((t - leaves) / (arrives - leaves));
@@ -58,9 +72,7 @@ export function HumanMountFlight(
     const fromHip: IAutoMovieVector3 = Vector3.subtract(course.ankle, hip);
     const span: number = Vector3.length(fromHip);
     const short: number = HumanMount.SWING_REACH * (m.thigh + m.shank);
-    const away: number = (departed[side] ??= Vector3.length(
-      Vector3.subtract(from.ankle, hipsAt(leaves)[side]),
-    ));
+    const away: number = departed[side];
     const reach: number = short + Math.max(0, away - short) * (1 - share);
     const foot: HumanMount.IFoot =
       span <= reach

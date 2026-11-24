@@ -36,14 +36,7 @@ export class QuadrupedLeadPlan {
   ) {
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
     const length: number = Vector3.length(axis);
-    if (
-      !(
-        Number.isFinite(length) &&
-        length > 0 &&
-        Number.isFinite(rig.neckRadius) &&
-        rig.neckRadius > 0
-      )
-    )
+    if (!(length > 0 && rig.neckRadius > 0))
       throw new RangeError(
         "A collar plan requires an actual positive finite neck",
       );
@@ -53,13 +46,7 @@ export class QuadrupedLeadPlan {
       "leadLength",
       "leadRadius",
     ] as const)
-      if (
-        !(
-          Number.isFinite(tack[key]) &&
-          tack[key] > 0 &&
-          (key !== "width" || tack[key] <= length)
-        )
-      )
+      if (!(tack[key] > 0 && (key !== "width" || tack[key] <= length)))
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,
@@ -95,27 +82,6 @@ export class QuadrupedLeadPlan {
       Vector3.create(0, 1, 0),
       Vector3.create(1, 0, 0),
     );
-    if (
-      ![
-        this.#collarRadius,
-        this.#radius,
-        this.#length,
-        ...[
-          this.#from,
-          this.#to,
-          this.#attached,
-          this.#end,
-          this.#frame.translation,
-        ].flatMap((point: IAutoMovieVector3): number[] => [
-          point.x,
-          point.y,
-          point.z,
-        ]),
-      ].every(Number.isFinite)
-    )
-      throw new RangeError(
-        "The actual collar/lead plan is not finitely representable",
-      );
   }
 
   /** Emit the same admitted rods and contact into a builder. */

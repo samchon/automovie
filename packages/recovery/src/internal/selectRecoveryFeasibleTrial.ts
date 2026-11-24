@@ -28,22 +28,15 @@ export function selectRecoveryFeasibleTrial<State>(
   charge: (work: number) => void,
 ): IAutoMovieRecoveryFeasibleTrialSelection<State> {
   if (
-    !Number.isSafeInteger(remaining) ||
     remaining < 1 ||
     baseline.length < 1 ||
-    !Number.isFinite(cost) ||
     !(baselineSlope < 0) ||
-    !Number.isFinite(baselineSlope) ||
-    (arc !== null &&
-      arc.step !== null &&
-      (!(mixedSlope < 0) || !Number.isFinite(mixedSlope)))
+    (arc !== null && arc.step !== null && !(mixedSlope < 0))
   )
     throw new Error(
       "camera-feasible: bounded actual comparison and descent slopes required",
     );
   const trialWork: number = 128 + 12 * baseline.length;
-  if (!Number.isSafeInteger(trialWork))
-    throw new Error("camera-feasible: bounded trial-vector work required");
   charge(256);
   trials.work += 256;
   let used: number = 0,
@@ -82,14 +75,13 @@ export function selectRecoveryFeasibleTrial<State>(
       increment,
       qualified:
         trialCost !== null &&
-        Number.isFinite(trialCost) &&
         trialCost < cost &&
         trialCost <= cost + 1e-4 * amount * slope,
     };
     if (candidate.qualified) {
       qualified++;
       if (best.length === 0 || trialCost! < best[0]!.cost!) best[0] = candidate;
-    } else if (trialCost === null || !Number.isFinite(trialCost)) {
+    } else if (trialCost === null) {
       trials.infeasible++;
       trials.lastFailure = "actual-qualification";
     } else if (trialCost >= cost) {

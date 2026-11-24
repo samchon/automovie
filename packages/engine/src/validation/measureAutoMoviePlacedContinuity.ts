@@ -86,8 +86,6 @@ function measureStep(
     "incoming film time",
   );
   if (
-    Number.isFinite(before.seconds) &&
-    Number.isFinite(after.seconds) &&
     after.seconds < before.seconds
   )
     collector.push(
@@ -149,8 +147,6 @@ function measureStep(
     maxAngle ?? Math.PI,
     "shortest angular displacement in radians",
   );
-  if (!Number.isFinite(distance) || !Number.isFinite(angle))
-    return { status: "checked", violations: collector.items };
   return {
     status: "checked",
     violations: collector.items,

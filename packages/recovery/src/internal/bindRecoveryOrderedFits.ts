@@ -131,10 +131,8 @@ export function bindRecoveryOrderedFits(
         if (
           !(
             target.policy.toleranceMm > 0 &&
-            Number.isFinite(target.policy.toleranceMm) &&
             target.policy.cornerDegrees > 0 &&
             target.policy.cornerDegrees < 180 &&
-            Number.isSafeInteger(target.policy.maxSpans) &&
             target.policy.maxSpans > 0 &&
             [1, -1].includes(target.policy.sourceOrientationSign)
           )
@@ -239,10 +237,7 @@ export function bindRecoveryOrderedFits(
             span.parameters.length !== span.last - span.first + 1 ||
             span.parameters.some(
               (v: number, i: number): boolean =>
-                !Number.isFinite(v) ||
-                v < 0 ||
-                v > 1 ||
-                (i > 0 && !(v > span.parameters[i - 1]!)),
+                v < 0 || v > 1 || (i > 0 && !(v > span.parameters[i - 1]!)),
             )
           )
             throw new Error(

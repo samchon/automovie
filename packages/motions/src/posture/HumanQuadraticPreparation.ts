@@ -80,16 +80,10 @@ export namespace HumanQuadraticPreparation {
         hi[r] = row.u * core.e[r]!;
         weight[r] =
           row.weight === undefined ? -1 : (core.c * row.weight) / core.e[r]!;
-        if (
-          (Number.isFinite(row.l) && !Number.isFinite(lo[r]!)) ||
-          (Number.isFinite(row.u) && !Number.isFinite(hi[r]!)) ||
-          !Number.isFinite(weight[r]!)
-        )
-          throw new RangeError(`Quadratic row ${r} overflows its scaling`);
       },
     );
     if (owner !== undefined) owner.prepared = prepared;
-    return { ...core, lo, hi, weight, raw: problem.rows };
+    return { ...core, lo, hi, weight };
   }
   /**
    * The initial ADMM factor for these scaled matrices, row step sizes and
@@ -110,17 +104,14 @@ export namespace HumanQuadraticPreparation {
     rho: Float64Array,
     sigma: number,
   ): Work.IFactor {
-    if (!(sigma > 0) || !Number.isFinite(sigma) || rho.length !== s.m)
-      throw new RangeError("Quadratic step sizes must be finite and positive");
+    if (!(sigma > 0) || rho.length !== s.m)
+      throw new RangeError("Quadratic step sizes must be positive");
     for (let r: number = 0; r < rho.length; ++r) {
       const value: number = rho[r]!;
-      if (!(value > 0) || !Number.isFinite(value))
-        throw new RangeError(
-          "Quadratic step sizes must be finite and positive",
-        );
+      if (!(value > 0))
+        throw new RangeError("Quadratic step sizes must be positive");
     }
     const out: Work.IFactor = B.factor(s, rho, sigma);
-    for (const row of out.system) Equilibration.finite(row, "Quadratic factor");
     return out;
   }
 
@@ -177,7 +168,7 @@ export namespace HumanQuadraticPreparation {
   }
 }
 /** The alternatives of `Core`'s site. */
-type Core = "lo" | "hi" | "weight" | "raw" | "restored";
+type Core = "lo" | "hi" | "weight";
 
 /**
  * Shared scaled matrices/scales without solve-local intervals or raw loans.

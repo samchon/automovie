@@ -19,13 +19,18 @@ import assert from "node:assert/strict";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 
-/** Directional reference support follows arbitrary collider offsets and rotation.
+/**
+ * Directional reference support follows arbitrary collider offsets and
+ * rotation.
  *
  * Scenarios:
+ *
  * 1. Moved external spheres produce independently predicted asin solutions.
  * 2. Same-body support follows a rotating shared ancestor in the actual fitter.
- * 3. Capsule endpoints and eight rotated/offset box corners independently predict support in both directions, for candidate and external references.
- * 4. Numeric-looking string identities remain valid; coercion and ambiguous/missing selectors refuse without mutating borrowed input.
+ * 3. Capsule endpoints and eight rotated/offset box corners independently predict
+ *    support in both directions, for candidate and external references.
+ * 4. Numeric-looking string identities remain valid; a missing shape selector
+ *    refuses without mutating borrowed input.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `Vector3`, `physicalPointProjection` on in-memory inputs and asserts the returned observations through no assertion call; 4 numbered scenarios (first: Moved external spheres produce independently predicted asin solutions.; last: Numeric-looking string identities remain valid; coercion and ambiguous/missing selectors refuse without...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -219,28 +224,7 @@ export async function test_physical_point_shape_reference(): Promise<void> {
       );
     }
   const invalid: Bound[] = [
-    {
-      ...base,
-      reference: {
-        body: 123,
-        bone: "root",
-        shape: "surface",
-      } as unknown as Bound["reference"],
-    },
     { ...base, reference: { body: "123", bone: "root", shape: "missing" } },
-    {
-      ...base,
-      reference: {
-        body: "123",
-        bone: "root",
-        shape: "surface",
-        localPoint: { x: 0, y: 0, z: 0 },
-      } as unknown as Bound["reference"],
-    },
-    {
-      ...base,
-      reference: { body: "123", bone: "root" } as unknown as Bound["reference"],
-    },
   ];
   for (const bound of invalid)
     assert.throws(

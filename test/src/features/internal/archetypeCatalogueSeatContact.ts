@@ -120,7 +120,7 @@ export function archetypeCatalogueSeatContact(
           Math.max(radial - diameter / 2, 0),
         );
         if (!(gap <= largest)) {
-          largest = Number.isFinite(gap) ? gap : Infinity;
+          largest = gap;
           largestSeed = seed;
           largestTime = seconds;
         }

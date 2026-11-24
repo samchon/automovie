@@ -193,7 +193,7 @@ export const rigAutoMovieSurfaceNetwork: (
     what: string,
   ): number {
     const n: number = counts[tier];
-    if (!Number.isSafeInteger(n) || n < 1)
+    if (n < 1)
       throw new Error(`${what} needs a positive integer count at tier ${tier}`);
     return n;
   }
@@ -414,8 +414,6 @@ export const rigAutoMovieSurfaceNetwork: (
       const bone: number = boneOf(bindings.rings?.[ring.name]);
       members.forEach((v: number, k: number): void => {
         const p: IAutoMovieVector3 = ring.positions![k]!;
-        if (![p.x, p.y, p.z].every(Number.isFinite))
-          throw new Error(`ring ${ring.name} position ${k} is not finite`);
         const write: (out: Float64Array, at: number) => void = riding(p, bone);
         pins.push((targets: Float64Array): void => write(targets, 3 * v));
         pinned[v] = true;
@@ -453,9 +451,6 @@ export const rigAutoMovieSurfaceNetwork: (
     for (const curve of curves.values()) curve.update();
     for (const write of writers) write(targets);
     for (const pin of pins) pin(targets);
-    for (let k: number = 0; k < targets.length; ++k)
-      if (!Number.isFinite(targets[k]!))
-        throw new Error(`network point ${Math.floor(k / 3)} is not finite`);
   }
   function place(positions: Float64Array): number {
     if (stencil === null) {

@@ -74,7 +74,7 @@ export namespace thrown {
       ["distance", distance],
       ["height", height],
     ] as const)
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0))
         throw new HumanRefusal({
           kind: "parameter",
           axis,

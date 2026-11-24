@@ -7,42 +7,49 @@ import {
   swingTwistRange,
 } from "@automovie/engine";
 import type {
+  AutoMovieHumanLimb,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanResolveHumanPosture,
+  IAutoMovieSwivelSeed,
 } from "@automovie/interface";
 
 import { HumanFreeCurveFit } from "./HumanFreeCurveFit";
 import { HumanFreeCurveIntervals } from "./HumanFreeCurveIntervals";
 import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { HumanPostureRaw } from "./HumanPostureRaw";
+import { prepareHumanKnotCourse } from "./prepareHumanKnotCourse";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-
-/** The record of `ISeedAtKept`'s site. */
-type ISeedAtKept = { share: number; value: IAnchor };
-
-/** The record of `IPrepareHumanFreeCurveAnchorsEntry`'s site. */
-type IPrepareHumanFreeCurveAnchorsEntry = { share: number; value: IAnchor };
+import type { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 
 /**
- * Continue a constructor-owned, pure free-leg curve from its canonical endpoint
- * or verified midpoint anchor and canonical dyadic intervals. This
- * constrained-IK policy is separate from public cold minimization: current
- * goals remain actual solves, and no pose is replayed or interpolated. The
- * supplied producer owns copied curve coefficients and never exposes or changes
- * them during this preparation.
+ * Prepare a free-leg curve: the legs' continuation knots solved once, in
+ * order, and a pure reader that fits each requested phase from them.
+ *
+ * Preparation fits the origin, phase zero's cold solve, or the midpoint's when
+ * phase zero's is not observable, then the knots from it toward each end by
+ * canonical left-before-right dyadic subdivision (`HumanFreeCurveIntervals`),
+ * each knot a correction of the one before under the original branch, swivel
+ * and rotation gates (`HumanFreeCurveFit`). The legs' swivels at the knots are
+ * joined by the minimum-jerk path through them in phase (Flash and Hogan 1985,
+ * J. Neurosci. 5(7):1688; `prepareHumanKnotCourse` with the knots' phases as
+ * its fixed timing): the curve's clock is the flight's ballistic one, so the
+ * knots are not retimed. A read finds its knot interval by binary search, seeds
+ * the actual target's fit with the course's swivel on the interval's branch,
+ * gates it against the knot nearer the origin, and falls back to the ordinary
+ * cold fit where the gates fail or no knot reaches. No pose is replayed or
+ * interpolated and nothing is stored on a read, so any phase in any order
+ * gives the same answer.
  *
  * @param body The curve's canonical body, unchanged while the curve is read.
- * @param at Pure constructor-owned authoring at a phase in [0,1], with fresh
- *   records and closed direct-joint/free-world-leg goals only.
- * @param duration The physical duration in seconds, used by the existing
+ * @param at Pure authoring at a phase in [0,1], with fresh records and closed
+ *   direct-joint/free-world-leg goals only.
+ * @param duration The physical duration in seconds, used by the
  *   velocity-continuation angular-resolution law.
- * @returns A current-phase preparation reader with optional placement-time
- *   setup of its canonical starting anchor, borrowing only a genuine native
- *   synchronous FK/projector source; foreign sources keep ordinary cold
- *   behavior.
+ * @returns The reader of a phase with an optional borrowed native FK source
+ *   and ROM projector; a foreign source keeps the ordinary cold fit.
  */
 export function prepareHumanFreeCurve(
   body: IAutoMovieMotionHumanBody,
@@ -50,17 +57,13 @@ export function prepareHumanFreeCurve(
   duration: number,
 ): prepareHumanFreeCurve.IReader {
   const tolerance: number =
-    Number.isFinite(duration) && duration > 0
+    duration > 0 && duration < Infinity
       ? samplePoseVelocity.tolerance(1e-3, duration)
       : NaN;
   const radians: number = (ROM_TOLERANCE * Math.PI) / 180;
   const legality: Map<
     AutoMovieHumanoidBone,
     (joint: IAutoMovieJointPose) => number
-  > = new Map();
-  const checked: Map<
-    AutoMovieHumanoidBone,
-    readonly [number | null, number | null, number | null]
   > = new Map();
   for (const bone of body.skeleton.bones)
     legality.set(
@@ -71,261 +74,221 @@ export function prepareHumanFreeCurve(
         swingTwistRange.of(bone.bone, body.skeleton),
       ),
     );
-  const anchors: Map<number, IPrepareHumanFreeCurveAnchorsEntry> = new Map();
-  const observations: Map<number, IObserved> = new Map();
-  const intervals: Map<string, IInterval> = new Map();
-  let origin: IAnchor | undefined;
-  let pivot: number = 0;
-  let originRead: boolean = false;
-  let supported: boolean =
-    Number.isFinite(tolerance) &&
-    tolerance > 0 &&
-    tolerance < hingedArmSwivel.STEP;
-
   const { cold, observe, correct }: HumanFreeCurveFit.IFits = HumanFreeCurveFit(
-    {
-      body,
-      at,
-      tolerance,
-      radians,
-      legality,
-      checked,
-      observations,
-    },
+    { body, at, tolerance, radians, legality },
   );
-  const { interval, boundary }: HumanFreeCurveIntervals.IIntervals =
-    HumanFreeCurveIntervals({ at, intervals, correct });
-  /**
-   * Reuse canonical interval preparation, then solve every current target. A
-   * current failure may descend into canonical children, but never changes its
-   * parent's endpoint classification or another query's choice of seed.
-   */
-  function solve(
-    share: number,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  ): ISolved {
-    if (origin === undefined) return unanchored(share, resolution, projection);
-    if (share === pivot)
-      return { prepared: cold(share, resolution, projection) };
-    let from: number = pivot;
-    let to: number = share < pivot ? 0 : 1;
-    let left: IAnchor = origin;
-    for (;;) {
-      const node: IInterval = interval(from, to, left, resolution, projection);
-      if (node.direct) {
-        const corrected: ICorrection = correct(
-          share,
-          left,
-          resolution,
-          projection,
-        );
-        if (corrected.kind === "accepted") return corrected;
-        if (corrected.kind === "unusable")
-          return { prepared: cold(share, resolution, projection) };
-      }
-      const middle: number = from + (to - from) / 2;
-      if (middle === from || middle === to)
-        return { prepared: cold(share, resolution, projection) };
-      if (to > from ? share <= middle : share >= middle) to = middle;
-      else {
-        const anchor: IAnchor | undefined = boundary(
-          from,
-          middle,
-          left,
-          resolution,
-          projection,
-        );
-        if (anchor === undefined)
-          return { prepared: cold(share, resolution, projection) };
-        from = middle;
-        left = anchor;
-      }
-    }
-  }
+  const prepared: IPrepared | undefined =
+    tolerance > 0 && tolerance < hingedArmSwivel.STEP
+      ? prepareKnots(at, cold, observe, correct)
+      : undefined;
 
-  /**
-   * A retained anchor always has the same canonical construction, even after
-   * eviction.
-   */
-  function seedAt(
+  return (
     share: number,
-    level: number,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  ): IAnchor | undefined {
-    if (share === pivot) return origin;
-    const kept: ISeedAtKept | undefined = anchors.get(level);
-    if (kept?.share === share) return kept.value;
-    const raw: IAutoMovieMotionHumanPosture = at(share);
-    const prepared: HumanPosturePreparation.IPrepared = cold(
-      share,
-      resolution,
-      projection,
-      raw,
-    );
-    const value: IAnchor | undefined = observe(prepared, raw, resolution);
-    if (value !== undefined) anchors.set(level, { share, value });
-    return value;
-  }
-
-  /**
-   * Correct actual goals from canonical preceding anchors, never from query
-   * order.
-   */
-  function unanchored(
-    share: number,
-    resolution: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection: ReturnType<typeof prepareHumanPostureProjection> | undefined,
-  ): ISolved {
-    const direction: number = share < pivot ? -1 : 1;
-    const extent: number = direction < 0 ? pivot : 1 - pivot;
-    const progress: number =
-      extent === 0 ? 0 : Math.abs(share - pivot) / extent;
-    let previous: number = -1;
-    for (
-      let level: number = 0, scale: number = 1;
-      Number.isFinite(scale);
-      ++level, scale *= 2
-    ) {
-      let before: number = Math.floor(progress * scale) / scale;
-      if (before === progress) before -= 1 / scale;
-      if (before < 0 || !(before < progress))
-        return { prepared: cold(share, resolution, projection) };
-      if (before === previous) continue;
-      previous = before;
-      const anchor: number = pivot + direction * extent * before;
-      if (anchor === share)
-        return { prepared: cold(share, resolution, projection) };
-      const prior: IAnchor | undefined = seedAt(
-        anchor,
-        level,
-        resolution,
-        projection,
-      );
-      if (prior === undefined) {
-        if (anchor === pivot) continue;
-        return { prepared: cold(share, resolution, projection) };
-      }
-      const corrected: ICorrection = correct(
-        share,
-        prior,
-        resolution,
-        projection,
-      );
-      if (corrected.kind === "accepted") return corrected;
-      if (corrected.kind === "unusable")
-        return { prepared: cold(share, resolution, projection) };
-    }
-    return { prepared: cold(share, resolution, projection) };
-  }
-
-  /** A placement can prepare its native cold anchor once after physical setup. */
-  function prepare(
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): boolean {
-    if (!supported || !prepareHumanPoseResolution.isNativeSource(resolution))
-      return false;
-    if (!originRead) {
-      originRead = true;
-      const initial: IAutoMovieMotionHumanPosture = at(0);
-      if (
-        initial.rotation !== undefined ||
-        !HumanPostureRaw.eligible(initial) ||
-        Object.keys(initial.limbs).length === 0
-      ) {
-        supported = false;
-        return false;
-      }
-      const prepared: HumanPosturePreparation.IPrepared = cold(
-        0,
-        resolution,
-        projection,
-        initial,
-      );
-      origin = observe(prepared, initial, resolution);
-      if (origin === undefined) {
-        const raw: IAutoMovieMotionHumanPosture = at(0.5);
-        const middle: HumanPosturePreparation.IPrepared = cold(
-          0.5,
-          resolution,
-          projection,
-          raw,
-        );
-        const interior: IAnchor | undefined = observe(middle, raw, resolution);
-        if (interior !== undefined) {
-          pivot = 0.5;
-          origin = interior;
-        }
-      }
-    }
-    return true;
-  }
-
-  return Object.assign(
-    (
-      share: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): HumanPosturePreparation.IPrepared =>
-      share > 0 && share < 1 && prepare(resolution, projection)
-        ? solve(share, resolution, projection).prepared
-        : cold(share, resolution, projection),
-    {
-      prepare: (): void => {
-        prepare(prepareHumanPoseResolution());
-      },
-    },
-  );
+  ): HumanPosturePreparation.IPrepared => {
+    if (
+      prepared === undefined ||
+      !(share > 0 && share < 1) ||
+      share === prepared.pivot ||
+      share < prepared.shares[0]! ||
+      share > prepared.shares[prepared.shares.length - 1]! ||
+      !prepareHumanPoseResolution.isNativeSource(resolution)
+    )
+      return cold(share, resolution, projection);
+    const corrected: HumanFreeCurveFit.ICorrection = correct(
+      share,
+      seedAt(prepared, share),
+      resolution,
+      projection,
+    );
+    return corrected.kind === "accepted"
+      ? corrected.prepared
+      : cold(share, resolution, projection);
+  };
 }
 
-/** The deterministic native curve and its placement-time anchor construction. */
+/** The free-leg curve's reader. */
 export namespace prepareHumanFreeCurve {
   /**
-   * Same-time fit of authored goals and optional setup of the immutable curve's
-   * canonical start.
+   * Fit the authored goals at a normalized phase, with an optional same-read
+   * FK source and joint projection.
    */
   export interface IReader {
-    /**
-     * Resolve the actual requested normalized phase with optional same-read FK
-     * and joint projection.
-     */
     (
       share: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
     ): HumanPosturePreparation.IPrepared;
-
-    /**
-     * Prepare only the canonical starting anchor, using the existing live-rig
-     * admission.
-     */
-    prepare(): void;
   }
 }
-
-/** A curve's observed bones (`HumanFreeCurveFit.IObserved`). */
-type IObserved = HumanFreeCurveFit.IObserved;
 
 /** A curve's numeric anchor (`HumanFreeCurveFit.IAnchor`). */
 type IAnchor = HumanFreeCurveFit.IAnchor;
 
-/** A curve's correction (`HumanFreeCurveFit.ICorrection`). */
-type ICorrection = HumanFreeCurveFit.ICorrection;
+/** A curve's prepared knots and the swivel course through them. */
+interface IPrepared {
+  /** The origin's phase, 0 or 0.5. */
+  pivot: number;
 
-/** A canonical interval's record (`HumanFreeCurveIntervals.IInterval`). */
-type IInterval = HumanFreeCurveIntervals.IInterval;
-/**
- * Same-call current solve and already completed physical observation, never a
- * cross-query answer.
- */
-interface ISolved {
-  /** Current independently issued canonical source. */
-  prepared: HumanPosturePreparation.IPrepared;
+  /** Each knot's phase, ascending, the origin among them. */
+  shares: readonly number[];
+
+  /** Each knot's anchor. */
+  anchors: readonly IAnchor[];
+
+  /** The legs whose swivels are coursed, in the course's coordinate order. */
+  limbs: readonly AutoMovieHumanLimb[];
+
   /**
-   * Present only when this same solve completed every actual
-   * physical/continuity check.
+   * Each knot's unwrapped swivels less its own, degrees: the whole turns the
+   * course adds to each leg's swivel there.
    */
-  anchor?: IAnchor;
+  turns: readonly (readonly number[])[];
+
+  /** The minimum-jerk course of the unwrapped swivels in phase. */
+  course: prepareHumanKnotCourse.ICourse;
+}
+
+/**
+ * The origin and the knots toward each end, solved with the native FK source,
+ * and the swivel course through them; none where no origin is observable.
+ */
+function prepareKnots(
+  at: (share: number) => IAutoMovieMotionHumanPosture,
+  cold: HumanFreeCurveFit.IFits["cold"],
+  observe: HumanFreeCurveFit.IFits["observe"],
+  correct: HumanFreeCurveFit.IFits["correct"],
+): IPrepared | undefined {
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
+  const initial: IAutoMovieMotionHumanPosture = at(0);
+  if (
+    initial.rotation !== undefined ||
+    !HumanPostureRaw.eligible(initial) ||
+    Object.keys(initial.limbs).length === 0
+  )
+    return undefined;
+  let pivot: number = 0;
+  let origin: IAnchor | undefined = observe(
+    cold(0, resolution, undefined, initial),
+    initial,
+    resolution,
+  );
+  if (origin === undefined) {
+    const raw: IAutoMovieMotionHumanPosture = at(0.5);
+    origin = observe(cold(0.5, resolution, undefined, raw), raw, resolution);
+    pivot = 0.5;
+  }
+  if (origin === undefined) return undefined;
+  const chain: (to: number) => HumanFreeCurveIntervals.IKnot[] = (
+    to: number,
+  ): HumanFreeCurveIntervals.IKnot[] =>
+    HumanFreeCurveIntervals({
+      at,
+      correct,
+      from: pivot,
+      to,
+      origin: origin!,
+      resolution,
+      projection: undefined,
+    });
+  const knots: HumanFreeCurveIntervals.IKnot[] = [
+    ...(pivot > 0 ? chain(0).reverse() : []),
+    { share: pivot, anchor: origin },
+    ...chain(1),
+  ];
+
+  // Every knot fits the origin's legs on the origin's branches (the gates
+  // require it), so each leg's swivel is one coordinate of the course,
+  // unwrapped along the knots, each step its shortest turn.
+  const limbs: AutoMovieHumanLimb[] = (
+    Object.entries(origin.seeds) as [
+      AutoMovieHumanLimb,
+      IAutoMovieSwivelSeed | null | undefined,
+    ][]
+  )
+    .filter(
+      ([, seed]: [
+        AutoMovieHumanLimb,
+        IAutoMovieSwivelSeed | null | undefined,
+      ]): boolean =>
+        seed !== null && seed !== undefined,
+    )
+    .map(
+      ([limb]: [
+        AutoMovieHumanLimb,
+        IAutoMovieSwivelSeed | null | undefined,
+      ]): AutoMovieHumanLimb =>
+        limb,
+    );
+  const unwrapped: number[][] = [];
+  for (const knot of knots) {
+    const before: number[] | undefined = unwrapped.at(-1);
+    unwrapped.push(
+      limbs.map((limb: AutoMovieHumanLimb, c: number): number => {
+        const swivel: number = knot.anchor.seeds[limb]!.swivel;
+        if (before === undefined) return swivel;
+        const turn: number = swivel - before[c]!;
+        return before[c]! + turn - 360 * Math.round(turn / 360);
+      }),
+    );
+  }
+  return {
+    pivot,
+    shares: knots.map((knot: HumanFreeCurveIntervals.IKnot): number => knot.share),
+    anchors: knots.map(
+      (knot: HumanFreeCurveIntervals.IKnot): IAnchor => knot.anchor,
+    ),
+    limbs,
+    turns: unwrapped.map((values: number[], k: number): number[] =>
+      values.map(
+        (v: number, c: number): number =>
+          v - knots[k]!.anchor.seeds[limbs[c]!]!.swivel,
+      ),
+    ),
+    course: prepareHumanKnotCourse(
+      unwrapped.map(
+        (position: number[]): { position: number[]; dwell: number } => ({
+          position,
+          dwell: 0,
+        }),
+      ),
+      {
+        kind: "fixed",
+        times: knots.map(
+          (knot: HumanFreeCurveIntervals.IKnot): number => knot.share,
+        ),
+      },
+    ),
+  };
+}
+
+/**
+ * The prior a phase inside the knots is corrected from: the knot nearer the
+ * origin of the phase's knot interval, its legs' swivels moved to the course's
+ * at the phase, in that knot's own turn.
+ */
+function seedAt(prepared: IPrepared, share: number): IAnchor {
+  const { shares, anchors, limbs, turns }: IPrepared = prepared;
+  let low: number = 0;
+  let high: number = shares.length - 1;
+  while (high - low > 1) {
+    const middle: number = (low + high) >> 1;
+    if (shares[middle]! <= share) low = middle;
+    else high = middle;
+  }
+  const k: number = share > prepared.pivot ? low : high;
+  const anchor: IAnchor = anchors[k]!;
+  const swivels: number[] = prepared.course.position(share);
+  const seeds: IAutoMovieMotionHumanResolveHumanPosture.ISeeded["seeds"] = {
+    ...anchor.seeds,
+  };
+  limbs.forEach((limb: AutoMovieHumanLimb, c: number): void => {
+    seeds[limb] = {
+      ...anchor.seeds[limb]!,
+      swivel: swivels[c]! - turns[k]![c]!,
+    };
+  });
+  return { seeds, rotations: anchor.rotations };
 }

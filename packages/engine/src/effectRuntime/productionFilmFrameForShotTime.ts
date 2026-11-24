@@ -27,7 +27,7 @@ export const productionFilmFrameForShotTime = (
 ): number | null => {
   const frameRate: IAutoMovieProductionFrameRate =
     productionFilmEffectTimelineFrameRate(props.timeline);
-  if (Number.isFinite(props.time) === false || props.time < 0) return null;
+  if (props.time < 0) return null;
   const sourceFrame: number | null = lastFrameAtOrBefore(props.time, frameRate);
   if (sourceFrame === null) return null;
   const candidates: IAutoMovieFilmTimelineSegment[] =

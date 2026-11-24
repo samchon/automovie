@@ -91,7 +91,7 @@ export namespace collapse {
       ["sag", sag],
       ["hold", lie],
     ] as const)
-      if (!(value >= 0) || !Number.isFinite(value))
+      if (!(value >= 0))
         throw new HumanRefusal({
           kind: "parameter",
           axis,

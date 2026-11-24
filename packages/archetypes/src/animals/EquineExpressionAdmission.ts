@@ -127,22 +127,13 @@ export namespace EquineExpressionAdmission {
     const held: Held[] = [];
     for (const cue of cues) {
       if (cue.kind === "vocalize" || cue.kind === "twitch") {
-        if (!Number.isFinite(cue.at))
-          refuse("at", cue.at, `a ${cue.kind} needs a finite second`);
         continue;
       }
-      if (
-        ![cue.from, cue.to, cue.ease].every(Number.isFinite) ||
-        !(cue.ease > 0 && 2 * cue.ease <= cue.to - cue.from)
-      )
+      if (!(cue.ease > 0 && 2 * cue.ease <= cue.to - cue.from))
         refuse("ease", cue.ease, `a ${cue.kind} cue needs from + 2 ease <= to`);
       if (cue.kind === "reach") {
         const touching: boolean = TOUCHING.has(cue.act);
-        if (
-          !(
-            Number.isFinite(cue.gap) && (touching ? cue.gap === 0 : cue.gap > 0)
-          )
-        )
+        if (!(touching ? cue.gap === 0 : cue.gap > 0))
           refuse(
             "gap",
             cue.gap,

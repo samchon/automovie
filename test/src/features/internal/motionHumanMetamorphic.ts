@@ -13,29 +13,28 @@ import { motionHumanSignature as M } from "./motionHumanSignature";
 
 /**
  * Metamorphic relations of the action laws: properties that relate two
- * performances to each other, so one relation checks what many separate
- * cases would, without knowing either performance's right answer. Each
- * reader returns its findings as lines; the specs
- * `test_human_motion_metamorphic_*` read one family, law or pace each, so
- * each runs under a minute.
+ * performances to each other, so one relation checks what many separate cases
+ * would, without knowing either performance's right answer. Each reader returns
+ * its findings as lines; the specs `test_human_motion_metamorphic_*` read one
+ * family, law or pace each, so each runs under a minute.
  *
- * - Mirror: a row that acts on the left is the mirror image of its right
- *   row within the 10 mm skin tolerance (`motionHumanLawCovering.mirrors`;
- *   a human body is bilaterally symmetric).
- * - Placement: a scene turned 90 degrees about +Y and moved 3 m across and
- *   2 m back is the same performance, its bones the turned and moved bones
- *   within 1 mm at every quarter second (the laws of motion hold the same in
- *   every place and heading).
- * - Dynamic similarity: people of different size moving at the same named
- *   pace move alike at equal Froude number, so the step frequency scaled by
- *   the pendulum time `sqrt(l / g)` of the hip height `l`, the duty factor
- *   and the stride length per hip height are the same across bodies
- *   (Alexander 1984, Int J Robot Res 3:49). Bound: each body's value of each
- *   within 15 % of the four bodies' mean (provisional tolerance for the
- *   spread of preferred speeds).
- * - Tempo: a manner of twice the pace halves every span a performer
- *   chooses, so the action at pace 2 lasts half as long with every event at
- *   half its time, within 1 % (the manner's own definition).
+ * - Mirror: a row that acts on the left is the mirror image of its right row
+ *   within the 10 mm skin tolerance (`motionHumanLawCovering.mirrors`; a human
+ *   body is bilaterally symmetric).
+ * - Placement: a scene turned 90 degrees about +Y and moved 3 m across and 2 m
+ *   back is the same performance, its bones the turned and moved bones within 1
+ *   mm at every quarter second (the laws of motion hold the same in every place
+ *   and heading).
+ * - Dynamic similarity: people of different size moving at the same named pace
+ *   move alike at equal Froude number, so the step frequency scaled by the
+ *   pendulum time `sqrt(l / g)` of the hip height `l`, the duty factor and the
+ *   stride length per hip height are the same across bodies (Alexander 1984,
+ *   Int J Robot Res 3:49). Bound: each body's value of each within 15 % of the
+ *   four bodies' mean (provisional tolerance for the spread of preferred
+ *   speeds).
+ * - Tempo: a manner of twice the pace halves every span a performer chooses, so
+ *   the action at pace 2 lasts half as long with every event at half its time,
+ *   within 1 % (the manner's own definition).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four relations with their sources and tolerances, and how the specs share them.
  * @evidence contracts/development/implementation.md#principled-implementation Each relation is a symmetry of the body, of space, of dynamic similarity or of the manner's definition; no expected value is read from a law.
@@ -55,15 +54,15 @@ export namespace motionHumanMetamorphic {
    * @param family The family of `MOTION_HUMAN_LAW_STAGES`.
    * @returns The findings.
    */
-  export function mirror(
+  export async function mirror(
     family: keyof typeof MOTION_HUMAN_LAW_STAGES,
-  ): string[] {
+  ): Promise<string[]> {
     return motionHumanLawCovering.mirrors(MOTION_HUMAN_LAW_STAGES[family]);
   }
 
   /**
-   * The placement relation for one law's row: the scene turned and moved is
-   * the same performance.
+   * The placement relation for one law's row: the scene turned and moved is the
+   * same performance.
    *
    * @param law The law.
    * @param row `default` or `param=value`.
@@ -199,8 +198,8 @@ export namespace motionHumanMetamorphic {
   }
 
   /**
-   * The tempo relation of one law: at pace 2 it lasts half as long, every
-   * event at half its time.
+   * The tempo relation of one law: at pace 2 it lasts half as long, every event
+   * at half its time.
    *
    * @param law The law.
    * @param params Its parameters besides the manner.

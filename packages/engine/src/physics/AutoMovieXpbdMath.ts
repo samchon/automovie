@@ -259,7 +259,7 @@ export namespace AutoMovieXpbdMath {
     const i: number = k[8]!;
     const det: number =
       a * (e * i - f * h) - bb * (d * i - f * g) + c * (d * h - e * g);
-    if (!(Math.abs(det) > 0) || !Number.isFinite(det)) return null;
+    if (det === 0) return null;
     return {
       x:
         (b.x * (e * i - f * h) -

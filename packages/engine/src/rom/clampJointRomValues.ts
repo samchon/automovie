@@ -124,12 +124,11 @@ function project(
       ? undefined
       : (rig ?? swingTwistRange.of(bone));
   if (range !== undefined) {
-    // A non-finite angle first becomes its rest, as on every other joint.
     const sanitized: IAutoMovieJointPose = record(
       bone,
-      finiteOrRest(flexion),
-      finiteOrRest(abduction),
-      finiteOrRest(twist),
+      flexion,
+      abduction,
+      twist,
       input,
     );
     const basis: IAutoMovieJointAxes | undefined =
@@ -212,7 +211,7 @@ function project(
 
 /**
  * One axis into its interval: null rest stays null, an immobile axis (no
- * interval) goes to neutral, a nonfinite angle first becomes neutral.
+ * interval) goes to neutral.
  */
 function clampAxis(
   angle: number | null,
@@ -220,21 +219,13 @@ function clampAxis(
 ): number | null {
   if (angle === null) return null;
   if (allowed === null) return 0; // immobile axis: forced back to neutral
-  const finiteAngle: number = Number.isFinite(angle) ? angle : 0;
-  return finiteAngle < allowed.min
+  return angle < allowed.min
     ? allowed.min
-    : finiteAngle > allowed.max
+    : angle > allowed.max
       ? allowed.max
-      : finiteAngle;
+      : angle;
 }
 
-/**
- * A specified angle as it is, or its rest (0) when it is not finite; a resting
- * `null` stays resting.
- */
-function finiteOrRest(value: number | null): number | null {
-  return value === null || Number.isFinite(value) ? value : 0;
-}
 
 /**
  * How far past a swing-twist range a joint may lie and count as on its edge,

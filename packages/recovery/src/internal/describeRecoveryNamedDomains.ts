@@ -1,9 +1,25 @@
 import type {
+  IAutoMovieRecoveryAtlasPrimitiveRange,
+  IAutoMovieRecoveryDomainAddress,
   IAutoMovieRecoveryDomainLedger,
   IAutoMovieRecoveryNamedDomainsDescriptionOperation,
 } from "@automovie/interface";
 
-import { readRecoveryMetadata as read } from "./readRecoveryMetadata";
+/** One planned named domain, read from either declaration kind. */
+interface IDeclared {
+  id: string;
+  curves: readonly string[];
+  closedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
+}
+
+/** One actual report, read from either report kind. */
+interface IReported {
+  id: string;
+  admitted: boolean;
+  delegatedGroups: readonly IAutoMovieRecoveryDomainAddress[] | null;
+  diagnostics: readonly string[];
+  primitiveRanges: readonly IAutoMovieRecoveryAtlasPrimitiveRange[];
+}
 
 /**
  * Bind planned named domains only to unique actual reports with the same
@@ -21,16 +37,53 @@ export function describeRecoveryNamedDomains(
   const owners: Map<string, string> = new Map();
   const diagnostics: string[] = [];
   const conflicting: Set<string> = new Set();
-  for (const kind of ["tensor-family", "analytic-domain"] as const) {
-    const source: unknown =
-      kind === "tensor-family" ? input.tensorFamilies : input.analyticDomains;
-    const declarations: readonly unknown[] = Array.isArray(source)
-      ? source
-      : [];
-    const reports: readonly unknown[] =
-      kind === "tensor-family" ? result.tensorReports : result.analyticReports;
-    if (source !== undefined && !Array.isArray(source))
-      diagnostics.push(`${kind}: declared inventory is unavailable`);
+  const inventories: readonly {
+    kind: "tensor-family" | "analytic-domain";
+    declarations: readonly IDeclared[];
+    reports: readonly IReported[];
+  }[] = [
+    {
+      kind: "tensor-family",
+      declarations: (input.tensorFamilies ?? []).map(
+        (family): IDeclared => ({
+          id: family.id,
+          curves: family.boundaries.map(
+            (boundary): string => boundary.curveName,
+          ),
+          closedGroups: null,
+        }),
+      ),
+      reports: result.tensorReports.map(
+        (report): IReported => ({
+          id: report.id,
+          admitted: true,
+          delegatedGroups: report.delegatedGroups,
+          diagnostics: report.diagnostics,
+          primitiveRanges: report.primitiveRanges,
+        }),
+      ),
+    },
+    {
+      kind: "analytic-domain",
+      declarations: (input.analyticDomains ?? []).map(
+        (domain): IDeclared => ({
+          id: domain.id,
+          curves: domain.ports.map((port): string => port.curveName),
+          closedGroups: domain.closedGroups,
+        }),
+      ),
+      reports: result.analyticReports.map(
+        (report): IReported => ({
+          id: report.id,
+          admitted: report.admitted,
+          delegatedGroups: null,
+          diagnostics: report.diagnostics,
+          primitiveRanges: report.primitiveRanges,
+        }),
+      ),
+    },
+  ];
+  for (const { kind, declarations, reports } of inventories) {
     const declaredNames: Map<string, number[]> = new Map();
     const reportedNames: Map<string, number[]> = new Map();
     for (const [inventory, names] of [
@@ -38,115 +91,65 @@ export function describeRecoveryNamedDomains(
       [reports, reportedNames],
     ] as const)
       for (const [ordinal, item] of inventory.entries()) {
-        const name: unknown = read(item, ["id"]);
-        if (typeof name !== "string" || name.length === 0) continue;
-        const ordinals: number[] = names.get(name) ?? [];
+        const ordinals: number[] = names.get(item.id) ?? [];
         ordinals.push(ordinal);
-        names.set(name, ordinals);
+        names.set(item.id, ordinals);
       }
     const bound: Set<number> = new Set();
     for (const [ordinal, domain] of declarations.entries()) {
-      const name: unknown = read(domain, ["id"]);
-      const matches: number[] | undefined =
-        typeof name === "string" ? reportedNames.get(name) : undefined;
+      const matches: number[] | undefined = reportedNames.get(domain.id);
       const reportOrdinal: number | undefined =
-        typeof name === "string" &&
-        declaredNames.get(name)?.length === 1 &&
-        matches?.length === 1
+        declaredNames.get(domain.id)?.length === 1 && matches?.length === 1
           ? matches[0]
           : undefined;
-      const report: unknown =
+      const report: IReported | undefined =
         reportOrdinal === undefined ? undefined : reports[reportOrdinal];
-      const id: string = `${kind}:${ordinal}${typeof name === "string" && name.length > 0 ? `:${name}` : ""}`;
+      const id: string = `${kind}:${ordinal}:${domain.id}`;
       const local: string[] = [];
       if (reportOrdinal === undefined)
         local.push(
           "No unique declared name and actual report identity bind this occurrence; stages remain unknown",
         );
       else bound.add(reportOrdinal);
-      const admittedValue: unknown =
-        kind === "tensor-family" && report !== undefined
-          ? true
-          : read(report, ["admitted"]);
-      const admitted: boolean | null =
-        typeof admittedValue === "boolean" ? admittedValue : null;
-      const curves: string[] = [];
-      const ports: unknown = read(domain, [
-        kind === "tensor-family" ? "boundaries" : "ports",
-      ]);
-      if (!Array.isArray(ports))
-        local.push("Declared curve port inventory is unavailable");
-      else
-        for (const port of ports) {
-          const curve: unknown = read(port, ["curveName"]);
-          if (typeof curve === "string" && curve.length > 0) curves.push(curve);
-          else local.push("A declared port has no saved coefficient identity");
-        }
-      const messages: unknown = read(report, ["diagnostics"]);
-      if (Array.isArray(messages))
-        for (const message of messages)
-          if (typeof message === "string") local.push(message);
-      const emitted: Member["emitted"] = [];
-      const actualRanges: unknown = read(report, ["primitiveRanges"]);
-      if (typeof name === "string" && Array.isArray(actualRanges))
-        for (const range of actualRanges) {
-          const firstTriangle: unknown = read(range, ["firstTriangle"]);
-          const triangleCount: unknown = read(range, ["triangleCount"]);
-          const patch: unknown = read(range, ["patch"]);
-          if (
-            typeof firstTriangle === "number" &&
-            Number.isSafeInteger(firstTriangle) &&
-            firstTriangle >= 0 &&
-            typeof triangleCount === "number" &&
-            Number.isSafeInteger(triangleCount) &&
-            triangleCount > 0
-          )
-            emitted.push({
-              part: name,
-              firstTriangle,
-              triangleCount,
-              patch: typeof patch === "string" ? patch : null,
-            });
-        }
-      if (admitted === true) {
-        const addresses: unknown =
-          kind === "tensor-family"
-            ? read(report, ["delegatedGroups"])
-            : read(domain, ["closedGroups"]);
-        if (!Array.isArray(addresses))
-          local.push(
-            "Admitted closed-group ownership inventory is unavailable",
-          );
-        else
-          for (const address of addresses) {
-            const interval: unknown = read(address, ["interval"]);
-            const group: unknown = read(address, ["group"]);
-            if (
-              typeof interval !== "number" ||
-              !Number.isSafeInteger(interval) ||
-              interval < 0 ||
-              typeof group !== "number" ||
-              !Number.isSafeInteger(group) ||
-              group < 0
-            ) {
-              local.push("A delegated closed-group address is unavailable");
-              continue;
-            }
-            const key: string = `${interval}:${group}`;
-            if (owners.has(key) || conflicting.has(key)) {
-              owners.delete(key);
-              conflicting.add(key);
-              diagnostics.push(
-                `Multiple reported owners claim closed group ${key}; delegation remains unknown`,
-              );
-            } else owners.set(key, id);
+      const admitted: boolean | null = report?.admitted ?? null;
+      if (report !== undefined) local.push(...report.diagnostics);
+      const emitted: Member["emitted"] = (report?.primitiveRanges ?? [])
+        .filter(
+          (range: IAutoMovieRecoveryAtlasPrimitiveRange): boolean =>
+            range.firstTriangle >= 0 && range.triangleCount > 0,
+        )
+        .map(
+          (
+            range: IAutoMovieRecoveryAtlasPrimitiveRange,
+          ): Member["emitted"][number] => ({
+            part: domain.id,
+            firstTriangle: range.firstTriangle,
+            triangleCount: range.triangleCount,
+            patch: range.patch,
+          }),
+        );
+      if (admitted === true)
+        for (const address of report?.delegatedGroups ??
+          domain.closedGroups ??
+          []) {
+          if (address.interval < 0 || address.group < 0) {
+            local.push("A delegated closed-group address is unavailable");
+            continue;
           }
-      }
+          const key: string = `${address.interval}:${address.group}`;
+          if (owners.has(key) || conflicting.has(key)) {
+            owners.delete(key);
+            conflicting.add(key);
+            diagnostics.push(
+              `Multiple reported owners claim closed group ${key}; delegation remains unknown`,
+            );
+          } else owners.set(key, id);
+        }
       members.push({
         id,
         kind,
         address: null,
-        curves,
+        curves: [...domain.curves],
         attempted: admitted === true ? true : null,
         admitted,
         delegatedTo: null,
@@ -155,12 +158,10 @@ export function describeRecoveryNamedDomains(
       });
     }
     for (const [ordinal, report] of reports.entries())
-      if (!bound.has(ordinal)) {
-        const name: unknown = read(report, ["id"]);
+      if (!bound.has(ordinal))
         diagnostics.push(
-          `${kind} report ${ordinal} (${typeof name === "string" ? name : "unknown identity"}) has no unique declared owner; the original report and geometry remain retained`,
+          `${kind} report ${ordinal} (${report.id}) has no unique declared owner; the original report and geometry remain retained`,
         );
-      }
   }
   return { members, owners, diagnostics };
 }

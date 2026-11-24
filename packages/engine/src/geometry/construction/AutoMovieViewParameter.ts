@@ -13,14 +13,10 @@ export namespace AutoMovieViewParameter {
   ): IAutoMovieConstructionOutlineParameter | undefined | string {
     if (parameter === undefined) return undefined;
     if (parameter.type === "root")
-      return Number.isFinite(parameter.pole) &&
-        (parameter.end === "bottom" || parameter.end === "top")
+      return parameter.end === "bottom" || parameter.end === "top"
         ? { ...parameter }
         : "root parameter needs a finite endpoint and its bottom/top side";
-    return Number.isFinite(parameter.bottom) &&
-      Number.isFinite(parameter.top) &&
-      parameter.top > parameter.bottom &&
-      Number.isFinite(parameter.top - parameter.bottom)
+    return parameter.top > parameter.bottom
       ? { ...parameter }
       : "angle parameter needs finite increasing endpoints and a finite span";
   }
@@ -35,7 +31,6 @@ export namespace AutoMovieViewParameter {
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): number {
-    if (!Number.isFinite(station)) return NaN;
     if (parameter === undefined) return station;
     const extent: number =
       parameter.type === "root"
@@ -115,7 +110,6 @@ export namespace AutoMovieViewParameter {
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
-    if (!Number.isFinite(at(parameter, station))) return null;
     if (parameter === undefined) return [1, 0];
     if (parameter.type === "root") {
       const distance: number =
@@ -141,11 +135,6 @@ export namespace AutoMovieViewParameter {
     target: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
-    if (
-      !Number.isFinite(at(source, station)) ||
-      !Number.isFinite(at(target, station))
-    )
-      return null;
     if (source === undefined) return inverseJet(target, station);
     if (same(source, target)) return [1, 0];
 
@@ -205,8 +194,7 @@ export namespace AutoMovieViewParameter {
     }
     const inverse: [number, number] | null = inverseJet(target, station);
     const forward: [number, number] | null = jet(source, station);
-    if (inverse === null || forward === null || !forward.every(Number.isFinite))
-      return null;
+    if (inverse === null || forward === null) return null;
     return checked([
       forward[0] * inverse[0],
       forward[1] * inverse[0] * inverse[0] + forward[0] * inverse[1],
@@ -216,7 +204,7 @@ export namespace AutoMovieViewParameter {
 
 /** Finite derivative results remain explicit availability, never saturation. */
 function checked(jet: [number, number]): [number, number] | null {
-  return jet.every(Number.isFinite) ? jet : null;
+  return jet;
 }
 
 /**

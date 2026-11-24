@@ -57,8 +57,6 @@ export function compileFormationStageMarks(
       throw new RangeError("Formation stage mark set ids must be unique.");
     ids.add(set.id);
     if (
-      !Number.isFinite(set.start) ||
-      !Number.isFinite(set.end) ||
       set.start < end ||
       set.end <= set.start
     )
@@ -86,16 +84,6 @@ export function compileFormationStageMarks(
         offset: { x: mark.lateral - origin.x, y: 0, z: mark.depth - origin.z },
         facingOffsetDeg: mark.facingOffsetDeg ?? before.facingOffsetDeg,
       };
-      if (
-        !Number.isFinite(mark.lateral) ||
-        !Number.isFinite(mark.depth) ||
-        !Number.isFinite(to.offset.x) ||
-        !Number.isFinite(to.offset.z) ||
-        !Number.isFinite(to.facingOffsetDeg)
-      )
-        throw new RangeError(
-          `Stage marks "${set.id}" must give finite coordinates and facing for slot ${mark.slot}.`,
-        );
       motions.push({
         id: `${set.id}.slot.${mark.slot}`,
         formation: design.id,

@@ -297,7 +297,7 @@ export function hingedArmArticulation(
           : branches.find(
               (branch: IPass): boolean => branch.record === record(stop),
             );
-      if (on !== undefined && Number.isFinite(seed.swivel)) {
+      if (on !== undefined) {
         const candidate: IScored = on.probe(seed.swivel);
         if (candidate.overshoot === 0)
           incumbent = hingedSwivelAhead.exact(candidate);
@@ -452,7 +452,7 @@ export function hingedArmArticulation(
         if (legal(at)) return answer(at, at.shortfall);
       }
       const followed: IPlacedEdge | null =
-        target === null || !Number.isFinite(near.swivel)
+        target === null
           ? null
           : walkToward(probe, near.swivel, target);
       if (followed !== null)
@@ -468,9 +468,7 @@ export function hingedArmArticulation(
       props.nearest === undefined ? null : props.nearest(posed, near.swivel);
     const turn: number =
       nearestSwivel === null ? 0 : nearestSwivel - near.swivel;
-    const delta: number = Number.isFinite(turn)
-      ? turn - 360 * Math.round(turn / 360)
-      : 0;
+    const delta: number = turn - 360 * Math.round(turn / 360);
     const met: typeof props.met = props.met;
     const seeded: IScored = hingedSwivelNear<IScored>({
       probe: prober(stop, posed),

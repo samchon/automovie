@@ -46,13 +46,10 @@ export function rollAutoMovieViewAxis(
   up: AutoMovieVector3Tuple,
 ): IAutoMovieViewAxis.IAxis | string {
   if (
-    !Number.isFinite(from) ||
-    !Number.isFinite(to) ||
-    !(to > from) ||
-    !Number.isFinite(to - from)
+    !(to > from)
   )
     return "material roll needs finite increasing stations with finite positive separation";
-  if (up.length !== 3 || !up.every(Number.isFinite))
+  if (up.length !== 3)
     return "material roll target is not a finite three-component direction";
   const scale: number = Math.max(...up.map(Math.abs));
   if (!(scale > 0)) return "material roll target is zero";
@@ -62,8 +59,7 @@ export function rollAutoMovieViewAxis(
   const end: IAutoMovieLoftSectionFrame = base.at(to);
   if (
     end.u.length !== 3 ||
-    end.v.length !== 3 ||
-    ![...end.u, ...end.v].every(Number.isFinite)
+    end.v.length !== 3
   )
     return "material roll endpoint has no finite base normal plane";
   const cosine: number = end.u.reduce(

@@ -457,7 +457,7 @@ export function preparePhysicalDisturbanceSpan(
       c: state.c,
       omega,
     });
-    if (!Number.isFinite(next)) break;
+    if (next === Infinity) break;
     t = next;
 
     // A push: the velocity's jump, then the state's own test.
@@ -1296,7 +1296,7 @@ function follow(
   let state: IState = { xi: input.xi, c: input.c };
   const push = (piece: IPiece): void => {
     pieces.push(piece);
-    if (Number.isFinite(piece.end))
+    if (piece.end !== Infinity)
       state = {
         xi: capture(piece, piece.end, omega).position,
         c: center(piece, piece.end, omega),
@@ -1392,7 +1392,7 @@ function crossing(
   until: number,
   omega: number,
 ): number {
-  if (!Number.isFinite(until)) return until;
+  if (until === Infinity) return until;
   const gain: number = 1 + (split[0]?.gain ?? 0);
   const inside = (time: number): boolean => {
     const desired: Tools.IState = value(form, time, omega);
@@ -1476,7 +1476,7 @@ function reentry(
     else if (beta < 0) upper = Math.min(upper, -alpha / beta);
     else if (alpha < 0) upper = Number.NEGATIVE_INFINITY;
   }
-  if (!(lower <= upper) || !Number.isFinite(lower))
+  if (lower > upper)
     return Number.POSITIVE_INFINITY;
   return form.start + Math.log(lower) / omega;
 }

@@ -647,9 +647,7 @@ const pmremBytes: (
 ): number | null => {
   if (
     source === undefined ||
-    !Number.isSafeInteger(source.width) ||
     source.width <= 0 ||
-    !Number.isSafeInteger(source.height) ||
     source.height <= 0
   )
     return null;
@@ -688,5 +686,5 @@ const backgroundBytes: (
   });
   const bytes: number | null =
     color === null || depth === null ? null : 6 * (color + depth);
-  return bytes !== null && Number.isSafeInteger(bytes) ? bytes : null;
+  return bytes !== null ? bytes : null;
 };

@@ -80,13 +80,13 @@ export const meshAutoMovieSweep: (
       "sweep mesh rows must run from 0 to 1 with at least two rings",
     );
   rows.forEach((u: number, k: number): void => {
-    if (!Number.isFinite(u) || (k > 0 && !(u > rows[k - 1]!)))
+    if ((k > 0 && !(u > rows[k - 1]!)))
       throw new Error(
         `sweep mesh row ${k} must be finite and follow row ${k - 1}`,
       );
   });
   const columns: number = props.columns ?? COLUMNS;
-  if (!Number.isSafeInteger(columns) || columns < 3)
+  if (columns < 3)
     throw new Error("sweep mesh columns must be an integer of at least 3");
   // parameters of each loop's ring points: a polygon's corners under parameter correspondence, even otherwise
   const parameters: number[][] = Array.from(

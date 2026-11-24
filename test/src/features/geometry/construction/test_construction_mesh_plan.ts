@@ -660,7 +660,7 @@ function inspect(failures: string[], sample: Case, scale: number): void {
     const c: readonly [number, number] = chart[2]!;
     const area: number =
       ((b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])) / 2;
-    if (!(Number.isFinite(area) && area > 0))
+    if (!(area > 0))
       failures.push(`${label}: nonpositive chart triangle ${area}`);
     total += area;
     for (const weights of [

@@ -13,18 +13,15 @@ export function RecoveryChartFitPrepare(
 ): ReturnType<IAutoMovieRecoveryChartFitPrepare.Operation> {
   const finite: (p: Readonly<AutoMovieVector3Tuple>) => boolean = (
     p: Readonly<AutoMovieVector3Tuple>,
-  ): boolean => p.length === 3 && p.every(Number.isFinite);
+  ): boolean => p.length === 3;
   const lower: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.lower,
     upper: Readonly<AutoMovieVector3Tuple> = input.enclosureMm.upper;
   if (
     !finite(lower) ||
     !finite(upper) ||
     lower.some((x: number, k: number): boolean => x > upper[k]!) ||
-    !(input.toleranceMm > 0 && Number.isFinite(input.toleranceMm)) ||
-    !(
-      input.gradientTolerance > 0 && Number.isFinite(input.gradientTolerance)
-    ) ||
-    !Number.isSafeInteger(input.maxIterations) ||
+    !(input.toleranceMm > 0) ||
+    !(input.gradientTolerance > 0) ||
     input.maxIterations < 1 ||
     !input.controls.length ||
     !input.patches.length ||
@@ -39,8 +36,6 @@ export function RecoveryChartFitPrepare(
   const extent: number = Math.max(
     ...upper.map((x: number, k: number): number => x - lower[k]!),
   );
-  if (!origin.every(Number.isFinite) || !Number.isFinite(extent))
-    throw new Error("Chart enclosure is not representable");
   const scale: number = extent || 1;
   const slots: Int32Array = new Int32Array(input.controls.length).fill(-1);
   input.controls.forEach((p: Readonly<AutoMovieVector3Tuple> | null): void => {
@@ -61,7 +56,7 @@ export function RecoveryChartFitPrepare(
     );
   const maximumRowBudget: number =
     input.relationBudget?.maxRowTerms ?? (input.relations ? 128 : 16);
-  if (!Number.isSafeInteger(maximumRowBudget) || maximumRowBudget < 1)
+  if (maximumRowBudget < 1)
     throw new Error(
       "An explicit positive reduced observation-stencil budget is required",
     );
@@ -103,8 +98,7 @@ export function RecoveryChartFitPrepare(
     if (
       patch.controlIds.length !== 16 ||
       patch.controlIds.some(
-        (id: number): boolean =>
-          !Number.isSafeInteger(id) || id < 0 || id >= slots.length,
+        (id: number): boolean => id < 0 || id >= slots.length,
       )
     )
       throw new Error("Bicubic patches need sixteen valid control identities");
@@ -115,7 +109,7 @@ export function RecoveryChartFitPrepare(
     ): number => sum + row.weight,
     0,
   );
-  if (!(totalWeight > 0 && Number.isFinite(totalWeight)))
+  if (!(totalWeight > 0))
     throw new Error("Chart observation weights are not representable");
   const basis: (t: number) => number[] = (t: number): number[] => [
     (1 - t) ** 3,

@@ -36,7 +36,7 @@ export function cannonLaunch(
       reason: `the ${gun.name} publishes no muzzle velocity`,
       fix: "launch from a field gun or a naval gun",
     });
-  if (!(Number.isFinite(speed) && speed > 0))
+  if (!(speed > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cannon",
@@ -48,7 +48,7 @@ export function cannonLaunch(
     });
   const calibre: number | undefined = gun.dimensions.ball;
   const bore: number | undefined = gun.dimensions.bore;
-  if (!(calibre !== undefined && Number.isFinite(calibre) && calibre > 0))
+  if (!(calibre !== undefined && calibre > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cannon",
@@ -59,7 +59,7 @@ export function cannonLaunch(
         "launch needs a known finite positive shot diameter, not a bore diameter",
       fix: "supply the recorded shot diameter in metres",
     });
-  if (bore !== undefined && !(Number.isFinite(bore) && bore > calibre))
+  if (bore !== undefined && !(bore > calibre))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cannon",

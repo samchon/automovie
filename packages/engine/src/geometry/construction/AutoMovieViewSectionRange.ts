@@ -57,7 +57,7 @@ export namespace AutoMovieViewSectionRange {
       );
     let range: IAutoMovieViewSectionRange.IFamily["range"] = null;
     const ellipse: number = AutoMovieViewSection.ELLIPSE;
-    if (Number.isFinite(girth) && allowed(ellipse)) {
+    if (allowed(ellipse)) {
       const anchor: IAutoMovieViewSectionRange.ITrial = at(ellipse);
       if (anchor.fault === null) {
         if (Math.abs(anchor.source.girth - girth) <= TOLERANCE)
@@ -139,7 +139,7 @@ export namespace AutoMovieViewSectionRange {
         ) as IAutoMovieViewSection.ISection["shoulders"],
       );
     const girths: [number, number] = [shaped(lo).girth, shaped(hi).girth];
-    return girths.every(Number.isFinite) && girths[0] < girths[1]
+    return girths[0] < girths[1]
       ? { shoulder: [lo, hi], girth: girths }
       : null;
   }

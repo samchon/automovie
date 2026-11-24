@@ -3,12 +3,9 @@ import type {
   IAutoMovieMotionHumanPrimitive,
 } from "@automovie/interface";
 
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-
 /**
  * The lie's one primitive over every channel: each second's posture is the
- * plan's own placed reader (`at`), whatever is written beneath it.
+ * plan's own prepared course (`at`), whatever is written beneath it.
  *
  * Part of `lieDown.plan`, which prepares it once per plan.
  *
@@ -35,10 +32,7 @@ export function lieDownLying(
     write: (
       _: IAutoMovieMotionHumanPosture,
       seconds: number,
-      _before?: IAutoMovieMotionHumanPrimitive.Reader,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
+    ): IAutoMovieMotionHumanPosture => at(seconds),
   };
 }
 
@@ -49,11 +43,12 @@ export namespace lieDownLying {
     /** The `duration` `lieDown.plan` prepared. */
     duration: number;
 
-    /** The `at` `lieDown.plan` prepared. */
-    at: (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ) => IAutoMovieMotionHumanPosture;
+    /**
+     * The lie's posture at a second.
+     *
+     * @param seconds Action seconds.
+     * @returns The posture.
+     */
+    at: (seconds: number) => IAutoMovieMotionHumanPosture;
   }
 }

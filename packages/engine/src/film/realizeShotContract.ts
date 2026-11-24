@@ -169,7 +169,6 @@ export function realizeShotContract(
               reader.node(subject) !== undefined ||
               reader.formation(subject) !== undefined,
           ) &&
-          Number.isFinite(time) &&
           time >= event.window.from &&
           time <= event.window.to &&
           predicates.every(
@@ -287,7 +286,6 @@ function compactFormationPasses(
     if (
       chunk.index !== index ||
       chunk.start !== start ||
-      !Number.isSafeInteger(chunk.count) ||
       chunk.count <= 0
     )
       return false;

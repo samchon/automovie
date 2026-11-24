@@ -239,7 +239,9 @@ export function fitHingedChainCandidate(
   // The overshoot the decomposition's chart choice scored for the angles it
   // returned (`decomposeJointRotationOnBasis.scored`), the root's gate sum
   // where its constraint is ungated.
-  const scoredUpper: { overshoot: number } = { overshoot: NaN };
+  const scoredUpper: decomposeJointRotationOnBasis.IScore = {
+    overshoot: undefined,
+  };
   const upperOf = (upper: IAutoMovieQuaternion): IAutoMovieJointPose => {
     const read: IAutoMovieResolvedJointAngles =
       decomposeJointRotationOnBasis.scored(
@@ -282,7 +284,7 @@ export function fitHingedChainCandidate(
       : rig.reference(props.chain.lower),
   ];
   const anchor: number = rig?.referenceWeight() ?? props.referenceWeight ?? 1;
-  if (rig === undefined && (!Number.isFinite(anchor) || anchor < 0))
+  if (rig === undefined && (anchor < 0))
     throw new Error(
       `fitChainToTarget referenceWeight must be finite and non-negative, but was ${anchor}`,
     );
@@ -426,11 +428,7 @@ export function fitHingedChainCandidate(
   ): IReading | null {
     const angles: IAngles | undefined =
       rotatedOvershoot !== null &&
-      !full &&
-      Number.isFinite(upper.x) &&
-      Number.isFinite(upper.y) &&
-      Number.isFinite(upper.z) &&
-      Number.isFinite(upper.w)
+      !full
         ? undefined
         : decomposed(upper);
     const u: IAutoMovieJointPose | undefined = angles?.joint;
@@ -439,7 +437,7 @@ export function fitHingedChainCandidate(
     const jointOvershoot = (): number =>
       (u === undefined
         ? rotatedOvershoot!(upper)
-        : scoredByChart && !Number.isNaN(angles!.overshoot)
+        : scoredByChart && angles!.overshoot !== undefined
           ? angles!.overshoot
           : upperOvershoot(u, upperRotated ? upper : undefined)) +
       known.overshoot;
@@ -1482,9 +1480,9 @@ interface IAngles {
 
   /**
    * The gate's sum of those angles under the root's ungated constraint,
-   * degrees, or NaN.
+   * degrees; undefined where the chart choice scored none.
    */
-  overshoot: number;
+  overshoot: number | undefined;
 }
 
 /**

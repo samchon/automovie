@@ -118,20 +118,15 @@ export function AutoMovieArchetypeEquineFord<
       fix: "Author the water, banks and swim so the animal floats where it leaves the ford and can stand where it reaches the far bank.",
     });
   };
-  if (!Number.isFinite(water))
-    refuse("water", water, "the water's surface must be a finite height");
-  if (!(Number.isFinite(transition) && transition > 0))
+  if (!(transition > 0))
     refuse(
       "transition",
       transition,
       "the cut's decay must be positive seconds",
     );
   for (const key of ["length", "speed", "cycle"] as const)
-    if (!(Number.isFinite(swim[key]) && swim[key] > 0))
+    if (!(swim[key] > 0))
       refuse(`swim.${key}`, swim[key], "must be finite and positive");
-  for (const key of ["immersion", "neck"] as const)
-    if (!Number.isFinite(swim[key]))
-      refuse(`swim.${key}`, swim[key], "must be finite");
   if (swim.length / swim.speed < transition)
     refuse(
       "swim.length",
@@ -341,8 +336,6 @@ export function AutoMovieArchetypeEquineFord<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeEquineFordPlan.ISample<Id, Dimension> {
-    if (!Number.isFinite(seconds))
-      throw new RangeError("A crossing is sampled at a finite film second");
     if (seconds < float) {
       const grounded: AutoMovieArchetypeRide.ISample<Id, Dimension> =
         entry.at(seconds);

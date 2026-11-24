@@ -30,17 +30,17 @@ export function bracketedBisection(
   high: number,
   tolerance: number,
 ): number {
-  if (!Number.isFinite(low) || !Number.isFinite(high))
-    throw new Error("A bracketed bisection needs two finite ends");
-  if (!(tolerance > 0) || !Number.isFinite(tolerance))
+  if (!(tolerance > 0))
     throw new Error("A bracketed bisection needs a positive finite tolerance");
   let lo: number = low;
   let hi: number = high;
   while (Math.abs(hi - lo) > tolerance) {
     // Ends past half the largest double overflow their sum; halving each
     // first keeps that midpoint finite.
-    let mid: number = (lo + hi) / 2;
-    if (!Number.isFinite(mid)) mid = lo / 2 + hi / 2;
+    const mid: number =
+      Math.abs(lo) > Number.MAX_VALUE / 2 || Math.abs(hi) > Number.MAX_VALUE / 2
+        ? lo / 2 + hi / 2
+        : (lo + hi) / 2;
 
     // Adjacent ends have no double between them: the midpoint rounds onto
     // one, and keeping it would repeat the same bracket forever.

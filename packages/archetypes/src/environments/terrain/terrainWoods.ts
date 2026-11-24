@@ -96,17 +96,13 @@ export function terrainWoods(
     const id: string = `${context.id}/woods/${name}`;
     const scale: number = woods.scale ?? 1;
     const spacing: number = woods.spacing;
-    if (!(Number.isFinite(spacing) && spacing > 0))
+    if (!(spacing > 0))
       throw new Error(`Terrain woods "${id}" need a positive finite spacing.`);
-    if (!(Number.isFinite(scale) && scale > 0))
+    if (!(scale > 0))
       throw new Error(`Terrain woods "${id}" need a positive finite scale.`);
     if (
       woods.count !== undefined &&
-      !(
-        Number.isInteger(woods.count) &&
-        woods.count >= 1 &&
-        woods.count <= MAX_TREES
-      )
+      !(woods.count >= 1 && woods.count <= MAX_TREES)
     )
       throw new Error(
         `Terrain woods "${id}" need a count from one to 100,000: ${woods.count}.`,
@@ -153,8 +149,7 @@ export function terrainWoods(
           !(createTree.KINDS as readonly string[]).includes(kind),
       ) ||
       weights.some(
-        ([, weight]: [createTree.Kind, number]): boolean =>
-          !(Number.isFinite(weight) && weight > 0),
+        ([, weight]: [createTree.Kind, number]): boolean => !(weight > 0),
       )
     )
       throw new Error(

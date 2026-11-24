@@ -81,10 +81,6 @@ export function planAutoMovieSupportLoft64(
               determinant,
           );
         }
-        if (![...x, ...z].every(Number.isFinite))
-          throw new Error(
-            "nonfinite-support-curve: plane intersection overflow",
-          );
         span.curves.set(`${i}:${j}`, { pair: [i, j], determinant, x, z });
       }
     const excluded: Set<string> = new Set();
@@ -160,7 +156,6 @@ export function planAutoMovieSupportLoft64(
           const slack: number =
             normal[0] * x + normal[1] * z - B.scalar(field.offsets[k], phase);
           return (
-            Number.isFinite(slack) &&
             (triple.includes(k) ? Math.abs(slack) <= epsilon : slack <= epsilon)
           );
         },
@@ -319,7 +314,7 @@ export function planAutoMovieSupportLoft64(
         ),
       );
       cells += pairs.length * segments;
-      if (!Number.isSafeInteger(cells) || cells > input.maxCells)
+      if (cells > input.maxCells)
         throw new Error("support-cell-budget-exhausted: no geometry emitted");
       span.intervals.push({
         before: interval - 1,

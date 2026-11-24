@@ -37,12 +37,7 @@ export const inspectAutoMovieMeshTopology: (
 ) => IAutoMovieMeshTopology = (
   mesh: IAutoMovieMesh,
 ): IAutoMovieMeshTopology => {
-  const nonFinite: number =
-    countNonFinite(mesh.positions) +
-    countNonFinite(mesh.normals) +
-    countNonFinite(mesh.uvs) +
-    countNonFinite(mesh.colors ?? null) +
-    countNonFinite(mesh.reliefWeights ?? null);
+
   const {
     indices,
     corners,
@@ -87,7 +82,6 @@ export const inspectAutoMovieMeshTopology: (
     triangles: indices.length / 3,
     degenerate: degenerateTriangles.length,
     degenerateTriangles,
-    nonFinite,
     boundaryEdges,
     nonManifoldEdges,
     watertight: edges.size > 0 && boundaryEdges === 0 && nonManifoldEdges === 0,
@@ -95,16 +89,3 @@ export const inspectAutoMovieMeshTopology: (
   };
 };
 
-/**
- * How many components of one optional attribute buffer are not finite numbers,
- * counted in place so measuring a merged building never allocates a second copy
- * of its buffers.
- */
-const countNonFinite: (values: readonly number[] | null) => number = (
-  values: readonly number[] | null,
-): number => {
-  if (values === null) return 0;
-  let count: number = 0;
-  for (const value of values) if (Number.isFinite(value) === false) ++count;
-  return count;
-};

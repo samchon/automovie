@@ -48,11 +48,11 @@ export const planAutoMovieFilmSamples: (
   const count: number | undefined = props.optics.samples;
   if (count === undefined)
     throw new Error("planAutoMovieFilmSamples: the optics set no samples.");
-  if (!(Number.isFinite(props.fps) && props.fps > 0))
+  if (!(props.fps > 0))
     throw new Error(
       "planAutoMovieFilmSamples: fps must be finite and above zero.",
     );
-  if (!(Number.isFinite(props.fovY) && props.fovY > 0 && props.fovY < 180))
+  if (!(props.fovY > 0 && props.fovY < 180))
     throw new Error("planAutoMovieFilmSamples: fovY must be within (0, 180).");
 
   const interval: number =

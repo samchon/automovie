@@ -154,7 +154,6 @@ export function test_location_terrain_woods(): void {
       "the wood plants trees with every trunk pair at least the spacing apart",
       (): boolean =>
         planted.length > 0 &&
-        Number.isFinite(trunk) &&
         trunk > 0 &&
         planted.every(
           (a: IAutoMovieExplicitInstanceTransform, i: number): boolean =>

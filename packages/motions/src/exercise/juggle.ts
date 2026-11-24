@@ -178,8 +178,7 @@ export namespace juggle {
         fix: `throw at least ${least.toFixed(2)} m high`,
       });
     }
-    const throws: number = p.throws ?? 3 * n;
-    HumanBound.whole("throws", throws);
+    const throws: number = HumanBound.whole("throws", p.throws ?? 3 * n);
 
     // The schedule: throw j from hand j % 2 (right first) every half cycle.
     const radius: number = HumanBall(

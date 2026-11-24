@@ -5,8 +5,6 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { validateRotationArtifact } from "./validateRotationArtifact";
-import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
  * Append polygon body cue findings under `$input.polygonBodyCues`. Artifact
@@ -81,7 +79,7 @@ export function appendPolygonBodyCuesArtifact(
 
     const at: number = cue.at;
     const duration: number = cue.duration;
-    if (!Number.isFinite(at) || at < 0 || at >= shotDuration)
+    if (at < 0 || at >= shotDuration)
       collector.push(
         "range",
         `${path}.at`,
@@ -89,7 +87,6 @@ export function appendPolygonBodyCuesArtifact(
         at,
       );
     if (
-      !Number.isFinite(duration) ||
       duration < 0 ||
       at + duration > shotDuration
     )
@@ -100,19 +97,7 @@ export function appendPolygonBodyCuesArtifact(
         duration,
       );
 
-    validateRotationArtifact(
-      cue.rotation,
-      `${path}.rotation`,
-      "polygon body cue rotation",
-      collector,
-    );
-    if (cue.kind === "detach")
-      validateVectorArtifact(
-        cue.translation,
-        `${path}.translation`,
-        "polygon body cue translation",
-        collector.items,
-      );
+    collector.unitQuaternion(`${path}.rotation`, cue.rotation, "polygon body cue rotation");
   });
 
   // Check directed ancestor paths after collecting all targets so either cue

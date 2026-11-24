@@ -55,7 +55,7 @@ export function measureGrammarShotSize(
   const horizontal: number =
     subject.radius / (base.depth * halfY * camera.aspect);
   const occupancy: number = Math.max(vertical, horizontal);
-  return !Number.isFinite(occupancy) || occupancy <= GRAMMAR_EPSILON
+  return occupancy <= GRAMMAR_EPSILON
     ? null
     : classifyGrammarShotSize(occupancy);
 }

@@ -30,7 +30,7 @@ export function sampleAutoMovieDialogueVisemeWeights(
     "timeline" | "frame" | "fps"
   >,
 ): IAutoMovieHumanVisemeWeights {
-  if (!Number.isFinite(props.frame) || !(props.fps > 0))
+  if (!(props.fps > 0))
     throw new Error(
       "dialogue viseme frame and rate must be finite and positive",
     );

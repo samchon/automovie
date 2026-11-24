@@ -17,33 +17,36 @@ import { AnimalNeutralReferences } from "../internal/AnimalNeutralReferences";
  * The neutral fixture set has real connected, grounded, rigid controls.
  *
  * Scenarios:
- * 1. The fixture covers eight kinds, four equid tacks, five pony breeds, two mule sexes,
- *    three dog cohorts, six camel references and both adult deer references
- *    with 200 seeds per explicit case and a total unit budget of 60 s.
- * 2. Actual primitive-centre parent inverses, capsule membership and directed
- *    bar endpoints establish physical attachment and adjacent-joint closure.
- *    Real four-control lengths preserve independent source or declared-transfer
- *    expectations; no attachment calculator supplies an expected answer.
- * 3. Actual cylinder/capsule support places every terminal sole on Y=0 and
- *    keeps every primitive above ground and the neutral torso off the floor.
- *    A tilted cylinder's distal cap centre is not mistaken for its sole.
- * 4. Repeated requests preserve bytes and caller inputs. Mutating a returned
- *    read query or a separately built model cannot mutate another result.
- * 5. Missing/wrong/degenerate/nonrigid bars, broken chains, nonplanar limbs and
- *    physically detached complete chains refuse; binary64 endpoint noise remains
- *    admitted. No foreign method, renderer or process is substituted.
  *
- * Horse controls use Kubo1992 Table4 and Matsuura2008 Table2 with the producer's
- * declared three-decimal normalization precision. The pony/donkey transfer uses
- * the Brooks2010 surface-data cohort means; unmeasured humerus/femur transfer
- * remains provisional. Huson2025 Table1 dog surface controls divide whole feet
- * into two authored bars, not measured canine bones. Ox uses Bhagat2022 Table2
- * with separate Hakim2019 female-FH controls scaled by the declared height ratio.
- * Camel uses Diop2020 pooled/TableII body rows and the explicitly provisional
- * Mostafa/Khalil2018 four-control transfer. Deer uses Ochiai/Asada1995 Table3 body
- * rows and the separate sex-matched 1997 Table7 bones; fourth digits are authored
- * at 0.11 of height. No catalogue row or source SD is an individual population band.
- * Authored dog22/ox300/camel450 kg include their drawn equipment and are not study weights.
+ * 1. The fixture covers eight kinds, four equid tacks, five pony breeds, two mule
+ *    sexes, three dog cohorts, six camel references and both adult deer
+ *    references with 200 seeds per explicit case and a total unit budget of 60
+ *    s.
+ * 2. Actual primitive-centre parent inverses, capsule membership and directed bar
+ *    endpoints establish physical attachment and adjacent-joint closure. Real
+ *    four-control lengths preserve independent source or declared-transfer
+ *    expectations; no attachment calculator supplies an expected answer.
+ * 3. Actual cylinder/capsule support places every terminal sole on Y=0 and keeps
+ *    every primitive above ground and the neutral torso off the floor. A tilted
+ *    cylinder's distal cap centre is not mistaken for its sole.
+ * 4. Repeated requests preserve bytes and caller inputs. Mutating a returned read
+ *    query or a separately built model cannot mutate another result.
+ * 5. Missing/wrong/degenerate/nonrigid bars, broken chains, nonplanar limbs and
+ *    physically detached complete chains refuse; binary64 endpoint noise
+ *    remains admitted. No foreign method, renderer or process is substituted.
+ *
+ * Horse controls use Kubo1992 Table4 and Matsuura2008 Table2 with the
+ * producer's declared three-decimal normalization precision. The pony/donkey
+ * transfer uses the Brooks2010 surface-data cohort means; unmeasured
+ * humerus/femur transfer remains provisional. Huson2025 Table1 dog surface
+ * controls divide whole feet into two authored bars, not measured canine bones.
+ * Ox uses Bhagat2022 Table2 with separate Hakim2019 female-FH controls scaled
+ * by the declared height ratio. Camel uses Diop2020 pooled/TableII body rows
+ * and the explicitly provisional Mostafa/Khalil2018 four-control transfer. Deer
+ * uses Ochiai/Asada1995 Table3 body rows and the separate sex-matched 1997
+ * Table7 bones; fourth digits are authored at 0.11 of height. No catalogue row
+ * or source SD is an individual population band. Authored dog22/ox300/camel450
+ * kg include their drawn equipment and are not study weights.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the fixture's species, cohort and tack coverage, source measurements versus coarse transfers, actual bar/solid frame semantics, source-floor support, isolation and negative admission scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs actual public models for every explicit request and seed, inspects their actual physical geometry, exercises the actual public neutral reader, verifies real tack identities and queries, and submits independently edited real source parts to its refusal boundary.
@@ -136,7 +139,10 @@ export function test_archetype_animal_neutral_attachment(): void {
   );
 }
 
-/** Malformed requests edit real independently built source records without replacing any API. */
+/**
+ * Malformed requests edit real independently built source records without
+ * replacing any API.
+ */
 function refusals(findings: string[]): void {
   const source: ReturnType<typeof createDog> = createDog(
     { mass: 22, cohort: "pet" },
@@ -301,16 +307,21 @@ function refusals(findings: string[]): void {
     );
 }
 
-/** Preserve nonfinite numeric identity when observing malformed-input immutability. */
+/**
+ * Preserve nonfinite numeric identity when observing malformed-input
+ * immutability.
+ */
 function snapshot(value: unknown): string {
-  return JSON.stringify(value, (_key: string, member: unknown): unknown =>
-    typeof member === "number" && !Number.isFinite(member)
-      ? ["nonfinite-number", String(member)]
-      : member,
+  return JSON.stringify(
+    value,
+    (_key: string, member: unknown): unknown => member,
   );
 }
 
-/** Real tack identities make the four equid variants genuine consumers of each neutral body. */
+/**
+ * Real tack identities make the four equid variants genuine consumers of each
+ * neutral body.
+ */
 function tack(
   model: AnimalNeutralObservation.Model,
   params: createQuadruped.IParams,
@@ -378,7 +389,10 @@ function edit(
   );
 }
 
-/** Keep the genuine bar kind and every other shape field while making its requested numeric defect. */
+/**
+ * Keep the genuine bar kind and every other shape field while making its
+ * requested numeric defect.
+ */
 function shape(
   part: IAutoMovieModelPart,
   key: "height" | "radius",
@@ -399,7 +413,10 @@ function shape(
   };
 }
 
-/** Preserve all four bars and their closure while independently violating attachment or source-plane premises. */
+/**
+ * Preserve all four bars and their closure while independently violating
+ * attachment or source-plane premises.
+ */
 function moveChain(
   parts: readonly IAutoMovieModelPart[],
   rotate: boolean,

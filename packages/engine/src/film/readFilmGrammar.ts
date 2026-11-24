@@ -95,16 +95,7 @@ export function readFilmGrammar(
         sum + shot.duration,
       0,
     );
-    const average: number = Number.isFinite(sum)
-      ? sum / shots.length
-      : shots.reduce(
-          (
-            mean: number,
-            shot: IAutoMovieNormalizedGrammarShot,
-            index: number,
-          ): number => mean + (shot.duration - mean) / (index + 1),
-          0,
-        );
+    const average: number = sum / shots.length;
     diagnostics.push({
       code: "grammar-pacing",
       severity: "advisory",

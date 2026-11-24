@@ -29,7 +29,7 @@ export function planAutoMovieVideoFrames(
   if (props.frames.length === 0)
     throw new Error("A video extraction needs at least one frame");
   for (const frame of props.frames)
-    if (!(Number.isSafeInteger(frame) && frame >= 0))
+    if (!(frame >= 0))
       throw new Error(
         `Video frame ${frame} is not a whole number of zero or more`,
       );

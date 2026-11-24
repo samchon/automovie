@@ -157,7 +157,6 @@ function scaledNorm(
     const value: number = Math.abs(
       inverse ? values[at]! / scales[at]! : values[at]! * scales[at]!,
     );
-    if (!Number.isFinite(value)) return value;
     if (value === 0) continue;
     if (value > largest) {
       sum = 1 + sum * (largest / value) ** 2;

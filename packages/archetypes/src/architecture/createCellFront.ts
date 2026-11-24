@@ -66,7 +66,7 @@ export function createCellFront(
   // round section and then one centre per further bar.
   const width: number = params.width;
   const narrowest: number = d.spacing + d.diameter;
-  if (!Number.isFinite(width) || width < narrowest)
+  if (width < narrowest)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "cellFront",

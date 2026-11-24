@@ -146,12 +146,7 @@ export function extractRecoveryImageFeatures(
         if (!(hxx < 0 && determinant > 0)) continue;
         const rx: number = (hxy * gy - hyy * gx) / determinant;
         const ry: number = (hxy * gx - hxx * gy) / determinant;
-        if (
-          !Number.isFinite(rx) ||
-          !Number.isFinite(ry) ||
-          Math.max(Math.abs(rx), Math.abs(ry)) > 1
-        )
-          continue;
+        if (Math.max(Math.abs(rx), Math.abs(ry)) > 1) continue;
         const px: number = x + rx,
           py: number = y + ry;
         const orientationX: number = sample(ox, width, px, py);
@@ -288,7 +283,7 @@ export function extractRecoveryImageFeatures(
     }
     let norm: number = 0;
     for (const value of descriptor) norm = Math.hypot(norm, value);
-    if (!(norm > 1e-12) || !Number.isFinite(norm)) {
+    if (!(norm > 1e-12)) {
       zeroDescriptors++;
       continue;
     }

@@ -55,14 +55,13 @@ export namespace AutoMovieMotionHumanHead {
     const to: number = clock.at(window[1]);
     const span: readonly [string, string] = [window[0], window[1]];
 
-    // Prepared at the first sample, so a count it refuses is refused there.
-    let wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> | undefined;
+    const wave: ReturnType<typeof AutoMovieMotionClock.prepareWave> =
+      AutoMovieMotionClock.prepareWave(clock, span, cycles);
     return AutoMovieMotionHumanJoints.add({
       channels: ["head"],
       from,
       to,
       delta: (seconds: number): IAutoMovieMotionHumanJoints.Angles => {
-        wave ??= AutoMovieMotionClock.prepareWave(clock, span, cycles);
         return share(axis, degrees * wave(seconds));
       },
     });

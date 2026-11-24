@@ -122,7 +122,7 @@ export namespace motionHumanLaw {
    * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The closure holds the performance and F distinct frame maps, with O(F times B) bone references and no eviction; releasing the film reader releases this helper's memory.
    */
   export function film(performance: IAutoMovieMotionHumanPerformance): IFilm {
-    if (!Number.isFinite(performance.duration) || performance.duration < 0)
+    if (performance.duration < 0)
       throw new Error(`invalid film duration ${performance.duration}`);
     const known: Map<string, Bones> = new Map();
     return {
@@ -133,8 +133,6 @@ export namespace motionHumanLaw {
       ): readonly IAutoMovieMotionHumanAuditMotionType.ISpan[] =>
         performance.segments(subject),
       bones: (subject: string, seconds: number): Bones => {
-        if (!Number.isFinite(seconds))
-          throw new Error(`${subject}: a nonfinite film second ${seconds}`);
         const key: string = `${subject}@${seconds}`;
         let bones: Bones | undefined = known.get(key);
         if (bones === undefined) {

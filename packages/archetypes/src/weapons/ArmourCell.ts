@@ -15,13 +15,7 @@ export namespace ArmourCell {
     high: IAutoMovieVector3,
   ): ArmourProfile.ICell {
     for (const axis of ["x", "y", "z"] as const)
-      if (
-        !(
-          Number.isFinite(low[axis]) &&
-          Number.isFinite(high[axis]) &&
-          low[axis] < high[axis]
-        )
-      )
+      if (!(low[axis] < high[axis]))
         throw new RangeError(`Armour ${id} requires a positive finite panel`);
     const points: IAutoMovieVector3[] = [];
     for (const x of [low.x, high.x])
@@ -38,13 +32,13 @@ export namespace ArmourCell {
     let minimum: number = Infinity;
     for (const face of faces) {
       const support: number = distance(face, centre);
-      if (!(Number.isFinite(support) && support > 0))
+      if (!(support > 0))
         throw new RangeError(
           "Armour outer course requires positive face support",
         );
       minimum = Math.min(minimum, support);
     }
-    if (!Number.isFinite(minimum))
+    if (minimum === Infinity)
       throw new RangeError("Armour outer course requires at least one face");
     return minimum;
   }
@@ -81,7 +75,7 @@ export namespace ArmourCell {
         : course === "lattice"
           ? cavity / (cavity + wall)
           : cavity / (support * outward);
-    if (!(Number.isFinite(factor) && factor > 0 && factor < 1 && wall > 0))
+    if (!(factor > 0 && factor < 1 && wall > 0))
       throw new RangeError(
         `Armour ${id} cannot retain its cavity inside the actual wall`,
       );

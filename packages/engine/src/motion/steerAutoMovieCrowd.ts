@@ -113,12 +113,10 @@ export function steerAutoMovieCrowd(
       ["radius", a.radius],
       ["speed", a.speed],
     ] as const)
-      if (!(Number.isFinite(value) && value > 0))
+      if (!(value > 0))
         throw new Error(
           `steerAutoMovieCrowd: agent ${i}'s ${name} ${value} is not positive`,
         );
-    if (!Number.isFinite(a.start))
-      throw new Error(`steerAutoMovieCrowd: agent ${i}'s start is not finite`);
     if (steerAutoMovieCrowdGeometry.goals(a).length === 0)
       throw new Error(`steerAutoMovieCrowd: agent ${i} has no goal`);
   });
@@ -140,8 +138,8 @@ export function steerAutoMovieCrowd(
   );
 
   // Each pair's readings within one evaluation, its first agent's index the smaller: the evaluation's
-  // number, the contact (time, NaN for none, normal, relative velocity), the avoidance change (direction,
-  // change, whether the other side negates it) and the two agents' capacities (the second's NaN when unread).
+  // number, the contact (time, Infinity for none, normal, relative velocity), the avoidance change (direction,
+  // change, whether the other side negates it) and the two agents' capacities (the second's Infinity when unread).
   const PAIR: number = 13;
   const pairs: Float64Array = new Float64Array((PAIR * n * (n - 1)) / 2);
   const pair = (a: number, b: number): number =>
@@ -307,7 +305,7 @@ export function steerAutoMovieCrowd(
           const b: number = PAIR * pair(j, k);
           if (pairs[b] === epoch) {
             const time: number = pairs[b + 1]!;
-            if (Number.isNaN(time)) continue;
+            if (time === Infinity) continue;
             const nx: number = pairs[b + 2]!;
             const nz: number = pairs[b + 3]!;
             const ux: number = pairs[b + 4]!;
@@ -346,7 +344,7 @@ export function steerAutoMovieCrowd(
           );
         const b: number = PAIR * pair(k, j);
         pairs[b] = epoch;
-        if (found === null) pairs[b + 1] = NaN;
+        if (found === null) pairs[b + 1] = Infinity;
         else {
           pairs[b + 1] = found.time;
           pairs[b + 2] = found.nx;
@@ -435,7 +433,7 @@ export function steerAutoMovieCrowd(
           source = pairs;
           at = first + 6;
           sign = -1;
-          own = Number.isNaN(pairs[first + 12]!)
+          own = pairs[first + 12] === Infinity
             ? steerAutoMovieCrowdGeometry.capacity(
                 vx,
                 vz,
@@ -483,7 +481,7 @@ export function steerAutoMovieCrowd(
           if (j > k) {
             source[at + 4] = turns ? 1 : 0;
             source[at + 5] = own;
-            source[at + 6] = other > 0 ? theirs : NaN;
+            source[at + 6] = other > 0 ? theirs : Infinity;
           }
         }
         const share: number = Math.min(own, Math.max(1 - theirs, 0.5));

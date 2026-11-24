@@ -34,12 +34,7 @@ export class QuadrupedEquipmentSolids {
       (
         sphere: AutoMovieArchetypeQuadrupedEquipment.ISphere,
       ): AutoMovieArchetypeQuadrupedEquipment.ISphere => {
-        if (
-          !(Number.isFinite(sphere.radius) && sphere.radius > 0) ||
-          ![sphere.centre.x, sphere.centre.y, sphere.centre.z].every(
-            Number.isFinite,
-          )
-        )
+        if (!(sphere.radius > 0))
           throw new RangeError(
             "Additional equipment body spheres must be finite and positive",
           );
@@ -89,8 +84,6 @@ export class QuadrupedEquipmentSolids {
         top = up(top + amount);
       height = Math.max(height, top);
     }
-    if (!Number.isFinite(height))
-      this.refuse("pack.bridge", height, "support envelope");
     return height;
 
     /**
@@ -98,7 +91,6 @@ export class QuadrupedEquipmentSolids {
      * tolerance.
      */
     function up(value: number): number {
-      if (!Number.isFinite(value)) return value;
       if (value === 0) return Number.MIN_VALUE;
       view.setFloat64(0, value, false);
       view.setBigUint64(

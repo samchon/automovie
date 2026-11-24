@@ -40,18 +40,17 @@ export function speedProfile(
   const fail = (what: string): never => {
     throw new Error(`speedProfile: ${what}`);
   };
-  if (!Number.isFinite(props.start)) fail(`start ${props.start} is not finite`);
   for (const [name, rate] of [
     ["acceleration", props.acceleration],
     ["deceleration", props.deceleration],
   ] as const)
-    if (rate !== undefined && !(Number.isFinite(rate) && rate > 0))
+    if (rate !== undefined && !(rate > 0))
       fail(`${name} ${rate} is not positive`);
   // A rate is read only by a stretch that changes speed; one that needs a missing rate fails there.
   const rate = (name: "acceleration" | "deceleration", k: number): number =>
     props[name] ??
     fail(`stretch ${k} changes speed, which needs the profile's ${name}`);
-  if (!(Number.isFinite(props.speed) && props.speed >= 0))
+  if (!(props.speed >= 0))
     fail(`the start speed ${props.speed} is negative or not finite`);
 
   const phases: IAutoMovieSpeedProfile.IPhase[] = [];
@@ -62,12 +61,12 @@ export function speedProfile(
   props.stretches.forEach(
     (stretch: IAutoMovieSpeedProfile.Stretch, k: number): void => {
       const end: number = stretch.speed;
-      if (!(Number.isFinite(end) && end >= 0))
+      if (!(end >= 0))
         fail(`stretch ${k}'s speed ${end} is negative or not finite`);
       if (stretch.kind === "seconds") {
         // One constant rate from the entry speed to the mark over the stated time.
         const seconds: number = stretch.seconds;
-        if (!(Number.isFinite(seconds) && seconds > 0))
+        if (!(seconds > 0))
           fail(`stretch ${k}'s duration ${seconds} is not positive`);
         const change: number = (end - v) / seconds;
         if (change > 0 && change > rate("acceleration", k))
@@ -108,9 +107,9 @@ export function speedProfile(
       // A distance stretch: accelerate toward the cap, hold, brake onto the mark.
       const length: number = stretch.length;
       const cap: number = stretch.cap;
-      if (!(Number.isFinite(length) && length > 0))
+      if (!(length > 0))
         fail(`stretch ${k}'s length ${length} is not positive`);
-      if (!(Number.isFinite(cap) && cap > 0 && cap >= v && cap >= end))
+      if (!(cap > 0 && cap >= v && cap >= end))
         fail(
           `stretch ${k}'s cap ${cap} is not positive or lies below its entry ${v} or its mark ${end}`,
         );

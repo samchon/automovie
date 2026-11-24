@@ -152,10 +152,7 @@ export namespace AutoMovieConicHermiteField {
     patch: IAutoMovieConicHermite.IPatch<IAutoMovieConicFieldJet.IJet>,
     ray: IAutoMovieConicArc.IRay,
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
-    if (
-      ray.position === "interior" &&
-      (ray.clock === null || !Number.isFinite(ray.clock))
-    )
+    if (ray.position === "interior" && ray.clock === null)
       return {
         kind: "failure",
         detail:
@@ -239,15 +236,6 @@ export namespace AutoMovieConicHermiteField {
             patch.extent - patch.curvature * patch.extent * patch.extent,
           ]
         : polarGeometry(reading.point, directionValue.tangent, logCurvature);
-    if (
-      ![
-        ...reading.point,
-        ...directionValue.tangent,
-        ...radial,
-        logCurvature,
-      ].every(Number.isFinite)
-    )
-      return null;
 
     return {
       point: reading.point,
@@ -275,7 +263,7 @@ export namespace AutoMovieConicHermiteField {
       (point[0] / rho) * tangent[0] + (point[1] / rho) * tangent[1];
     const cross: number =
       (point[0] / rho) * tangent[1] - (point[1] / rho) * tangent[0];
-    if (!(Number.isFinite(cross) && cross > 0)) return [NaN, NaN, NaN];
+    if (!(cross > 0)) return [NaN, NaN, NaN];
     const ratio: number = dot / cross;
     return [
       rho,

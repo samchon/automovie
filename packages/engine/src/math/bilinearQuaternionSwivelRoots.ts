@@ -19,9 +19,6 @@ export function bilinearQuaternionSwivelRoots(
   cross: number,
 ): readonly number[] | "all" | null {
   if (
-    !a.every(Number.isFinite) ||
-    !b.every(Number.isFinite) ||
-    !Number.isFinite(cross) ||
     Math.abs(cross) >= 1
   )
     return null;
@@ -101,7 +98,6 @@ export function bilinearQuaternionSwivelRoots(
   const toDegrees: number = 180 / Math.PI;
   const first: number = wrapDegrees((phase - offset) * toDegrees);
   const second: number = wrapDegrees((phase + offset) * toDegrees);
-  if (!Number.isFinite(first) || !Number.isFinite(second)) return null;
   return first === second ? [first] : [first, second];
 }
 

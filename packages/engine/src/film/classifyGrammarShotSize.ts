@@ -20,7 +20,7 @@ import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
 export function classifyGrammarShotSize(
   frameOccupancy: number,
 ): IAutoMovieCameraIntent["framing"] {
-  if (Number.isFinite(frameOccupancy) === false || frameOccupancy <= 0)
+  if (frameOccupancy <= 0)
     throw new Error("frameOccupancy must be finite and positive.");
   const logVisibleSubjects: number = -Math.log(frameOccupancy);
   const distance: (fraction: number) => number = (fraction: number): number =>

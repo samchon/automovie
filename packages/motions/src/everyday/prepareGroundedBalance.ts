@@ -28,7 +28,8 @@ export function prepareGroundedBalance(
   window: HumanPhysics.Window,
   bearing?: (seconds: number) => readonly AutoMovieHumanSide[],
 ): IAutoMovieMotionHumanPrimitive["write"] {
-  let trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined;
+  const trunk: ReturnType<typeof prepareHumanTrunkBalance> | undefined =
+    window?.by === "trunk" ? prepareHumanTrunkBalance(body) : undefined;
   return (
     posture,
     seconds,
@@ -39,10 +40,8 @@ export function prepareGroundedBalance(
     const weight: number = HumanPhysics.weightAt(window, seconds);
     if (weight === 0 || window === null) return posture;
     const sides: readonly AutoMovieHumanSide[] | undefined = bearing?.(seconds);
-    if (window.by === "trunk") {
-      trunk ??= prepareHumanTrunkBalance(body);
+    if (trunk !== undefined)
       return trunk(posture, weight, resolution, projection, sides);
-    }
 
     const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(
       body,

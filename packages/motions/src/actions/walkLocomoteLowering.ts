@@ -1,0 +1,162 @@
+import type { preparePoseResolution } from "@automovie/engine";
+import type {
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanWalkFoot,
+  IAutoMovieVector3,
+} from "@automovie/interface";
+
+import type { HumanKnot } from "../posture/HumanKnot";
+import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
+import { WALK_TICK } from "./WALK_TICK";
+import { walkDescent } from "./walkDescent";
+import { walkLeg } from "./walkLeg";
+import type { walkLocomoteGround } from "./walkLocomoteGround";
+import type { walkLocomoteSwings } from "./walkLocomoteSwings";
+import { walkReach } from "./walkReach";
+import { walkReachGround } from "./walkReachGround";
+
+/** The two scheduled feet at an action second. */
+type Feet = Record<
+  AutoMovieHumanSide,
+  IAutoMovieMotionHumanWalkFoot.IScheduled
+>;
+
+/** The pelvis's three joint angles at an action second, degrees. */
+type Hips = readonly [number, number, number];
+
+/** A posture read's optional FK source. */
+type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
+
+/**
+ * A stepping gait's root lowering solved in preparation: the lowering that asks
+ * for itself (`walkReachGround`) is the one quantity a read would search for,
+ * so it is solved exactly at the take's two ends and every swing's toe-off,
+ * mid-swing and heel strike, with the middle of each interval between two of
+ * them, and read between those knots from a knot course
+ * (`prepareHumanKnotCourse`, a minimum-jerk path after Flash and Hogan 1985, J.
+ * Neurosci. 5(7):1688). A read then places the stances under the lowered hips
+ * with no root search.
+ */
+export namespace walkLocomoteLowering {
+  /**
+   * The least gap between two knots of the lowering, seconds: knots nearer
+   * than a tick (`WALK_TICK`) are one.
+   */
+  export const GAP: number = WALK_TICK;
+
+  /**
+   * The knot seconds of a lowering: the take's two ends and every swing's
+   * toe-off, mid-swing and heel strike within it, those nearer than `GAP`
+   * merged, with the middle of each interval between two of them.
+   *
+   * @param duration The take's duration, seconds.
+   * @param swings Every swing of the plan.
+   * @returns The knot seconds, ascending.
+   */
+  export function times(
+    duration: number,
+    swings: readonly walkLocomoteSwings.ISwing[],
+  ): number[] {
+    const events: number[] = [0, duration];
+    for (const swing of swings)
+      events.push(swing.off, (swing.off + swing.on) / 2, swing.on);
+    const sorted: number[] = events
+      .filter((t: number): boolean => t >= 0 && t <= duration)
+      .sort((a: number, b: number): number => a - b)
+      .filter(
+        (t: number, i: number, all: number[]): boolean =>
+          i === 0 || t - all[i - 1]! > GAP,
+      );
+    const out: number[] = [];
+    for (let i: number = 0; i < sorted.length; i++) {
+      if (i > 0) out.push((sorted[i - 1]! + sorted[i]!) / 2);
+      out.push(sorted[i]!);
+    }
+    return out;
+  }
+
+  /**
+   * Prepare a lowering's knot course.
+   *
+   * @param duration The take's duration, seconds.
+   * @param swings Every swing of the plan.
+   * @param exact The exact lowering at a second, metres.
+   * @returns The lowering's course.
+   */
+  export function prepare(
+    duration: number,
+    swings: readonly walkLocomoteSwings.ISwing[],
+    exact: (t: number) => number,
+  ): prepareHumanKnotCourse.ICourse {
+    const at: number[] = times(duration, swings);
+    return prepareHumanKnotCourse(
+      at.map(
+        (t: number): HumanKnot.IKnot => ({ position: [exact(t)], dwell: 0 }),
+      ),
+      { kind: "fixed", times: at },
+    );
+  }
+
+  /**
+   * A walk's pelvis at a second under its prepared lowering: the stances
+   * placed under the lowered hips, a swinging foot's claim kept only as the
+   * mark that it bears no stance.
+   *
+   * @param context What the settling reads of the walk's plan.
+   * @param t Action seconds.
+   * @param feet The scheduled feet there.
+   * @param amount How much the body is walking there.
+   * @param hips The pelvis's joint angles there.
+   * @param resolution The read's optional FK source.
+   * @param drop The prepared lowering, metres.
+   * @returns The settled pelvis and feet.
+   */
+  export function placed(
+    context: walkLocomoteGround.IContext,
+    t: number,
+    feet: Feet,
+    amount: number,
+    hips: Hips,
+    resolution: Resolution,
+    drop: number,
+  ): walkReach.IGround {
+    const read: ReturnType<typeof preparePoseResolution> | undefined =
+      resolution === undefined
+        ? undefined
+        : prepareHumanPoseResolution.read(resolution);
+    const root: IAutoMovieVector3 = context.root(t);
+    const frame: walkReach.IPelvis = walkReach.pelvis(
+      context.body,
+      root,
+      context.steps.yaw(t),
+      hips,
+      feet,
+      read,
+    );
+
+    // A swinging foot bears no stance; its claim's value is not read under a
+    // prepared lowering.
+    const claims: Partial<Record<AutoMovieHumanSide, number>> = {};
+    for (const side of walkReach.SIDES) {
+      const swing: IAutoMovieMotionHumanWalkFoot.IScheduled["swing"] =
+        feet[side].swing;
+      if (swing === undefined) continue;
+      if (context.gait.swing > 1 || swing.u >= walkDescent.START)
+        claims[side] = 0;
+    }
+    return walkReachGround(
+      context.body,
+      root,
+      frame,
+      feet,
+      claims,
+      walkLeg.ROCKER * amount,
+      undefined,
+      {},
+      undefined,
+      drop,
+    );
+  }
+}

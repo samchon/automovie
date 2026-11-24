@@ -67,7 +67,6 @@ export class ViolationCollector {
   ): void {
     if (
       typeof value !== "number" ||
-      !Number.isFinite(value) ||
       value < min ||
       value > max
     )
@@ -94,13 +93,10 @@ export class ViolationCollector {
 
   /**
    * Checks a direction that need not be unit length: one `range` violation at
-   * `<path>.<axis>` per non-finite component, or, when every component is
-   * finite, one at `path` if the measured length is nonfinite or `1e-12` or
-   * shorter.
+   * `path` if the measured length is `1e-12` or shorter.
    *
    * @param path Violation path of the checked vector.
-   * @param value Direction to check; a finite measured length above 1e-12
-   *   passes.
+   * @param value Direction to check; a measured length above 1e-12 passes.
    * @param label Name of the direction in the messages.
    */
   public direction(
@@ -108,12 +104,8 @@ export class ViolationCollector {
     value: IAutoMovieVector3,
     label: string,
   ): void {
-    this.finiteVector(path, value, label);
     const length: number = Vector3.length(value);
-    if (
-      [value.x, value.y, value.z].every(Number.isFinite) &&
-      (!Number.isFinite(length) || length <= DIRECTION_EPSILON)
-    )
+    if (length <= DIRECTION_EPSILON)
       this.push(
         "range",
         path,
@@ -122,29 +114,6 @@ export class ViolationCollector {
       );
   }
 
-  /**
-   * Pushes one `range` violation at `<path>.<axis>` for each non-finite
-   * component of a vector, worded `<label> <axis> must be finite, but was
-   * <value>`.
-   *
-   * @param path Violation path of the checked vector.
-   * @param value Vector whose three components must be finite.
-   * @param label Name of the vector in the messages.
-   */
-  public finiteVector(
-    path: string,
-    value: IAutoMovieVector3,
-    label: string,
-  ): void {
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(value[axis]))
-        this.push(
-          "range",
-          `${path}.${axis}`,
-          `${label} ${axis} must be finite, but was ${value[axis]}`,
-          value[axis],
-        );
-  }
 
   /**
    * Pushes a `range` violation at `path` unless a value is a finite number
@@ -159,7 +128,7 @@ export class ViolationCollector {
     value: number | undefined,
     label: string,
   ): void {
-    if (value === undefined || !Number.isFinite(value) || value <= 0)
+    if (value === undefined || value <= 0)
       this.push(
         "range",
         path,
@@ -182,7 +151,7 @@ export class ViolationCollector {
     label: string,
   ): void {
     const norm: number = Math.hypot(value.x, value.y, value.z, value.w);
-    if (!Number.isFinite(norm) || Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
+    if (Math.abs(norm - 1) > UNIT_QUATERNION_EPSILON)
       this.push(
         "range",
         path,

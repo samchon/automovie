@@ -52,10 +52,7 @@ export namespace AutoMovieViewOutline {
       knots.length < 2 ||
       !knots.every(
         (k: IAutoMovieViewPart.IKnot, i: number): boolean =>
-          Number.isFinite(k.station) &&
-          Number.isFinite(k.value) &&
-          (i === 0 ||
-            (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap)),
+          i === 0 || (k.station > xs[i - 1]! && k.station - xs[i - 1]! >= gap),
       )
     )
       return {
@@ -68,7 +65,6 @@ export namespace AutoMovieViewOutline {
       const knot: IAutoMovieViewPart.IKnot =
         end === "bottom" ? knots[0]! : knots[knots.length - 1]!;
       if (
-        !Number.isFinite(tip) ||
         knot.station !== tip ||
         !(
           Math.abs(knot.value) <=
@@ -127,42 +123,21 @@ export namespace AutoMovieViewOutline {
     );
     if (
       !parameters.every(
-        (s: number, i: number): boolean =>
-          Number.isFinite(s) &&
-          (i === 0 ||
-            (s > parameters[i - 1]! &&
-              Number.isFinite(s - parameters[i - 1]!))),
+        (s: number, i: number): boolean => i === 0 || s > parameters[i - 1]!,
       )
     )
       return {
         contract: "outline",
-        detail:
-          "source parameters do not increase by finite intervals through the source knots",
+        detail: "source parameters do not increase through the source knots",
       };
     const spline: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
       parameters,
       knots.map((k: IAutoMovieViewPart.IKnot): number => k.value),
     );
-    if (!spline.curvatures.every(Number.isFinite))
-      return {
-        contract: "outline",
-        detail: "the source spline has a nonfinite parameter curvature",
-      };
     for (let i: number = 0; i + 1 < parameters.length; i++) {
       const h: number = parameters[i + 1]! - parameters[i]!;
       const m0: number = spline.curvatures[i]!;
       const m1: number = spline.curvatures[i + 1]!;
-      if (
-        ![
-          (h * (m1 - m0)) / 2,
-          h * m0,
-          (knots[i + 1]!.value - knots[i]!.value) / h - (h * (2 * m0 + m1)) / 6,
-        ].every(Number.isFinite)
-      )
-        return {
-          contract: "outline",
-          detail: `source interval ${i} has unrepresentable cubic derivative coefficients`,
-        };
     }
     const requested: boolean =
       outline.range !== undefined ||
@@ -229,7 +204,7 @@ export namespace AutoMovieViewOutline {
             outline.parameter,
             x,
           );
-          if (Number.isFinite(s)) stations.push(s);
+          stations.push(s);
         }
     }
     return [...new Set(stations)].sort((a: number, b: number): number => a - b);
@@ -297,16 +272,8 @@ export namespace AutoMovieViewOutline {
     stationScale: number,
     valueScale: number,
   ): IAutoMovieViewPart.IOutline {
-    if (
-      !(
-        Number.isFinite(stationScale) &&
-        stationScale > 0 &&
-        Number.isFinite(valueScale)
-      )
-    )
-      throw new Error(
-        "outline unit conversion needs finite factors and a positive station scale",
-      );
+    if (!(stationScale > 0))
+      throw new Error("outline unit conversion needs a positive station scale");
     const p: IAutoMovieConstructionOutlineParameter | undefined =
       outline.parameter;
     const converted: IAutoMovieConstructionOutlineParameter | undefined =

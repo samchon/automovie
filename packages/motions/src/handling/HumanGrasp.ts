@@ -155,7 +155,8 @@ export namespace HumanGrasp {
    *   absent.
    * @param required What a grip must hold before its cost counts: a measure of
    *   its per-key errors, judgements and the bounds the keys hold their
-   *   judgements to (the grasp's, then each stroke key's; `NaN` where none) and
+   *   judgements to (the grasp's, then each stroke key's; a zero judgement and
+   *   an infinite bound where none) and
    *   the most it may be. A grip within the bound is chosen before any beyond
    *   it; with none within, the one nearest the bound is returned for the
    *   caller to refuse. Absent, the least cost alone decides.

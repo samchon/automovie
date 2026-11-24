@@ -66,9 +66,6 @@ export function sampleAutoMovieParameterSweep(
         y: number = ys[k]! * scale;
       if (
         !(scale > 0) ||
-        !Number.isFinite(scale) ||
-        !Number.isFinite(x) ||
-        !Number.isFinite(y) ||
         ((xs[k] !== 0 || ys[k] !== 0) && x === 0 && y === 0)
       )
         throw new Error("scaled parameter sweep sample is not representable");
@@ -84,8 +81,6 @@ export function sampleAutoMovieParameterSweep(
       frame[at + 1]! + (frame[at + 4]! * mean[0]! + frame[at + 7]! * mean[1]!);
     const z: number =
       frame[at + 2]! + (frame[at + 5]! * mean[0]! + frame[at + 8]! * mean[1]!);
-    if (!Number.isFinite(x) || !Number.isFinite(y) || !Number.isFinite(z))
-      throw new Error("parameter sweep world sample is not representable");
     out[offset] = x;
     out[offset + 1] = y;
     out[offset + 2] = z;
@@ -95,16 +90,12 @@ export function sampleAutoMovieParameterSweep(
 /** Nonzero reaches carry positive representable trapezoid weights. */
 function tent(below: number, above: number): Array<[number, number]> {
   if (
-    !Number.isFinite(below) ||
-    !Number.isFinite(above) ||
     below < 0 ||
     above < 0
   )
     throw new Error("parameter sweep cell must be finite and nonnegative");
   const total: number = below + above;
   if (total === 0) return [[0, 1]];
-  if (!Number.isFinite(total))
-    throw new Error("parameter sweep cell span is not representable");
   const left: number = below / total / 2,
     right: number = above / total / 2;
   if (
@@ -131,10 +122,7 @@ function average(
     total: number = 0;
   for (let k: number = 0; k < xs.length; k++) {
     if (
-      !Number.isFinite(xs[k]!) ||
-      !Number.isFinite(ys[k]!) ||
-      !(weights[k]! > 0) ||
-      !Number.isFinite(weights[k]!)
+      !(weights[k]! > 0)
     )
       throw new Error("parameter sweep average input is not finite");
     maximumX = Math.max(maximumX, Math.abs(xs[k]!));
@@ -154,8 +142,6 @@ function average(
   const x: number = maximumX * normalizedX,
     y: number = maximumY * normalizedY;
   if (
-    !Number.isFinite(x) ||
-    !Number.isFinite(y) ||
     ((normalizedX !== 0 || normalizedY !== 0) && x === 0 && y === 0)
   )
     throw new Error("parameter sweep average is not representable");

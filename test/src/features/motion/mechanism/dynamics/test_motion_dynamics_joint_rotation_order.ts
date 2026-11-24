@@ -22,20 +22,21 @@ import { qclose } from "../../../internal/qclose";
  * A bone can explicitly compose flexion, then abduction, then twist.
  *
  * Scenarios:
- * 1. Opposite-handed Cartesian and rotated bases compose noncommuting
- *    angles under a signed clinical frame. Direct, mutable, fixed and
- *    scalar prepared readers agree with independent axis-angle products.
- * 2. Both abduction gimbals pin the last angle. An alternate chart
- *    reconstructs the same quaternion and selects the ROM-compatible fold.
- * 3. The same angles still produce the original components for undeclared
- *    orders on the legacy proximal and distal bases.
  *
- * @see https://www.isbweb.org/standards/hip.pdf
+ * 1. Opposite-handed Cartesian and rotated bases compose noncommuting angles under
+ *    a signed clinical frame. Direct, mutable, fixed and scalar prepared
+ *    readers agree with independent axis-angle products.
+ * 2. Both abduction gimbals pin the last angle. An alternate chart reconstructs
+ *    the same quaternion and selects the ROM-compatible fold.
+ * 3. The same angles still produce the original components for undeclared orders
+ *    on the legacy proximal and distal bases.
+ *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the axes, analogous ISB order, signs, alias domain and scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the engine package's public wrappers and basis readers, comparing actual products and reported angles and reconstructing the gimbal and folded attitudes.
  * @evidence contracts/development/testing.md#independent-expectations Three independent principal-axis quaternions composed in the declared order supply orientation. The authored signed frame supplies exact chart coordinates and the folded interval excludes the principal reading.
  * @evidence contracts/development/testing.md#distinguishing-cases Cartesian and dense axes, both handednesses, mutable frame reads, both abduction gimbals, a near-gimbal, a folded principal angle and both legacy defaults.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable CPU-only feature uses fixed axes and an in-memory angle grid.
+ * @see https://www.isbweb.org/standards/hip.pdf
  */
 export function test_motion_dynamics_joint_rotation_order(): void {
   const spin: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
@@ -179,7 +180,9 @@ export function test_motion_dynamics_joint_rotation_order(): void {
         },
       };
       const folded: IAutoMovieQuaternion = compose(fold);
-      const score: { overshoot: number } = { overshoot: NaN };
+      const score: decomposeJointRotationOnBasis.IScore = {
+        overshoot: undefined,
+      };
       const selected: IAutoMovieResolvedJointAngles =
         decomposeJointRotationOnBasis.scored(
           folded,

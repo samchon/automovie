@@ -24,8 +24,6 @@ export function applyAutoMovieRecoveryAnalyticPublication(
     !/^[0-9a-f]{40,64}$/i.test(publication.sourceCommit) ||
     publication.curveBundleSha256 !== hashes.curveBundleSha256 ||
     publication.continuationSha256 !== hashes.continuationSha256 ||
-    !Array.isArray(publication.curveOverrides) ||
-    !Array.isArray(publication.analyticDomains) ||
     bundle.analyticDomains?.length ||
     bundle.coefficientPublication
   )
@@ -54,22 +52,17 @@ export function applyAutoMovieRecoveryAnalyticPublication(
       curve.type !== "cubicBezier" ||
       curve.unit !== "mm" ||
       curve.phaseUnit !== "normalized" ||
-      typeof curve.closed !== "boolean" ||
       curve.closed !== originals.get(curve.name)?.closed ||
-      !Array.isArray(curve.spans) ||
       !curve.spans.length ||
       curve.phaseIntervals.length !== curve.spans.length ||
-      !curve.phaseIntervals.every(
-        (width: number): boolean => width > 0 && Number.isFinite(width),
-      ) ||
-      !Number.isFinite(row.dataUpperEstimateMm) ||
+      !curve.phaseIntervals.every((width: number): boolean => width > 0) ||
       row.dataUpperEstimateMm < 0 ||
       curve.spans.some(
         (net: AutoMovieCubicBezierControls3): boolean =>
           net.length !== 4 ||
           net.some(
             (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-              point.length !== 3 || !point.every(Number.isFinite),
+              point.length !== 3,
           ),
       )
     )

@@ -84,12 +84,12 @@ export function test_math_prepared_rotation_coefficients(): void {
             findings.push(String(placement) + "/" + index + "/" + sign + ": paired raw composition differs");
           if (index === 0 && sign === 1) {
             first = result;
-            first.quaternion.x = NaN;
+            first.quaternion.x = 999;
             first.joint.flexion = 1e6;
           }
         }
       }
-      if (first === undefined || !Number.isNaN(first.quaternion.x) || first.joint.flexion !== 1e6)
+      if (first === undefined || first.quaternion.x !== 999 || first.joint.flexion !== 1e6)
         findings.push(String(placement) + ": later reads repaired a caller-owned earlier result");
     }
   TestValidator.equals("prepared coefficient consumers preserve physical geometry and scope", findings, []);

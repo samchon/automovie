@@ -79,12 +79,9 @@ export function RecoveryChartFitReport(
     sample: NonNullable<IAutoMovieRecoveryChartFit.Input["validation"]>[number],
   ): number => {
     if (
-      !Number.isSafeInteger(sample.patch) ||
       sample.patch < 0 ||
       sample.patch >= input.patches.length ||
       !finite(sample.pointMm) ||
-      !Number.isFinite(sample.u) ||
-      !Number.isFinite(sample.v) ||
       sample.u < 0 ||
       sample.u > 1 ||
       sample.v < 0 ||

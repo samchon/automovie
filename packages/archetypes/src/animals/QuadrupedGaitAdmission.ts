@@ -23,11 +23,7 @@ export namespace QuadrupedGaitAdmission {
   ): Pick<AutoMovieArchetypeQuadrupedGait.IGait, "elevation"> {
     if (elevation === undefined) return {};
     for (const end of ["fore", "hind"] as const)
-      if (
-        elevation === null ||
-        typeof elevation !== "object" ||
-        !(elevation[end] >= 0 && elevation[end] <= 1)
-      )
+      if (elevation === null || !(elevation[end] >= 0 && elevation[end] <= 1))
         refuse(
           `${axis}.elevation.${end}`,
           elevation,
@@ -53,7 +49,7 @@ export namespace QuadrupedGaitAdmission {
     explicit: readonly AutoMovieArchetypeQuadrupedGait.Gait[],
   ): Pick<AutoMovieArchetypeQuadrupedGait.ITable, "collected"> {
     if (collected === undefined) return {};
-    if (collected === null || typeof collected !== "object")
+    if (collected === null)
       refuse(
         "table.collected",
         collected,

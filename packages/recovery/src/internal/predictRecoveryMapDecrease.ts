@@ -14,9 +14,7 @@ export function predictRecoveryMapDecrease(
   if (
     blocks.length < 1 ||
     cameraWidth < 1 ||
-    increment.length !== gradient.length ||
-    !gradient.every(Number.isFinite) ||
-    !increment.every(Number.isFinite)
+    increment.length !== gradient.length
   )
     throw new Error(
       "camera-regularization: finite matching physical coordinates required",
@@ -37,12 +35,7 @@ export function predictRecoveryMapDecrease(
     for (let row: number = 0; row < block.right.length; row++) {
       const camera: readonly number[] = block.cameraRows[row]!;
       const local: readonly number[] = block.pointRows[row]!;
-      if (
-        camera.length !== cameraWidth ||
-        local.length !== 3 ||
-        !camera.every(Number.isFinite) ||
-        !local.every(Number.isFinite)
-      )
+      if (camera.length !== cameraWidth || local.length !== 3)
         throw new Error(
           "camera-regularization: finite original block layout required",
         );
@@ -55,5 +48,5 @@ export function predictRecoveryMapDecrease(
     }
   }
   const predicted: number = -linear - 0.5 * quadratic;
-  return Number.isFinite(predicted) ? predicted : null;
+  return predicted;
 }

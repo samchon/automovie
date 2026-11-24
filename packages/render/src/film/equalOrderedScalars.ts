@@ -13,9 +13,8 @@ import type {
  * scalars; order and the scalar's type both count. `Object.is` decides each
  * scalar, so `NaN` equals `NaN` and `+0` differs from `-0`.
  *
- * A non-array argument returns false instead of being compared, so a record
- * cannot pass by lacking a `length`. Nesting deeper than one row, prototypes,
- * symbol keys, boxed primitives and cycles are outside the domain.
+ * Nesting deeper than one row, prototypes, symbol keys, boxed primitives and
+ * cycles are outside the domain.
  */
 export const equalOrderedScalars: (
   left: readonly AutoMovieOrderedEntry[],
@@ -24,8 +23,6 @@ export const equalOrderedScalars: (
   left: readonly AutoMovieOrderedEntry[],
   right: readonly AutoMovieOrderedEntry[],
 ): boolean => {
-  if (Array.isArray(left) === false || Array.isArray(right) === false)
-    return false;
   if (left.length !== right.length) return false;
   for (let at: number = 0; at < left.length; ++at) {
     const one: AutoMovieOrderedEntry = left[at]!;

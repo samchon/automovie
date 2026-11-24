@@ -16,7 +16,6 @@ import type {
 
 import { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { HumanLimbIncumbent } from "../posture/HumanLimbIncumbent";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { refitHumanPosture } from "../posture/refitHumanPosture";
@@ -75,12 +74,11 @@ export namespace HumanSegmentOverlay {
    * planned shape until the window closes. The goals travel to the final
    * transition resolver too, so a later offset or clamp cannot move the
    * contact. Every branch reads one overlay's raw posture and fade weight at
-   * the same local second, so each is evaluated once per call. Branches still
-   * resolve their own under-postures and named limb fits independently. Leaf,
-   * carry and contact fits keep their own poses and seeds while exact FK
-   * dependency arithmetic may be shared within this evaluation. Multi-joint
-   * fades prepare the unchanged rig's blend metadata lazily; every joint still
-   * performs its own interpolation on its actual ends.
+   * the same local second, so each is evaluated once, before the branches.
+   * Branches still resolve their own under-postures and named limb fits
+   * independently. Leaf, carry and contact fits keep their own poses and seeds
+   * while exact FK dependency arithmetic may be shared within this evaluation.
+   * Every joint still performs its own interpolation on its actual ends.
    *
    * @param person The person.
    * @param posture The carrier's posture at the second, layers applied.
@@ -95,10 +93,8 @@ export namespace HumanSegmentOverlay {
    * @param prepared Optional same-body evaluation preparation, lending genuine
    *   direct ROM metadata to leaves and complete source evaluation to first
    *   held-frame capture.
-   * @param carrier The action the overlays ride, whose last leaf seeds start
-   *   the leaf's swept fits' bounded searches and which keeps this leaf's
-   *   (`IAutoMovieMotionHumanSegment.incumbents`); absent, the fits search
-   *   without them.
+   * @param carrier The action the overlays ride, whose prepared legs-still fit
+   *   the leaf keeps (`HumanSegmentLegs`); absent, the leaf fits its legs.
    * @returns The pose, the seeds of its fits and its open contact goals.
    */
   export function overlaid(
@@ -148,36 +144,43 @@ export namespace HumanSegmentOverlay {
         : prepareHumanPoseResolution(source);
 
     // Fade branches have different under-postures and fit seeds, but read
-    // each overlay's raw plan and fade weight at the same local second.
-    let postures: (IAutoMovieMotionHumanPosture | undefined)[] | undefined;
-    let weights: (number | undefined)[] | undefined;
-    let ordinals: (number | undefined)[] | undefined;
-    let ownership:
-      | (Map<AutoMovieHumanoidBone, boolean> | undefined)[]
-      | undefined;
-    let blender: ReturnType<typeof blendHumanJoint.prepare> | undefined;
-    let driving:
-      | Map<
-          IAutoMovieMotionHumanSegment.IOverlay,
-          Partial<Record<AutoMovieHumanSide, boolean>>
-        >
-      | undefined;
-    const mergers: (
-      | ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>
-      | undefined
-    )[] = [];
-    function drives(
-      overlay: IAutoMovieMotionHumanSegment.IOverlay,
-      side: AutoMovieHumanSide,
-    ): boolean {
-      let sides: Partial<Record<AutoMovieHumanSide, boolean>> | undefined =
-        driving?.get(overlay);
-      if (sides === undefined) {
-        sides = {};
-        (driving ??= new Map()).set(overlay, sides);
-      }
-      return (sides[side] ??= HumanSegment.drives(overlay.plan, side));
-    }
+    // each overlay's raw plan, fade weight and ordinal at the same local
+    // second: each is read once, before the branches.
+    const live: readonly IAutoMovieMotionHumanSegment.IOverlay[] =
+      active ?? [];
+    const postures: IAutoMovieMotionHumanPosture[] = live.map(
+      (overlay: IAutoMovieMotionHumanSegment.IOverlay): IAutoMovieMotionHumanPosture =>
+        postureAt(overlay),
+    );
+    const weights: number[] = live.map(
+      (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
+        // An overlay handing its channels on to the act after it in its
+        // chain keeps them to its end (`handsOn`), so the act after it
+        // enters from where it ended and blends in from it, not from the
+        // carrier.
+        Math.min(
+          minimumJerk.share(
+            Math.min(
+              1,
+              Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
+            ),
+          ),
+          HumanSegmentOverlayRun.released(person, overlay, seconds),
+        ),
+    );
+    const ordinals: number[] = live.map(
+      (overlay: IAutoMovieMotionHumanSegment.IOverlay): number =>
+        person.overlays.indexOf(overlay),
+    );
+    const mergers: ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge>[] =
+      live.map(
+        (
+          overlay: IAutoMovieMotionHumanSegment.IOverlay,
+        ): ReturnType<typeof AutoMovieMotionHumanChannel.prepareMerge> =>
+          AutoMovieMotionHumanChannel.prepareMerge(overlay.channels),
+      );
+    const blender: ReturnType<typeof blendHumanJoint.prepare> | undefined =
+      live.length === 0 ? undefined : blendHumanJoint.prepare(body);
     function postureAt(
       overlay: IAutoMovieMotionHumanSegment.IOverlay,
     ): IAutoMovieMotionHumanPosture {
@@ -194,7 +197,6 @@ export namespace HumanSegmentOverlay {
           reader,
           false,
           false,
-          undefined,
           local,
           undefined,
           resolution,
@@ -215,8 +217,8 @@ export namespace HumanSegmentOverlay {
       const overlay: IAutoMovieMotionHumanSegment.IOverlay | undefined =
         active?.[k];
       if (overlay === undefined) {
-        // Kept legs in a legs-still window (`HumanSegmentLegs`); the last leaf's seeds as incumbents (`HumanLimbIncumbent`).
-        const leafed = (): IAutoMovieMotionHumanResolveHumanPosture.ISeeded =>
+        // Kept legs in a legs-still window (`HumanSegmentLegs`).
+        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
           HumanSegmentLegs.resolved(
             person,
             carrier,
@@ -264,13 +266,6 @@ export namespace HumanSegmentOverlay {
               );
             },
           );
-        const held: IAutoMovieMotionHumanSegment["incumbents"] =
-          carrier?.incumbents;
-        const fitted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
-          held === undefined
-            ? leafed()
-            : HumanLimbIncumbent.within({ body, seeds: held }, leafed);
-        if (carrier !== undefined) carrier.incumbents = fitted.seeds;
         for (const [limb, seed] of Object.entries(fitted.seeds))
           seeds.set(`leaf:${tag}:${limb}`, seed ?? null);
         let leaf: IAutoMoviePose = fitted.pose;
@@ -279,7 +274,7 @@ export namespace HumanSegmentOverlay {
           carried.filter(
             (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
               !used.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
-                drives(o, h.side),
+                HumanSegment.drives(o.plan, h.side),
               ),
           ),
           resolution,
@@ -310,28 +305,15 @@ export namespace HumanSegmentOverlay {
         }
         return { pose: leaf, contacts: {} };
       }
-      const written: IAutoMovieMotionHumanPosture = (mergers[k] ??=
-        AutoMovieMotionHumanChannel.prepareMerge(overlay.channels))(
+      const written: IAutoMovieMotionHumanPosture = mergers[k]!(
         under,
-        ((postures ??= [])[k] ??= postureAt(overlay)),
+        postures[k]!,
       );
-      // An overlay handing its channels on to the act after it in its chain
-      // keeps them to its end (`handsOn`), so the act after it enters from
-      // where it ended and blends in from it, not from the carrier.
-      const weight: number = ((weights ??= [])[k] ??= Math.min(
-        minimumJerk.share(
-          Math.min(
-            1,
-            Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
-          ),
-        ),
-        HumanSegmentOverlayRun.released(person, overlay, seconds),
-      ));
+      const weight: number = weights[k]!;
 
       // The prefix names exactly the included overlays, in their original
       // first-index order; each leaf keeps its previous fit names.
-      const ordinal: number = ((ordinals ??= [])[k] ??=
-        person.overlays.indexOf(overlay));
+      const ordinal: number = ordinals[k]!;
       const revisited: boolean = repeated || !(weight >= 1);
       const over: ReturnType<typeof build> = build(
         k + 1,
@@ -377,17 +359,9 @@ export namespace HumanSegmentOverlay {
         else if (pair[1] === undefined) pair[1] = joint;
       }
       const owned: Set<AutoMovieHumanoidBone> = new Set();
-      for (const bone of joints.keys()) {
-        let covered: boolean | undefined = repeated
-          ? ownership?.[k]?.get(bone)
-          : undefined;
-        if (covered === undefined) {
-          covered = AutoMovieMotionHumanChannel.covers(overlay.channels, bone);
-          if (repeated)
-            ((ownership ??= [])[k] ??= new Map()).set(bone, covered);
-        }
-        if (covered) owned.add(bone);
-      }
+      for (const bone of joints.keys())
+        if (AutoMovieMotionHumanChannel.covers(overlay.channels, bone))
+          owned.add(bone);
 
       // Keep unowned records borrowed and ordered; owned joints are fresh.
       const pose: IAutoMoviePose = {
@@ -448,8 +422,6 @@ export namespace HumanSegmentOverlay {
               : entered?.includes(channel)
                 ? release
                 : weight;
-        if (blender === undefined && owned.size > 1 && share > 0 && share < 1)
-          blender = blendHumanJoint.prepare(body);
         const [flexion, abduction, twist]: readonly [number, number, number] =
           blender === undefined
             ? blendHumanJoint(body, bone, from, to, share)

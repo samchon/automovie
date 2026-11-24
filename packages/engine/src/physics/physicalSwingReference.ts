@@ -376,7 +376,7 @@ export namespace physicalSwingReference {
         for (const shape of physicalSupportFootprint.colliders(segment))
           lowest = Math.min(lowest, physicalShapeBounds.lowest(at, shape));
       }
-      return Number.isFinite(lowest) ? endpoint.y - lowest : 0;
+      return lowest === Infinity ? 0 : endpoint.y - lowest;
     };
     return Math.max(
       0,

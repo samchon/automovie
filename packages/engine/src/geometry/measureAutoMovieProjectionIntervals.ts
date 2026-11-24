@@ -33,7 +33,7 @@ export function measureAutoMovieProjectionIntervals(
   raw: IAutoMovieVector3,
   origin: IAutoMovieVector3 = points[0]!,
 ): IAutoMovieProjectionIntervals {
-  let admitted: boolean = points.length > 0 && finite(raw) && finite(origin);
+  let admitted: boolean = points.length > 0;
   // An index loop, unlike `every`, also visits holes in a sparse run.
   for (let index: number = 0; admitted && index < points.length; index++)
     admitted = finite(points[index]);
@@ -86,8 +86,4 @@ const AXES: readonly ("x" | "y" | "z")[] = ["x", "y", "z"];
 
 /** Whether a slot holds a vector with three finite coordinates. */
 const finite = (point: IAutoMovieVector3 | undefined | null): boolean =>
-  point !== undefined &&
-  point !== null &&
-  Number.isFinite(point.x) &&
-  Number.isFinite(point.y) &&
-  Number.isFinite(point.z);
+  point !== undefined && point !== null;

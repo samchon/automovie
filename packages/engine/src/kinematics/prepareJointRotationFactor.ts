@@ -40,10 +40,7 @@ export function prepareJointRotationFactor(
     frame: IAutoMovieAxisFrame | undefined,
     clinical: number | null,
   ): IAutoMovieQuaternion => {
-    if (clinical !== null && !Number.isFinite(clinical))
-      throw new Error(
-        `jointToQuaternion ${key} must be finite or null, but was ${clinical}`,
-      );
+
     let angle: number;
     if (mutable) angle = toRigAngle(clinical, frame) ?? 0;
     else if (clinical === null) angle = 0;
@@ -108,7 +105,7 @@ function fixedFactor(
 ): IAutoMovieQuaternion {
   const declared: jointToQuaternionOnBasis.IFixedAngles[ClinicalAxis] =
     operation.fixedAngles?.[key];
-  if (declared === undefined || !Number.isFinite(angle)) return read(angle);
+  if (declared === undefined) return read(angle);
   const index: 0 | 1 | null = Object.is(angle, declared[0])
     ? 0
     : declared.length === 2 && Object.is(angle, declared[1])

@@ -40,7 +40,6 @@ export function measureAutoMovieGeometryCamera(
     );
 
   if (
-    Number.isFinite(request.time) === false ||
     request.time < 0 ||
     request.time > compiled.shot.duration
   )

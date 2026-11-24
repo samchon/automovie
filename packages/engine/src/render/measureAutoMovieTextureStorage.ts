@@ -12,12 +12,9 @@ export function measureAutoMovieTextureStorage(
   props: IAutoMovieMeasureTextureStorage.IProps,
 ): number | null {
   if (
-    !Number.isSafeInteger(props.width) ||
     props.width <= 0 ||
-    !Number.isSafeInteger(props.height) ||
     props.height <= 0 ||
     props.bytesPerTexel === null ||
-    !Number.isSafeInteger(props.bytesPerTexel) ||
     props.bytesPerTexel <= 0
   )
     return null;
@@ -26,7 +23,7 @@ export function measureAutoMovieTextureStorage(
   let bytes: number = 0;
   for (;;) {
     bytes += width * height * props.bytesPerTexel;
-    if (!Number.isSafeInteger(bytes)) return null;
+    if (bytes > Number.MAX_SAFE_INTEGER) return null;
     if (!props.mipmapped || (width === 1 && height === 1)) return bytes;
     width = Math.max(1, Math.floor(width / 2));
     height = Math.max(1, Math.floor(height / 2));

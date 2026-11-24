@@ -39,7 +39,6 @@ export function ArchetypeTrackRange<Id extends string>(
     AutoMovieArchetypeArticulation.range(affordance);
   for (const travel of travels)
     if (
-      !Number.isFinite(travel) ||
       (range.minimum !== null && travel < range.minimum - 1e-9) ||
       (range.maximum !== null && travel > range.maximum + 1e-9)
     )

@@ -19,15 +19,13 @@ import type {
 
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { hipJoints } from "../posture/hipJoints";
-import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { jumpJoints } from "./jumpJoints";
+import type { lowerHumanPosture } from "../posture/lowerHumanPosture";
+import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpPath } from "./jumpPath";
+import { jumpPushArms } from "./jumpPushArms";
 import { jumpPushEnd } from "./jumpPushEnd";
-import { stand } from "./stand";
-import { walkLeg } from "./walkLeg";
+import { jumpPushPassing } from "./jumpPushPassing";
+import { jumpPushRocker } from "./jumpPushRocker";
 
 /**
  * The slowest descent of a reaching-foot sole point that counts as falling,
@@ -43,29 +41,11 @@ const PIVOTING: number = 0.01;
  */
 const CARRY: number = 1e-6;
 
-/** The finite-difference step of the heel rule's slope, seconds. */
-const STEP: number = 1e-3;
-
-/**
- * The least forward gap that reads as one foot ahead of the other, metres: a
- * nanometre, the walk's root-solve width (`walkReach`), under which the gap is
- * a rounding of side by side.
- */
-const PASS_GAP: number = 1e-9;
 /** The alternatives of `OfAbout`'s site. */
 type OfAbout = "heel" | "mtp";
 
 /** The alternatives of `OfEnd`'s site. */
 type OfEnd = "joints" | "limbs";
-
-/** The record of `IOfEdgeResult`'s site. */
-type IOfEdgeResult = {
-  met: number;
-  excess: number;
-};
-
-/** The record of `IOfEdge`'s site. */
-type IOfEdge = { met: number; excess: number };
 
 /**
  * Build a jump's push-off.
@@ -189,199 +169,36 @@ export function jumpPush(props: jumpPush.IProps): jumpPush.IPush {
             ],
     };
   };
-  const prepareArm: (side: AutoMovieHumanSide) => IArmTrack = (
-    side: AutoMovieHumanSide,
-  ): IArmTrack => {
-    const from: number = entry.posture.joints[`${side}UpperArm`]?.[0] ?? 0;
-    const rate: number = entry.velocity.joints.get(`${side}UpperArm`)?.[0] ?? 0;
-    // The jump's elbow rule is the relaxed elbow plus a third of the
-    // shoulder's flexion (`jumpJoints.SHOULDER_PER_ELBOW`); the entered
-    // elbow's gap from it, and that gap's rate, are what the push fades.
-    const ruled: number = stand.ELBOW + from / jumpJoints.SHOULDER_PER_ELBOW;
-    const elbow: number | undefined =
-      entry.posture.joints[`${side}LowerArm`]?.[0];
-    return {
-      from,
-      delta: jumpJoints.TAKEOFF - from,
-      rate,
-      bend: elbow === undefined ? 0 : elbow - ruled,
-      bending:
-        elbow === undefined
-          ? 0
-          : (entry.velocity.joints.get(`${side}LowerArm`)?.[0] ?? 0) -
-            rate / jumpJoints.SHOULDER_PER_ELBOW,
-    };
-  };
-  const arms: Record<AutoMovieHumanSide, IArmTrack> = {
-    left: prepareArm("left"),
-    right: prepareArm("right"),
-  };
-  const swinging: (side: AutoMovieHumanSide) => number = (
-    side: AutoMovieHumanSide,
-  ): number => arms[side].rate;
-  const armAt: jumpPush.IPush["arm"] = (
-    phase: jumpPush.IPhase,
-    side: AutoMovieHumanSide,
-  ): number => {
-    const track: IArmTrack = arms[side];
-    return track.from + track.delta * phase.progress + track.rate * phase.carry;
-  };
-  const elbowAt: jumpPush.IPush["elbow"] = (
-    phase: jumpPush.IPhase,
-    side: AutoMovieHumanSide,
-  ): number => {
-    const track: IArmTrack = arms[side];
-    return track.bend * (1 - phase.progress) + track.bending * phase.carry;
-  };
+  const { swinging, armAt, elbowAt }: jumpPushArms.IArms = jumpPushArms({
+    entry,
+  });
 
-  // A foot entered on its heel rocker is laid flat before its heel rises,
-  // as a walking foot is (Perry and Burnfield), so the pivot passes from
-  // the heel to the toes' joint with the foot at rest: passed at a rate,
-  // the ankle's velocity would step by that rate times the foot's length.
-  // The foot comes flat in the share of the push its pitch is of the whole
-  // turn, and no later than keeps a foot entered rolling down above the
-  // floor: toward the end the carried rate's term falls as four times the
-  // cube of the time left and the pitch as ten times it.
-  const lowered: number =
-    supportPitch > 0
-      ? Math.min(
-          (P * supportPitch) / (supportPitch + jumpPush.HEEL),
-          rolling < 0 ? (2.5 * supportPitch) / -rolling : P,
-        )
-      : 0;
-  const span: number = P - lowered;
-  const start: number = Math.min(supportPitch, 0);
-  const heelAt: ReturnType<typeof HumanFoot.preparePivot> | undefined =
-    lowered > 0
-      ? HumanFoot.preparePivot(body, takeoff, "heel", heel, supportHeading)
-      : undefined;
-  const ballAt: ReturnType<typeof HumanFoot.preparePivot> =
-    HumanFoot.preparePivot(body, takeoff, "mtp", ball, supportHeading);
-  const heelContact: ReturnType<typeof HumanFoot.prepareOffset> | undefined =
-    lowered > 0 ? HumanFoot.prepareOffset(body, takeoff, "heel") : undefined;
-  const ballContact: ReturnType<typeof HumanFoot.prepareOffset> =
-    HumanFoot.prepareOffset(body, takeoff, "mtp");
-  const heelRise: ReturnType<typeof walkLeg.prepareHeelRise> =
-    walkLeg.prepareHeelRise(
-      body,
-      takeoff,
-      ball,
-      supportHeading,
-      walkLeg.ROCKER,
-    );
-  // The flat foot's heel then rises by the rule a walking stance rises by:
-  // asked from flat to its take-off pitch, and no later than the ankle's
-  // dorsal limit asks. A foot the walk held by that rule is met by it.
-  // The rule reads the hip the planted leg stands from (`standing`).
-  const short: ReturnType<typeof lowerHumanPosture.prepareShort> =
-    lowerHumanPosture.prepareShort(body, lowerHumanPosture.KNEE);
-  const ruled: (
-    phase: jumpPush.IPhase,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-  ) => number = (
-    phase: jumpPush.IPhase,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-  ): number => {
-    const hip: IAutoMovieVector3 = hipJoints(
-      body,
-      phase.root,
-      humanPostureHeading({ yaw: phase.yaw, pitch: 0, roll: 0 }),
-      phase.pelvis,
-      resolution?.(),
-    )[takeoff];
-    const asked: number =
-      Math.min(start, -jumpPush.HEEL) *
-      minimumJerk.share((phase.seconds - lowered) / span);
-    const stood: IAutoMovieVector3 | undefined = jumpPush.standing(
-      hip,
-      ballAt(asked).ankle,
-      short,
-    );
-    return stood === undefined ? asked : heelRise(stood, asked);
-  };
-  // What the entry's pitch and pitch rate differ from the rule's by is
-  // eased out over the rise. A heel coming down about the ball is carried
-  // no longer than lays the foot flat, where the pivot would pass to the
-  // heel. The rule's slope at the rise's start is its second-order
-  // one-sided difference over two steps of `STEP` seconds, whose O(STEP^2)
-  // error is far below a degree per second for a rule that changes over
-  // the push's tenths of a second.
-  const edge: IOfEdge = ((): IOfEdgeResult => {
-    const read: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
-    const met: number = ruled(sample(lowered), read);
-    const excess: number =
-      (supportPitch > 0 ? 0 : rolling) -
-      (-3 * met +
-        4 * ruled(sample(lowered + STEP), read) -
-        ruled(sample(lowered + 2 * STEP), read)) /
-        (2 * STEP);
-    return { met, excess };
-  })();
-  const gap: number = start - edge.met;
-  const excess: number = edge.excess;
-  const carried: number =
-    excess > 0 ? Math.min(span, -start / (carriedRate.PEAK * excess)) : span;
-  const pitchAt: (
-    phase: jumpPush.IPhase,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-  ) => number = (
-    phase: jumpPush.IPhase,
-    resolution?: ReturnType<typeof prepareHumanPoseResolution>,
-  ): number => {
-    const t: number = phase.seconds;
-    return t < lowered
-      ? supportPitch * (1 - minimumJerk.share(t / lowered)) +
-          rolling * carriedRate(lowered, t)
-      : ruled(phase, resolution) +
-          gap * (1 - minimumJerk.share((t - lowered) / span)) +
-          (carried > CARRY ? excess * carriedRate(carried, t - lowered) : 0);
-  };
+  const {
+    lowered,
+    heelAt,
+    ballAt,
+    heelContact,
+    ballContact,
+    pitchAt,
+  }: jumpPushRocker.IRocker = jumpPushRocker({
+    body,
+    takeoff,
+    heel,
+    ball,
+    supportHeading,
+    supportPitch,
+    P,
+    rolling,
+    sample,
+    CARRY,
+  });
 
-  // The reaching foot passes the take-off shank on its own side: along the
-  // heading its gap to the take-off ankle is linear in the path's share, so
-  // it passes at s* = g0 / (g0 − g1); a lateral gap there under two shank
-  // radii (the passing clearance a line walk keeps) is opened by a bump that
-  // is the shortfall at s* and zero at both ends, s(1 − s) / (s*(1 − s*)).
-  const forward: IAutoMovieVector3 = HumanFrame.point(
-    { origin: { x: 0, y: 0, z: 0 }, yaw: heading },
-    { x: 0, y: 0, z: 1 },
-  );
-  const aside: IAutoMovieVector3 = Vector3.scale(
-    Vector3.normalize(Vector3.cross({ x: 0, y: 1, z: 0 }, forward)),
-    reaching === "left" ? 1 : -1,
-  );
-  const clearance: number = 2 * body.measure.shankRadius;
-  const passing = (
-    from: IAutoMovieVector3,
-    into: IAutoMovieVector3,
-    s: number,
-  ): IAutoMovieVector3 => {
-    const g0: number = Vector3.dot(
-      Vector3.subtract(from, support.ankle),
-      forward,
-    );
-    const g1: number = Vector3.dot(
-      Vector3.subtract(into, support.ankle),
-      forward,
-    );
-    // A pass is a sign change of two real gaps (`PASS_GAP`), strictly
-    // inside the path.
-    if (!(g0 * g1 < 0) || !(Math.min(Math.abs(g0), Math.abs(g1)) > PASS_GAP))
-      return { x: 0, y: 0, z: 0 };
-    const at: number = g0 / (g0 - g1);
-    const gap: number = Vector3.dot(
-      Vector3.subtract(Vector3.lerp(from, into, at), support.ankle),
-      aside,
-    );
-    const bump: number = Math.max(0, clearance - gap);
-    // Held at the full bump from the pass to its mirror share, so a pass
-    // near either end does not swell the bump past it in between.
-    return Vector3.scale(
-      aside,
-      bump * Math.min(1, (s * (1 - s)) / (at * (1 - at))),
-    );
-  };
+  const passing: jumpPushPassing.Passing = jumpPushPassing({
+    body,
+    heading,
+    reaching,
+    support,
+  });
 
   return {
     sample,
@@ -607,35 +424,4 @@ export namespace jumpPush {
     /** The entered pelvis continued toward upright, clinical degrees. */
     pelvis: readonly [number, number, number];
   }
-}
-
-/**
- * The original entered shoulder angle, its authored target difference and
- * carried flexion rate, with the entered elbow's gap from the jump's elbow
- * rule.
- */
-interface IArmTrack {
-  /** Entered shoulder flexion, clinical degrees. */
-  from: number;
-
-  /**
-   * Sixty degrees minus the entered flexion, preserving the original
-   * subtraction.
-   */
-  delta: number;
-
-  /** Entered flexion rate, degrees per second; zero when absent. */
-  rate: number;
-
-  /**
-   * The entered elbow flexion less the jump's elbow rule at the entered
-   * shoulder, clinical degrees; zero when the entry has no elbow.
-   */
-  bend: number;
-
-  /**
-   * That gap's entered rate, degrees per second: the elbow's rate less the
-   * rule's share of the shoulder's; zero when the entry has no elbow.
-   */
-  bending: number;
 }

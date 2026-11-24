@@ -28,11 +28,8 @@ export function createAutoMovieEllipticLoftAtlas(
     !input.loft.spans.length ||
     typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
-    !Number.isFinite(input.tolerance) ||
     input.tolerance <= 0 ||
-    !Number.isSafeInteger(input.maxCells) ||
     input.maxCells <= 0 ||
-    !Number.isSafeInteger(input.maxVertices) ||
     input.maxVertices <= 0
   )
     throw new Error(
@@ -54,10 +51,7 @@ export function createAutoMovieEllipticLoftAtlas(
       !span ||
       !Array.isArray(span.interval) ||
       span.interval.length !== 2 ||
-      !Number.isFinite(span.interval[0]) ||
-      !Number.isFinite(span.interval[1]) ||
       !(span.interval[0] < span.interval[1]) ||
-      !Number.isFinite(span.interval[1] - span.interval[0]) ||
       (previous !== undefined && previous.interval[1] !== span.interval[0])
     )
       throw new Error(
@@ -69,7 +63,6 @@ export function createAutoMovieEllipticLoftAtlas(
       for (let control: number = 0; control < 4; control++) {
         const value: number = span[field][control];
         if (
-          !Number.isFinite(value) ||
           ((field === "radiusX" || field === "radiusZ") && value <= 0)
         )
           throw new Error(
@@ -110,10 +103,6 @@ export function createAutoMovieEllipticLoftAtlas(
         const y: number =
           span.interval[0] + (span.interval[1] - span.interval[0]) * (row / 3);
         const z: number = span.centreZ[row] + span.radiusZ[row] * angular[1];
-        if (![x, y, z].every(Number.isFinite))
-          throw new Error(
-            "Elliptic tensor coefficient arithmetic exceeded finite coordinates",
-          );
         controls.push({ x, y, z });
       }
     for (let quarter: number = 0; quarter < 4; quarter++) {

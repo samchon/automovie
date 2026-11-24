@@ -57,7 +57,7 @@ export const autoMovieDrawingPartTriangles: (
   const corner: (index: number) => IAutoMovieVector3 = (
     index: number,
   ): IAutoMovieVector3 => {
-    if (!Number.isInteger(index) || index < 0 || index >= vertexCount)
+    if (index < 0 || index >= vertexCount)
       throw new Error(
         `model "${model.id}" part "${part.id}" index ${index} is outside its ${vertexCount} vertices`,
       );

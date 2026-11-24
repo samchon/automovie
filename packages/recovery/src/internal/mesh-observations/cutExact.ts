@@ -32,11 +32,6 @@ export function cutExact(
         (p[2] - plane.origin[2]) * plane.n[2],
     );
   const level: number = chart?.level ?? 0;
-  if (
-    !Number.isFinite(level) ||
-    heights.some((height: number): boolean => !Number.isFinite(height - level))
-  )
-    throw new Error("Exact section signed distances are unresolved");
   return cutExact.prepare(skin, heights)(plane, level, undefined, select);
 }
 
@@ -74,9 +69,7 @@ export namespace cutExact {
       );
     for (let i: number = 0; i < skin.vertices.length; i++)
       if (
-        !Number.isFinite(heights[i]) ||
         skin.vertices[i]!.length !== 3 ||
-        !skin.vertices[i]!.every(Number.isFinite) ||
         skin.canon[i]! < 0 ||
         skin.canon[i]! >= skin.vertices.length
       )
@@ -87,8 +80,7 @@ export namespace cutExact {
       if (
         triangle.length !== 3 ||
         triangle.some(
-          (i: number): boolean =>
-            !Number.isSafeInteger(i) || i < 0 || i >= skin.vertices.length,
+          (i: number): boolean => i < 0 || i >= skin.vertices.length,
         )
       )
         throw new Error(
@@ -100,15 +92,11 @@ export namespace cutExact {
       candidates?: readonly number[],
       select?: (triangle: number) => boolean,
     ): IAutoMovieMeshPlaneContour[] => {
-      if (!Number.isFinite(level))
-        throw new Error("A finite section level is required");
       const distances: Map<number, number> = new Map();
       const distance: (i: number) => number = (i: number): number => {
         const known: number | undefined = distances.get(i);
         if (known !== undefined) return known;
         const value: number = heights[i]! - level;
-        if (!Number.isFinite(value))
-          throw new Error("Exact section signed distances are unresolved");
         distances.set(i, value);
         return value;
       };
@@ -248,8 +236,6 @@ export namespace cutExact {
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
           ];
-          if (!p.every(Number.isFinite))
-            throw new Error("Exact section crossing is unresolved");
           points.set(id, { p, a: skin.canon[i]!, b: skin.canon[j]!, t });
         }
         if (retainOrderedSource) {
@@ -264,7 +250,7 @@ export namespace cutExact {
             a[1] * (1 - t) + b[1] * t,
             a[2] * (1 - t) + b[2] * t,
           ];
-          if (!(t > 0 && t < 1 && p.every(Number.isFinite)))
+          if (!(t > 0 && t < 1))
             throw new Error("Ordered original-edge witness is unresolved");
           remember(id, i, j, t, p);
         }
@@ -277,11 +263,7 @@ export namespace cutExact {
         fi++
       ) {
         const ti: number = candidates === undefined ? fi : candidates[fi]!;
-        if (
-          !Number.isSafeInteger(ti) ||
-          ti <= previous ||
-          ti >= skin.triangles.length
-        )
+        if (ti <= previous || ti >= skin.triangles.length)
           throw new Error(
             "Section candidates must be increasing original face addresses",
           );
@@ -366,7 +348,7 @@ export namespace cutExact {
             0,
           );
           // Duplicate or overlapping coplanar faces do not bound one patch interior.
-          interior = Number.isFinite(sense) && sense < 0;
+          interior = sense < 0;
         }
         if (interior) continue;
         if (patch.length === 1) {

@@ -260,20 +260,9 @@ async function readRecord(
   path: string,
 ): Promise<IAutoMovieCaptureRecord> {
   const text: string = new TextDecoder().decode(await storage.readFile(path));
-  let record: unknown;
   try {
-    record = JSON.parse(text);
+    return JSON.parse(text);
   } catch (error) {
     throw new Error(`${path} is not a capture record`, { cause: error });
   }
-  if (
-    typeof record !== "object" ||
-    record === null ||
-    !Array.isArray((record as { files?: unknown }).files) ||
-    !(record as { files: unknown[] }).files.every(
-      (file: unknown): boolean => typeof file === "string",
-    )
-  )
-    throw new Error(`${path} is not a capture record`);
-  return record as IAutoMovieCaptureRecord;
 }

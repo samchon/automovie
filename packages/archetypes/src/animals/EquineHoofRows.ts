@@ -75,7 +75,7 @@ export namespace EquineHoofRows {
     start: EquineStanceRows.IState,
     cue: AutoMovieArchetypeEquineComfortCue.IPaw,
   ): EquineStanceRows.IPlan {
-    if (!(Number.isInteger(cue.strokes) && cue.strokes > 0))
+    if (!(cue.strokes > 0))
       throw new RangeError("Pawing takes a positive whole number of strokes");
     const limb: AutoMovieArchetypeQuadrupedBody.Limb = `${cue.side}Fore`;
     const loaded: AutoMovieArchetypeFrame.IMotion = EquineStanceSupport.moved(

@@ -54,7 +54,7 @@ export function createTrackedRide(
 ): IAutoMovieEnvironmentModule {
   const course: IAutoMovieTrackedRide["course"] = input.course;
   const gauge: number = input.gauge ?? 1.2;
-  if (!Number.isFinite(gauge) || gauge <= 0.1)
+  if (gauge <= 0.1)
     throw new Error(
       "Tracked ride gauge must be finite and wider than the 0.1 m rail",
     );
@@ -69,18 +69,11 @@ export function createTrackedRide(
       "Tracked ride expects at least two time marks, starting at zero",
     );
   schedule.forEach((mark: IAutoMovieTrackedRide.IMark, index: number): void => {
-    if (
-      !Number.isFinite(mark.seconds) ||
-      (index > 0 && mark.seconds <= schedule[index - 1]!.seconds)
-    )
+    if (index > 0 && mark.seconds <= schedule[index - 1]!.seconds)
       throw new Error(
         `Tracked ride schedule[${index}] seconds must increase finitely`,
       );
-    if (
-      !Number.isFinite(mark.distance) ||
-      mark.distance < 0 ||
-      mark.distance > course.length
-    )
+    if (mark.distance < 0 || mark.distance > course.length)
       throw new Error(
         `Tracked ride schedule[${index}] distance falls outside the course`,
       );
@@ -113,7 +106,6 @@ export function createTrackedRide(
   if (
     boarding?.kind !== "surface" ||
     boarding.width === undefined ||
-    !Number.isFinite(boarding.width) ||
     boarding.width <= 0 ||
     Math.abs(boarding.frame.translation.x) <= LEVEL_TOLERANCE
   )

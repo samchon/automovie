@@ -22,7 +22,6 @@ export function validateMaterialWear(
 ): void {
   if (wear === undefined) return;
   if (
-    !Number.isSafeInteger(wear.seed) ||
     wear.seed < 0 ||
     wear.seed > 4294967295
   )

@@ -22,7 +22,7 @@ type IPoint =
 export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
   props: IAutoMovieContactMask.IProps,
 ): boolean[] => {
-  if (!Number.isFinite(props.tolerance) || props.tolerance < 0)
+  if (props.tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
   return props.resolved.map(
     (map: ReadonlyMap<AutoMovieHumanoidBone, IPoint>): boolean => {
@@ -31,10 +31,6 @@ export const contactMask: (props: IAutoMovieContactMask.IProps) => boolean[] = (
       )?.worldPosition;
       if (p === undefined) return false;
       const height: number = props.groundAt(p.x, p.z);
-      if (!Number.isFinite(height))
-        throw new Error(
-          `contact ground height at (${p.x}, ${p.z}) must be finite`,
-        );
       return p.y <= height + props.tolerance;
     },
   );

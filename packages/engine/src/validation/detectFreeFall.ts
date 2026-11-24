@@ -42,7 +42,7 @@ export const detectFreeFall: (
       : props.fallDuration;
   const node: string | null = props.node ?? null;
 
-  if (!Number.isFinite(margin) || margin < 0) {
+  if (margin < 0) {
     collector.push(
       "range",
       `${path}.margin`,
@@ -51,7 +51,7 @@ export const detectFreeFall: (
     );
     return empty(collector);
   }
-  if (!Number.isFinite(fallDuration) || fallDuration <= 0) {
+  if (fallDuration <= 0) {
     collector.push(
       "range",
       `${path}.fallDuration`,

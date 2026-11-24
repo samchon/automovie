@@ -70,7 +70,12 @@ export namespace standRelaxed {
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
-    let standing: IAutoMovieMotionHumanPosture | undefined;
+    const standing: IAutoMovieMotionHumanPosture = stand.stance(
+      body,
+      { x: 0, y: 0, z: 0 },
+      0,
+      {},
+    );
     const hanging: (
       abduction: number,
     ) => Partial<
@@ -136,7 +141,6 @@ export namespace standRelaxed {
     const sinks: (abduction: number) => boolean = (
       abduction: number,
     ): boolean => {
-      standing ??= stand.stance(body, { x: 0, y: 0, z: 0 }, 0, {});
       if (
         first !== undefined &&
         carried !== undefined &&

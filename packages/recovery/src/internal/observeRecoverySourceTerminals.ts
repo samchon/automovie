@@ -31,7 +31,7 @@ export function observeRecoverySourceTerminals(
   );
   const low: number = uniqueHeights[0]!,
     high: number = uniqueHeights[uniqueHeights.length - 1]!;
-  if (!(high > low && Number.isFinite(high - low)))
+  if (!(high > low))
     throw new Error(
       "Terminal observation needs a finite source projection range",
     );
@@ -39,7 +39,7 @@ export function observeRecoverySourceTerminals(
   next.setFloat64(0, high);
   next.setBigUint64(0, next.getBigUint64(0) + (high >= 0 ? 1n : -1n));
   const upper: number = high === 0 ? Number.MIN_VALUE : next.getFloat64(0);
-  if (!(upper > high && Number.isFinite(upper)))
+  if (!(upper > high))
     throw new Error("Source maximum has no finite larger half-space bound");
   const events: ReturnType<IAutoMovieMeshCriticalPoints.Operation> = critical(
     prepared.mesh,

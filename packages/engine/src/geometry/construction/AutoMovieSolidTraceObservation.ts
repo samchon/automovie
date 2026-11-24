@@ -241,10 +241,7 @@ export namespace AutoMovieSolidTraceObservation {
       " | walkFailure=" +
       JSON.stringify(
         { stage: "length-walk", directions },
-        (_key: string, value: unknown): unknown =>
-          typeof value === "number" && !Number.isFinite(value)
-            ? String(value)
-            : value,
+        (_key: string, value: unknown): unknown => value,
       )
     );
   }

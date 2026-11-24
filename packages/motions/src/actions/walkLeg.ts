@@ -286,7 +286,8 @@ export namespace walkLeg {
     const lean: ReturnType<typeof prepareWalkLegLean.bounded> =
       prepareWalkLegLean.bounded(body, heading);
     const span: number = body.measure.thigh + body.measure.shank;
-    let entry: ReturnType<typeof walkRockerReachBoundary> | undefined;
+    const entry: ReturnType<typeof walkRockerReachBoundary> =
+      walkRockerReachBoundary(at, span);
     return (
       hip: IAutoMovieVector3,
       pitch: number,
@@ -305,7 +306,7 @@ export namespace walkLeg {
         true,
         (degrees: number): boolean => Vector3.distance(at(degrees), hip) > span,
         (low: number, high: number): number | undefined =>
-          (entry ??= walkRockerReachBoundary(at, span))(
+          entry(
             hip,
             low,
             high,

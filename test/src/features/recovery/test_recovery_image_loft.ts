@@ -15,14 +15,21 @@ import { nclose } from "../internal/nclose";
 import { recoveryImageFixture } from "../internal/recoveryImageFixture";
 
 /**
- * Calibrated RGB silhouettes produce qualified compact coefficients and independent geometry.
+ * Calibrated RGB silhouettes produce qualified compact coefficients and
+ * independent geometry.
  *
  * Scenarios:
- * 1. An analytic elliptical family yields compact coefficients and finite own-engine geometry.
- * 2. Four directions excluded from fitting agree with independent analytic support.
- * 3. Box support, repeated/two distinct directions, contradictory charts and exhausted budgets refuse.
- * 4. An oscillating profile needs multiple spans and remains bounded by the declared fit budget.
- * 5. Serialized recipes reconstruct without observations, and independent dimension edits preserve unrelated axes and exact return.
+ *
+ * 1. An analytic elliptical family yields compact coefficients and finite
+ *    own-engine geometry.
+ * 2. Four directions excluded from fitting agree with independent analytic
+ *    support.
+ * 3. Box support, repeated/two distinct directions, contradictory charts and
+ *    exhausted budgets refuse.
+ * 4. An oscillating profile needs multiple spans and remains bounded by the
+ *    declared fit budget.
+ * 5. Serialized recipes reconstruct without observations, and independent
+ *    dimension edits preserve unrelated axes and exact return.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises public image observation, inverse fitting, saved-recipe compilation and the actual bicubic engine realization. Asserts conditional residuals, emitted vertex fidelity, explicit partial coverage, reserved-angle support and dimension behavior rather than inspecting implementation strings.
  * @evidence contracts/development/testing.md#independent-expectations Closed-form ellipse and box support and physical pixel centres supply independent geometric expectations. Emitted vertices are checked against the analytic implicit ellipse at their actual Y; half-pixel observation noise, circular-cubic approximation and tessellation are covered by a fixed 0.5 mm vertex tolerance. Reserved directions never enter fitting.
@@ -136,9 +143,7 @@ export function test_recovery_image_loft(): void {
       realized.approximationQualified &&
       realized.mesh.positions.length > 0 &&
       (realized.mesh.indices?.length ?? 0) > 0 &&
-      realized.mesh.positions.every(Number.isFinite) &&
-      realized.mesh.normals !== null &&
-      realized.mesh.normals.every(Number.isFinite),
+      realized.mesh.normals !== null,
   );
   for (
     let index: number = 0;

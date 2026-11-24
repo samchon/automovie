@@ -151,7 +151,10 @@ export namespace release {
         ),
         kept,
       );
-    const offsets: Partial<Record<OffsetsEntryItem, IAutoMovieVector3>> = {};
+    const offsets: Record<OffsetsEntryItem, IAutoMovieVector3> = {
+      fist: { ...HumanHand.offset(body, side, "grip", "fist").point },
+      flat: { ...HumanHand.offset(body, side, "grip", "flat").point },
+    };
     const placed: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -163,9 +166,7 @@ export namespace release {
     ): IPlanPlacedResult => {
       const at: IAutoMovieRigidTransform = carried(posture, resolution);
       const shape: PlanPlacedShape = seconds < open ? "fist" : "flat";
-      const contact: IAutoMovieVector3 = (offsets[shape] ??= {
-        ...HumanHand.offset(body, side, "grip", shape).point,
-      });
+      const contact: IAutoMovieVector3 = offsets[shape];
       return {
         wrist: placeHumanHandSurface(contact, at.position, at.rotation),
         contact,

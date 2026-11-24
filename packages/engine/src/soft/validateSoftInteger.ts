@@ -16,7 +16,7 @@ export const validateSoftInteger: (
   min: number,
   max: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
+  if (value < min || value > max)
     out.push(
       "type",
       path,

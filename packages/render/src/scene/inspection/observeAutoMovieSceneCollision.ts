@@ -82,12 +82,7 @@ export function observeAutoMovieSceneCollision(
   const findings: Diagnostic.IFinding[] = [];
   const coverage: Diagnostic.ICoverage[] = [];
   const budget: ILimits = { ...props.limits };
-  if (
-    !Number.isFinite(props.time.filmSeconds) ||
-    !Object.values(budget).every(
-      (n: number): boolean => Number.isSafeInteger(n) && n >= 0,
-    )
-  )
+  if (!Object.values(budget).every((n: number): boolean => n >= 0))
     throw new Error("Invalid placed collision clock or work limit");
   const layers: Set<string> = new Set();
   for (const layer of props.layers) {

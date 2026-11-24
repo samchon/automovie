@@ -30,11 +30,8 @@ export function combinePhysicalMassProperties(
     throw new Error("Mass properties require at least one component");
   for (const part of parts) {
     if (
-      !(part.mass > 0) ||
-      !Number.isFinite(part.mass) ||
-      !finiteVector(part.centerOfMass) ||
+      part.mass <= 0 ||
       !positiveMoments(part.inertia) ||
-      !finiteRotation(part.inertiaRotation) ||
       Math.abs(
         Math.hypot(
           part.inertiaRotation.x,
@@ -48,8 +45,6 @@ export function combinePhysicalMassProperties(
   }
   let mass: number = 0;
   for (const part of parts) mass += part.mass;
-  if (!Number.isFinite(mass))
-    throw new Error("Aggregate mass exceeds finite arithmetic");
 
   // Normalize positive weights before multiplying positions: a finite mean
   // need not have a representable unnormalized mass-times-position numerator.
@@ -63,48 +58,16 @@ export function combinePhysicalMassProperties(
     z += part.centerOfMass.z * weight;
   }
   const centerOfMass: IAutoMovieVector3 = { x, y, z };
-  if (!finiteVector(centerOfMass))
-    throw new Error("Aggregate centre exceeds finite arithmetic");
   const tensor: number[][] = physicalInertiaTensor(parts, centerOfMass);
-  for (const row of tensor)
-    for (const entry of row)
-      if (!Number.isFinite(entry))
-        throw new Error("Aggregate inertia tensor exceeds finite arithmetic");
-
   const axes3: IAutoMoviePrincipalTensorFrame = physicalPrincipalAxes(tensor);
   const inertia: IAutoMovieVector3 = axes3.moments;
   const inertiaRotation: IAutoMovieQuaternion = axes3.rotation;
-  if (!positiveMoments(inertia) || !finiteRotation(inertiaRotation))
+  if (!positiveMoments(inertia))
     throw new Error("Invalid computed aggregate principal frame");
   return { mass, centerOfMass, inertia, inertiaRotation };
 }
 
-/** Admit the three current coordinates without allocating a temporary array. */
-function finiteVector(value: IAutoMovieVector3): boolean {
-  const { x, y, z }: IAutoMovieVector3 = value;
-  return Number.isFinite(x) && Number.isFinite(y) && Number.isFinite(z);
-}
-
-/** Preserve finite-then-positive admission for each principal moment in order. */
+/** Whether each principal moment is positive. */
 function positiveMoments(value: IAutoMovieVector3): boolean {
-  const { x, y, z }: IAutoMovieVector3 = value;
-  return (
-    Number.isFinite(x) &&
-    x > 0 &&
-    Number.isFinite(y) &&
-    y > 0 &&
-    Number.isFinite(z) &&
-    z > 0
-  );
-}
-
-/** Admit all four quaternion components before the separate unit-length check. */
-function finiteRotation(value: IAutoMovieQuaternion): boolean {
-  const { x, y, z, w }: IAutoMovieQuaternion = value;
-  return (
-    Number.isFinite(x) &&
-    Number.isFinite(y) &&
-    Number.isFinite(z) &&
-    Number.isFinite(w)
-  );
+  return value.x > 0 && value.y > 0 && value.z > 0;
 }

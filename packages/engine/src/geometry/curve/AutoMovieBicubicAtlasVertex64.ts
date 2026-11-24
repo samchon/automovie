@@ -82,10 +82,6 @@ export function AutoMovieBicubicAtlasVertex64(
         ? phaseMaps[side]!.get(side % 2 === 0 ? u : v)?.[0]
         : undefined);
     const q: number = requested?.value ?? (side >= 0 ? NaN : 0);
-    if (side >= 0 && !Number.isFinite(q))
-      throw new Error(
-        "canonical edge phase is not representable in this chart",
-      );
     const declared: Occurrence["binding"] =
       side >= 0 ? occurrences[p]![side]?.binding : undefined;
     if (declared && edge) {
@@ -108,11 +104,6 @@ export function AutoMovieBicubicAtlasVertex64(
           phase,
         ),
         value: ReturnType<typeof jet> = jet(p, u, v);
-      if (
-        !position.every(Number.isFinite) ||
-        !Number.isSafeInteger(cursor.nextIndex + 1)
-      )
-        throw new Error("Unrepresentable canonical boundary vertex");
       const result: IAutoMovieBicubicAtlas64.Vertex = {
         index: cursor.nextIndex++,
         position: V.scale(position, 0.001),
@@ -155,10 +146,6 @@ export function AutoMovieBicubicAtlasVertex64(
     }
     const value: ReturnType<typeof jet> = jet(owner.patch, owner.u, owner.v);
     position ??= value.position;
-    if (!position.every(Number.isFinite))
-      throw new Error("nonfinite generated position");
-    if (!Number.isSafeInteger(cursor.nextIndex + 1))
-      throw new Error("resource-unprocessed: global vertex index exhausted");
     const result: IAutoMovieBicubicAtlas64.Vertex = {
       index: cursor.nextIndex++,
       position: V.scale(position, 0.001),

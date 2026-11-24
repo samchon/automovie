@@ -27,17 +27,15 @@ export namespace AutoMovieViewHermite {
     const span: number = xs[n - 1]! - xs[0]!;
     const first: number[] = [];
     const second: number[] = [];
-    if (!(Number.isFinite(span) && span > 0))
-      return "normalized source jets need a finite positive whole parameter span";
+    if (!(span > 0))
+      return "normalized source jets need a positive whole parameter span";
     if (
       range !== undefined &&
-      ((range.minimum !== null && !Number.isFinite(range.minimum)) ||
-        (range.maximum !== null && !Number.isFinite(range.maximum)) ||
-        (range.minimum !== null &&
-          range.maximum !== null &&
-          range.minimum > range.maximum))
+      range.minimum !== null &&
+      range.maximum !== null &&
+      range.minimum > range.maximum
     )
-      return "source range needs finite ordered bounds or null unbounded sides";
+      return "source range needs ordered bounds or null unbounded sides";
     const minimum: number = range?.minimum ?? -Infinity;
     const maximum: number = range?.maximum ?? Infinity;
     const allowance: number =
@@ -56,13 +54,6 @@ export namespace AutoMovieViewHermite {
         (h * (2 * curvatures[k]! + curvatures[k + 1]!)) / 6 +
         (i + 1 < n ? 0 : (h * (curvatures[k]! + curvatures[k + 1]!)) / 2);
       const jet: IAutoMovieViewPart.IKnot["jet"] = knots[i]!.jet;
-      if (
-        jet !== undefined &&
-        ![jet.first, jet.second].every(
-          (v: number | null): boolean => v === null || Number.isFinite(v),
-        )
-      )
-        return `source knot ${knots[i]!.site} has a nonfinite authored jet`;
       first.push(
         jet?.first === null || jet?.first === undefined
           ? natural
@@ -73,8 +64,6 @@ export namespace AutoMovieViewHermite {
           ? curvatures[i]!
           : jet.second / span / span,
       );
-      if (![first[i]!, second[i]!].every(Number.isFinite))
-        return `source knot ${knots[i]!.site} has an unrepresentable parameter jet`;
     }
     for (let i: number = 0; range !== undefined && i < n; i++) {
       const displacement: number[] = [];
@@ -87,8 +76,6 @@ export namespace AutoMovieViewHermite {
           (sign * 2 * h * first[i]!) / 5 + (h * (h * second[i]!)) / 20,
         );
       }
-      if (!displacement.every(Number.isFinite))
-        return `source knot ${knots[i]!.site} has unrepresentable Bezier controls`;
       const authored: boolean =
         knots[i]!.jet !== undefined &&
         (knots[i]!.jet!.first !== null || knots[i]!.jet!.second !== null);
@@ -116,8 +103,7 @@ export namespace AutoMovieViewHermite {
           ];
           if (
             !controls.every(
-              (v: number): boolean =>
-                Number.isFinite(v) && v >= minimum && v <= maximum,
+              (v: number): boolean => v >= minimum && v <= maximum,
             )
           )
             return false;
@@ -150,8 +136,6 @@ export namespace AutoMovieViewHermite {
         -15 * a + 7 * b - c,
         6 * a - 3 * b + c / 2,
       ];
-      if (!polynomial.every(Number.isFinite))
-        return `source interval ${i} has unrepresentable quintic coefficients`;
       coefficients.push(polynomial);
     }
     return { xs, ys, first, second, coefficients };

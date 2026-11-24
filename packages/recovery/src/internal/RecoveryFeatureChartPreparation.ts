@@ -20,7 +20,7 @@ import { RecoveryMultiBoundaryChart as M } from "./RecoveryMultiBoundaryChart";
 export function RecoveryFeatureChartPreparation(
   input: Parameters<IAutoMovieRecoveryFeatureChartPreparation.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryFeatureChartPreparation.Operation> {
-  if (!Number.isSafeInteger(input.maxCharts) || input.maxCharts < 0)
+  if (input.maxCharts < 0)
     throw new Error(
       "Feature preparation needs an explicit remaining chart budget",
     );

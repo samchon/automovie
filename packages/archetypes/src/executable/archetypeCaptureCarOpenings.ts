@@ -35,13 +35,7 @@ export function archetypeCaptureCarOpenings(): Readonly<
       )
         continue;
       const contact: IAutoMovieAffordance = car.affordance(id);
-      if (
-        !(
-          typeof contact.travel === "number" &&
-          Number.isFinite(contact.travel) &&
-          contact.travel > 0
-        )
-      )
+      if (!((contact.travel ?? 0) > 0))
         throw new RangeError(
           `Car inspection requires the actual ${kind}/${contact.id} travel`,
         );

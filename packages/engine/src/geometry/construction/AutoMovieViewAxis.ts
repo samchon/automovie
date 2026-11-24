@@ -174,8 +174,9 @@ export namespace AutoMovieViewAxis {
    * A jointed axis: straight along each segment between consecutive centres,
    * and at each interior centre a turn from one segment's direction to the next
    * about their common normal, the turned angle the quintic smoothstep `10 x^3
-   * - 15 x^4 + 6 x^5` of the share `x` of the turn's arclength `2 h`, so the
-   * tangent and the frames are C2.
+   *
+   * - 15 x^4 + 6 x^5`of the share`x`of the turn's arclength`2 h`, so the tangent
+   *   and the frames are C2.
    *
    * The station is the arclength of the course from the first centre. The turn
    * is symmetric about its corner's bisector, so it leaves the two segments'
@@ -205,12 +206,9 @@ export namespace AutoMovieViewAxis {
     if (typeof c === "string") return c;
     const { directions, turns }: IAutoMovieViewJointedCourse.ICourse = c;
     const upNorm: number = Math.hypot(...up);
-    if (!up.every(Number.isFinite) || !Number.isFinite(upNorm) || !(upNorm > 0))
-      return "up is not a finite nonzero direction";
+    if (!(upNorm > 0)) return "up is not a finite nonzero direction";
     const projected: IAutoMovieAxisDirection.IProjection =
       AutoMovieAxisDirection.project(up, directions[0]!, upNorm);
-    if (!Number.isFinite(projected.normalNorm))
-      return "up normal projection is not finitely representable";
     if (!(projected.normalNorm > 1e-9 * projected.targetNorm))
       return `up relative normal projection ${projected.normalNorm / projected.targetNorm} must exceed 1e-9 for direction conditioning`;
     const first: AutoMovieVector3Tuple = AutoMovieAxisDirection.unit(

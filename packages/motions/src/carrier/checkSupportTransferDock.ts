@@ -178,7 +178,6 @@ function checkFrame(
   frame: IAutoMovieRigidTransform,
   time: number,
 ): void {
-  admission.finiteVector("position", frame.position, "Support position");
   admission.unitQuaternion("rotation", frame.rotation, "Support rotation");
   if (admission.items.length !== 0)
     throw new HumanRefusal({

@@ -365,8 +365,7 @@ export function RecoveryEventRegionTopology(
       orientable: manifold ? orientable : null,
       inputOrientationConsistent: component.topology.inputOrientationConsistent,
       boundaryCycles: component.cycles.length,
-      genus:
-        genus !== null && Number.isInteger(genus) && genus >= 0 ? genus : null,
+      genus: genus !== null && genus >= 0 ? genus : null,
     };
     for (const cell of component.cells)
       result.cells[cell].orientationFlip =

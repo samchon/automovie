@@ -157,7 +157,7 @@ function admit(
       `the binding of ${wear.prop} names ${link.bone === undefined ? "neither" : "both"} a second bone and a target`,
       "link the worn bone to exactly one other end",
     );
-  if (!(link.slack >= 0 && Number.isFinite(link.slack)))
+  if (!(link.slack >= 0))
     refuse(
       "slack",
       link.slack,

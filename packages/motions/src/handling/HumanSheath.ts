@@ -144,7 +144,7 @@ export function HumanSheath(
   const mouth: IAutoMovieAffordance = find(carrier, params.mouth, "mouth");
   const tip: IAutoMovieAffordance = find(blade, params.tip, "tip");
   find(blade, params.handle, "handle");
-  if (!(params.clearance > 0) || !Number.isFinite(params.clearance))
+  if (!(params.clearance > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "clearance",

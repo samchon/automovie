@@ -39,18 +39,7 @@ export namespace ArchetypeMassArithmetic {
    * @throws {Error} For invalid scalar premises.
    */
   export function ratio(a: number, b: number, c: number, d: number): number {
-    if (
-      !(
-        Number.isFinite(a) &&
-        a >= 0 &&
-        Number.isFinite(b) &&
-        b >= 0 &&
-        Number.isFinite(c) &&
-        c > 0 &&
-        Number.isFinite(d) &&
-        d > 0
-      )
-    )
+    if (!(a >= 0 && b >= 0 && c > 0 && d > 0))
       throw new Error(
         "Mass ratios need finite nonnegative numerators and positive denominators",
       );
@@ -59,11 +48,8 @@ export namespace ArchetypeMassArithmetic {
     const denominator: number = c * d;
     const ordinary: number = numerator / denominator;
     if (
-      Number.isFinite(numerator) &&
       numerator >= NORMAL &&
-      Number.isFinite(denominator) &&
       denominator >= NORMAL &&
-      Number.isFinite(ordinary) &&
       ordinary >= NORMAL &&
       ordinary < HIGH
     )
@@ -83,10 +69,10 @@ export namespace ArchetypeMassArithmetic {
    * @throws {Error} For nonpositive or non-finite factors.
    */
   export function localProduct(a: number, b: number): number | null {
-    if (!(Number.isFinite(a) && a > 0 && Number.isFinite(b) && b > 0))
+    if (!(a > 0 && b > 0))
       throw new Error("Local mass products need finite positive factors");
     const result: number = product(a, b);
-    if (!(Number.isFinite(result) && result > 0)) return null;
+    if (!(result > 0)) return null;
     if (result >= NORMAL) return result;
     const read: Reader = ArchetypeBinary64();
     const represented: IDyadic = read(result);
@@ -124,8 +110,6 @@ export namespace ArchetypeMassArithmetic {
     const numerator: IDyadic = multiply([mass, weight], read);
     const denominator: IDyadic = multiply([scale, total], read);
     return (a: number, b: number = 1, c: number = 1): number => {
-      if (!(Number.isFinite(a) && Number.isFinite(b) && Number.isFinite(c)))
-        throw new Error("Mass products need finite factors");
       if (a === 0 || b === 0 || c === 0) return 0;
       const geometric: IDyadic = multiply([a, b, c], read);
       return quotient(
@@ -155,21 +139,11 @@ export namespace ArchetypeMassArithmetic {
     c: number = 1,
     d: number = 1,
   ): number {
-    if (
-      !(
-        Number.isFinite(a) &&
-        Number.isFinite(b) &&
-        Number.isFinite(c) &&
-        Number.isFinite(d)
-      )
-    )
-      throw new Error("Mass products need finite factors");
     if (a === 0 || b === 0 || c === 0 || d === 0) return 0;
     const pair: number = a * b;
     const triple: number = pair * c;
     const result: number = triple * d;
-    return Number.isFinite(result) &&
-      Math.abs(pair) >= NORMAL &&
+    return Math.abs(pair) >= NORMAL &&
       Math.abs(triple) >= NORMAL &&
       Math.abs(result) >= NORMAL &&
       Math.abs(result) < HIGH
@@ -191,11 +165,9 @@ export namespace ArchetypeMassArithmetic {
   export function sum(values: readonly number[]): number {
     let result: number = 0;
     for (const value of values) {
-      if (!Number.isFinite(value))
-        throw new Error("Mass sums need finite contributions");
       result += value;
     }
-    return Number.isFinite(result) && Math.abs(result) < HIGH
+    return Math.abs(result) < HIGH
       ? result
       : quotient(add(values.map(ArchetypeBinary64())), {
           integer: 1n,
@@ -229,9 +201,7 @@ export namespace ArchetypeMassArithmetic {
     for (let i: number = 0; i < weights.length; i++) {
       const coordinate: number = coordinates[i]!;
       const weight: number = weights[i]!;
-      if (
-        !(Number.isFinite(coordinate) && Number.isFinite(weight) && weight >= 0)
-      )
+      if (!(weight >= 0))
         throw new Error(
           "A mass mean needs finite coordinates and nonnegative finite weights",
         );
@@ -279,7 +249,7 @@ export namespace ArchetypeMassArithmetic {
   } {
     let scale: number = 0;
     for (const weight of weights) {
-      if (!(Number.isFinite(weight) && weight >= 0))
+      if (!(weight >= 0))
         throw new Error("Mass weights must be finite and nonnegative");
       scale = Math.max(scale, weight);
     }

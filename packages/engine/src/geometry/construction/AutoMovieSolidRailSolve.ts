@@ -118,7 +118,7 @@ export namespace AutoMovieSolidRailSolve {
           foot.v + k * dx[1],
         ];
         if (
-          !AutoMovieSolidDomain.contains(surface, u1, v1) ||
+          !AutoMovieSolidDomain.contains(surface, u1) ||
           (held && !host.kept(foot.face, u1, v1))
         )
           continue;
@@ -223,7 +223,7 @@ export namespace AutoMovieSolidRailSolve {
       const face0: number = current.face;
       const held: boolean = host.kept(face0, current.u, current.v);
       const inside = (u: number, v: number): boolean =>
-        AutoMovieSolidDomain.contains(host.faces[face0]!, u, v) &&
+        AutoMovieSolidDomain.contains(host.faces[face0]!, u) &&
         (!held || host.kept(face0, u, v));
       let accepted: boolean = false;
       let k: number = 1;
@@ -269,7 +269,7 @@ export namespace AutoMovieSolidRailSolve {
           // Past the domain the trial crosses at its foot; inside the domain but past the kept region (a trimmed part of the chart) the
           // neighbour across that trim is read explicitly, since the chart itself still evaluates there.
           const beyond: ReturnType<IAutoMovieSolidAtlas["across"]> =
-            AutoMovieSolidDomain.contains(host.faces[face0]!, u1, v1)
+            AutoMovieSolidDomain.contains(host.faces[face0]!, u1)
               ? host.across(face0, u1, v1)
               : null;
           const reached: IAutoMovieSolidTraceTrialTrial | null =
@@ -336,14 +336,14 @@ export namespace AutoMovieSolidRailSolve {
       dot(j.v, j.v),
       [dot(j.u, world), dot(j.v, world)],
     );
-    if (d === null || !d.every(Number.isFinite)) return null;
+    if (d === null) return null;
     const speed: number = norm(
       combine([
         [d[0], j.u],
         [d[1], j.v],
       ]),
     );
-    return Number.isFinite(speed) && speed > 0
+    return speed > 0
       ? [d[0] / speed, d[1] / speed]
       : null;
   }
@@ -385,20 +385,12 @@ export namespace AutoMovieSolidRailSolve {
       let k: number = 1;
       let trial: number = 0;
       while (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        ) &&
+        !AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0]) &&
         trial++ < 20
       )
         k /= 2;
       if (
-        !AutoMovieSolidDomain.contains(
-          surface,
-          x[0] + k * dx[0],
-          x[1] + k * dx[1],
-        )
+        !AutoMovieSolidDomain.contains(surface, x[0] + k * dx[0])
       )
         return null;
       x = [x[0] + k * dx[0], x[1] + k * dx[1]];

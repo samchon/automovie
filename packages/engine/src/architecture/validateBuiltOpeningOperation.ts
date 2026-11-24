@@ -160,7 +160,6 @@ export const validateBuiltOpeningOperation: (
           seen.add(entry.panel);
           if (panel === undefined) return;
           if (
-            !Number.isFinite(entry.value) ||
             entry.value < panel.motion.min ||
             entry.value > panel.motion.max
           )

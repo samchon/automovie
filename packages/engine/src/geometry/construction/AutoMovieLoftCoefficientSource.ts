@@ -59,8 +59,7 @@ export namespace AutoMovieLoftCoefficientSource {
     if (
       !coordinates.every(
         (coordinate: number, k: number): boolean =>
-          Number.isFinite(coordinate) &&
-          (k === 0 || coordinate > coordinates[k - 1]!),
+          k === 0 || coordinate > coordinates[k - 1]!,
       )
     )
       return "coefficient source parameters do not increase through finite intervals";
@@ -73,12 +72,6 @@ export namespace AutoMovieLoftCoefficientSource {
       values,
       curvatures,
     );
-    if (
-      ![...curvatures, ...slopes].every((row: number[]): boolean =>
-        row.every(Number.isFinite),
-      )
-    )
-      return "coefficient source has a nonfinite parameter derivative";
     const end: (index: number) => IAutoMovieLoftCoefficientSource.IEnd = (
       index: number,
     ): IAutoMovieLoftCoefficientSource.IEnd => ({
@@ -105,8 +98,6 @@ export namespace AutoMovieLoftCoefficientSource {
         (value: number, j: number): number =>
           value * change[0] * change[0] + slopes[index]![j]! * change[1],
       );
-      if (![...first, ...second].every(Number.isFinite))
-        return `principal layer ${layer.y} has nonfinite station coefficient derivatives`;
       layers.push({
         ...layer,
         slopes: first,
@@ -181,7 +172,7 @@ export namespace AutoMovieLoftCoefficientSource {
       source.parameter,
       station,
     );
-    if (![first, last, coordinate].every(Number.isFinite) || !(last > first))
+    if (!(last > first))
       throw new Error(
         "coefficient source query has no finite increasing parameter interval",
       );
@@ -243,7 +234,7 @@ function forward(
     1 / inverse[0],
     -inverse[1] / inverse[0] / inverse[0] / inverse[0],
   ];
-  return result.every(Number.isFinite) ? result : null;
+  return result;
 }
 
 /**
@@ -268,7 +259,6 @@ function validate(layer: Layer): void {
   if (
     source !== undefined &&
     (source.parameter === undefined ||
-      !Number.isFinite(AutoMovieViewParameter.at(source.parameter, layer.y)) ||
       source.slopes.length !== layer.coefficients.length ||
       source.curvatures.length !== layer.coefficients.length)
   )

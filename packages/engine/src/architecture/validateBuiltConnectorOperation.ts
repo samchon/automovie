@@ -190,7 +190,6 @@ export const validateBuiltConnectorOperation: (
             );
           if (carriage === undefined) return;
           if (
-            !Number.isFinite(entry.value) ||
             entry.value < carriage.motion.min ||
             entry.value > carriage.motion.max
           )

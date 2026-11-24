@@ -220,7 +220,7 @@ function mixed(
   }
   if (
     gamma.some(
-      (g: number): boolean => !Number.isFinite(g) || Math.abs(g) > MIXING,
+      (g: number): boolean => Math.abs(g) > MIXING,
     )
   )
     return single();

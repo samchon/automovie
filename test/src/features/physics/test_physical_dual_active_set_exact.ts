@@ -1,6 +1,6 @@
 import { solveXpbdDualActiveSet } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import path from "node:path";
 
 import { repositoryRoot } from "../internal/repositoryRoot";
@@ -21,12 +21,12 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  * @evidence contracts/development/testing.md#distinguishing-cases Problems of three sizes, with and without equalities and preferred rows; a single changed bit or active row fails.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on stored inputs; no world, viewer or simulation run.
  */
-export function test_physical_dual_active_set_exact(): void {
+export async function test_physical_dual_active_set_exact(): Promise<void> {
   const cases: {
     problem: solveXpbdDualActiveSet.IProblem;
     result: { primal: string[]; active: number[] } | null;
   }[] = JSON.parse(
-    fs.readFileSync(
+    await fs.readFile(
       path.join(
         repositoryRoot(),
         "test/src/features/internal/dualActiveSet/problems.json",

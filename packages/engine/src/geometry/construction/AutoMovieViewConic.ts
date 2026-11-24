@@ -82,7 +82,7 @@ export namespace AutoMovieViewConic {
     if (selected === null) return NaN;
     const { local, toEnd, arc, kind }: Selection = selected;
     if (local === 0)
-      return Number.isFinite(arc.extents[0]) && arc.extents[0] > 0
+      return arc.extents[0] > 0
         ? arc.extents[0]
         : NaN;
     return kind === "conic"
@@ -195,7 +195,7 @@ export namespace AutoMovieViewConic {
     curve: IAutoMovieViewConic.ICurve,
     phi: number,
   ): Selection | null {
-    if (curve.failure !== null || !Number.isFinite(phi)) return null;
+    if (curve.failure !== null) return null;
     const turn: number = 2 * Math.PI;
     const quarter: number = Math.PI / 2;
     const remainder: number = phi % turn;

@@ -53,11 +53,7 @@ export namespace QuadrupedTimedCues {
     const cuts: ICut[] = [];
     let last: number = -Infinity;
     for (const cue of cues) {
-      if (
-        !(Number.isFinite(cue.from) && Number.isFinite(cue.to)) ||
-        !(cue.to > cue.from) ||
-        cue.from < last
-      )
+      if (!(cue.to > cue.from) || cue.from < last)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype,

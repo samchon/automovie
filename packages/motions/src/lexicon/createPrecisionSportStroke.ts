@@ -65,7 +65,7 @@ const BRIDGE_INCLINE: number = 27;
  * stroke.
  */
 function positive(axis: string, value: number): number {
-  if (Number.isFinite(value) && value > 0) return value;
+  if (value > 0) return value;
   throw new HumanRefusal({
     kind: "parameter",
     axis,

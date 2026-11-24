@@ -64,10 +64,6 @@ const validateSegmentLength: (
   label: "upper" | "lower",
   value: number,
 ) => void = (label: "upper" | "lower", value: number): void => {
-  if (!Number.isFinite(value))
-    throw new Error(
-      `two-bone IK ${label} length must be finite, but was ${value}`,
-    );
   if (value <= 0)
     throw new Error(
       `two-bone IK ${label} length must be > 0, but was ${value}`,
@@ -77,8 +73,6 @@ const validateSegmentLength: (
 const validateDistance: (distance: number) => void = (
   distance: number,
 ): void => {
-  if (!Number.isFinite(distance))
-    throw new Error(`two-bone IK distance must be finite, but was ${distance}`);
   if (distance < 0)
     throw new Error(
       `two-bone IK distance must be non-negative, but was ${distance}`,

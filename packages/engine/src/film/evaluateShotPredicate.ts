@@ -43,7 +43,6 @@ export function evaluateShotPredicate(
   } catch {
     actual = null;
   }
-  if (actual !== null && !Number.isFinite(actual)) actual = null;
   return {
     predicate,
     actual,

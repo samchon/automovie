@@ -92,9 +92,6 @@ function read(
   positions: readonly number[],
   indices: readonly number[],
 ): IAutoMovieMeshCrossingGeometry.ITriangle[] {
-  for (let scalar: number = 0; scalar < positions.length; scalar++)
-    if (!Number.isFinite(positions[scalar]))
-      throw new Error("Mesh crossings need finite complete triangle buffers.");
   const at: (vertex: number) => number[] = (vertex: number): number[] => [
     positions[vertex * 3]!,
     positions[vertex * 3 + 1]!,

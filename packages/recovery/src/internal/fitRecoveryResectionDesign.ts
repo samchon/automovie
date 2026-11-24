@@ -84,10 +84,7 @@ export function fitRecoveryResectionDesign(
       0,
     ) / points.length,
   );
-  if (
-    !(radius3 > 0 && radius2 > 0) ||
-    ![...centroid, ...centre2, radius3, radius2].every(Number.isFinite)
-  )
+  if (!(radius3 > 0 && radius2 > 0))
     throw new Error("camera-resection: unresolved normalization");
   const scale3: number = Math.sqrt(3) / radius3,
     scale2: number = Math.SQRT2 / radius2;
@@ -190,7 +187,7 @@ export function fitRecoveryResectionDesign(
     block[0]! * (block[4]! * block[8]! - block[5]! * block[7]!) -
     block[1]! * (block[3]! * block[8]! - block[5]! * block[6]!) +
     block[2]! * (block[3]! * block[7]! - block[4]! * block[6]!);
-  if (determinant === 0 || !Number.isFinite(determinant))
+  if (determinant === 0)
     throw new Error("camera-resection: unresolved rotation block");
   const sign: number = determinant < 0 ? -1 : 1;
   block = block.map((value: number): number => sign * value);
@@ -241,11 +238,10 @@ export function fitRecoveryResectionDesign(
   if (trace) {
     trace.stage = "projection";
     trace.projectionError = projectionError;
-    if ([...rotation, ...translation].every(Number.isFinite))
-      trace.projectedPose = {
-        rotation: rotation.slice(),
-        translation: [...translation],
-      };
+    trace.projectedPose = {
+      rotation: rotation.slice(),
+      translation: [...translation],
+    };
   }
   if (
     !(scale > 0) ||
@@ -253,8 +249,6 @@ export function fitRecoveryResectionDesign(
   )
     throw new Error("camera-resection: nonrigid projective rotation block");
   if (trace) trace.stage = "pose";
-  if (![...rotation, ...translation].every(Number.isFinite))
-    throw new Error("camera-resection: nonrepresentable pose");
   if (trace) trace.stage = "complete";
   return {
     pose: { rotation, translation },

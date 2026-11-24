@@ -46,14 +46,14 @@ import { PhysicalHumanProfiles } from "../internal/PhysicalHumanProfiles";
  *    goal (Pratt et al., M2V2, Section VII-D1).
  * 5. Pose: the canonical Human's right leg, its stored profile
  *    (`PhysicalHumanProfiles`, `m-average`) with the support pattern and
- *    standing targets of its quiet recording (`human_p0_z`), fitted to a foot pose 10 cm ahead
- *    and 8 cm up at its planned level attitude, on ten successive frames each
- *    seeded from the last, keeps every chain joint within 1 degree of the first
- *    fit, its endpoint within the tolerance of the goal, and the foot's
- *    rotation relative to the shank on the plan about each axis the ankle has,
- *    within 0.01 rad; the turn about the axis it lacks is the hip's (Kajita et
- *    al., Introduction to Humanoid Robotics, Section 2.5; TSID
- *    `ex_4_walking`).
+ *    standing targets of its quiet recording (`human_p0_z`), fitted to a foot
+ *    pose 10 cm ahead and 8 cm up at its planned level attitude, on ten
+ *    successive frames each seeded from the last, keeps every chain joint
+ *    within 1 degree of the first fit, its endpoint within the tolerance of the
+ *    goal, and the foot's rotation relative to the shank on the plan about each
+ *    axis the ankle has, within 0.01 rad; the turn about the axis it lacks is
+ *    the hip's (Kajita et al., Introduction to Humanoid Robotics, Section 2.5;
+ *    TSID `ex_4_walking`).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the seeding share, the joint-centre chain and the shared path.
  * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSwingReference` and `physicalRecoverySupportGoals` and reads their poses and goals.
@@ -61,7 +61,7 @@ import { PhysicalHumanProfiles } from "../internal/PhysicalHumanProfiles";
  * @evidence contracts/development/testing.md#distinguishing-cases Separates share zero, one half and one, a pelvis reference apart from the actual pelvis, the start, middle and end of the swing, a drive's path from the policy's, and a reference rate at lift-off, within the fade and past it.
  * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over the stored profile and the quiet recording read from the repository; no figure built, no native world, viewer or file host.
  */
-export function test_physical_swing_reference(): void {
+export async function test_physical_swing_reference(): Promise<void> {
   const failures: string[] = [];
   const near = (name: string, actual: number, expected: number): void => {
     if (!(Math.abs(actual - expected) <= 1e-9))
@@ -308,14 +308,14 @@ export function test_physical_swing_reference(): void {
   // stored profile, support pattern and standing targets, as its recorded
   // quiet stance handed them to the controller.
   const recording: PhysicalBalanceReplay.IFixture =
-    PhysicalBalanceReplay.load("human_p0_z.json");
+    await PhysicalBalanceReplay.load("human_p0_z.json");
   const human: {
     profile: IAutoMoviePhysicalProfile;
     targets: Record<string, IAutoMovieRigidTransform>;
   } = {
-    profile: PhysicalBalanceReplay.stored({
+    profile: await PhysicalBalanceReplay.stored({
       ...recording,
-      profile: PhysicalHumanProfiles.load("m-average"),
+      profile: await PhysicalHumanProfiles.load("m-average"),
     }),
     targets: recording.records.find(
       (record: PhysicalBalanceReplay.IRecord): boolean =>

@@ -62,7 +62,7 @@ export function readPianoPedal(
     hinge.travel >= 90 ||
     ![hinge.travel, pedal.width, pedal.depth].every(
       (dimension: number): boolean =>
-        Number.isFinite(dimension) && dimension > 0,
+        dimension > 0,
     ) ||
     pedal.follows !== undefined ||
     pedal.rides !== hinge.id ||

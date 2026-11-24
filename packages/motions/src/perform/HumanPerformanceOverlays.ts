@@ -13,7 +13,6 @@ import type {
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 
 /** The record of `IPlaceResult`'s site. */
 type IPlaceResult = {
@@ -91,7 +90,6 @@ export namespace HumanPerformanceOverlays {
       law,
       context,
       plan,
-      legSeeds: readHumanSegmentLegs.cold,
       start,
       entryTime: start,
       end,
@@ -100,9 +98,6 @@ export namespace HumanPerformanceOverlays {
     HumanPerformanceContacts.hold(person, overlay, true);
     self.riding.add(entries.length);
     person.overlays.push(overlay);
-
-    // An overlay changes what the person shows from here on.
-    person.planning?.clear();
     if (intent.anchor !== undefined)
       self.anchors.set(
         intent.anchor,

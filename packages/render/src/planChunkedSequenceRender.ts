@@ -50,7 +50,7 @@ export const planChunkedSequenceRender: (
   const plan: IAutoMovieSequenceRenderPlan = props.plan;
   const spec: IAutoMovieRenderSpec = props.spec;
   const chunkFrames: number = props.chunkFrames;
-  if (!Number.isInteger(chunkFrames) || chunkFrames <= 0)
+  if (chunkFrames <= 0)
     throw new Error(
       `chunkFrames must be a positive integer, but was ${chunkFrames}`,
     );

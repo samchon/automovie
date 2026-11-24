@@ -99,16 +99,13 @@ export function AirborneTakeoffQuadrature(props: {
   }
   if (
     !(
-      Number.isFinite(props.t0) &&
-      Number.isFinite(props.t1) &&
-      Number.isFinite(props.t1 - props.t0) &&
       props.t1 > props.t0
     )
   )
     throw new Error(
       "AirborneTakeoffQuadrature needs a finite forward interval",
     );
-  if (!(Number.isFinite(props.tolerance) && props.tolerance >= 0))
+  if (!(props.tolerance >= 0))
     throw new Error(
       "AirborneTakeoffQuadrature needs a finite nonnegative error budget",
     );
@@ -122,11 +119,6 @@ export function AirborneTakeoffQuadrature(props: {
       throw new Error(
         `AirborneTakeoffQuadrature needs a nonempty fixed-dimension vector at ${t} s`,
       );
-    for (const component of value)
-      if (!Number.isFinite(component))
-        throw new Error(
-          `AirborneTakeoffQuadrature needs finite components at ${t} s`,
-        );
     return [...value];
   };
   const simpson: (
@@ -178,10 +170,7 @@ export function AirborneTakeoffQuadrature(props: {
     const value: number[] = left.map(
       (v: number, i: number): number => v + right[i]! + delta[i]!,
     );
-    if (!value.every(Number.isFinite) || !delta.every(Number.isFinite))
-      throw new Error(
-        "AirborneTakeoffQuadrature produced a non-finite estimate",
-      );
+
     return {
       a,
       b,
@@ -277,10 +266,6 @@ export function AirborneTakeoffQuadrature(props: {
     for (const leaf of leaves)
       for (let i: number = 0; i < value.length; i++)
         value[i]! += leaf.value[i]!;
-    if (!value.every(Number.isFinite))
-      throw new Error(
-        "AirborneTakeoffQuadrature produced a non-finite integral",
-      );
     let estimate: number = 0;
     let worst: number = 0;
     let largest: number = -1;

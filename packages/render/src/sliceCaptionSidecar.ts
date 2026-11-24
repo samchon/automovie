@@ -26,11 +26,11 @@ export const sliceCaptionSidecar: (
   frameStart: number,
   frameEnd: number,
 ): IAutoMovieCaptionSidecar => {
-  if (!Number.isInteger(frameStart) || frameStart < 0)
+  if (frameStart < 0)
     throw new Error(
       `frameStart must be a non-negative integer, but was ${frameStart}`,
     );
-  if (!Number.isInteger(frameEnd) || frameEnd <= frameStart)
+  if (frameEnd <= frameStart)
     throw new Error(
       `frameEnd must be an integer > frameStart, but was ${frameEnd}`,
     );

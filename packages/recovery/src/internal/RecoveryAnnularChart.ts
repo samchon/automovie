@@ -41,10 +41,7 @@ export function RecoveryAnnularChart(
       if (
         new Set(triangle).size !== 3 ||
         triangle.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= input.verticesMm.length,
+          (id: number): boolean => id < 0 || id >= input.verticesMm.length,
         )
       )
         throw new Error("Private annular triangle addresses are invalid");
@@ -60,7 +57,7 @@ export function RecoveryAnnularChart(
           p[1] - q[1],
           p[2] - q[2],
         );
-        if (!(distance > 0 && Number.isFinite(distance)))
+        if (!(distance > 0))
           throw new Error("A private annular chart edge is collapsed");
         adjacency[a]!.set(b, distance);
         adjacency[b]!.set(a, distance);
@@ -162,7 +159,7 @@ export function RecoveryAnnularChart(
       }
     }
   }
-  if (!Number.isFinite(distance[target]))
+  if (distance[target] === Infinity)
     throw new Error(
       "No simple interior edge seam joins the deterministic annulus anchors",
     );

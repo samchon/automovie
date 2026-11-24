@@ -41,8 +41,6 @@ export const validateSelfIntersection: (
     ),
   );
 
-  if (!Number.isFinite(sampleRate))
-    return rejectSampleRate(collector, path, sampleRate);
   if (sampleRate <= 0) return rejectSampleRate(collector, path, sampleRate);
 
   const topology: IAutoMovieSkeletonTopology = indexSkeletonTopology(

@@ -106,7 +106,7 @@ export function AutoMovieArchetypeEquineTeam(
     "sag",
     "trace",
   ] as const)
-    if (!(Number.isFinite(params[key]) && params[key] > 0))
+    if (!(params[key] > 0))
       refuse(key, params[key], "must be finite and positive");
   const layout: readonly AutoMovieArchetypeEquineTeamPlan.IPlace[] = places();
   if (horses.length !== layout.length)

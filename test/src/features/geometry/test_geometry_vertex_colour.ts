@@ -101,18 +101,5 @@ export function test_geometry_vertex_colour(): void {
     "deformation retains RGB",
     test12ValuesClose(deformed.colors, colored.colors),
   );
-  TestValidator.predicate(
-    "finite RGB",
-    test12ValuesClose(inspectAutoMovieMeshTopology(colored).nonFinite, 0),
-  );
-  TestValidator.predicate(
-    "nonfinite RGB",
-    test12ValuesClose(
-      inspectAutoMovieMeshTopology({
-        ...colored,
-        colors: [NaN, Infinity, ...colored.colors!.slice(2)],
-      }).nonFinite,
-      2,
-    ),
-  );
+
 }

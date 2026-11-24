@@ -266,8 +266,6 @@ export function createRecoveryCameraEstimate(
         twiceArea += a.x * next.z - a.z * next.x;
       }
       const fraction: number = Math.abs(twiceArea) / 2;
-      if (!Number.isFinite(fraction))
-        throw new Error("camera-evidence: nonrepresentable image hull area");
       fractions.push(fraction);
     }
     consensus.inlierImageHullFractions = [fractions[0]!, fractions[1]!];

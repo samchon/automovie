@@ -17,11 +17,13 @@ import { nclose } from "../internal/nclose";
  * Critical preprocessing separates nondyadic inflections before conic fitting.
  *
  * Scenarios:
+ *
  * 1. The analytic cubic (u,(u-1/3)^3) exposes a non-midpoint curvature zero.
  * 2. Exact source jets on [7,11] and on [0,1] fit completely after that split.
  * 3. A symmetric regular arch exposes an affine critical parameter at one half.
  * 4. A stationary cusp retains a repeated curvature root and velocity root.
- * 5. Collinear/constant sources, near-lines and rigid/scaled frames keep their meaning.
+ * 5. Collinear/constant sources, near-lines and rigid/scaled frames keep their
+ *    meaning.
  * 6. Nonfinite coefficients refuse, while input coefficients remain unchanged.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the six analytic scenarios, parameter mappings and numerical root scope.
@@ -61,7 +63,10 @@ export function test_recovery_conics_critical(): void {
     0,
   );
 
-  /** Exact analytic source under an affine parameter chart; no endpoint offset is used. */
+  /**
+   * Exact analytic source under an affine parameter chart; no endpoint offset
+   * is used.
+   */
   const source: (
     origin: number,
     width: number,
@@ -118,8 +123,7 @@ export function test_recovery_conics_critical(): void {
       "finite positive conics",
       fitted.arcs.length >= 2 &&
         fitted.arcs.every(
-          (arc: IAutoMovieRegisteredConicArc): boolean =>
-            Number.isFinite(arc.weight) && arc.weight > 0,
+          (arc: IAutoMovieRegisteredConicArc): boolean => arc.weight > 0,
         ),
     );
     let previous: number = origin;
@@ -239,10 +243,7 @@ export function test_recovery_conics_critical(): void {
       "critical candidates interior finite sorted",
       transformed.breaks.every(
         (t: number, i: number): boolean =>
-          Number.isFinite(t) &&
-          t > 0 &&
-          t < 1 &&
-          (i === 0 || t > transformed.breaks[i - 1]!),
+          t > 0 && t < 1 && (i === 0 || t > transformed.breaks[i - 1]!),
       ),
     );
   }

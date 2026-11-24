@@ -44,7 +44,6 @@ export function coursePrecisionStroke(
   hand: IAutoMovieVector3,
   second?: AutoMovieHumanSide,
 ): IAutoMovieMotionHumanActionPlan {
-  let fastest: number | undefined;
   // The tool's attitude is the one hard constraint, at the contact: the
   // course holds the stroke's goal on the contact instant alone, the pose the
   // address found clear (`PrecisionStrokeForms.address`); the swing before
@@ -52,6 +51,31 @@ export function coursePrecisionStroke(
   // finding its own clear attitude.
   const ready: number = clock.at("stroke");
   const relax: number = ready;
+  const fastest: number = Math.max(
+    precisionStrokePeak(plan.posture, `${side}Arm`, clock.duration),
+    // The reach from the entry to the backswing, a minimum-jerk movement
+    // over the stroke's preparation: its peak is 15/8 of its mean speed.
+    ready > 0
+      ? (15 / 8) *
+          (Vector3.length(
+            Vector3.subtract(
+              plan.posture(ready).limbs[`${side}Arm`]?.point ?? hand,
+              hand,
+            ),
+          ) /
+            ready)
+      : 0,
+    // The return from the stroke's end to the entry's place, over the
+    // stroke's recovery, the same minimum-jerk peak.
+    (15 / 8) *
+      (Vector3.length(
+        Vector3.subtract(
+          plan.posture(relax).limbs[`${side}Arm`]?.point ?? hand,
+          hand,
+        ),
+      ) /
+        (clock.duration - relax)),
+  );
   return courseArmGoal({
     context: { body, entry: { pose: entry } },
     side,
@@ -62,33 +86,7 @@ export function coursePrecisionStroke(
       relax,
       end: clock.duration,
     },
-    pace: (): number =>
-      (fastest ??= Math.max(
-        precisionStrokePeak(plan.posture, `${side}Arm`, clock.duration),
-        // The reach from the entry to the backswing, a minimum-jerk
-        // movement over the stroke's preparation: its peak is 15/8 of its
-        // mean speed.
-        ready > 0
-          ? (15 / 8) *
-              (Vector3.length(
-                Vector3.subtract(
-                  plan.posture(ready).limbs[`${side}Arm`]?.point ?? hand,
-                  hand,
-                ),
-              ) /
-                ready)
-          : 0,
-        // The return from the stroke's end to the entry's place, over the
-        // stroke's recovery, the same minimum-jerk peak.
-        (15 / 8) *
-          (Vector3.length(
-            Vector3.subtract(
-              plan.posture(relax).limbs[`${side}Arm`]?.point ?? hand,
-              hand,
-            ),
-          ) /
-            (clock.duration - relax)),
-      )),
+    pace: (): number => fastest,
     ...(second === undefined
       ? {}
       : {

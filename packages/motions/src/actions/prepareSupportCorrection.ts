@@ -49,7 +49,15 @@ export function prepareSupportCorrection(
         c.to * plan.duration,
       ),
   );
-  let frames: ReturnType<typeof poseBones.prepare> | undefined;
+  const frames: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    body,
+    new Set([
+      ...HumanFoot.bones(body),
+      ...pins,
+      ...body.massModel.segments.map((s) => s.bone),
+      ...relevant.map((c) => HumanSupportPatch.frame(body, c).bone),
+    ]),
+  );
   return (posture, seconds, _before, resolution, projection) => {
     const weight: number = HumanPhysics.weightAt(window, seconds);
     if (weight === 0) return posture;
@@ -64,15 +72,6 @@ export function prepareSupportCorrection(
     );
     if (bearing.length === 0) return posture;
     const model: IAutoMovieMotionHumanBody["massModel"] = body.massModel;
-    frames ??= poseBones.prepare(
-      body,
-      new Set([
-        ...HumanFoot.bones(body),
-        ...pins,
-        ...model.segments.map((s) => s.bone),
-        ...relevant.map((c) => HumanSupportPatch.frame(body, c).bone),
-      ]),
-    );
     const read: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution(resolution);
     const solved: ReturnType<typeof resolveHumanPosture.seeded> =

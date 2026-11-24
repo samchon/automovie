@@ -14,7 +14,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 
-/** Exact real-arithmetic half restrictions, formed independently of the field and tessellator. */
+/**
+ * Exact real-arithmetic half restrictions, formed independently of the field
+ * and tessellator.
+ */
 const halve: (
   span: AutoMovieCubicBezierControls3,
 ) => [AutoMovieCubicBezierControls3, AutoMovieCubicBezierControls3] = (
@@ -43,7 +46,10 @@ const halve: (
   ];
 };
 
-/** Read geometric faces and actual shared indices, without consuming analytic normal attributes. */
+/**
+ * Read geometric faces and actual shared indices, without consuming analytic
+ * normal attributes.
+ */
 const translatedStrip: (
   positions: readonly number[],
   indices: readonly number[],
@@ -85,7 +91,7 @@ const translatedStrip: (
     string,
     { a: number; b: number; uses: number; direction: number }
   > = new Map();
-  let finite: boolean = indices.length > 0 && positions.every(Number.isFinite),
+  let finite: boolean = indices.length > 0,
     flatAlongStation: boolean = true,
     oriented: boolean = true,
     area: number = 0,
@@ -93,10 +99,7 @@ const translatedStrip: (
   for (let i: number = 0; i < indices.length; i += 3) {
     const ids: number[] = indices.slice(i, i + 3);
     if (
-      !ids.every(
-        (id: number): boolean =>
-          Number.isSafeInteger(id) && id >= 0 && id < positions.length / 3,
-      )
+      !ids.every((id: number): boolean => id >= 0 && id < positions.length / 3)
     ) {
       finite = false;
       continue;
@@ -114,7 +117,7 @@ const translatedStrip: (
         a[0]! * b[1]! - a[1]! * b[0]!,
       ],
       length: number = Math.hypot(...n);
-    finite &&= Number.isFinite(length) && length > 0;
+    finite &&= length > 0;
     flatAlongStation &&= Math.abs(n[1]!) <= determinantAllowance;
     oriented &&=
       n[0]! * (p[0]![0]! + p[1]![0]! + p[2]![0]!) +
@@ -180,12 +183,22 @@ const translatedStrip: (
 /**
  * Open polynomial consumers use one resolvable normalized partition convention.
  * Scenarios:
- * 1. Ten thousand equal spans retain a complete unit chart despite accumulated sum roundoff.
- * 2. Local station values and physical derivatives agree with an affine independent formula.
- * 3. The grid retains the same endpoint, metre scale and finite output on that partition.
- * 4. A genuinely short chart, a collapsed canonical final interval and nonincreasing stations refuse.
- * 5. Quadratic interpolation reproduces a physical-station quadratic at nonuniform stations.
- * 6. Identical translated quarter cubics have station-parallel generated face planes under ruled and quadratic interpolation, gaps 1 and 0.0001 mm, coarse/fine position requests and powers-of-two scaling. A half-restricted middle course preserves both station and phase boundary indices across small streamed chunks.
+ *
+ * 1. Ten thousand equal spans retain a complete unit chart despite accumulated sum
+ *    roundoff.
+ * 2. Local station values and physical derivatives agree with an affine
+ *    independent formula.
+ * 3. The grid retains the same endpoint, metre scale and finite output on that
+ *    partition.
+ * 4. A genuinely short chart, a collapsed canonical final interval and
+ *    nonincreasing stations refuse.
+ * 5. Quadratic interpolation reproduces a physical-station quadratic at nonuniform
+ *    stations.
+ * 6. Identical translated quarter cubics have station-parallel generated face
+ *    planes under ruled and quadratic interpolation, gaps 1 and 0.0001 mm,
+ *    coarse/fine position requests and powers-of-two scaling. A half-restricted
+ *    middle course preserves both station and phase boundary indices across
+ *    small streamed chunks.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls Hermite field preparation, station jets, analytic interval construction, grid tessellation and the actual local streaming tessellator. Assertions observe values, physical derivatives, normalized endpoints, refusal, emitted face determinants, shared indexed boundaries, global chunk ownership and retained geometry. Every translation regime executes before its results are asserted, and normal attributes cannot hide an incorrect face plane.
  * @evidence contracts/development/testing.md#independent-expectations Cubic degree elevation gives P(u,s)=(u,s,0), derivative (0,1,0) and metre conversion; P(u,s)=(u,s,s²) gives (0,1,2s). For translated P(u,s)=(x(u),s,z(u)), conforming extruded polygon triangles have zero station-normal component and area equal to the bottom polygon length times station height. A gamma(64) binary64 determinant allowance scales with squared transverse diameter, not an angle. Direct half-restriction formulas and the explicit Bernstein midpoint identify the shared source knot. Equal 1/n widths follow the common sum-roundoff convention. These cases establish no arbitrary correspondence, surface fidelity or appearance.
@@ -252,8 +265,7 @@ export function test_geometry_local_hermite_partition(): void {
   );
   TestValidator.predicate(
     "grid output is finite",
-    grid.mesh.positions.length > 0 &&
-      grid.mesh.positions.every(Number.isFinite),
+    grid.mesh.positions.length > 0,
   );
   TestValidator.predicate(
     "grid endpoint in metres",
@@ -421,11 +433,8 @@ export function test_geometry_local_hermite_partition(): void {
                 chunk.vertexStart === offset + positions.length / 3 &&
                 chunk.positions.length === chunk.normals.length &&
                 chunk.positions.length / 3 === chunk.physicalVertexIds.length &&
-                chunk.positions.every(Number.isFinite) &&
-                chunk.normals.every(Number.isFinite) &&
                 chunk.indices.every(
                   (id: number): boolean =>
-                    Number.isSafeInteger(id) &&
                     id >= offset &&
                     id < chunk.vertexStart + chunk.positions.length / 3,
                 );

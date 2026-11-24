@@ -7,10 +7,11 @@ import path from "node:path";
 import { writeAutoMovieRecoveryArtifact } from "../artifact/writeAutoMovieRecoveryArtifact";
 
 /**
- * Compile a bounded saved polygon/path publication through the engine.
- * Usage: recoveryContourPath input.json new-output-directory, with source epoch argument.
- * The input supplies ordered evaluated curves and path instructions, never faces.
- * Each subject receives independently generated geometry and actual boundary lines.
+ * Compile a bounded saved polygon/path publication through the engine. Usage:
+ * recoveryContourPath input.json new-output-directory, with source epoch
+ * argument. The input supplies ordered evaluated curves and path instructions,
+ * never faces. Each subject receives independently generated geometry and
+ * actual boundary lines.
  *
  * @evidence contracts/development/implementation.md#principled-implementation The fuchs1977-pair-path-v1 publication supplies only physical polygons and combinatorial path instructions; tessellateAutoMovieContourPath64 owns every new vertex, index and normal.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One bounded CLI admits and hashes the immutable publication, compiles each declared subject and publishes its model and generation report in a fresh directory.
@@ -79,7 +80,6 @@ export function recoveryContourPath(args: string[], sourceEpoch: string): void {
       !/^[a-zA-Z0-9._-]+$/.test(subject.id) ||
       subject.id === "." ||
       subject.id === ".." ||
-      !Number.isSafeInteger(subject.unsupportedPairCount) ||
       subject.unsupportedPairCount < 0
     )
       throw new Error(

@@ -113,7 +113,7 @@ export namespace AutoMovieArchetypeTrack {
    * @throws {AutoMovieArchetypeRefusal} For non-finite or nonpositive inputs.
    */
   export function agm(a: number, b: number): number {
-    if (!(Number.isFinite(a) && a > 0 && Number.isFinite(b) && b > 0))
+    if (!(a > 0 && b > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "track",
@@ -136,12 +136,13 @@ export namespace AutoMovieArchetypeTrack {
       const next: number = (a + b) / 2;
       const product: number = a * b;
       const geometric: number =
-        Number.isFinite(product) && product >= 2 ** -1022
+        product >= 2 ** -1022
           ? Math.sqrt(product)
           : Math.sqrt(a) * Math.sqrt(b);
-      a = Number.isFinite(next)
-        ? next
-        : Math.min(a, b) + (Math.max(a, b) - Math.min(a, b)) / 2;
+      a =
+        next !== Infinity
+          ? next
+          : Math.min(a, b) + (Math.max(a, b) - Math.min(a, b)) / 2;
       b = geometric;
     }
     return a / scale;
@@ -262,16 +263,6 @@ export namespace AutoMovieArchetypeTrack {
     const seconds: number = props.seconds;
     const release: number = props.release;
     const requested: number | undefined = props.launch;
-    if (requested !== undefined && !Number.isFinite(requested))
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype: name,
-        axis: "launch",
-        value: requested,
-        feasible: null,
-        reason: "a launch needs a finite requested travel",
-        fix: "give a finite travel the swing actually crosses",
-      });
     const end: number = ArchetypeTrackTime.end(name, start, seconds);
     const body: IPendulum = props.pendulum ?? pendulum(archetype, hinge);
     const omega: number = ArchetypePendulumFrequency(name, body);
@@ -307,17 +298,6 @@ export namespace AutoMovieArchetypeTrack {
         fix: "declare the appropriate stable rest travel and keep the release inside its oscillatory well",
       });
     const phaseEnd: number = omega * seconds;
-    if (!Number.isFinite(phaseEnd))
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype: name,
-        axis: "seconds",
-        value: seconds,
-        feasible: null,
-        reason:
-          "the swing's angular phase is not representable over this interval",
-        fix: "use a representable swing interval and frequency",
-      });
     const amplitude: number = release - rest;
     const theta0: number = amplitude * AutoMovieArchetypeUnits.DEGREE;
 
@@ -333,7 +313,7 @@ export namespace AutoMovieArchetypeTrack {
       const steps: number = Math.ceil(
         phaseEnd / integrateMotionTrajectory.STEP,
       );
-      if (!(Number.isSafeInteger(steps) && steps > 0))
+      if (!(steps > 0))
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: name,
@@ -412,7 +392,6 @@ export namespace AutoMovieArchetypeTrack {
       if (
         atPhase === null ||
         at === null ||
-        !Number.isFinite(at) ||
         atPhase < 0 ||
         atPhase > phaseEnd ||
         (atPhase > 0 && atPhase < phaseEnd && !(at > 0 && at < seconds))
@@ -435,16 +414,6 @@ export namespace AutoMovieArchetypeTrack {
           fix: "choose a passed travel and a clock that represents its crossing instant",
         });
       const launchRate: number = rate(atPhase);
-      if (!Number.isFinite(launchRate))
-        throw new AutoMovieArchetypeRefusal({
-          kind: "parameter",
-          archetype: name,
-          axis: "launch",
-          value: requested,
-          feasible: null,
-          reason: "the swing's launch rate is not representable",
-          fix: "use physical figures with a representable release rate",
-        });
       launch = {
         seconds: ArchetypeTrackTime.instant(name, start, end, seconds, at),
         travel: requested,
@@ -457,7 +426,6 @@ export namespace AutoMovieArchetypeTrack {
       end,
       travel: (sample: number): number => {
         const elapsed: number = ArchetypeTrackTime.elapsed(
-          name,
           sample,
           start,
           end,

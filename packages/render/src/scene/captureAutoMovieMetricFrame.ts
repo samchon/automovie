@@ -23,13 +23,9 @@ export function captureAutoMovieMetricFrame(input: {
 }): string {
   if (
     !input ||
-    !Number.isSafeInteger(input.width) ||
     input.width < 1 ||
-    !Number.isSafeInteger(input.height) ||
     input.height < 1 ||
-    !Number.isSafeInteger(input.maxPixels) ||
     input.maxPixels < 1 ||
-    !Number.isSafeInteger(input.width * input.height) ||
     input.width * input.height > input.maxPixels ||
     !["surface", "silhouette"].includes(input.mode)
   )
@@ -40,7 +36,6 @@ export function captureAutoMovieMetricFrame(input: {
     .getContext()
     .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE) as number;
   if (
-    !Number.isSafeInteger(maximum) ||
     maximum <= 0 ||
     input.renderer.getContext().isContextLost() ||
     input.width > maximum ||

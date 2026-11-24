@@ -269,8 +269,6 @@ export namespace QuadrupedRidePose {
       goals: Readonly<Record<AutoMovieArchetypeQuadrupedBody.Limb, IGoal>>,
       nod: number,
     ): ISettled {
-      if (!Number.isFinite(nod))
-        throw new RangeError("The quadruped head nod must be finite degrees");
       const axial: Map<QuadrupedPosePlan.Axial, QuadrupedPosePlan.Goal> =
         new Map([
           [
@@ -387,12 +385,7 @@ export namespace QuadrupedRidePose {
         limb: AutoMovieArchetypeQuadrupedBody.Limb,
       ): AutoMovieArchetypeQuadrupedRootRange.IConstraint {
         const goal: IGoal | undefined = goals?.[limb];
-        if (
-          goal === undefined ||
-          goal === null ||
-          ![goal.x ?? 0, goal.z, goal.lift, goal.fold].every(Number.isFinite) ||
-          goal.lift < 0
-        )
+        if (goal === undefined || goal === null || goal.lift < 0)
           throw new RangeError(
             `The ${limb} footprint goal must be finite with nonnegative lift`,
           );
@@ -412,7 +405,7 @@ export namespace QuadrupedRidePose {
         let endpoint: IAutoMovieVector3 = { x, y: offset, z: goal.z };
         if (surface !== undefined) {
           const { normal, point } = surface;
-          if (!(normal.y > 0 && Number.isFinite(point.y)))
+          if (!(normal.y > 0))
             throw new RangeError(`The ${limb} support plane faces down`);
           const run: number =
             normal.x * (x - point.x) + normal.z * (goal.z - point.z);
@@ -596,7 +589,7 @@ export namespace QuadrupedRidePose {
       for (const part of result.parts)
         if (goals.leftFore.surface === undefined && limbBones.has(part.id)) {
           const lowest: number = QuadrupedRestFloor(part);
-          if (!Number.isFinite(lowest) || lowest < -roundoff)
+          if (lowest < -roundoff)
             throw new RangeError(
               `Quadruped ${part.id} penetrates its local floor by ${-lowest} m`,
             );

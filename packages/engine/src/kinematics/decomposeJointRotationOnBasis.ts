@@ -18,14 +18,6 @@ import { normalizeJointAxes } from "./normalizeJointAxes";
 /** Degrees per radian for the closed-form angle extraction. */
 const RAD2DEG: number = 180 / Math.PI;
 
-/** Quaternion components in their existing finite-admission order. */
-const QUATERNION_AXES: readonly ["x", "y", "z", "w"] = ["x", "y", "z", "w"];
-
-/**
- * The three rotated axes of the extraction in progress, nine cells (one
- * extraction runs at a time).
- */
-const COLUMNS: Float64Array = new Float64Array(9);
 
 /**
  * The axis rotated by `q`, `readRotatedVector`'s expressions, into three cells
@@ -85,21 +77,6 @@ type IClinicalReaders = Readonly<
  */
 const GIMBAL_COSINE_EPSILON: number = Math.sqrt(Number.EPSILON);
 
-/**
- * Reject the first nonfinite component at the inverse's existing diagnostic
- * path.
- */
-const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
-  q: IAutoMovieQuaternion,
-): void => {
-  for (const axis of QUATERNION_AXES) {
-    const value: number = q[axis];
-    if (!Number.isFinite(value))
-      throw new Error(
-        `decomposeJointRotation quaternion.${axis} must be finite, but was ${value}`,
-      );
-  }
-};
 
 /**
  * {@link decomposeJointRotation} on a basis its caller already admitted and
@@ -113,8 +90,8 @@ const assertFiniteQuaternion: (q: IAutoMovieQuaternion) => void = (
  * chart choice are `decomposeJointRotation`'s, which documents them and is this
  * function behind one normalization.
  *
- * Throws on a non-finite quaternion component. A basis that is not orthonormal
- * gives angles that do not rebuild the rotation; nothing here detects it.
+ * A basis that is not orthonormal gives angles that do not rebuild the
+ * rotation; nothing here detects it.
  *
  * @param q Bone-local articulation rotation; unit length expected.
  * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes` returns
@@ -143,17 +120,16 @@ function extract(
   frame?: IAutoMovieRestFrame,
   domain?: IAutoMovieJointRotationDomain,
   readers?: IClinicalReaders,
+  into?: decomposeJointRotationOnBasis.IScore,
 ): IAutoMovieResolvedJointAngles {
-  assertFiniteQuaternion(q);
-
   // Right-handedness of the basis: +1 when flex × abd = +twist. A left-handed
   // triple is made right-handed by extracting against −twist, then negating the
   // recovered twist (a rotation about −t by θ is one about t by −θ).
   const { handed, twistAxis }: IHandedness = handednessOf(basis);
 
-  // The three rotated axes, written into the module's nine cells: every dot
-  // below reads them before `lift` runs, and nothing in between extracts.
-  const columns: Float64Array = COLUMNS;
+  // The three rotated axes in nine cells: every dot below reads them before
+  // `lift` runs.
+  const columns: Float64Array = new Float64Array(9);
   rotateInto(q, basis.flexion, columns, 0);
   rotateInto(q, basis.abduction, columns, 3);
   rotateInto(q, twistAxis, columns, 6);
@@ -193,6 +169,7 @@ function extract(
       frame,
       domain,
       readers,
+      into,
     );
   }
   if (basis.twistPlacement === "distal") {
@@ -218,6 +195,7 @@ function extract(
         frame,
         domain,
         readers,
+        into,
       );
     }
     return lift(
@@ -235,6 +213,7 @@ function extract(
       frame,
       domain,
       readers,
+      into,
     );
   }
 
@@ -260,6 +239,7 @@ function extract(
       frame,
       domain,
       readers,
+      into,
     );
   }
 
@@ -274,6 +254,7 @@ function extract(
     frame,
     domain,
     readers,
+    into,
   );
 }
 
@@ -307,17 +288,17 @@ export namespace decomposeJointRotationOnBasis {
    * The same decomposition with the ROM overshoot its chart choice scored for
    * the reading it returns, written into `into`: the gate's own sum
    * (`jointRomOvershoot`) of the returned angles under the domain's constraint,
-   * which a caller ranking the reading by that sum need not scan again. NaN
-   * where the choice scored no such sum: no domain or a null constraint, or a
-   * constraint gated by swing and twist, whose readings are ranked by its box
-   * alone.
+   * which a caller ranking the reading by that sum need not scan again.
+   * Undefined where the choice scored no such sum: no domain or a null
+   * constraint, or a constraint gated by swing and twist, whose readings are
+   * ranked by its box alone.
    *
    * @param q Bone-local articulation rotation; unit length expected.
    * @param basis Orthonormal clinical axis basis, as `normalizeJointAxes`
    *   returns it.
    * @param frame Rest frame lifting rest-relative angles to clinical ones.
    * @param domain Bone and resolved ROM that choose among equivalent charts.
-   * @param into Receives the overshoot, degrees, or NaN.
+   * @param into Receives the overshoot, degrees, or undefined.
    * @returns The angles `decomposeJointRotationOnBasis` returns.
    */
   export function scored(
@@ -325,15 +306,19 @@ export namespace decomposeJointRotationOnBasis {
     basis: IAutoMovieJointAxes,
     frame: IAutoMovieRestFrame | undefined,
     domain: IAutoMovieJointRotationDomain | undefined,
-    into: { overshoot: number },
+    into: IScore,
   ): IAutoMovieResolvedJointAngles {
-    into.overshoot = NaN;
-    scoring = into;
-    try {
-      return extract(q, basis, frame, domain);
-    } finally {
-      scoring = undefined;
-    }
+    into.overshoot = undefined;
+    return extract(q, basis, frame, domain, undefined, into);
+  }
+
+  /**
+   * Where `scored` collects the reading's overshoot: degrees, undefined where
+   * the chart choice scored none.
+   */
+  export interface IScore {
+    /** The overshoot, degrees, or undefined. */
+    overshoot: number | undefined;
   }
 }
 
@@ -380,6 +365,7 @@ function lift(
   frame: IAutoMovieRestFrame | undefined,
   domain: IAutoMovieJointRotationDomain | undefined,
   readers: IClinicalReaders | undefined,
+  into: decomposeJointRotationOnBasis.IScore | undefined,
 ): IAutoMovieResolvedJointAngles {
   const principal: IAutoMovieResolvedJointAngles = clinical(
     rig,
@@ -402,8 +388,8 @@ function lift(
   // has just admitted, can neither fail nor improve on it: it is read only
   // where the principal overshoots.
   if (overshoot === 0) {
-    if (scoring !== undefined && constraint === domain.constraint)
-      scoring.overshoot = 0;
+    if (into !== undefined && constraint === domain.constraint)
+      into.overshoot = 0;
     return selected;
   }
   const alternate: IAutoMovieResolvedJointAngles = clinical(
@@ -443,16 +429,12 @@ function lift(
       overshoot = next;
     }
   }
-  if (scoring !== undefined && constraint === domain.constraint)
-    scoring.overshoot = overshoot;
+  if (into !== undefined && constraint === domain.constraint)
+    into.overshoot = overshoot;
   return selected;
 }
 
-/**
- * Where `decomposeJointRotationOnBasis.scored` collects the reading's
- * overshoot, during its one extraction.
- */
-let scoring: { overshoot: number } | undefined;
+
 
 /** A basis's handedness and the twist axis an extraction reads against. */
 interface IHandedness {
@@ -492,4 +474,3 @@ const boxOf: (
   constraint.swingTwist === undefined || constraint.swingTwist === null
     ? constraint
     : { ...constraint, swingTwist: null };
-};

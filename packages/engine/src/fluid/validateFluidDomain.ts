@@ -81,7 +81,7 @@ export const validateFluidDomain: (
   // the grids too large to count would let the only ones nobody can afford
   // past the one budget written to refuse them. A non-finite product means
   // `columns` or `rows` is itself unusable and has already been named.
-  if (Number.isFinite(cells) && cells > FLUID_MAX_CELLS)
+  if (cells > FLUID_MAX_CELLS)
     out.push(
       "range",
       `${root}.grid`,
@@ -139,7 +139,7 @@ export const validateFluidDomain: (
       solver.referenceDepth,
       domain.grid.cellX,
       domain.grid.cellZ,
-    ].every((value: number): boolean => Number.isFinite(value) && value > 0) &&
+    ].every((value: number): boolean => value > 0) &&
     courant > 1
   )
     out.push(
@@ -147,7 +147,7 @@ export const validateFluidDomain: (
       `${root}.solver.fixedStepSeconds`,
       `the explicit shallow-water step is stable only while dt·sqrt(g·referenceDepth)·sqrt(1/dx² + 1/dz²) <= 1, but the Courant number is ${courant}`,
       solver.fixedStepSeconds,
-      Number.isFinite(courant) ? courant - 1 : undefined,
+      courant - 1,
     );
 
   length(out, `${root}.bed`, "bed", domain.bed.length, cells);
@@ -165,7 +165,7 @@ export const validateFluidDomain: (
   );
   // A broken design depth is named at its own field, not again at every cell.
   const deepest: number =
-    Number.isFinite(solver.referenceDepth) && solver.referenceDepth > 0
+    solver.referenceDepth > 0
       ? solver.referenceDepth
       : Infinity;
   domain.depth.forEach((value: number, index: number): void => {
@@ -296,20 +296,10 @@ export const validateFluidDomain: (
       1,
       FLUID_MAX_SPRAY_PARTICLES,
     );
-    if (!Number.isSafeInteger(spray.seed))
-      out.push(
-        "type",
-        `${path}.seed`,
-        "spray seed must be a safe integer",
-        spray.seed,
-      );
     // Match the sampler's norm helper, including its hypot fallback for failed
     // squares. An unrepresentable norm can still be Infinity and pass this gate.
     const axis: IAutoMovieFluidSpray["direction"] = spray.direction;
     if (
-      !Number.isFinite(axis.x) ||
-      !Number.isFinite(axis.y) ||
-      !Number.isFinite(axis.z) ||
       Vector3.length(axis) === 0
     )
       out.push(
@@ -359,7 +349,7 @@ const integer: (
   min: number,
   max: number,
 ): void => {
-  if (!Number.isSafeInteger(value) || value < min || value > max)
+  if (value < min || value > max)
     out.push(
       "type",
       path,
@@ -492,7 +482,7 @@ const site: (
 const inside: (value: number, limit: number) => boolean = (
   value: number,
   limit: number,
-): boolean => Number.isSafeInteger(value) && value >= 0 && value < limit;
+): boolean => value >= 0 && value < limit;
 
 /**
  * Check finite nonnegative endpoints and strict end-after-start ordering; null
@@ -520,7 +510,7 @@ const window: (
   );
   if (end === null) return;
   validateRange(end, `${path}.end`, 0, Infinity, "activity end", out.items);
-  if (Number.isFinite(end) && Number.isFinite(start) && end <= start)
+  if (end <= start)
     out.push(
       "range",
       `${path}.end`,

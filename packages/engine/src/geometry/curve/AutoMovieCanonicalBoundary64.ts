@@ -282,7 +282,7 @@ export namespace AutoMovieCanonicalBoundary64 {
    * comparisons. Invalid values throw; no clamp or epsilon broadens admission.
    */
   function unit(value: number): void {
-    if (!Number.isFinite(value) || value < 0 || value > 1)
+    if (value < 0 || value > 1)
       throw new Error("Boundary phases must be finite in [0,1]");
   }
 
@@ -365,7 +365,7 @@ export namespace AutoMovieCanonicalBoundary64 {
       /^d:([0-9a-f]+)p(-?(?:0|[1-9][0-9]*))$/.exec(key);
     if (!match) throw new Error("Invalid canonical dyadic phase key");
     const exponent: number = Number(match[2]);
-    if (!Number.isSafeInteger(exponent) || exponent < -2148 || exponent > 0)
+    if (exponent < -2148 || exponent > 0)
       throw new Error(
         "Canonical dyadic exponent is outside binary64 affine phase bounds",
       );

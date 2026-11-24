@@ -38,13 +38,7 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
     );
   for (let i: number = 0; i < 4; ++i) {
     const p: Readonly<AutoMovieVector2Tuple> | undefined = controls[i];
-    if (
-      p === undefined ||
-      !Array.isArray(p) ||
-      p.length !== 2 ||
-      !Number.isFinite(p[0]) ||
-      !Number.isFinite(p[1])
-    )
+    if (p === undefined || p.length !== 2)
       throw new RangeError(
         "Cubic critical parameters require four finite planar Bernstein controls.",
       );
@@ -66,10 +60,6 @@ export function findAutoMovieRecoveryCubicCriticalParameters(
       Math.abs(p[1]),
     ]),
   );
-  if (!Number.isFinite(scale))
-    throw new RangeError(
-      "Source control differences exceed finite binary64 arithmetic.",
-    );
   if (scale === 0)
     return {
       breaks: [],

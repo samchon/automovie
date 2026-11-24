@@ -10,12 +10,9 @@ export function assertProductionScoreDucking(
   if (
     policy !== undefined &&
     (policy === null ||
-      Number.isFinite(policy.gain) === false ||
       policy.gain < 0 ||
       policy.gain > 1 ||
-      Number.isSafeInteger(policy.attackFrames) === false ||
       policy.attackFrames < 0 ||
-      Number.isSafeInteger(policy.releaseFrames) === false ||
       policy.releaseFrames < 0)
   )
     throw new Error(

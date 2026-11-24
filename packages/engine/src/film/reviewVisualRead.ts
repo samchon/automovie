@@ -114,7 +114,6 @@ export function reviewVisualRead(
   );
   if (
     camera !== undefined &&
-    Number.isFinite(camera.fovY) &&
     camera.fovY > 0 &&
     camera.fovY < 180 &&
     camera.far > camera.near

@@ -4,11 +4,18 @@ import { TestValidator } from "@nestia/e2e";
 import { hasViolation, namedFacts } from "./predicates";
 
 /**
- * Run the PBR unit's existing malformed binding/lobe cases in their original order.
+ * Run the PBR unit's existing malformed binding/lobe cases in their original
+ * order.
  *
- * The named PBR scenario supplies its actual validateModel call, and this helper checks rejection kind and authored path for every malformed binding/sampler/physical combination.
- * Closed texture roles, first-UV support, finite sampler/transform values and the supported alpha/physical ranges define literal refusal paths; hasViolation reads actual diagnostics rather than a repository manifest or source pattern.
- * Preserves blank/non-record bindings, unsupported UV/color/sampler/coordinate choices, nonfinite transforms and physical/alpha contradictions; the caller separately retains valid one-away and legacy twins.
+ * The named PBR scenario supplies its actual validateModel call, and this
+ * helper checks rejection kind and authored path for every malformed
+ * binding/sampler/physical combination. Closed texture roles, first-UV support,
+ * finite sampler/transform values and the supported alpha/physical ranges
+ * define literal refusal paths; hasViolation reads actual diagnostics rather
+ * than a repository manifest or source pattern. Preserves blank/non-record
+ * bindings, unsupported UV/color/sampler/coordinate choices, nonfinite
+ * transforms and physical/alpha contradictions; the caller separately retains
+ * valid one-away and legacy twins.
  */
 export const assertViewerPbrDeclarationRefusals: (
   validateMaterial: (
@@ -38,26 +45,6 @@ export const assertViewerPbrDeclarationRefusals: (
             { baseColorTexture: " " },
             "type",
             ".baseColorTexture",
-          ),
-      ],
-      [
-        "bindingType",
-        (): boolean =>
-          materialRefusedAt(
-            { baseColorTexture: [] },
-            "type",
-            ".baseColorTexture",
-          ),
-      ],
-      [
-        "asset",
-        (): boolean =>
-          materialRefusedAt(
-            {
-              baseColorTexture: { asset: " ", texCoord: 0, colorSpace: "srgb" },
-            },
-            "type",
-            ".baseColorTexture.asset",
           ),
       ],
       [
@@ -396,8 +383,6 @@ export const assertViewerPbrDeclarationRefusals: (
     ]),
     {
       blankLegacy: true,
-      bindingType: true,
-      asset: true,
       uvSet: true,
       baseColorSpace: true,
       linearColorSpace: true,

@@ -119,7 +119,6 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
     if (lameness === undefined) return undefined;
     if (
       lameness === null ||
-      typeof lameness !== "object" ||
       !(lameness.limb in limbs) ||
       !["subtle", "mild", "moderate"].includes(lameness.grade)
     )

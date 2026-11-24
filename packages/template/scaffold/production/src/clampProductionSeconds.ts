@@ -14,8 +14,7 @@ export function clampProductionSeconds(
   seconds: number,
   duration: number,
 ): number {
-  if (!Number.isFinite(seconds)) throw new Error("Seek seconds must be finite");
-  if (!Number.isFinite(duration) || duration <= 0)
+  if (duration <= 0)
     throw new Error("Production duration must be positive and finite");
   return Math.max(0, Math.min(duration, seconds));
 }

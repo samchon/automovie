@@ -28,16 +28,12 @@ export function bracketedRoot(
   tolerance: number,
   limit: number = 64,
 ): number {
-  if (!Number.isFinite(low) || !Number.isFinite(high))
-    throw new Error("A bracketed root needs two finite ends");
-  if (!(tolerance > 0) || !Number.isFinite(tolerance))
+  if (!(tolerance > 0))
     throw new Error("A bracketed root needs a positive finite tolerance");
   let a: number = low;
   let b: number = high;
   let fa: number = f(a);
   let fb: number = f(b);
-  if (!Number.isFinite(fa) || !Number.isFinite(fb))
-    throw new Error("A bracketed root needs finite values at its ends");
   if (fa === 0) return a;
   if (fb === 0) return b;
   if (fa > 0 === fb > 0)
@@ -47,7 +43,7 @@ export function bracketedRoot(
   for (let k: number = 0; k < limit && Math.abs(b - a) > tolerance; k++) {
     x = (a * fb - b * fa) / (fb - fa);
     const fx: number = f(x);
-    if (fx === 0 || !Number.isFinite(fx)) return x;
+    if (fx === 0) return x;
     if (fx > 0 === fb > 0) {
       b = x;
       fb = fx;

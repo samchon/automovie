@@ -7,27 +7,15 @@ export function differentiateRecoveryMapTangent(
   translation: readonly [number, number, number],
   tangent: readonly (readonly [number, number, number])[],
 ): [number, number, number][] | null {
-  if (
-    translation.length !== 3 ||
-    !Number.isFinite(translation[0]) ||
-    !Number.isFinite(translation[1]) ||
-    !Number.isFinite(translation[2]) ||
-    tangent.length !== 2
-  )
+  if (translation.length !== 3 || tangent.length !== 2)
     throw new Error("camera-map-chart: finite owned seed chart required");
   for (let column: number = 0; column < 2; column++) {
     const row: readonly number[] | undefined = tangent[column];
-    if (
-      row === undefined ||
-      row.length !== 3 ||
-      !Number.isFinite(row[0]) ||
-      !Number.isFinite(row[1]) ||
-      !Number.isFinite(row[2])
-    )
+    if (row === undefined || row.length !== 3)
       throw new Error("camera-map-chart: finite owned seed chart required");
   }
   const squared: number = Math.hypot(...translation) ** 2;
-  if (!(squared > 0) || !Number.isFinite(squared)) return null;
+  if (!(squared > 0)) return null;
   const result: [number, number, number][] = tangent.map(
     (row: readonly [number, number, number]): [number, number, number] => {
       const product: number =
@@ -42,9 +30,5 @@ export function differentiateRecoveryMapTangent(
       ];
     },
   );
-  return result.every((row: readonly number[]): boolean =>
-    row.every(Number.isFinite),
-  )
-    ? result
-    : null;
+  return result;
 }

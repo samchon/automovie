@@ -79,7 +79,7 @@ export const stageCatch: IAutoMovieMotionHumanCatchObject.IStageLaw = {
     let approach: IAutoMovieMotionHumanPropReader.IFlightApproach | undefined;
     if (specified !== undefined) {
       const at: number = released + specified;
-      if (!Number.isFinite(at) || !(specified > 0) || !(at > context.start))
+      if (!(specified > 0) || !(at > context.start))
         throw new HumanRefusal({
           kind: "reach",
           axis: "intercept",

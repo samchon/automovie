@@ -52,7 +52,7 @@ export const summarizeAutoMovieAnalysis: (
       "an analysis report must state the design revision it is about",
     );
   const bound: number = props.maxGaps ?? AUTOMOVIE_ANALYSIS_REPORT_MAX_GAPS;
-  if (!Number.isSafeInteger(bound) || bound < 1)
+  if (bound < 1)
     throw new Error(
       `analysis report gap bound must be a positive safe integer, but was ${bound}`,
     );

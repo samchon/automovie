@@ -311,8 +311,9 @@ export namespace chiSau {
       });
     return {
       ...composed,
-      settle: (): void => {
+      prepare: (): void => {
         roll = undefined;
+        build();
       },
     };
   }

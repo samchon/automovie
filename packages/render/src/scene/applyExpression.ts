@@ -155,4 +155,4 @@ const setMax: (
 };
 
 const clamp01: (value: number) => number = (value: number): number =>
-  Math.max(0, Math.min(1, Number.isFinite(value) ? value : 0));
+  Math.max(0, Math.min(1, value));

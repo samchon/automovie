@@ -64,21 +64,19 @@ export function reconstructRecovery(
           i: number,
         ): IAutoMovieContourLoft64.IInterval => ({
           ...interval,
-          groups: Array.isArray(interval.groups)
-            ? interval.groups.map(
-                (
-                  group: IAutoMovieContourLoft64.IInterval["groups"][number],
-                  j: number,
-                ): IAutoMovieContourLoft64.IInterval["groups"][number] =>
-                  replacements.has(`${i}:${j}`)
-                    ? {
-                        ...group,
-                        supported: false,
-                        reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
-                      }
-                    : group,
-              )
-            : interval.groups,
+          groups: interval.groups.map(
+            (
+              group: IAutoMovieContourLoft64.IInterval["groups"][number],
+              j: number,
+            ): IAutoMovieContourLoft64.IInterval["groups"][number] =>
+              replacements.has(`${i}:${j}`)
+                ? {
+                    ...group,
+                    supported: false,
+                    reason: `Saved domain delegated to analytic owner ${replacements.get(`${i}:${j}`)}`,
+                  }
+                : group,
+          ),
         }),
       ),
       observeWork: options.observeWork ?? false,

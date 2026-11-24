@@ -92,10 +92,6 @@ const validateCopyFlag: (
 const validateCopyInfluence: (influence: number) => void = (
   influence: number,
 ): void => {
-  if (!Number.isFinite(influence))
-    throw new Error(
-      `copy driver influence must be finite, but was ${influence}`,
-    );
   if (influence < 0)
     throw new Error(
       `copy driver influence must be between 0 and 1, but was ${influence}`,
@@ -213,7 +209,6 @@ const applyDriven: (
   );
   const source: number | undefined =
     src !== undefined ? readDrivenSourceValue(src.value) : undefined;
-  if (source !== undefined) validateDrivenFinite("source value", source);
   const y: number =
     d.curve !== null && d.curve !== undefined
       ? evaluateDrivenCurve(source, d.curve)
@@ -293,10 +288,6 @@ const validateDrivenRange: (
 ) => void = (inRange: [number, number], outRange: [number, number]): void => {
   validateDrivenRangeTuple("inRange", inRange);
   validateDrivenRangeTuple("outRange", outRange);
-  validateDrivenFinite("inRange[0]", inRange[0]);
-  validateDrivenFinite("inRange[1]", inRange[1]);
-  validateDrivenFinite("outRange[0]", outRange[0]);
-  validateDrivenFinite("outRange[1]", outRange[1]);
 };
 
 const validateDrivenRangeTuple: (
@@ -309,14 +300,6 @@ const validateDrivenRangeTuple: (
     throw new Error(
       `driven driver ${label} must contain exactly 2 entries, but had ${range.length}`,
     );
-};
-
-const validateDrivenFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`driven driver ${label} must be finite, but was ${value}`);
 };
 
 const remapDriven: (

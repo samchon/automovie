@@ -52,7 +52,7 @@ const throws: (task: () => void) => boolean = (task: () => void): boolean => {
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite and out-of-range falloff values throw before propagation.).
  */
 export function test_physics_impact_recoil_falloff(): void {
-  for (const falloff of [Number.NaN, Infinity, -0.1, 1.1])
+  for (const falloff of [Infinity, -0.1, 1.1])
     TestValidator.predicate(
       `falloff ${falloff} throws`,
       throws(

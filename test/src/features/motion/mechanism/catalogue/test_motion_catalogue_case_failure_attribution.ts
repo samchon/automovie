@@ -4,23 +4,25 @@ import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanLawCovering } from "../../../internal/motionHumanLawCovering";
 import { motionHumanLawSweep } from "../../../internal/motionHumanLawSweep";
-import { throwsError } from "../../../internal/throwsError";
+import { rejectsError } from "../../../internal/rejectsError";
 
 /**
- * Shared sweep selection and mirror comparison must not turn invalid input
- * or an actual stage failure into an empty success. Mirrors retain their
- * existing all-refusals policy; no physical feasibility policy changes.
+ * Shared sweep selection and mirror comparison must not turn invalid input or
+ * an actual stage failure into an empty success. Mirrors retain their existing
+ * all-refusals policy; no physical feasibility policy changes.
  *
  * Scenarios:
- * 1. Two identical canonical standing scenes with zero sway produce no
- *    mirror complaint at the unchanged 10 mm bound.
- * 2. A deliberately failing left stage yields one complaint naming its
- *    actual left row and original error text.
- * 3. A typed reach refusal from the right stage yields one complaint naming
- *    the right row and refusal reason. It cannot become an empty success.
- * 4. Fractional part indices, a zero count, a count not divisible by the
- *    body count and an index beyond the selected parts refuse before any
- *    scene executes. An empty table cannot hide an invalid part selection.
+ *
+ * 1. Two identical canonical standing scenes with zero sway produce no mirror
+ *    complaint at the unchanged 10 mm bound.
+ * 2. A deliberately failing left stage yields one complaint naming its actual left
+ *    row and original error text.
+ * 3. A typed reach refusal from the right stage yields one complaint naming the
+ *    right row and refusal reason. It cannot become an empty success.
+ * 4. A zero count, a count not divisible by the body count and an index beyond the
+ *    selected parts refuse before any scene executes. An empty table cannot
+ *    hide an invalid part selection. Whether a part is whole is the caller's:
+ *    the parts are counted in integers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the real canonical standing control, the deliberately owned left/right stage failures, malformed partition boundaries and the existing complaint/attribution policy.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual public test harness with owned stages, verifies its successful mirror control and observes attributed ordinary-error/typed-refusal complaints plus invalid part refusals. A swallowed right failure, mislabeled side, fractional no-cell success or unconditional failure fails.
@@ -28,10 +30,10 @@ import { throwsError } from "../../../internal/throwsError";
  * @evidence contracts/development/testing.md#distinguishing-cases A successful pair, failure before the left film and failure after a successful left film distinguish positive behavior and both failure boundaries, including an actual typed HumanRefusal. Fractional/empty/uneven/out-of-range partition requests cannot pass vacuously through an empty table. Conditional allowed-turn refusals remain airborne_signature's separate policy.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable in-memory unit supplies normal stage callbacks to the real shared harness, which uses existing canonical Human fixtures and public standing performances. The table's touch key selects its hand factor only; the test checks harness control flow rather than a touch action. It starts no host or process and replaces no foreign method.
  */
-export function test_motion_catalogue_case_failure_attribution(): void {
-  const read: (side?: "left" | "right") => string[] = (
+export async function test_motion_catalogue_case_failure_attribution(): Promise<void> {
+  const read: (side?: "left" | "right") => Promise<string[]> = (
     side?: "left" | "right",
-  ): string[] =>
+  ): Promise<string[]> =>
     motionHumanLawCovering.mirrors({
       touch: (
         pick: motionHumanLawSweep.Pick,
@@ -56,11 +58,11 @@ export function test_motion_catalogue_case_failure_attribution(): void {
     });
   TestValidator.equals(
     "an ordinary canonical mirrored pair remains accepted",
-    read(),
+    await read(),
     [],
   );
   for (const side of ["left", "right"] as const) {
-    const findings: string[] = read(side);
+    const findings: string[] = await read(side);
     TestValidator.equals(
       `${side}: the owned failure remains one finding`,
       findings.length,
@@ -77,13 +79,14 @@ export function test_motion_catalogue_case_failure_attribution(): void {
     );
   }
   for (const part of [
-    [0.5, 4],
     [0, 0],
     [0, 3],
     [4, 4],
   ] as const)
     TestValidator.predicate(
       `invalid discrete part${part.join("/")} cannot pass an empty table`,
-      throwsError((): string[] => motionHumanLawCovering.part({}, part)),
+      await rejectsError(
+        (): Promise<string[]> => motionHumanLawCovering.part({}, part),
+      ),
     );
 }

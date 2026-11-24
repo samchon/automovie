@@ -20,12 +20,13 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Three people advance from uneven marks on one release, preserving order
- * and headway. A later cue shifts the full sequence while keeping delays.
- * A short exit, an off-axis mark and a reversed rank each refuse with the
- * affected performer.
+ * Three people advance from uneven marks on one release, preserving order and
+ * headway. A later cue shifts the full sequence while keeping delays. A short
+ * exit, an off-axis mark and a reversed rank each refuse with the affected
+ * performer.
  *
  * Scenarios:
+ *
  * 1. A release traverses authored marks in order with a minimum headway.
  * 2. Translating the cue shifts each walk and preserves its midpoint. Identical
  *    inputs reproduce held and moving roots exactly at named times.
@@ -200,9 +201,7 @@ export function test_motion_ensemble_service_queue(): void {
           : t >= walk.end
             ? held[rank]!.end
             : film.posture(member.subject, t).root;
-      const gap: number = Number.isFinite(root.z)
-        ? predecessor - root.z
-        : -Infinity;
+      const gap: number = predecessor - root.z;
       if (gap < closest) {
         closest = gap;
         criticalRank = rank;

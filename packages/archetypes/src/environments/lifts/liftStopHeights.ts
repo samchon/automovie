@@ -58,10 +58,7 @@ export function liftStopHeights(
           Vector3.subtract(anchor.translation, context.frame.translation),
         );
       })();
-      if (
-        ![local.x, local.y, local.z].every(Number.isFinite) ||
-        Math.hypot(local.x, local.z) > ALIGNMENT
-      )
+      if (Math.hypot(local.x, local.z) > ALIGNMENT)
         throw new Error(`${label} sill must lie on the shaft's vertical axis.`);
       return { id, height: local.y };
     },
@@ -76,7 +73,7 @@ export function liftStopHeights(
     const before: liftStopHeights.IStop = result[i - 1]!;
     const next: liftStopHeights.IStop = result[i]!;
     const rise: number = next.height - before.height;
-    if (!Number.isFinite(rise) || rise <= doorHeight)
+    if (rise <= doorHeight)
       throw new Error(
         `Lift ${context.id} stops ${before.id} and ${next.id} need more than ${doorHeight} metres between sills for distinct openings.`,
       );

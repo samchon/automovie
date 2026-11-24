@@ -125,8 +125,8 @@ export namespace guard {
           resolution,
           projection,
         ),
-      settle: (): void => {
-        built = undefined;
+      prepare: (): void => {
+        built = build(context, duration);
       },
     };
   }

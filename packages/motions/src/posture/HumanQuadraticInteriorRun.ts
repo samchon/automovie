@@ -238,11 +238,8 @@ export function HumanQuadraticInteriorRun(
       stationary = Math.max(stationary, Math.abs(dual[i]!));
     }
     const mu: number = pairs === 0 ? 0 : gap / pairs;
-    if (
-      !Number.isFinite(stationary) ||
-      !Number.isFinite(missed) ||
-      !Number.isFinite(mu)
-    )
+    // A diverged step leaves no reading below infinity (NaN compares false).
+    if (!(stationary < Infinity && missed < Infinity && mu < Infinity))
       return kept === undefined
         ? { state: undefined, converged: false }
         : ended();

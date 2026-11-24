@@ -70,12 +70,12 @@ export namespace IAutoMoviePhysicalSimulationInput {
     unavailableSupports?: string[];
 
     /**
-     * Exact nonblank id of a mutually bound group for this output interval.
-     * Active targets with the same id at step k share one target fit against
-     * the simultaneous scene snapshot. Frame zero seeds the simulation.
-     * Omission keeps ordinary individual tracking. Admission refuses a member
-     * with releaseOnContact, and a member whose native root also takes balance
-     * or supportTracking goals at that step.
+     * Exact id of a mutually bound group for this output interval. Active
+     * targets with the same id at step k share one target fit against the
+     * simultaneous scene snapshot. Frame zero seeds the simulation. Omission
+     * keeps ordinary individual tracking. Admission refuses a member with
+     * releaseOnContact, and a member whose native root also takes balance or
+     * supportTracking goals at that step.
      */
     coupledGroup?: string;
 

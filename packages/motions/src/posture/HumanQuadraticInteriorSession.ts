@@ -201,7 +201,7 @@ export namespace HumanQuadraticInteriorSession {
       nu[j] = nu[j]! + towardMultiplier;
       if (!(e[j]! > 0) || !(nu[j]! > 0)) interior = false;
     }
-    return interior && x.every(Number.isFinite);
+    return interior;
   }
 
   /**

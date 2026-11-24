@@ -16,8 +16,6 @@ import type { HumanQuadraticWorkspace as Work } from "./HumanQuadraticWorkspace"
  *   alias neither b nor x.
  * @param alpha Finite relaxation coefficient, one by default; ADMM supplies its
  *   existing 1.6.
- * @returns Whether every final solution component is finite; the flag does not
- *   admit or clamp a value.
  */
 export function HumanQuadraticSubstitute(
   factor: Work.IFactor,
@@ -25,20 +23,18 @@ export function HumanQuadraticSubstitute(
   x: Float64Array,
   relaxed?: Float64Array,
   alpha: number = 1,
-): boolean {
+): void {
   const n: number = factor.n;
   const u: Float64Array[] = factor.system;
   if (factor.band === 0) {
-    let finite: boolean = true;
     for (let i: number = 0; i < n; ++i) {
       const diagonal: number = u[i]![0]!;
       const value: number = b[i]! / diagonal / diagonal;
       x[i] = value;
-      if (!Number.isFinite(value)) finite = false;
       if (relaxed !== undefined)
         relaxed[i] = alpha * value + (1 - alpha) * relaxed[i]!;
     }
-    return finite;
+    return;
   }
   const forward: Float64Array = factor.forward;
   const starts: Float64Array = factor.forwardStart;
@@ -51,7 +47,6 @@ export function HumanQuadraticSubstitute(
       v -= forward[start + j]! * x[first + j]!;
     x[i] = v / u[i]![0]!;
   }
-  let finite: boolean = true;
   for (let i: number = n - 1; i >= 0; --i) {
     const row: Float64Array = u[i]!;
     let v: number = x[i]!;
@@ -59,9 +54,7 @@ export function HumanQuadraticSubstitute(
     for (let t: number = i + 1; t < end; ++t) v -= row[t - i]! * x[t]!;
     const value: number = v / row[0]!;
     x[i] = value;
-    if (!Number.isFinite(value)) finite = false;
     if (relaxed !== undefined)
       relaxed[i] = alpha * value + (1 - alpha) * relaxed[i]!;
   }
-  return finite;
 }

@@ -50,13 +50,7 @@ export function projectileDragFlight(
 ): IAutoMovieProjectileFlight {
   const known: IAutoMovieProjectileFlight | undefined = MEMO.get(projectile);
   if (known !== undefined) return known;
-  for (const [name, vector] of [
-    ["origin", projectile.origin],
-    ["velocity", projectile.velocity],
-    ["gravity", projectile.gravity],
-  ] as const)
-    if (![vector.x, vector.y, vector.z].every(Number.isFinite))
-      throw new RangeError(`projectile ${name} must have finite components`);
+
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
   for (const [name, value] of [
@@ -64,22 +58,22 @@ export function projectileDragFlight(
     ["area", drag.area],
     ["density", density],
   ] as const)
-    if (!(Number.isFinite(value) && value >= 0))
+    if (value < 0)
       throw new RangeError(
-        `projectile drag ${name} must be finite and non-negative, but was ${value}`,
+        `projectile drag ${name} must be non-negative, but was ${value}`,
       );
-  if (!(Number.isFinite(drag.mass) && drag.mass > 0))
+  if (drag.mass <= 0)
     throw new RangeError(
-      `projectile drag mass must be finite and positive, but was ${drag.mass}`,
+      `projectile drag mass must be positive, but was ${drag.mass}`,
     );
   const zeroDrag: boolean =
     density === 0 || drag.coefficient === 0 || drag.area === 0;
   const k: number = zeroDrag
     ? 0
     : (density * drag.coefficient * drag.area) / drag.mass / 2;
-  if (!Number.isFinite(k) || (!zeroDrag && k === 0))
+  if (!zeroDrag && k === 0)
     throw new RangeError(
-      "projectile drag factor must retain its positive finite magnitude",
+      "projectile drag factor must retain its positive magnitude",
     );
   const g: IAutoMovieVector3 = projectile.gravity;
   const f = (
@@ -111,14 +105,10 @@ export function projectileDragFlight(
   // largest speed the flight can reach.
   const v0: number = Vector3.length(projectile.velocity);
   const gravity: number = Vector3.length(g);
-  if (!Number.isFinite(v0) || !Number.isFinite(gravity))
-    throw new RangeError("projectile speed and gravity norms must be finite");
+
   const terminal: number =
     gravity > 0 ? (k > 0 ? Math.sqrt(gravity / k) : Infinity) : 0;
-  if (k > 0 && !Number.isFinite(terminal))
-    throw new RangeError(
-      "projectile terminal speed must be representable and finite",
-    );
+
   const fastest: number = Math.max(v0, terminal);
   const probeSpeed: number = k === 0 ? v0 : fastest;
   const along: IAutoMovieVector3 =
@@ -236,9 +226,7 @@ const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileFlight> =
  * hold the launch.
  */
 const flightTime = (seconds: number): number => {
-  if (!Number.isFinite(seconds))
-    throw new RangeError(
-      `projectile flight time must be finite, but was ${seconds}`,
-    );
+  if (seconds === Infinity)
+    throw new RangeError("projectile flight time must be bounded");
   return Math.max(0, seconds);
 };

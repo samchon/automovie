@@ -45,11 +45,8 @@ export const normalizeAudioAssets: (
           asset.path.trim().length === 0 ||
           paths.has(asset.path) ||
           validDigest(asset.digest) === false ||
-          Number.isSafeInteger(asset.sampleRate) === false ||
           asset.sampleRate <= 0 ||
-          Number.isSafeInteger(asset.channels) === false ||
           asset.channels <= 0 ||
-          Number.isSafeInteger(asset.sourceFrames) === false ||
           asset.sourceFrames <= 0 ||
           asset.durationSeconds !== asset.sourceFrames / asset.sampleRate ||
           (asset.kind !== "placeholder-audio-stem" && asset.kind !== "wave") ||

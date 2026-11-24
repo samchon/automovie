@@ -27,8 +27,6 @@ export function evaluateAutoMovieHermiteGregory64(
 ): IAutoMovieEvaluateHermiteGregory64.IResult {
   if (
     edges.length !== 4 ||
-    !Number.isFinite(u) ||
-    !Number.isFinite(v) ||
     u < 0 ||
     u > 1 ||
     v < 0 ||

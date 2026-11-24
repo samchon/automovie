@@ -46,7 +46,6 @@ export function intersectsPerspectiveFrustumSphere(
   );
   const depth: number = -local.z;
   if (
-    Number.isFinite(props.radius) === false ||
     props.radius < 0 ||
     depth + props.radius < props.near ||
     depth - props.radius > props.far

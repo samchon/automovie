@@ -22,7 +22,7 @@ export function samplePracticalSurfaceMaterial(
   part: string,
   time: number,
 ): string | undefined {
-  if (!Number.isFinite(time) || time < 0 || time >= shot.duration)
+  if (time < 0 || time >= shot.duration)
     return undefined;
   const track: IAutoMoviePracticalSurfaceTrack | undefined =
     shot.practicalSurfaces?.find(

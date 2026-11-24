@@ -236,11 +236,7 @@ export async function prepareAutoMovieSurfaceGraphics(
   let disposed: boolean = false;
   return {
     apply: (seconds: number): void => {
-      if (
-        !Number.isFinite(seconds) ||
-        seconds < 0 ||
-        seconds >= props.shot.duration
-      )
+      if (seconds < 0 || seconds >= props.shot.duration)
         throw new RangeError(
           `Surface graphics sample ${seconds} s must be inside the shot`,
         );

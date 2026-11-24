@@ -1,17 +1,15 @@
-import { Vector3, minimumJerk, wrapDegrees } from "@automovie/engine";
+import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionName,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanStepOver,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -19,20 +17,17 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { walkFoot } from "../actions/walkFoot";
-import { walkLeg } from "../actions/walkLeg";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { hipJoints } from "../posture/hipJoints";
-import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanTrunk } from "./HumanTrunk";
 import { stepOverPath } from "./stepOverPath";
+import { stepOverSwing } from "./stepOverSwing";
 
 /**
  * Stepping over a low obstacle placed in the scene, a kerb or a hurdle
@@ -292,19 +287,27 @@ export namespace stepOver {
     // (`walkFoot.RISE`), turning about the same ball.
     const trailLimb: AutoMovieHumanLimb =
       trail === "left" ? "leftLeg" : "rightLeg";
-    let landed: number | undefined;
-    const contactPitch = (): number =>
-      (landed ??= Math.min(
-        0,
-        HumanFoot.pitch(
-          result.posture(windows[trail][1] - CONTACT).limbs[trailLimb]!
-            .rotation!,
-        ),
-      ));
     const settle: number = Math.min(
       walkFoot.RISE,
       duration - windows[trail][1],
     );
+    const swing: stepOverSwing.Swing = stepOverSwing({
+      body,
+      lead,
+      trail,
+      yaw,
+      end,
+      windows,
+      heeled,
+      smooth,
+      footAt,
+      needed,
+      advance,
+      short,
+      requested,
+      observe,
+      forward,
+    });
     const result: IAutoMovieMotionHumanActionPlan = {
       duration,
       events: [
@@ -354,7 +357,7 @@ export namespace stepOver {
           right: footAt("right", t),
         };
         if (footings[trail].planted && t >= windows[trail][1] && settle > 0) {
-          const pitch: number = contactPitch();
+          const pitch: number = landed;
           if (pitch < 0)
             footings[trail].placement = heeled(
               trail,
@@ -416,150 +419,25 @@ export namespace stepOver {
           ),
           resolution,
         );
-        // A swinging foot's leg reaches for its landing over the second half
-        // of its swing, so the pelvis has come down to where that leg stands
-        // when it lands rather than dropping at the contact; over the first
-        // half it lets go of the lowering it asked from where it left, so
-        // the pelvis does not rise at the toe-off a planted leg had held down.
-        const side: AutoMovieHumanSide | undefined = !footings[lead].planted
-          ? lead
-          : !footings[trail].planted
-            ? trail
-            : undefined;
-        if (side === undefined) return posture;
-        const [from, to]: [number, number] = windows[side];
-        const limb: AutoMovieHumanLimb =
-          side === "left" ? "leftLeg" : "rightLeg";
-        const observed: boolean =
-          channels === undefined || channels.includes(limb);
-        const middle: number = (from + to) / 2;
-        const hip: IAutoMovieVector3 = hipJoints(
-          body,
-          posture.root,
-          humanPostureHeading(posture),
-          posture.joints.hips,
-          resolution(),
-        )[side];
-        const landing: number =
-          t <= middle
-            ? Math.max(
-                0,
-                (1 - smooth(t, from, middle)) *
-                  short(hip, footAt(side, from).placement.ankle),
-              )
-            : Math.max(0, smooth(t, middle, to) * short(hip, end[side]));
-        if (landing > 0) {
-          posture.root = { ...posture.root, y: posture.root.y - landing };
-          hip.y -= landing;
-        }
-        if (!observed) return posture;
-        const goal: IAutoMovieHumanLimbGoal = posture.limbs[limb]!;
-        const own: IAutoMovieQuaternion = footings[side].placement.rotation;
-        const direction: ReturnType<typeof HumanFoot.headingPitch> =
-          HumanFoot.headingPitch(own);
-        let rotation: IAutoMovieQuaternion = own;
-        if (side === trail) {
-          // The folded trailing knee travels in the sagittal plane. Restore
-          // the planted foot's toe-out with zero angular rate at each contact.
-          const turn: number =
-            Math.sin((Math.PI * (t - from)) / (to - from)) ** 2;
-          rotation = HumanFoot.rotation(
-            direction.heading + wrapDegrees(yaw - direction.heading) * turn,
-            direction.pitch,
-          );
-        }
-        const range: ReturnType<typeof walkLeg.prepareAnkleRange> =
-          walkLeg.prepareAnkleRange(body, HumanFoot.heading(rotation));
-        const ranged: IAutoMovieQuaternion = range(hip, goal.point, rotation);
-        // The trail foot steps down onto its ball, as one steps down into a
-        // tub: where its unloaded ankle cannot hold the foot level under the
-        // shank, the foot turns toes-down about the ball of its level
-        // placement over the landing half, its toes extended to lie on the
-        // floor, so the ball and not the ankle meets the landing.
-        let start: IAutoMovieVector3 = goal.point;
-        if (side === trail && t > middle && HumanFoot.pitch(ranged) < 0) {
-          const pitch: number = HumanFoot.pitch(ranged);
-          const onto: number = smooth(t, middle, to);
-          start = Vector3.lerp(
-            goal.point,
-            heeled(trail, goal.point, pitch).ankle,
-            onto,
-          );
-          posture.joints[`${trail}Toes`] = [
-            toes[trail] + (Math.max(toes[trail], -pitch) - toes[trail]) * onto,
-            0,
-            0,
-          ];
-        }
-        posture.limbs[limb] = { ...goal, point: start, rotation: ranged };
-        // Extend the toes by the pitch the unloaded ankle cannot supply.
-        // The lead heel, ball and toe then follow their own approach and
-        // landing ramps. All three retain the full margin above the obstacle.
-        if (side === lead)
-          posture.joints[`${lead}Toes`] = [
-            Math.max(0, direction.pitch - HumanFoot.pitch(ranged)),
-            0,
-            0,
-          ];
-        let previousHeight: number = start.y;
-        let previousDeficit: number = -Infinity;
-        let point: IAutoMovieVector3 = start;
-        for (let round: number = 0; round < 6; round++) {
-          const posed: ReturnType<typeof resolveHumanPosture.seeded>["pose"] =
-            resolveHumanPosture.seeded(
-              body,
-              posture,
-              undefined,
-              {},
-              resolution,
-              requested[side],
-              projection,
-            ).pose;
-          const bones: ReturnType<typeof poseBones> = observe[side](
-            posed,
-            resolution(),
-          );
-          let deficit: number = -Infinity;
-          let ahead: number = side === trail ? 0 : Infinity;
-          for (const socket of HumanFoot.sockets(body, bones, side)) {
-            const under: number =
-              needed(side, socket.socket, socket.point) - socket.point.y;
-            deficit = Math.max(deficit, under);
-            if (under > 0.002 && side === trail)
-              ahead = Math.max(
-                ahead,
-                advance(goal.point, socket.socket, socket.point),
-              );
-          }
-          if (deficit <= 0.002) break;
-
-          const decrease: number = previousDeficit - deficit;
-          const ratio: number =
-            decrease < 1e-3
-              ? 1
-              : Math.min(4, Math.max(1, (point.y - previousHeight) / decrease));
-          previousHeight = point.y;
-          previousDeficit = deficit;
-          // A heel can swing back over the far face even with its ankle
-          // beyond it. Take the shorter correction to the landing ramp
-          // when raising the ankle would fold the knee further.
-          if (ahead > 0 && ahead < deficit) {
-            point = {
-              ...point,
-              x: point.x + ahead * forward.x,
-              z: point.z + ahead * forward.z,
-            };
-            previousDeficit = -Infinity;
-          } else point = { ...point, y: point.y + deficit * ratio };
-          posture.limbs[limb] = {
-            ...goal,
-            point,
-            rotation: range(hip, point, rotation),
-          };
-        }
-        return posture;
+        return swing(
+          posture,
+          t,
+          footings,
+          toes,
+          channels,
+          resolution,
+          projection,
+        );
       },
     };
+
+    // Read before the trail's contact, the posture reads no landing pitch.
+    const landed: number = Math.min(
+      0,
+      HumanFoot.pitch(
+        result.posture(windows[trail][1] - CONTACT).limbs[trailLimb]!.rotation!,
+      ),
+    );
     return result;
   }
 }

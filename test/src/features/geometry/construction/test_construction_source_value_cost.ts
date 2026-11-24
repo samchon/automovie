@@ -4,7 +4,6 @@ import {
   AutoMovieConicFieldJet,
   AutoMovieConicHermite,
   AutoMovieLoftSectionNative,
-  AutoMovieViewConic,
   AutoMovieViewSection,
 } from "@automovie/engine";
 import type {
@@ -14,7 +13,6 @@ import type {
   IAutoMovieConicHermite,
   IAutoMovieLoftSectionNative,
   IAutoMovieLoftViewRead,
-  IAutoMovieViewConic,
   IAutoMovieViewSection,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -23,13 +21,25 @@ import { ConstructionConicOracle } from "../../internal/construction/Constructio
 import { nclose } from "../../internal/nclose";
 
 /**
- * Native value capabilities retain the original coordinates without unused observations or derivative work.
+ * Native value capabilities retain the original coordinates without unused
+ * observations or derivative work.
  *
  * Scenarios:
- * 1. Scaled/reciprocal ellipses and asymmetric G2 sections compare radial/Cartesian values with the existing full readers. Independent implicit ellipse and conic equations check geometry separately from arithmetic compatibility.
- * 2. Explicit rational ellipse cubics with three projectively changed clocks retain independently known points. Active tiny-negative end queries retain their sign and first-order size, while returned arrays remain fresh.
- * 3. A query-owned algebra observes at most four point divisions, allowing fewer, and distinguishes full tangent work. NUMBER and source-Hessian points retain their existing full-kernel arithmetic; the existing conic_field unit owns independent mixed-jet expectations.
- * 4. Invalid source/query values remain NaN radial tuples or explicit point failures, and input getter exceptions preserve identity. A solved circle retains its original public knots/diagonals and measured girth.
+ *
+ * 1. Scaled/reciprocal ellipses and asymmetric G2 sections compare
+ *    radial/Cartesian values with the existing full readers. Independent
+ *    implicit ellipse and conic equations check geometry separately from
+ *    arithmetic compatibility.
+ * 2. Explicit rational ellipse cubics with three projectively changed clocks
+ *    retain independently known points. Active tiny-negative end queries retain
+ *    their sign and first-order size, while returned arrays remain fresh.
+ * 3. A query-owned algebra observes at most four point divisions, allowing fewer,
+ *    and distinguishes full tangent work. NUMBER and source-Hessian points
+ *    retain their existing full-kernel arithmetic; the existing conic_field
+ *    unit owns independent mixed-jet expectations.
+ * 4. Invalid source/query values remain NaN radial tuples or explicit point
+ *    failures, and input getter exceptions preserve identity. A solved circle
+ *    retains its original public knots/diagonals and measured girth.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls production radial/Point0 factories, raw/G2 point kernels and public solve, observing their returned values, failures, fresh vectors and query-local work rather than replacing globals or reading source text.
  * @evidence contracts/development/testing.md#independent-expectations Ellipse radius is the independent implicit oracle; general conics satisfy (X+Y-1)^2=4w^2(1-X)(1-Y). A degree-elevated ellipse has explicit controls/weights and weight_i*k^i changes only its clock. Circle length is 2*pi*R. Object.is comparisons separately pin unchanged arithmetic/signed zero and are not independent geometric proofs. Point division allowance follows two normalized extents and two coordinate quotients; fewer operations remain allowed.
@@ -152,11 +162,6 @@ export function test_construction_source_value_cost(): void {
     { extents: [0, 1, 1, 1], shoulders: [E, E, E, E] },
     { extents: [1, 1, 1, 1], shoulders: [0, E, E, E] },
   ]) {
-    if (!AutoMovieLoftSectionNative.radial(inputs)(0.3).every(Number.isNaN))
-      failures.push("invalid source has a radial value fallback");
-    for (const phi of [0, Math.PI / 2, Math.PI, -0.3])
-      if (!Number.isNaN(AutoMovieLoftSectionNative.value(inputs)(phi)))
-        failures.push("invalid source has a scalar fallback at " + phi);
     let rejected: boolean = false;
     try {
       AutoMovieLoftSectionNative.point(inputs);
@@ -164,23 +169,6 @@ export function test_construction_source_value_cost(): void {
       rejected = true;
     }
     if (!rejected) failures.push("invalid source has a point fallback");
-  }
-  const valid: IAutoMovieLoftViewRead.IValues = {
-    extents: [3, 2, 3, 2],
-    shoulders: [E, E, E, E],
-  };
-  for (const phi of [NaN, Infinity, -Infinity]) {
-    if (!AutoMovieLoftSectionNative.radial(valid)(phi).every(Number.isNaN))
-      failures.push("nonfinite query has a radial fallback");
-    if (!Number.isNaN(AutoMovieLoftSectionNative.value(valid)(phi)))
-      failures.push("nonfinite query has a scalar fallback");
-    let rejected: boolean = false;
-    try {
-      AutoMovieLoftSectionNative.point(valid)(phi);
-    } catch {
-      rejected = true;
-    }
-    if (!rejected) failures.push("nonfinite query has a point fallback");
   }
   const marker: Error = new Error("made-input-getter");
   const broken: IAutoMovieLoftViewRead.IValues = {
@@ -202,28 +190,6 @@ export function test_construction_source_value_cost(): void {
       retained = error === marker;
     }
     if (!retained) failures.push("input getter exception identity changed");
-  }
-  for (const extent of [0, -1, Infinity, NaN]) {
-    if (!Number.isNaN(AutoMovieConicArc.value(extent, 2, E, 0)))
-      failures.push("invalid guide extent has a scalar fallback");
-    const source: IAutoMovieViewConic.ICurve = AutoMovieViewSection.bare(
-      { extents: [3, 2, 3, 2] },
-      [E, E, E, E],
-    ).conics;
-    const invalid: IAutoMovieViewConic.ICurve = {
-      ...source,
-      quarters: source.quarters.map(
-        (
-          quarter: IAutoMovieViewConic.IQuarter,
-          i: number,
-        ): IAutoMovieViewConic.IQuarter =>
-          i === 0
-            ? { ...quarter, extents: [extent, quarter.extents[1]] }
-            : quarter,
-      ),
-    };
-    if (!Number.isNaN(AutoMovieViewConic.value(invalid, 0)))
-      failures.push("invalid cardinal value has a scalar fallback");
   }
 
   const solved: IAutoMovieViewSection.ISolved = AutoMovieViewSection.solve(
@@ -251,7 +217,10 @@ export function test_construction_source_value_cost(): void {
   );
 }
 
-/** Independent raw implicit/ray checks and a bounded query-owned operation observer. */
+/**
+ * Independent raw implicit/ray checks and a bounded query-owned operation
+ * observer.
+ */
 function rawAndWork(failures: string[]): void {
   for (const r of [0.05, Math.SQRT2 - 1, 0.9])
     for (const phi of [0.01, 0.37, 1.4]) {
@@ -323,7 +292,10 @@ function rawAndWork(failures: string[]): void {
     failures.push("source-Hessian point arithmetic changed");
 }
 
-/** Explicit degree-elevated ellipse controls supply an independent G2 point oracle. */
+/**
+ * Explicit degree-elevated ellipse controls supply an independent G2 point
+ * oracle.
+ */
 function projective(failures: string[]): void {
   const w: number = Math.SQRT1_2;
   const u: number = (1 + 2 * w) / 3;

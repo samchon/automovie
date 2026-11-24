@@ -35,12 +35,13 @@ import { AutoMovieConicFieldJet } from "./AutoMovieConicFieldJet";
  * Neighbouring arcs share each point and tangent line (G1); their curvatures
  * there are their own, so the chain is not G2 in general. Each arc's signed end
  * curvature is `(A - P0) x (P2 - A) / (2 w^2 |A - P0|^3)` at its start and `(A
+ *
  * - P0) x (P2 - A) / (2 w^2 |P2 - A|^3)` at its end (the rational Bezier end
- * curvature for degree 2 and weights 1, w, 1), and every join's two curvatures
- * are reported for the reader to judge. In polar form the radius is therefore
- * C1 in phase: a phase exactly at a join reads the arc starting there, and
- * where the two curvatures differ its second phase derivatives belong to that
- * side alone, which the reading marks as sided.
+ *   curvature for degree 2 and weights 1, w, 1), and every join's two
+ *   curvatures are reported for the reader to judge. In polar form the radius
+ *   is therefore C1 in phase: a phase exactly at a join reads the arc starting
+ *   there, and where the two curvatures differ its second phase derivatives
+ *   belong to that side alone, which the reading marks as sided.
  *
  * Phases are reduced as the native view section reduces them
  * (`AutoMovieViewConic`): any finite phase, by the IEEE remainder `phi % 2pi`,
@@ -79,14 +80,6 @@ export namespace AutoMovieViewChain {
         `a chain needs at least 3 points with one tangent and shoulder each (${K}, ${input.tangents.length}, ${input.shoulders.length})`,
       );
     for (let j: number = 0; j < K; ++j) {
-      if (
-        ![
-          ...input.points[j]!,
-          ...input.tangents[j]!,
-          input.shoulders[j]!,
-        ].every(Number.isFinite)
-      )
-        return fail(`point ${j}: a value is not finite`);
       if (!(Math.hypot(...input.points[j]!) > 0))
         return fail(`point ${j} stands on the course point`);
       if (!(Math.hypot(...input.tangents[j]!) > 0))
@@ -215,7 +208,7 @@ export namespace AutoMovieViewChain {
     section: IAutoMovieViewChain.ISection,
     phi: number,
   ): IAutoMovieViewChain.IRead | null {
-    if (section.fault !== null || !Number.isFinite(phi)) return null;
+    if (section.fault !== null) return null;
     const arcs: IAutoMovieViewChain.IArc[] = section.arcs;
     const first: number = arcs[0]!.span[0];
     const turn: number = 2 * Math.PI;

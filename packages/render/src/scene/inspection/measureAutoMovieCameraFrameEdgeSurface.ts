@@ -52,7 +52,7 @@ export function measureAutoMovieCameraFrameEdgeSurface(
   props: IProps,
 ): measureAutoMovieCameraFrameEdgeSurface.IResult {
   const { meshes, sides, near, projection, triangleBudget }: IProps = props;
-  if (!Number.isSafeInteger(triangleBudget) || triangleBudget < 0)
+  if (triangleBudget < 0)
     return {
       status: "unmeasured",
       reason: "Invalid frame-edge triangle budget.",
@@ -119,11 +119,6 @@ export function measureAutoMovieCameraFrameEdgeSurface(
           mesh
             .getVertexPosition(vertex, corners[k]!)
             .applyMatrix4(mesh.matrixWorld);
-          if (!corners[k]!.toArray().every(Number.isFinite))
-            return {
-              status: "unmeasured",
-              reason: "A drawn subject vertex is not finite.",
-            };
         }
         const count: number = clip(corners, 3, near, polygon);
         if (count < 3) continue;

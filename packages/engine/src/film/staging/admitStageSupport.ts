@@ -9,7 +9,6 @@ import type {
 
 import { prepareSurface } from "../../space/prepareSurface";
 import { preparedSurfaceContains } from "../../space/preparedSurfaceContains";
-import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 
 /**
  * Admit actors' optional support windows against the prepared walkable set.
@@ -93,7 +92,7 @@ export function admitStageSupport(
             surfaces.get(surface)!.surface.availableFrom;
           if (
             available !== undefined &&
-            (!Number.isFinite(available) || available < 0)
+            (available < 0)
           )
             out.push(
               "range",
@@ -108,7 +107,6 @@ export function admitStageSupport(
     const opening: readonly string[] = windows[0]!.surfaces;
     if (
       opening.length !== 0 &&
-      isFiniteStageVector3(actor.position) &&
       !opening.some((id: string): boolean => {
         const entry: IAutoMoviePreparedSurface = surfaces.get(id)!;
         return (

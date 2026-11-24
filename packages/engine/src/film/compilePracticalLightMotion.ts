@@ -57,9 +57,9 @@ export function compilePracticalLightMotion(
   }: typeof input = input;
   if (light.type !== "point" && light.type !== "spot")
     throw new Error("a practical light must be a point or spot");
-  if (!Number.isFinite(duration) || duration <= 0)
+  if (duration <= 0)
     throw new Error("practical light duration must be finite and positive");
-  if (!Number.isFinite(light.intensity) || light.intensity < 0)
+  if (light.intensity < 0)
     throw new Error("practical light intensity must be finite and nonnegative");
   if (on !== undefined && !(0 <= on[0] && on[0] < on[1] && on[1] <= duration))
     throw new Error(
@@ -125,11 +125,7 @@ export function compilePracticalLightMotion(
     }
   }
 
-  if (
-    positions.some((value: number): boolean => !Number.isFinite(value)) ||
-    rotations.some((value: number): boolean => !Number.isFinite(value))
-  )
-    throw new Error("practical light placement produced non-finite keys");
+
 
   const tracks: IAutoMovieTrack[] = [
     practicalTrack(light.id, "position", times, positions, "linear"),

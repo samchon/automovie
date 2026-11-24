@@ -30,30 +30,13 @@ export function resolveAutoMovieMeshPhysicalVertices(
   const refuse: (reason: string) => never = (reason: string): never => {
     throw new Error(`Mesh physicalVertices ${reason}.`);
   };
-  if (
-    mesh.positions.length % 3 !== 0 ||
-    Array.from(mesh.positions).some(
-      (value: number): boolean => !Number.isFinite(value),
-    )
-  )
-    refuse("needs finite complete XYZ positions");
-  if (
-    metadata === null ||
-    !Array.isArray(metadata.sources) ||
-    !Array.isArray(metadata.vertices)
-  )
-    refuse("needs source and vertex arrays");
+  if (mesh.positions.length % 3 !== 0) refuse("needs complete XYZ positions");
+  if (metadata === null) refuse("needs source and vertex arrays");
   if (metadata.vertices.length !== mesh.positions.length / 3)
     refuse("needs one source reference or null per render vertex");
   const keys: string[] = [];
   for (const source of metadata.sources) {
-    if (
-      source === undefined ||
-      source === null ||
-      !Number.isSafeInteger(source.id) ||
-      source.id < 0
-    )
-      refuse("sources need nonnegative safe integer IDs");
+    if (source.id < 0) refuse("sources need nonnegative IDs");
     keys.push(`source:${JSON.stringify([source.domain, source.id])}`);
   }
   const coordinates: { labels: string[]; vertices: number[] } =
@@ -66,9 +49,7 @@ export function resolveAutoMovieMeshPhysicalVertices(
     const reference: number | null = metadata.vertices[vertex];
     if (
       reference !== null &&
-      (!Number.isSafeInteger(reference) ||
-        reference! < 0 ||
-        reference! >= keys.length)
+      (reference < 0 || reference >= keys.length)
     )
       refuse(`vertices[${vertex}] must be null or a resident source reference`);
     const cell: string = coordinates.labels[coordinates.vertices[vertex]];

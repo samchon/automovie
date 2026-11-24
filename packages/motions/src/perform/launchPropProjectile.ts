@@ -31,11 +31,8 @@ export function launchPropProjectile(
   if (
     sphere !== undefined &&
     (!(sphere.radius > 0) ||
-      !Number.isFinite(sphere.radius) ||
-      !Number.isFinite(Vector3.length(sphere.centre)) ||
       (sphere.tangentialFriction !== undefined &&
-        (!(sphere.tangentialFriction >= 0) ||
-          !Number.isFinite(sphere.tangentialFriction))) ||
+        !(sphere.tangentialFriction >= 0)) ||
       (launch.attitude !== undefined && launch.attitude.kind !== "fixed"))
   )
     throw new HumanRefusal({
@@ -50,9 +47,7 @@ export function launchPropProjectile(
   if (
     aim !== undefined &&
     (drag !== undefined ||
-      !(aim.seconds > 0) ||
-      !Number.isFinite(aim.seconds) ||
-      !Number.isFinite(Vector3.length(aim.point)))
+      !(aim.seconds > 0))
   )
     throw new HumanRefusal({
       kind: "parameter",

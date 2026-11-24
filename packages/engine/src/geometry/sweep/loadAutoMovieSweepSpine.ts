@@ -39,7 +39,6 @@ export const loadAutoMovieSweepSpine: (
   ): void => {
     if (v === undefined) return;
     if (
-      ![v.x, v.y, v.z].every(Number.isFinite) ||
       Math.hypot(v.x, v.y, v.z) === 0
     )
       throw new Error(

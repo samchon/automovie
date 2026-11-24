@@ -10,7 +10,6 @@ import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieHumanParameters,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanSeated,
@@ -28,8 +27,9 @@ import {
 import { HumanColliders } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-import PEOPLE from "../../internal/MOTION_HUMAN_PEOPLE.json";
 import { motionHumanBody } from "../../internal/motionHumanBody";
+import type { IMotionHumanPerson } from "../../internal/people/IMotionHumanPerson";
+import { MOTION_HUMAN_PEOPLE } from "../../internal/people/MOTION_HUMAN_PEOPLE";
 
 /**
  * A seated performer rests either ankle across the other knee and sets it back
@@ -279,11 +279,11 @@ export function test_motion_seat_cross_ankle_over_knee(): void {
 
 /** Calibrate the polygon fixture's paired hip axes and external rotation. */
 function calibratedBody(): IAutoMovieMotionHumanBody {
-  const sample = PEOPLE["m-average"];
-  const prepared = AutoMovieHumanCanonicalBody.prepare(
-    sample.params as IAutoMovieHumanParameters,
-    { mass: sample.mass, id: "m-average-figure-four" },
-  );
+  const sample: IMotionHumanPerson = MOTION_HUMAN_PEOPLE["m-average"];
+  const prepared = AutoMovieHumanCanonicalBody.prepare(sample.params, {
+    mass: sample.mass,
+    id: "m-average-figure-four",
+  });
   return createHumanBody(
     {
       ...prepared.skeleton,

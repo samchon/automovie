@@ -46,6 +46,15 @@ export interface IAutoMovieMotionHumanLayer {
   channels?: readonly AutoMovieMotionHumanChannel[];
 
   /**
+   * The clock the contribution is read on: `film` for a layer evaluated only
+   * when a pose is shown (native breathing, `HumanBreath.layer`), which the
+   * entry posture a following action is planned from leaves out; absent for a
+   * layer the entry posture carries. A layer that replaces `apply` or adds
+   * `blend` drops it.
+   */
+  clock?: "film";
+
+  /**
    * Evaluate the contribution at the scheduled window weight, where zero
    * returns the incoming posture and one applies the full layer. A dependent
    * target can follow the joint geometry the provider produces at that weight.

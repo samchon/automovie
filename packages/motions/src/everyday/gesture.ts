@@ -1,4 +1,3 @@
-import { minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -8,16 +7,12 @@ import type {
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmAngles,
-  IAutoMovieMotionHumanArmTarget,
-  IAutoMovieMotionHumanArmTrajectory,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEffort,
   IAutoMovieMotionHumanGesture,
   IAutoMovieMotionHumanGestureStroke,
   IAutoMovieMotionHumanHand,
-  IAutoMovieMotionHumanPlayback,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionHumanVariation,
   IAutoMovieMotionHumanVariationPlace,
@@ -27,35 +22,25 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
-import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "../compose/AutoMovieMotionHumanChannel";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanPhysics } from "../law/HumanPhysics";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHandShape } from "../posture/HumanHandShape";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanEffort } from "./HumanEffort";
 import { gestureAdmit } from "./gestureAdmit";
 import { gestureHands } from "./gestureHands";
 import { gestureJoints } from "./gestureJoints";
+import { gesturePlanned } from "./gesturePlanned";
 import { gestureStroke } from "./gestureStroke";
 import { gestureStrokeTables } from "./gestureStrokeTables";
 import { gestureTouch } from "./gestureTouch";
-import { handGoals } from "./handGoals";
 import { prepareGestureTransport } from "./prepareGestureTransport";
-
-/** The record of `IPlanPriorHand`'s site. */
-type IPlanPriorHand = {
-  request: IAutoMovieMotionHumanArmTarget.ISided;
-  fingers: IAutoMovieMotionHumanPosture["joints"];
-};
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves through
@@ -304,7 +289,12 @@ export namespace gesture {
         digits[side],
         mods.elbow,
       );
-      geometry[side] = gestureTouch.prepare(body, side, p.kind);
+      geometry[side] = gestureTouch.prepare(
+        body,
+        side,
+        p.kind,
+        p.region ?? "forehead",
+      );
     }
     // The farthest a hand travels from the entry to its stroke's start.
     const measure: ReturnType<typeof prepareGestureTransport> =
@@ -412,214 +402,31 @@ export namespace gesture {
       claimed.add("trunk");
     }
 
-    const weight: (t: number) => number = (t: number): number =>
-      t < prepare
-        ? minimumJerk.share(t / prepare)
-        : t <= retractAt
-          ? 1
-          : 1 - minimumJerk.share((t - retractAt) / retract);
-
-    // A bow: the trunk pitched about the hips by the transport's share of its
-    // depth, the hips moved back by the balance shift solved at the deepest
-    // pitch and scaled by the pitch's sine in between (`AutoMovieMotionHumanLean.bow`).
-    const bowing: IAutoMovieMotionHumanPrimitive | undefined =
-      p.kind === "bow"
-        ? AutoMovieMotionHumanLean.bow(
-            {
-              body,
-              standing: at0,
-              peak: depth * mods.extent,
-              from: 0,
-              to: duration,
-              weight,
-            },
-            window,
-          )
-        : undefined;
-    const prior: (
-      t: number,
-      geometry?: boolean,
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ) => gestureHands.IPrior = (
-      t: number,
-      geometry: boolean = true,
-      resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): gestureHands.IPrior => {
-      const read: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2] =
-        resolution ?? prepareHumanPoseResolution();
-      const envelope: number = weight(t);
-      const u: number = Math.min(1, Math.max(0, (t - prepare) / stroke));
-      let posture: IAutoMovieMotionHumanPosture = base.posture(
-        t,
-        undefined,
-        read,
-        projection,
-      );
-      if (bowing !== undefined) posture = bowing.write(posture, t);
-
-      // Head, shoulder and trunk angles, added to what the stand holds.
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {
-        ...posture.joints,
-      };
-      if (direct.length !== 0)
-        gestureJoints.add(joints, p.kind, u, cycles, envelope, mods.extent);
-
-      const requests: IAutoMovieMotionHumanArmTarget.ISided[] = [];
-      for (const side of sides) {
-        if (!geometry) {
-          hands[side]!.fingers(
-            {
-              shape: shapes[side]!,
-              curl: gestureStroke.curl(p.kind, u, cycles, mods.extent),
-            },
-            envelope,
-            joints,
-          );
-          continue;
-        }
-        const hand: IPlanPriorHand = hands[side]!.hand(
-          posture,
-          gestureStroke.hand(
-            p.kind,
-            side,
-            u,
-            cycles,
-            input(posture, t, side, read),
-          ),
-          envelope,
-          joints,
-        );
-        requests.push(hand.request);
-      }
-      return { posture: { ...posture, joints }, requests, envelope };
-    };
-    // The arms planned over the whole gesture as one trajectory, when the
-    // gesture is planned, so no posture read plans them.
-    const arms:
-      | Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played>
-      | undefined =
-      sides.length === 0
-        ? undefined
-        : gestureHands.planned(
-            body,
-            { start: 0, ready: prepare, relax: retractAt, end: duration },
-            sides,
-            begin,
-            rest,
-            (
-              at: number,
-              _channels?: Parameters<
-                IAutoMovieMotionHumanActionPlan["posture"]
-              >[1],
-              resolution?: Parameters<
-                IAutoMovieMotionHumanActionPlan["posture"]
-              >[2],
-              projection?: Parameters<
-                IAutoMovieMotionHumanActionPlan["posture"]
-              >[3],
-            ): gestureHands.IPrior => prior(at, true, resolution, projection),
-            weight,
-            // The gesture's span is its own, timed by its tempo.
-            AutoMovieMotionHumanArmPlanned.together(
-              context.handover,
-              true,
-              context.tempo,
-            ),
-          );
-
-    const planned: IAutoMovieMotionHumanActionPlan = {
-      duration,
-      events,
-      ...HumanPhysics.declared(context.params, window),
-      contacts: base.contacts,
-
-      // The hands the gesture moves, so a hand that holds a prop is refused it.
-      ...(sides.length === 0 ? {} : { hands: sides }),
-      ...(context.carrier === undefined
-        ? {}
-        : {
-            enteredChannels: HumanChannels.ORDER.filter(
-              (channel: AutoMovieMotionHumanChannel): boolean =>
-                sides.some(
-                  (side: AutoMovieHumanSide): boolean =>
-                    channel === `${side}Arm` || channel === `${side}Hand`,
-                ),
-            ),
-            channels: HumanChannels.ORDER.filter(
-              (c: AutoMovieMotionHumanChannel): boolean => claimed.has(c),
-            ),
-          }),
-      posture: (seconds, _channels, resolution, projection) => {
-        const t: number = Math.min(duration, Math.max(0, seconds));
-        if (t > 0 && t < duration) return interior(t, resolution, projection);
-        const read: ReturnType<typeof prepareHumanPoseResolution> =
-          prepareHumanPoseResolution(resolution);
-        const { posture, requests, envelope }: gestureHands.IPrior = prior(
-          t,
-          true,
-          read,
-          projection,
-        );
-        return arms === undefined
-          ? posture
-          : AutoMovieMotionHumanArm.carry(
-              body,
-              handGoals(body, posture, requests),
-              t < prepare ? begin : rest,
-              envelope,
-              undefined,
-              read,
-              projection,
-            );
-      },
-    };
-    /**
-     * Read fingers and the base at the actual second, then write the prepared
-     * moving arms.
-     */
-    function interior(
-      t: number,
-      resolution: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-      projection: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-    ): IAutoMovieMotionHumanPosture {
-      const { posture }: gestureHands.IPrior = prior(
-        t,
-        false,
-        resolution,
-        projection,
-      );
-      return arms === undefined
-        ? posture
-        : gestureHands.written(posture, arms, t);
-    }
-
-    const exact: IAutoMovieMotionHumanActionPlan["posture"] = planned.posture;
-    const bounds: readonly number[] = [
-      0,
+    return gesturePlanned({
+      context,
+      p,
+      body,
+      mods,
+      cycles,
+      depth,
+      sides,
+      at0,
+      begin,
+      rest,
+      hands,
+      shapes,
+      input,
       prepare,
+      stroke,
       strokeEnd,
       retractAt,
+      retract,
       duration,
-    ];
-    const sourcePlayback: IAutoMovieMotionHumanPlayback = {
-      mode: "posture",
-      phases: bounds.slice(0, -1).map((from, index) => ({
-        from,
-        to: bounds[index + 1]!,
-        sample: (t, channels, resolution, projection) =>
-          prepareHumanPoseResolution.isNativeSource(resolution)
-            ? {
-                posture:
-                  t === 0 || t === duration
-                    ? exact(t, channels, resolution, projection)
-                    : interior(t, resolution, projection),
-              }
-            : undefined,
-      })),
-    };
-    HumanPreparedPlayback.attach(planned, body, sourcePlayback);
-    return planned;
+      events,
+      window,
+      base,
+      direct,
+      claimed,
+    });
   }
 }

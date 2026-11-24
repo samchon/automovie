@@ -5,6 +5,7 @@ import type { IAutoMovieMotionEvent } from "../../IAutoMovieMotionEvent";
 import type { AutoMovieMotionHumanChannel } from "../compose/AutoMovieMotionHumanChannel";
 import type { AutoMovieMotionHumanChannelClaim } from "../compose/AutoMovieMotionHumanChannelClaim";
 import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotionHumanEvaluation";
+import type { IAutoMovieMotionHumanPlayback } from "../perform/IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
@@ -163,14 +164,23 @@ export interface IAutoMovieMotionHumanActionPlan {
   ): IAutoMovieMotionHumanPosture;
 
   /**
-   * Drop anything memoised from reads made before the performance settled. A
-   * plan whose geometry depends on another person or prop may build it on its
-   * first posture call; a call during schedule resolution can read a
-   * half-placed performance, so the performance calls this on every plan once
-   * every action is placed, before any pose is evaluated again. `contacts` may
-   * be a getter over the same memo.
+   * Solve what the posture reads of other performers, props and committed
+   * stops. While the schedule is resolved the posture reads them as the
+   * placed performance shows them; once every action is placed, every stop
+   * committed and every flight resolved, the performance calls this once on
+   * every plan in dependency order (a plan reading another performer is
+   * prepared after that performer's plan there), and from then on the posture
+   * evaluates only what this solved. `contacts` may be a getter over the same
+   * solution.
    */
-  settle?(): void;
+  prepare?(): void;
+
+  /**
+   * The native playback phases a law attached to this plan
+   * (`HumanPreparedPlayback.attach`), which a display leaf evaluates in place
+   * of the posture reader; absent for a plan read only through `posture`.
+   */
+  playback?: IAutoMovieMotionHumanPlayback.IBinding;
 
   /**
    * Props this action leaves held: each persists into the performer's later

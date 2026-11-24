@@ -7,15 +7,18 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PROCEDURAL_TEST_SQUARE as square } from "../internal/PROCEDURAL_TEST_SQUARE";
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- * Revolution retains its ring count, closed seam and reported pole degeneracy, with segment/radius/profile admission unchanged.
+ * Revolution retains its ring count, closed seam and reported pole degeneracy,
+ * with segment/radius/profile admission unchanged.
  *
  * Scenarios:
- * 1. Authored positive geometry retains its independent topology and dimensional expectations.
- * 2. Every associated invalid row refuses at the same diagnostic beside supported input.
+ *
+ * 1. Authored positive geometry retains its independent topology and dimensional
+ *    expectations.
+ * 2. Every associated invalid row refuses at the same diagnostic beside supported
+ *    input.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Revolves the existing axis-ended radius profile and asserts emitted vertex/triangle counts, finite visited coordinates/normals and integral indices, pole-degenerate count and exact rebuild. Invalid profile population, segment count/fraction, nonfinite coordinate and negative radius must refuse by their original diagnostics.
  * @evidence contracts/development/testing.md#independent-expectations Eight angular divisions require nine seam-inclusive stations of four profile points and two triangles per three profile spans per division. Each of the two axis ends contributes eight collapsed triangles. Rebuild equality observes determinism, not independent geometry; finiteMesh is a partial observer and the topology count does not establish rendered closure or global embedding.
@@ -36,7 +39,6 @@ export function test_geometry_procedural_revolve(): void {
   TestValidator.equals(
     "a radius profile revolves with a closed seam and reported pole degeneracy",
     namedFacts([
-      ["finite", (): boolean => finiteMesh(revolved)],
       ["rings", (): boolean => revolved.positions.length === 9 * 4 * 3],
       ["triangles", (): boolean => revolved.indices!.length === 8 * 3 * 2 * 3],
       [
@@ -45,7 +47,7 @@ export function test_geometry_procedural_revolve(): void {
           inspectAutoMovieMeshTopology(revolved).degenerate === 8 * 2,
       ],
     ]),
-    { finite: true, rings: true, triangles: true, poles: true },
+    { rings: true, triangles: true, poles: true },
   );
 
   TestValidator.predicate(

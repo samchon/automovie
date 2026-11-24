@@ -23,35 +23,35 @@ import assert from "node:assert/strict";
 
 /**
  * A convex hull shape is read like the other shape kinds: its faces, mass,
- * nearest point, bounds, span, erosion and distance to another shape agree
- * with closed forms.
+ * nearest point, bounds, span, erosion and distance to another shape agree with
+ * closed forms.
  *
  * Scenarios:
- * 1. A box's eight corners with one point on a face and one point inside
- *    give six faces and eight vertices, the inside point reported buried by
- *    its depth of 0.1 m, the centre at the origin, the corner radius and the
- *    0.1 m inscribed depth.
- * 2. The same box moved to (1, 2, 3) has volume 0.08 m3, its centroid there
- *    and the principal moments per unit mass of a 1 x 0.4 x 0.2 m cuboid
- *    about the box's own axes; the unit tetrahedron has volume 1/6 and
- *    centroid (1/4, 1/4, 1/4).
- * 3. A point 0.3 m off a face, a point 0.07 m inside and a point off a corner
- *    read the hand distance, surface point and normal, with the hull turned a
- *    quarter turn by its pose; over 200 fixed segments the hull and the box
- *    of the same corners read the same distance under two composed turns.
- * 4. The hull's world bounds equal the box's, and the span of each kind
- *    along an axis and a diagonal is the hand value.
+ *
+ * 1. A box's eight corners with one point on a face and one point inside give six
+ *    faces and eight vertices, the inside point reported buried by its depth of
+ *    0.1 m, the centre at the origin, the corner radius and the 0.1 m inscribed
+ *    depth.
+ * 2. The same box moved to (1, 2, 3) has volume 0.08 m3, its centroid there and
+ *    the principal moments per unit mass of a 1 x 0.4 x 0.2 m cuboid about the
+ *    box's own axes; the unit tetrahedron has volume 1/6 and centroid (1/4,
+ *    1/4, 1/4).
+ * 3. A point 0.3 m off a face, a point 0.07 m inside and a point off a corner read
+ *    the hand distance, surface point and normal, with the hull turned a
+ *    quarter turn by its pose; over 200 fixed segments the hull and the box of
+ *    the same corners read the same distance under two composed turns.
+ * 4. The hull's world bounds equal the box's, and the span of each kind along an
+ *    axis and a diagonal is the hand value.
  * 5. Eroding the box by 0.05 m leaves the box 0.05 m smaller on every side;
  *    eroding it by its whole inscribed depth is refused.
- * 6. Shape pairs read their hand distance in either order: two spheres,
- *    two overlapping capsules, two cubes face to face, and two cubes turned
- *    so that a pair of skew edges are their nearest features, as boxes and
- *    as hulls.
+ * 6. Shape pairs read their hand distance in either order: two spheres, two
+ *    overlapping capsules, two cubes face to face, and two cubes turned so that
+ *    a pair of skew edges are their nearest features, as boxes and as hulls.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public hull owners and the shape queries and reads their results; a missing face, a wrong moment, a wrong contact point or normal, a loose bound or a pair distance read from vertices only fails.
  * @evidence contracts/development/testing.md#independent-expectations Face and vertex counts, the cuboid and tetrahedron mass properties, the point distances, the spans and the pair distances are closed forms written here; the 200 segments compare two separately written branches of the query, the box's clamp and the hull's planes.
  * @evidence contracts/development/testing.md#distinguishing-cases Surface and buried extra points, a moved box and a tetrahedron, outside, inside and corner points, composed turns, all four kinds for the span, an erosion that leaves a volume and one that does not, and a skew edge pair whose nearest vertices are 0.5 m off the true nearest points.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI. Its local hull normal is replaced after a real scalar read, exercising fallback without any shared test mutation.
+ * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_physical_hull_shape(): void {
@@ -119,11 +119,9 @@ export function test_physical_hull_shape(): void {
       physicalHullFaces(corners(half)).buried <= faces.tolerance,
   );
 
-  // A real scalar hull read proves only the actual selected face. Changing
-  // that public face to a getter must decline before observing the getter.
+  // A factory hull shares the group's rotation and reads its scalar distance.
   const factory: ReturnType<typeof createPhysicalHullShape> =
     createPhysicalHullShape();
-  const points: IAutoMovieVector3[] = corners(half);
   const native: IAutoMoviePhysicalShape = factory.shape(
     "native",
     "solid",
@@ -131,38 +129,13 @@ export function test_physical_hull_shape(): void {
       () => still.position,
       () => still.position,
     ),
-    points,
+    corners(half),
   );
-  const trial: ReturnType<typeof physicalShapeSegmentDistance.pointTrial> =
-    physicalShapeSegmentDistance.pointTrial();
-  const scalar: (point: IAutoMovieVector3) => number = trial.prepare(
-    still,
-    native,
-  );
+  const scalar: ReturnType<typeof physicalShapeSegmentDistance.prepare> =
+    physicalShapeSegmentDistance.prepare(still, native);
   const inward: IAutoMovieVector3 = { x: 0, y: 0, z: 0.07 };
   assert.equal(native.transform.rotation, factory.rotation);
-  assert.equal(trial.status(), "untouched");
-  assert(Math.abs(scalar(inward) + 0.03) < 1e-12);
-  assert.equal(trial.status(), "current");
-  const reached: IAutoMoviePhysicalHullFaces.IFace = physicalHullFaces(
-    points,
-  ).faces.find(
-    (face: IAutoMoviePhysicalHullFaces.IFace): boolean => face.normal.z > 0.9,
-  )!;
-  const normal: IAutoMovieVector3 = reached.normal;
-  let observations: number = 0;
-  Object.defineProperty(reached, "normal", {
-    configurable: true,
-    get(): IAutoMovieVector3 {
-      assert.equal(this, reached);
-      ++observations;
-      return normal;
-    },
-  });
-  assert.equal(trial.status(), "unsupported");
-  assert.equal(observations, 0);
-  assert(Math.abs(scalar(inward) + 0.03) < 1e-12);
-  assert.equal(observations, 1);
+  assert(Math.abs(scalar(inward, inward) + 0.03) < 1e-12);
   // 2. Mass properties.
   const moved: IAutoMovieVector3[] = corners(half).map(
     (p: IAutoMovieVector3): IAutoMovieVector3 =>

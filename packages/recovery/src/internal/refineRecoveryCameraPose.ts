@@ -30,8 +30,7 @@ export function refineRecoveryCameraPose(
   if (
     firstPoints.length !== secondPoints.length ||
     firstPoints.length < 8 ||
-    !(policy.lossScalePx > 0) ||
-    !Number.isFinite(policy.lossScalePx)
+    !(policy.lossScalePx > 0)
   )
     throw new Error(
       "camera-refinement: fixed paired subset and positive loss scale required",
@@ -51,8 +50,6 @@ export function refineRecoveryCameraPose(
         absolute *
         (absolute / (Math.hypot(1, residual / policy.lossScalePx) + 1));
     }
-    if (!Number.isFinite(sum))
-      throw new Error("camera-refinement: nonrepresentable robust objective");
     return sum;
   };
   let model: ReturnType<IAutoMovieRecoveryPoseModelCreationOperation.Operation> =
@@ -95,11 +92,7 @@ export function refineRecoveryCameraPose(
         for (let column: number = 0; column < 5; column++)
           scales[column] = Math.hypot(scales[column]!, row[column]!);
       }
-      if (
-        scales.some(
-          (scale: number): boolean => !(scale > 0) || !Number.isFinite(scale),
-        )
-      )
+      if (scales.some((scale: number): boolean => !(scale > 0)))
         throw new Error(
           "camera-refinement: unresolved local parameter direction",
         );
@@ -111,7 +104,7 @@ export function refineRecoveryCameraPose(
       const rank: ReturnType<typeof decomposeAutoMovieSingularMatrix> =
         decomposeAutoMovieSingularMatrix(rows, options);
       const ratio: number = rank.singularValues[4]! / rank.singularValues[0]!;
-      if (!Number.isFinite(ratio) || ratio < policy.minimumDesignRatio)
+      if (rank.singularValues[0] === 0 || ratio < policy.minimumDesignRatio)
         throw new Error("camera-refinement: rank-degenerate local pose design");
       minimumLocalDesignRatio = Math.min(minimumLocalDesignRatio, ratio);
       let gradient: number = 0;
@@ -199,8 +192,6 @@ export function refineRecoveryCameraPose(
       prepared = null;
     } else {
       damping *= 10;
-      if (!Number.isFinite(damping))
-        throw new Error("camera-refinement: exhausted representable damping");
     }
   }
   return {

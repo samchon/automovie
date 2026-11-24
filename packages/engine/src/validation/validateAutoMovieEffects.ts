@@ -88,8 +88,6 @@ export const validateAutoMovieEffects: (
         "must have the same interval, intensity envelope and event as its compiled stream",
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -101,7 +99,6 @@ export const validateAutoMovieEffects: (
     if (
       [cue.intensity.from, cue.intensity.to].some(
         (intensity: number): boolean =>
-          Number.isFinite(intensity) === false ||
           intensity < 0 ||
           intensity > 1,
       )
@@ -115,7 +112,6 @@ export const validateAutoMovieEffects: (
       if (
         event === undefined ||
         sample === undefined ||
-        Number.isFinite(sample) === false ||
         sample < cue.start ||
         sample >= cue.end
       )

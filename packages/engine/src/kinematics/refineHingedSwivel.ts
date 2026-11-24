@@ -35,7 +35,7 @@ export function refineHingedSwivel<T>(
   let atInner: T = probe(inner);
   let atOuter: T = probe(outer);
   for (let pass: number = 0; pass < passes; ++pass) {
-    if (Number.isFinite(inner) && Object.is(inner, outer))
+    if (Object.is(inner, outer))
       return better(atOuter, atInner) ? atOuter : atInner;
     if (better(atInner, atOuter)) {
       high = outer;

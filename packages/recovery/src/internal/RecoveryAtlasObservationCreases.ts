@@ -64,10 +64,7 @@ export function RecoveryAtlasObservationCreases(
                 0,
               )) /
             denominator;
-        if (
-          !(denominator > 0 && Number.isFinite(denominator)) ||
-          !Number.isFinite(cosine)
-        ) {
+        if (!(denominator > 0)) {
           mark("source-crease-test-arithmetic-is-unresolved");
           continue;
         }

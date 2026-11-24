@@ -188,15 +188,6 @@ function admitFollows(
     );
   const outputs: number[] = [];
   if (follows.table === undefined) {
-    if (!Number.isFinite(follows.ratio)) {
-      collector.push(
-        "range",
-        `${fp}.ratio`,
-        `follows ratio must be finite, but was ${follows.ratio}`,
-        follows.ratio,
-      );
-      return;
-    }
 
     // A ratio on an endless leader gives an endless travel unless it is zero.
     if (lead.minimum === null || lead.maximum === null) {
@@ -214,15 +205,7 @@ function admitFollows(
     const table: [number, number][] = follows.table;
     let ordered: boolean = table.length >= 2;
     table.forEach(([input, output]: [number, number], k: number): void => {
-      if (!Number.isFinite(input) || !Number.isFinite(output)) {
-        ordered = false;
-        collector.push(
-          "range",
-          `${fp}.table[${k}]`,
-          `a follows table row must be finite, but was [${input}, ${output}]`,
-          table[k],
-        );
-      } else if (k > 0 && !(input > table[k - 1]![0])) {
+      if (k > 0 && !(input > table[k - 1]![0])) {
         ordered = false;
         collector.push(
           "range",

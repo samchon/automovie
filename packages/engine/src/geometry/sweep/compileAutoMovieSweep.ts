@@ -117,7 +117,7 @@ export const compileAutoMovieSweep: (
   if (stations.length === 0)
     throw new Error("sweep needs at least one station");
   stations.forEach((s: IAutoMovieSweep.IStation, k: number): void => {
-    if (!Number.isFinite(s.at) || s.at < 0 || s.at > 1)
+    if (s.at < 0 || s.at > 1)
       throw new Error(
         `sweep station ${k} must lie on the spine, at from 0 to 1`,
       );
@@ -224,7 +224,7 @@ export const compileAutoMovieSweep: (
     const d: number = Math.floor(x) % DIRECTIONS;
     const t: number = x - Math.floor(x);
     const value: number = r[d]! * (1 - t) + r[(d + 1) % DIRECTIONS]! * t;
-    if (!(value > 0) || !Number.isFinite(value))
+    if (!(value > 0))
       throw new Error(`sweep profile is not positive and finite at u ${u}`);
     return value;
   }
@@ -234,7 +234,7 @@ export const compileAutoMovieSweep: (
     let r: number = own;
     for (const feature of features)
       r += feature.displacement(u, angle, own, path.length, guided);
-    if (!(r > 0) || !Number.isFinite(r))
+    if (!(r > 0))
       throw new Error(
         `featured sweep is not positive and finite at u ${u}, v ${v}`,
       );
@@ -259,8 +259,6 @@ export const compileAutoMovieSweep: (
     const compiled: ICompiledLoop | undefined = loops[loop];
     if (compiled === undefined) throw new Error(`sweep has no loop ${loop}`);
     const point: IAutoMovieSweepSection.IPoint = compiled.point(u, v);
-    if (!Number.isFinite(point.x) || !Number.isFinite(point.y))
-      throw new Error("sweep section shape is not finite");
     return point;
   }
   function section(
@@ -272,10 +270,8 @@ export const compileAutoMovieSweep: (
     const k: number = scaleAt(input);
     const x: number = p.x * k;
     const y: number = p.y * k;
-    if (!Number.isFinite(x) || !Number.isFinite(y))
-      throw new Error("scaled sweep section is not finite");
     const length: number = Math.hypot(x, y);
-    if (!Number.isFinite(length) || (length === 0 && (p.x !== 0 || p.y !== 0)))
+    if ((length === 0 && (p.x !== 0 || p.y !== 0)))
       throw new Error("scaled sweep section radius is not positive and finite");
     return { x, y };
   }
@@ -284,13 +280,12 @@ export const compileAutoMovieSweep: (
     if (!byParameter) return directional(u, v);
     const p: IAutoMovieSweepSection.IPoint = shaped(u, v, 0);
     const value: number = Math.hypot(p.x, p.y);
-    if (!Number.isFinite(value)) throw new Error("sweep profile is not finite");
     return value;
   }
   function radius(u: number, v: number): number {
     const shape: number = profile(u, v);
     const value: number = scaleAt(u) * shape;
-    if (!Number.isFinite(value) || value < 0 || (shape > 0 && value === 0))
+    if (value < 0 || (shape > 0 && value === 0))
       throw new Error("scaled sweep radius is not positive and finite");
     return value;
   }
@@ -305,7 +300,6 @@ export const compileAutoMovieSweep: (
     if (s.rotation === undefined) return;
     const q: IAutoMovieQuaternion = s.rotation;
     if (
-      ![q.x, q.y, q.z, q.w].every(Number.isFinite) ||
       Math.hypot(q.x, q.y, q.z, q.w) === 0
     )
       throw new Error(

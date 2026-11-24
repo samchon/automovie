@@ -25,14 +25,23 @@ type Prepared = IAutoMovieViewSectionField.IPrepared;
 type Radial = readonly [number, number, number, number, number, number];
 
 /**
- * Original scalar 2-jets reach the native radial field without principal reinterpolation.
+ * Original scalar 2-jets reach the native radial field without principal
+ * reinterpolation.
  *
  * Scenarios:
- * 1. Reciprocal ellipses at three scales, original quadratic/linear Outline sources and a varying square shoulder retain their independent radial six-jet expectations.
- * 2. Closed bivariate polynomial and exponential inputs distinguish source p Hessians from polar phi derivatives.
- * 3. Active G2 homothety, switching curvature owners and the same moving raw/cubic boundary test source2 and tangent1, including reflection.
- * 4. Cold, structured and JSON copies preserve results; fresh output and malformed present snapshots distinguish explicit data ownership from hidden admission history.
- * 5. Preparation, first phase and full phase traversal are component observations with no f1/world speed claim.
+ *
+ * 1. Reciprocal ellipses at three scales, original quadratic/linear Outline
+ *    sources and a varying square shoulder retain their independent radial
+ *    six-jet expectations.
+ * 2. Closed bivariate polynomial and exponential inputs distinguish source p
+ *    Hessians from polar phi derivatives.
+ * 3. Active G2 homothety, switching curvature owners and the same moving raw/cubic
+ *    boundary test source2 and tangent1, including reflection.
+ * 4. Cold, structured and JSON copies preserve results; fresh output and malformed
+ *    present snapshots distinguish explicit data ownership from hidden
+ *    admission history.
+ * 5. Preparation, first phase and full phase traversal are component observations
+ *    with no f1/world speed claim.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads prepare/read through original Outline jets, raw/G2 selection, source derivatives, value copies and explicit malformed failures; it detects lost scalar curvature, mixed/reflection mistakes and a stale numeric snapshot.
  * @evidence contracts/development/testing.md#independent-expectations Closed implicit ellipses, the square diagonal identity, direct polynomial source Hessians, exact guide curvatures, G2 homothety and the shared moving-boundary geometry supply expectations. Finite limit probes do not certify global C2 or physical poles, and no new lift or finite difference supplies its own oracle.
@@ -42,7 +51,10 @@ type Radial = readonly [number, number, number, number, number, number];
  */
 export function test_construction_conic_field(): void {
   const failures: string[] = [];
-  /** Each independent scenario preserves its failure while the remaining scenarios continue. */
+  /**
+   * Each independent scenario preserves its failure while the remaining
+   * scenarios continue.
+   */
   const ask: (name: string, body: () => void) => void = (
     name: string,
     body: () => void,
@@ -144,7 +156,10 @@ export function test_construction_conic_field(): void {
     );
 }
 
-/** Compare independently derived scalar/Hessian components with the unchanged source-size budget. */
+/**
+ * Compare independently derived scalar/Hessian components with the unchanged
+ * source-size budget.
+ */
 function close(
   actual: readonly number[],
   expected: readonly number[],
@@ -159,12 +174,7 @@ function close(
       256 *
         Number.EPSILON *
         Math.max(Math.abs(actual[i]!), Math.abs(expected[i]!));
-    if (
-      !(
-        Number.isFinite(actual[i]) &&
-        Math.abs(actual[i]! - expected[i]!) <= allowance
-      )
-    )
+    if (!(Math.abs(actual[i]! - expected[i]!) <= allowance))
       failures.push(
         `${name}[${i}]: ${actual[i]} against ${expected[i]}, allowance ${allowance}`,
       );
@@ -209,7 +219,10 @@ function compare(
   close(radial(at, phi), expected, scale, name, failures);
 }
 
-/** Two source coordinates test the full Hessian separately from polar mixed derivatives. */
+/**
+ * Two source coordinates test the full Hessian separately from polar mixed
+ * derivatives.
+ */
 function algebra(failures: string[]): void {
   const h: ReturnType<typeof ConstructionConicFieldOracle.polynomial> =
     ConstructionConicFieldOracle.polynomial(0.3, 0.4);
@@ -272,7 +285,10 @@ function algebra(failures: string[]): void {
   );
 }
 
-/** Authored endpoint jets define the original polynomial on a one-mm source interval. */
+/**
+ * Authored endpoint jets define the original polynomial on a one-mm source
+ * interval.
+ */
 function outline(
   a: number,
   b: number,
@@ -303,7 +319,10 @@ function scalar(source: IAutoMovieViewOutline.IOutline, s: number): Scalar {
   return [reading.value, reading.stationJet[0], reading.stationJet[1]];
 }
 
-/** Independent implicit ellipses test every derivative and NUMBER/AD observable equality. */
+/**
+ * Independent implicit ellipses test every derivative and NUMBER/AD observable
+ * equality.
+ */
 function ellipses(
   a: Scalar,
   b: Scalar,
@@ -407,7 +426,10 @@ function homothety(failures: string[]): void {
   }
 }
 
-/** Cold, structured and JSON copies preserve values; malformed present data is refused without history. */
+/**
+ * Cold, structured and JSON copies preserve values; malformed present data is
+ * refused without history.
+ */
 function copies(failures: string[]): void {
   const r: Scalar = [Math.SQRT2 - 1, 0, 0];
   const e: Scalar[] = [

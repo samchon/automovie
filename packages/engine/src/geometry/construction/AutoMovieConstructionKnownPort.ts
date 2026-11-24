@@ -40,8 +40,7 @@ export function AutoMovieConstructionKnownPort(
     !interval(definition.domain) ||
     !definition.name ||
     (definition.orientation !== 1 && definition.orientation !== -1) ||
-    (definition.period !== undefined &&
-      !(Number.isFinite(definition.period) && definition.period > 0))
+    (definition.period !== undefined && !(definition.period > 0))
   )
     fail(
       "A known port needs finite increasing clock bounds, identity and outward sign.",
@@ -78,14 +77,7 @@ export function AutoMovieConstructionKnownPort(
     u: number,
     v: number,
   ): void => {
-    if (
-      !Number.isFinite(u) ||
-      !Number.isFinite(v) ||
-      u < definition.domain[0] ||
-      u > definition.domain[1] ||
-      v < 0 ||
-      v > 1
-    )
+    if (u < definition.domain[0] || u > definition.domain[1] || v < 0 || v > 1)
       fail("A known port query is outside its actual band domain.");
   };
   return {
@@ -215,11 +207,7 @@ function pullback(
   );
   if (map === null) fail("A known port has unavailable actual chart total2.");
   for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
-    if (
-      !Array.isArray(map![key]) ||
-      map![key].length !== 2 ||
-      !map![key].every(Number.isFinite)
-    )
+    if (!Array.isArray(map![key]) || map![key].length !== 2)
       fail("A known port has incomplete or nonfinite actual chart total2.");
   chartPoint(side.field, map!.p);
   const field: IAutoMovieSolidSurface.IJet = side.field.jet(
@@ -272,7 +260,6 @@ function chartPoint(
   if (
     !Array.isArray(point) ||
     point.length !== 2 ||
-    !point.every(Number.isFinite) ||
     (field.domain !== undefined &&
       (point[0]! < field.domain[0] || point[0]! > field.domain[1]))
   )
@@ -294,7 +281,7 @@ function regular(
     jet.u[0] * jet.v[1] - jet.u[1] * jet.v[0],
   ];
   const size: number = Math.hypot(...normal);
-  if (!(Number.isFinite(size) && size > 0))
+  if (!(size > 0))
     fail("The actual known-port query has no finite regular tangent plane.");
   return jet;
 }
@@ -304,11 +291,7 @@ function regular(
  * zero.
  */
 function vector(value: readonly number[]): void {
-  if (
-    !Array.isArray(value) ||
-    value.length !== 3 ||
-    !value.every(Number.isFinite)
-  )
+  if (!Array.isArray(value) || value.length !== 3)
     fail("A known port requires complete finite actual world vectors.");
 }
 
@@ -351,11 +334,7 @@ function add(a: Vector, b: Vector): Vector {
 
 /** A finite positive interval must also have a representable span. */
 function interval(domain: readonly [number, number]): boolean {
-  return (
-    domain.every(Number.isFinite) &&
-    domain[1] > domain[0] &&
-    Number.isFinite(domain[1] - domain[0])
-  );
+  return domain[1] > domain[0];
 }
 
 /** Keep numeric admission separate from original callback exception identity. */

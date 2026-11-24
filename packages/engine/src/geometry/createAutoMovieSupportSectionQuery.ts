@@ -91,10 +91,6 @@ export function createAutoMovieSupportSectionQuery(
         (offsets[pair.i] * b[1] - a[1] * offsets[pair.j]) / pair.determinant;
       const z: number =
         (a[0] * offsets[pair.j] - offsets[pair.i] * b[0]) / pair.determinant;
-      if (!Number.isFinite(x) || !Number.isFinite(z))
-        throw new Error(
-          "nonfinite-support-intersection: chart exceeds binary64 coordinates",
-        );
       coordinates[2 * index] = x;
       coordinates[2 * index + 1] = z;
       computed[index] = 1;
@@ -146,7 +142,7 @@ export function createAutoMovieSupportSectionQuery(
                   offsets[k],
                 ]),
               );
-        if (!Number.isFinite(residual) || sign > 0) {
+        if (sign > 0) {
           feasible = false;
           break;
         }
@@ -228,7 +224,7 @@ export function createAutoMovieSupportSectionQuery(
         (a[0] - centre[0]) * (b[1] - centre[1]) -
         (a[1] - centre[1]) * (b[0] - centre[0]);
     }
-    if (!(area > 0) || !Number.isFinite(area))
+    if (!(area > 0))
       throw new Error("unsupported-support-section: unresolved signed area");
     // With distinct feasible corners, the same bounded cyclic edge system still
     // owns the polygon. Only a collapse or full search requires a new seed.

@@ -2,7 +2,6 @@ import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternio
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieJointPose } from "../../../pose/IAutoMovieJointPose";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
-import type { IAutoMovieSkeletonPoseResolution } from "../../../pose/IAutoMovieSkeletonPoseResolution";
 import type { IAutoMovieSwivelSeed } from "../../../pose/IAutoMovieSwivelSeed";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { AutoMovieMotionHumanActionKey } from "../AutoMovieMotionHumanActionKey";
@@ -15,6 +14,7 @@ import type { IAutoMovieMotionHumanInterruptRow } from "../law/IAutoMovieMotionH
 import type { IAutoMovieMotionHumanLayer } from "../law/IAutoMovieMotionHumanLayer";
 import type { IAutoMovieMotionPropHold } from "../law/IAutoMovieMotionPropHold";
 import type { AutoMovieHumanLimb } from "../posture/AutoMovieHumanLimb";
+import type { IAutoMovieHumanLimbGoal } from "../posture/IAutoMovieHumanLimbGoal";
 import type { IAutoMovieHumanLimbReference } from "../posture/IAutoMovieHumanLimbReference";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanSkill } from "../skill/IAutoMovieMotionHumanSkill";
@@ -69,56 +69,88 @@ export interface IAutoMovieMotionHumanSegment {
     source: IAutoMovieMotionHumanSegment;
     /** Film second of the cut. */
     cut: number;
-    /** The offset, captured on first use. */
-    offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
   };
 
   /**
-   * Each limb's seed of the action's last displayed leaf resolve, held for the
-   * next one's swept fits as their bounded search's incumbent
-   * (`IAutoMovieFitChainToTargetProps.incumbent`), which cannot change their
-   * answer; absent until a leaf resolve, and released when the person's memos
-   * are forgotten.
+   * What the performance solved for the action once every action was placed,
+   * every stop committed and every flight resolved (`prepareHumanPerformance`):
+   * the knots and curves its display evaluates. Absent while the schedule is
+   * resolved, where a display reads the action cold.
    */
-  incumbents?: Readonly<
-    Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>
-  >;
+  prepared?: IAutoMovieMotionHumanSegment.IPrepared;
+}
 
+/** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
+export namespace IAutoMovieMotionHumanSegment {
   /**
-   * The legs' continuation seeds at a plan second: the plan's leg chain on the
-   * arm-course frame grid, prepared when the action is placed
-   * (`readHumanSegmentLegs.chain`).
-   *
-   * @param seconds Plan seconds.
-   * @returns Each leg's seed at that second.
+   * One anchor second's arm fits (`IPrepared.anchors`): each fit's chosen
+   * swivel seed by its display fit name (the leaf's, an overlay leaf's, a
+   * carry's or a contact's), null where that fit gave none.
    */
-  legSeeds(
+  export type IAnchorFits = ReadonlyMap<string, IAutoMovieSwivelSeed | null>;
+
+  /** A curve of limb seeds over an action's own seconds. */
+  export type ISwivels = (
     seconds: number,
-  ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
+  ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>;
 
   /**
-   * The arms' fits of the action's displayed leaf at its anchor seconds, each
-   * read cold once, keyed by the person's overlay count and the anchor (the
-   * plan second over the anchor spacing, rounded), as `<overlays>:<anchor>`. A
-   * displayed second with no fits of its own places its arms at the swivels
-   * interpolated between the anchors around it, so a verdict, a sub-frame and
-   * playback read one closed-form placement instead of sweeping every swivel.
-   * Absent until a read needs one, and released when anything is placed or the
-   * person's memos are forgotten.
+   * The knots and curves one placed action's display evaluates, solved once
+   * when the performance is prepared. Every member is a closed-form evaluation
+   * of knots fitted in order from the action's start, so a second's pose never
+   * depends on which seconds were read before it.
    */
-  anchors?: Map<string, IAutoMovieMotionHumanSegment.IAnchorFits>;
+  export interface IPrepared {
+    /**
+     * The legs' continuation seeds at a plan second: the plan's leg chain on
+     * the arm-course frame grid (`readHumanSegmentLegs.chain`).
+     */
+    legs: ISwivels;
 
-  /**
-   * The legs' fit of a leaf resolve inside the plan's legs-still window
-   * (`IAutoMovieMotionHumanActionPlan.legsStill`): the plan second it was read
-   * at, the legs' joint records it gave and their seeds, which every later leaf
-   * resolve in that window keeps in place of fitting the legs again; absent
-   * until then, and released when the person's memos are forgotten.
-   */
-  legs?: {
-    /** The plan second, clamped to the plan, the legs were fitted at. */
-    at: number;
+    /**
+     * The arms' swivel course at a plan second: knots on the frame grid and at
+     * the plan's events, each continuing the one before
+     * (`courseLimbSwivels.swivels`).
+     */
+    swivels: ISwivels;
 
+    /**
+     * The arms' fits of the displayed leaf at each anchor second, by anchor
+     * index from the action's start (`readHumanSegmentAnchors.prepare`); empty
+     * for an action whose arms its swivel course places at every second.
+     */
+    anchors: readonly IAnchorFits[];
+
+    /**
+     * The legs' fit of the leaf at the start of the plan's legs-still window
+     * (`IAutoMovieMotionHumanActionPlan.legsStill`), which every leaf resolve
+     * in that window keeps in place of fitting the legs again; absent without
+     * such a window.
+     */
+    still?: IStill;
+
+    /**
+     * Each stopped weapon's planted limb goal, by the weapon's id: the limb's
+     * end and middle joints as the action displays them at the committed stop
+     * (`HumanSegmentStop`); empty for an action whose law takes its stops
+     * itself.
+     */
+    stops: ReadonlyMap<string, IAutoMovieHumanLimbGoal>;
+
+    /**
+     * The inertialization offset of the transition that entered the action
+     * (Bollo 2018), from both actions' displayed state at the cut; absent
+     * without an offsetting transition.
+     *
+     * @param elapsed Seconds since the cut.
+     * @param pose The pose the offset is added to.
+     * @returns The pose with the decayed offset.
+     */
+    offset?: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose;
+  }
+
+  /** The legs' fit kept over a legs-still window (`IPrepared.still`). */
+  export interface IStill {
     /** The legs' joint records the fit gave, thigh to toes. */
     joints: readonly IAutoMovieJointPose[];
 
@@ -126,17 +158,7 @@ export interface IAutoMovieMotionHumanSegment {
     seeds: Readonly<
       Partial<Record<AutoMovieHumanLimb, IAutoMovieSwivelSeed | null>>
     >;
-  };
-}
-
-/** Operation-local contracts supporting IAutoMovieMotionHumanSegment. */
-export namespace IAutoMovieMotionHumanSegment {
-  /**
-   * One anchor second's arm fits (`IAutoMovieMotionHumanSegment.anchors`): each
-   * fit's chosen swivel seed by its display fit name (the leaf's, an overlay
-   * leaf's, a carry's or a contact's), null where that fit gave none.
-   */
-  export type IAnchorFits = ReadonlyMap<string, IAutoMovieSwivelSeed | null>;
+  }
 
   /** One action placed over a carrier. */
   export interface IOverlay extends IAutoMovieMotionHumanSegment {
@@ -165,23 +187,14 @@ export namespace IAutoMovieMotionHumanSegment {
     initial: IAutoMovieMotionHumanPosture;
 
     /**
-     * Displayed poses already evaluated, by film second; bounded to 4096
-     * entries.
+     * While the performance is prepared (`prepareHumanPerformance`), solve
+     * the person's action shown at a film second before it is read, so a
+     * reader is solved after what it reads: the depth-first topological order
+     * of the performance's dependencies. Absent outside the preparation.
+     *
+     * @param seconds Film seconds about to be read.
      */
-    cache: Map<number, IAutoMovieMotionHumanSegment.IShown>;
-
-    /**
-     * Whether the schedule is still being resolved: nothing is cached
-     * meanwhile, because another person's actions may not be placed yet.
-     */
-    resolving: boolean;
-
-    /**
-     * Displayed poses read while one action is being planned, by film second
-     * (`planning`): what is placed does not change during one plan, so its
-     * readers share each pose; absent outside a plan.
-     */
-    planning?: Map<number, IAutoMovieMotionHumanSegment.IShown>;
+    ready?: (seconds: number) => void;
 
     /**
      * Additive layers over the person's actions, in order, each inside its
@@ -262,7 +275,11 @@ export namespace IAutoMovieMotionHumanSegment {
      */
     riding?: boolean;
 
-    /** The holding arm in its frame, captured when the carry starts. */
+    /**
+     * The holding arm in its frame where the holding action ended, solved when
+     * the performance is prepared; absent before, where a carry reads it from
+     * that action's pose.
+     */
     carry?: IAutoMovieMotionHumanSegment.ICarry;
   }
 
@@ -295,21 +312,5 @@ export namespace IAutoMovieMotionHumanSegment {
 
     /** The arm's solution there. */
     reference: IAutoMovieHumanLimbReference;
-  }
-
-  /**
-   * One displayed pose as its evaluation produced it, kept with what its
-   * readers take from it.
-   */
-  export interface IShown {
-    /** The complete pose. */
-    pose: IAutoMoviePose;
-
-    /**
-     * The pose's bones as the body's rig admitted them (`poseBones.read`): made
-     * when the pose's bones are first read and taken by every later reader of
-     * them, so the pose is admitted once; absent until then.
-     */
-    reading?: IAutoMovieSkeletonPoseResolution.IReading;
   }
 }

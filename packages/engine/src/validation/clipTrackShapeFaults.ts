@@ -31,35 +31,16 @@ export const clipTrackShapeFaults: (
       value: values,
     });
 
-  const valueCount: number = values.length;
-  for (let i: number = 0; i < valueCount; ++i) {
-    const value: number = values[i]!;
-    if (!Number.isFinite(value))
-      faults.push({
-        kind: "range",
-        field: `values[${i}]`,
-        message: `values[${i}] must be finite, but was ${value}`,
-        value,
-      });
-  }
-
   // The clock, per keyframe. The sampler checks only the FIRST time's sign and
   // the LAST time against the duration, which is equivalent once the times are
   // strictly increasing; checking every entry says which one is wrong when they
   // are not, and refuses nothing an increasing list would have passed.
   const bounded: number | null =
-    Number.isFinite(duration) && duration > 0 ? duration : null;
+    duration > 0 ? duration : null;
   const timeCount: number = times.length;
   for (let i: number = 0; i < timeCount; ++i) {
     const time: number = times[i]!;
-    if (!Number.isFinite(time))
-      faults.push({
-        kind: "temporal",
-        field: `times[${i}]`,
-        message: `keyframe times must be finite, but times[${i}] was ${time}`,
-        value: time,
-      });
-    else if (time < 0)
+    if (time < 0)
       faults.push({
         kind: "temporal",
         field: `times[${i}]`,
@@ -78,7 +59,6 @@ export const clipTrackShapeFaults: (
   let previous: number | null = null;
   for (let i: number = 0; i < timeCount; ++i) {
     const time: number = times[i]!;
-    if (!Number.isFinite(time)) continue;
     if (previous !== null && time <= previous)
       faults.push({
         kind: "temporal",
@@ -106,8 +86,7 @@ export const clipTrackShapeFaults: (
   // belongs HERE rather than one check later, because the width arithmetic
   // below is meaningless on a fractional stride, so continuing would report a
   // computed width that is not a real one.
-  const stride: number = values.length / times.length;
-  if (!Number.isInteger(stride)) {
+  if (values.length % times.length !== 0) {
     faults.push({
       kind: "type",
       field: "values",
@@ -122,6 +101,7 @@ export const clipTrackShapeFaults: (
     });
     return faults;
   }
+  const stride: number = values.length / times.length;
   if (cubic && stride % 3 !== 0) {
     faults.push({
       kind: "type",

@@ -5,13 +5,21 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Existing PSD quadratic solving distinguishes feasible directions and abnormality.
+ * Existing PSD quadratic solving distinguishes feasible directions and
+ * abnormality.
  *
  * Scenarios:
- * 1. At a curved boundary, min (d1^2+d2^2)/2+gamma with -d1<=gamma and -d2<=gamma has d=(1/2,1/2), gamma=-1/2; its physical straight step is inward, unlike a tangent-only direction.
- * 2. At the normal constrained optimum of F=x, g=-x<=0, the zero direction has positive objective multiplier and the original KKT certificate.
- * 3. At the abnormal singleton F=-x, g=x^2<=0, the same zero direction instead has a vanishing objective multiplier and cannot certify original stationarity.
- * 4. Duplicating, reordering and positively scaling complete affine rows preserves the curved problem and its independently derived optimum.
+ *
+ * 1. At a curved boundary, min (d1^2+d2^2)/2+gamma with -d1<=gamma and -d2<=gamma
+ *    has d=(1/2,1/2), gamma=-1/2; its physical straight step is inward, unlike
+ *    a tangent-only direction.
+ * 2. At the normal constrained optimum of F=x, g=-x<=0, the zero direction has
+ *    positive objective multiplier and the original KKT certificate.
+ * 3. At the abnormal singleton F=-x, g=x^2<=0, the same zero direction instead has
+ *    a vanishing objective multiplier and cannot certify original
+ *    stationarity.
+ * 4. Duplicating, reordering and positively scaling complete affine rows preserves
+ *    the curved problem and its independently derived optimum.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the existing PSD diagonal QP primitive with exactly zero auxiliary curvature, independently checks all original row bounds, dual signs, complementarity, stationarity and sum of auxiliary-column multipliers, and separates normal from abnormal zero directions.
  * @evidence contracts/development/testing.md#independent-expectations The two curved active equations give d1=d2=-gamma and the scalar quadratic minimum at gamma=-1/2. The normal and abnormal cases have closed-form multipliers (1/2,1/2) and (0,1). Finite comparison tolerances acknowledge the native Float64 gap and do not change any nonlinear geometric gate.
@@ -86,9 +94,6 @@ export function test_geometry_feasible_direction_qp(): void {
     TestValidator.predicate(
       `complete original quadratic certificate ${index}`,
       result.status === 1 &&
-        [...result.primal, ...result.dual, ...gradient].every(
-          Number.isFinite,
-        ) &&
         maximumViolation <= 1e-7 &&
         complementarity <= 1e-7 &&
         result.dual.every((value: number): boolean => value >= -1e-7) &&

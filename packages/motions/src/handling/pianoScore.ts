@@ -156,7 +156,6 @@ function plan(
       refuse("notes.digit", score.digit, "name one of the hand's five digits");
     const previous: resolvePianoScoreVoicing.Key | undefined = notes.at(-1);
     if (
-      ![score.from, score.at, score.release, score.to].every(Number.isFinite) ||
       !(
         0 < score.from &&
         score.from < score.at &&
@@ -210,8 +209,7 @@ function plan(
       !/^key(?:[1-9]|[1-7][0-9]|8[0-8])$/.test(score.key) ||
       key?.kind !== "button" ||
       key.travel === undefined ||
-      !Number.isFinite(key.travel) ||
-      key.travel <= 0 ||
+      !(key.travel > 0) ||
       key.rides !== undefined ||
       key.follows !== undefined ||
       AffordanceArticulation.travel(sites, state, score.key) !== 0

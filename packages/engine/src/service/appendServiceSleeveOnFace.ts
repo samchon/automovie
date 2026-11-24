@@ -53,9 +53,7 @@ export const appendServiceSleeveOnFace: (
     );
   const face: IAutoMovieBoundaryFace | undefined = boundary?.face;
   if (face === undefined) return;
-  if (!Number.isFinite(sleeve.radius) || sleeve.radius <= 0) return;
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(sleeve.position[axis])) return;
+  if (sleeve.radius <= 0) return;
 
   const offset: { x: number; y: number; z: number } = {
     x: sleeve.position.x - face.origin.x,

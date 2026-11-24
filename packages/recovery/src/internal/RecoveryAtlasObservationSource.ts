@@ -16,14 +16,12 @@ export function RecoveryAtlasObservationSource(
 ): ReturnType<IAutoMovieRecoveryAtlasObservationSource.Operation> {
   if (
     !input.topologyDomain ||
-    !Number.isSafeInteger(input.maxIntervals) ||
     input.maxIntervals < 1 ||
-    !Number.isSafeInteger(input.maxCharts) ||
     input.maxCharts < 1 ||
     input.levelsMm.length < 2 ||
     input.levelsMm.some(
       (level: number, i: number): boolean =>
-        !Number.isFinite(level) || (i > 0 && level <= input.levelsMm[i - 1]!),
+        i > 0 && level <= input.levelsMm[i - 1]!,
     )
   )
     throw new Error(
@@ -35,16 +33,10 @@ export function RecoveryAtlasObservationSource(
       input.maxPatchesPerChart,
       input.maxIterations,
       input.tessellation.maxCells,
-    ].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
-    !Number.isSafeInteger(input.tessellation.maxVertices) ||
+    ].every((value: number): boolean => value > 0) ||
     input.tessellation.maxVertices < 3 ||
-    !(input.toleranceMm > 0 && Number.isFinite(input.toleranceMm)) ||
-    !(
-      input.tessellation.toleranceMm * 0.001 > 0 &&
-      Number.isFinite(input.tessellation.toleranceMm)
-    )
+    !(input.toleranceMm > 0) ||
+    !(input.tessellation.toleranceMm * 0.001 > 0)
   )
     throw new Error(
       "Finite positive fit and realization budgets are required before source observation",
@@ -58,8 +50,7 @@ export function RecoveryAtlasObservationSource(
   const selection: ReturnType<IAutoMovieRecoveryScalarIntervalsSelectionOperation.Operation> =
     selectRecoveryScalarIntervals(input.levelsMm, order, input.scalarWindowMm);
   const norm: number = Math.hypot(...input.axis);
-  if (!(norm > 0 && Number.isFinite(norm)))
-    throw new Error("A finite sweep direction is required");
+  if (!(norm > 0)) throw new Error("A finite sweep direction is required");
   const heights: number[] = input.verticesMm.map(
     (point: Readonly<AutoMovieVector3Tuple>): number =>
       point.reduce(

@@ -124,7 +124,6 @@ function readSkin(
       Math.hypot(e[2]!, e[6]!, e[10]!),
     ) *
     3;
-  if (!Number.isFinite(error)) return null;
   return readAutoMovieCollisionTopology.lazySurface(
     budget,
     topology,

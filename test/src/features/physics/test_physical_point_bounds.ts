@@ -19,14 +19,19 @@ import assert from "node:assert/strict";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalPointFixtures } from "../internal/PhysicalPointFixtures";
 
-/** Independent analytic point corridors share the actual bounded articulation solver.
+/**
+ * Independent analytic point corridors share the actual bounded articulation
+ * solver.
  *
  * Scenarios:
+ *
  * 1. A shared ancestor carries both source and same-body reference coherently.
  * 2. Moving external references select independently predicted asin angles.
- * 3. An unreachable interval retains its metre error without changing link lengths.
+ * 3. An unreachable interval retains its metre error without changing link
+ *    lengths.
  * 4. Authored and native-kinematic consumers use the same fitted endpoint.
- * 5. Relationship counts, finite sides, residual rows and malformed data refuse before allocation.
+ * 5. Relationship counts, ordered sides, residual rows and invalid references
+ *    refuse before allocation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Vector3`, `AutoMoviePhysicalSimulation`, `planPhysicalContactTargets` on in-memory inputs and asserts the returned observations through 4x TestValidator.predicate, 1x TestValidator.equals; 5 numbered scenarios (first: A shared ancestor carries both source and same-body reference coherently.; last: Relationship counts, finite sides, residual rows and malformed data refuse before allocation.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (4 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -158,9 +163,7 @@ export async function test_physical_point_bounds(): Promise<void> {
     (value: Bound): void => {
       value.axis = { x: 0, y: 0, z: 0 };
     },
-    (value: Bound): void => {
-      value.axis.y = NaN;
-    },
+
     (value: Bound): void => {
       value.minimum = 1;
       value.maximum = -1;
@@ -169,21 +172,17 @@ export async function test_physical_point_bounds(): Promise<void> {
       value.minimum = undefined;
       value.maximum = undefined;
     },
-    (value: Bound): void => {
-      value.minimum = Infinity;
-    },
+
     (value: Bound): void => {
       value.reference.bone = "absent";
     },
-    (value: Bound): void => {
-      value.source.localPoint.x = Infinity;
-    },
+
     (value: Bound): void => {
       value.chain = ["root"];
       value.source.bone = "root";
     },
     (value: Bound): void => {
-      value.tolerance = NaN;
+      value.tolerance = 0;
     },
   ];
   for (const mutate of mutations) {

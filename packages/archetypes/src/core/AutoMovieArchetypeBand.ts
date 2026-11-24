@@ -35,13 +35,7 @@ export namespace AutoMovieArchetypeBand {
     source: string,
     provisional?: boolean,
   ): IAutoMovieArchetypeBand {
-    if (
-      !(
-        Number.isFinite(minimum) &&
-        Number.isFinite(maximum) &&
-        minimum <= maximum
-      )
-    )
+    if (!(minimum <= maximum))
       throw new Error(
         `A band runs from its least to its greatest value: ${minimum} to ${maximum} (${source})`,
       );

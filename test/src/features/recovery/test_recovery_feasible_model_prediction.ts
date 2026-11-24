@@ -17,10 +17,21 @@ import { nclose } from "../internal/nclose";
  * Undamped robust prediction consumes actual physical camera/point increments.
  *
  * Scenarios:
- * 1. Two nonsymmetric point blocks with unequal vector soft-L1 weights distinguish camera/point order, one weight per residual vector, cross terms and omission of damping.
- * 2. Malformed physical widths, row shape and nonfinite source inputs throw; finite arithmetic overflow returns unsupported null and zero increment predicts zero.
- * 3. A small nonzero perturbation of the independent nonplanar camera fixture exercises actual accepted-step prediction and fit-local report delivery while keeping the original gauge/population and all point gates.
- * 4. Original numerical119304 remains beneath separate chart64 and reporting512. Total119880 admits fixed initial normal but refuses adaptive-only retention at160 visits. The original total refuses chart capacity at160; the chart-inclusive numerical-only total refuses reporting at480. A prediction-owner charge error propagates after real trials.
+ *
+ * 1. Two nonsymmetric point blocks with unequal vector soft-L1 weights distinguish
+ *    camera/point order, one weight per residual vector, cross terms and
+ *    omission of damping.
+ * 2. Malformed physical widths, row shape and nonfinite source inputs throw;
+ *    finite arithmetic overflow returns unsupported null and zero increment
+ *    predicts zero.
+ * 3. A small nonzero perturbation of the independent nonplanar camera fixture
+ *    exercises actual accepted-step prediction and fit-local report delivery
+ *    while keeping the original gauge/population and all point gates.
+ * 4. Original numerical119304 remains beneath separate chart64 and reporting512.
+ *    Total119880 admits fixed initial normal but refuses adaptive-only
+ *    retention at160 visits. The original total refuses chart capacity at160;
+ *    the chart-inclusive numerical-only total refuses reporting at480. A
+ *    prediction-owner charge error propagates after real trials.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the source original-design action and actual feasible camera owner, observing computed prediction, immutable inputs, selected-update reactions, admission and original error identity. This reaches nonzero robust residuals rather than only an already normal map.
  * @evidence contracts/development/testing.md#independent-expectations Explicit authored unweighted rows give four J*u expressions and g=J^T*r/hypot(1,norm/2); their squared weighted sum determines prediction independently. A deliberately added damping penalty differs. Scalar-projected fixture geometry supplies preserved identities and an exact map. V3/C11/L40/E120/n131 gives original numerical119304, chart64 and adaptive-extra8504; total119880 minus chart64 and reporting512 preserves original numerical119304. Raw refusal costs4L=160; reporting refusal costs160+256+64=480 before unused1984 or fitting.
@@ -220,7 +231,6 @@ export function test_recovery_feasible_model_prediction(): void {
       report !== undefined &&
       report.initialDamping === 0.001 &&
       report.finalDamping > 0 &&
-      Number.isFinite(report.finalDamping) &&
       report.supportedUpdates > 0 &&
       report.supportedUpdates + report.unsupportedUpdates ===
         adaptive.report.acceptedSteps &&

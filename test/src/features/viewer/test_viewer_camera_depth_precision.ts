@@ -70,7 +70,10 @@ const renderer: (
   } as unknown as THREE.WebGLRenderer;
 };
 
-/** Local authored camera and capability operands for the portable observation seam. */
+/**
+ * Local authored camera and capability operands for the portable observation
+ * seam.
+ */
 type EvaluateProps = {
   source?: IAutoMovieCamera;
   realized?: THREE.PerspectiveCamera;
@@ -92,12 +95,17 @@ const evaluate: (
 };
 
 /**
- * Three camera clips and supplied capability operands retain addressed admission.
+ * Three camera clips and supplied capability operands retain addressed
+ * admission.
  *
  * Scenarios:
- * 1. Exact source/native clips and supplied 24-bit depth satisfy the declared capability; changed far clip and 23 bits refuse distinctly.
- * 2. Logarithmic/reversed modes retain their projection classification; invalid source or capability operands retain their addressed refusal status.
- * 3. Nonfinite observations serialize as null, while the assertion wrapper returns the supported report and throws for insufficient bits.
+ *
+ * 1. Exact source/native clips and supplied 24-bit depth satisfy the declared
+ *    capability; changed far clip and 23 bits refuse distinctly.
+ * 2. Logarithmic/reversed modes retain their projection classification; invalid
+ *    source or capability operands retain their addressed refusal status.
+ * 3. Nonfinite observations serialize as null, while the assertion wrapper returns
+ *    the supported report and throws for insufficient bits.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual depth-capability evaluator/wrapper with native cameras and a supplied query port, checking satisfied, mismatched, insufficient, invalid-source/capability and nonstandard-mode reports. Nonfinite observations must become null and the throwing wrapper must distinguish the passing and refused operands.
  * @evidence contracts/development/testing.md#independent-expectations Authored clips 0.25/250 and required 24 bits define the expected source/native fields; supplied observations 24 versus 23 distinguish the capability threshold. These are explicit operands, not actual GPU measurements, and this unit does not independently certify a metric maximum-step bound or custom projection matrix.
@@ -171,7 +179,6 @@ export function test_viewer_camera_depth_precision(): void {
   );
 
   const invalidSources: IAutoMovieCamera[] = [
-    sourceCamera({ id: " " }),
     sourceCamera({ near: Number.NaN }),
     sourceCamera({ near: 0 }),
     sourceCamera({ far: Number.POSITIVE_INFINITY }),

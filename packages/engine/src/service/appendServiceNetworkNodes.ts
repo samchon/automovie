@@ -57,11 +57,6 @@ export function appendServiceNetworkNodes(
         `unknown service node kind "${String(node.kind)}"`,
         node.kind,
       );
-    out.finiteVector(
-      `${path}.position`,
-      node.position,
-      "service node position",
-    );
     if (!spaceIds.has(node.space))
       out.push(
         "type",
@@ -99,8 +94,6 @@ export function appendServiceNetworkNodes(
       for (const axis of ["x", "y", "z"] as const)
         if (
           !(
-            Number.isFinite(node.maintenance.min[axis]) &&
-            Number.isFinite(node.maintenance.max[axis]) &&
             node.maintenance.max[axis] > node.maintenance.min[axis]
           )
         )
@@ -161,11 +154,6 @@ export function appendServiceNetworkNodes(
       nonNegative(port.demand, `${portPath}.demand`, "port demand", out);
       if (port.section !== null)
         positive(port.section, `${portPath}.section`, "port section", out);
-      out.finiteVector(
-        `${portPath}.position`,
-        port.position,
-        "service port position",
-      );
       appendServiceInsideSpace({
         environment,
         spaceIds,

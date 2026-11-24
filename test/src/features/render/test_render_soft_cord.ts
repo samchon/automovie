@@ -14,11 +14,11 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Three particles with unequal segment lengths through a right-angle
- *    corner each have a ring centred at the particle with the supplied radius.
+ * 1. Three particles with unequal segment lengths through a right-angle corner
+ *    each have a ring centred at the particle with the supplied radius.
  * 2. A collapsed frame hides the same mesh; seeking back restores its tube.
- * 3. An omitted cord detaches. Rejected radii or particles leave the prior
- *    tube mounted.
+ * 3. An omitted cord detaches. Rejected radii or particles leave the prior tube
+ *    mounted.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the unequal lengths, ring-centre and radius checks, withdrawal and refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Projects actual Three.js geometry from an unindexed particle surface, observes visible indexed faces and measures the positions around each ring.
@@ -142,12 +142,7 @@ function hasTube(
     geometry.getAttribute("position");
   const ringSize: number = vertex.count / centres.length;
   const opposite: number = (ringSize - 1) / 2;
-  if (
-    !Number.isInteger(opposite) ||
-    opposite < 2 ||
-    (geometry.getIndex()?.count ?? 0) === 0
-  )
-    return false;
+  if (opposite < 2 || (geometry.getIndex()?.count ?? 0) === 0) return false;
 
   const first: THREE.Vector3 = new THREE.Vector3();
   const other: THREE.Vector3 = new THREE.Vector3();

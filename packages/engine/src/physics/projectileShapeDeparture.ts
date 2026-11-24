@@ -48,7 +48,7 @@ export function projectileShapeDeparture(
     options.radius <= 0 ||
     options.tail !== undefined ||
     projectile.drag !== undefined ||
-    !Number.isFinite(contact.gap)
+    contact.gap === Infinity
   )
     return undefined;
 
@@ -56,19 +56,13 @@ export function projectileShapeDeparture(
     motion.bound(contact.from, contact.to);
   if (bound === undefined) return undefined;
   if (
-    !(
-      Number.isFinite(bound.to) &&
-      bound.to > contact.from &&
-      bound.to <= contact.to &&
-      finite(bound.referenceVelocity) &&
-      Number.isFinite(bound.velocityError) &&
-      bound.velocityError >= 0 &&
-      Number.isFinite(bound.angularSpeed) &&
-      bound.angularSpeed >= 0
-    )
+    bound.to <= contact.from ||
+    bound.to > contact.to ||
+    bound.velocityError < 0 ||
+    bound.angularSpeed < 0
   )
     throw new RangeError(
-      "Projectile shape departure needs a finite motion bound within its search.",
+      "Projectile shape departure needs a motion bound within its search.",
     );
 
   const centre: IAutoMovieProjectileState = projectileAt(
@@ -81,14 +75,7 @@ export function projectileShapeDeparture(
     centre.position,
     centre.position,
   );
-  if (
-    !(
-      Number.isFinite(nearest.distance) &&
-      nearest.distance > 0 &&
-      finite(nearest.point)
-    )
-  )
-    return undefined;
+  if (nearest.distance <= 0) return undefined;
 
   const rotation: number =
     bound.angularSpeed === 0
@@ -106,9 +93,7 @@ export function projectileShapeDeparture(
   const opening: number = lower(
     lower(initial.projection / initial.offsetNorm) - uncertainty,
   );
-  if (
-    !(Number.isFinite(opening) && opening > 0 && Number.isFinite(initial.speed))
-  )
+  if (opening === Infinity || opening <= 0 || initial.speed === Infinity)
     return undefined;
 
   // Allocate half the available speed to direction variation and one quarter
@@ -122,7 +107,7 @@ export function projectileShapeDeparture(
     lower(options.radius - initial.offsetNorm) +
       lower(lower(lower(initial.offsetNorm * cone) * cone) / 2),
   );
-  if (!(Number.isFinite(movement) && room > 0 && cone > 0)) return undefined;
+  if (movement === Infinity || room <= 0 || cone <= 0) return undefined;
 
   const duration: number =
     Math.min(
@@ -141,7 +126,7 @@ export function projectileShapeDeparture(
     return undefined;
 
   const gap: number = contact.at(seconds);
-  return Number.isFinite(gap) && gap > 0
+  return gap !== Infinity && gap > 0
     ? { kind: "clearance", seconds }
     : undefined;
 }
@@ -162,12 +147,9 @@ export namespace projectileShapeDeparture {
     frame: IAutoMovieRigidTransform,
   ): IAutoMovieRigidTransform {
     const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
-    if (
-      !finite(frame.position) ||
-      !(Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6)
-    )
+    if (Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) > 1e-6)
       throw new RangeError(
-        "Projectile shape departure needs a finite rigid pose.",
+        "Projectile shape departure needs a unit pose rotation.",
       );
     return { position: frame.position, rotation: Quaternion.normalize(q) };
   }
@@ -221,7 +203,7 @@ function relativeMotion(
 /** Raise a candidate norm until its lower squared endpoint encloses the sum. */
 function sqrtUpper(square: number): number {
   let root: number = Math.sqrt(square);
-  while (root > 0 && Number.isFinite(root)) {
+  while (root > 0 && root !== Infinity) {
     const squared: number = root * root;
     if (squared === Infinity || lower(squared) >= square) break;
     root = upper(root);
@@ -255,18 +237,10 @@ function oneNorm(vector: IAutoMovieVector3): number {
   );
 }
 
-/** Whether every world component is finite. */
-function finite(vector: IAutoMovieVector3 | undefined | null): boolean {
-  return (
-    vector !== undefined &&
-    vector !== null &&
-    AXES.every((axis) => Number.isFinite(vector[axis]))
-  );
-}
 
 /** Round upward, making an unrepresentable enclosure inconclusive. */
 function upper(rounded: number): number {
-  return Number.isFinite(rounded) && rounded < Number.MAX_VALUE
+  return rounded < Number.MAX_VALUE
     ? adjacentAutoMovieFloat64(rounded, true)
     : Infinity;
 }

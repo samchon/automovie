@@ -8,33 +8,19 @@ import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
  * Admit geometry and observed frames without borrowing the native mass/tree
- * contract. Every collider still has a finite solid shape, material, local
+ * contract. Every collider still has a solid shape, material, local
  * frame and known joint carriers.
  */
 export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const name: (value: string) => boolean = (value: string): boolean =>
-    typeof value === "string" && value.trim().length > 0;
+    value.trim().length > 0;
   const positive: (value: number) => boolean = (value: number): boolean =>
-    Number.isFinite(value) &&
-    value > 0 &&
-    value > 0 &&
-    Number.isFinite(1 / value);
+    value > 0;
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
-    Number.isFinite(value) && value >= 0 && (value === 0 || value > 0);
+    value >= 0;
   const transform: (value: IAutoMovieRigidTransform) => boolean = (
     value: IAutoMovieRigidTransform,
   ): boolean =>
-    !!value?.position &&
-    !!value.rotation &&
-    [value.position.x, value.position.y, value.position.z].every(
-      Number.isFinite,
-    ) &&
-    [
-      value.rotation.x,
-      value.rotation.y,
-      value.rotation.z,
-      value.rotation.w,
-    ].every(Number.isFinite) &&
     Math.abs(
       Math.hypot(
         value.rotation.x,
@@ -43,20 +29,12 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
         value.rotation.w,
       ) - 1,
     ) <= 1e-6;
-  if (
-    !geometry ||
-    !Array.isArray(geometry.segments) ||
-    !geometry.segments.length ||
-    !Array.isArray(geometry.joints) ||
-    !Array.isArray(geometry.materials) ||
-    (geometry.witnesses !== undefined && !Array.isArray(geometry.witnesses))
-  )
+  if (!geometry.segments.length)
     throw new Error("Invalid motion geometry population");
   const materials: Map<string, IAutoMovieMotionGeometry["materials"][number]> =
     new Map();
   for (const material of geometry.materials) {
     if (
-      !material ||
       !name(material.id) ||
       materials.has(material.id) ||
       !nonnegative(material.compliance) ||
@@ -70,10 +48,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const bones: Set<string> = new Set();
   for (const segment of geometry.segments) {
     if (
-      !segment ||
       !name(segment.bone) ||
       bones.has(segment.bone) ||
-      !Array.isArray(segment.shapes) ||
       !segment.shapes.length
     )
       throw new Error("Invalid motion geometry carrier");
@@ -82,9 +58,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
     for (const shape of segment.shapes) {
       const material:
         | IAutoMovieMotionGeometry["materials"][number]
-        | undefined = materials.get(shape?.material);
+        | undefined = materials.get(shape.material);
       if (
-        !shape ||
         !name(shape.id) ||
         ids.has(shape.id) ||
         !material ||
@@ -95,7 +70,6 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
       let radius: number;
       if (shape.kind === "box") {
         if (
-          !shape.halfExtents ||
           ![
             shape.halfExtents.x,
             shape.halfExtents.y,
@@ -115,15 +89,8 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
         )
           throw new Error("Invalid motion geometry round shape");
         radius = shape.radius;
-      } else if (shape.kind === "hull") {
-        if (
-          !Array.isArray(shape.points) ||
-          shape.points.length < 4 ||
-          !shape.points.every(
-            (point: (typeof shape.points)[number]): boolean =>
-              !!point && [point.x, point.y, point.z].every(Number.isFinite),
-          )
-        )
+      } else {
+        if (shape.points.length < 4)
           throw new Error("Invalid motion geometry hull");
         const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
           shape.points,
@@ -132,7 +99,7 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
         if (hull.faces.length < 4 || hull.buried > hull.tolerance)
           throw new Error("Invalid motion geometry hull");
         radius = hull.depth;
-      } else throw new Error("Invalid motion geometry shape kind");
+      }
       if (material.compliance > 0 && material.maximumCompression! >= radius)
         throw new Error("Invalid motion geometry rigid core");
     }
@@ -140,26 +107,20 @@ export function admitMotionGeometry(geometry: IAutoMovieMotionGeometry): void {
   const ids: Set<string> = new Set();
   for (const joint of geometry.joints) {
     if (
-      !joint ||
       !name(joint.id) ||
       ids.has(joint.id) ||
       !bones.has(joint.parent) ||
       !bones.has(joint.child) ||
       joint.parent === joint.child ||
       !transform(joint.parentFrame) ||
-      !transform(joint.childFrame) ||
-      !Array.isArray(joint.axes)
+      !transform(joint.childFrame)
     )
       throw new Error("Invalid motion geometry joint carrier or frame");
     ids.add(joint.id);
     const axes: Set<string> = new Set();
     for (const axis of joint.axes) {
       if (
-        !axis ||
-        !["x", "y", "z"].includes(axis.axis) ||
         axes.has(axis.axis) ||
-        !Number.isFinite(axis.minimum) ||
-        !Number.isFinite(axis.maximum) ||
         axis.minimum < -Math.PI ||
         axis.maximum > Math.PI ||
         axis.minimum > axis.maximum

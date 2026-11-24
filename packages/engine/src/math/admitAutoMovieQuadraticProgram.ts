@@ -59,7 +59,6 @@ export function admitAutoMovieQuadraticProgram(
     for (let j: number = 0; j < row.indices.length; j++) {
       const id: number = row.indices[j]!;
       if (
-        !Number.isInteger(id) ||
         id < 0 ||
         id >= variables ||
         lastRow[id] === i
@@ -89,7 +88,6 @@ function admitVector(values: readonly number[], length: number): void {
  */
 function admitScalar(value: number): number {
   if (
-    !Number.isFinite(value) ||
     Math.abs(value) >= AUTOMOVIE_QUADRATIC_INFINITY
   )
     throw new Error(

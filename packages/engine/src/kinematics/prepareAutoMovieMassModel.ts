@@ -51,14 +51,10 @@ export function prepareAutoMovieMassModel(
           axes: copyQuaternion(segment.axes),
         };
         if (
-          !Number.isFinite(copied.mass) ||
           copied.mass < 0 ||
-          !finiteVector(copied.point) ||
-          !finiteVector(copied.inertia) ||
           copied.inertia.x < 0 ||
           copied.inertia.y < 0 ||
           copied.inertia.z < 0 ||
-          !finiteQuaternion(copied.axes) ||
           !(
             Math.hypot(
               copied.axes.x,
@@ -79,7 +75,7 @@ export function prepareAutoMovieMassModel(
       sum + segment.mass,
     0,
   );
-  if (!(Number.isFinite(mass) && mass > 0 && Object.is(mass, source.mass)))
+  if (!(mass > 0 && Object.is(mass, source.mass)))
     throw new Error(
       "The prepared mass model needs its finite positive segment mass sum",
     );
@@ -486,16 +482,3 @@ function copyQuaternion(value: IAutoMovieQuaternion): IAutoMovieQuaternion {
   return { x: value.x, y: value.y, z: value.z, w: value.w };
 }
 
-/** Every admitted SI coordinate must be finite. */
-function finiteVector(value: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z)
-  );
-}
-
-/** Finiteness is checked without changing the existing unit-frame premise. */
-function finiteQuaternion(value: IAutoMovieQuaternion): boolean {
-  return finiteVector(value) && Number.isFinite(value.w);
-}

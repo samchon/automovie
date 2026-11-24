@@ -1,7 +1,5 @@
 import type { IAutoMovieValidateTransformScalars } from "@automovie/interface";
 
-import { validateRotationArtifact } from "./validateRotationArtifact";
-import { validateVectorArtifact } from "./validateVectorArtifact";
 
 /**
  * Append scalar findings for a translation/rotation/scale record. Every
@@ -17,24 +15,7 @@ export function validateTransformScalars(
   props: IAutoMovieValidateTransformScalars.IProps,
 ): void {
   const { transform, path, label, collector }: typeof props = props;
-  validateVectorArtifact(
-    transform.translation,
-    `${path}.translation`,
-    `${label} translation`,
-    collector.items,
-  );
-  validateRotationArtifact(
-    transform.rotation,
-    `${path}.rotation`,
-    `${label} rotation`,
-    collector,
-  );
-  validateVectorArtifact(
-    transform.scale,
-    `${path}.scale`,
-    `${label} scale`,
-    collector.items,
-  );
+  collector.unitQuaternion(`${path}.rotation`, transform.rotation, `${label} rotation`);
   for (const axis of ["x", "y", "z"] as const) {
     const value: number = transform.scale[axis];
     if (value <= 0)

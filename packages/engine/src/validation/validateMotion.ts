@@ -42,7 +42,7 @@ export const validateMotion: (
       `motion skeleton "${motion.skeleton}" does not match target skeleton "${skeleton.id}"`,
       motion.skeleton,
     );
-  if (!Number.isFinite(motion.duration) || !(motion.duration > 0))
+  if (!(motion.duration > 0))
     collector.push(
       "temporal",
       `${path}.duration`,
@@ -60,16 +60,14 @@ export const validateMotion: (
   let previousTime: number = -Infinity;
   motion.keyframes.forEach((kf: IAutoMovieKeyframe, i: number): void => {
     const kp: string = `${path}.keyframes[${i}]`;
-    const finiteTime: boolean = Number.isFinite(kf.time);
-
-    if (!finiteTime || kf.time < 0 || kf.time > motion.duration)
+    if (kf.time < 0 || kf.time > motion.duration)
       collector.push(
         "temporal",
         `${kp}.time`,
-        `keyframe time must be a finite number within [0, ${motion.duration}]s, but was ${kf.time}`,
+        `keyframe time must be within [0, ${motion.duration}]s, but was ${kf.time}`,
         kf.time,
       );
-    if (finiteTime && kf.time <= previousTime)
+    if (kf.time <= previousTime)
       collector.push(
         "temporal",
         `${kp}.time`,
@@ -87,7 +85,7 @@ export const validateMotion: (
       });
 
     if (i > 0) checkAngularSpeed(motion, i, kp, collector);
-    if (finiteTime) previousTime = kf.time;
+    previousTime = kf.time;
   });
 
   return collector.toValidation();
@@ -124,7 +122,7 @@ const checkAngularSpeed: (
   const prev: IAutoMovieKeyframe = motion.keyframes[i - 1]!;
   const cur: IAutoMovieKeyframe = motion.keyframes[i]!;
   const dt: number = cur.time - prev.time;
-  if (!Number.isFinite(dt) || dt <= 0) return; // ordering/range already reported above
+  if (dt <= 0) return; // ordering/range already reported above
 
   const prevByBone: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map(
     prev.pose.joints.map(
@@ -193,7 +191,7 @@ const validateKeyframeBezier: (
     return;
   }
 
-  if (kf.bezier === null || !kf.bezier.every(Number.isFinite)) {
+  if (kf.bezier === null) {
     collector.push(
       "type",
       `${kp}.bezier`,

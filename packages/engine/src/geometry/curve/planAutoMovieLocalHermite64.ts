@@ -21,12 +21,8 @@ export function planAutoMovieLocalHermite64(
     !input.name.trim() ||
     !input.topologyDomain.trim() ||
     !(input.toleranceMm > 0) ||
-    !Number.isFinite(input.toleranceMm) ||
-    !Number.isSafeInteger(input.maxCellsPerInterval) ||
     input.maxCellsPerInterval < 1 ||
-    !Number.isSafeInteger(input.maxVerticesPerChunk) ||
     input.maxVerticesPerChunk < 3 ||
-    !Number.isSafeInteger(input.vertexOffset ?? 0) ||
     (input.vertexOffset ?? 0) < 0
   )
     throw new Error(
@@ -82,8 +78,6 @@ export function planAutoMovieLocalHermite64(
               ),
             ),
         );
-    if (![uu, uv, vv].every(Number.isFinite))
-      throw new Error("nonfinite-arithmetic: tensor derivative bound");
     return [uu / 8, uv / 4, vv / 8];
   };
   const plan: (interval: number) => IAutoMoviePlanLocalHermite64Plan = (

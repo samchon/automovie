@@ -13,7 +13,6 @@ export const softBodyStepAt: (
   domain: IAutoMovieSoftBodyDomain,
   time: number,
 ): number | null => {
-  if (!Number.isFinite(time)) return null;
   const clamped: number = time > 0 ? time : 0;
   return Math.floor(clamped / domain.solver.fixedStepSeconds + 1e-9);
 };

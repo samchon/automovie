@@ -19,9 +19,7 @@
  * @throws If a value is not finite or the width is not positive and finite.
  */
 export function smoothMinimum(a: number, b: number, width: number): number {
-  if (!Number.isFinite(a) || !Number.isFinite(b))
-    throw new Error("A smooth minimum needs two finite values");
-  if (!(width > 0) || !Number.isFinite(width))
+  if (!(width > 0))
     throw new Error("A smooth minimum needs a positive finite width");
   const h: number = Math.max(width - Math.abs(a - b), 0) / width;
   return Math.min(a, b) - (h * h * width) / 4;

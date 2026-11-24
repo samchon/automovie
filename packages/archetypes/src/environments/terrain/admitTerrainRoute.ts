@@ -73,10 +73,7 @@ export function admitTerrainRoute(
       );
     if (path.maxSlope !== undefined) {
       const grade: number = routeGrade(segment, rule);
-      if (
-        !Number.isFinite(grade) ||
-        grade - path.maxSlope > 32 * Number.EPSILON * Math.max(1, grade)
-      )
+      if (grade - path.maxSlope > 32 * Number.EPSILON * Math.max(1, grade))
         throw new Error(
           `Terrain path "${path.id}" segment ${index} grades to ${grade}, above its limit ${path.maxSlope}.`,
         );

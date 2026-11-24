@@ -110,8 +110,7 @@ export namespace step {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStep.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanStep.IParams = context.params;
-    const count: number = p.steps ?? 1;
-    HumanBound.whole("steps", count);
+    const count: number = HumanBound.whole("steps", p.steps ?? 1);
     const body = context.body;
     const lead: AutoMovieHumanSide = StrikingTarget.lead(context.entry);
     const turn: number = p.turn ?? 0;

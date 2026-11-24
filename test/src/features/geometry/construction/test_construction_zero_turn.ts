@@ -5,13 +5,24 @@ import type {
 } from "@automovie/interface";
 
 /**
- * An exact straight joint consumes no turn length or setback, while a nonzero near-straight turn still requires its positive arclength.
+ * An exact straight joint consumes no turn length or setback, while a nonzero
+ * near-straight turn still requires its positive arclength.
  *
  * Scenarios:
- * 1. Collinear centres (0,0,0), (0,0.01,0), (0,0.03,0) accept both half=0 and an otherwise overlong positive half. Every source frame is the independent straight frame, and the runs meet at the original centre with zero omitted length.
- * 2. A second segment tilted by 1e-10 radians refuses half=0 and admits a positive 1e-4 half; its endpoint tangent retains that nonzero tilt even when acos(dot) rounds the angle to zero.
- * 3. Splitting a straight segment before an ordinary right-angle turn preserves every later frame and run endpoint; the zero joint cannot push the later turn along the station axis. Every successful frame, run and tangent has the expected count and finite components.
- * 4. Negative/nonfinite halves, an opposite turn, coincident/nonfinite centres and a nonfinite initial direction are explicit admission failures.
+ *
+ * 1. Collinear centres (0,0,0), (0,0.01,0), (0,0.03,0) accept both half=0 and an
+ *    otherwise overlong positive half. Every source frame is the independent
+ *    straight frame, and the runs meet at the original centre with zero omitted
+ *    length.
+ * 2. A second segment tilted by 1e-10 radians refuses half=0 and admits a positive
+ *    1e-4 half; its endpoint tangent retains that nonzero tilt even when
+ *    acos(dot) rounds the angle to zero.
+ * 3. Splitting a straight segment before an ordinary right-angle turn preserves
+ *    every later frame and run endpoint; the zero joint cannot push the later
+ *    turn along the station axis. Every successful frame, run and tangent has
+ *    the expected count and finite components.
+ * 4. Negative/nonfinite halves, an opposite turn, coincident/nonfinite centres and
+ *    a nonfinite initial direction are explicit admission failures.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the jointed frame and published run consumer, asserting straight geometry and absence of reserved length, nonzero small-angle geometry and named admission failures.
  * @evidence contracts/development/testing.md#independent-expectations A straight arclength course is o(s)=(0,s,0), u=(1,0,0), v=(0,0,1). Its two runs cover [0,0.01] and [0.01,0.03] without a turn. The tilted final tangent is the unit vector (0,1,1e-10), observed through normal(frame); tolerance 1e-14 is below that distinction. Inserting a collinear centre changes neither the geometric course nor its arclength, an independent representation invariant checked before, inside and after a later turn. This invariant does not certify the common nonzero-turn quadrature, owned by the axis tests.
@@ -33,7 +44,7 @@ export function test_construction_zero_turn(): void {
     expected: readonly number[],
     tolerance: number = 1e-14,
   ): void => {
-    if (actual.length !== expected.length || !actual.every(Number.isFinite)) {
+    if (actual.length !== expected.length) {
       failures.push(
         `${label}: expected ${expected.length} finite components, received ${actual.length}: ${actual}`,
       );

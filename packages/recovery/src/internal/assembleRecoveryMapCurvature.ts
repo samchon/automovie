@@ -25,8 +25,7 @@ export function assembleRecoveryMapCurvature(
     cameraWidth !== 6 * state.poses.length - 7 ||
     scales.pointScales.length !== state.landmarks.length ||
     seed.width !== cameraWidth + 3 * state.landmarks.length ||
-    !(damping >= 0) ||
-    !Number.isFinite(damping)
+    !(damping >= 0)
   )
     throw new Error(
       "camera-curvature: matching current scales and original population required",
@@ -87,7 +86,6 @@ export function assembleRecoveryMapCurvature(
         policy.maximumReprojectionErrorPx;
       const robust: number =
         (inverse / policy.lossScalePx / policy.lossScalePx) * inverse * inverse;
-      if (![h, inverse, disk, robust].every(Number.isFinite)) return null;
       for (let axis: number = 0; axis < count + 3; axis++)
         for (let other: number = axis; other < count + 3; other++) {
           let value: number = 0,
@@ -114,21 +112,12 @@ export function assembleRecoveryMapCurvature(
               ? scales.cameraScales[start + other]!
               : scales.pointScales[point]![other - count]!;
           value = value / firstScale / secondScale;
-          if (!Number.isFinite(value)) return null;
           if (other < count) {
             camera[start + axis]![start + other]! += value;
-            if (!Number.isFinite(camera[start + axis]![start + other]))
-              return null;
           } else if (axis < count) {
             points[point]![other - count]![3 + start + axis]! += value;
-            if (
-              !Number.isFinite(points[point]![other - count]![3 + start + axis])
-            )
-              return null;
           } else {
             points[point]![axis - count]![other - count]! += value;
-            if (!Number.isFinite(points[point]![axis - count]![other - count]))
-              return null;
           }
         }
     }

@@ -22,7 +22,7 @@ import { TestValidator } from "@nestia/e2e";
  *    predicted capture point from each corner it sees, cop + (xi - cop)
  *    e^(omega t), lies on the region.
  * 5. With 0.5 s left and the capture point at (0, -0.5) every prediction is out of
- *    reach: the region is empty and its area not a number.
+ *    reach: the region is empty and its area zero.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the region, the fixture and each scenario.
  * @evidence contracts/development/testing.md#behavioral-verification Computes the region and tests points against it with the polygon helpers.
@@ -101,5 +101,5 @@ export function test_physical_one_step_capture_region(): void {
   // 5. Out of reach: empty.
   const far: Polygon.IPoint[] = region({ x: 0, y: -0.5 }, 0.5);
   TestValidator.equals("empty", far, []);
-  TestValidator.predicate("area", Number.isNaN(Polygon.area(far)));
+  TestValidator.equals("area", Polygon.area(far), 0);
 }

@@ -34,7 +34,7 @@ export function resolveMotionTakeAnchor(
   const seconds: number = selection.outputSeconds;
   const side: IAutoMovieMotionTakeAnchor["side"] = selection.side ?? "after";
   const { entries, runtime } = prepared.timeline;
-  if (!Number.isFinite(seconds) || seconds < 0 || seconds > runtime)
+  if (seconds < 0 || seconds > runtime)
     throw new Error(
       "take-time: outputSeconds must lie within the edited sequence",
     );

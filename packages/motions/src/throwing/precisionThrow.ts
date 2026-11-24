@@ -107,8 +107,7 @@ export namespace precisionThrow {
         const diameter: number | undefined = grip?.aperture;
         if (
           diameter === undefined ||
-          !Number.isFinite(diameter) ||
-          diameter <= 0
+          !(diameter > 0)
         )
           return launch;
         return {

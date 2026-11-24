@@ -14,7 +14,6 @@ const JOINT_AXES: readonly AutoMovieJointAxis[] = [
   "twist",
 ];
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
 
 /** Length at or below which an axis names no direction. */
 const MIN_AXIS_LENGTH: number = 1e-9;
@@ -60,19 +59,6 @@ export const validateJointAxesBasis: (
   const usable: Set<AutoMovieJointAxis> = new Set();
 
   for (const jointAxis of JOINT_AXES) {
-    let finite: boolean = true;
-    for (const vectorAxis of VECTOR_AXES) {
-      const value: number = axes[jointAxis][vectorAxis];
-      if (!Number.isFinite(value)) {
-        finite = false;
-        issues.push({
-          path: `${path}.${jointAxis}.${vectorAxis}`,
-          expected: `must be finite, but was ${value}`,
-          value,
-        });
-      }
-    }
-    if (!finite) continue;
     const length: number = Vector3.length(axes[jointAxis]);
     if (length <= MIN_AXIS_LENGTH)
       issues.push({

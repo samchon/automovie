@@ -17,11 +17,8 @@ const PRODUCTS: readonly (readonly [number, number, number, number])[] = [
  * proves the sign of the supplied doubles, not a physical measurement.
  */
 export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
-  let finite: boolean = matrix.length === 9;
-  for (let index: number = 0; index < 9 && finite; index++)
-    finite = Number.isFinite(matrix[index]);
-  if (!finite)
-    throw new Error("A complete finite row-major 3 by 3 matrix is required");
+  if (matrix.length !== 9)
+    throw new Error("A complete row-major 3 by 3 matrix is required");
   let value: number = 0,
     permanent: number = 0;
   const minimumNormal: number = 2 ** -1022;
@@ -40,16 +37,13 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       a !== 0 &&
       b !== 0 &&
       c !== 0 &&
-      (!Number.isFinite(pair) ||
-        Math.abs(pair) < minimumNormal ||
-        !Number.isFinite(product) ||
+      (Math.abs(pair) < minimumNormal ||
         Math.abs(product) < minimumNormal)
     )
       filterSafe = false;
   }
   if (
     filterSafe &&
-    Number.isFinite(permanent) &&
     permanent >= minimumNormal &&
     Math.abs(value) > 64 * Number.EPSILON * permanent
   )
@@ -112,7 +106,7 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
     (power < -1022
       ? leading * 2 ** -1022 * 2 ** (power + 1022)
       : leading * 2 ** power);
-  if (!Number.isFinite(converted) || converted === 0)
+  if (converted === 0)
     throw new Error(
       "The nonzero determinant magnitude is outside binary64 range",
     );

@@ -1,5 +1,4 @@
 import type { HumanQuadraticBand as B } from "./HumanQuadraticBand";
-import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 
 /**
  * Add one weighted row outer product to a banded reduced system. The ADMM and
@@ -26,12 +25,9 @@ export function HumanQuadraticRow(
   const single: number = s.singleton[r]!;
   if (single >= 0) {
     const coefficient: number = s.vals[single]!;
-    const weighted: number = w * coefficient;
-    if (Number.isFinite(weighted)) {
-      const row: Float64Array = k[s.cols[single]!]!;
-      row[0] = row[0]! + weighted * coefficient;
-      return;
-    }
+    const row: Float64Array = k[s.cols[single]!]!;
+    row[0] = row[0]! + w * coefficient * coefficient;
+    return;
   }
   const begin: number = s.start[r]!;
   let first: number = begin;
@@ -45,17 +41,6 @@ export function HumanQuadraticRow(
     const i: number = s.cols[position]!;
     const row: Float64Array = k[i]!;
     const weighted: number = w * s.vals[position]!;
-    if (!Number.isFinite(weighted)) {
-      const original: ReturnType<typeof HumanQuadraticEntries> =
-        HumanQuadraticEntries(s, r);
-      for (let b: number = 0; b < original.index.length; ++b) {
-        const j: number = original.index[b]!;
-        if (j < i) continue;
-        const offset: number = j - i;
-        row[offset] = row[offset]! + weighted * original.coef[b]!;
-      }
-      continue;
-    }
     if (order !== undefined) {
       while (s.cols[order.entries[orderStart + first - begin]!]! < i) ++first;
       for (let b: number = first; b < end; ++b) {

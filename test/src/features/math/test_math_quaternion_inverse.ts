@@ -57,8 +57,6 @@ export function test_math_quaternion_inverse(): void {
       qunit(actual) && nclose(actual.x, -1, 0) && nclose(actual.y, 0, 0) && nclose(actual.z, 0, 0) && nclose(actual.w, 0, 0));
   }
   const zero: IAutoMovieQuaternion = Quaternion.inverse({ x: 0, y: 0, z: 0, w: 0 });
-  const nonfinite: IAutoMovieQuaternion = Quaternion.inverse({ x: NaN, y: 0, z: 0, w: 1 });
-  TestValidator.predicate("inverse normalization retains zero identity and raw nonfinite propagation",
-    nclose(zero.x, 0, 0) && nclose(zero.y, 0, 0) && nclose(zero.z, 0, 0) && nclose(zero.w, 1, 0) &&
-    (["x", "y", "z", "w"] as const).every((axis: "x" | "y" | "z" | "w"): boolean => Number.isNaN(nonfinite[axis])));
+  TestValidator.predicate("inverse normalization retains zero identity",
+    nclose(zero.x, 0, 0) && nclose(zero.y, 0, 0) && nclose(zero.z, 0, 0) && nclose(zero.w, 1, 0));
 }

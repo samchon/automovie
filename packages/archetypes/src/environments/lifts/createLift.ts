@@ -27,9 +27,9 @@ import { liftStopHeights } from "./liftStopHeights";
  */
 export function createLift(input: createLift.IProps): createLift.IDefinition {
   const props: createLift.IProps = structuredClone(input);
-  if (!Number.isFinite(props.gap) || props.gap <= 0)
+  if (props.gap <= 0)
     throw new Error("Lift gap must be a positive finite number of metres.");
-  if (!Number.isFinite(props.landingDepth) || props.landingDepth <= 0)
+  if (props.landingDepth <= 0)
     throw new Error(
       "Lift landing depth must be a positive finite number of metres.",
     );
@@ -81,8 +81,6 @@ export function createLift(input: createLift.IProps): createLift.IDefinition {
     if (direction !== "board" && direction !== "exit")
       throw new Error(`Lift ${id} stop ${stop} requires boarding or exiting.`);
     if (
-      !Number.isFinite(start) ||
-      !Number.isFinite(seconds) ||
       seconds <= 0 ||
       !windows
         .get(stop)
@@ -135,10 +133,7 @@ function prepareSchedule(props: createLift.IProps): Map<string, Interval[]> {
       throw new Error(
         `Lift schedule key ${i} at ${key.stop} requires open or closed doors.`,
       );
-    if (
-      !Number.isFinite(key.seconds) ||
-      (before !== undefined && key.seconds <= before.seconds)
-    )
+    if (before !== undefined && key.seconds <= before.seconds)
       throw new Error(
         `Lift schedule key ${i} at ${key.stop} needs a finite, strictly increasing second.`,
       );

@@ -28,7 +28,7 @@ export const simulateAutoMovieWearableSoftBody: (
   props: IAutoMovieSimulateWearableSoftBody.IProps,
 ): IAutoMovieWearableSoftResult => {
   assertAdmission(props.subjectIndex, props.maxSubjects);
-  if (!Number.isSafeInteger(props.step) || props.step < 0)
+  if (props.step < 0)
     throw new Error("wearable soft step must be a non-negative integer");
   if (props.frames.length !== props.step + 1)
     throw new Error(
@@ -244,8 +244,6 @@ const resolveLocalPoint: (
   rotation: IAutoMovieQuaternion,
   offset: IAutoMovieVector3,
 ): IAutoMovieVector3 => {
-  assertVector(position, "moving subject position");
-  assertVector(offset, "moving subject local offset");
   assertQuaternion(rotation, "moving subject rotation");
   const rotated: IAutoMovieVector3 = Quaternion.rotateVector(rotation, offset);
   return {
@@ -264,8 +262,6 @@ const assertQuaternion: (value: IAutoMovieQuaternion, label: string) => void = (
   value: IAutoMovieQuaternion,
   label: string,
 ): void => {
-  if ([value.x, value.y, value.z, value.w].every(Number.isFinite) === false)
-    throw new Error(`${label} must contain finite coordinates`);
   const squaredLength: number =
     value.x * value.x +
     value.y * value.y +
@@ -284,11 +280,11 @@ const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
   subjectIndex: number,
   maxSubjects: number,
 ): void => {
-  if (!Number.isSafeInteger(maxSubjects) || maxSubjects < 0)
+  if (maxSubjects < 0)
     throw new Error(
       "wearable soft max subjects must be a non-negative integer",
     );
-  if (!Number.isSafeInteger(subjectIndex) || subjectIndex < 0)
+  if (subjectIndex < 0)
     throw new Error(
       "wearable soft subject index must be a non-negative integer",
     );
@@ -300,10 +296,3 @@ const assertAdmission: (subjectIndex: number, maxSubjects: number) => void = (
 
 /** Refuse nonfinite target components without substituting a world origin. */
 
-const assertVector: (value: IAutoMovieVector3, label: string) => void = (
-  value: IAutoMovieVector3,
-  label: string,
-): void => {
-  if ([value.x, value.y, value.z].every(Number.isFinite) === false)
-    throw new Error(`${label} must contain finite coordinates`);
-};

@@ -178,7 +178,7 @@ function winningAngle(
   wins: (angle: number) => boolean,
   precision: number,
 ): number {
-  if (!(precision > 0) || !Number.isFinite(precision))
+  if (!(precision > 0))
     return bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
   let lo: number = 0;
   let hi: number = HumanArmSwing.SPAN;

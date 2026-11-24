@@ -52,12 +52,12 @@ export function AutoMovieArchetypeQuadrupedRest<
   animal: AutoMovieArchetype<Id, Dimension>,
   params: AutoMovieArchetypeQuadrupedRestPlan.IParams,
 ): AutoMovieArchetypeQuadrupedRestPlan.IClip<Id, Dimension> {
-  const floorY: number = finite(params.floorY, "floorY");
+  const floorY: number = params.floorY;
   const lowering: number = positive(params.loweringSeconds, "loweringSeconds");
-  const resting: number = finite(params.restingSeconds, "restingSeconds");
+  const resting: number = params.restingSeconds;
   const rising: number = positive(params.risingSeconds, "risingSeconds");
-  const pitch: number = finite(params.restPitch, "restPitch");
-  const tailAngle: number = finite(params.tailDirection, "tailDirection");
+  const pitch: number = params.restPitch;
+  const tailAngle: number = params.tailDirection;
   if (Math.abs(tailAngle) > 180)
     throw new RangeError(
       "Rest tail direction must be within [-180, 180] degrees",
@@ -68,8 +68,6 @@ export function AutoMovieArchetypeQuadrupedRest<
     );
   const riseStart: number = lowering + resting;
   const duration: number = riseStart + rising;
-  if (!Number.isFinite(duration))
-    throw new RangeError("Rest cycle duration must be finite");
   const windows: Record<
     "body" | "fore" | "hind",
     AutoMovieArchetypeQuadrupedRestPlan.Window
@@ -185,7 +183,7 @@ export function AutoMovieArchetypeQuadrupedRest<
   function sample(
     seconds: number,
   ): AutoMovieArchetypeQuadrupedRestPlan.ISample<Id, Dimension> {
-    if (!(Number.isFinite(seconds) && seconds >= 0 && seconds <= duration))
+    if (!(seconds >= 0 && seconds <= duration))
       throw new RangeError(
         `Rest sample time must be in [0, ${duration}] seconds`,
       );
@@ -359,17 +357,9 @@ export function AutoMovieArchetypeQuadrupedRest<
   }
 }
 
-/** Keep malformed source-independent authoring input out of a retained plan. */
-function finite(value: number, name: string): number {
-  if (!Number.isFinite(value))
-    throw new RangeError(`Rest ${name} must be finite`);
-  return value;
-}
-
 /** Admit a positive transition clock without supplying a biological duration. */
 function positive(value: number, name: string): number {
-  if (!(finite(value, name) > 0))
-    throw new RangeError(`Rest ${name} must be positive`);
+  if (!(value > 0)) throw new RangeError(`Rest ${name} must be positive`);
   return value;
 }
 
@@ -379,15 +369,7 @@ function window(
 ): AutoMovieArchetypeQuadrupedRestPlan.Window {
   const start: number = value[0];
   const end: number = value[1];
-  if (
-    !(
-      Number.isFinite(start) &&
-      Number.isFinite(end) &&
-      start >= 0 &&
-      end <= 1 &&
-      start < end
-    )
-  )
+  if (!(start >= 0 && end <= 1 && start < end))
     throw new RangeError("Rest movement windows require 0 <= start < end <= 1");
   return [start, end];
 }
@@ -399,8 +381,8 @@ function window(
 function directions(
   value: readonly [number, number],
 ): readonly [number, number] {
-  const a: number = finite(value[0], "folded direction");
-  const b: number = finite(value[1], "folded terminal direction");
+  const a: number = value[0];
+  const b: number = value[1];
   if (Math.abs(a) > 180 || Math.abs(b) >= 90)
     throw new RangeError(
       "Rest distal directions require |third| <= 180 and |fourth| < 90 degrees",

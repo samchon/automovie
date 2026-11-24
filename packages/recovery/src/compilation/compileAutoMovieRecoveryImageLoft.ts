@@ -28,22 +28,16 @@ export function compileAutoMovieRecoveryImageLoft(
     if (
       !recipe ||
       recipe.family !== "aligned-elliptical-sections" ||
-      typeof recipe.objectId !== "string" ||
       !recipe.objectId.trim() ||
-      typeof recipe.frame !== "string" ||
       !recipe.frame.trim() ||
       !recipe.loft ||
-      !Array.isArray(recipe.loft.spans) ||
       !recipe.loft.spans.length ||
       !recipe.dimensions ||
       ![
         recipe.dimensions.widthScale,
         recipe.dimensions.depthScale,
         recipe.dimensions.heightScale,
-      ].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && value >= 0.25 && value <= 4,
-      ) ||
+      ].every((value: number): boolean => value >= 0.25 && value <= 4) ||
       recipe.coverage?.lateralSurface !==
         "inferred-under-aligned-ellipse-prior" ||
       recipe.coverage.endCaps !== "unobserved" ||

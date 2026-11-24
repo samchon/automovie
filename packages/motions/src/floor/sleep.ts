@@ -40,7 +40,7 @@ export function sleep(
   chain: IAutoMovieMotionHumanChain,
   params: IAutoMovieMotionHumanSleep.ISleep,
 ): IAutoMovieMotionHumanChain {
-  if (!(Number.isInteger(params.changes) && params.changes >= 1))
+  if (!(params.changes >= 1))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "changes",

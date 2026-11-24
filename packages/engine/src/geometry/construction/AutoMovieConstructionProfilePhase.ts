@@ -56,8 +56,6 @@ export namespace AutoMovieConstructionProfilePhase {
       const chart: Chart | undefined = charts.get(piece);
       if (
         chart === undefined ||
-        !Number.isFinite(station) ||
-        !Number.isFinite(coordinate) ||
         station < chart.domain[0] ||
         station > chart.domain[1] ||
         coordinate < 0 ||
@@ -80,12 +78,8 @@ export namespace AutoMovieConstructionProfilePhase {
       if (local!.tt !== null) pair(local!.tt);
       const frame: IAutoMovieLoftSectionFrame = source.plane.axis.at(station);
       for (const value of [frame.origin, frame.u, frame.v])
-        if (
-          !Array.isArray(value) ||
-          value.length !== 3 ||
-          !value.every(Number.isFinite)
-        )
-          fail("Original phase query has incomplete or nonfinite plane data.");
+        if (value.length !== 3)
+          fail("Original phase query has incomplete plane data.");
 
       /** At fixed station only the actual local curve differentiates in phase. */
       const world: (
@@ -106,26 +100,16 @@ export namespace AutoMovieConstructionProfilePhase {
         t: world(local!.t, factor),
         tt: local!.tt === null ? null : world(local!.tt, factor * factor),
       };
-      for (const vector of [
-        result.p,
-        result.t,
-        ...(result.tt === null ? [] : [result.tt]),
-      ])
-        if (!vector.every(Number.isFinite))
-          fail("Original world phase reading is not finite.");
+
       return result;
     };
   }
 }
 
-/** Every provided local derivative owns both finite components. */
+/** Every provided local derivative owns both components. */
 function pair(value: readonly number[]): void {
-  if (
-    !Array.isArray(value) ||
-    value.length !== 2 ||
-    !value.every(Number.isFinite)
-  )
-    fail("Original phase reading requires two finite local components.");
+  if (value.length !== 2)
+    fail("Original phase reading requires two local components.");
 }
 
 /**

@@ -217,7 +217,7 @@ export namespace AutoMovieArchetypePassage {
         grow(local.x, local.z);
       }
     }
-    if (!Number.isFinite(low.x))
+    if (low.x === Infinity)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "passage",
@@ -497,7 +497,7 @@ function admitWindow(
   to: number,
   step: number,
 ): void {
-  if (!(Number.isFinite(from) && Number.isFinite(to) && to > from))
+  if (!(to > from))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
@@ -507,7 +507,7 @@ function admitWindow(
       reason: `the window from ${from} s to ${to} s does not run forward`,
       fix: "give finite seconds with the last after the first",
     });
-  if (!(Number.isFinite(step) && step > 0))
+  if (!(step > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype,
@@ -543,21 +543,15 @@ function admitBody(
   if (body.id.length === 0 || names.has(body.id))
     refuse("id", body.id, `the name "${body.id}" is empty or already taken`);
   names.add(body.id);
-  if (!(Number.isFinite(body.margin) && body.margin >= 0))
+  if (!(body.margin >= 0))
     refuse("margin", body.margin, "a margin is finite and at least 0");
-  if (!(Number.isFinite(body.footprint.radius) && body.footprint.radius >= 0))
+  if (!(body.footprint.radius >= 0))
     refuse(
       "footprint.radius",
       body.footprint.radius,
       "a radius is finite and at least 0",
     );
-  if (
-    body.footprint.outline.length === 0 ||
-    body.footprint.outline.some(
-      (point: IAutoMovieVector3): boolean =>
-        !(Number.isFinite(point.x) && Number.isFinite(point.z)),
-    )
-  )
+  if (body.footprint.outline.length === 0)
     refuse(
       "footprint.outline",
       body.footprint.outline,

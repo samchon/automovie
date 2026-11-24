@@ -58,10 +58,7 @@ export function StageCarrierConstruction(
     slotted === undefined ? 0 : (params.slots ?? slotted.slots);
   if (
     params.slots !== undefined &&
-    (capacity === undefined ||
-      !Number.isInteger(params.slots) ||
-      params.slots < 1 ||
-      params.slots > capacity)
+    (capacity === undefined || params.slots < 1 || params.slots > capacity)
   )
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",

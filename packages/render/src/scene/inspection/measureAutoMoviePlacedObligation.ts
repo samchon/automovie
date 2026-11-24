@@ -16,7 +16,6 @@ import { AUTOMOVIE_PLACED_FRAME_TOLERANCE } from "./AUTOMOVIE_PLACED_FRAME_TOLER
 import type { IAutoMoviePlacedObligation } from "./IAutoMoviePlacedObligation.js";
 import type { IObserveAutoMoviePlacedScene } from "./IObserveAutoMoviePlacedScene.js";
 import { isAutoMovieAffineMatrix } from "./isAutoMovieAffineMatrix.js";
-import { isAutoMovieFiniteVector } from "./isAutoMovieFiniteVector.js";
 import { readAutoMovieNativeRigidFrame } from "./readAutoMovieNativeRigidFrame.js";
 
 type IWitness = IAutoMovieInspectionDiagnostics.IWitness;
@@ -170,7 +169,7 @@ function measureContact(
       ? input.sample?.point
       : input.sample?.prop?.position;
   const witness: IWitness =
-    point !== undefined && point !== null && isAutoMovieFiniteVector(point)
+    point !== undefined && point !== null
       ? { point: { x: point.x, y: point.y, z: point.z } }
       : {};
   if (result.status === "invalid")

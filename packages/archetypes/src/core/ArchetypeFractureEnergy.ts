@@ -31,17 +31,7 @@ export function ArchetypeFractureEnergy(
   mass: number,
   momentum: IAutoMovieVector3,
 ): { sufficient: true } | { sufficient: false; minimum: number | null } {
-  if (
-    !(
-      Number.isFinite(energy) &&
-      energy >= 0 &&
-      Number.isFinite(mass) &&
-      mass > 0 &&
-      Number.isFinite(momentum.x) &&
-      Number.isFinite(momentum.y) &&
-      Number.isFinite(momentum.z)
-    )
-  )
+  if (!(energy >= 0 && mass > 0))
     throw new Error(
       "Fracture energy needs finite nonnegative energy, positive mass and finite momentum",
     );

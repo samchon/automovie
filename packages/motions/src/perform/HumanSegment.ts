@@ -13,7 +13,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegmentCut } from "./HumanSegmentCut";
 import { HumanSegmentEntry } from "./HumanSegmentEntry";
 import { HumanSegmentPose } from "./HumanSegmentPose";
@@ -48,9 +47,6 @@ type ShareAt = number | string;
  * owners.
  */
 export namespace HumanSegment {
-  /** The interface contract (`IAutoMovieMotionHumanSegment.IShown`). */
-  export type IShown = IAutoMovieMotionHumanSegment.IShown;
-
   /**
    * A weapon's key among its person's stops.
    *
@@ -188,99 +184,4 @@ export namespace HumanSegment {
     return HumanSegmentPose.displayed(person, seconds, requested, prepared);
   }
 
-  /**
-   * Forget everything a person's plans and transitions evaluated: each plan's
-   * own memo, every transition offset, every held hand's carry, every anchor's
-   * fits and every displayed pose. What they read may have changed since
-   * (another person was placed, a contact was committed), and each is rebuilt
-   * on its next read.
-   *
-   * @param person The person.
-   */
-  export function forget(person: IAutoMovieMotionHumanSegment.IPerson): void {
-    for (const segment of person.segments) {
-      segment.plan.settle?.();
-      HumanPreparedPlayback.forget(segment.plan);
-      if (segment.transition !== undefined) delete segment.transition.offset;
-      delete segment.incumbents;
-      delete segment.legs;
-      delete segment.anchors;
-    }
-    for (const overlay of person.overlays) {
-      overlay.plan.settle?.();
-      HumanPreparedPlayback.forget(overlay.plan);
-    }
-    for (const held of person.holds) delete held.carry;
-    person.cache.clear();
-  }
-
-  /**
-   * Run one action's planning with the placed people's displayed poses shared
-   * between its readers. While the schedule is being resolved no pose is kept
-   * from one placement to the next, since each placement changes what later
-   * actions read; but within the planning of one action nothing is placed, and
-   * its planner reads the same people at the same seconds again and again (a
-   * partner's pose at every instant of an arm's course, for every candidate it
-   * lays). A nested planning runs with its own poses and leaves the outer one
-   * none, and a placement inside clears them (`placed`), so no pose outlives
-   * the placed state it was read in.
-   *
-   * @param people Every person of the performance.
-   * @param run The planning.
-   * @returns What the planning returns.
-   */
-  export function planning<T>(
-    people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
-    run: () => T,
-  ): T {
-    const all: IAutoMovieMotionHumanSegment.IPerson[] = [...people];
-    const nested: boolean[] = all.map(
-      (person: IAutoMovieMotionHumanSegment.IPerson): boolean =>
-        person.planning !== undefined,
-    );
-    for (const person of all) person.planning = new Map();
-    try {
-      return run();
-    } finally {
-      all.forEach(
-        (person: IAutoMovieMotionHumanSegment.IPerson, i: number): void => {
-          if (nested[i]) person.planning = new Map();
-          else delete person.planning;
-        },
-      );
-    }
-  }
-
-  /**
-   * Drop the poses a planning shares, after anything is placed: an action, an
-   * overlay or a hold changes what every later read shows. The anchor fits of
-   * every action (`IAutoMovieMotionHumanSegment.anchors`) go too, since an
-   * anchor read now would show the new placement, so no read continues a fit
-   * depending on whether its anchor was read before it.
-   *
-   * @param people Every person of the performance.
-   */
-  export function placed(
-    people: Iterable<IAutoMovieMotionHumanSegment.IPerson>,
-  ): void {
-    for (const person of people) {
-      person.planning?.clear();
-      for (const segment of person.segments) delete segment.anchors;
-    }
-  }
-
-  /**
-   * Forget every evaluated pose and transition offset, once every person's
-   * actions are placed, so nothing evaluated against a half-placed performance
-   * survives, and let displayed poses be kept from here on. Whatever later
-   * changes what a person shows (a contact stop committed or withdrawn) must
-   * {@link forget} everyone again; the poses kept in between are then exactly
-   * those of the state they were read in.
-   *
-   * @param person The person.
-   */
-  export function settle(person: IAutoMovieMotionHumanSegment.IPerson): void {
-    forget(person);
-    person.resolving = false;
-  }
 }

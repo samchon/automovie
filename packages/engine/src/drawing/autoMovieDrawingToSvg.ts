@@ -55,17 +55,17 @@ export const autoMovieDrawingToSvg = (
     );
   for (const role of AUTOMOVIE_DRAWING_ROLES) {
     const weight: number = view.style.weights[role];
-    if (!Number.isFinite(weight) || weight <= 0)
+    if (weight <= 0)
       throw new Error(
         `drawing view "${view.id}" ${role} stroke weight must be a finite number > 0, but was ${weight}`,
       );
     for (const dash of view.style.dashes[role])
-      if (!Number.isFinite(dash) || dash <= 0)
+      if (dash <= 0)
         throw new Error(
           `drawing view "${view.id}" ${role} dash pattern must hold only finite numbers > 0, but held ${dash}`,
         );
   }
-  if (!Number.isFinite(view.style.textHeight) || view.style.textHeight <= 0)
+  if (view.style.textHeight <= 0)
     throw new Error(
       `drawing view "${view.id}" text height must be a finite number > 0, but was ${view.style.textHeight}`,
     );

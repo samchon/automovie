@@ -163,31 +163,25 @@ export namespace HumanHandTarget {
     const inputNormal: IAutoMovieVector3 = { ...placeNormal };
     const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
-    let normal: IAutoMovieVector3 | undefined;
-    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
-    let rotation: IAutoMovieQuaternion | undefined;
-    let placement:
-      | ((point: IAutoMovieVector3) => IAutoMovieMotionHumanHand.IWrist)
-      | undefined;
+    const normal: IAutoMovieVector3 = Vector3.scale(
+      Vector3.normalize(inputNormal),
+      -1,
+    );
+    const local: IAutoMovieMotionHumanHand.IFrame = structuredClone(
+      HumanHand.offset(body, side, surface, shape),
+    );
     const offset: () => IAutoMovieMotionHumanHand.IFrame =
-      (): IAutoMovieMotionHumanHand.IFrame =>
-        (local ??= structuredClone(
-          HumanHand.offset(body, side, surface, shape),
-        ));
+      (): IAutoMovieMotionHumanHand.IFrame => local;
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       fixedAlignment(offset);
     return (posture: IPosture): ReturnType<ReturnType<typeof prepareFrame>> => {
-      normal ??= Vector3.scale(Vector3.normalize(inputNormal), -1);
-      const aligned: IAutoMovieQuaternion =
-        fixed.forward === undefined
-          ? oriented(posture, normal, undefined, offset, align)
-          : (rotation ??= oriented(
-              posture,
-              normal,
-              fixed.forward,
-              offset,
-              align,
-            ));
+      const aligned: IAutoMovieQuaternion = oriented(
+        posture,
+        normal,
+        fixed.forward,
+        offset,
+        align,
+      );
       const current: IAutoMovieQuaternion = { ...aligned };
       return {
         surface,
@@ -196,10 +190,7 @@ export namespace HumanHandTarget {
         place: (point: IAutoMovieVector3): IAutoMovieMotionHumanHand.IWrist => {
           return fixed.forward === undefined
             ? placeHumanHandSurface(offset().point, point, { ...aligned })
-            : (placement ??= placeHumanHandSurface.prepare(
-                offset().point,
-                aligned,
-              ))(point);
+            : placeHumanHandSurface.prepare(offset().point, aligned)(point);
         },
       };
     };
@@ -268,12 +259,11 @@ export namespace HumanHandTarget {
     const fixed: IAutoMovieMotionHumanTarget.IHand = structuredClone(options);
     const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
-    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
+    const local: IAutoMovieMotionHumanHand.IFrame = structuredClone(
+      HumanHand.offset(body, side, surface, shape),
+    );
     const offset: () => IAutoMovieMotionHumanHand.IFrame =
-      (): IAutoMovieMotionHumanHand.IFrame =>
-        (local ??= structuredClone(
-          HumanHand.offset(body, side, surface, shape),
-        ));
+      (): IAutoMovieMotionHumanHand.IFrame => local;
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       fixedAlignment(offset);
     const emit: ITargetEmitter = targetEmitter(body, side, surface, shape);
@@ -366,12 +356,11 @@ export namespace HumanHandTarget {
     const fixed: IAutoMovieMotionHumanTarget.IHand = structuredClone(options);
     const surface: IAutoMovieMotionHumanHand.Surface = fixed.surface ?? "palm";
     const shape: IAutoMovieMotionHumanHand.Shape = fixed.shape ?? "relaxed";
-    let local: IAutoMovieMotionHumanHand.IFrame | undefined;
+    const local: IAutoMovieMotionHumanHand.IFrame = structuredClone(
+      HumanHand.offset(body, side, surface, shape),
+    );
     const offset: () => IAutoMovieMotionHumanHand.IFrame =
-      (): IAutoMovieMotionHumanHand.IFrame =>
-        (local ??= structuredClone(
-          HumanHand.offset(body, side, surface, shape),
-        ));
+      (): IAutoMovieMotionHumanHand.IFrame => local;
     const align: ReturnType<typeof HumanHand.prepareAlignment> =
       fixedAlignment(offset);
     return (
@@ -459,20 +448,11 @@ function oriented(
     : align({ normal, forward });
 }
 
-/**
- * Delay fixed-rest preparation until the first actual world's original
- * alignment admission.
- */
+/** The fixed rest's alignment, prepared once. */
 function fixedAlignment(
   offset: () => IAutoMovieMotionHumanHand.IFrame,
 ): ReturnType<typeof HumanHand.prepareAlignment> {
-  let align: ReturnType<typeof HumanHand.prepareAlignment> | undefined;
-  return (
-    world: Parameters<ReturnType<typeof HumanHand.prepareAlignment>>[0],
-  ): IAutoMovieQuaternion => {
-    align ??= HumanHand.prepareAlignment(offset());
-    return align(world);
-  };
+  return HumanHand.prepareAlignment(offset());
 }
 
 /**
@@ -483,25 +463,14 @@ type ITargetEmitter = ReturnType<
   typeof AutoMovieMotionHumanArmTarget.prepareTarget
 >;
 
-/** Acquire fixed surface issuance only after an actual complete target is built. */
+/** The fixed surface's target issuance, prepared once. */
 function targetEmitter(
   body: IAutoMovieMotionHumanBody,
   side: AutoMovieHumanSide,
   surface: IAutoMovieMotionHumanHand.Surface,
   shape: IAutoMovieMotionHumanHand.Shape,
 ): ITargetEmitter {
-  let emit: ITargetEmitter | undefined;
-  return (
-    placement: Parameters<ITargetEmitter>[0],
-  ): IAutoMovieMotionHumanArmTarget.ITarget => {
-    emit ??= AutoMovieMotionHumanArmTarget.prepareTarget(
-      body,
-      side,
-      surface,
-      shape,
-    );
-    return emit(placement);
-  };
+  return AutoMovieMotionHumanArmTarget.prepareTarget(body, side, surface, shape);
 }
 
 /**

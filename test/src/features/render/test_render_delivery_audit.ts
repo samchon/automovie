@@ -7,14 +7,21 @@ import {
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-/** Delivery audits admit exactly the commissioned clock and profile, and capture plans keep to local pages.
+/**
+ * Delivery audits admit exactly the commissioned clock and profile, and capture
+ * plans keep to local pages.
  *
  * Scenarios:
- * 1. Three 30 fps frames in a 1/15360 time base are admitted, with an identical neighbour reported as a hold.
+ *
+ * 1. Three 30 fps frames in a 1/15360 time base are admitted, with an identical
+ *    neighbour reported as a hold.
  * 2. A gap, an excess frame, a missing time base and a malformed row are refused.
- * 3. A probe with the commissioned raster, rate, codecs and exact durations passes; AAC padding past the duration and a wrong raster are refused.
- * 4. The capture URL keeps the path, sets parameters and drops autoplay; a remote host is refused.
- * 5. A ready page with the commissioned clock passes; a fractional or stale clock is refused.
+ * 3. A probe with the commissioned raster, rate, codecs and exact durations
+ *    passes; AAC padding past the duration and a wrong raster are refused.
+ * 4. The capture URL keeps the path, sets parameters and drops autoplay; a remote
+ *    host is refused.
+ * 5. A ready page with the commissioned clock passes; a fractional or stale clock
+ *    is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `assertAutoMovieCaptureClock`, `auditAutoMovieDecodedFrames`, `auditAutoMovieEncodedPresentation`, `planAutoMovieCaptureUrl` on in-memory inputs and asserts the returned observations through 2x TestValidator.predicate, 2x TestValidator.equals, 2x assertAutoMovieCaptureClock(; 5 numbered scenarios (first: Three 30 fps frames in a 1/15360 time base are admitted, with an identical neighbour reported as a hold.; last: A ready page with the commissioned clock passes; a fractional or stale clock is refused.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (2 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -72,7 +79,10 @@ export function test_render_delivery_audit(): void {
   TestValidator.equals("decoded refusals", refusals, []);
 
   // Encoded presentation.
-  const probe = (audioTicks: string, width: number = 1280): object => ({
+  const probe = (
+    audioTicks: string,
+    width: number = 1280,
+  ): Parameters<typeof auditAutoMovieEncodedPresentation>[0] => ({
     streams: [
       {
         codec_type: "video",

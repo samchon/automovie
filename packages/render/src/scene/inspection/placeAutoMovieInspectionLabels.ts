@@ -49,7 +49,7 @@ export function placeAutoMovieInspectionLabels(props: {
     ["height", props.height],
     ["scale", props.scale],
   ] as const)
-    if (!(Number.isSafeInteger(value) && value > 0))
+    if (!(value > 0))
       throw new Error(`Label ${name} ${value} is not a positive integer`);
 
   const labels: IAutoMovieInspectionLabel[] = [];
@@ -77,7 +77,6 @@ export function placeAutoMovieInspectionLabels(props: {
       label.y + 9 * props.scale,
     ];
     const visible: boolean =
-      Number.isFinite(point.z) &&
       point.z >= -1 &&
       point.z <= 1 &&
       label.x >= 0 &&

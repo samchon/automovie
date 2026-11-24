@@ -96,9 +96,9 @@ export function legalizeAutoMovieSolidMesh(
     charts: readonly [number, number][],
   ) => [number, number],
 ): IAutoMovieSolidMeshPlan.ITriangle[] | string {
-  if (!(Number.isFinite(scale) && scale > 0))
+  if (!(scale > 0))
     return "legalization metric scale must be positive and finite";
-  if (period !== undefined && !(Number.isFinite(period) && period > 0))
+  if (period !== undefined && !(period > 0))
     return "legalization needs a finite positive period";
   const result: IAutoMovieSolidMeshPlan.ITriangle[] = triangles.map(
     (
@@ -272,12 +272,6 @@ function flip(
       return [stored[0], stored[1] + (lifts[k]! - base) * (period ?? 0)];
     },
   );
-  if (
-    !points.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    return null;
   // The quadrilateral read about its own centroid under the metric there: the uniform phase scale, or the local form's shear and scale.
   const cu: number =
     (points[0]![0] + points[1]![0] + points[2]![0] + points[3]![0]) / 4;
@@ -287,8 +281,7 @@ function flip(
     local === undefined
       ? [0, uniform]
       : local(ids, points as [number, number][]);
-  if (!(Number.isFinite(shear) && Number.isFinite(scale) && scale > 0))
-    return null;
+  if (!(scale > 0)) return null;
   const scaled: Readonly<AutoMovieVector2Tuple>[] = points.map(
     (
       point: Readonly<AutoMovieVector2Tuple>,
@@ -297,12 +290,6 @@ function flip(
       (point[1] - cv) * scale,
     ],
   );
-  if (
-    !scaled.every((point: Readonly<AutoMovieVector2Tuple>): boolean =>
-      point.every(Number.isFinite),
-    )
-  )
-    return null;
   const [P, Q, R, S] = scaled as [
     Readonly<AutoMovieVector2Tuple>,
     Readonly<AutoMovieVector2Tuple>,
@@ -349,12 +336,9 @@ function represented(
     points[0]![0] / 3 + points[1]![0] / 3 + points[2]![0] / 3,
     points[0]![1] / 3 + points[1]![1] / 3 + points[2]![1] / 3,
   ];
-  return (
-    center.every(Number.isFinite) &&
-    points.every(
-      (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
-        orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
-    )
+  return points.every(
+    (point: Readonly<AutoMovieVector2Tuple>, index: number): boolean =>
+      orientAutoMovieSolidChart(point, points[(index + 1) % 3]!, center) > 0,
   );
 }
 

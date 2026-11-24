@@ -76,10 +76,7 @@ const spaceShellContainsPoint: (
       const vertex: IAutoMovieVector3 | undefined =
         shell.vertices[shell.triangles[face + corner]!];
       if (
-        vertex === undefined ||
-        !Number.isFinite(vertex.x) ||
-        !Number.isFinite(vertex.y) ||
-        !Number.isFinite(vertex.z)
+        vertex === undefined
       )
         break;
       corners.push(vertex);

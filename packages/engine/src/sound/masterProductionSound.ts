@@ -58,7 +58,7 @@ export function masterProductionSound(
       });
       const miss: number =
         loudness.intent.integratedLufs - (integrated(pcm) ?? -Infinity);
-      if (Math.abs(miss) <= 0.01 || attempt === 4 || !Number.isFinite(miss))
+      if (Math.abs(miss) <= 0.01 || attempt === 4)
         break;
       gainDb += miss;
     }

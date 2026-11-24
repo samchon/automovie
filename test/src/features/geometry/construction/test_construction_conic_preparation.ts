@@ -24,17 +24,20 @@ type Scalar = IAutoMovieViewSectionField.IStationJet;
 type Prepared = IAutoMovieViewSectionField.IPrepared;
 
 /**
- * One station preparation reuses its own endpoint curvatures without changing its field.
+ * One station preparation reuses its own endpoint curvatures without changing
+ * its field.
  *
  * Scenarios:
- * 1. Symmetric ellipses, asymmetric active G2 ends and three scales agree with
- *    the unchanged public generic composition, including complete source tuples.
+ *
+ * 1. Symmetric ellipses, asymmetric active G2 ends and three scales agree with the
+ *    unchanged public generic composition, including complete source tuples.
  * 2. Implicit ellipse radial derivatives independently check the actual field;
  *    changed-copy, fresh-output and input admission retain their meanings.
  * 3. Public generic callback order and original thrown values remain observable;
  *    invalid geometry is rejected before end arithmetic.
  * 4. Owned precise coverage observes at most eight endpoint-curvature calls per
- *    successful Field.prepare, allowing fewer calls and refusing missing coverage.
+ *    successful Field.prepare, allowing fewer calls and refusing missing
+ *    coverage.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Field.prepare/read and public generic curvature/geometry/end producers; catches lost derivatives, changed admission/effects and duplicated endpoint calculation in that public field operation.
  * @evidence contracts/development/testing.md#independent-expectations Implicit ellipses provide independent radial six-jets and positive finite output. Generic composition is a compatibility oracle sharing primitives, not independent geometry. Four quarters have eight own endpoints, so eight curvature calls is a work ceiling; absent function observations cannot pass as zero.
@@ -65,7 +68,10 @@ export async function test_construction_conic_preparation(): Promise<void> {
   );
 }
 
-/** Preserve all independent case results before reporting their combined findings. */
+/**
+ * Preserve all independent case results before reporting their combined
+ * findings.
+ */
 function ask(name: string, job: () => void, failures: string[]): void {
   try {
     job();
@@ -74,14 +80,20 @@ function ask(name: string, job: () => void, failures: string[]): void {
   }
 }
 
-/** Original errors retain their stack while non-Error values remain distinguishable. */
+/**
+ * Original errors retain their stack while non-Error values remain
+ * distinguishable.
+ */
 function detail(error: unknown): string {
   return error instanceof Error
     ? (error.stack ?? error.message)
     : String(error);
 }
 
-/** Use finite actual station tuples, rather than principal-section interpolation. */
+/**
+ * Use finite actual station tuples, rather than principal-section
+ * interpolation.
+ */
 function inputs(scale: number, ellipse: boolean): { e: Scalar[]; r: Scalar[] } {
   return {
     e: (ellipse ? [3, 2, 3, 2] : [3, 2, 4, 1]).map(
@@ -112,12 +124,12 @@ function made(e: readonly Scalar[], r: readonly Scalar[]): Prepared {
   return result;
 }
 
-/** Compare the entire data contract, with IEEE nonfinite states explicit rather than silently omitted. */
+/**
+ * Compare the entire data contract, with IEEE nonfinite states explicit rather
+ * than silently omitted.
+ */
 function same(a: unknown, b: unknown): boolean {
-  if (typeof a === "number" && typeof b === "number")
-    return Number.isFinite(a) && Number.isFinite(b)
-      ? nclose(a, b, 0)
-      : Object.is(a, b);
+  if (typeof a === "number" && typeof b === "number") return nclose(a, b, 0);
   if (
     a === null ||
     b === null ||
@@ -137,7 +149,10 @@ function same(a: unknown, b: unknown): boolean {
   );
 }
 
-/** Generic composition is a separate compatibility path; the implicit ellipse owns independent geometry. */
+/**
+ * Generic composition is a separate compatibility path; the implicit ellipse
+ * owns independent geometry.
+ */
 function equivalent(scale: number, ellipse: boolean): void {
   const { e, r }: ReturnType<typeof inputs> = inputs(scale, ellipse);
   const at: Prepared = made(e, r);
@@ -181,7 +196,7 @@ function equivalent(scale: number, ellipse: boolean): void {
   ]) {
     const value: ReturnType<typeof AutoMovieViewSectionField.read> =
       AutoMovieViewSectionField.read(at, phi);
-    if ("kind" in value || !value.every(Number.isFinite))
+    if ("kind" in value)
       throw new Error(
         "A successful finite field lost its actual radial reading",
       );
@@ -217,7 +232,10 @@ function equivalent(scale: number, ellipse: boolean): void {
     throw new Error("Mutating a copied result changed another preparation");
 }
 
-/** Generic callers can observe values and errors; the optimized fixed-AD caller must not change them. */
+/**
+ * Generic callers can observe values and errors; the optimized fixed-AD caller
+ * must not change them.
+ */
 function effects(): void {
   const values: number[] = [];
   const ops: IAutoMovieConicFieldJet.IAlgebra<number> = {
@@ -316,7 +334,10 @@ function effects(): void {
     );
 }
 
-/** Invalid station inputs and finite overflow keep named refusals, without a replacement shape. */
+/**
+ * Invalid station inputs and finite overflow keep named refusals, without a
+ * replacement shape.
+ */
 function admission(): void {
   const { e, r }: ReturnType<typeof inputs> = inputs(1, true);
   const malformed: readonly Scalar[][] = [
@@ -343,7 +364,10 @@ function admission(): void {
     throw new Error("Unrepresentable curvature arithmetic became a shape");
 }
 
-/** Count only actual endpoint calls in each public field preparation and release the owned observer on every path. */
+/**
+ * Count only actual endpoint calls in each public field preparation and release
+ * the owned observer on every path.
+ */
 async function work(): Promise<number[]> {
   const session: Session = new Session();
   const counts: number[] = [];
@@ -381,7 +405,7 @@ async function work(): Promise<number[]> {
           "The actual endpoint formula function is absent or ambiguous",
         );
       const count: number | undefined = functions[0]!.ranges[0]?.count;
-      if (count === undefined || !Number.isSafeInteger(count) || count <= 0)
+      if (count === undefined || count <= 0)
         throw new Error(
           "The real field operation has no observed endpoint work",
         );

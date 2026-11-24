@@ -91,10 +91,9 @@ export function validateShotProgramContract<Context>(
           ? `node "${actor.node}" duplicates $program.actors[${first}].node`
           : stagedActors.has(actor.node) === false
             ? `node "${actor.node}" is absent from stage.actors`
-            : Number.isFinite(actor.speed) === false || actor.speed <= 0
+            : actor.speed <= 0
               ? `speed is ${JSON.stringify(actor.speed)} instead of finite and above zero`
-              : Number.isFinite(actor.eyeHeight) === false ||
-                  actor.eyeHeight < 0
+              : actor.eyeHeight < 0
                 ? `eyeHeight is ${JSON.stringify(actor.eyeHeight)} instead of finite and non-negative`
                 : null;
       if (invalid === null) actorFacts.set(actor.node, index);
@@ -133,7 +132,6 @@ export function validateShotProgramContract<Context>(
     const time: number | undefined = samples.get(event.id);
     if (
       time === undefined ||
-      Number.isFinite(time) === false ||
       time < event.window.from ||
       time > event.window.to
     )

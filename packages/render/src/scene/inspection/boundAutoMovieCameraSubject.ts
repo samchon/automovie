@@ -38,8 +38,5 @@ export function boundAutoMovieCameraSubject(
 
 /** Rejects empty, inverted and non-finite bounds, while allowing flat bounds. */
 function isFiniteBox(box: Box3): boolean {
-  return (
-    !box.isEmpty() &&
-    [...box.min.toArray(), ...box.max.toArray()].every(Number.isFinite)
-  );
+  return !box.isEmpty();
 }

@@ -101,10 +101,10 @@ export namespace AutoMovieArchetypeEquineFall {
         speed,
         `a fall starts from a moving horse no faster than ${FALL_SPEED} m/s`,
       );
-    if (!(Number.isFinite(cue.slide) && cue.slide > 0))
+    if (!(cue.slide > 0))
       refuse("slide", cue.slide, "a fall slides a positive distance");
     const stop: number = (2 * cue.slide) / speed;
-    if (!(Number.isFinite(cue.drop) && cue.drop > 0 && cue.drop <= stop))
+    if (!(cue.drop > 0 && cue.drop <= stop))
       refuse(
         "drop",
         cue.drop,

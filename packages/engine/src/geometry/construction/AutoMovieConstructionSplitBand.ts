@@ -658,7 +658,7 @@ export namespace AutoMovieConstructionSplitBand {
       const chord: AutoMovieVector3Tuple = sub(far.p, loop[k]!);
       const L: number = norm(chord);
       const childSpeed: number = norm(far.u);
-      if (!(Number.isFinite(L) && L > 0 && childSpeed > 0)) {
+      if (!(L > 0 && childSpeed > 0)) {
         const reason: string = `column ${k}: the loop point and the child's rail point coincide or the child's station speed vanishes`;
         if (trace !== undefined)
           Trace.emit(trace, {
@@ -700,26 +700,6 @@ export namespace AutoMovieConstructionSplitBand {
               ]),
               second: scale(own.second, 1 - w),
             };
-      if (
-        ![
-          start.point,
-          start.first,
-          start.second,
-          end.point,
-          end.first,
-          end.second,
-        ].every((v: readonly number[]): boolean => v.every(Number.isFinite))
-      ) {
-        const reason: string = `column ${k}: a ribbon is not finite`;
-        if (trace !== undefined)
-          Trace.emit(trace, {
-            kind: "refusal",
-            stage: "columns",
-            reason,
-            pass: null,
-          });
-        return reason;
-      }
       columns.push({ start, end });
     }
 
@@ -1377,8 +1357,6 @@ export namespace AutoMovieConstructionSplitBand {
                 ribbon.second,
                 factor * factor,
               );
-              if (![...first, ...second].every(Number.isFinite))
-                return "a scaled first or second ribbon vector is nonfinite";
               if ((isForward || norm(ribbon.first) > 0) && !(norm(first) > 0))
                 return "a scaled first ribbon vector vanishes";
               if (

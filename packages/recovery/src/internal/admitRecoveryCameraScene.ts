@@ -9,14 +9,15 @@ import { admitRecoveryCameraMap } from "./admitRecoveryCameraMap";
 import { admitRecoveryCameraPair } from "./admitRecoveryCameraPair";
 
 /** One view's supplied pixel chart, constructed for the numerical phases. */
-type Chart = ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;
+type Chart =
+  ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;
 
 /**
- * Prepare a bounded calibrated image set's supplied charts before observing
- * any raster: the first three views as the seed map, each later view's chart
- * under the scene's aggregate pixel ceiling, and the caller's view and pixel
- * budgets bounding the whole set. The declared policy and budgets remain
- * caller assertions.
+ * Prepare a bounded calibrated image set's supplied charts before observing any
+ * raster: the first three views as the seed map, each later view's chart under
+ * the scene's aggregate pixel ceiling, and the caller's view and pixel budgets
+ * bounding the whole set. The declared policy and budgets remain caller
+ * assertions.
  */
 export function admitRecoveryCameraScene(
   input: Parameters<IAutoMovieRecoveryCameraSceneAdmissionOperation.Operation>[0],
@@ -47,7 +48,7 @@ export function admitRecoveryCameraScene(
       sum + view.width * view.height,
     0,
   );
-  if (!Number.isSafeInteger(pixels) || pixels > input.budget.maxPixels)
+  if (pixels > input.budget.maxPixels)
     throw new Error(
       "invalid-camera-scene: aggregate pixels exceed the scene pixel budget",
     );

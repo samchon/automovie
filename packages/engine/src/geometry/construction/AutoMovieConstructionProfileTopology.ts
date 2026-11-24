@@ -39,7 +39,7 @@ export namespace AutoMovieConstructionProfileTopology {
           source.curves.get(piece.source);
         if (
           curve?.period !== undefined &&
-          !(Number.isFinite(curve.period) && curve.period > 0)
+          !(curve.period > 0)
         )
           throw new AutoMovieLoftAdmissionError(
             `Original piece ${piece.id} has no finite positive declared period.`,

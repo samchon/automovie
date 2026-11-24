@@ -138,7 +138,7 @@ export function HumanGraspSearch(
         1000 *
           Vector3.length(Vector3.subtract(hand.worldPosition, key.wrist.point)),
       departure,
-      judged: key.judge === undefined ? Number.NaN : key.judge(bones),
+      judged: key.judge === undefined ? 0 : key.judge(bones),
     };
   };
 
@@ -235,8 +235,8 @@ export function HumanGraspSearch(
       let departure: number = grasp.departure;
       let beaten: boolean = false;
       const keys: number[] = [grasp.miss];
-      const judged: number[] = [Number.NaN];
-      const bounds: number[] = [Number.NaN];
+      const judged: number[] = [0];
+      const bounds: number[] = [Infinity];
 
       // The keys are built as they are reached, so a key a candidate never
       // reaches, beaten by an earlier one, is never built.
@@ -244,7 +244,7 @@ export function HumanGraspSearch(
         const fitted: IFitted = fit(key, reference);
         keys.push(fitted.miss);
         judged.push(fitted.judged);
-        bounds.push(key.bound ?? Number.NaN);
+        bounds.push(key.bound ?? Infinity);
         miss = Math.max(miss, fitted.miss);
         departure = Math.max(departure, fitted.departure);
         if (held && miss + preference >= least) {
@@ -362,7 +362,7 @@ interface IFitted {
   /** The elbow's turn from the hint about the shoulder-to-wrist line, degrees. */
   departure: number;
 
-  /** The key's own judgement, or NaN when it declares none. */
+  /** The key's own judgement, or zero when it declares none. */
   judged: number;
 }
 

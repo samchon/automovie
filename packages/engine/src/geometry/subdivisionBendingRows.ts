@@ -56,7 +56,7 @@ export function subdivisionBendingRows(
         u[2]! * v[0]! - u[0]! * v[2]!,
         u[0]! * v[1]! - u[1]! * v[0]!,
       );
-      if (!(area2 > 0) || !Number.isFinite(area2))
+      if (!(area2 > 0))
         throw new Error("fitting metric contains a degenerate triangle");
       for (let k: number = 0; k < 3; k++) {
         mass[triangle[k]!]! += area2 / 6;
@@ -81,7 +81,7 @@ export function subdivisionBendingRows(
     for (const weight of row.values())
       scale += (weight * weight) / mass[i]! / count;
   });
-  if (!(scale > 0) || !Number.isFinite(scale))
+  if (!(scale > 0))
     throw new Error("fitting metric has no finite bending energy");
   rows.forEach((row: Map<number, number>, i: number): void => {
     const divisor: number = Math.sqrt(mass[i]! * scale);

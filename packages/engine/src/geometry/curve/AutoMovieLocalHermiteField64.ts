@@ -47,8 +47,7 @@ export namespace AutoMovieLocalHermiteField64 {
       count < 2 ||
       stations.length !== count ||
       stations.some(
-        (s: number, i: number): boolean =>
-          !Number.isFinite(s) || (i > 0 && !(s > stations[i - 1]!)),
+        (s: number, i: number): boolean => i > 0 && !(s > stations[i - 1]!),
       )
     )
       throw new Error(
@@ -84,8 +83,6 @@ export namespace AutoMovieLocalHermiteField64 {
     const h: number[] = stations
       .slice(1)
       .map((s: number, i: number): number => s - stations[i]!);
-    if (h.some((x: number): boolean => !Number.isFinite(x)))
-      throw new Error("Representable station widths required");
     const stencils: { interval: number; factor: number }[][] = stations.map(
       (_: number, j: number): { interval: number; factor: number }[] => {
         if (count === 2) return [{ interval: 0, factor: 1 }];
@@ -164,7 +161,7 @@ export namespace AutoMovieLocalHermiteField64 {
     };
     return {
       interval: (index: number): IAutoMovieLocalHermiteField64.Cell[] => {
-        if (!Number.isInteger(index) || index < 0 || index >= count - 1)
+        if (index < 0 || index >= count - 1)
           throw new Error("Station interval index outside field");
         const support: number[] =
           interpolation === "ruled"
@@ -229,15 +226,6 @@ export namespace AutoMovieLocalHermiteField64 {
                     combine(index + 1, values),
                     h[index]!,
                   );
-            if (
-              grid.some((row: AutoMovieBernsteinPolynomial64): boolean =>
-                row.some(
-                  (p: AutoMovieVector3Tuple): boolean =>
-                    !p.every(Number.isFinite),
-                ),
-              )
-            )
-              throw new Error("Unresolved local Hermite coefficients");
             return { u0: a, u1: b, grid };
           });
       },
@@ -245,14 +233,7 @@ export namespace AutoMovieLocalHermiteField64 {
         index: number,
         u: number,
       ): IAutoMovieLocalHermiteField64.Jet => {
-        if (
-          !Number.isInteger(index) ||
-          index < 0 ||
-          index >= count ||
-          !Number.isFinite(u) ||
-          u < 0 ||
-          u > 1
-        )
+        if (index < 0 || index >= count || u < 0 || u > 1)
           throw new Error("Station jet outside admitted chart");
         const point: (j: number) => AutoMovieVector3Tuple = (
           j: number,

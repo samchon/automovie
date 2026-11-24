@@ -16,6 +16,12 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * The body fields the neutral collider rows are read from: the rig, its rest
+ * joints and the profile, all fixed before any of the body's solves.
+ */
+type HumanColliderRig = "profile" | "rest" | "skeleton";
+
+/**
  * Place the profile in its original order, skipping absent posed bones.
  *
  * @param body Canonical body with unchanged rest/profile metadata.
@@ -120,7 +126,7 @@ export namespace HumanColliderPlacement {
    * returned set is borrowed read-only while this body definition lives.
    */
   export function bones(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
   ): ReadonlySet<AutoMovieHumanoidBone> {
     return sided(body).bones;
   }
@@ -268,7 +274,9 @@ interface INeutral {
  * Read unchanged neutral data, lazily indexing first profile names in original
  * scan order.
  */
-function sided(body: IAutoMovieMotionHumanBody): INeutral {
+function sided(
+  body: Pick<IAutoMovieMotionHumanBody, HumanColliderRig>,
+): INeutral {
   const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
   const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (
     segment: IAutoMoviePhysicalSegment,

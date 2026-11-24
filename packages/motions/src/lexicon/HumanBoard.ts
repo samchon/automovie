@@ -164,22 +164,16 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const handover: HumanBoardHandover.IHandover | undefined =
     hand?.partner === undefined
       ? undefined
-      : HumanBoardHandover.kept(
-          params,
-          `${context.subject}|${context.start}`,
+      : HumanBoardHandover.plan(
+          hand!,
+          context.performer(hand!.partner!),
           flight,
-          (): HumanBoardHandover.IHandover | undefined =>
-            HumanBoardHandover.plan(
-              hand!,
-              context.performer(hand!.partner!),
-              flight,
-              context.start,
-              // The holds as the plan's posture writes a hand on the partner (the
-              // hand reached to its point on the boarding, the partner's trunk
-              // and thighs the rests the arm keeps clear of up to the wrist),
-              // admitted by the course's own still problem there.
-              HumanBoardHandoverStill(context, hand!, boarding),
-            ),
+          context.start,
+          // The holds as the plan's posture writes a hand on the partner (the
+          // hand reached to its point on the boarding, the partner's trunk
+          // and thighs the rests the arm keeps clear of up to the wrist),
+          // admitted by the course's own still problem there.
+          HumanBoardHandoverStill(context, hand!, boarding),
         );
   const lets: number =
     handover === undefined ? release : Math.min(release, handover.lets);

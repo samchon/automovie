@@ -59,8 +59,6 @@ export const autoMoviePatternTextureTransforms: (
   positive(props.tile.u, "pattern texture tile u");
   positive(props.tile.v, "pattern texture tile v");
   const sheet: IAutoMoviePatternTextureSheet = props.sheet;
-  if (sheet.kind === "face")
-    finitePoint(sheet.origin, "pattern texture sheet origin");
   const transforms: IAutoMoviePatternTextureTransform[] = [];
   const sheared: string[] = [];
   for (const placement of props.result.placements) {
@@ -146,13 +144,4 @@ const sheetPoint: (
     x: (cosine * alongU + sine * alongV) / tile.u,
     y: (-sine * alongU + cosine * alongV) / tile.v,
   };
-};
-
-/** Refuse a point with a non-finite coordinate. */
-const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
-  point: IAutoMoviePatternPoint,
-  label: string,
-): void => {
-  if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
-    throw new Error(`${label} must be finite`);
 };

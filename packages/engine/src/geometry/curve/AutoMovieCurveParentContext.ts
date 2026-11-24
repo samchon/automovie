@@ -227,10 +227,8 @@ export class AutoMovieCurveParentContext {
   }
 
   /**
-   * Admit an owner boundary once, clone and deep-freeze its complete field,
-   * then retain the genuine token for later binding. Deep freezing expects the
-   * supported acyclic plain coefficient record; arbitrary cyclic extra
-   * properties are outside this input contract.
+   * Admit an owner boundary once, clone and freeze its complete field, then
+   * retain the genuine token for later binding.
    */
   public publish(
     region: string,
@@ -250,13 +248,7 @@ export class AutoMovieCurveParentContext {
     )
       throw new Error("Wrong or repeated anatomical boundary owner");
     const value: IAutoMovieCurveBoundary64 = structuredClone(boundary);
-    const freeze: (item: unknown) => void = (item: unknown): void => {
-      if (item !== null && typeof item === "object") {
-        for (const child of Object.values(item)) freeze(child);
-        Object.freeze(item);
-      }
-    };
-    freeze(value);
+    freezeBoundary(value);
     const operator: IAutoMovieCurveBoundaryPublication64 = Object.freeze({
       edge,
       contextRevision: this.revision,
@@ -292,4 +284,26 @@ export class AutoMovieCurveParentContext {
       throw new Error("Stale, forged or wrong anatomical connection");
     return operator.value;
   }
+}
+
+/**
+ * Freeze a cloned boundary field by its declared structure: the section's
+ * spans and their controls, its phase widths, the derivative field and the
+ * longitudinal axis.
+ */
+function freezeBoundary(value: IAutoMovieCurveBoundary64): void {
+  for (const span of value.section.spans) {
+    for (const control of span) Object.freeze(control);
+    Object.freeze(span);
+  }
+  Object.freeze(value.section.spans);
+  Object.freeze(value.section.phaseIntervals);
+  Object.freeze(value.section);
+  for (const controls of value.fullJ) {
+    for (const control of controls) Object.freeze(control);
+    Object.freeze(controls);
+  }
+  Object.freeze(value.fullJ);
+  Object.freeze(value.longitudinalAxis);
+  Object.freeze(value);
 }

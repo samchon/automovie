@@ -21,10 +21,8 @@ export function admitAutoMovieBicubicAtlas(
     !input.topologyDomain.trim() ||
     !Array.isArray(input.controls) ||
     !Array.isArray(input.patches) ||
-    !(input.tolerance > 0 && Number.isFinite(input.tolerance * 1000)) ||
-    !Number.isSafeInteger(input.maxCells) ||
+    !(input.tolerance > 0) ||
     input.maxCells < 1 ||
-    !Number.isSafeInteger(input.maxVertices) ||
     input.maxVertices < 3 ||
     (input.cellBudgetPolicy !== undefined &&
       input.cellBudgetPolicy !== "retain-coarse" &&
@@ -51,8 +49,7 @@ export function admitAutoMovieBicubicAtlas(
     if (
       !fit ||
       typeof fit.qualified !== "boolean" ||
-      (fit.maximumResidual !== null &&
-        !(Number.isFinite(fit.maximumResidual) && fit.maximumResidual >= 0)) ||
+      (fit.maximumResidual !== null && !(fit.maximumResidual >= 0)) ||
       !Array.isArray(fit.unqualifiedPatches) ||
       fit.unqualifiedPatches.some(
         (id: string): boolean => typeof id !== "string",
@@ -77,13 +74,7 @@ export function admitAutoMovieBicubicAtlas(
   for (let i: number = 0; i < input.controls.length; i++) {
     const point: IAutoMovieBicubicAtlasGeometry["controls"][number] =
       input.controls[i]!;
-    if (
-      !point ||
-      ![point.x, point.y, point.z].every(
-        (value: number): boolean =>
-          Number.isFinite(value) && Number.isFinite(value * 1000),
-      )
-    ) {
+    if (!point) {
       invalid.add(i);
       diagnostics.push(
         `Unrepresentable model-metre coefficient at controls[${i}]`,
@@ -106,10 +97,7 @@ export function admitAutoMovieBicubicAtlas(
         (_: unknown, k: number): number => patch.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          !Number.isSafeInteger(id) ||
-          id < 0 ||
-          id >= input.controls.length ||
-          invalid.has(id),
+          id < 0 || id >= input.controls.length || invalid.has(id),
       )
     ) {
       diagnostics.push(`Omitted structurally invalid patch at patches[${i}]`);
@@ -136,10 +124,7 @@ export function admitAutoMovieBicubicAtlas(
         (_: unknown, k: number): number => authority.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          !Number.isSafeInteger(id) ||
-          id < 0 ||
-          id >= input.controls.length ||
-          invalid.has(id),
+          id < 0 || id >= input.controls.length || invalid.has(id),
       )
     ) {
       diagnostics.push(
@@ -170,8 +155,6 @@ export function admitAutoMovieBicubicAtlas(
       typeof binding.normalFan !== "string" ||
       !binding.normalFan.trim() ||
       bindings.has(key) ||
-      !Number.isFinite(binding.start) ||
-      !Number.isFinite(binding.end) ||
       binding.start < 0 ||
       binding.start > 1 ||
       binding.end < 0 ||

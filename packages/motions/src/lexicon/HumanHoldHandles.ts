@@ -46,7 +46,6 @@ function planHumanHoldHandles(
     transition,
   } = context.params;
   if (
-    ![seconds, transition].every(Number.isFinite) ||
     !(transition > 0 && 2 * transition < seconds)
   )
     throw new HumanRefusal({

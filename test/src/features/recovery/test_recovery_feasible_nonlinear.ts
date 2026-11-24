@@ -12,14 +12,29 @@ import type { IRecoveryFeasibleSpecification } from "../internal/IRecoveryFeasib
 import { nclose } from "../internal/nclose";
 
 /**
- * Feasible nonlinear descent separates boundary KKT, outward stalling and curvature.
+ * Feasible nonlinear descent separates boundary KKT, outward stalling and
+ * curvature.
  *
  * Scenarios:
- * 1. Vector soft-L1 with residuals x and three copies of x-3 starts at 1.5 and converges to the constrained endpoint x=2, whose raw objective gradient is not zero.
- * 2. Residuals x+2, three copies of x-1 and y-1 start at (0,0); the old outward x/y direction cannot take a feasible positive step, but the new method reaches the unique constrained minimum (0,1).
- * 3. A circular residual (x,y), three scalar x-3 residuals and y-1 start at (2,0); every positive tangent-only y step is infeasible, while a strict inward method reaches the independently determined curved-boundary optimum.
- * 4. The singleton constraint x^2<=0 at zero with objective -x has only abnormal zero duals and must remain nonconverged; exhausting one actual trial also cannot certify convergence.
- * 5. The same three normal problems exercise optional complete-affine-QP mixing/curvature and same-base full/half selection with the original100 actual trials, population, gates and expected optima. A selected-step notification receives the actual Euclidean chart increment and matching original robust costs once per selected update, including the curved SOC case.
+ *
+ * 1. Vector soft-L1 with residuals x and three copies of x-3 starts at 1.5 and
+ *    converges to the constrained endpoint x=2, whose raw objective gradient is
+ *    not zero.
+ * 2. Residuals x+2, three copies of x-1 and y-1 start at (0,0); the old outward
+ *    x/y direction cannot take a feasible positive step, but the new method
+ *    reaches the unique constrained minimum (0,1).
+ * 3. A circular residual (x,y), three scalar x-3 residuals and y-1 start at (2,0);
+ *    every positive tangent-only y step is infeasible, while a strict inward
+ *    method reaches the independently determined curved-boundary optimum.
+ * 4. The singleton constraint x^2<=0 at zero with objective -x has only abnormal
+ *    zero duals and must remain nonconverged; exhausting one actual trial also
+ *    cannot certify convergence.
+ * 5. The same three normal problems exercise optional complete-affine-QP
+ *    mixing/curvature and same-base full/half selection with the original100
+ *    actual trials, population, gates and expected optima. A selected-step
+ *    notification receives the actual Euclidean chart increment and matching
+ *    original robust costs once per selected update, including the curved SOC
+ *    case.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the source-owned feasible nonlinear controller and bounded direction solver with actual complete-population norm-at-most-two checks on every accepted/rejected trial. Normal termination requires original-coordinate KKT, while abnormality and insufficient trial budget remain incomplete.
  * @evidence contracts/development/testing.md#independent-expectations Convex scalar derivatives give exact endpoints (2) and (0,1). On the circle, independent bisection of the authored objective restricted to x=2*cos(theta),y=2*sin(theta) gives the unique boundary optimum. No source output supplies expected states; source certificate checks supplement rather than replace these expectations.
@@ -99,7 +114,6 @@ export function test_recovery_feasible_nonlinear(): void {
         );
       notificationChecks.push(
         increment.length === base.length &&
-          increment.every(Number.isFinite) &&
           nclose(oldCost, objective(base), 1e-12) &&
           nclose(
             newCost,

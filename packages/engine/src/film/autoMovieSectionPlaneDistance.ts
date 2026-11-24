@@ -27,16 +27,11 @@ export const autoMovieSectionPlaneDistance = (
     plane.normal.y,
     plane.normal.z,
   );
-  if (Number.isFinite(length) === false || length === 0)
+  if (length === 0)
     throw new RangeError(
-      "Section plane normal must be a finite, non-zero vector.",
+      "Section plane normal must be a non-zero vector.",
     );
-  if (
-    Number.isFinite(plane.point.x) === false ||
-    Number.isFinite(plane.point.y) === false ||
-    Number.isFinite(plane.point.z) === false
-  )
-    throw new RangeError("Section plane point must be finite.");
+
   return (
     (plane.normal.x * (point.x - plane.point.x) +
       plane.normal.y * (point.y - plane.point.y) +

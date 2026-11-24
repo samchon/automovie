@@ -76,26 +76,11 @@ export function validateInitialPropMounts(
 
       const frame: IAutoMovieRigidTransform = mount.offset;
       const admission: ViolationCollector = new ViolationCollector();
-      admission.finiteVector(
-        `${axis}.offset.position`,
-        frame.position,
-        "position",
+      admission.unitQuaternion(
+        `${axis}.offset.rotation`,
+        frame.rotation,
+        "rotation",
       );
-      const { x, y, z, w }: IAutoMovieRigidTransform["rotation"] =
-        frame.rotation;
-      if ([x, y, z, w].every(Number.isFinite))
-        admission.unitQuaternion(
-          `${axis}.offset.rotation`,
-          frame.rotation,
-          "rotation",
-        );
-      else
-        admission.push(
-          "range",
-          `${axis}.offset.rotation`,
-          "rotation components must be finite numbers",
-          frame.rotation,
-        );
       if (admission.items.length !== 0)
         throw new HumanRefusal({
           kind: "parameter",

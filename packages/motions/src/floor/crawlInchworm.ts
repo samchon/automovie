@@ -143,8 +143,7 @@ export namespace crawlInchworm {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m = body.measure;
-    const cycles: number = context.params.count ?? 3;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", context.params.count ?? 3);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       context.params.manner,

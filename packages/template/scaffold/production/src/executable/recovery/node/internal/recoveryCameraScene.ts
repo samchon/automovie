@@ -28,7 +28,6 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
     command !== "scene" ||
     !inputPath ||
     !outputPath ||
-    !Number.isSafeInteger(maxInputBytes) ||
     maxInputBytes < 1
   )
     throw new Error(
@@ -75,11 +74,8 @@ export function recoveryCameraScene(args: string[], sourceEpoch: string): void {
       "budget",
     ]) ||
     !spec.capture.budget ||
-    !Number.isSafeInteger(spec.capture.budget.maxPixels) ||
     spec.capture.budget.maxPixels < 1 ||
-    !Number.isSafeInteger(spec.capture.budget.maxViews) ||
     spec.capture.budget.maxViews < 3 ||
-    !Number.isSafeInteger(spec.maxHeaderBytes) ||
     spec.maxHeaderBytes < 1 ||
     !Array.isArray(spec.views) ||
     spec.views.length < 3 ||

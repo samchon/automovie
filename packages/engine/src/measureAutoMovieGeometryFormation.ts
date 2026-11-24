@@ -123,7 +123,6 @@ export function measureAutoMovieGeometryFormation(
   const sampledTime: number = request.time ?? 0;
 
   if (
-    Number.isFinite(sampledTime) === false ||
     sampledTime < 0 ||
     sampledTime > compiled.shot.duration
   )

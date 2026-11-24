@@ -127,7 +127,7 @@ export function preserveAutoMovieSweepVolume(
     profile(settleAutoMovieSweepVolume(target, volume));
     for (let k: number = 0; k < scaleU.length; ++k) {
       const value: number = at(scaleU[k]!) * girth[k]!;
-      if (!(value > 0) || !Number.isFinite(value))
+      if (!(value > 0))
         throw new Error("posed sweep scale is not positive and finite");
       settled[k] = value;
     }

@@ -68,7 +68,7 @@ export namespace QuadrupedLip {
       );
     const span: IAutoMovieVector3 = Vector3.subtract(head.nose, head.poll);
     const length: number = Vector3.length(span);
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       throw new RangeError("A lip needs a head with a finite positive length");
     const along: IAutoMovieVector3 = Vector3.scale(span, 1 / length);
 

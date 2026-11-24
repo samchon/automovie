@@ -7,7 +7,6 @@ import type {
 } from "@automovie/interface";
 
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
-import { admitPhysicalTargetMotion } from "./admitPhysicalTargetMotion";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
 
 /**
@@ -20,23 +19,18 @@ export function admitPhysicalTargets(
 ): void {
   for (const [step, target] of body.targets.entries()) {
     if (
-      !target ||
-      !Number.isFinite(target.strength) ||
       target.strength < 0 ||
       target.strength > 1 ||
-      !target.segments ||
       Object.keys(target.segments).length !== body.profile.segments.length
     )
       throw new Error(`${body.id}: invalid target at ${step}`);
     if (
       target.dynamicSegments !== undefined &&
-      (!Array.isArray(target.dynamicSegments) ||
-        target.dynamicSegments.length > body.profile.segments.length ||
+      (target.dynamicSegments.length > body.profile.segments.length ||
         new Set(target.dynamicSegments).size !==
           target.dynamicSegments.length ||
-        Array.from(target.dynamicSegments).some(
+        target.dynamicSegments.some(
           (bone: string): boolean =>
-            typeof bone !== "string" ||
             !body.profile.segments.some(
               (segment: IAutoMoviePhysicalSegment): boolean =>
                 segment.bone === bone,
@@ -69,7 +63,7 @@ export function admitPhysicalTargets(
     ): boolean =>
       Object.entries(values).every(
         ([name, value]: [string, number]): boolean =>
-          names.has(name) && Number.isFinite(value) && value >= 0 && value <= 1,
+          names.has(name) && value >= 0 && value <= 1,
       );
     if (
       target.jointStrength !== undefined &&
@@ -104,10 +98,9 @@ export function admitPhysicalTargets(
       );
     if (
       target.unavailableSupports !== undefined &&
-      (!Array.isArray(target.unavailableSupports) ||
-        new Set(target.unavailableSupports).size !==
-          target.unavailableSupports.length ||
-        Array.from(target.unavailableSupports).some(
+      (new Set(target.unavailableSupports).size !==
+        target.unavailableSupports.length ||
+        target.unavailableSupports.some(
           (bone: string): boolean =>
             !body.balance?.pattern.limbs.some(
               (
@@ -125,17 +118,7 @@ export function admitPhysicalTargets(
       const pose: IAutoMovieRigidTransform | undefined =
         target.segments[segment.bone];
       if (
-        !pose?.position ||
-        !pose.rotation ||
-        ![pose.position.x, pose.position.y, pose.position.z].every(
-          Number.isFinite,
-        ) ||
-        ![
-          pose.rotation.x,
-          pose.rotation.y,
-          pose.rotation.z,
-          pose.rotation.w,
-        ].every(Number.isFinite) ||
+        pose === undefined ||
         Math.abs(
           Math.hypot(
             pose.rotation.x,
@@ -159,5 +142,4 @@ export function admitPhysicalTargets(
         );
     }
   }
-  admitPhysicalTargetMotion(input, body);
 }

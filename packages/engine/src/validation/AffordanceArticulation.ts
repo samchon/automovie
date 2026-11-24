@@ -56,7 +56,6 @@ export namespace AffordanceArticulation {
       const at: IAutoMovieAffordance = path[k]!;
       const { minimum, maximum } = affordanceTravelRange(at);
       if (
-        !Number.isFinite(travel) ||
         (minimum !== null && travel < minimum) ||
         (maximum !== null && travel > maximum)
       )
@@ -118,7 +117,7 @@ export namespace AffordanceArticulation {
     }
     for (let k: number = path.length - 2; k >= 0; k--)
       value = affordanceFollowedTravel(path[k]!.follows!, value);
-    return Number.isFinite(value) ? value : null;
+    return value;
   }
 
   /**

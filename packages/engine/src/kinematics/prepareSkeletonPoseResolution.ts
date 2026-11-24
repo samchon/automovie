@@ -306,7 +306,7 @@ function bindSnapshot(snapshot: ISnapshot): prepareSkeletonPoseResolution.IRig {
       // change once composed.
       const row: (index: number) => number = (index: number): number => {
         if (
-          !(Number.isInteger(index) && index >= 0 && index < read.names.length)
+          !(index >= 0 && index < read.names.length)
         )
           throw new RangeError(`A reading has no bone row ${index}`);
         return index;

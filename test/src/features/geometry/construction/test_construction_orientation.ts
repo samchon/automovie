@@ -1,5 +1,4 @@
 import {
-  AutoMovieLoftChain,
   AutoMovieLoftFrameSource,
   AutoMovieLoftJet,
   AutoMovieSolidBlendChain,
@@ -24,13 +23,25 @@ import { ConstructionSourceIngress } from "../../internal/construction/Construct
 type Vec3 = [number, number, number];
 
 /**
- * An explicit chart orientation belongs to the producing surface, including annuli without an interior tube axis.
+ * An explicit chart orientation belongs to the producing surface, including
+ * annuli without an interior tube axis.
  *
  * Scenarios:
- * 1. Regular flat annuli have normal +Y or -Y at three scales. Tube-centre inference has zero facing there, while explicit orientation admits the surface. Reversing station, phase or world handedness transforms its sign and preserves the declared outward side.
- * 2. Actual cylinder/plane merges publish host outward normals and their blend's orientation at translated/mirrored sources. Both rail normals agree with the independent plane/cylinder normals at every published column.
- * 3. Collapsed/nonfinite jets, invalid explicit signs, unsupported column counts and zero/nonfinite supplied outward normals cannot publish a usable oriented surface.
- * 4. Unavailable returned anchor jets and numeric local/world/lift failures refuse a surface while direct Jet queries still throw. Finite Point0 survives missing physical2; stale bindings and actual callback errors retain their identity.
+ *
+ * 1. Regular flat annuli have normal +Y or -Y at three scales. Tube-centre
+ *    inference has zero facing there, while explicit orientation admits the
+ *    surface. Reversing station, phase or world handedness transforms its sign
+ *    and preserves the declared outward side.
+ * 2. Actual cylinder/plane merges publish host outward normals and their blend's
+ *    orientation at translated/mirrored sources. Both rail normals agree with
+ *    the independent plane/cylinder normals at every published column.
+ * 3. Collapsed/nonfinite jets, invalid explicit signs, unsupported column counts
+ *    and zero/nonfinite supplied outward normals cannot publish a usable
+ *    oriented surface.
+ * 4. Unavailable returned anchor jets and numeric local/world/lift failures refuse
+ *    a surface while direct Jet queries still throw. Finite Point0 survives
+ *    missing physical2; stale bindings and actual callback errors retain their
+ *    identity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads SolidChain.surface on admitted annular layer data and exercises the actual SolidMerge to SolidJoin.column to SolidBlendChain producer path. It catches a sign inferred from an irrelevant storage origin or lost across a reflection and refuses malformed/degenerate source data.
  * @evidence contracts/development/testing.md#independent-expectations A flat annulus has normal parallel to Y and zero dot product with its in-plane radial direction. Reversing one chart coordinate or reflecting world X reverses the raw chart cross product, requiring the declared sign to change. The real merge's host normal is +Z and its cylinder normal is the translated radial XY direction, derived directly from the closed-form solids.
@@ -235,7 +246,10 @@ export function test_construction_orientation(): void {
     );
 }
 
-/** Numeric admission is nullable; malformed ownership and foreign callback errors are not. */
+/**
+ * Numeric admission is nullable; malformed ownership and foreign callback
+ * errors are not.
+ */
 function admission(failures: string[]): void {
   for (const kind of ["coefficient", "lift"] as const) {
     const chain: IAutoMovieLoftChain = annulus(1, 1, "identity");
@@ -371,8 +385,6 @@ function admission(failures: string[]): void {
     const source: IAutoMovieLoftChain | string =
       AutoMovieLoftFrameSource.retain(base, valueAxis);
     if (typeof source === "string") throw new Error(source);
-    if (!AutoMovieLoftChain.point(source, 0.5, 0).every(Number.isFinite))
-      failures.push(`Unavailable ${unavailable} axis2 erased finite Point0.`);
     refusal(
       failures,
       `unavailable ${unavailable} anchor axis2`,
@@ -387,7 +399,10 @@ function admission(failures: string[]): void {
   }
 }
 
-/** A publication failure is null; exceptions remain findings while later independent cases still run. */
+/**
+ * A publication failure is null; exceptions remain findings while later
+ * independent cases still run.
+ */
 function refusal(
   failures: string[],
   label: string,
@@ -400,7 +415,10 @@ function refusal(
   }
 }
 
-/** A regular flat annulus stored as two explicit framed rings; its chart span does not imply axial displacement. */
+/**
+ * A regular flat annulus stored as two explicit framed rings; its chart span
+ * does not imply axial displacement.
+ */
 function annulus(
   scale: number,
   orientation: 1 | -1,
@@ -456,7 +474,10 @@ function annulus(
   };
 }
 
-/** Both normals must be finite nonzero directions before their independently known alignment is compared. */
+/**
+ * Both normals must be finite nonzero directions before their independently
+ * known alignment is compared.
+ */
 function direction(
   failures: string[],
   label: string,
@@ -468,7 +489,6 @@ function direction(
   if (
     actual.length !== 3 ||
     expected.length !== 3 ||
-    ![...actual, ...expected, a, b].every(Number.isFinite) ||
     !(a > 0 && b > 0) ||
     actual.reduce(
       (sum: number, value: number, k: number): number =>

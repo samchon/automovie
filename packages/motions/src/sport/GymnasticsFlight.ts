@@ -268,8 +268,10 @@ export namespace GymnasticsFlight {
   ): (yaw: number, pitch: number) => IAutoMovieMotionHumanPosture {
     if (Math.abs(posture.roll) > 1e-9)
       throw new Error("GymnasticsFlight.turned turns a posture with no roll");
-    let before: IAutoMovieQuaternion | undefined;
-    let rootOffset: IAutoMovieVector3 | undefined;
+    const before: IAutoMovieQuaternion = Quaternion.inverse(
+      humanPostureHeading(posture),
+    );
+    const rootOffset: IAutoMovieVector3 = Vector3.subtract(posture.root, pivot);
     const rootAt: (turn: IAutoMovieQuaternion) => IAutoMovieVector3 = (
       turn: IAutoMovieQuaternion,
     ): IAutoMovieVector3 =>
@@ -277,7 +279,7 @@ export namespace GymnasticsFlight {
         pivot,
         Quaternion.rotateVector(
           turn,
-          (rootOffset ??= Vector3.subtract(posture.root, pivot)),
+          rootOffset,
         ),
       );
     return (yaw: number, pitch: number): IAutoMovieMotionHumanPosture => {
@@ -287,8 +289,6 @@ export namespace GymnasticsFlight {
         roll: 0,
       };
       const heading: IAutoMovieQuaternion = humanPostureHeading(after);
-      if (before === undefined)
-        before = Quaternion.inverse(humanPostureHeading(posture));
       const turn: IAutoMovieQuaternion = Quaternion.multiply(heading, before);
       const round: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
         point: IAutoMovieVector3,

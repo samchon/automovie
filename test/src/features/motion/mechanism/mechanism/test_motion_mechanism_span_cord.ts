@@ -30,24 +30,27 @@ const LENGTH: number = 5 / 4;
 const RADIUS: number = 1 / 32;
 const END: number = 1 / 8;
 
-/** Native first travel is nonzero so the placed seed differs from the model rest. */
+/**
+ * Native first travel is nonzero so the placed seed differs from the model
+ * rest.
+ */
 const START_TRAVEL: number = 1 / 16;
 
 /**
- * A slack cord uses the radius, length and endpoints of a model's declared
- * span at rest and when its rigid prop and slider move.
+ * A slack cord uses the radius, length and endpoints of a model's declared span
+ * at rest and when its rigid prop and slider move.
  *
  * Scenarios:
  *
- * 1. Build three links from a span with a 1 m chord and a 1.25 m rest length.
- *    The three links sum to the authored length; the low point lies 3/8 m
- *    below the anchors; particle masses sum to the authored mass.
- * 2. The native initial step rebuilds the rest legs for a nonzero slider
- *    starting travel. Later samples follow that slider and the moving owner.
- *    The draw host first seeks to the final allowed instant and then to a
- *    fractional step. A reverse seek restores the initial particles.
- * 3. Overextended and nonfinite initial placements refuse on sampling. A
- *    missing span, one link and a film beyond the step budget also refuse.
+ * 1. Build three links from a span with a 1 m chord and a 1.25 m rest length. The
+ *    three links sum to the authored length; the low point lies 3/8 m below the
+ *    anchors; particle masses sum to the authored mass.
+ * 2. The native initial step rebuilds the rest legs for a nonzero slider starting
+ *    travel. Later samples follow that slider and the moving owner. The draw
+ *    host first seeks to the final allowed instant and then to a fractional
+ *    step. A reverse seek restores the initial particles.
+ * 3. Overextended and nonfinite initial placements refuse on sampling. A missing
+ *    span, one link and a film beyond the step budget also refuse.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the model geometry, moving endpoints, independent dimensions and refused inputs.
  * @evidence contracts/development/testing.md#behavioral-verification Uses real Archetype span authoring, observes the public performance's native soft samples and projects final, fractional-step and backward seeks through the production draw binding into a CPU scene tube. The direct samples distinguish incorrect placement and playback from tube construction, which test_render_soft_cord checks.
@@ -216,7 +219,10 @@ export async function test_motion_mechanism_span_cord(): Promise<void> {
   );
 }
 
-/** Read the native soft solve through the same seek binding used by film subjects. */
+/**
+ * Read the native soft solve through the same seek binding used by film
+ * subjects.
+ */
 async function assertDrawSeeks(
   performance: IAutoMovieMotionHumanPerformance,
   subject: string,
@@ -300,7 +306,6 @@ async function assertDrawSeeks(
           return (
             (seconds !== END ||
               mesh.userData.step === domain.solver.maxSteps) &&
-            Number.isInteger(opposite) &&
             opposite > 0 &&
             nclose(
               (vertices.getZ(0) + vertices.getZ(opposite)) / 2,

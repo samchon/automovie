@@ -113,12 +113,7 @@ export namespace crutchWalkCourse {
           station: IAutoMovieMotionHumanAidWalk.IStation,
           i: number,
         ): IStationClock => {
-          if (
-            ![station.x, station.z, station.turn ?? 0, station.seconds].every(
-              Number.isFinite,
-            ) ||
-            station.seconds <= 0
-          )
+          if (!(station.seconds > 0))
             return refuse(
               "stations",
               i,

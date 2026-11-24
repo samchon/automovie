@@ -17,7 +17,7 @@ export namespace ArchetypeTrackTime {
     start: number,
     seconds: number,
   ): number {
-    if (!(Number.isFinite(seconds) && seconds > 0))
+    if (!(seconds > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -28,7 +28,7 @@ export namespace ArchetypeTrackTime {
         fix: "give a positive finite duration in seconds",
       });
     const result: number = start + seconds;
-    if (!(Number.isFinite(start) && Number.isFinite(result) && result > start))
+    if (!(result > start))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype,
@@ -45,31 +45,18 @@ export namespace ArchetypeTrackTime {
   /**
    * Read held elapsed time without subtracting outside the admitted interval.
    *
-   * @param archetype The consumer's refusal name.
    * @param sample Finite film sample seconds.
    * @param start Admitted finite start.
    * @param end Admitted finite end.
    * @param seconds Admitted positive duration.
    * @returns Zero before start, duration after end, or interior elapsed time.
-   * @throws {AutoMovieArchetypeRefusal} At seconds for a nonfinite sample.
    */
   export function elapsed(
-    archetype: string,
     sample: number,
     start: number,
     end: number,
     seconds: number,
   ): number {
-    if (!Number.isFinite(sample))
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype,
-        axis: "seconds",
-        value: sample,
-        feasible: null,
-        reason: "a mechanism sample needs a finite film second",
-        fix: "sample the track at a finite film second",
-      });
     if (sample <= start) return 0;
     if (sample >= end) return seconds;
     return sample - start;
@@ -132,10 +119,8 @@ export namespace ArchetypeTrackTime {
             : start + offset;
     if (
       !(
-        Number.isFinite(offset) &&
         offset >= 0 &&
         offset <= seconds &&
-        Number.isFinite(result) &&
         (offset === 0 || offset === seconds || (result > start && result < end))
       )
     )

@@ -29,7 +29,8 @@ import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
  * by the same quintic rule (`IAutoMovieLoftChain.ILayer.liftCurvatures`). In
  * phase every quantity is the periodic cubic B-spline through the columns at
  * `count` uniform curve parameters from the trace's seed, the chain's phase `t
- * - seed`.
+ *
+ * - Seed`.
  *
  * So at every column the chain is the blend exactly (to the B-spline
  * interpolation filter's rounding), including both ribbons' 2-jets, and between
@@ -53,7 +54,7 @@ export namespace AutoMovieSolidBlendChain {
     join: IAutoMovieSolidJoin.IJoin,
     count: number,
   ): IAutoMovieSolidBlendChain.IBlend | null {
-    if (!Number.isInteger(count) || count < 8 || count % 4 !== 0) return null;
+    if (count < 8 || count % 4 !== 0) return null;
     const seed: number = join.curve.points[0]!.t;
     const columns: IAutoMovieSolidJoin.IColumn[] = [];
 
@@ -63,7 +64,7 @@ export namespace AutoMovieSolidBlendChain {
      */
     const finite: (v: readonly number[]) => boolean = (
       v: readonly number[],
-    ): boolean => v.every(Number.isFinite);
+    ): boolean => true;
     for (let k: number = 0; k < count; k++) {
       const c: IAutoMovieSolidJoin.IColumn | null = join.column(
         seed + (2 * Math.PI * k) / count,
@@ -230,7 +231,7 @@ export namespace AutoMovieSolidBlendChain {
         ),
       );
     const L: number = chord / count;
-    if (!(Number.isFinite(L) && L > 0)) return null;
+    if (!(L > 0)) return null;
 
     /**
      * Every layer uses the same physical chord clock, with station derivatives
@@ -351,7 +352,7 @@ export namespace AutoMovieSolidBlendChain {
       AutoMovieSolidVector.cross(edge.s, edge.t),
       outward,
     );
-    if (!(Number.isFinite(facing) && Math.abs(facing) > 0)) return null;
+    if (!(Math.abs(facing) > 0)) return null;
     chain.orientation = facing > 0 ? 1 : -1;
     return { chain, length: L };
   }

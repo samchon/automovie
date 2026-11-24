@@ -196,7 +196,7 @@ export function createAutoMovieQuadraticFactor(
         }
         let pivot: number = pivotSum[0]! + pivotSum[1]!;
         if (pivot * sign < 1e-13) pivot = sign * 2e-7;
-        if (!Number.isFinite(pivot) || pivot === 0) return false;
+        if (pivot === 0) return false;
         pivots[column] = pivot;
       }
       valid = true;
@@ -213,7 +213,6 @@ export function createAutoMovieQuadraticFactor(
       }
       substitute(solution, permuted);
       let norm: number = residual(permuted, solution);
-      if (!Number.isFinite(norm)) return undefined;
       for (
         let pass: number = 0;
         pass < 10 && norm > 1e-12 + 1e-13 * normb;
@@ -223,7 +222,6 @@ export function createAutoMovieQuadraticFactor(
         for (let at: number = 0; at < size; at++)
           trial[at] = solution[at]! + correction[at]!;
         const next: number = residual(permuted, trial);
-        if (!Number.isFinite(next)) return undefined;
         if (next < norm) solution.set(trial);
         const ratio: number = norm / next;
         norm = next;
@@ -231,7 +229,6 @@ export function createAutoMovieQuadraticFactor(
       }
       const result: Float64Array = new Float64Array(size);
       for (let at: number = 0; at < size; at++) {
-        if (!Number.isFinite(solution[at])) return undefined;
         result[order[at]!] = solution[at]!;
       }
       return result;

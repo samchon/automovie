@@ -384,7 +384,7 @@ export namespace AutoMovieSolidCycle {
       let translation: number = 0;
       let bv: number = end;
       let w: number = v;
-      if (Number.isFinite(p) && p > 0) {
+      if (p > 0) {
         const image: number = -Math.round((reference - v) / p);
         translation = image * p;
         bv = b[1] + (turn + image) * p;

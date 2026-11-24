@@ -102,17 +102,6 @@ function scan(
     constraint.swingTwist !== undefined &&
     constraint.swingTwist !== null
   ) {
-    for (const axis of AXES) {
-      const angle: number | null = joint[axis];
-      if (angle !== null && !Number.isFinite(angle))
-        total = fault(total, report, score, axis, angle, undefined);
-    }
-    if (
-      !Number.isFinite(joint.flexion ?? 0) ||
-      !Number.isFinite(joint.abduction ?? 0) ||
-      !Number.isFinite(joint.twist ?? 0)
-    )
-      return total;
     // The rotation the angles were read from, when the caller has it on
     // the range's own frame, is what composing them gives back.
     return gate(
@@ -140,10 +129,8 @@ function scan(
     // against a zero-excluding override like [10, 90] it must report, or
     // validate would call clean what clampJointRom moves to the min (#1057)
     if (angle === 0 && allowed === null) continue;
-    if (!Number.isFinite(angle))
-      total = fault(total, report, score, axis, angle, undefined);
     // immobile axis: the gap is the whole distance from the required 0
-    else if (allowed === null)
+    if (allowed === null)
       total = fault(total, report, score, axis, angle, Math.abs(angle));
     else if (angle < allowed.min)
       total = fault(total, report, score, axis, angle, allowed.min - angle);

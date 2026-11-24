@@ -35,12 +35,7 @@ export function encodeAutoMovieDrawPixels(
     throw new Error(
       `Drawn target holds ${bytes.length} bytes where ${width}x${height} RGBA needs ${width * height * 4}`,
     );
-  if (
-    !Number.isSafeInteger(factor) ||
-    factor < 1 ||
-    width % factor !== 0 ||
-    height % factor !== 0
-  )
+  if (factor < 1 || width % factor !== 0 || height % factor !== 0)
     throw new Error(
       `Supersampling factor ${factor} does not divide the drawn target ${width}x${height}`,
     );

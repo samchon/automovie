@@ -127,7 +127,7 @@ export namespace HumanPropOutcome {
           fix: "declare the prop body's normal restitution before asking it to rebound",
         });
       }
-      if (!Number.isFinite(restitution) || restitution < 0 || restitution > 1)
+      if (!(restitution >= 0 && restitution <= 1))
         throw new HumanRefusal({
           kind: "parameter",
           axis: "restitution",
@@ -167,7 +167,7 @@ export namespace HumanPropOutcome {
   export function legs(
     props: IAutoMovieMotionHumanPropOutcome.ILegsProps,
   ): IAutoMovieMotionHumanPropOutcome.ILeg[] {
-    if (!Number.isFinite(props.horizon) || props.horizon < 0)
+    if (!(props.horizon >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "horizon",
@@ -176,7 +176,7 @@ export namespace HumanPropOutcome {
         reason: `prop ${props.prop.subject} needs a finite nonnegative continuation horizon`,
         fix: "give the finite seconds remaining after the launch",
       });
-    if (!Number.isFinite(props.meeting.hit.time) || props.meeting.hit.time < 0)
+    if (!(props.meeting.hit.time >= 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "contact.time",
@@ -315,10 +315,7 @@ export namespace HumanPropOutcome {
       // reach the horizon, each a full sweep.
       if (
         met !== null &&
-        (!Number.isFinite(met.hit.time) ||
-          met.hit.time < 0 ||
-          !Number.isFinite(end) ||
-          !(end > next.from + CONTACT_SECOND))
+        (!(met.hit.time >= 0) || !(end > next.from + CONTACT_SECOND))
       )
         throw new HumanRefusal({
           kind: "parameter",
@@ -403,7 +400,7 @@ export namespace HumanPropOutcome {
   function radius(prop: IAutoMovieMotionHumanProp): number | undefined {
     let least: number = Infinity;
     for (const shape of prop.shapes ?? []) least = Math.min(least, half(shape));
-    return Number.isFinite(least) ? least : undefined;
+    return least === Infinity ? undefined : least;
   }
 
   /** A shape's half thickness, metres; a hull is not counted. */

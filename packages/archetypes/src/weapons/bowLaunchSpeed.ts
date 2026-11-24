@@ -22,7 +22,7 @@ export function bowLaunchSpeed(
   mass: number,
   travel: number,
 ): number {
-  if (!(Number.isFinite(mass) && mass > 0))
+  if (!(mass > 0))
     refuse(
       "mass",
       mass,
@@ -39,7 +39,7 @@ export function bowLaunchSpeed(
       reason: `no source read gives the ${bow.name}'s draw weight, so its stored energy is unknown`,
       fix: "launch from a bow whose draw weight is read",
     });
-  if (!(Number.isFinite(draw) && draw > 0))
+  if (!(draw > 0))
     refuse(
       "draw",
       draw,
@@ -47,14 +47,14 @@ export function bowLaunchSpeed(
       "give a sourced positive draw weight in newtons",
     );
   const stroke: number | undefined = bow.affordance("string").travel;
-  if (!(stroke !== undefined && Number.isFinite(stroke) && stroke > 0))
+  if (!(stroke !== undefined && stroke > 0))
     refuse(
       "string",
       stroke,
       "the bow needs a finite positive string stroke",
       "declare the string's positive travel in metres",
     );
-  if (!(Number.isFinite(travel) && travel >= 0 && travel <= stroke))
+  if (!(travel >= 0 && travel <= stroke))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: bow.archetype,
@@ -81,7 +81,7 @@ export function bowLaunchSpeed(
 
   // The least normal binary64 value marks lost energy precision, not a physical draw cutoff.
   const result: number =
-    !Number.isFinite(squared) || stored < 2 ** -1022 || squared < 2 ** -1022
+    stored < 2 ** -1022 || squared < 2 ** -1022
       ? Math.exp(
           (Math.log(2 * q) +
             Math.log(draw) +
@@ -91,13 +91,6 @@ export function bowLaunchSpeed(
             (Math.log(travel) - Math.log(stroke)) / (2 * q),
         )
       : speed;
-  if (!Number.isFinite(result))
-    refuse(
-      "launch",
-      result,
-      "the launch arithmetic has no finite speed",
-      "use mechanics whose energy and speed are representable",
-    );
   return result;
 
   /** Keep invalid physical inputs in the public structured refusal contract. */

@@ -110,10 +110,8 @@ function plan(
       "a fixed pouch needs an independent tab slider, opposing tab sites, coupled lip geometry and a stationary brace",
     );
   if (
-    !Number.isFinite(p.travel) ||
     p.travel === 0 ||
-    !Number.isFinite(p.duration) ||
-    p.duration <= 0
+    !(p.duration > 0)
   )
     throw refusal(
       p.pouch,

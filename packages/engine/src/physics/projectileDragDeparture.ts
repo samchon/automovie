@@ -30,8 +30,7 @@ export function projectileDragDeparture(
     const interval: IAutoMovieProjectileDragInterval = flight.interval(current);
     const width: number = interval.to - interval.from;
     const end: number = Math.min(contact.to, interval.to);
-    if (!(Number.isFinite(width) && width > 0 && end > current))
-      return undefined;
+    if (width === Infinity || width <= 0 || end <= current) return undefined;
     const first: number[][] = [];
     const middle: number[][] = [];
     const last: number[][] = [];
@@ -50,7 +49,6 @@ export function projectileDragDeparture(
       if (sign === undefined || sign < 0) return undefined;
     }
     const gap: number = contact.at(end);
-    if (!Number.isFinite(gap)) return undefined;
     if (gap > 0) return { kind: "clearance", seconds: end };
     current = end;
   }

@@ -276,14 +276,6 @@ export const validateBuiltEnvironment: (
           `connector route needs at least 2 points, but had ${connector.route.length}`,
           connector.route.length,
         );
-      connector.route.forEach(
-        (point: IAutoMovieVector3, pointIndex: number): void =>
-          collector.finiteVector(
-            `${path}.route[${pointIndex}]`,
-            point,
-            "connector route point",
-          ),
-      );
       validateBuiltConnectorShape(
         environment,
         connector,

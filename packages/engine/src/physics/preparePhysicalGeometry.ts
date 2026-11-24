@@ -32,8 +32,6 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
       prediction: number = 0,
     ): IAutoMovieContactReceipt | null => {
       if (
-        !Number.isFinite(seconds) ||
-        !Number.isFinite(prediction) ||
         prediction < 0
       )
         throw new Error("Invalid physical contact query time or prediction");
@@ -53,8 +51,7 @@ export async function preparePhysicalGeometry(): Promise<IAutoMoviePreparePhysic
         return null;
       const measured: physicalShapePairContact.IResult =
         physicalShapePairContact(a.pose, a.shape, b.pose, b.shape);
-      if (!Number.isFinite(measured.distance))
-        throw new Error("Nonfinite geometric contact distance");
+
       if (measured.distance > prediction) return null;
       return {
         id: `geometry:${a.body}/${a.bone}/${a.shape.id}:${b.body}/${b.bone}/${b.shape.id}:${seconds}`,

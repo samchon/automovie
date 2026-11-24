@@ -22,13 +22,15 @@ import { createAutoMovieRecoveryArtifact } from "../artifact/createAutoMovieReco
 import { createAutoMovieRecoveryMeshSpool } from "../mesh/createAutoMovieRecoveryMeshSpool";
 
 /**
- * Generate saved tensor ordinary domains, retained closed domains and bounded open surfaces.
- * Explicit ruled or local quadratic interpolation differs from coefficientwise PCHIP.
- * Its exact source edges and conforming local cells share actual global mesh indices.
- * Spool-backed checkpoints retain all emitted finite geometry and explicit incompletion.
- * The immutable analytic-and-retained-closed base is published before the first open chunk,
- * even when repeated standalone open checkpoints are disabled. Joint spool frontiers
- * persist channel bindings and source-free run cursors independently of rendering.
+ * Generate saved tensor ordinary domains, retained closed domains and bounded
+ * open surfaces. Explicit ruled or local quadratic interpolation differs from
+ * coefficientwise PCHIP. Its exact source edges and conforming local cells
+ * share actual global mesh indices. Spool-backed checkpoints retain all emitted
+ * finite geometry and explicit incompletion. The immutable
+ * analytic-and-retained-closed base is published before the first open chunk,
+ * even when repeated standalone open checkpoints are disabled. Joint spool
+ * frontiers persist channel bindings and source-free run cursors independently
+ * of rendering.
  *
  * @evidence contracts/development/implementation.md#principled-implementation One analytic realization owns its declared closed and open occurrences; the closed adapter dispatches tensor families and retained curve-only domains. Declared ordinary open-arc transport fixes maximal runs and orientation; cubic controls feed the local Hermite engine, whose shared global indices are appended unchanged.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Graph admission, run ownership, engine streaming and immutable artifact publication are separate stages. Generated triangle ranges retain run, saved curves and local patch ownership.
@@ -46,10 +48,7 @@ export function reconstructAutoMovieRecoveryLocal(
 ): IAutoMovieRecoveryLocalResult {
   if (
     (binding.operator !== "quadratic" && binding.operator !== "ruled") ||
-    !(
-      bundle.policy.toleranceMm > 0 &&
-      Number.isFinite(bundle.policy.toleranceMm)
-    )
+    !(bundle.policy.toleranceMm > 0)
   )
     throw new Error(
       "Explicit interpolation and a positive physical approximation budget required",
@@ -57,8 +56,7 @@ export function reconstructAutoMovieRecoveryLocal(
   if (
     graph.intervals.length !== bundle.reports.length - 1 ||
     graph.orientations.length !== bundle.reports.length ||
-    !(graph.resolutionMm > 0 && Number.isFinite(graph.resolutionMm)) ||
-    !Number.isSafeInteger(graph.maxVerticesPerRun) ||
+    !(graph.resolutionMm > 0) ||
     graph.maxVerticesPerRun < 4
   )
     throw new Error(

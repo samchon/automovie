@@ -164,7 +164,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
       );
-    const neutral: IAngles | null = body.hanging(side);
+    const neutral: IAngles | null = body.hanging[side];
     if (chain === null || neutral === null) return null;
     const upperBone: AutoMovieHumanoidBone = chain.prepared.chain.upper;
     const lowerAxes: IAutoMovieJointAxes | undefined =
@@ -227,7 +227,7 @@ export namespace AutoMovieMotionHumanBendSearch {
   ): (near?: IAutoMovieSwivelNear) => ContinuedResult {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
       AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
-    const neutral: IAngles | null = props.body.hanging(props.side);
+    const neutral: IAngles | null = props.body.hanging[props.side];
     return (near?: IAutoMovieSwivelNear): ContinuedResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       if (
@@ -348,7 +348,7 @@ export namespace AutoMovieMotionHumanBendSearch {
         props.side,
         source,
       );
-    const neutral: IAngles | null = props.body.hanging(props.side);
+    const neutral: IAngles | null = props.body.hanging[props.side];
     return (
       goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoal>,
       rank: Parameters<typeof search>[1],

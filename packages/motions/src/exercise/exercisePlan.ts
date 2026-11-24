@@ -49,8 +49,7 @@ export function exercisePlan(
   const p: IAutoMovieMotionHumanExercise.IParams = context.params;
   const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
   const m: IAutoMovieMotionHumanActionContext["body"]["measure"] = body.measure;
-  const reps: number = p.count ?? 3;
-  HumanBound.whole("count", reps);
+  const reps: number = HumanBound.whole("count", p.count ?? 3);
   const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
   for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
   const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(

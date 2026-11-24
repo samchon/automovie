@@ -155,8 +155,6 @@ export function generateAutoMovieContourLoft64(
         "A generated surface point has no declared curve or terminal identity",
       );
     if (!vertexMap.has(key)) {
-      if (!Number.isSafeInteger(vertexCount + 1))
-        throw new Error("Contour output vertex count exceeds safe indexing");
       deliver((): void => sink.vertex(vertexCount, p));
       vertexMap.set(key, vertexCount);
       vertexCount++;
@@ -171,8 +169,6 @@ export function generateAutoMovieContourLoft64(
     const ia: number = index(a),
       ib: number = index(b),
       ic: number = index(c);
-    if (!Number.isSafeInteger(triangleCount + 1))
-      throw new Error("Contour output triangle count exceeds safe indexing");
     deliver((): void => sink.triangle(ia, ib, ic));
     triangleCount++;
   };
@@ -358,11 +354,8 @@ export function generateAutoMovieContourLoft64(
         if (
           ids.some((id: string | undefined): boolean => id === undefined) ||
           new Set(ids).size !== 3 ||
-          !(
-            area.millimetresSquared > 0 &&
-            Number.isFinite(area.millimetresSquared)
-          ) ||
-          !(area.metresSquared > 0 && Number.isFinite(area.metresSquared))
+          !(area.millimetresSquared > 0) ||
+          !(area.metresSquared > 0)
         ) {
           omitted++;
           quality.add(

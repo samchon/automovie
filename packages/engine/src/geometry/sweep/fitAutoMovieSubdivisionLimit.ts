@@ -46,8 +46,6 @@ export const fitAutoMovieSubdivisionLimit: (
   props: IAutoMovieFitSubdivisionLimit.IProps,
 ): IAutoMovieFitSubdivisionLimit.IResult => {
   const count: number = props.targets.length / 3;
-  if (!Number.isInteger(count))
-    throw new Error("fit targets must be packed triples");
   const stencil: IAutoMovieSubdivisionStencil =
     stencilAutoMovieSubdivisionLimit(props.faces, count);
   const free: Uint8Array = Uint8Array.from(

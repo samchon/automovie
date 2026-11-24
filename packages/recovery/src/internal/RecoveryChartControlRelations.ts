@@ -23,14 +23,9 @@ export function RecoveryChartControlRelations(
 ): ReturnType<IAutoMovieRecoveryChartControlRelations.Operation> {
   if (
     !input ||
-    !Number.isSafeInteger(input.controls) ||
     input.controls < 0 ||
     input.controls > 0xffffffff ||
-    !Array.isArray(input.fixed) ||
-    !Array.isArray(input.relations) ||
-    !Number.isSafeInteger(input.maxTerms) ||
     input.maxTerms < 1 ||
-    !Number.isSafeInteger(input.maxDepth) ||
     input.maxDepth < 0
   )
     throw new Error(
@@ -42,15 +37,10 @@ export function RecoveryChartControlRelations(
   for (const entry of input.fixed) {
     if (
       !entry ||
-      !Number.isSafeInteger(entry.id) ||
       entry.id < 0 ||
       entry.id >= input.controls ||
       fixed.has(entry.id) ||
-      !Array.isArray(entry.pointMm) ||
-      entry.pointMm.length !== 3 ||
-      ![0, 1, 2].every((axis: number): boolean =>
-        Number.isFinite(entry.pointMm[axis]),
-      )
+      entry.pointMm.length !== 3
     )
       throw new Error(
         "Fixed controls require unique valid IDs and finite millimetre positions",
@@ -60,24 +50,16 @@ export function RecoveryChartControlRelations(
   for (const entry of input.relations) {
     if (
       !entry ||
-      !Number.isSafeInteger(entry.id) ||
       entry.id < 0 ||
       entry.id >= input.controls ||
       fixed.has(entry.id) ||
-      relations.has(entry.id) ||
-      !Array.isArray(entry.terms)
+      relations.has(entry.id)
     )
       throw new Error(
         "A control may have one fixed owner or one valid affine relation",
       );
     for (const term of entry.terms)
-      if (
-        !term ||
-        !Number.isSafeInteger(term.id) ||
-        term.id < 0 ||
-        term.id >= input.controls ||
-        !Number.isFinite(term.weight)
-      )
+      if (!term || term.id < 0 || term.id >= input.controls)
         throw new Error(
           "Affine terms require valid original control IDs and finite weights",
         );
@@ -128,8 +110,6 @@ export function RecoveryChartControlRelations(
         for (const [source, weight] of flattened[term.id]!) {
           const product: number = term.weight * weight,
             combined: number = (result.get(source) ?? 0) + product;
-          if (!Number.isFinite(product) || !Number.isFinite(combined))
-            throw new Error("Affine coefficient composition became nonfinite");
           if (combined === 0) result.delete(source);
           else result.set(source, combined);
           if (result.size > input.maxTerms)
@@ -159,16 +139,12 @@ export function RecoveryChartControlRelations(
     for (const [source, weight] of sources) {
       minimumWeight = Math.min(minimumWeight, weight);
       weightSum += weight;
-      if (!Number.isFinite(weightSum))
-        throw new Error("An affine source-weight sum became nonfinite");
       const point: readonly [number, number, number] | undefined =
         fixed.get(source);
       if (point)
         for (let axis: number = 0; axis < 3; axis++) {
           const product: number = weight * point[axis]!,
             sum: number = constant[axis]! + product;
-          if (!Number.isFinite(product) || !Number.isFinite(sum))
-            throw new Error("A folded affine position became nonfinite");
           constant[axis] = sum;
         }
       else terms.push({ id: source, weight });

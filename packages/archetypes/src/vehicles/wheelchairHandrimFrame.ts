@@ -32,13 +32,7 @@ export function wheelchairHandrimFrame(
   catchAt: number,
   degrees: number,
 ): (id: createWheelchair.Affordance, seconds: number) => IAutoMovieTransform {
-  if (
-    !Number.isFinite(catchAt) ||
-    catchAt < 0 ||
-    catchAt > ride.duration ||
-    !Number.isFinite(degrees) ||
-    Math.abs(degrees) > 180
-  )
+  if (catchAt < 0 || catchAt > ride.duration || Math.abs(degrees) > 180)
     throw new RangeError(
       "handrim catch needs a ride second and an angle in [-180, 180] degrees",
     );

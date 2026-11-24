@@ -37,11 +37,11 @@ const QUIET: string = "quad_p0_z.json";
  * @evidence contracts/development/testing.md#distinguishing-cases The same frame with and without a stated push, the branch that alone starts a recovery step; a controller that prepared a response unpushed, withdrew the root or swung a limb fails 1, one that ignored the push fails 2. The response's own steps are `test_physical_disturbance_span`'s; the root tracker's support task is `test_physical_primitive_quiet_support`'s.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over one fixture file in the repository; the primitive's profile is built in closed form, and no native world, viewer or simulation runs.
  */
-export function test_physical_primitive_quiet_stance(): void {
+export async function test_physical_primitive_quiet_stance(): Promise<void> {
   const fixture: PhysicalBalanceReplay.IFixture =
-    PhysicalBalanceReplay.load(QUIET);
+    await PhysicalBalanceReplay.load(QUIET);
   const profile: IAutoMoviePhysicalProfile =
-    PhysicalBalanceReplay.stored(fixture);
+    await PhysicalBalanceReplay.stored(fixture);
   let index: number = fixture.records.length - 1;
   while (index >= 0 && fixture.records[index]!.kind !== "advance") index--;
   if (index < 0) throw new Error(`${QUIET} holds no balance controller call`);

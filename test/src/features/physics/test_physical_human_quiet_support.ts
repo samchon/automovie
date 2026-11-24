@@ -63,10 +63,10 @@ const LIFT: number = 0.005;
  * the capture-point controller fresh and the body at rest at its authored mass
  * center, on two kinds of frame:
  *
- * - the last quiet frame of the unpushed recording (`human_p0_z`), with the
+ * - The last quiet frame of the unpushed recording (`human_p0_z`), with the
  *   profile it ran with (`PhysicalHumanProfiles`, `m-average`);
- * - each stored body size's neutral standing pose, the average and the tall
- *   man (`m-average`, `m-tall`), lowered onto the floor by its soles' lowest
+ * - Each stored body size's neutral standing pose, the average and the tall man
+ *   (`m-average`, `m-tall`), lowered onto the floor by its soles' lowest
  *   corner, every segment planted where it stands.
  *
  * Scenarios:
@@ -93,14 +93,16 @@ const LIFT: number = 0.005;
  * @evidence contracts/development/testing.md#distinguishing-cases A quiet and a shifted stance, the recorded one shifted against its own lean, on two body sizes, and a band that tells a balanced split from one foot bearing the body.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over the stored profiles and the quiet recording in the repository; no figure built, no native world, viewer or simulation run.
  */
-export function test_physical_human_quiet_support(): void {
+export async function test_physical_human_quiet_support(): Promise<void> {
   const failures: string[] = [];
   const quiet: PhysicalBalanceReplay.IFixture =
-    PhysicalBalanceReplay.load(QUIET);
-  const profile: IAutoMoviePhysicalProfile = PhysicalBalanceReplay.stored({
-    ...quiet,
-    profile: PhysicalHumanProfiles.load("m-average"),
-  });
+    await PhysicalBalanceReplay.load(QUIET);
+  const profile: IAutoMoviePhysicalProfile = await PhysicalBalanceReplay.stored(
+    {
+      ...quiet,
+      profile: await PhysicalHumanProfiles.load("m-average"),
+    },
+  );
   const record: PhysicalBalanceReplay.IRecord | undefined = [...quiet.records]
     .reverse()
     .find(
@@ -135,7 +137,8 @@ export function test_physical_human_quiet_support(): void {
 
   // Each body size's neutral standing pose, the same checks.
   for (const name of ["m-average", "m-tall"] as const) {
-    const size: IAutoMoviePhysicalProfile = PhysicalHumanProfiles.load(name);
+    const size: IAutoMoviePhysicalProfile =
+      await PhysicalHumanProfiles.load(name);
     const stand: Record<string, any> = standing(size, quiet);
     demand(quiet, size, stand, `${name} standing`, failures);
     follows(
@@ -153,11 +156,11 @@ export function test_physical_human_quiet_support(): void {
 }
 
 /**
- * A profile's neutral standing pose as a root tracker's input: every segment
- * at rest at its neutral pose, lowered so the support limbs' lowest sole
- * corner is on the floor, every segment planted where it stands, the authored
- * mass center the pose's own, and each support limb's bearing corners, those
- * within `LIFT` of the lowest, as its measured sole points.
+ * A profile's neutral standing pose as a root tracker's input: every segment at
+ * rest at its neutral pose, lowered so the support limbs' lowest sole corner is
+ * on the floor, every segment planted where it stands, the authored mass center
+ * the pose's own, and each support limb's bearing corners, those within `LIFT`
+ * of the lowest, as its measured sole points.
  */
 function standing(
   profile: IAutoMoviePhysicalProfile,
@@ -171,13 +174,18 @@ function standing(
     pose: IAutoMovieRigidTransform,
   ): IAutoMovieVector3[] =>
     profile.segments
-      .filter((segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone)
+      .filter(
+        (segment: IAutoMoviePhysicalSegment): boolean => segment.bone === bone,
+      )
       .flatMap((segment: IAutoMoviePhysicalSegment): IAutoMovieVector3[] =>
         [...segment.shapes, ...(segment.contactShapes ?? [])].flatMap(
           (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
             vertices(shape).map(
               (point: IAutoMovieVector3): IAutoMovieVector3 =>
-                physicalSupportPoint(pose, physicalSupportPoint(shape.transform, point)),
+                physicalSupportPoint(
+                  pose,
+                  physicalSupportPoint(shape.transform, point),
+                ),
             ),
         ),
       );
@@ -188,7 +196,9 @@ function standing(
   const lowest: number = Math.min(
     ...limbs.flatMap((limb: IAutoMovieFootfallPattern["limbs"][number]) =>
       (limb.contacts ?? [limb.bone]).flatMap((bone: string): number[] =>
-        corners(bone, neutral(bone)).map((point: IAutoMovieVector3): number => point.y),
+        corners(bone, neutral(bone)).map(
+          (point: IAutoMovieVector3): number => point.y,
+        ),
       ),
     ),
   );
@@ -199,7 +209,9 @@ function standing(
   const segments: Record<string, PhysicalBalanceReplay.ISegment> =
     Object.fromEntries(
       profile.segments.map(
-        (segment: IAutoMoviePhysicalSegment): [string, PhysicalBalanceReplay.ISegment] => {
+        (
+          segment: IAutoMoviePhysicalSegment,
+        ): [string, PhysicalBalanceReplay.ISegment] => {
           const at: IAutoMovieRigidTransform = pose(segment.bone);
           return [
             segment.bone,
@@ -229,13 +241,18 @@ function standing(
     supports: limbs.map((limb: IAutoMovieFootfallPattern["limbs"][number]) => ({
       bone: limb.bone,
       points: (limb.contacts ?? [limb.bone])
-        .flatMap((bone: string): IAutoMovieVector3[] => corners(bone, pose(bone)))
+        .flatMap((bone: string): IAutoMovieVector3[] =>
+          corners(bone, pose(bone)),
+        )
         .filter((point: IAutoMovieVector3): boolean => point.y <= LIFT),
     })),
   };
 }
 
-/** A polytope collider's vertices in its own frame: a hull's points or a box's corners. */
+/**
+ * A polytope collider's vertices in its own frame: a hull's points or a box's
+ * corners.
+ */
 function vertices(shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] {
   if (shape.kind === "hull") return shape.points;
   if (shape.kind !== "box") return [];

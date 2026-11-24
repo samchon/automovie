@@ -56,50 +56,6 @@ export namespace HumanBoardHandover {
    */
   export type Stands = (t: number, holds: readonly IHold[]) => boolean;
 
-  /** A hand-over planned once, and the flight it was planned over. */
-  export interface IKept {
-    /** The hand-over, or none. */
-    handover: IHandover | undefined;
-
-    /** The flight's seconds it was planned over. */
-    flight: number;
-  }
-
-  /** The hand-overs planned for a boarding's parameters, by performer and start. */
-  const KEPT: WeakMap<object, Map<string, IKept>> = new WeakMap();
-
-  /**
-   * A boarding's hand-over planned once and read again by every replan of the
-   * same boarding: a replan at a slower tempo (`HumanPerformanceTempo`) plans
-   * the same boarding again, and the hand-over's instants are shares of the
-   * flight, rescaled onto the replan's.
-   *
-   * @param params The boarding's parameters, the replans' own record.
-   * @param key The performer and the start the boarding was planned at.
-   * @param flight The flight's seconds.
-   * @param plan The hand-over's planner, run once.
-   * @returns The hand-over, its instants on this flight, or none.
-   */
-  export function kept(
-    params: object,
-    key: string,
-    flight: number,
-    plan: () => IHandover | undefined,
-  ): IHandover | undefined {
-    let held: Map<string, IKept> | undefined = KEPT.get(params);
-    if (held === undefined) KEPT.set(params, (held = new Map()));
-    let found: IKept | undefined = held.get(key);
-    if (found === undefined)
-      held.set(key, (found = { handover: plan(), flight }));
-    if (found.handover === undefined) return undefined;
-    const scale: number = flight / found.flight;
-    return {
-      ...found.handover,
-      takes: found.handover.takes * scale,
-      lets: found.handover.lets * scale,
-    };
-  }
-
   /**
    * Plan the hand-over of a hold on a partner, or none when the first hand
    * holds through the whole flight.

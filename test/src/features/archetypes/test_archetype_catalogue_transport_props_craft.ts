@@ -117,8 +117,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
   ]);
   TestValidator.predicate(
     "visible wheel radius meets the floor under the axle",
-    Number.isFinite(tire.size) &&
-      Math.abs(tire.low) <= 1e-8 &&
+    Math.abs(tire.low) <= 1e-8 &&
       Math.abs((tire.high + tire.low) / 2 - left.y) <= 1e-8,
   );
   const leader: AutoMovieArchetypeRide.IRide<"hitch", never> =
@@ -199,9 +198,7 @@ export function test_archetype_catalogue_transport_props_craft(): void {
   );
   const thwarts: IAutoMovieAffordance[] = hulls.launch.affordances.filter(
     (contact: IAutoMovieAffordance): boolean =>
-      contact.id.startsWith("thwart") &&
-      contact.id.length > "thwart".length &&
-      Number.isInteger(Number(contact.id.slice("thwart".length))),
+      contact.id.startsWith("thwart") && contact.id.length > "thwart".length,
   );
   const withoutOarlock: boolean = hulls.launch.affordances.every(
     (contact: IAutoMovieAffordance): boolean => !contact.id.endsWith("Oarlock"),

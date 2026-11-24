@@ -127,7 +127,7 @@ export function resolveGuitarStringContact(
         Vector3.dot(direction, along);
     spacing = Math.min(spacing, Math.abs(lateral));
   }
-  if (!(Number.isFinite(spacing) && spacing > COINCIDENCE))
+  if (!(spacing > COINCIDENCE && spacing < Infinity))
     throw new HumanRefusal({
       kind: "affordance",
       axis: "string",
@@ -153,7 +153,7 @@ function site(
   if (
     found === undefined ||
     found.rides !== undefined ||
-    (kind === "bar" && !(Number.isFinite(found.length) && found.length! > 0))
+    (kind === "bar" && !(found.length! > 0))
   )
     throw new HumanRefusal({
       kind: "affordance",

@@ -17,7 +17,8 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * Actual axle pitch and drawbar pitch close a hitch without lifting wheel solids.
+ * Actual axle pitch and drawbar pitch close a hitch without lifting wheel
+ * solids.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Covers the 4 cm limber mismatch, reverse field-gun trail, four-wheel wagon steering/pole pitch, source geometry preservation, unsupported rigid heights, unreachable goals, contradictory options and prepared support snapshot ownership.
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual producer support readers and public towed rides; reads real wheel cylinder extrema, unchanged geometry records, source coupling world points and actual pole length at off-grid samples through straight/turn/straight paths.
@@ -165,13 +166,19 @@ export function test_towed_ground_support(): void {
     [],
   );
 
-  /** Numeric bounds are independently chosen at nanometre scale for metre-size rigs. */
+  /**
+   * Numeric bounds are independently chosen at nanometre scale for metre-size
+   * rigs.
+   */
   function near(label: string, actual: number, expected: number): void {
-    if (!Number.isFinite(actual) || Math.abs(actual - expected) > 1e-9)
+    if (Math.abs(actual - expected) > 1e-9)
       findings.push(`${label}: ${actual}, expected ${expected}`);
   }
 
-  /** Public support impossibilities must be actionable refusals, not incidental errors. */
+  /**
+   * Public support impossibilities must be actionable refusals, not incidental
+   * errors.
+   */
   function refuses(label: string, action: () => unknown): void {
     let error: unknown = null;
     try {
@@ -186,7 +193,10 @@ export function test_towed_ground_support(): void {
       findings.push(`${label}: missing structured refusal (${String(error)})`);
   }
 
-  /** Observe actual cylinders independently of either support reader or placement law. */
+  /**
+   * Observe actual cylinders independently of either support reader or
+   * placement law.
+   */
   function inspect<
     I extends string,
     D extends string,
@@ -278,7 +288,10 @@ export function test_towed_ground_support(): void {
   }
 }
 
-/** A real generic fixed-height hitch for the independent four-wheel support case. */
+/**
+ * A real generic fixed-height hitch for the independent four-wheel support
+ * case.
+ */
 function hitched(height: number): AutoMovieArchetype<"hitch", never> {
   return new AutoMovieArchetypeBuilder<"hitch", never>({
     material: "steel",

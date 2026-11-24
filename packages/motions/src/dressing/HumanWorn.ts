@@ -93,8 +93,7 @@ export namespace HumanWorn {
    * @param region The region it goes onto.
    * @returns For a posture, a turn in degrees and an optional pose workspace,
    *   the wearable's world frame.
-   * @throws {HumanRefusal} At the first call, when the wearable declares no
-   *   `wear` socket.
+   * @throws {HumanRefusal} When the wearable declares no `wear` socket.
    */
   export function prepareMoving(
     body: IAutoMovieMotionHumanBody,
@@ -105,21 +104,19 @@ export namespace HumanWorn {
     turn: number,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ) => IAutoMovieRigidTransform {
-    let wear: IAutoMovieAffordance | undefined;
-    let read: ReturnType<typeof HumanTrunk.prepareRegion> | undefined;
-    let align: ReturnType<typeof alignment> | undefined;
+    const wear: IAutoMovieAffordance = socketOf(prop);
+    const read: ReturnType<typeof HumanTrunk.prepareRegion> =
+      HumanTrunk.prepareRegion(body, region);
+    const align: ReturnType<typeof alignment> = alignment(wear);
     return (
       posture: IAutoMovieMotionHumanPosture,
       turn: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     ): IAutoMovieRigidTransform => {
-      wear ??= socketOf(prop);
-      read ??= HumanTrunk.prepareRegion(body, region);
       const at: ReturnType<typeof HumanTrunk.region> = read(
         posture,
         resolution,
       );
-      align ??= alignment(wear);
       return placed(at, align(at, posture.yaw), wear, turn);
     };
   }

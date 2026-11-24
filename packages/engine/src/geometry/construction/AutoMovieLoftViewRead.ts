@@ -34,7 +34,7 @@ export namespace AutoMovieLoftViewRead {
     station: number,
   ): IAutoMovieLoftViewRead.IValues | string {
     try {
-      validate(source, station);
+      validate(source);
       const extents: number[] = source.extents.map(
         (outline: IAutoMovieViewOutline.IOutline, q: number): number =>
           value(outline, station, `extent ${q}`) * (q < 2 ? 1 : -1),
@@ -58,8 +58,6 @@ export namespace AutoMovieLoftViewRead {
       const w: CapReading = cap(source.caps, station);
       if (w.active && !chained(source))
         shoulders = shoulders.map((r: number): number => blend(r, w));
-      if (![...extents, ...shoulders].every(Number.isFinite))
-        throw new Error("The effective source values are not finite.");
       const out: IAutoMovieLoftViewRead.IValues = { extents, shoulders };
       if (source.fullness.kind === "top" && source.fullness.touch !== null)
         out.touch = source.fullness.touch.map(
@@ -113,7 +111,7 @@ export namespace AutoMovieLoftViewRead {
     station: number,
   ): IAutoMovieLoftViewRead.IJets | string {
     try {
-      validate(source, station);
+      validate(source);
       const extents: IAutoMovieViewSectionField.IStationJet[] =
         source.extents.map(
           (
@@ -178,13 +176,6 @@ export namespace AutoMovieLoftViewRead {
             ];
           },
         );
-      if (
-        ![...extents, ...shoulders].every(
-          (at: IAutoMovieViewSectionField.IStationJet): boolean =>
-            at.every(Number.isFinite),
-        )
-      )
-        throw new Error("The required effective source2 is not finite.");
       const out: IAutoMovieLoftViewRead.IJets = {
         extents,
         shoulders: shoulders.map(
@@ -272,18 +263,13 @@ const SPLIT: readonly string[] = ["u", "v", "angle", "shoulder"];
  * Distinguish explicit source absence at the caller from broken present source
  * data here.
  */
-function validate(
-  source: IAutoMovieLoftViewSource.ISource,
-  station: number,
-): void {
+function validate(source: IAutoMovieLoftViewSource.ISource): void {
   // A source is immutable while it is read, so its structure is checked on its first reading alone; every reading still checks its station.
   // Checked on every reading, the structure cost an eighth of a body's realization.
   if (source !== null && typeof source === "object" && VALIDATED.has(source)) {
-    if (!Number.isFinite(station))
-      throw new Error("The present view source is malformed.");
     return;
   }
-  structure(source, station);
+  structure(source);
   VALIDATED.add(source);
 }
 
@@ -291,20 +277,14 @@ function validate(
 const VALIDATED: WeakSet<IAutoMovieLoftViewSource.ISource> = new WeakSet();
 
 /** Refuse a malformed source or station by the rule it breaks. */
-function structure(
-  source: IAutoMovieLoftViewSource.ISource,
-  station: number,
-): void {
+function structure(source: IAutoMovieLoftViewSource.ISource): void {
   if (
-    !Number.isFinite(station) ||
     source === null ||
     source.kind !== "view" ||
     !Array.isArray(source.extents) ||
     source.extents.length !== 4 ||
     !Array.isArray(source.domain) ||
     source.domain.length !== 2 ||
-    !source.domain.every(Number.isFinite) ||
-    !Number.isFinite(source.domain[1] - source.domain[0]) ||
     !(source.domain[1] > source.domain[0]) ||
     !Array.isArray(source.caps) ||
     source.caps.length > 2 ||
@@ -377,10 +357,8 @@ function structure(
         throw new Error("A constant cap has an inconsistent support endpoint.");
     } else if (
       !(
-        Number.isFinite(entry.span) &&
         entry.span > 0 &&
         entry.near !== null &&
-        Number.isFinite(entry.near) &&
         entry.span === Math.abs(entry.near - entry.pole) &&
         (entry.pole === source.domain[0]
           ? entry.near > entry.pole
@@ -423,8 +401,6 @@ function value(
 ): number {
   const reading: number | string = AutoMovieViewOutline.value(outline, station);
   if (typeof reading === "string") throw new Error(`${name}: ${reading}`);
-  if (!Number.isFinite(reading))
-    throw new Error(`${name}: the original scalar value is nonfinite.`);
   return reading;
 }
 

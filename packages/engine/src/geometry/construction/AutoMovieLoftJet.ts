@@ -95,14 +95,6 @@ export namespace AutoMovieLoftJet {
 
     // Original native readers and chains add the same reliefs after lift.
     AutoMovieLoftReliefCompose.jet(jet, chain.reliefs ?? [], s, t);
-    if (
-      !Object.values(jet).every((row: AutoMovieVector3Tuple): boolean =>
-        row.every(Number.isFinite),
-      )
-    )
-      throw new AutoMovieLoftAdmissionError(
-        "The complete frame/local/lift/relief total2 is nonfinite.",
-      );
     return jet;
   }
 
@@ -210,7 +202,6 @@ export namespace AutoMovieLoftJet {
     const lazy: boolean =
       native === null &&
       chain.basis === "spline" &&
-      Number.isInteger(n) &&
       n > 0 &&
       a.coefficients.length === 2 * n &&
       b.coefficients.length === 2 * n &&

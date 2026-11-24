@@ -66,8 +66,8 @@ export namespace stopDropRoll {
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IStopDropRoll>,
   ): IAutoMovieMotionHumanActionPlan {
-    const rolls: number = context.params.rolls ?? 4;
-    if (!(Number.isInteger(rolls) && rolls > 0))
+    const rolls: number = Math.round(context.params.rolls ?? 4);
+    if (!(rolls > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "rolls",

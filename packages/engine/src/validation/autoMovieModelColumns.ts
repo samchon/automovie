@@ -113,19 +113,7 @@ const axialPartColumn: (
     part.transform === null ? UNIT_SCALE : part.transform.scale;
   const outer: IAutoMovieVector3 | null = primitiveOuterExtents(part.geometry);
   if (outer === null) return null;
-  const outerRadius: number = Math.hypot(
-    outer.x * Math.abs(scale.x),
-    outer.z * Math.abs(scale.z),
-  );
-  const outerHalf: number = outer.y * Math.abs(scale.y);
-  // The horizontal box diagonal bounds every permitted axial heading. Both
-  // translated outer Y ends must remain representable, not merely the smaller core.
-  if (
-    !Number.isFinite(outerRadius) ||
-    !Number.isFinite(base - outerHalf) ||
-    !Number.isFinite(base + outerHalf)
-  )
-    return null;
+
   const radius: number = Math.min(
     solid.across * Math.abs(scale.x),
     solid.deep * Math.abs(scale.z),
@@ -134,12 +122,7 @@ const axialPartColumn: (
   const half: number = solid.half * Math.abs(scale.y);
   const bottom: number = centre - half;
   const top: number = centre + half;
-  return finitePositive(radius) &&
-    finitePositive(half) &&
-    Number.isFinite(bottom) &&
-    Number.isFinite(top)
-    ? { radius, bottom, top }
-    : null;
+  return radius > 0 && half > 0 ? { radius, bottom, top } : null;
 };
 
 /** The scale a part with no transform of its own is drawn at. */
@@ -164,9 +147,7 @@ function primitiveOuterExtents(
       return { x: shape.radius, y: shape.height / 2, z: shape.radius };
     case "capsule": {
       const totalHeight: number = shape.height + 2 * shape.radius;
-      return Number.isFinite(totalHeight)
-        ? { x: shape.radius, y: totalHeight / 2, z: shape.radius }
-        : null;
+      return { x: shape.radius, y: totalHeight / 2, z: shape.radius };
     }
     case "plane":
       return null;
@@ -291,5 +272,3 @@ const columnOfShape: (
   return null;
 };
 
-const finitePositive: (value: number) => boolean = (value: number): boolean =>
-  Number.isFinite(value) && value > 0;

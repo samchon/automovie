@@ -355,14 +355,5 @@ function product(
  * requested.
  */
 function admit<T extends IAutoMovieLoftSectionPhase>(out: T): T {
-  if (
-    !Object.values(out).every(
-      (row: unknown): boolean =>
-        Array.isArray(row) && row.every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "The mixed generating field has no finite requested local reading.",
-    );
   return out;
 }

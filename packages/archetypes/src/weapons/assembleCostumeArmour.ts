@@ -71,7 +71,7 @@ export function assembleCostumeArmour(
   const slots: assembleCostumeArmour.Slot[] = Object.keys(
     PIECES,
   ) as assembleCostumeArmour.Slot[];
-  if (typeof params.subject !== "string" || params.subject.trim().length === 0)
+  if (params.subject.trim().length === 0)
     throw refuse(
       "subject",
       params.subject,

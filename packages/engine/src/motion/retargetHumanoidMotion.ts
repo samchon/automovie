@@ -153,7 +153,7 @@ export const retargetHumanoidMotion: (
   const rootScale: number =
     props.rootScale ??
     (sourceHeight > EPSILON ? targetHeight / sourceHeight : 0);
-  if (!Number.isFinite(rootScale) || !(rootScale > 0))
+  if (!(rootScale > 0))
     collector.push(
       "range",
       "$input.rootScale",
@@ -379,13 +379,7 @@ const validateRestFrames: (
           "rest-frame sign must be 1 or -1",
           axisFrame.sign,
         );
-      if (!Number.isFinite(axisFrame.neutral))
-        collector.push(
-          "range",
-          `$input.${label}.${bone}.${axis}.neutral`,
-          "rest-frame neutral angle must be finite",
-          axisFrame.neutral,
-        );
+
     }
 };
 

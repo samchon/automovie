@@ -23,7 +23,7 @@ export function solveRecoveryMapJointStep(
   budget: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[3],
   retainMetric: Parameters<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation>[4] = false,
 ): ReturnType<IAutoMovieRecoveryMapJointStepSolutionOperation.Operation> {
-  if (!(damping >= 0) || !Number.isFinite(damping))
+  if (!(damping >= 0))
     throw new Error("camera-map: bounded joint blocks required");
   const prepared: IAutoMovieRecoveryMapJointPreparation =
     prepareRecoveryMapJointBlocks(blocks, minimumRatio, budget, true);
@@ -69,8 +69,6 @@ export function solveRecoveryMapJointStep(
       ) as [number, number, number];
     },
   );
-  if (![...cameraStep, ...pointSteps.flat(), gradient].every(Number.isFinite))
-    throw new Error("camera-map: nonrepresentable joint step");
   return {
     cameraStep,
     pointSteps,

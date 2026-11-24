@@ -50,8 +50,6 @@ export function auditPhysicalOutcomes(
     for (const receipt of contacts) used.add(receipt.id);
     if (action.expected === "contact" && contacts.length === 0) {
       const distance: number = input.missDistance(action);
-      if (!Number.isFinite(distance))
-        throw new Error("Invalid physical outcome miss distance");
       findings.push({
         actionId: action.id,
         kind: "missed-contact",

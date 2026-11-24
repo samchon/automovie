@@ -77,22 +77,14 @@ export function AutoMovieSolidJoinNormalCheck(
       if (previous !== null) {
         const alignment: number = dot(previous, n);
         if (!(alignment > 0)) {
-          /**
-           * Preserve every finite value and name nonfinite values before JSON
-           * serialization.
-           */
-          const scalar: (value: number) => number | string = (
-            value: number,
-          ): number | string =>
-            Number.isFinite(value) ? value : String(value);
 
           /**
            * Encode only this failed observation's three already evaluated
            * components.
            */
-          const vector: (value: Readonly<Vec3>) => (number | string)[] = (
+          const vector: (value: Readonly<Vec3>) => number[] = (
             value: Readonly<Vec3>,
-          ): (number | string)[] => value.map(scalar);
+          ): number[] => [...value];
 
           /**
            * Identify actual kept-rail addresses without reevaluating either
@@ -102,30 +94,27 @@ export function AutoMovieSolidJoinNormalCheck(
             value: IAutoMovieSolidRail.IRail,
           ): object => ({
             contact: {
-              t: scalar(value.curve.t),
-              part: [scalar(value.curve.s), scalar(value.curve.phi)],
+              t: value.curve.t,
+              part: [value.curve.s, value.curve.phi],
               hostFace: value.curve.face,
-              host: [scalar(value.curve.y), scalar(value.curve.theta)],
+              host: [value.curve.y, value.curve.theta],
               point: vector(value.curve.point),
             },
             part: {
-              address: [scalar(value.s), scalar(value.phi)],
+              address: [value.s, value.phi],
               point: vector(value.partPoint),
-              across: value.partAcross.map(scalar),
-              side: scalar(value.sigma),
+              across: value.partAcross.slice(),
+              side: value.sigma,
             },
             host: {
               face: value.hostFace,
-              address: value.host.map(scalar),
+              address: value.host.slice(),
               point: vector(value.hostPoint),
-              across: value.across.map(scalar),
+              across: value.across.slice(),
             },
           });
 
-          /**
-           * A normal and its exact operands keep finite components separate
-           * from a finite norm.
-           */
+          /** A normal with its exact operands and norm. */
           const observation: (
             share: number,
             alongVector: Vec3,
@@ -143,32 +132,20 @@ export function AutoMovieSolidJoinNormalCheck(
               along: vector(alongVector),
               first: vector(firstVector),
               normal: vector(normal),
-              norm: scalar(length),
-              finite: {
-                along: alongVector.every(Number.isFinite),
-                first: firstVector.every(Number.isFinite),
-                normal: normal.every(Number.isFinite),
-                norm: Number.isFinite(length),
-              },
+              norm: length,
+
             };
           };
-          const classification: "negative-dot" | "zero-dot" | "nonfinite-dot" =
-            !Number.isFinite(alignment)
-              ? "nonfinite-dot"
-              : alignment < 0
-                ? "negative-dot"
-                : "zero-dot";
+          const classification: "negative-dot" | "zero-dot" =
+            alignment < 0 ? "negative-dot" : "zero-dot";
           const reason: string =
             classification === "negative-dot"
               ? "reverses"
-              : classification === "zero-dot"
-                ? "has zero consecutive-normal dot"
-                : "has a nonfinite consecutive-normal dot";
+              : "has zero consecutive-normal dot";
           const detail: string = JSON.stringify({
             predicate: "dot(previous.normal,current.normal)>0",
             classification,
-            dot: scalar(alignment),
-            finiteDot: Number.isFinite(alignment),
+            dot: alignment,
             curveSources: { part: curve.part, host: curve.host },
             parameter: {
               kind: curve.parameter.kind,

@@ -29,7 +29,7 @@ export function playbackFrameSamples(
   sequence: IAutoMovieSequence,
   shots: IAutoMovieShot[],
 ): IAutoMoviePlaybackSample[] {
-  if (!Number.isFinite(sequence.fps) || !(sequence.fps > 0))
+  if (!(sequence.fps > 0))
     throw new Error(
       `sequence fps must be a finite number > 0, but was ${sequence.fps}`,
     );

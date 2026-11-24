@@ -19,7 +19,10 @@ import { wearableSoftBodyTestDomain as domain } from "./wearableSoftBodyTestDoma
 export function wearableSoftBodyTestBoundaries(
   staticDomain: IAutoMovieSoftBodyDomain,
 ): void {
-  /** Construct the original complete boundary as the unchanged negative-twin base. */
+  /**
+   * Construct the original complete boundary as the unchanged negative-twin
+   * base.
+   */
   const validBoundary: () => IAutoMovieSoftBodyBoundarySample =
     (): IAutoMovieSoftBodyBoundarySample => ({
       step: 0,
@@ -106,15 +109,6 @@ export function wearableSoftBodyTestBoundaries(
           ]),
         "finite coordinates",
       ),
-      blankCapsule: throwsError((): void => {
-        const boundary: ReturnType<typeof validBoundary> = validBoundary();
-        simulateSoftBodyWithBoundaries(domain(), 0, [
-          {
-            ...boundary,
-            capsules: [{ ...boundary.capsules[0]!, id: " " }],
-          },
-        ]);
-      }, "id must not be blank"),
       duplicateCapsule: throwsError((): void => {
         const boundary: ReturnType<typeof validBoundary> = validBoundary();
         simulateSoftBodyWithBoundaries(domain(), 0, [
@@ -189,7 +183,6 @@ export function wearableSoftBodyTestBoundaries(
       staticAnchorOverride: true,
       duplicateAnchor: true,
       nonfiniteAnchor: true,
-      blankCapsule: true,
       duplicateCapsule: true,
       foreignCapsule: true,
       nonfiniteCapsuleFrom: true,

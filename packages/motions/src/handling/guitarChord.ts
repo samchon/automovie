@@ -92,8 +92,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       stopAt < sweepStartAt &&
       sweepStartAt < sweepEndAt &&
       sweepEndAt < releaseAt &&
-      releaseAt < duration &&
-      Number.isFinite(duration)
+      releaseAt < duration
     )
   )
     throw new HumanRefusal({

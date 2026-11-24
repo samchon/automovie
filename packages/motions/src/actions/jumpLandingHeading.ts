@@ -22,8 +22,9 @@ export function jumpLandingHeading(
 ): number {
   const somersault: number = params.rotation?.somersault ?? 0;
   const twist: number = params.rotation?.twist ?? 0;
-  // Only whole somersaults bring the up axis back upright.
-  if (somersault % 1 !== 0)
+  // The somersault turns the body's up axis about its lateral axis; a
+  // two-foot landing needs it upright again, its cosine to world up one.
+  if (Math.cos(2 * Math.PI * somersault) < 1 - UPRIGHT)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "turns",
@@ -44,3 +45,9 @@ export function jumpLandingHeading(
     });
   return heading + 360 * remainder;
 }
+
+/**
+ * How far below one the terminal up axis's cosine to world up may fall and
+ * still read as upright: the rounding of a cosine of whole revolutions.
+ */
+const UPRIGHT: number = 1e-9;

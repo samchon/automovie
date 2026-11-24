@@ -235,7 +235,7 @@ export namespace SiegeArm {
 
     /** Admit the whole solid; the ground remains model Y zero. */
     function floor(id: string, minimum: number): void {
-      if (!(Number.isFinite(minimum) && minimum >= 0))
+      if (!(minimum >= 0))
         throw new RangeError(`Siege ${id} cannot clear the declared floor`);
     }
   }

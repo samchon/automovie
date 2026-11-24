@@ -69,16 +69,6 @@ export interface IAutoMovieViolationCollector {
    */
   direction(path: string, value: IAutoMovieVector3, label: string): void;
 
-  /**
-   * Pushes one `range` violation at `<path>.<axis>` for each non-finite
-   * component of a vector, worded `<label> <axis> must be finite, but was
-   * <value>`.
-   *
-   * @param path Violation path of the checked vector.
-   * @param value Vector whose three components must be finite.
-   * @param label Name of the vector in the messages.
-   */
-  finiteVector(path: string, value: IAutoMovieVector3, label: string): void;
 
   /**
    * Pushes a `range` violation at `path` unless a value is a finite number

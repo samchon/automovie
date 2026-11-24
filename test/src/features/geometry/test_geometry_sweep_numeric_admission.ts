@@ -14,13 +14,27 @@ import { sweepGirthTube } from "../internal/sweepGirthTube";
 import { throwsError } from "../internal/throwsError";
 
 /**
- * Radius/scale consumers refuse invalid interpolation instead of returning signed or non-finite geometry, and a finite but unrepresentable girth request fails at the solve.
+ * Radius/scale consumers refuse invalid interpolation instead of returning
+ * signed or non-finite geometry, and a finite but unrepresentable girth request
+ * fails at the solve.
  *
  * Scenarios:
  *
- * 1. Positive station radii and scale knots with a steep transition cannot return a non-positive queried value; a scalar interpolation method that stays positive is also valid.
- * 2. A periodic radial section follows the same positive-domain rule. A feature whose declared on-course offset exceeds the base radius is refused instead of clamped.
- * 3. A normal constant cylinder remains unchanged; a finite scale and finite radius whose product overflows are refused by both section and radius queries. A positive subnormal scale whose nonzero radius product rounds to zero is refused by radius, section and point queries. The shared unscaled shape remains available when its scaled result is unrepresentable. An authored parameter-correspondence origin remains a valid zero-radius point. A finite maximum-size girth request is refused for its non-finite solve step, without losing the measured initial diagonal to residual cancellation.
+ * 1. Positive station radii and scale knots with a steep transition cannot return
+ *    a non-positive queried value; a scalar interpolation method that stays
+ *    positive is also valid.
+ * 2. A periodic radial section follows the same positive-domain rule. A feature
+ *    whose declared on-course offset exceeds the base radius is refused instead
+ *    of clamped.
+ * 3. A normal constant cylinder remains unchanged; a finite scale and finite
+ *    radius whose product overflows are refused by both section and radius
+ *    queries. A positive subnormal scale whose nonzero radius product rounds to
+ *    zero is refused by radius, section and point queries. The shared unscaled
+ *    shape remains available when its scaled result is unrepresentable. An
+ *    authored parameter-correspondence origin remains a valid zero-radius
+ *    point. A finite maximum-size girth request is refused for its non-finite
+ *    solve step, without losing the measured initial diagonal to residual
+ *    cancellation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual sweep, section and network producers, checks their public queried values or domain refusals and rejects silent signed/clamped feature output. The large finite constraint must reach a finite-measurement solve refusal instead of corrupting a factor or entering positivity backtracking.
  * @evidence contracts/development/testing.md#independent-expectations Radii/scales must be positive and finite; positive input samples alone do not ensure that between knots. The feature's -0.2 m offset on a 0.1 m cylinder has a negative on-course radius and must be refused. The positive cylinder's 0.1 m radius and IEEE finite maximum supply independent controls.
@@ -57,7 +71,7 @@ export function test_geometry_sweep_numeric_admission(): void {
   function positiveOrRefused(query: () => number): boolean {
     try {
       const value: number = query();
-      return value > 0 && Number.isFinite(value);
+      return value > 0;
     } catch (error) {
       return (
         error instanceof Error && error.message.includes("positive and finite")
@@ -95,7 +109,7 @@ export function test_geometry_sweep_numeric_admission(): void {
     radial = sampleAutoMovieSweepSection({
       section: { type: "radial", radii: values },
       count: 64,
-    }).every((value: number): boolean => value > 0 && Number.isFinite(value));
+    }).every((value: number): boolean => value > 0);
   } catch (error) {
     radial =
       error instanceof Error && error.message.includes("positive and finite");

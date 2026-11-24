@@ -108,8 +108,7 @@ export namespace tapDance {
     const p: IAutoMovieMotionHumanTapDance.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const repeats: number = p.repeats ?? 1;
-    HumanBound.whole("repeats", repeats);
+    const repeats: number = HumanBound.whole("repeats", p.repeats ?? 1);
     const step: tapDanceSteps.IStep = tapDanceSteps.STEPS[p.step];
     const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,

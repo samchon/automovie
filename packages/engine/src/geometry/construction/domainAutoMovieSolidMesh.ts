@@ -34,16 +34,15 @@ export function domainAutoMovieSolidMesh(
   at: (i: number, j: number) => number,
   period?: number,
 ): IAutoMovieSolidMeshConstraints.ISegment[] | string {
-  if (period !== undefined && !(Number.isFinite(period) && period > 0))
+  if (period !== undefined && !(period > 0))
     return "domain period must be finite and positive";
   if (
     stations.some(
       (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > stations[k - 1]!)),
+        k > 0 && !(value > stations[k - 1]!),
     ) ||
     phases.some(
-      (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > phases[k - 1]!)),
+      (value: number, k: number): boolean => k > 0 && !(value > phases[k - 1]!),
     )
   )
     return "domain grid needs finite strictly increasing coordinates";
@@ -98,18 +97,14 @@ function row(
   const nodes: Node[] = [];
   for (const entry of vertices) {
     const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
-    if (!point.every(Number.isFinite))
-      return "domain needs finite source coordinates";
     if (point[axis] !== fixed) continue;
     let value: number = point[variable];
     if (period !== undefined) {
       const lift: number = -Math.floor((value - first) / period);
-      if (!Number.isSafeInteger(lift))
-        return "domain source cover is not representable";
       value += lift * period;
       if (value === last) value = first;
     }
-    if (value < first || value > last || !Number.isFinite(value)) continue;
+    if (value < first || value > last) continue;
     nodes.push({ id, point: axis === 0 ? [fixed, value] : [value, fixed] });
   }
   const count: number = axis === 0 ? phases.length : stations.length;
@@ -162,8 +157,6 @@ function row(
               period,
           );
     const turn: number = liftB - liftA;
-    if (!Number.isSafeInteger(turn))
-      return "domain edge cover is not representable";
     edges.push({ a: a.id, b: b.id, turn });
   }
   return edges;

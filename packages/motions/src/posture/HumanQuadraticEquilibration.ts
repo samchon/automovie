@@ -275,31 +275,25 @@ export function HumanQuadraticEquilibration(
   }
   let sameMatrices: boolean = admitted.topology && previous!.core.band === band;
   for (let i: number = 0; i < n; ++i) {
-    const matches: boolean = HumanQuadraticEquilibration.finite(
+    const matches: boolean = HumanQuadraticEquilibration.same(
       p[i]!,
-      "Scaled quadratic curvature",
       sameMatrices ? previous!.core.p[i] : undefined,
     );
     if (!matches) sameMatrices = false;
   }
-  HumanQuadraticEquilibration.finite(q, "Scaled quadratic linear term");
   if (
-    !HumanQuadraticEquilibration.finite(
+    !HumanQuadraticEquilibration.same(
       vals,
-      "Scaled quadratic rows",
       sameMatrices ? previous!.core.vals : undefined,
     )
   )
     sameMatrices = false;
   if (
     !(c > 0) ||
-    !Number.isFinite(c) ||
-    d.some(
-      (value: number): boolean => !(value > 0) || !Number.isFinite(value),
-    ) ||
-    e.some((value: number): boolean => !(value > 0) || !Number.isFinite(value))
+    d.some((value: number): boolean => !(value > 0)) ||
+    e.some((value: number): boolean => !(value > 0))
   )
-    throw new RangeError("Quadratic scaling must be finite and invertible");
+    throw new RangeError("Quadratic scaling must be invertible");
   let qNorm: number = 0;
   let unscaledQNorm: number = 0;
   const unscale: Float64Array = d.map((scale: number, i: number): number => {
@@ -353,29 +347,19 @@ export function HumanQuadraticEquilibration(
  */
 export namespace HumanQuadraticEquilibration {
   /**
-   * Reject nonfinite numeric data before retention can conceal it.
+   * Whether a buffer equals an admitted one entry by entry, so retention may
+   * keep the admitted one.
    *
    * @param values The buffer.
-   * @param label What it is, for the refusal.
    * @param previous An admitted buffer to compare it with exactly.
    * @returns Whether the buffer equals `previous` entry by entry.
-   * @throws {RangeError} At the first nonfinite entry.
    */
-  export function finite(
-    values: Float64Array,
-    label: string,
-    previous?: Float64Array,
-  ): boolean {
-    let same: boolean =
-      previous !== undefined && previous.length === values.length;
-    for (let i: number = 0; i < values.length; ++i) {
-      const value: number = values[i]!;
-      if (same && Object.is(value, previous![i])) continue;
-      if (value !== 0 && !Number.isFinite(value))
-        throw new RangeError(`${label} entry ${i} must be finite`);
-      same = false;
-    }
-    return same;
+  export function same(values: Float64Array, previous?: Float64Array): boolean {
+    if (previous === undefined || previous.length !== values.length)
+      return false;
+    for (let i: number = 0; i < values.length; ++i)
+      if (!Object.is(values[i], previous[i])) return false;
+    return true;
   }
 }
 

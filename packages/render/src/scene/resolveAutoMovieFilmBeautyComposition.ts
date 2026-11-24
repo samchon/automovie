@@ -24,11 +24,7 @@ export const resolveAutoMovieFilmBeautyComposition: <
       `Film beauty composition requires one fade/cut layer or two dissolve layers, but received ${layers.length}.`,
     );
   for (const layer of layers)
-    if (
-      Number.isFinite(layer.weight) === false ||
-      layer.weight < 0 ||
-      layer.weight > 1
-    )
+    if (layer.weight < 0 || layer.weight > 1)
       throw new Error(
         `Film beauty layer weight ${layer.weight} must be finite and inside [0, 1].`,
       );

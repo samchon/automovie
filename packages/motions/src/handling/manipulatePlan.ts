@@ -145,8 +145,7 @@ export function manipulatePlan(
           from: press.time - reach * span,
           index,
         }),
-      )
-      .filter((window: IWindow): boolean => !Number.isNaN(window.from));
+      );
     windows.sort((a: IWindow, b: IWindow): number => a.from - b.from);
     let latest: number = 0;
     for (const window of windows) {

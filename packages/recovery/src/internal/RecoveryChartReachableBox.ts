@@ -21,7 +21,7 @@ export function RecoveryChartReachableBox(
 ): ReturnType<IAutoMovieAffineBoxBound.Operation> {
   const finite: (p: readonly number[]) => boolean = (
     p: readonly number[],
-  ): boolean => p.length === 3 && p.every(Number.isFinite);
+  ): boolean => p.length === 3;
   if (
     !finite(input.constantMm) ||
     !finite(input.lowerMm) ||
@@ -30,8 +30,7 @@ export function RecoveryChartReachableBox(
     input.lowerMm.some(
       (x: number, k: number): boolean => x > input.upperMm[k]!,
     ) ||
-    !(input.toleranceMm > 0 && Number.isFinite(input.toleranceMm)) ||
-    !Number.isSafeInteger(input.maxTerms) ||
+    !(input.toleranceMm > 0) ||
     input.maxTerms < 1 ||
     input.terms.length > input.maxTerms
   )
@@ -81,23 +80,15 @@ export function RecoveryChartReachableBox(
       shift < 0 && magnitude !== units << BigInt(-shift);
     if (remainder && (negative ? direction < 0 : direction > 0)) units++;
     const value: number = (negative ? -1 : 1) * Number(units) * 2 ** quantum;
-    if (!Number.isFinite(value))
-      throw new Error("An outward affine-box number view is not representable");
     return value;
   };
   const combined: Map<number, number> = new Map();
   for (const term of input.terms) {
-    if (
-      !Number.isSafeInteger(term.id) ||
-      term.id < 0 ||
-      !Number.isFinite(term.weight)
-    )
+    if (term.id < 0)
       throw new Error(
         "Finite weights and nonnegative original integer IDs are required",
       );
     const weight: number = (combined.get(term.id) ?? 0) + term.weight;
-    if (!Number.isFinite(weight))
-      throw new Error("A combined binary64 row weight became nonfinite");
     combined.set(term.id, weight);
   }
   const weights: Dyadic[] = [...combined.values()].map(exact);
@@ -111,8 +102,6 @@ export function RecoveryChartReachableBox(
     weightSum += weight;
     absoluteWeightSum += Math.abs(weight);
   }
-  if (!Number.isFinite(weightSum) || !Number.isFinite(absoluteWeightSum))
-    throw new Error("Affine-row weight diagnostics are not representable");
   for (const weight of weights)
     for (let k: number = 0; k < 3; k++) {
       lows[k] = add(
@@ -137,8 +126,6 @@ export function RecoveryChartReachableBox(
   }
   const tolerance: Dyadic = exact(input.toleranceMm),
     minimumDistanceMm: number = Math.hypot(...gaps);
-  if (!Number.isFinite(minimumDistanceMm))
-    throw new Error("The approximate affine-box distance is not representable");
   return {
     lowerMm: [
       outward(lows[0]!, -1),

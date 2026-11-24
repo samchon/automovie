@@ -116,14 +116,10 @@ function requireRigid(
     });
 }
 
-/** Whether the position is finite and the rotation already unit length. */
+/** Whether the rotation is already unit length. */
 function rigid(frame: IAutoMovieRigidTransform): boolean {
-  const { x, y, z } = frame.position;
   const q: IAutoMovieRigidTransform["rotation"] = frame.rotation;
-  return (
-    [x, y, z].every(Number.isFinite) &&
-    Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6
-  );
+  return Math.abs(Math.hypot(q.x, q.y, q.z, q.w) - 1) <= 1e-6;
 }
 
 /**

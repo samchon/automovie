@@ -59,7 +59,8 @@ export function triangulateRecoveryCameraPoint(
       orthogonalityTolerance: 1e-12,
     });
   const ratio: number = factors.singularValues[2]! / factors.singularValues[0]!;
-  if (!Number.isFinite(ratio) || ratio < minimumDesignRatio) return null;
+  if (factors.singularValues[0] === 0 || ratio < minimumDesignRatio)
+    return null;
   const homogeneous: number[] = factors.rightColumns[3]!;
   if (homogeneous[3] === 0) return null;
   const point: [number, number, number] = [
@@ -67,15 +68,13 @@ export function triangulateRecoveryCameraPoint(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  if (!point.every(Number.isFinite)) return null;
   const rotated: [number, number, number] = AutoMovieMatrix3.apply(r, point);
   const inSecond: [number, number, number] = [
     rotated[0] + t[0]!,
     rotated[1] + t[1]!,
     rotated[2] + t[2]!,
   ];
-  if (!inSecond.every(Number.isFinite) || point[2] === 0 || inSecond[2] === 0)
-    return null;
+  if (point[2] === 0 || inSecond[2] === 0) return null;
   // Direction comparison requires R-transpose, not a camera-centre displacement;
   // translation determines triangulation but does not transform a free ray.
   const backRay: [number, number, number] = AutoMovieMatrix3.apply(
@@ -84,13 +83,7 @@ export function triangulateRecoveryCameraPoint(
   );
   const norm1: number = Math.hypot(...ray1);
   const norm2: number = Math.hypot(...backRay);
-  if (
-    !(norm1 > 0) ||
-    !(norm2 > 0) ||
-    !Number.isFinite(norm1) ||
-    !Number.isFinite(norm2)
-  )
-    return null;
+  if (!(norm1 > 0) || !(norm2 > 0)) return null;
   const unit1: IAutoMovieVector3 = {
     x: ray1[0] / norm1,
     y: ray1[1] / norm1,
@@ -122,12 +115,6 @@ export function triangulateRecoveryCameraPoint(
     projection2[0] - secondPoint[0],
     projection2[1] - secondPoint[1],
   );
-  if (
-    ![parallaxRadians, firstReprojectionPx, secondReprojectionPx].every(
-      Number.isFinite,
-    )
-  )
-    return null;
   return {
     point,
     firstDepth: point[2],

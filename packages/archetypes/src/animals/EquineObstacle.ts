@@ -179,7 +179,7 @@ export namespace EquineObstacle {
         }
       }
     }
-    return Number.isFinite(extra) ? extra : 0;
+    return extra !== -Infinity ? extra : 0;
   }
 
   /** The displayed parts and placement a flown ride shows at one second. */

@@ -93,7 +93,7 @@ export function fitDigitToTarget(
     throw new Error("A digit fit needs the digit's joints");
   if (
     input.rate !== undefined &&
-    !(Number.isFinite(input.rate) && input.rate > 0)
+    !(input.rate > 0)
   )
     throw new Error("A digit fit's rate must be finite and positive");
   const topology: IAutoMovieSkeletonTopology =

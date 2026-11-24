@@ -91,24 +91,19 @@ export namespace ArchetypeCoursePath {
     course.legs.forEach(
       (leg: AutoMovieArchetypeCourse.Leg, index: number): void => {
         const size: number = leg.kind === "straight" ? leg.length : leg.radius;
-        if (!(Number.isFinite(size) && size > 0))
+        if (!(size > 0))
           refuse(
             `legs[${index}]`,
             size,
             "a leg's length or radius must be positive",
           );
-        if (
-          leg.kind === "turn" &&
-          !(Number.isFinite(leg.angle) && leg.angle !== 0)
-        )
+        if (leg.kind === "turn" && !(leg.angle !== 0))
           refuse(
             `legs[${index}].angle`,
             leg.angle,
             "a turn must change the heading",
           );
         const rise: number = leg.rise ?? 0;
-        if (!Number.isFinite(rise))
-          refuse(`legs[${index}].rise`, rise, "a leg's rise must be finite");
         const run: number =
           leg.kind === "straight"
             ? leg.length

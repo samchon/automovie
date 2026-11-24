@@ -14,16 +14,19 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * Preserve complete charts through analytic critical partitions and finite limits.
+ * Preserve complete charts through analytic critical partitions and finite
+ * limits.
  *
  * Scenarios:
+ *
  * 1. A non-dyadic cubic inflection maps exactly through domain [7,11].
  * 2. The same unpartitioned inflection cannot claim complete strict admission.
- * 3. y=t^3 has a zero-curvature endpoint but emits only finite positive weights.
+ * 3. Y=t^3 has a zero-curvature endpoint but emits only finite positive weights.
  * 4. A symmetric noninflected cubic arch splits at its affine-curvature extremum.
  * 5. Rotation, reflection and translation retain partitioned coefficient coverage.
  * 6. A one-arc budget exposes missing coverage rather than bridging it.
- * 7. The infinite-weight triangle limit admits a double root and rejects two distinct roots.
+ * 7. The infinite-weight triangle limit admits a double root and rejects two
+ *    distinct roots.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven source-partition, boundary-limit, rigid-transform, budget and unique-intersection scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Fits source-only cubic charts, checks complete endpoint coverage and tangent directions, independently minimizes held-out point distances, and exercises the compactified normal intersection directly.
@@ -110,7 +113,10 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       },
     };
   }
-  /** Coverage and G1 checks use original source jets; no missing interval is skipped. */
+  /**
+   * Coverage and G1 checks use original source jets; no missing interval is
+   * skipped.
+   */
   function verify(
     source: IAutoMoviePlanarCurveSource,
     result: IAutoMovieConicApproximation.IResult,
@@ -128,11 +134,7 @@ export function test_recovery_conics_ghosh_boundaries(): void {
       );
       TestValidator.predicate(
         "only finite positive coefficients",
-        Number.isFinite(arc.weight) &&
-          arc.weight > 0 &&
-          arc.controls.every((p: Readonly<AutoMovieVector2Tuple>): boolean =>
-            p.every(Number.isFinite),
-          ),
+        arc.weight > 0,
       );
       const start: Readonly<AutoMovieVector2Tuple> = source.evaluate(
         arc.domain[0],

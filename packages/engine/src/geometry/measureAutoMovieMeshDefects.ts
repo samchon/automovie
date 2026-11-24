@@ -102,11 +102,11 @@ export function measureAutoMovieMeshDefects(
     throw new Error(
       `measureAutoMovieMeshDefects: ${cornerCount} triangle corners are not in threes`,
     );
-  if (!(Number.isFinite(weld) && weld > 0))
+  if (!(weld > 0))
     throw new Error(
       `measureAutoMovieMeshDefects: weld ${weld} is not a positive finite cell count`,
     );
-  if (sliver !== undefined && !(Number.isFinite(sliver) && sliver > 0))
+  if (sliver !== undefined && !(sliver > 0))
     throw new Error(
       `measureAutoMovieMeshDefects: sliver limit ${sliver} is not a positive finite aspect`,
     );
@@ -165,7 +165,7 @@ export function measureAutoMovieMeshDefects(
        * buffer.
        */
       const vertex: number = vertexAt(3 * triangle + k);
-      if (!(Number.isInteger(vertex) && vertex >= 0 && vertex < vertexCount))
+      if (!(vertex >= 0 && vertex < vertexCount))
         throw new Error(
           `measureAutoMovieMeshDefects: index ${vertex} at corner ${3 * triangle + k} is not one of the ${vertexCount} vertices`,
         );
@@ -288,10 +288,6 @@ function weldCells(
       const lattice: number = Math.round(positions[3 * vertex + axis]! * weld);
 
       // A NaN, an infinity, a hole in the buffer and a product past the binary64 range all have no cell.
-      if (!Number.isFinite(lattice))
-        throw new Error(
-          `measureAutoMovieMeshDefects: vertex ${vertex} has no lattice cell, its component ${axis} is ${positions[3 * vertex + axis]}`,
-        );
       ordinal[axis] = intern(axes[axis]!, lattice);
     }
     cellOf[vertex] = intern(

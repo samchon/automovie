@@ -10,10 +10,7 @@ import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 export function autoMovieViewerTurntableViewpoints(
   options: IAutoMovieViewerTurntableOptions,
 ): IAutoMovieViewerViewpoint[] {
-  if (
-    Number.isInteger(options.azimuthCount) === false ||
-    options.azimuthCount < 1
-  )
+  if (options.azimuthCount < 1)
     throw new RangeError(
       `turntable azimuth count must be a positive integer, not ${options.azimuthCount}`,
     );

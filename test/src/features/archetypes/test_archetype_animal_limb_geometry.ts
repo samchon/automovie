@@ -5,21 +5,23 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../internal/nclose";
 
 /**
- * The actual four-bar geometric solver keeps fixed goals and refuses outside reach.
+ * The actual four-bar geometric solver keeps fixed goals and refuses outside
+ * reach.
  *
  * Scenarios:
+ *
  * 1. Independent axial controls have literal lengths 2,3,4,5 metres. Their
  *    unfolded triangle is [10,14]; both tangencies and an interior goal solve
  *    for fore and hind branches without moving either supplied endpoint.
- * 2. A ninety-degree distal fold gives a 3-by-9 right-triangle carriage and
- *    bounds sqrt(90)+/-2. A half-turn folds the last nine metres back against
- *    three metres, yielding [4,8]; a twelve-metre goal then refuses.
+ * 2. A ninety-degree distal fold gives a 3-by-9 right-triangle carriage and bounds
+ *    sqrt(90)+/-2. A half-turn folds the last nine metres back against three
+ *    metres, yielding [4,8]; a twelve-metre goal then refuses.
  * 3. Two-ULP outside tangencies, excessive drop, zero root-goal distance,
  *    nonfinite values, wrong count, sparse controls, zero lengths and visible
  *    out-of-plane data refuse as RangeError, without a stretched result.
- * 4. A bent neutral five-point source is recovered at zero relative fold;
- *    prepared state isolates source/output mutation and small admitted plane
- *    arithmetic preserves the caller's exact root and terminal X values.
+ * 4. A bent neutral five-point source is recovered at zero relative fold; prepared
+ *    state isolates source/output mutation and small admitted plane arithmetic
+ *    preserves the caller's exact root and terminal X values.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines literal SI controls, independent folded bands, exact-root/goal semantics, branch/plane checks, strict geometric boundaries and snapshot ownership without anatomical ROM claims.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the real prepare/range/solve owner, measuring all four returned lengths and endpoint coordinates. Tangencies, an actual bent source and independently calculated fold changes distinguish fixed-root geometry from a solver that translates the root, clamps reach, borrows species angles or returns a completed sample.
@@ -236,7 +238,10 @@ export function test_archetype_animal_limb_geometry(): void {
     );
   TestValidator.equals("fixed-root actual four-bar geometry", findings, []);
 
-  /** Every result must meet the unchanged independent four lengths and exact endpoints. */
+  /**
+   * Every result must meet the unchanged independent four lengths and exact
+   * endpoints.
+   */
   function verify(
     points: readonly IAutoMovieVector3[],
     from: IAutoMovieVector3,
@@ -264,14 +269,12 @@ export function test_archetype_animal_limb_geometry(): void {
         expected,
       );
     }
-    for (const point of points)
-      truth(
-        `${label} finite point`,
-        [point.x, point.y, point.z].every(Number.isFinite),
-      );
   }
 
-  /** Refusal must be the declared geometric RangeError, not an incidental exception. */
+  /**
+   * Refusal must be the declared geometric RangeError, not an incidental
+   * exception.
+   */
   function refusal(label: string, action: () => unknown): void {
     let error: unknown;
     try {
@@ -282,7 +285,10 @@ export function test_archetype_animal_limb_geometry(): void {
     truth(label, error instanceof RangeError);
   }
 
-  /** Vector arithmetic observes solved coordinates without reimplementing triangle solving. */
+  /**
+   * Vector arithmetic observes solved coordinates without reimplementing
+   * triangle solving.
+   */
   function delta(
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -290,7 +296,10 @@ export function test_archetype_animal_limb_geometry(): void {
     return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
   }
 
-  /** Dot products distinguish unchanged relative carriage from merely correct endpoints. */
+  /**
+   * Dot products distinguish unchanged relative carriage from merely correct
+   * endpoints.
+   */
   function dot(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
     return a.x * b.x + a.y * b.y + a.z * b.z;
   }

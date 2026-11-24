@@ -98,10 +98,7 @@ const readAngle: (
   frame: IAutoMovieRestFrame[AutoMovieClinicalAxis] | undefined,
 ): number => {
   const value: number | null = joint[axis];
-  if (value !== null && !Number.isFinite(value))
-    throw new Error(
-      `jointToQuaternion ${axis} must be finite or null, but was ${value}`,
-    );
+
   return toRigAngle(value, frame) ?? 0;
 };
 
@@ -417,8 +414,7 @@ function scalarComposition(
     if (
       constants !== undefined &&
       (((identities & 1) !== 0 && outer === constants[0]) ||
-        ((identities & 2) !== 0 && outer === constants[1])) &&
-      Number.isFinite(product.x + product.y + product.z + product.w)
+        ((identities & 2) !== 0 && outer === constants[1]))
     ) {
       const x: number =
         product.x !== 0

@@ -46,13 +46,6 @@ export const validatePlantingDomain: (
       `planting units must be "meter", but was ${String(domain.units)}`,
       domain.units,
     );
-  if (!Number.isSafeInteger(domain.seed))
-    out.push(
-      "type",
-      `${root}.seed`,
-      "planting seed must be a safe integer",
-      domain.seed,
-    );
 
   const structure: IAutoMoviePlantingStructure = domain.structure;
   integer(
@@ -171,7 +164,7 @@ export const validatePlantingDomain: (
     1,
   );
   const spanned: number = domain.growth.onset * (structure.levels - 1);
-  if (Number.isFinite(spanned) && spanned >= 1)
+  if (spanned >= 1)
     out.push(
       "range",
       `${root}.growth.onset`,
@@ -271,13 +264,11 @@ export const validatePlantingDomain: (
   // Guarded by the level range above: the worst case is counted by walking the
   // levels, so an out-of-range depth is refused before anything walks it.
   if (
-    Number.isSafeInteger(structure.levels) &&
     structure.levels >= 1 &&
     structure.levels <= PLANTING_MAX_LEVELS
   ) {
     const budget: IAutoMoviePlantingBudget = plantingBudget({ domain });
     if (
-      Number.isSafeInteger(domain.budget.maxBranches) &&
       budget.worstCaseBranches > domain.budget.maxBranches
     )
       out.push(
@@ -322,9 +313,6 @@ const direction: (
 ): void => {
   vector(out, path, value);
   if (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z) &&
     value.x * value.x + value.y * value.y + value.z * value.z === 0
   )
     out.push("type", path, `${label} must be a non-zero vector`, value);

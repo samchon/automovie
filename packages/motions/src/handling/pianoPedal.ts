@@ -334,7 +334,7 @@ function plan(
 
 /** Reject an empty, unbounded, reversed or overlapping clock. */
 function admitClock(presses: readonly Press[], duration: number): void {
-  if (!Number.isFinite(duration) || presses.length === 0)
+  if (presses.length === 0)
     refuse(
       "duration",
       duration,

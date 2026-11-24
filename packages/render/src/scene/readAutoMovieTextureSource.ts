@@ -252,9 +252,7 @@ const decodedExtent: (
         : rawHeight;
   return typeof width === "number" &&
     typeof height === "number" &&
-    Number.isSafeInteger(width) &&
     width > 0 &&
-    Number.isSafeInteger(height) &&
     height > 0
     ? { width, height }
     : undefined;

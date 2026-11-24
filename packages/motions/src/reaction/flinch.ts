@@ -159,11 +159,12 @@ export namespace flinch {
       DUCK,
     );
 
-    // Away from the threat in the performer's floor frame: `x` left, `z` forward.
-    let cached: IAutoMovieVector3 | undefined;
-    const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 => {
-      if (cached !== undefined) return cached;
-      cached = HumanFrame.local(
+    // Away from the threat in the performer's floor frame: `x` left, `z`
+    // forward. The threat is read at the look before the start, solved once
+    // the performance is placed (`prepare`); a read before reads it there.
+    let prepared: IAutoMovieVector3 | undefined;
+    const solve = (): IAutoMovieVector3 =>
+      HumanFrame.local(
         { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
         AutoMovieMotionHumanTarget.away(
           ReactionSource.at(
@@ -179,8 +180,8 @@ export namespace flinch {
           entry.yaw,
         ),
       );
-      return cached;
-    };
+    const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 =>
+      prepared ?? solve();
 
     // A glove before the face on the trunk the action has placed so far.
     const faceBones: ReadonlySet<AutoMovieHumanoidBone> =
@@ -290,8 +291,8 @@ export namespace flinch {
           entry,
           AutoMovieMotionHumanBase.plants(),
         ),
-        settle: (): void => {
-          cached = undefined;
+        prepare: (): void => {
+          prepared = solve();
         },
       },
       clock,

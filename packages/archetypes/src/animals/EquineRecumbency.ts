@@ -65,11 +65,7 @@ export namespace EquineRecumbency {
     ride: AutoMovieArchetypeRide.IRide<Id, D>,
     cue: ICue,
   ): AutoMovieArchetypeRide.IRide<Id, D> {
-    if (
-      !(cue.from >= ride.duration) ||
-      !(Number.isFinite(cue.down) && cue.down > 0) ||
-      !(Number.isFinite(cue.hold) && cue.hold >= 0)
-    )
+    if (!(cue.from >= ride.duration) || !(cue.down > 0) || !(cue.hold >= 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,

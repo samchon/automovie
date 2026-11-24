@@ -1,5 +1,7 @@
 import type { IAutoMovieMotionPlayback } from "../../IAutoMovieMotionPlayback";
+import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
 import type { IAutoMovieMotionHumanActionPlan } from "../law/IAutoMovieMotionHumanActionPlan";
+import type { IAutoMovieMotionHumanRefusal } from "../law/IAutoMovieMotionHumanRefusal";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
 import type { IAutoMovieMotionHumanResolveHumanPosture } from "../posture/IAutoMovieMotionHumanResolveHumanPosture";
 
@@ -28,6 +30,35 @@ export interface IAutoMovieMotionHumanPlayback {
 
 /** Phase ranges and samples consumed by a human display leaf. */
 export namespace IAutoMovieMotionHumanPlayback {
+  /**
+   * A plan's own copy of its native playback (`HumanPreparedPlayback.attach`):
+   * the body and the posture reader it was authored for, the reader placement
+   * installed over it and where that placement stands, and whether its
+   * event-dependent setup has run.
+   */
+  export interface IBinding {
+    /** The body every phase was authored for. */
+    readonly body: IAutoMovieMotionHumanBody;
+
+    /** The phases, copied when attached. */
+    readonly source: IAutoMovieMotionHumanPlayback;
+
+    /** The plan's posture reader the phases stand for. */
+    readonly original: IAutoMovieMotionHumanActionPlan["posture"];
+
+    /** The reader placement installed over `original`; absent until placed. */
+    located?: IAutoMovieMotionHumanActionPlan["posture"];
+
+    /** Where placement put the plan, for a located refusal. */
+    where?: IAutoMovieMotionHumanRefusal.IWhere;
+
+    /**
+     * Whether the phases may be read: from the start for phases without
+     * setup, and once the performance prepared them for the others.
+     */
+    ready: boolean;
+  }
+
   /** One closed event interval on the human action's own clock. */
   export interface IPhase extends IAutoMovieMotionPlayback<
     ISample | undefined,

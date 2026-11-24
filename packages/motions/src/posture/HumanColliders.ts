@@ -328,7 +328,7 @@ export namespace HumanColliders {
    * neutral metadata is shared; every posed collider query stays current.
    */
   export function bones(
-    body: IAutoMovieMotionHumanBody,
+    body: Parameters<typeof HumanColliderPlacement.bones>[0],
   ): ReadonlySet<AutoMovieHumanoidBone> {
     return HumanColliderPlacement.bones(body);
   }

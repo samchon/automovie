@@ -18,18 +18,41 @@ const BLADE: string[] = [1, 2, 3, 4, 5, 6].map(
 /** The parts of a hilt. */
 const HILT: string[] = ["guard", "grip", "pommel"];
 
-/** Albion Swords' published figures for two longswords and two single-hand swords. */
+/**
+ * Albion Swords' published figures for two longswords and two single-hand
+ * swords.
+ */
 const ALBION: string = "Albion Swords: Crecy, Regent, Knight, Poitiers";
 
 /**
- * Blades, shields, polearms and the pell stay inside their cited dimensions for every seed, and a blade balances where its maker measured it.
+ * Blades, shields, polearms and the pell stay inside their cited dimensions for
+ * every seed, and a blade balances where its maker measured it.
  *
  * Scenarios:
- * 1. Over 200 seeds, measured on the produced thing: a longsword 1.137 to 1.22 m from pommel to point, 1.39 to 1.59 kg, balancing 101.6 to 130 mm above its guard; an arming sword's blade 0.7779 to 0.8 m and its hilt 0.168 to 0.1698 m (each sword's overall length less its blade, one sword's whole), 1.19 to 1.2 kg, balancing 85.7 to 114.3 mm above its guard; a knife 0.3016 m long and 0.32 kg; a sabre's point 0.83 to 0.84 m from its guard in a straight line; a buckler 0.445 to 0.527 m across and 1.56 to 1.73 kg; a round shield 0.75 to 0.9 m across; a staff 1.8 to 2.7 m long; a spear's head, one of the two weighed catalogued heads, 0.362 to 0.54 m above a shaft of 2 to 3 m.
- * 2. Every kind of blade, for three seeds: the centre of mass lies on the blade's axis at the drawn point of balance above the guard, to a micrometre, and no part carries a negative share of the mass (the moment of inertia about the grip is positive and exceeds the point-mass term of the balance distance).
- * 3. A curved blade's edge is the outside of its curve: a sabre's and a katana's point lies behind the guard's line toward `-Z`, and their `edge` faces `+Z`.
- * 4. A dagger and a knife have a `reverseGrip` whose `+X` points from the blade to the pommel, opposite the `grip`'s; a longsword has none and refuses it, listing the ids it has.
- * 5. A pell's `target` sites run from the ground to its top: `v` of 0 and 1 are a post's height apart along `Y`.
+ *
+ * 1. Over 200 seeds, measured on the produced thing: a longsword 1.137 to 1.22 m
+ *    from pommel to point, 1.39 to 1.59 kg, balancing 101.6 to 130 mm above its
+ *    guard; an arming sword's blade 0.7779 to 0.8 m and its hilt 0.168 to
+ *    0.1698 m (each sword's overall length less its blade, one sword's whole),
+ *    1.19 to 1.2 kg, balancing 85.7 to 114.3 mm above its guard; a knife 0.3016
+ *    m long and 0.32 kg; a sabre's point 0.83 to 0.84 m from its guard in a
+ *    straight line; a buckler 0.445 to 0.527 m across and 1.56 to 1.73 kg; a
+ *    round shield 0.75 to 0.9 m across; a staff 1.8 to 2.7 m long; a spear's
+ *    head, one of the two weighed catalogued heads, 0.362 to 0.54 m above a
+ *    shaft of 2 to 3 m.
+ * 2. Every kind of blade, for three seeds: the centre of mass lies on the blade's
+ *    axis at the drawn point of balance above the guard, to a micrometre, and
+ *    no part carries a negative share of the mass (the moment of inertia about
+ *    the grip is positive and exceeds the point-mass term of the balance
+ *    distance).
+ * 3. A curved blade's edge is the outside of its curve: a sabre's and a katana's
+ *    point lies behind the guard's line toward `-Z`, and their `edge` faces
+ *    `+Z`.
+ * 4. A dagger and a knife have a `reverseGrip` whose `+X` points from the blade to
+ *    the pommel, opposite the `grip`'s; a longsword has none and refuses it,
+ *    listing the ids it has.
+ * 5. A pell's `target` sites run from the ground to its top: `v` of 0 and 1 are a
+ *    post's height apart along `Y`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each weapon and measures collider extents, the body's mass, the computed centre of mass, the moment about the grip, frames and sites; a band off its source, a mass split that misses the balance, a blade curved the wrong way or a reverse grip facing the grip's way is caught.
  * @evidence contracts/development/testing.md#independent-expectations Lengths, masses and balance points are Albion's published figures for the Crecy, Regent, Knight and Poitiers, the Ka-Bar's 11 7/8 in and 0.7 lb, the 1796 sabre's 32.5 to 33 in blade, the Wallace Collection's A315 and A316, the 75 to 90 cm of Viking round shields, the quarterstaff's 6 to 9 ft and the Viking spear's 2 to 3 m shaft, the weighed catalogued spearheads' 362 and 540 mm (Museum Wales' medieval iron head and Met 1989.220), each written here from its source. The balance rule (centre of mass at the stated point) is the definition of a point of balance; the inertia bound is the parallel-axis theorem.
@@ -215,13 +238,12 @@ export function test_archetype_weapon_blades(): void {
   for (const kind of ["sabre", "katana"] as const) {
     const made: ReturnType<typeof createSword> = sword(kind);
     const point: number = made.affordance("point").frame.translation.z;
-    const edge: number = made.affordance("edge").frame.rotation.w;
     const out: { x: number; y: number; z: number } = made.placed("edge", {
       translation: { x: 0, y: 0, z: 0 },
       rotation: { x: 0, y: 0, z: 0, w: 1 },
       scale: { x: 1, y: 1, z: 1 },
     }).translation;
-    if (!(point < 0) || !Number.isFinite(edge) || !(out.z > point / 2))
+    if (!(point < 0) || !(out.z > point / 2))
       findings.push(
         `${kind}: the point lies at z ${point} and the edge's middle at z ${out.z}`,
       );

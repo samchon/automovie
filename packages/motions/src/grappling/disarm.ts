@@ -114,7 +114,7 @@ export namespace disarm {
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanDisarm.IParams = context.params;
     const lever: number = params.lever ?? LEVER;
-    if (!(lever > 0 && Number.isFinite(lever)))
+    if (!(lever > 0))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "lever",

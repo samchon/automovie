@@ -63,10 +63,8 @@ const axisAlignedCellBox = (
     if (scale > 0) max[axis] = Math.min(max[axis], value);
     else min[axis] = Math.max(min[axis], value);
   }
-  return AXES.every(
-    (axis: "x" | "y" | "z"): boolean =>
-      Number.isFinite(min[axis]) && Number.isFinite(max[axis]),
-  )
+  // An axis no plane bounds keeps its unbounded maximum.
+  return AXES.every((axis: "x" | "y" | "z"): boolean => max[axis] !== Infinity)
     ? { min, max }
     : null;
 };

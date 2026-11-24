@@ -95,7 +95,7 @@ export namespace AutoMovieConstructionSeeds {
     )
       return `search shares ${seed.from} and ${seed.to} must lie in [0, 1] and differ`;
     const lines: number = seed.phases ?? 1;
-    if (!(Number.isInteger(lines) && lines >= 1))
+    if (!(lines >= 1))
       return `search line count ${seed.phases} must be a positive integer`;
     // The lines round the part in a fixed order, the declared phase's first; the first line with an admitted meeting is the seed.
     const phases: number[] = Array.from(
@@ -259,19 +259,6 @@ export namespace AutoMovieConstructionSeeds {
     trace?: IAutoMovieConstructionSeedTrace.Sink,
   ): Vec3 | null {
     let x: Vec3 = [...x0];
-    if (!x.every(Number.isFinite)) {
-      if (trace !== undefined)
-        Trace.emit(trace, {
-          kind: "meet-end",
-          phase,
-          start: x0[0],
-          chart: x,
-          gap: null,
-          iteration: 0,
-          reason: "nonfinite-start",
-        });
-      return null;
-    }
     const p0: IAutoMovieSolidSurface.IJet | null = AutoMovieSolidDomain.jet(
       part,
       x[0],
@@ -299,19 +286,6 @@ export namespace AutoMovieConstructionSeeds {
     let h: IAutoMovieSolidSurface.IJet = h0;
     let f: Vec3 = sub(p.p, h.p);
     let gap: number = norm(f);
-    if (!Number.isFinite(gap)) {
-      if (trace !== undefined)
-        Trace.emit(trace, {
-          kind: "meet-end",
-          phase,
-          start: x0[0],
-          chart: x,
-          gap,
-          iteration: 0,
-          reason: "nonfinite-gap",
-        });
-      return null;
-    }
     for (let k: number = 0; k < STEPS; k++) {
       if (gap <= tolerance) {
         if (trace !== undefined)
@@ -332,7 +306,7 @@ export namespace AutoMovieConstructionSeeds {
         scale(h.v, -1),
         scale(f, -1),
       );
-      if (dx === null || !dx.every(Number.isFinite)) {
+      if (dx === null) {
         if (trace !== undefined)
           Trace.emit(trace, {
             kind: "meet-end",
@@ -353,7 +327,6 @@ export namespace AutoMovieConstructionSeeds {
           x[1] + weight * dx[1],
           x[2] + weight * dx[2],
         ];
-        if (!next.every(Number.isFinite)) continue;
         const partJet: IAutoMovieSolidSurface.IJet | null =
           AutoMovieSolidDomain.jet(part, next[0], phase);
         const hostJet: IAutoMovieSolidSurface.IJet | null =

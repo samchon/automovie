@@ -29,10 +29,7 @@ export function analyzeRecoveryMultiBoundarySurface(
       if (
         triangle.length !== 3 ||
         new Set(triangle).size !== 3 ||
-        triangle.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) || id < 0 || id >= vertices.length,
-        )
+        triangle.some((id: number): boolean => id < 0 || id >= vertices.length)
       )
         fail("triangle addresses are invalid");
       const word: string = [...triangle]
@@ -51,11 +48,8 @@ export function analyzeRecoveryMultiBoundarySurface(
         vz: number = c[2] - a[2];
       const area: number =
         Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx) / 2;
-      if (!(area > 0 && Number.isFinite(area)))
-        fail("a triangle area is collapsed or unrepresentable");
+      if (!(area > 0)) fail("a triangle area is collapsed or unrepresentable");
       areaMm2 += area;
-      if (!Number.isFinite(areaMm2))
-        fail("total triangle area is unrepresentable");
       for (let k: number = 0; k < 3; k++) {
         const from: number = triangle[k]!,
           to: number = triangle[(k + 1) % 3]!,
@@ -68,7 +62,7 @@ export function analyzeRecoveryMultiBoundarySurface(
         const p: Readonly<AutoMovieVector3Tuple> = vertices[from]!,
           q: Readonly<AutoMovieVector3Tuple> = vertices[to]!,
           length: number = Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]);
-        if (!(length > 0 && Number.isFinite(length)))
+        if (!(length > 0))
           fail("an edge length is collapsed or unrepresentable");
         adjacency[from]!.set(to, length);
         adjacency[to]!.set(from, length);

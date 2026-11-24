@@ -117,7 +117,7 @@ export const measureAutoMovieQuantities: (
     props;
   const bound: number =
     props.maxContributors ?? AUTOMOVIE_QUANTITY_MAX_CONTRIBUTORS;
-  if (!Number.isSafeInteger(bound) || bound < 1)
+  if (bound < 1)
     throw new Error(
       `quantity report contributor bound must be a positive safe integer, but was ${bound}`,
     );

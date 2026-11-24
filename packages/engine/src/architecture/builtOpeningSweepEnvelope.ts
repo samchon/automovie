@@ -151,8 +151,6 @@ const requireEnumerableTravel: (
 ): void => {
   const { min, max }: IAutoMovieTravelMotion = panel.motion;
   if (
-    Number.isFinite(min) === false ||
-    Number.isFinite(max) === false ||
     min > 0 ||
     max < 0 ||
     max <= min ||

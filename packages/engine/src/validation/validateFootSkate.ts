@@ -50,7 +50,7 @@ export const validateFootSkate: (
     topology,
   );
 
-  if (!Number.isFinite(sampleRate) || sampleRate <= 0)
+  if (sampleRate <= 0)
     collector.push(
       "range",
       `${path}.sampleRate`,
@@ -85,8 +85,6 @@ export const validateFootSkate: (
           contact.bone,
         );
       if (
-        !Number.isFinite(contact.start) ||
-        !Number.isFinite(contact.end) ||
         contact.end <= contact.start
       )
         collector.push(
@@ -95,7 +93,7 @@ export const validateFootSkate: (
           `contact window must have finite start/end with end > start, but was [${contact.start}, ${contact.end}]`,
           { start: contact.start, end: contact.end },
         );
-      if (!Number.isFinite(maxHorizontalSpeed) || maxHorizontalSpeed < 0)
+      if (maxHorizontalSpeed < 0)
         collector.push(
           "range",
           `${cp}.maxHorizontalSpeed`,
@@ -105,12 +103,8 @@ export const validateFootSkate: (
       if (
         !skeletonBones.has(contact.bone) ||
         boneUnreachable ||
-        !Number.isFinite(contact.start) ||
-        !Number.isFinite(contact.end) ||
         contact.end <= contact.start ||
-        !Number.isFinite(maxHorizontalSpeed) ||
         maxHorizontalSpeed < 0 ||
-        !Number.isFinite(sampleRate) ||
         sampleRate <= 0
       )
         return;

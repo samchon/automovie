@@ -2,18 +2,6 @@ import { IAutoMovieVector3 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
-
-const assertFiniteVector: (name: string, vector: IAutoMovieVector3) => void = (
-  name: string,
-  vector: IAutoMovieVector3,
-): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(vector[axis]))
-      throw new RangeError(
-        `segment sphere ${name}.${axis} must be finite, but was ${vector[axis]}`,
-      );
-};
 
 /**
  * First intersection of the segment `a→b` with a sphere, as the parameter `s ∈
@@ -35,17 +23,10 @@ export const segmentSphere: (
   c: IAutoMovieVector3,
   radius: number,
 ): number | null => {
-  if (!Number.isFinite(radius))
-    throw new RangeError(
-      `segment sphere radius must be finite, but was ${radius}`,
-    );
-  if (!(radius > 0))
+  if (radius <= 0)
     throw new RangeError(
       `segment sphere radius must be > 0, but was ${radius}`,
     );
-  assertFiniteVector("a", a);
-  assertFiniteVector("b", b);
-  assertFiniteVector("center", c);
 
   const d: IAutoMovieVector3 = Vector3.subtract(b, a);
   const m: IAutoMovieVector3 = Vector3.subtract(a, c);

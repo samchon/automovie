@@ -1,12 +1,10 @@
+import { AutoMovieConstructionSplitBand as Band } from "@automovie/engine";
 import type {
   IAutoMovieBlendColumn,
   IAutoMovieConstructionSplitBand,
   IAutoMovieConstructionSplitBandTrace,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
-import {
-  AutoMovieConstructionSplitBand as Band,
-} from "@automovie/engine";
 
 import { nclose } from "../../internal/nclose";
 
@@ -29,9 +27,10 @@ interface IInput {
 }
 
 /**
- * Execute the actual strip's above-own exhaustion with one retained backward zero.
- * The parent test owns the analytic constants and final collect-all verdict;
- * this case owns its real strip call, branch observations and output readings.
+ * Execute the actual strip's above-own exhaustion with one retained backward
+ * zero. The parent test owns the analytic constants and final collect-all
+ * verdict; this case owns its real strip call, branch observations and output
+ * readings.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual SplitBand.strip and observes prepared columns, all 64 local passes, the final certificate and published rail jets, returning every finding to the parent test.
  * @evidence contracts/development/testing.md#independent-expectations Uses the unchanged analytic unit chords and passed degree-five cap/curvature. The antipodal zero removes only an already-redundant zero log obstacle from min(0,...), so the original Gaussian excess proof and positive common cap remain unchanged.
@@ -70,7 +69,10 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
   const zeroEvents: IAutoMovieConstructionSplitBandTrace.Event[] = [];
 
   /** Same analytic bottleneck, with one explicitly retained zero first jet. */
-  const zeroNear: (k: number, length: number) => IAutoMovieBlendColumn["start"] = (
+  const zeroNear: (
+    k: number,
+    length: number,
+  ) => IAutoMovieBlendColumn["start"] = (
     k: number,
     length: number,
   ): IAutoMovieBlendColumn["start"] => ({
@@ -78,7 +80,8 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
     first: [0, k === zeroIndex ? 0 : length, 0],
     second: [0, k === 0 ? -bend * length * length : 0, 0],
   });
-  let zeroResult: IAutoMovieConstructionSplitBand.IStrip | string = "strip did not return";
+  let zeroResult: IAutoMovieConstructionSplitBand.IStrip | string =
+    "strip did not return";
   try {
     zeroResult = Band.strip(
       "analytic-minorant-backward-zero-192",
@@ -102,29 +105,47 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
     | undefined = zeroEvents.find(
     (
       event: IAutoMovieConstructionSplitBandTrace.Event,
-    ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
-      event.kind === "prepared",
+    ): event is Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "prepared" }
+    > => event.kind === "prepared",
   );
-  const zeroPasses: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>[] =
-    zeroEvents.filter(
-      (
-        event: IAutoMovieConstructionSplitBandTrace.Event,
-      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
-        event.kind === "local-pass",
-    );
-  const zeroCertificates: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>[] =
-    zeroEvents.filter(
-      (
-        event: IAutoMovieConstructionSplitBandTrace.Event,
-      ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }> =>
-        event.kind === "minorant",
-    );
+  const zeroPasses: Extract<
+    IAutoMovieConstructionSplitBandTrace.Event,
+    { kind: "local-pass" }
+  >[] = zeroEvents.filter(
+    (
+      event: IAutoMovieConstructionSplitBandTrace.Event,
+    ): event is Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "local-pass" }
+    > => event.kind === "local-pass",
+  );
+  const zeroCertificates: Extract<
+    IAutoMovieConstructionSplitBandTrace.Event,
+    { kind: "minorant" }
+  >[] = zeroEvents.filter(
+    (
+      event: IAutoMovieConstructionSplitBandTrace.Event,
+    ): event is Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "minorant" }
+    > => event.kind === "minorant",
+  );
   const zeroCertificate:
-    | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>["result"]
+    | Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "minorant" }
+      >["result"]
     | undefined = zeroCertificates[0]?.result;
-  const zeroLast: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
-    zeroPasses.at(-1);
-  const zeroOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined = zeroLast?.own[0];
+  const zeroLast:
+    | Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "local-pass" }
+      >
+    | undefined = zeroPasses.at(-1);
+  const zeroOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined =
+    zeroLast?.own[0];
   const zeroExcess: number | null =
     zeroLast !== undefined && zeroOwn?.kind === "finite"
       ? zeroLast.smooth[0]! - zeroOwn.value
@@ -138,7 +159,12 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       forwardCount: zeroPrepared?.forwardIndices.length ?? null,
       localPasses: zeroPasses.length,
       aboveOwnOnly: zeroPasses.every(
-        (pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>): boolean =>
+        (
+          pass: Extract<
+            IAutoMovieConstructionSplitBandTrace.Event,
+            { kind: "local-pass" }
+          >,
+        ): boolean =>
           pass.adjustments.length === 1 &&
           pass.adjustments[0]!.reason === "above-own" &&
           pass.adjustments[0]!.column === 0,
@@ -199,8 +225,10 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       "backward-zero: independent old 64-pass excess did not reproduce",
     );
   for (let index: number = 0; index < zeroPasses.length; ++index) {
-    const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =
-      zeroPasses[index]!;
+    const pass: Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "local-pass" }
+    > = zeroPasses[index]!;
     if (
       pass.pass !== index ||
       pass.settled ||
@@ -235,8 +263,7 @@ export function checkConstructionLocalScaleBackwardZero(input: IInput): {
       zeroCertificate?.kind !== "accepted" ||
       zeroCertificate.field.length !== count ||
       !zeroCertificate.field.every(
-        (value: number): boolean =>
-          Number.isFinite(value) && value > 0 && value <= 1,
+        (value: number): boolean => value > 0 && value <= 1,
       )
     )
       failures.push(

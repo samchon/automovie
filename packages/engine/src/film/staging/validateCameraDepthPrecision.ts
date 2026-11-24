@@ -24,9 +24,7 @@ export function validateCameraDepthPrecision(
 ): void {
   const bits: number = value.minimumDepthBits;
   if (
-    !Number.isSafeInteger(bits) ||
-    bits <= 0 ||
-    !Number.isSafeInteger(2 ** bits - 1)
+    bits <= 0
   )
     out.push(
       "range",

@@ -9,16 +9,22 @@ import type {
 
 import { ConstructionShapes } from "../../internal/construction/ConstructionShapes";
 
-/** Either explicitly requested realization result; the default type still requires its mesh. */
+/**
+ * Either explicitly requested realization result; the default type still
+ * requires its mesh.
+ */
 type Result =
   | IAutoMovieConstructionRealization.IRealization
   | IAutoMovieConstructionRealization.IWithoutSkin;
 
 /**
- * Final skin omission preserves the construction's operators, boundary publication and failures.
- * Scenarios:
- * 1. Compare default, true, false and variable requests across every construction node kind and rollback.
- * 2. Read independent cylinder guides, shared continuation points and radial trim feet, then refuse malformed admission.
+ * Final skin omission preserves the construction's operators, boundary
+ * publication and failures. Scenarios:
+ *
+ * 1. Compare default, true, false and variable requests across every construction
+ *    node kind and rollback.
+ * 2. Read independent cylinder guides, shared continuation points and radial trim
+ *    feet, then refuse malformed admission.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public realizer in omitted, true, false and runtime-boolean modes on open/capped views, a nested merge, continuation, trim and rejected join. Reads actual mesh/null, boundary records, chains, diagnostics and surface/trim jets; default/true retain equal real buffers, while false retains the same boundary data without a placeholder mesh. Compiler assignments also require the default, literal false and general overloads to retain their distinct contracts.
  * @evidence contracts/development/testing.md#independent-expectations A 20 mm cylinder's four guide points are (20 cos phi,20 sin phi,-station); the 1e-7 mm guide limit is 1e-9 of its 100 mm length. A continuation shares one authoritative ring. A radial landmark's foot lies on the same radius, with 2e-4 mm allowed by twice the unchanged 0.1 mm chord/1000 foot tolerance. Cross-mode record/mesh comparisons are a separate compatibility oracle, not proof of all source geometry, triangulation or pole fidelity; the existing construction specs own those checks. A deliberately shifted expected cylinder must fail the analytic reader.
@@ -142,7 +148,10 @@ export function test_construction_without_skin(): void {
     );
 }
 
-/** Compare retained numerical records and surface jets; geometry truth is checked separately. */
+/**
+ * Compare retained numerical records and surface jets; geometry truth is
+ * checked separately.
+ */
 function compare(
   full: Result,
   other: Result,
@@ -213,7 +222,7 @@ function compare(
         const y: IAutoMovieSolidSurface.IJet = b.jet(station, phase);
         for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
           for (let k: number = 0; k < 3; k++)
-            if (!Number.isFinite(x[key][k]) || !Object.is(x[key][k], y[key][k]))
+            if (!Object.is(x[key][k], y[key][k]))
               failures.push(
                 `${name}: ${chain.name} ${key}[${k}] changed or is nonfinite`,
               );
@@ -222,14 +231,20 @@ function compare(
   }
 }
 
-/** Independent guide points on the authored cylinder, optionally shifted for the red proof. */
+/**
+ * Independent guide points on the authored cylinder, optionally shifted for the
+ * red proof.
+ */
 function tube(result: Result, shift: number): string[] {
   /** Cylinder's actual public surface and independent findings. */
   const surface: IAutoMovieSolidSurface | undefined = result.surfaces.find(
     (entry: IAutoMovieSolidSurface): boolean => entry.name === "tube",
   );
 
-  /** Every analytic guide miss, including nonfinite values through the negated bound. */
+  /**
+   * Every analytic guide miss, including nonfinite values through the negated
+   * bound.
+   */
   const failures: string[] = [];
   if (surface === undefined) return ["cylinder surface absent"];
   for (const phase of [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2]) {
@@ -247,7 +262,10 @@ function tube(result: Result, shift: number): string[] {
   return failures;
 }
 
-/** The continuation publishes one shared ring with independently known guide points. */
+/**
+ * The continuation publishes one shared ring with independently known guide
+ * points.
+ */
 function ring(result: Result, failures: string[]): void {
   /** Two cycles must address the same authoritative boundary vertices. */
   const host: Result["body"]["faces"][number] | undefined =
@@ -277,7 +295,10 @@ function ring(result: Result, failures: string[]): void {
   )
     failures.push("continuation copied rather than shared the ring addresses");
 
-  /** Host-owned station/phase data must evaluate to the 20 mm ring at station 100 mm. */
+  /**
+   * Host-owned station/phase data must evaluate to the 20 mm ring at station
+   * 100 mm.
+   */
   const surface: IAutoMovieSolidSurface | undefined = result.surfaces.find(
     (entry: IAutoMovieSolidSurface): boolean => entry.name === "trunk",
   );
@@ -313,7 +334,10 @@ function ring(result: Result, failures: string[]): void {
   }
 }
 
-/** A radial landmark's independent foot remains in the actual published trim boundary. */
+/**
+ * A radial landmark's independent foot remains in the actual published trim
+ * boundary.
+ */
 function feet(result: Result, failures: string[]): void {
   /** Nonempty trim publication, alongside the retained trim operator. */
   const face: Result["body"]["faces"][number] | undefined =
@@ -392,9 +416,15 @@ function continuation(): IAutoMovieConstructionNode {
   };
 }
 
-/** The existing trim specification's radial, exact-knot landmarks on a 20 mm cylinder. */
+/**
+ * The existing trim specification's radial, exact-knot landmarks on a 20 mm
+ * cylinder.
+ */
 function trimmed(): IAutoMovieConstructionNode {
-  /** Eight authored landmarks, lifted 0.5 mm radially from their exact knot phases. */
+  /**
+   * Eight authored landmarks, lifted 0.5 mm radially from their exact knot
+   * phases.
+   */
   const phases: number[] = [1, 1, 0, -1, -1, -1, 0, 1].map(
     (k: number): number => (k * 2 * Math.PI) / 16,
   );
@@ -460,7 +490,10 @@ function apart(): IAutoMovieConstructionNode {
   );
 }
 
-/** Chord and tree admission remain the same before either mode can do operator work. */
+/**
+ * Chord and tree admission remain the same before either mode can do operator
+ * work.
+ */
 function refusals(failures: string[]): void {
   /** Structural negative cases are isolated from geometric diagnostics. */
   const duplicate: IAutoMovieConstructionNode = continuation();

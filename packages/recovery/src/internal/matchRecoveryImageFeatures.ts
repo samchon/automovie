@@ -13,7 +13,7 @@ export function matchRecoveryImageFeatures(
   maxPairs: Parameters<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation>[3],
 ): ReturnType<IAutoMovieRecoveryImageFeaturesMatchingOperation.Operation> {
   const pairs: number = first.length * second.length;
-  if (!Number.isSafeInteger(pairs) || pairs > maxPairs)
+  if (pairs > maxPairs)
     throw new Error("camera-matches: descriptor pair budget exhausted");
   if (second.length < 2 || first.length === 0) return [];
   const forward: Float64Array = new Float64Array(first.length).fill(Infinity);

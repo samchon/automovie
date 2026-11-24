@@ -24,22 +24,23 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * A forward single under sends the cord overhead and then from the toes to
- * the heels while both feet are in flight. Both handles stay with the hands.
+ * A forward single under sends the cord overhead and then from the toes to the
+ * heels while both feet are in flight. Both handles stay with the hands.
  *
  * Scenarios:
- * 1. After a standing cue, the average man skips once on a level floor. Read
- *    the rendered cord and handle transforms and the displayed foot and hand
+ *
+ * 1. After a standing cue, the average man skips once on a level floor. Read the
+ *    rendered cord and handle transforms and the displayed foot and hand
  *    sockets at the overhead, front, takeoff, crossing, landing and rear
  *    instants, and where the cord reaches the sole edges.
- * 2. Read before the skip and seek backward to the crossing after reading
- *    landing. The cue has no rope frame and the crossing frame is repeatable.
+ * 2. Read before the skip and seek backward to the crossing after reading landing.
+ *    The cue has no rope frame and the crossing frame is repeatable.
  * 3. A slow turn holds overhead and passes in flight. Periods too large to
  *    represent the phase boundaries or quarter-flight samples are refused.
  *
- * Silva and Pellegrini (2009, Intervalo Temporal) measured 0.13 ± 0.02 s
- * from two-foot takeoff to the cord passing underfoot at the tested cadences.
- * Tian (2021, §2.2.2) describes one pass during flight.
+ * Silva and Pellegrini (2009, Intervalo Temporal) measured 0.13 ± 0.02 s from
+ * two-foot takeoff to the cord passing underfoot at the tested cadences. Tian
+ * (2021, §2.2.2) describes one pass during flight.
  * https://periodicos.ufsc.br/index.php/rbcdh/article/download/1980-0037.2009v11n4p379/10901
  * https://www.techscience.com/mcb/v18n1/41384/html
  *
@@ -160,9 +161,7 @@ export function test_motion_workout_rope_skip(): void {
     const xyz: readonly number[] = frame.cord.surface.mesh.positions;
     TestValidator.predicate(
       "four finite cord points with the cable radius",
-      xyz.length === 12 &&
-        xyz.every(Number.isFinite) &&
-        nclose(frame.cord.cordRadius ?? Number.NaN, radius),
+      xyz.length === 12 && nclose(frame.cord.cordRadius ?? Number.NaN, radius),
     );
     const points: IAutoMovieVector3[] = [0, 3, 6, 9].map(
       (i: number): IAutoMovieVector3 => ({

@@ -113,7 +113,7 @@ export function applyAutoMovieInspection(
 ): IAutoMovieInspectionHandle {
   const scene: THREE.Scene = props.scene;
   const request: IAutoMovieInspectionRequest = props.request;
-  if (!(Number.isFinite(request.stroke) && request.stroke > 0))
+  if (!(request.stroke > 0))
     throw new Error(
       `Inspection stroke ${request.stroke} is not a positive width`,
     );
@@ -436,10 +436,7 @@ export function applyAutoMovieInspection(
           scale,
         }),
       resize: (width: number, height: number): void => {
-        if (
-          !(Number.isFinite(width) && width > 0) ||
-          !(Number.isFinite(height) && height > 0)
-        )
+        if (!(width > 0) || !(height > 0))
           throw new Error(
             `Inspection target ${width} x ${height} is not a positive size`,
           );

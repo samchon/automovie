@@ -70,14 +70,5 @@ const validateDrivenCurvePoint: (
     throw new Error(
       `driven driver curve.points[${index}] point must be an object`,
     );
-  validateDrivenFinite(`curve.points[${index}].source`, point.source);
-  validateDrivenFinite(`curve.points[${index}].output`, point.output);
 };
 
-const validateDrivenFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`driven driver ${label} must be finite, but was ${value}`);
-};

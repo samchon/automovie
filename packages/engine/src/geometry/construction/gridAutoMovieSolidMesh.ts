@@ -52,18 +52,17 @@ export function gridAutoMovieSolidMesh(
   )
     return "face requires aligned indexed position/chart buffers";
   if (
-    (period !== undefined && !(Number.isFinite(period) && period > 0)) ||
+    (period !== undefined && !(period > 0)) ||
     (surface.orientation !== 1 && surface.orientation !== -1)
   )
     return "face needs a positive finite period and a declared orientation sign";
   if (
     stations.some(
       (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > stations[k - 1]!)),
+        k > 0 && !(value > stations[k - 1]!),
     ) ||
     phases.some(
-      (value: number, k: number): boolean =>
-        !Number.isFinite(value) || (k > 0 && !(value > phases[k - 1]!)),
+      (value: number, k: number): boolean => k > 0 && !(value > phases[k - 1]!),
     )
   )
     return "face grid needs finite strictly increasing coordinates";
@@ -112,8 +111,7 @@ export function gridAutoMovieSolidMesh(
       second += norm(jet.v) ** 2;
     }
   const metric: number = Math.sqrt(second / first);
-  if (!(Number.isFinite(metric) && metric > 0))
-    return "face grid has no representable uniform metric";
+  if (!(metric > 0)) return "face grid has no representable uniform metric";
   const samples: Map<number, IAutoMovieGridSolidMeshSample> = new Map();
   const reserved: Map<number, number> = new Map();
   const authorities: Map<string, number> = new Map();
@@ -221,9 +219,7 @@ export function gridAutoMovieSolidMesh(
     const g: number = sv[0]! ** 2 + sv[1]! ** 2 + sv[2]! ** 2;
     const shear: number = f / e;
     const scale: number = Math.sqrt(g / e - shear * shear);
-    return Number.isFinite(shear) && Number.isFinite(scale) && scale > 0
-      ? [shear, scale]
-      : [0, metric];
+    return scale > 0 ? [shear, scale] : [0, metric];
   };
   const classify: IAutoMovieSolidMeshLoop.Classifier =
     AutoMovieSolidMeshLoop.prepare(loops, period);
@@ -423,8 +419,6 @@ export function gridAutoMovieSolidMesh(
     u: number,
     v: number,
   ): boolean =>
-    Number.isFinite(u) &&
-    Number.isFinite(v) &&
     u >= stations[0]! &&
     u <= stations[stations.length - 1]! &&
     (period !== undefined ||
@@ -437,8 +431,6 @@ export function gridAutoMovieSolidMesh(
     v: number,
   ): boolean => {
     if (
-      !Number.isFinite(u) ||
-      !Number.isFinite(v) ||
       u < stations[0]! ||
       u > stations[stations.length - 1]! ||
       (period === undefined &&
@@ -566,13 +558,7 @@ function copy(
     jet.uv,
     jet.vv,
   ];
-  if (
-    !vectors.every(
-      (value: AutoMovieVector3Tuple): boolean =>
-        value.length === 3 && value.every(Number.isFinite),
-    )
-  )
-    return "face source jet must contain finite three-component vectors";
+
   const values: AutoMovieVector3Tuple[] = vectors.map(
     (value: AutoMovieVector3Tuple): AutoMovieVector3Tuple => [
       value[0],
@@ -581,7 +567,7 @@ function copy(
     ],
   );
   const length: number = norm(cross(values[1]!, values[2]!));
-  if (!(Number.isFinite(length) && length > 0))
+  if (!(length > 0))
     return "face grid needs regular representable chart jets; a contracted pole needs its closure owner";
   return {
     p: values[0]!,
@@ -621,12 +607,6 @@ function touches(
       : [nearest - 1, nearest, nearest + 1]) {
       const first: number = a[1] + lift * (period ?? 0);
       const last: number = b[1] + (lift + edge.turn) * (period ?? 0);
-      if (
-        !Number.isSafeInteger(lift) ||
-        !Number.isFinite(first) ||
-        !Number.isFinite(last)
-      )
-        return "cell/trim cover is not representable";
       if (Math.max(first, last) >= v0 && Math.min(first, last) <= v1)
         if (
           index < domainFrom ||

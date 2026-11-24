@@ -246,8 +246,7 @@ export namespace AutoMovieViewSection {
         GIRTH_TOLERANCE,
         ITERATIONS,
       );
-      const value: Measured | null =
-        r === null || !Number.isFinite(r) ? null : family.at(r).source;
+      const value: Measured | null = r === null ? null : family.at(r).source;
       const failure: string | null =
         value === null
           ? "no finite bracketed shoulder estimate"
@@ -258,7 +257,6 @@ export namespace AutoMovieViewSection {
       const refused: boolean =
         localRefusal ||
         failure !== null ||
-        !Number.isFinite(residual) ||
         Math.abs(residual) > GIRTH_TOLERANCE;
       if (local && refused) {
         local = false;

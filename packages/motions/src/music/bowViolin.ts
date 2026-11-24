@@ -113,8 +113,7 @@ function planStroke(
   if (
     (params.string !== "string1" && params.string !== "string4") ||
     bar?.length === undefined ||
-    !Number.isFinite(bar.length) ||
-    bar.length <= 0
+    !(bar.length > 0)
   )
     throw new HumanRefusal({
       kind: "affordance",
@@ -156,7 +155,6 @@ function planStroke(
   const length: number = Vector3.length(hair);
   if (
     !(length > 0) ||
-    !Number.isFinite(length) ||
     Math.abs(Vector3.dot(Vector3.scale(hair, 1 / length), frog.direction)) >
       1e-6
   )

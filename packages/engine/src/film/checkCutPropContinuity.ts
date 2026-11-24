@@ -141,14 +141,7 @@ export function checkCutPropContinuity(
       out,
     );
     if (distance === undefined) continue;
-    if (!Number.isFinite(distance))
-      out.push(
-        "range",
-        path,
-        "prop channel difference must be finite",
-        distance,
-      );
-    else if (distance > tolerance)
+    if (distance > tolerance)
       out.push(
         "range",
         path,
@@ -171,7 +164,7 @@ function compileBoundaryDemand(
   out: IAutoMovieViolationCollector,
 ): IBoundaryDemand | undefined {
   const { entry, component, tolerance }: PropRequirement = requirement;
-  if (!Number.isInteger(entry) || entry < 1 || entry >= sequence.shots.length)
+  if (entry < 1 || entry >= sequence.shots.length)
     out.push(
       "range",
       `${path}.entry`,
@@ -305,8 +298,6 @@ function readBoundary(
       `${side} lacks an active object-motion track for the requested prop channel`,
       key,
     );
-  else if (!value.every(Number.isFinite))
-    out.push("range", path, `${side} prop sample must be finite`, key);
   else return value;
   return undefined;
 }

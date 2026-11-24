@@ -21,8 +21,7 @@ function point(
   const value: AutoMovieVector3Tuple = surface.jet(u, v).p;
   if (
     !Array.isArray(value) ||
-    value.length !== 3 ||
-    !value.every(Number.isFinite)
+    value.length !== 3
   )
     throw new Error(
       "A seam source must supply a complete finite original position.",
@@ -45,7 +44,7 @@ export namespace AutoMovieSolidMeshTessellate {
     if (
       (seam.blend.orientation !== 1 && seam.blend.orientation !== -1) ||
       period === undefined ||
-      !(Number.isFinite(period) && period > 0)
+      !(period > 0)
     )
       throw new Error(
         "A closed seam requires an actual periodic blend with an explicit outward orientation.",
@@ -57,15 +56,13 @@ export namespace AutoMovieSolidMeshTessellate {
         (_: unknown, k: number): number => (2 * Math.PI * k) / count,
       );
     if (
-      !Number.isInteger(seam.rows) ||
       seam.rows < 1 ||
-      !(Number.isFinite(seam.length) && seam.length > 0) ||
+      !(seam.length > 0) ||
       count < 3 ||
       seam.partLoop.chart.length !== count ||
       phases.length !== count ||
       phases.some(
         (value: number, k: number): boolean =>
-          !Number.isFinite(value) ||
           (k > 0 &&
             !(value > phases[k - 1]! && value - phases[k - 1]! < period / 2)),
       ) ||

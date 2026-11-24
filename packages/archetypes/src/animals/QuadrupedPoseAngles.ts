@@ -75,7 +75,7 @@ export function QuadrupedPoseAngles(
     const placed: ReadonlyMap<
       AutoMovieArchetypeQuadrupedBody.Bone,
       IAutoMovieTransform
-    > = checked(reader.read(undefined, root));
+    > = reader.read(undefined, root);
     const goals: Map<
       AutoMovieArchetypeQuadrupedBody.Bone,
       QuadrupedPosePlan.Goal
@@ -99,11 +99,6 @@ export function QuadrupedPoseAngles(
           throw new RangeError(
             `A quadruped pose requires all five ${limb} joints`,
           );
-        for (const point of points)
-          if (![point.x, point.y, point.z].every(Number.isFinite))
-            throw new RangeError(
-              `Quadruped ${limb} goals must be finite world points`,
-            );
         const chain: readonly AutoMovieArchetypeQuadrupedBody.Bone[] =
           AutoMovieArchetypeQuadrupedBody.BONES[limb];
         for (let index: number = 0; index < chain.length; index++)
@@ -144,7 +139,7 @@ export function QuadrupedPoseAngles(
       if (goal.kind === "rotation") {
         const q: IAutoMovieQuaternion = goal.rotation;
         const length: number = Math.hypot(q.x, q.y, q.z, q.w);
-        if (!(Number.isFinite(length) && length > 0))
+        if (!(length > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world rotation`,
           );
@@ -156,7 +151,7 @@ export function QuadrupedPoseAngles(
           direction.y,
           direction.z,
         );
-        if (!(Number.isFinite(length) && length > 0))
+        if (!(length > 0))
           throw new RangeError(
             `Quadruped ${bone} needs a finite nonzero world direction`,
           );
@@ -183,34 +178,6 @@ export function QuadrupedPoseAngles(
       joints.set(bone, decomposeJointRotationOnBasis(local, node.axes));
       current.set(bone, desired);
     }
-    return { joints, frames: checked(reader.read(joints, root)) };
-  }
-
-  /**
-   * Finite inputs can still overflow derived world positions; they cannot be
-   * reported as achieved frames.
-   */
-  function checked(
-    frames: ReadonlyMap<
-      AutoMovieArchetypeQuadrupedBody.Bone,
-      IAutoMovieTransform
-    >,
-  ): ReadonlyMap<AutoMovieArchetypeQuadrupedBody.Bone, IAutoMovieTransform> {
-    for (const [bone, frame] of frames)
-      if (
-        ![
-          frame.translation.x,
-          frame.translation.y,
-          frame.translation.z,
-          frame.rotation.x,
-          frame.rotation.y,
-          frame.rotation.z,
-          frame.rotation.w,
-        ].every(Number.isFinite)
-      )
-        throw new RangeError(
-          `Quadruped ${bone} has an unrepresentable current FK frame`,
-        );
-    return frames;
+    return { joints, frames: reader.read(joints, root) };
   }
 }

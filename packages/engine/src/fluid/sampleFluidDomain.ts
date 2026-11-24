@@ -26,10 +26,6 @@ export const sampleFluidDomain: (
   domain: IAutoMovieFluidDomain,
   time: number,
 ): IAutoMovieFluidState => {
-  if (!Number.isFinite(time))
-    throw new Error(
-      `fluid domain "${domain.id}" cannot be sampled at a non-finite time`,
-    );
   const clamped: number = time > 0 ? time : 0;
   return simulateFluidDomain(
     domain,

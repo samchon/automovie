@@ -137,7 +137,7 @@ export class AutoMoviePhysicalPlayback {
    * quaternion arc. Returns a fresh frame without advancing a solver.
    */
   public at(seconds: number): IAutoMoviePhysicalFrame {
-    if (!Number.isFinite(seconds) || seconds < 0 || seconds > this.duration)
+    if (seconds < 0 || seconds > this.duration)
       throw new Error("Physical playback seek outside completed film");
     const step: number = seconds * this.rate;
     const low: number = Math.floor(step);

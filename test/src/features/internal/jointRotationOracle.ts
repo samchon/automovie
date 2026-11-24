@@ -332,12 +332,9 @@ export namespace jointRotationOracle {
               const value: number = result[axis] ?? 0;
               const range: IAutoMovieJointConstraint[typeof axis] =
                 input.constraint[axis];
-              return (
-                Number.isFinite(value) &&
-                (range === null
-                  ? value === 0
-                  : value >= range.min && value <= range.max)
-              );
+              return range === null
+                ? value === 0
+                : value >= range.min && value <= range.max;
             }),
           );
           check(

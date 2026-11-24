@@ -137,8 +137,6 @@ export function prepareJointRotationProjection(props: {
       continue;
     }
     if (
-      !Number.isFinite(range.min) ||
-      !Number.isFinite(range.max) ||
       range.min > range.max
     )
       box = false;
@@ -152,8 +150,7 @@ export function prepareJointRotationProjection(props: {
         const range: IAutoMovieAngleRange = constraint![axis]!;
         const a: number = toRigAngle(range.min, props.frame?.[axis])!;
         const b: number = toRigAngle(range.max, props.frame?.[axis])!;
-        if (!Number.isFinite(a) || !Number.isFinite(b)) box = false;
-        else fixedRigAngles[axis] = [a, b];
+        fixedRigAngles[axis] = [a, b];
         return { min: Math.min(a, b), max: Math.max(a, b) };
       })
     : [];

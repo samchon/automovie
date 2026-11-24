@@ -170,7 +170,7 @@ function checkObjectEdges(findings: motionComplaints.IGatherer): void {
           clearance = Math.min(clearance, p.y - model.dimensions.height!);
     findings.check(
       "the sole clears the occupied depth by " + clearance,
-      Number.isFinite(clearance) && clearance > 0,
+      clearance !== Infinity && clearance > 0,
     );
     for (const side of ["left", "right"] as const)
       findings.check(

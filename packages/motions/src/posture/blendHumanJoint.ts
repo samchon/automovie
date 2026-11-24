@@ -23,16 +23,16 @@ import type {
 
 import { readHumanBone } from "../body/readHumanBone";
 
-/** One bone's canonical axes and lazy admitted conversion/chart frames. */
+/** One bone's canonical axes and admitted conversion/chart frames. */
 interface IFrame {
   /** The actual raw declared-over-canonical entry, including an absent entry. */
   axes: IAutoMovieJointAxes | undefined;
 
-  /** The basis admitted at the first original forward-conversion site. */
+  /** The normalized basis the conversions read. */
   basis: IAutoMovieJointAxes;
 
-  /** A lazy explicit swing-twist frame, used only when the raw entry exists. */
-  joint: IAutoMovieJointRotationFrame;
+  /** The swing-twist frame, present only where the raw entry exists. */
+  joint: IAutoMovieJointRotationFrame | undefined;
 }
 
 /** The two metadata phases: constraint lookup precedes any ball-joint axes work. */
@@ -45,15 +45,6 @@ interface ILookup {
 
   /** Canonical frame metadata, requested only after the hinge branch. */
   frame(body: IAutoMovieMotionHumanBody, bone: AutoMovieHumanoidBone): IFrame;
-}
-
-/**
- * One unchanged endpoint pair's lazy numerical preparation, never a share
- * result.
- */
-interface IBetween {
-  /** Installed only after actual interior metadata/endpoint admission. */
-  read?: (share: number) => readonly [number, number, number];
 }
 
 /**
@@ -73,29 +64,19 @@ const COLD: ILookup = {
     frameOf(bone, skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES)[bone]),
 };
 
-/** Keep one unchanged raw entry; admission and chart preparation remain lazy. */
+/** One joint's raw axes with their normalized basis and swing-twist chart. */
 function frameOf(
   bone: AutoMovieHumanoidBone,
   axes: IAutoMovieJointAxes | undefined,
 ): IFrame {
-  let basis: IAutoMovieJointAxes | undefined;
-  let joint: IAutoMovieJointRotationFrame | undefined;
+  const raw: IAutoMovieJointAxes = axes === undefined ? DEFAULT_JOINT_AXES : axes;
   return {
     axes,
-    get basis(): IAutoMovieJointAxes {
-      basis ??= normalizeJointAxes(
-        axes === undefined ? DEFAULT_JOINT_AXES : axes,
-        "jointToQuaternion axes",
-      );
-      return basis;
-    },
-    get joint(): IAutoMovieJointRotationFrame {
-      joint ??= swingTwistRange.prepare({
-        axes: axes === undefined ? DEFAULT_JOINT_AXES : axes,
-        frame: HUMANOID_REST_FRAME[bone],
-      });
-      return joint;
-    },
+    basis: normalizeJointAxes(raw, "jointToQuaternion axes"),
+    joint:
+      axes === undefined
+        ? undefined
+        : swingTwistRange.prepare({ axes, frame: HUMANOID_REST_FRAME[bone] }),
   };
 }
 
@@ -164,11 +145,10 @@ export function blendHumanJoint(
 export namespace blendHumanJoint {
   /**
    * Blend one unchanged endpoint pair while body, canonical rig and tuple
-   * values stay unchanged. Construction reads no numerical endpoint or rig
-   * metadata. Each share keeps original clipping; endpoints return the supplied
-   * tuples before preparation. First actual interior use prepares only this
-   * pair's original numerical branch, and every later share returns a fresh
-   * reading.
+   * values stay unchanged. The pair's numerical branch (a hinge's line, a ball
+   * joint's arc or its range-bounded swing and twist) is prepared once here;
+   * each share keeps original clipping, endpoints return the supplied tuples,
+   * and every interior share returns a fresh reading.
    */
   export function between(
     body: IAutoMovieMotionHumanBody,
@@ -176,9 +156,17 @@ export namespace blendHumanJoint {
     from: readonly [number, number, number],
     to: readonly [number, number, number],
   ): (share: number) => readonly [number, number, number] {
-    const fixed: IBetween = {};
-    return (share: number): readonly [number, number, number] =>
-      blend(body, bone, from, to, share, COLD, fixed);
+    const read: (share: number) => readonly [number, number, number] = pair(
+      body,
+      bone,
+      from,
+      to,
+      COLD,
+    );
+    return (share: number): readonly [number, number, number] => {
+      const s: number = Math.min(1, Math.max(0, share));
+      return s <= 0 ? from : s >= 1 ? to : read(s);
+    };
   }
 
   /**
@@ -271,12 +259,10 @@ function blend(
   to: readonly [number, number, number],
   share: number,
   lookup: ILookup,
-  fixed?: IBetween,
 ): readonly [number, number, number] {
   const s: number = Math.min(1, Math.max(0, share));
   if (s <= 0) return from;
   if (s >= 1) return to;
-  if (fixed?.read !== undefined) return fixed.read(s);
   const constraint: IAutoMovieJointConstraint | null = lookup.constraint(
     body,
     bone,
@@ -286,27 +272,12 @@ function blend(
     (constraint.flexion === null ||
       constraint.abduction === null ||
       constraint.twist === null)
-  ) {
-    if (fixed !== undefined) {
-      const f: number = from[0];
-      const df: number = to[0] - from[0];
-      const a: number = from[1];
-      const da: number = to[1] - from[1];
-      const t: number = from[2];
-      const dt: number = to[2] - from[2];
-      fixed.read = (at: number): readonly [number, number, number] => [
-        f + df * at,
-        a + da * at,
-        t + dt * at,
-      ];
-      return fixed.read(s);
-    }
+  )
     return [
       from[0] + (to[0] - from[0]) * s,
       from[1] + (to[1] - from[1]) * s,
       from[2] + (to[2] - from[2]) * s,
     ];
-  }
   const rig: IFrame = lookup.frame(body, bone);
   const axes: IAutoMovieJointAxes | undefined = rig.axes;
   const gated: boolean =
@@ -316,25 +287,59 @@ function blend(
     axes !== undefined;
   const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
   const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
-  if (fixed !== undefined) {
-    const turn: (share: number) => IAutoMovieQuaternion = gated
-      ? swingTwistRange.prepareBlend(a, b, constraint!, rig.joint)
-      : Quaternion.prepareSlerp(a, b);
-    fixed.read = (at: number): readonly [number, number, number] =>
-      readRotation(
-        gated ? turn(at) : Quaternion.normalize(turn(at)),
-        rig,
-        bone,
-        constraint,
-      );
-    return fixed.read(s);
-  }
   // A joint ranged by swing and twist is blended inside its range
   // (`swingTwistRange.blend`); another ball joint on the shorter arc.
   const blended: IAutoMovieQuaternion = gated
-    ? swingTwistRange.blend(a, b, s, constraint!, rig.joint)
+    ? swingTwistRange.blend(a, b, s, constraint!, rig.joint!)
     : Quaternion.normalize(Quaternion.slerp(a, b, s));
   return readRotation(blended, rig, bone, constraint);
+}
+
+/**
+ * One endpoint pair's interior reader, its branch prepared once: a joint with a
+ * fixed freedom blends its angles linearly; a ball joint on the shorter arc of
+ * its two rotations, or inside its swing-twist range where it declares one.
+ */
+function pair(
+  body: IAutoMovieMotionHumanBody,
+  bone: AutoMovieHumanoidBone,
+  from: readonly [number, number, number],
+  to: readonly [number, number, number],
+  lookup: ILookup,
+): (share: number) => readonly [number, number, number] {
+  const constraint: IAutoMovieJointConstraint | null = lookup.constraint(
+    body,
+    bone,
+  );
+  if (
+    constraint !== null &&
+    (constraint.flexion === null ||
+      constraint.abduction === null ||
+      constraint.twist === null)
+  )
+    return (at: number): readonly [number, number, number] => [
+      from[0] + (to[0] - from[0]) * at,
+      from[1] + (to[1] - from[1]) * at,
+      from[2] + (to[2] - from[2]) * at,
+    ];
+  const rig: IFrame = lookup.frame(body, bone);
+  const gated: boolean =
+    constraint !== null &&
+    constraint.swingTwist !== undefined &&
+    constraint.swingTwist !== null &&
+    rig.axes !== undefined;
+  const a: IAutoMovieQuaternion = rotationOf(from, rig, bone);
+  const b: IAutoMovieQuaternion = rotationOf(to, rig, bone);
+  const turn: (share: number) => IAutoMovieQuaternion = gated
+    ? swingTwistRange.prepareBlend(a, b, constraint!, rig.joint!)
+    : Quaternion.prepareSlerp(a, b);
+  return (at: number): readonly [number, number, number] =>
+    readRotation(
+      gated ? turn(at) : Quaternion.normalize(turn(at)),
+      rig,
+      bone,
+      constraint,
+    );
 }
 
 /**

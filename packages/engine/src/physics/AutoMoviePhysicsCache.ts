@@ -79,7 +79,6 @@ export class AutoMoviePhysicsCache {
    */
   public at(seconds: number): IAutoMoviePhysicalFrame {
     if (
-      !Number.isFinite(seconds) ||
       seconds < 0 ||
       seconds > this.duration ||
       this.frames.length === 0

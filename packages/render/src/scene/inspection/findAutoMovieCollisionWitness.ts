@@ -234,8 +234,7 @@ function searchDirection(direction: {
     const limit: number =
       -allowance(mover, posed.label?.(vertex), depth.joint) -
       tolerance(posed.error + solid.error, point);
-    if (Number.isFinite(depth.separation) && depth.separation < limit)
-      return witness(point, depth.separation);
+    if (depth.separation < limit) return witness(point, depth.separation);
   }
   const box: THREE.Box3 = new THREE.Box3();
   for (const [a, b] of drawnEdges(posed)) {
@@ -272,7 +271,6 @@ function searchDirection(direction: {
       -allowance(mover, posed.label?.(near), deepest.joint) -
       tolerance(posed.error + solid.error, start, end);
     if (
-      Number.isFinite(deepest.separation) &&
       deepest.separation < limit &&
       (source.owns === undefined || source.owns(deepest.point))
     )

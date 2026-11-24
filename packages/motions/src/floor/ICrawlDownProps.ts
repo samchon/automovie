@@ -48,6 +48,13 @@ export interface ICrawlDownProps {
 
   /** Each foot tucked behind its knee where the way down ends. */
   tucks: Record<AutoMovieHumanSide, crawlFeet.ITuck>;
+
   /** Whether the knees hover and the tucked toes bear before the palms land. */
   hover: boolean;
+
+  /**
+   * Whether the hips own a balance window over the way down, so its balanced
+   * keys are solved as it is built (`crawlDown`).
+   */
+  balanced: boolean;
 }

@@ -168,8 +168,7 @@ export namespace ballSport {
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
       body.measure;
-    const count: number = p.count ?? 4;
-    HumanBound.whole("count", count);
+    const count: number = HumanBound.whole("count", p.count ?? 4);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       p.manner,

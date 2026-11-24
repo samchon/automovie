@@ -109,8 +109,7 @@ export function prepareJointRotationCoefficientDots(
       const row: IFixed = { axis, factor, bit };
       fixed[axis] = row;
       if (bit !== 0) nullable.push(row);
-      if (Number.isFinite(angle))
-        props.fixedRigAngles[axis] = bit === 0 ? [angle] : [angle, 0];
+      props.fixedRigAngles[axis] = bit === 0 ? [angle] : [angle, 0];
     }
   const variants: Array<IVariant | undefined> = [];
 

@@ -86,8 +86,7 @@ export namespace longTool {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLongTool.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
-    const cycles: number = params.count ?? 3;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", params.count ?? 3);
     const trail: AutoMovieHumanSide =
       params.hand ??
       (entry.holds.left === params.prop && entry.holds.right !== params.prop

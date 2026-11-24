@@ -29,12 +29,7 @@ export function measureAutoMovieInspectionBounds(
     matrix: THREE.Matrix4,
   ): void => {
     point.applyMatrix4(matrix);
-    if (
-      Number.isFinite(point.x) &&
-      Number.isFinite(point.y) &&
-      Number.isFinite(point.z)
-    )
-      box.expandByPoint(point);
+    box.expandByPoint(point);
   };
 
   root.traverseVisible((object: THREE.Object3D): void => {
@@ -71,12 +66,7 @@ export function measureAutoMovieInspectionBounds(
       const local: THREE.Box3 = new THREE.Box3();
       for (let i: number = 0; i < count; i++) {
         object.getVertexPosition(i, point);
-        if (
-          Number.isFinite(point.x) &&
-          Number.isFinite(point.y) &&
-          Number.isFinite(point.z)
-        )
-          local.expandByPoint(point);
+        local.expandByPoint(point);
       }
       if (local.isEmpty()) return;
       const placement: THREE.Matrix4 = new THREE.Matrix4();

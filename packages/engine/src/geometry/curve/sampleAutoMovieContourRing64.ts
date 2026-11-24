@@ -65,10 +65,7 @@ export function sampleAutoMovieContourRing64(
       curve.unit === "mm" &&
       Array.isArray(endpoint) &&
       endpoint.length === 3 &&
-      [0, 1, 2].every(
-        (axis: number): boolean =>
-          Object.hasOwn(endpoint, axis) && Number.isFinite(endpoint[axis]),
-      );
+      [0, 1, 2].every((axis: number): boolean => Object.hasOwn(endpoint, axis));
     const knots: IAutoMovieContourLoftCurves64.Knot[] =
       trusted && Array.isArray(endpoint)
         ? [{ p: [endpoint[0], endpoint[1], endpoint[2]], phase: 0 }]

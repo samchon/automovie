@@ -25,12 +25,9 @@ export function derivePhysicalActuators(
   options: IAutoMovieDerivePhysicalActuators.IOptions,
 ): IAutoMoviePhysicalJoint[] {
   if (
-    ![options.frequency, options.torquePerKg].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
-    ) ||
-    !Number.isFinite(options.dampingRatio) ||
+    options.frequency <= 0 ||
+    options.torquePerKg <= 0 ||
     options.dampingRatio < 0 ||
-    !Number.isFinite(options.passiveRate ?? 0) ||
     (options.passiveRate ?? 0) < 0
   )
     throw new Error("Invalid physical actuator assumptions");

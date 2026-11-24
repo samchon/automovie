@@ -75,8 +75,7 @@ export function observeAutoMovieRecoverySlabs(
       planeFrame([0, 0, 0], input.axis, input.reference);
     if (
       ![frame.n, frame.u, frame.v].every(
-        (axis: [number, number, number]): boolean =>
-          finiteVector(axis) && Math.hypot(...axis) > 0,
+        (axis: [number, number, number]): boolean => Math.hypot(...axis) > 0,
       )
     )
       return {
@@ -124,10 +123,6 @@ export function observeAutoMovieRecoverySlabs(
       const origin: [number, number, number] = frame.n.map(
         (value: number): number => value * saved.coordinateMm,
       ) as [number, number, number];
-      if (!finiteVector(origin))
-        throw new Error(
-          "Source slab section origin exceeds finite millimetre coordinates",
-        );
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,
@@ -225,13 +220,6 @@ export function observeAutoMovieRecoverySlabs(
       ],
     };
   }
-}
-
-/** Whether every component of a computed millimetre vector is finite. */
-function finiteVector(value: readonly [number, number, number]): boolean {
-  return value.every((component: number): boolean =>
-    Number.isFinite(component),
-  );
 }
 
 /** Whether a saved section's frame equals the observed plane frame exactly. */

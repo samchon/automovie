@@ -49,20 +49,6 @@ export const closestPointsBetweenSegments: (
   const rawV: IAutoMovieVector3 = Vector3.subtract(d, c);
   const rawR: IAutoMovieVector3 = Vector3.subtract(a, c);
 
-  // Preserve the original complete coordinate read before finite admission,
-  // with scalar snapshots instead of the flatMap's temporary arrays.
-  const ax: number = a.x,
-    ay: number = a.y,
-    az: number = a.z;
-  const bx: number = b.x,
-    by: number = b.y,
-    bz: number = b.z;
-  const cx: number = c.x,
-    cy: number = c.y,
-    cz: number = c.z;
-  const dx: number = d.x,
-    dy: number = d.y,
-    dz: number = d.z;
   const ux: number = rawU.x,
     uy: number = rawU.y,
     uz: number = rawU.z;
@@ -72,32 +58,7 @@ export const closestPointsBetweenSegments: (
   const rx: number = rawR.x,
     ry: number = rawR.y,
     rz: number = rawR.z;
-  if (
-    !Number.isFinite(ax) ||
-    !Number.isFinite(ay) ||
-    !Number.isFinite(az) ||
-    !Number.isFinite(bx) ||
-    !Number.isFinite(by) ||
-    !Number.isFinite(bz) ||
-    !Number.isFinite(cx) ||
-    !Number.isFinite(cy) ||
-    !Number.isFinite(cz) ||
-    !Number.isFinite(dx) ||
-    !Number.isFinite(dy) ||
-    !Number.isFinite(dz) ||
-    !Number.isFinite(ux) ||
-    !Number.isFinite(uy) ||
-    !Number.isFinite(uz) ||
-    !Number.isFinite(vx) ||
-    !Number.isFinite(vy) ||
-    !Number.isFinite(vz) ||
-    !Number.isFinite(rx) ||
-    !Number.isFinite(ry) ||
-    !Number.isFinite(rz)
-  )
-    throw new Error(
-      "Segment proximity requires finite coordinates and differences.",
-    );
+
   const scale: number = Math.max(
     Math.abs(ux),
     Math.abs(uy),
@@ -221,7 +182,5 @@ export const closestPointsBetweenSegments: (
     pointA.y - pointB.y,
     pointA.z - pointB.z,
   );
-  if (!Number.isFinite(distance))
-    throw new Error("Segment proximity cannot represent its witness distance.");
   return { pointA, pointB, distance };
 };

@@ -58,9 +58,7 @@ export const validateJointConstraint: (
     const flexed: IAutoMovieFlexedAbduction = constraint.abductionFlexed;
     if (
       constraint.abduction === null ||
-      !Number.isFinite(flexed.flexion) ||
       flexed.flexion <= 0 ||
-      !Number.isFinite(flexed.max) ||
       flexed.max < constraint.abduction.max
     )
       collector.push(
@@ -73,7 +71,7 @@ export const validateJointConstraint: (
 
   if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {
     const swingDeg: number = constraint.swingDeg;
-    if (!Number.isFinite(swingDeg) || swingDeg <= 0)
+    if (swingDeg <= 0)
       collector.push(
         "range",
         `${path}.swingDeg`,
@@ -133,8 +131,6 @@ const constraintSwingCandidates: (
 ): number[] | null => {
   if (range === null) return [0];
   if (
-    !Number.isFinite(range.min) ||
-    !Number.isFinite(range.max) ||
     range.min > range.max
   )
     return null;
@@ -174,24 +170,7 @@ const validateAngleRange: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  const fields: ReadonlyArray<readonly [string, number]> = [
-    ["min", range.min],
-    ["max", range.max],
-  ];
-  for (const [field, value] of fields)
-    if (!Number.isFinite(value))
-      collector.push(
-        "range",
-        `${path}.${field}`,
-        `${field} must be finite, but was ${value}`,
-        value,
-      );
-
-  if (
-    Number.isFinite(range.min) &&
-    Number.isFinite(range.max) &&
-    range.min > range.max
-  )
+  if (range.min > range.max)
     collector.push(
       "range",
       path,

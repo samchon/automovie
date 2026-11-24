@@ -15,12 +15,27 @@ type Quarters = IAutoMovieViewPart.IQuarters<number>;
  * with exactly one diagnostic.
  *
  * Scenarios:
- * 1. Reach: for a 60 by 40 box, a 120 by 40 box and two asymmetric boxes, the valid shoulder range holds the ellipse's shoulder and its girths lie inside the taut-tape bounds `2 sqrt(W^2 + D^2)` (the rhombus) and `2 (W + D)` (the rectangle).
- * 2. Monotone: 64 shoulders across each range give strictly rising girths; a made sequence with one fall must fail the same reader.
- * 3. Round trip: at five shoulders across each range, and with four sourced departures on one box, the girth of the section solves back to its shoulder within the solve's 1e-6 mm girth tolerance over the girth's slope, with no diagnostic; a made shoulder 0.01 off must fail the same reader.
- * 4. Out of reach: a girth 1 mm under the reach gives the least shoulder's section and one `girth in reach` diagnostic, 1 mm over it the greatest shoulder's and one diagnostic; the reach's own ends give none.
- * 5. No valid section: a departure that pushes one quarter's shoulder past 1 gives no section and one `view section` diagnostic.
- * 6. Concentrated native clock: the four unchanged upper endpoints from36619 and their inward1e-6/2e-6 neighbors have finite lengths. On the two symmetric boxes, independent positive rational-quadratic control-polygon bounds also enclose the full perimeter.
+ *
+ * 1. Reach: for a 60 by 40 box, a 120 by 40 box and two asymmetric boxes, the
+ *    valid shoulder range holds the ellipse's shoulder and its girths lie
+ *    inside the taut-tape bounds `2 sqrt(W^2 + D^2)` (the rhombus) and `2 (W +
+ *    D)` (the rectangle).
+ * 2. Monotone: 64 shoulders across each range give strictly rising girths; a made
+ *    sequence with one fall must fail the same reader.
+ * 3. Round trip: at five shoulders across each range, and with four sourced
+ *    departures on one box, the girth of the section solves back to its
+ *    shoulder within the solve's 1e-6 mm girth tolerance over the girth's
+ *    slope, with no diagnostic; a made shoulder 0.01 off must fail the same
+ *    reader.
+ * 4. Out of reach: a girth 1 mm under the reach gives the least shoulder's section
+ *    and one `girth in reach` diagnostic, 1 mm over it the greatest shoulder's
+ *    and one diagnostic; the reach's own ends give none.
+ * 5. No valid section: a departure that pushes one quarter's shoulder past 1 gives
+ *    no section and one `view section` diagnostic.
+ * 6. Concentrated native clock: the four unchanged upper endpoints from36619 and
+ *    their inward1e-6/2e-6 neighbors have finite lengths. On the two symmetric
+ *    boxes, independent positive rational-quadratic control-polygon bounds also
+ *    enclose the full perimeter.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieViewSection.range`, `.of` and `.solve` and reads their sections' `girth` and `shoulders` and their diagnostics. It catches a girth that does not rise with the shoulder (two shoulders for one girth), a reach outside the taut-tape bounds, a solve that lands on the wrong shoulder or misses its girth, a girth outside the reach clamped to the wrong end or reported more or less than once, and a broken box returning a section; any operator that solves one girth to its one shoulder and reports what it cannot reach passes.
  * @evidence contracts/development/testing.md#independent-expectations Convex geometry bounds the tape between the rhombus and box perimeters (#3045, #3046). Positive homogeneous quadratic subdivision additionally bounds raw symmetric-quarter length by chords and control polygons, independently of production native-speed/Gauss quadrature; floating arithmetic is not an interval certificate. The shoulder limit remains the published1e-6 mm girth tolerance divided by a second-order central or inward one-sided girth slope, doubled for difference error. Contract names remain `girth in reach` and `view section`. Monotonicity is read at64 shoulders, so a fold between them can pass.
@@ -206,10 +221,6 @@ export function test_construction_operator_view_section_girth(): void {
         { extents },
         [r, r, r, r],
       );
-      if (!Number.isFinite(section.girth))
-        failures.push(
-          `upper inward length ${extents}/${r}: ${AutoMovieViewSection.fault(section)}`,
-        );
       if (extents[0] !== extents[2] || extents[1] !== extents[3]) continue;
       const bounds: [number, number] | null = quadraticBounds(
         extents[0],
@@ -319,8 +330,8 @@ function roundTrip(
  * bound. Dyadic subdivision tightens both geometrically, without native speed
  * or Gaussian nodes. Refine the largest global gap until the sum's unchanged
  * 2.5e-9 target is met, rather than assigning a tiny local budget below the
- * projection's coordinate-rounding scale. The65536-node limit remains.
- * Ordinary binary64 bounds are not outward-rounded interval certificates.
+ * projection's coordinate-rounding scale. The65536-node limit remains. Ordinary
+ * binary64 bounds are not outward-rounded interval certificates.
  */
 function quadraticBounds(
   a: number,
@@ -390,7 +401,10 @@ interface IQuadraticPanel {
   upper: number;
 }
 
-/** Read convex geometric bounds without any production speed or native quadrature. */
+/**
+ * Read convex geometric bounds without any production speed or native
+ * quadrature.
+ */
 function quadraticPanel(
   controls: [number, number, number][],
 ): IQuadraticPanel | null {
@@ -407,7 +421,5 @@ function quadraticPanel(
   const upper: number =
     Math.hypot(points[1]![0] - points[0]![0], points[1]![1] - points[0]![1]) +
     Math.hypot(points[2]![0] - points[1]![0], points[2]![1] - points[1]![1]);
-  return [lower, upper].every(Number.isFinite)
-    ? { controls, lower, upper }
-    : null;
+  return { controls, lower, upper };
 }

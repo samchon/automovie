@@ -141,9 +141,8 @@ export namespace legTouch {
     const ankle: IAutoMovieVector3 = context.entry.feet[standing].ankle;
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
-    let projection:
-      | ReturnType<typeof prepareHumanPostureProjection>
-      | undefined;
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
 
     // The entry geometry places the pelvis over the stance ankle. Active corrections use the resulting foot support.
     const over: IAutoMovieVector3 = level(
@@ -185,7 +184,7 @@ export namespace legTouch {
           {},
           resolution,
           undefined,
-          (projection ??= prepareHumanPostureProjection(body)),
+          projection,
         ).pose,
         resolution(),
       ).get(`${side}UpperLeg`)!.worldPosition;

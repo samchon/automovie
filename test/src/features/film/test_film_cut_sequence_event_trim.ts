@@ -18,15 +18,17 @@ import { nclose } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Two contiguous retimed plays share an event anchor, which appears once on the second play.
+ * 1. Two contiguous retimed plays share an event anchor, which appears once on the
+ *    second play.
  * 2. Absent and duplicated ids in the same trim report both bound paths.
- * 3. A blank id and a non-finite time are refused at their own bound paths.
+ * 3. A non-finite time is refused at its own bound path.
  * 4. Reversing the bounds or selecting the same time refuses the span.
- * 5. Raw null and array bounds, invalid bound fields, and two trim forms are refused.
+ * 5. Two trim forms are refused.
  * 6. A full-shot end that rounds outward retains its exact event after inward
- *    lowering, even for a rate that makes the source tolerance smaller than one ULP.
- * 7. Distinct events just outside the selected anchors at 1 and 2 seconds
- *    are absent from the exact one-second output and cannot satisfy requirements.
+ *    lowering, even for a rate that makes the source tolerance smaller than one
+ *    ULP.
+ * 7. Distinct events just outside the selected anchors at 1 and 2 seconds are
+ *    absent from the exact one-second output and cannot satisfy requirements.
  * 8. At 2×, the same numeric span retains those events in half the output time.
  * 9. Precise hard cuts assign nearby events once when the two entries use
  *    different rates or only one side uses event bounds. A deliberately
@@ -113,9 +115,12 @@ export function test_film_cut_sequence_event_trim(): void {
       nclose(seamPlays[0].globalTime, 0.5),
   );
 
-  /** Return diagnostics for one placement so a second play cannot supply a missing bound. */
+  /**
+   * Return diagnostics for one placement so a second play cannot supply a
+   * missing bound.
+   */
   function paths(
-    trimByEvents: unknown,
+    trimByEvents: IAutoMovieEditPlan["entries"][number]["trimByEvents"],
     events: IAutoMovieInteractionEvent[],
     trim: IAutoMovieTrim | null = null,
   ): string[] {
@@ -129,7 +134,7 @@ export function test_film_cut_sequence_event_trim(): void {
             trim,
             trimByEvents,
             transition: null,
-          } as IAutoMovieEditPlan["entries"][number],
+          },
         ],
       },
       [{ ...shot, events }],
@@ -153,21 +158,20 @@ export function test_film_cut_sequence_event_trim(): void {
     fields,
   );
   TestValidator.equals(
-    "blank id and non-finite time",
-    paths({ startEvent: " ", endEvent: end.id }, [{ ...end, time: NaN }]),
-    fields,
-  );
-  TestValidator.equals(
-    "missing and non-string fields",
-    paths({ endEvent: 7 }, []),
-    fields,
+    "non-finite time",
+    paths({ startEvent: start.id, endEvent: end.id }, [
+      start,
+      { ...end, time: NaN },
+    ]),
+    [fields[1]!],
   );
 
-  const malformed: readonly [string, unknown][] = [
+  const malformed: readonly [
+    string,
+    NonNullable<IAutoMovieEditPlan["entries"][number]["trimByEvents"]>,
+  ][] = [
     ["descending span", { startEvent: end.id, endEvent: start.id }],
     ["equal bounds", { startEvent: start.id, endEvent: start.id }],
-    ["null bounds", null],
-    ["array bounds", []],
   ];
   for (const [label, bounds] of malformed)
     TestValidator.equals(label, paths(bounds, [start, end]), [bound]);

@@ -3,15 +3,12 @@ export function validateRecoveryMapMetricScales(
   cameraScales: readonly number[],
   pointScales: readonly (readonly number[])[],
 ): void {
-  if (
-    cameraScales.length < 1 ||
-    !Number.isSafeInteger(cameraScales.length + 3 * pointScales.length)
-  )
+  if (cameraScales.length < 1)
     throw new Error(
       "camera-feasible: matching positive original scales required",
     );
   for (let axis: number = 0; axis < cameraScales.length; axis++)
-    if (!(cameraScales[axis]! > 0) || !Number.isFinite(cameraScales[axis]))
+    if (!(cameraScales[axis]! > 0))
       throw new Error(
         "camera-feasible: matching positive original scales required",
       );
@@ -22,7 +19,7 @@ export function validateRecoveryMapMetricScales(
         "camera-feasible: matching positive original scales required",
       );
     for (let axis: number = 0; axis < 3; axis++)
-      if (!(row[axis]! > 0) || !Number.isFinite(row[axis]))
+      if (!(row[axis]! > 0))
         throw new Error(
           "camera-feasible: matching positive original scales required",
         );

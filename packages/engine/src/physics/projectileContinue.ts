@@ -71,17 +71,11 @@ export function projectileContinue(
     value: number,
     maximum?: number,
   ): void => {
-    if (
-      !(
-        Number.isFinite(value) &&
-        value >= 0 &&
-        (maximum === undefined || value <= maximum)
-      )
-    ) {
+    if (value < 0 || (maximum !== undefined && value > maximum)) {
       const range: string =
         maximum === undefined
-          ? "finite and non-negative"
-          : `finite and between 0 and ${maximum}`;
+          ? "non-negative"
+          : `between 0 and ${maximum}`;
       throw new RangeError(
         `projectile ${name} must be ${range}, but was ${value}`,
       );
@@ -139,19 +133,15 @@ export function projectileContinue(
       }
       const surface: IAutoMovieVector3 = outcome.surface ?? STILL;
       const ball: IAutoMovieProjectileContinue.IBall | undefined = outcome.ball;
-      if (!finite(surface))
-        throw new RangeError("projectile surface velocity must be finite");
       if (ball !== undefined) {
-        if (!(Number.isFinite(ball.radius) && ball.radius > 0))
+        if (ball.radius <= 0)
           throw new RangeError(
-            `projectile ball radius must be finite and positive, but was ${ball.radius}`,
+            `projectile ball radius must be positive, but was ${ball.radius}`,
           );
-        if (!(Number.isFinite(ball.gyration) && ball.gyration > 0))
+        if (ball.gyration <= 0)
           throw new RangeError(
-            `projectile ball gyration must be finite and positive, but was ${ball.gyration}`,
+            `projectile ball gyration must be positive, but was ${ball.gyration}`,
           );
-        if (ball.spin !== undefined && !finite(ball.spin))
-          throw new RangeError("projectile ball spin must be finite");
       }
 
       // Newton's restitution and Coulomb's friction act on the velocity
@@ -335,11 +325,3 @@ export namespace projectileContinue {
 /** A surface at rest and a ball that does not turn. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
-/** Whether every component of a vector is finite. */
-function finite(vector: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(vector.x) &&
-    Number.isFinite(vector.y) &&
-    Number.isFinite(vector.z)
-  );
-}

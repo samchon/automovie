@@ -90,7 +90,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     try {
       const p: Readonly<AutoMovieVector2Tuple> =
         order === 0 ? curve.evaluate(t) : curve.derivative(t, order, side);
-      if (p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
+      if (p.length !== 2)
         throw new Error(
           `Nonfinite source ${order === 0 ? "point" : "derivative"} at parameter ${t}.`,
         );
@@ -111,11 +111,6 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     return [a[0] - b[0], a[1] - b[1]];
   }
 
-  /** Keep admission separate from coefficient approximation and tolerance. */
-  function finite(p: Readonly<AutoMovieVector2Tuple>): boolean {
-    return Number.isFinite(p[0]) && Number.isFinite(p[1]);
-  }
-
   /** Sample proposition 2.3; this is evidence of admission, not a proof of it. */
   function admit(a: number, b: number): "regular" | "line" | string {
     let sign: number = 0;
@@ -132,11 +127,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const acceleration: Readonly<AutoMovieVector2Tuple> = point(t, 2, side);
       const jerk: Readonly<AutoMovieVector2Tuple> = point(t, 3, side);
       const fourth: Readonly<AutoMovieVector2Tuple> = point(t, 4, side);
-      if (
-        ![v, acceleration, jerk, fourth].every(finite) ||
-        Math.hypot(...v) === 0
-      )
-        return "Nonfinite or nonregular source jet.";
+      if (Math.hypot(...v) === 0) return "Nonregular source jet.";
       const determinant: number = C.cross(v, acceleration);
       const determinantScale: number =
         Math.hypot(...v) * Math.hypot(...acceleration);
@@ -164,7 +155,6 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const curvature: number = positiveTerm - negativeTerm;
       const uncertainty: number =
         roundoff * (Math.abs(positiveTerm) + Math.abs(negativeTerm));
-      if (!Number.isFinite(curvature)) return "Affine curvature overflow.";
       if (previous !== undefined) {
         const difference: number = curvature - previous;
         const threshold: number =
@@ -205,7 +195,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const q: Readonly<AutoMovieVector2Tuple> = point(b);
     const chord: Readonly<AutoMovieVector2Tuple> = subtract(q, p);
     const length: number = Math.hypot(...chord);
-    if (!finite(p) || !finite(q) || length === 0) return undefined;
+    if (length === 0) return undefined;
     for (let i: number = 1; i < 16; ++i) {
       const v: Readonly<AutoMovieVector2Tuple> = subtract(
         point(a + ((b - a) * i) / 16),
@@ -214,7 +204,6 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const projection: number =
         (v[0] * chord[0] + v[1] * chord[1]) / length ** 2;
       if (
-        !finite(v) ||
         Math.abs(C.cross(chord, v)) / length > roundoff * length ||
         projection < 0 ||
         projection > 1
@@ -240,7 +229,6 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const z: Readonly<AutoMovieVector2Tuple> = point(b, 1, "left");
     const determinant: number = C.cross(v, z);
     if (
-      ![p, q, v, z].every(finite) ||
       Math.abs(determinant) <= roundoff * Math.hypot(...v) * Math.hypot(...z)
     )
       return undefined;
@@ -255,7 +243,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const x: Readonly<AutoMovieVector2Tuple> = subtract(corner, p);
     const y: Readonly<AutoMovieVector2Tuple> = subtract(q, p);
     const area: number = C.cross(x, y);
-    if (!finite(corner) || area === 0) return undefined;
+    if (area === 0) return undefined;
 
     /** Affine barycentric coordinates are linear, including along a normal. */
     function coordinates(sample: Sample): Coordinate {
@@ -272,8 +260,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const position: Readonly<AutoMovieVector2Tuple> = point(t);
       const tangent: Readonly<AutoMovieVector2Tuple> = point(t, 1);
       const speed: number = Math.hypot(...tangent);
-      if (!finite(position) || !finite(tangent) || speed === 0)
-        return undefined;
+      if (speed === 0) return undefined;
       return coordinates({
         point: position,
         normal: [-tangent[1] / speed, tangent[0] / speed],
@@ -297,8 +284,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const wb: number = Math.sqrt(
       Math.abs(area) / (2 * kb * Math.hypot(...endDirection) ** 3),
     );
-    if (Number.isNaN(wa) || Number.isNaN(wb) || wa <= 0 || wb <= 0)
-      return undefined;
+    if (wa <= 0 || wb <= 0) return undefined;
     const left: number = Math.min(
       wa === Infinity ? 1 : wa / (1 + wa),
       wb === Infinity ? 1 : wb / (1 + wb),
@@ -329,7 +315,7 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     if (refined === undefined) return undefined;
     const rho: number = refined[0];
     const weight: number = rho / (1 - rho);
-    if (!Number.isFinite(weight) || weight <= 0) return undefined;
+    if (rho === 1 || weight <= 0) return undefined;
     let maximum: number = refined[1];
 
     // These half-shifted nodes never participate in fitting the weight.

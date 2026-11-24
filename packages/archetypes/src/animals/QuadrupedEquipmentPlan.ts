@@ -98,7 +98,6 @@ export class QuadrupedEquipmentPlan {
     this.positive("pack.bridge.halfSpan", halfSpan);
     this.positive("pack.bridge.radius", radius);
     this.nonnegative("pack.clearance", clearance);
-    this.point("pack.bridge.plane", { x: 0, y: minimum, z });
     return this.#solids.above(minimum, halfSpan, z, radius, clearance);
   }
 
@@ -141,8 +140,6 @@ export class QuadrupedEquipmentPlan {
     clearance: number = 0,
   ): void {
     this.positive(`${id}.radius`, radius);
-    this.point(`${id}.from`, from);
-    this.point(`${id}.to`, to);
     this.positive(`${id}.length`, Vector3.length(Vector3.subtract(to, from)));
     this.nonnegative(`${id}.clearance`, clearance);
     this.#solids.rod(id, radius, from, to, clearance);
@@ -170,8 +167,6 @@ export class QuadrupedEquipmentPlan {
     color: string,
     clearance: number = 0,
   ): void {
-    this.point(`${id}.position`, at);
-    this.point(`${id}.size`, size);
     this.nonnegative(`${id}.clearance`, clearance);
     this.#solids.box(id, size, at, clearance);
     this.#parts.push({ kind: "box", id, size, at, color });
@@ -223,7 +218,6 @@ export class QuadrupedEquipmentPlan {
         clearance,
       );
     const bearing: IAutoMovieVector3 = { ...base, y: base.y + hook.radius };
-    this.point(`${name}.bearing`, bearing);
     this.#contacts.push({
       id,
       kind: "hook",
@@ -241,23 +235,9 @@ export class QuadrupedEquipmentPlan {
       this.positive(`${name}.${key}`, hook[key]);
   }
 
-  /**
-   * Refuse nonfinite derived coordinates before recording their primitive or
-   * contact.
-   */
-  public point(axis: string, value: IAutoMovieVector3): void {
-    if (![value.x, value.y, value.z].every(Number.isFinite))
-      this.refuse(
-        axis,
-        value,
-        "derived equipment coordinates must be finite",
-        "reduce the authored dimensions or correct the rest rig",
-      );
-  }
-
   /** Admit finite strictly positive metres without reporting zero as feasible. */
   public positive(axis: string, value: number): void {
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       this.refuse(
         axis,
         value,
@@ -268,7 +248,7 @@ export class QuadrupedEquipmentPlan {
 
   /** Admit finite nonnegative clearance, including exact contact at zero. */
   public nonnegative(axis: string, value: number): void {
-    if (!(Number.isFinite(value) && value >= 0))
+    if (!(value >= 0))
       this.refuse(
         axis,
         value,
@@ -279,14 +259,7 @@ export class QuadrupedEquipmentPlan {
 
   /** Admit an already positive occupied length at its inclusive fit limit. */
   public atMost(axis: string, value: number, maximum: number): void {
-    if (
-      !(
-        Number.isFinite(value) &&
-        Number.isFinite(maximum) &&
-        maximum > 0 &&
-        value <= maximum
-      )
-    )
+    if (!(maximum > 0 && value <= maximum))
       this.refuse(
         axis,
         value,

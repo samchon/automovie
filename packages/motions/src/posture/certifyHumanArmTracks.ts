@@ -35,9 +35,6 @@ export function certifyHumanArmTracks(
       ),
   );
   if (
-    !coordinates.every((arm: number[][]): boolean =>
-      arm.every((point: number[]): boolean => point.every(Number.isFinite)),
-    ) ||
     !(
       HumanArmTrajectoryModel.evaluate(context, coordinates).worst.value <=
       HumanArmTrajectoryModel.TOLERANCE

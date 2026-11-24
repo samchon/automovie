@@ -61,11 +61,11 @@ export namespace HumanCue {
     let origin: number = 0;
     let rate: number = 1;
     if (seconds === undefined) {
-      if (typeof from !== "number" || !Number.isFinite(from) || from < 0)
+      if (from === undefined || !(from >= 0))
         throw new Error(
           "A section wave needs a finite nonnegative origin second",
         );
-      if (typeof speed !== "number" || !Number.isFinite(speed) || speed <= 0)
+      if (speed === undefined || !(speed > 0))
         throw new Error("A section wave needs a finite positive speed");
       origin = from;
       rate = speed;
@@ -76,12 +76,12 @@ export namespace HumanCue {
     let previousSecond: number = origin;
     for (let index: number = 0; index < values.length; ++index) {
       const value: number = values[index]!;
-      if (!Number.isFinite(value) || value < 0)
+      if (!(value >= 0))
         throw new Error(`Section ${index} needs a finite nonnegative value`);
       if (value < previous) throw new Error(`Section ${index} is out of order`);
 
       const at: number = seconds === undefined ? origin + value / rate : value;
-      if (!Number.isFinite(at) || (value > previous && at <= previousSecond))
+      if (value > previous && at <= previousSecond)
         throw new Error(
           `Section ${index} needs a finite, advancing film second`,
         );
@@ -119,8 +119,6 @@ export namespace HumanCue {
     );
     sorted.forEach(
       (order: IAutoMovieMotionHumanCue.IOrder, i: number): void => {
-        if (!Number.isFinite(order.at))
-          throw new Error(`The command ${order.word} has no finite second`);
         if (order.caution !== undefined) {
           if (!(order.caution > 0))
             throw new Error(
@@ -200,7 +198,7 @@ export namespace HumanCue {
       ["count", beats.count],
       ["meter", meter],
     ] as const)
-      if (!(Number.isInteger(value) && value > 0))
+      if (!(value > 0))
         throw new Error(`A beat track's ${name} is a positive whole number`);
     const track: IAutoMovieScheduleCue[] = [];
     for (let i: number = 0; i < beats.count; ++i) {

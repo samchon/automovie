@@ -83,17 +83,24 @@ export namespace HumanSwordTaken {
           )?.share ?? 1;
         const left: number = parry.start + relax * parry.plan.duration;
         const reader: IAutoMovieMotionHumanPropReader = context.prop(theirs);
-        let origin: IAutoMovieVector3 | undefined;
-        let kept: IAutoMovieVector3 | undefined;
+        // The parrying blade's frame at the start and where the parry lets
+        // go, solved once the performance is placed (`prepare`); a read
+        // before reads them there.
+        let ends: readonly [IAutoMovieVector3, IAutoMovieVector3] | undefined;
+        const solve = (): readonly [IAutoMovieVector3, IAutoMovieVector3] => [
+          reader.frame(context.start).position,
+          reader.frame(left).position,
+        ];
         const carried = (seconds: number): IAutoMovieVector3 => {
-          origin ??= reader.frame(context.start).position;
+          const [origin, release]: readonly [
+            IAutoMovieVector3,
+            IAutoMovieVector3,
+          ] = ends ?? solve();
           const at: number = context.start + seconds;
-          if (at < left)
-            return Vector3.subtract(reader.frame(at).position, origin);
-          return (kept ??= Vector3.subtract(
-            reader.frame(left).position,
+          return Vector3.subtract(
+            at < left ? reader.frame(at).position : release,
             origin,
-          ));
+          );
         };
 
         const entered: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
@@ -120,14 +127,14 @@ export namespace HumanSwordTaken {
           },
         );
 
-        // Reads made while the schedule was being resolved are dropped once
-        // the performance settles.
-        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
-          planned.settle;
-        planned.settle = (): void => {
-          origin = undefined;
-          kept = undefined;
-          settled?.call(planned);
+        // The blade's ends are solved on the placed performance, after the
+        // plan's own solution. The plan is extended in place, so any getter
+        // it carries is not read early.
+        const prepared: IAutoMovieMotionHumanActionPlan["prepare"] =
+          planned.prepare;
+        planned.prepare = (): void => {
+          prepared?.call(planned);
+          ends = solve();
         };
         return planned;
       },

@@ -75,8 +75,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       0 < stopAt &&
       stopAt < pluckAt &&
       pluckAt < releaseAt &&
-      releaseAt < duration &&
-      Number.isFinite(duration)
+      releaseAt < duration
     )
   )
     throw new HumanRefusal({

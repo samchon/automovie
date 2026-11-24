@@ -31,7 +31,6 @@ export function measurePhysicalMotionConstraint(
         states[anchor.blend.other];
       if (
         !other ||
-        !Number.isFinite(anchor.blend.weight) ||
         anchor.blend.weight < 0 ||
         anchor.blend.weight > 1
       )
@@ -49,8 +48,7 @@ export function measurePhysicalMotionConstraint(
         states[anchor.ray.from];
       if (
         !from ||
-        !(anchor.ray.distance >= 0) ||
-        !Number.isFinite(anchor.ray.distance)
+        anchor.ray.distance < 0
       )
         throw new Error("Invalid motion audit ray");
       const delta: IAutoMovieVector3 = Vector3.subtract(

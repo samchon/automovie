@@ -15,12 +15,20 @@ import assert from "node:assert/strict";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/predicates";
 
-/** A real spherical patch preserves the original XYZ endpoint and its actual plane witnesses.
+/**
+ * A real spherical patch preserves the original XYZ endpoint and its actual
+ * plane witnesses.
  *
  * Scenarios:
- * 1. A touching primitive has zero endpoint and plane errors; lowering it retains the original unmet XYZ goal alongside witness and complete-patch penetration rows.
- * 2. Raising the patch keeps its planted witness equality even when nonpenetration is satisfied, while a patch without witnesses retains its complete-surface plane equality.
- * 3. Invalid endpoint or patch declarations refuse without mutating the borrowed profile, goals or poses.
+ *
+ * 1. A touching primitive has zero endpoint and plane errors; lowering it retains
+ *    the original unmet XYZ goal alongside witness and complete-patch
+ *    penetration rows.
+ * 2. Raising the patch keeps its planted witness equality even when nonpenetration
+ *    is satisfied, while a patch without witnesses retains its complete-surface
+ *    plane equality.
+ * 3. Invalid endpoint or patch declarations refuse without mutating the borrowed
+ *    profile, goals or poses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `linearizePhysicalTargetRows`, `physicalContactSupportRows`, `preparePhysicalGeometry` on in-memory inputs and asserts the returned observations through 5x TestValidator.predicate; 3 numbered scenarios (first: A touching primitive has zero endpoint and plane errors; lowering it retains the original unmet XYZ goal...; last: Invalid endpoint or patch declarations refuse without mutating the borrowed profile, goals or poses.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (5 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -105,7 +113,6 @@ export async function test_physical_contact_support_patch(): Promise<void> {
   );
   assert.equal(JSON.stringify({ profile, support, targets }), before);
   for (const invalid of [
-    { ...support, point: { x: 0, y: NaN, z: 0 } },
     { ...support, patch: { contacts: ["missing"], floor: 0.9 } },
     {
       ...support,

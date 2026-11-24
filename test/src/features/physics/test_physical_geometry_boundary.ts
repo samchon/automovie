@@ -13,13 +13,20 @@ import assert from "node:assert/strict";
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { nclose } from "../internal/nclose";
 
-/** The engine's exact convex queries find touching at zero distance without changing the caller's accepted distance.
+/**
+ * The engine's exact convex queries find touching at zero distance without
+ * changing the caller's accepted distance.
  *
  * Scenarios:
- * 1. The original decimal-radius sphere tangent is returned with zero native distance at default and tiny explicit prediction.
- * 2. Offset/rotated sphere, capsule and box boundaries preserve native witnesses and null impulse.
- * 3. A representable positive gap stays absent at default and is admitted only by an explicit sufficient prediction.
- * 4. Query inputs remain unchanged, and a non-finite prediction is refused rather than measured.
+ *
+ * 1. The original decimal-radius sphere tangent is returned with zero native
+ *    distance at default and tiny explicit prediction.
+ * 2. Offset/rotated sphere, capsule and box boundaries preserve native witnesses
+ *    and null impulse.
+ * 3. A representable positive gap stays absent at default and is admitted only by
+ *    an explicit sufficient prediction.
+ * 4. Query inputs remain unchanged, and a negative prediction is refused rather
+ *    than measured.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `preparePhysicalGeometry` on in-memory inputs and asserts the returned observations through 3x TestValidator.predicate; 4 numbered scenarios (first: The original decimal-radius sphere tangent is returned with zero native distance at default and tiny...; last: Query inputs remain unchanged, and a non-finite prediction is refused rather than measured.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (3 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -107,12 +114,7 @@ export async function test_physical_geometry_boundary(): Promise<void> {
   }
   assert.throws(
     (): ReturnType<IAutoMoviePreparePhysicalGeometry.IQueries["contact"]> =>
-      geometry.contact(
-        make(sphere, 0),
-        make(sphere, 0.2),
-        0,
-        Number.POSITIVE_INFINITY,
-      ),
+      geometry.contact(make(sphere, 0), make(sphere, 0.2), 0, -1),
     /Invalid physical contact query time or prediction/,
   );
 }

@@ -66,10 +66,7 @@ export function parseAutoMovieInspectionView(
     const points: number[][] = halves.map(triple);
     if (
       points.length !== 2 ||
-      points.some(
-        (point: number[]): boolean =>
-          point.length !== 3 || !point.every(Number.isFinite),
-      )
+      points.some((point: number[]): boolean => point.length !== 3)
     )
       return refuse("is not two finite triples");
     const position: IAutoMovieVector3 = vector(points[0]!);
@@ -92,14 +89,14 @@ export function parseAutoMovieInspectionView(
             "is a fixed camera, whose @ortho states its metres per pixel as @ortho=<m>",
           );
         const scale: number = value.trim() === "" ? Number.NaN : Number(value);
-        if (!(Number.isFinite(scale) && scale > 0))
+        if (!(scale > 0))
           return refuse(
             `has @ortho=${value}, which is not a positive number of metres per pixel`,
           );
         metresPerPixel = scale;
       } else if (key === "up" && written.startsWith("up=")) {
         const direction: number[] = triple(value);
-        if (direction.length !== 3 || !direction.every(Number.isFinite))
+        if (direction.length !== 3)
           return refuse(`has @up=${value}, which is not a finite triple`);
         up = vector(direction);
         const cross: number = Math.hypot(

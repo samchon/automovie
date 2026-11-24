@@ -35,10 +35,7 @@ export function autoMovieVisemeChannelWeights(
       VISEME_PRESETS[viseme];
     if (preset === null || preset === undefined || weight === undefined)
       continue;
-    const w: number = Math.max(
-      0,
-      Math.min(1, Number.isFinite(weight) ? weight : 0),
-    );
+    const w: number = Math.max(0, Math.min(1, weight));
     mouth.set(preset, (mouth.get(preset) ?? 0) + w);
     for (const [channel, factor] of AUTOMOVIE_EXPRESSION_PRESET_CHANNELS[
       preset

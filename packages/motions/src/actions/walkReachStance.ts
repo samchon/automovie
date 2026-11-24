@@ -141,16 +141,27 @@ export namespace walkReachStance {
         initial,
         foot.toes,
       ).y < HumanFoot.BEARING;
-    let rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined;
-    let sole: ReturnType<typeof HumanFoot.prepareSole> | undefined;
-    let turning: ReturnType<typeof HumanFootRotation.prepare> | undefined;
-    let toeOffset: ReturnType<typeof HumanFoot.prepareOffset> | undefined;
+    const rockerRise: ReturnType<typeof walkLeg.prepareHeelRise> | undefined =
+      bears && about === "mtp"
+        ? walkLeg.prepareHeelRise(body, side, pivot, heading, rocker, dorsal)
+        : undefined;
+    const sole: ReturnType<typeof HumanFoot.prepareSole> =
+      HumanFoot.prepareSole(body, side);
+    const pivots: boolean = about === "mtp" && Math.abs(pivoted) > STILL;
+    const turning: ReturnType<typeof HumanFootRotation.prepare> | undefined =
+      pivots ? HumanFootRotation.prepare(heading + pivoted, 0) : undefined;
+    const toeOffset: ReturnType<typeof HumanFoot.prepareOffset> | undefined =
+      pivots ? HumanFoot.prepareOffset(body, side, "toe") : undefined;
     const lean: ReturnType<typeof walkLeg.prepareLean> | undefined =
       (about === "heel" && bears) || about === "mtp"
         ? walkLeg.prepareLean(body, heading)
         : undefined;
-    let trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined;
-    let trailAnkle: ReturnType<typeof HumanFoot.prepareAnkle> | undefined;
+    const trailing: ReturnType<typeof walkLeg.prepareTrailing> | undefined =
+      about === "mtp" ? walkLeg.prepareTrailing(body, yaw) : undefined;
+    const trailAnkle: ReturnType<typeof HumanFoot.prepareAnkle> | undefined =
+      about === "mtp"
+        ? HumanFoot.prepareAnkle(body, side, about, pivot, heading)
+        : undefined;
 
     // The heel rocker's progress toward flat: its scheduled pitch falls from
     // `walkFoot.STRIKE` to none on a minimum-jerk profile, so this share
@@ -160,7 +171,10 @@ export namespace walkReachStance {
       1,
       Math.max(0, 1 - starting / walkFoot.STRIKE),
     );
-    let ball: IHandover | undefined;
+    const ball: IHandover | undefined =
+      bears && about === "heel"
+        ? handover(body, side, at(0), heading, rocker, dorsal)
+        : undefined;
     return (h: IAutoMovieVector3): IPrepareResult2 => {
       let placement: IAutoMovieMotionHumanFoot.IPlacement = initial;
       let pitch: number = starting;
@@ -176,7 +190,7 @@ export namespace walkReachStance {
           for (let k: number = 0; k < TOES_DOWN; k++) {
             const top: number =
               -lean!(h, placement.ankle) + dorsal - walkLeg.ANKLE;
-            first ??= top;
+            if (k === 0) first = top;
             if (pitch <= top + SETTLED) break;
             pitch = Math.max(0, top);
             placement = at(pitch);
@@ -197,27 +211,19 @@ export namespace walkReachStance {
             handing,
             rocker > 0 ? Math.min(1, Math.max(0, -(first ?? 0) / rocker)) : 0,
           );
-          ball ??= handover(body, side, at(0), heading, rocker, dorsal);
-          if (weight > 0 && Vector3.distance(ball.flat, h) <= ball.span) {
-            const risen: number = ball.rise(h, 0);
+          if (weight > 0 && Vector3.distance(ball!.flat, h) <= ball!.span) {
+            const risen: number = ball!.rise(h, 0);
             if (risen < 0) {
               pitch += weight * risen;
               if (pitch >= 0) placement = at(pitch);
               else {
-                placement = ball.at(pitch);
-                held = ball.contact;
+                placement = ball!.at(pitch);
+                held = ball!.contact;
               }
             }
           }
         } else {
-          const risen: number = (rockerRise ??= walkLeg.prepareHeelRise(
-            body,
-            side,
-            pivot,
-            heading,
-            rocker,
-            dorsal,
-          ))(h, pitch);
+          const risen: number = rockerRise!(h, pitch);
           if (risen !== pitch) {
             pitch = risen;
             placement = at(pitch);
@@ -235,13 +241,10 @@ export namespace walkReachStance {
           (degrees: number): number => {
             // The search keeps no placement, so it reads the ankle alone; the
             // record is the reader's own, read here before its next pitch.
-            const ankle: IAutoMovieVector3 = (trailAnkle ??=
-              HumanFoot.prepareAnkle(body, side, about, pivot, heading))(
-              degrees,
-            );
+            const ankle: IAutoMovieVector3 = trailAnkle!(degrees);
             const room = (): number =>
               TRAIL -
-              (trailing ??= walkLeg.prepareTrailing(body, yaw))(h, ankle);
+              trailing!(h, ankle);
             const asked: number | undefined =
               degrees === pitch ? room() : undefined;
             // Both outcomes of the plantar test admit the asked pitch here.
@@ -262,17 +265,12 @@ export namespace walkReachStance {
       const toes: number = Math.max(foot.toes, -pitch);
       // The pivot turn: the foot turns about its toe pad by its pivot.
       if (about === "mtp" && Math.abs(pivoted) > STILL) {
-        const local: IAutoMovieVector3 = (toeOffset ??= HumanFoot.prepareOffset(
-          body,
-          side,
-          "toe",
-        ))(toes);
+        const local: IAutoMovieVector3 = toeOffset!(toes);
         const pad: IAutoMovieVector3 = Vector3.add(
           placement.ankle,
           Quaternion.rotateVector(placement.rotation, local),
         );
-        const turned: IAutoMovieQuaternion = (turning ??=
-          HumanFootRotation.prepare(heading + pivoted, 0))(pitch);
+        const turned: IAutoMovieQuaternion = turning!(pitch);
         placement = {
           ankle: Vector3.subtract(pad, Quaternion.rotateVector(turned, local)),
           rotation: turned,
@@ -300,10 +298,7 @@ export namespace walkReachStance {
         // (`HumanFoot.BEARING`): a heel the rocker has raised is not on the
         // floor, and a roll about it would lift the whole foot.
         const sign: number = Math.sign(aside);
-        const points: IAutoMovieVector3[] = (sole ??= HumanFoot.prepareSole(
-          body,
-          side,
-        ))(placement);
+        const points: IAutoMovieVector3[] = sole(placement);
         const floor: number = Math.min(
           ...points.map((q: IAutoMovieVector3): number => q.y),
         );

@@ -73,7 +73,7 @@ export function cutSequence(
     byId.set(shot.id, { shot, index });
   });
 
-  if (!Number.isFinite(assemble.fps) || !(assemble.fps > 0))
+  if (!(assemble.fps > 0))
     out.push(
       "range",
       "$input.fps",
@@ -119,7 +119,7 @@ export function cutSequence(
       );
       return undefined;
     }
-    if (!Number.isFinite(time) || time < 0 || time > shot.duration) {
+    if (time < 0 || time > shot.duration) {
       out.push(
         "range",
         path,
@@ -171,7 +171,7 @@ export function cutSequence(
       const shot: IAutoMovieShot = found.shot;
       const shotIndex: number = found.index;
       const validShotDuration: boolean =
-        Number.isFinite(shot.duration) && shot.duration > 0;
+        shot.duration > 0;
       if (!validShotDuration)
         out.push(
           "range",
@@ -235,21 +235,13 @@ export function cutSequence(
       if (trim !== null && (bounds === undefined || validPlayedSpan)) {
         const start: number = trim.start;
         const duration: number = trim.duration;
-        if (!Number.isFinite(duration) || !(duration > 0)) {
+        if (!(duration > 0)) {
           validPlayedSpan = false;
           out.push(
             "range",
             `$input.entries[${i}].trim.duration`,
             `trim duration must be a finite number > 0 seconds, but was ${duration}`,
             duration,
-          );
-        } else if (!Number.isFinite(start)) {
-          validPlayedSpan = false;
-          out.push(
-            "range",
-            `$input.entries[${i}].trim.start`,
-            `trim start must be a finite number >= 0 seconds, but was ${start}`,
-            start,
           );
         } else if (
           validShotDuration &&
@@ -267,7 +259,7 @@ export function cutSequence(
       }
       const playbackRate: number =
         entry.playbackRate === undefined ? 1 : entry.playbackRate;
-      if (!Number.isFinite(playbackRate) || !(playbackRate > 0)) {
+      if (!(playbackRate > 0)) {
         validPlayedSpan = false;
         out.push(
           "range",
@@ -279,7 +271,7 @@ export function cutSequence(
         const start: number = runtime - (entry.transition?.duration ?? 0);
         played /= playbackRate;
         const end: number = start + played;
-        if (!Number.isFinite(played) || !(played > 0)) {
+        if (!(played > 0)) {
           validPlayedSpan = false;
           out.push(
             "range",
@@ -287,7 +279,7 @@ export function cutSequence(
             "the playback rate must produce a finite positive output duration",
             playbackRate,
           );
-        } else if (Number.isFinite(start) && !(end > start)) {
+        } else if (!(end > start)) {
           validPlayedSpan = false;
           out.push(
             "range",
@@ -306,7 +298,6 @@ export function cutSequence(
             entry.transition,
           );
         else if (
-          !Number.isFinite(entry.transition.duration) ||
           !(entry.transition.duration > 0)
         )
           out.push(
@@ -359,13 +350,7 @@ export function cutSequence(
     },
   );
 
-  if (out.items.length === 0 && !Number.isFinite(runtime))
-    out.push(
-      "range",
-      "$input.entries",
-      "the assembled runtime must be finite seconds",
-      runtime,
-    );
+
   if (out.items.length > 0) return { success: false, violations: out.items };
 
   const sequence: IAutoMovieSequence = {
@@ -407,7 +392,6 @@ export function cutSequence(
       const requirement: RequiredEvent = requiredEvents[index]!;
       const path: string = `$input.requiredEvents[${index}]`;
       const validEntry: boolean =
-        Number.isInteger(requirement.entry) &&
         requirement.entry >= 0 &&
         requirement.entry < sequence.shots.length;
       if (!validEntry)

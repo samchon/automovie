@@ -254,8 +254,9 @@ export namespace defend {
           ? waiting(t, channels, resolution, projection)
           : geometry().posture(t, channels, resolution, projection);
       },
-      settle: (): void => {
+      prepare: (): void => {
         built = undefined;
+        geometry();
       },
     };
     return out;

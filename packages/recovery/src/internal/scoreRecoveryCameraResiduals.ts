@@ -10,17 +10,13 @@ export function scoreRecoveryCameraResiduals(
   residuals: Parameters<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>[0],
   thresholdPx: Parameters<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation>[1],
 ): ReturnType<IAutoMovieRecoveryCameraResidualsScoreOperation.Operation> {
-  if (!(thresholdPx > 0) || !Number.isFinite(thresholdPx))
+  if (!(thresholdPx > 0))
     throw new Error("camera-score: finite positive pixel threshold required");
   const indices: number[] = [],
     values: number[] = [];
   for (let at: number = 0; at < residuals.length; at++) {
     const residual: number | null = residuals[at]!;
-    if (
-      residual !== null &&
-      Number.isFinite(residual) &&
-      Math.abs(residual) <= thresholdPx
-    ) {
+    if (residual !== null && Math.abs(residual) <= thresholdPx) {
       indices.push(at);
       values.push(Math.abs(residual));
     }

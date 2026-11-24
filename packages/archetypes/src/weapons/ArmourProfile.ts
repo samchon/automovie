@@ -142,7 +142,7 @@ export namespace ArmourProfile {
     };
     if (
       ![wall, inner.x, inner.z, outer.y].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       )
     )
       refuse(
@@ -184,7 +184,6 @@ export namespace ArmourProfile {
     const wall: number = (2 * volume) / (a + Math.sqrt(discriminant));
     if (
       !(
-        Number.isFinite(wall) &&
         wall > 0 &&
         sleeve > 0 &&
         wall < sleeveHeight / 2 &&

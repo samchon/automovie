@@ -77,8 +77,6 @@ export function trackPhysicalSupports(
       { position: rigid.translation(), rotation: rigid.rotation() },
       limb.localPoint,
     );
-    if (![actual.x, actual.y, actual.z].every(Number.isFinite))
-      throw new Error("Nonfinite support endpoint");
     const goal: IAutoMovieSamplePhysicalTarget.IResult =
       input.goals[limb.bone]!;
     const desired: IAutoMovieVector3 = physicalSupportPoint(

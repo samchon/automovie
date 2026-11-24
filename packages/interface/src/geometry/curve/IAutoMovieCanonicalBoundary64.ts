@@ -3,20 +3,17 @@ import type { IAutoMovieCanonicalBoundaryPhase64 } from "./IAutoMovieCanonicalBo
 /**
  * Exact normalized boundary addresses and directed interval incidence.
  * AutoMovieCanonicalBoundary64 admits finite phases in [0,1], distinct interval
- * endpoints, unique nonempty use IDs and nonempty authorities. Authority
- * identity is declared independently of numeric position. Inversion borrows its
- * monotone map and anchors; partition returns new atom arrays and diagnostics.
+ * endpoints and unique use IDs. Authority identity is declared independently of
+ * numeric position. Inversion borrows its monotone map and anchors; partition
+ * returns new atom arrays and diagnostics.
  */
 export namespace IAutoMovieCanonicalBoundary64 {
   /**
    * One authority's directed normalized interval; finite endpoints lie in [0,1]
-   * and differ. Authority is a nonempty caller-owned identity, not a position.
+   * and differ. Authority is a caller-owned identity, not a position.
    */
   export type Interval = {
-    /**
-     * Nonempty caller-owned boundary identity, independent of numeric
-     * coincidence.
-     */
+    /** Caller-owned boundary identity, independent of numeric coincidence. */
     authority: string;
 
     /** Finite initial canonical phase in [0,1]; directed order is preserved. */
@@ -67,13 +64,13 @@ export namespace IAutoMovieCanonicalBoundary64 {
    */
   export type IPartitionUses = readonly {
     /**
-     * Nonempty use identifier unique across the entire input list; duplicate
-     * IDs throw even under different authorities.
+     * Use identifier unique across the entire input list; duplicate IDs throw
+     * even under different authorities.
      */
     id: string;
     /**
-     * Nonempty caller-declared boundary identity. Only uses with this exact
-     * string share a partition.
+     * Caller-declared boundary identity. Only uses with this exact string share
+     * a partition.
      */
     authority: string;
     /**

@@ -49,11 +49,7 @@ export function observeAutoMovieRecoveryImages(
     for (const view of input.views) {
       const count: number = view.width * view.height;
       pixels += count;
-      if (
-        !Number.isSafeInteger(count) ||
-        !Number.isSafeInteger(pixels) ||
-        pixels > input.budget.maxPixels
-      )
+      if (pixels > input.budget.maxPixels)
         throw new Error(
           "budget-exhausted: total image pixels exceed maxPixels",
         );
@@ -128,10 +124,6 @@ export function observeAutoMovieRecoveryImages(
         const yMm: number = (camera.principalPointPx[1] - row - 0.5) * pitch;
         const lowerMm: number = (first - camera.principalPointPx[0]) * pitch;
         const upperMm: number = (last + 1 - camera.principalPointPx[0]) * pitch;
-        if (![yMm, lowerMm, upperMm].every(Number.isFinite))
-          throw new Error(
-            "nonfinite-chart: pixel-to-metric conversion exceeded finite arithmetic",
-          );
         const measured: (typeof rows)[number] = { yMm, lowerMm, upperMm };
         chart.assertRow(measured, rows.at(-1));
         rows.push(measured);

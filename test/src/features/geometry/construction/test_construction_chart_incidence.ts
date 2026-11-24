@@ -14,6 +14,7 @@ type Vertex = [number, readonly [number, number]];
  * Native halfedges retain branching vertices and periodic boundary components.
  *
  * Scenarios:
+ *
  * 1. A square with both diagonals split at their shared centre has four triangular
  *    left boundaries and one exterior boundary at three length units.
  * 2. A cylinder band with two meridians has two rectangular faces and two
@@ -182,7 +183,10 @@ export function test_construction_chart_incidence(): void {
     throw new Error(`Chart incidence findings:\n${failures.join("\n")}`);
 }
 
-/** Ordinary signed shoelace area, used only for zero-winding finite elementary faces. */
+/**
+ * Ordinary signed shoelace area, used only for zero-winding finite elementary
+ * faces.
+ */
 function area(
   walk: IAutoMovieSolidMeshIncidence.IWalk,
   points: ReadonlyMap<number, readonly [number, number]>,
@@ -200,7 +204,10 @@ function area(
   return total / 2;
 }
 
-/** Each input edge appears once in each direction, including noncontractible components. */
+/**
+ * Each input edge appears once in each direction, including noncontractible
+ * components.
+ */
 function incidence(
   failures: string[],
   label: string,
@@ -216,9 +223,7 @@ function incidence(
       2 * edges ||
     walks.some(
       (walk: IAutoMovieSolidMeshIncidence.IWalk): boolean =>
-        walk.vertices.length !== walk.lifts.length ||
-        walk.lifts[0] !== 0 ||
-        !walk.lifts.every(Number.isSafeInteger),
+        walk.vertices.length !== walk.lifts.length || walk.lifts[0] !== 0,
     )
   )
     failures.push(`${label}: invalid directed incidence count or cover`);

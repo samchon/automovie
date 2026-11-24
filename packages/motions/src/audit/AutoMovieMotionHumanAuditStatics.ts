@@ -69,15 +69,13 @@ export namespace AutoMovieMotionHumanAuditStatics {
     const bound: number = SHARE * body.measure.stature;
     const times: number[] = HumanAuditMotion.grid(0, motion.duration, rate);
 
-    // The body's own mass model, read only once an instant is held, and each
-    // grid instant's centre placed once: consecutive held instants share
-    // their neighbours' centres.
-    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
+    // Each grid instant's centre placed once within this measure:
+    // consecutive held instants share their neighbours' centres.
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     const centres: Map<number, IAutoMovieVector3> = new Map();
     const centre = (i: number): IAutoMovieVector3 => {
       let found: IAutoMovieVector3 | undefined = centres.get(i);
       if (found === undefined) {
-        model ??= body.massModel;
         found = resolveAutoMovieCenterOfMass.place(
           model,
           motion.bones(subject, times[i]!),

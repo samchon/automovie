@@ -348,7 +348,7 @@ export namespace punch {
     // What the punch reads of its own entry alone, made once for the plan;
     // the geometry, which follows the target and the committed stop, is
     // built on it at every settle.
-    let launched: punchLaunch.ILaunch | undefined;
+    const launched: punchLaunch.ILaunch = punchLaunch(context, timing);
     const geometry = (): punchGeometry.IGeometry => {
       if (built !== undefined) return built;
       if (building) throw strikingReadBack("punch", context.subject);
@@ -359,7 +359,7 @@ export namespace punch {
           timing,
           fixed,
           aimed(),
-          (launched ??= punchLaunch(context, timing)),
+          launched,
         );
       } finally {
         building = false;
@@ -386,9 +386,10 @@ export namespace punch {
         const t: number = Math.min(duration, Math.max(0, seconds));
         return carried(geometry().posture(t, source, projection), t);
       },
-      settle: (): void => {
+      prepare: (): void => {
         built = undefined;
         ride = undefined;
+        geometry();
       },
       ...(strikes
         ? {

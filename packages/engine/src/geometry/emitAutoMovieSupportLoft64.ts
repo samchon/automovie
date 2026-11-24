@@ -145,14 +145,12 @@ export function emitAutoMovieSupportLoft64(
           maximumBoundaryDefectMeters,
           defect,
         );
-        if (!Number.isFinite(defect) || defect > roundoff + previous.roundoff)
+        if (defect > roundoff + previous.roundoff)
           throw new Error(
             "unresolved-support-boundary: algebraic incidence exceeds roundoff allowance",
           );
         return previous;
       }
-      if (!own.every(Number.isFinite))
-        throw new Error("nonfinite-support-vertex");
       const id: number = mesh.physicalVertices!.sources.length;
       mesh.physicalVertices!.sources.push({ domain: input.topologyDomain, id });
       const result: ReturnType<typeof point> = { point: own, id, roundoff };
@@ -166,7 +164,6 @@ export function emitAutoMovieSupportLoft64(
       const required: number =
         2 * interval.pairs.length * (interval.segments + 1);
       if (
-        !Number.isSafeInteger(required) ||
         required + mesh.positions.length / 3 > input.maxVertices
       )
         throw new Error(
@@ -227,7 +224,7 @@ export function emitAutoMovieSupportLoft64(
                 : before + ((after - before) * row) / interval.segments;
           const dy: number = B.scalar(derivative, phase);
           const length: number = Math.hypot(normal[0], dy, normal[1]);
-          if (!Number.isFinite(length) || !(length > 0))
+          if (!(length > 0))
             throw new Error("nonfinite-support-normal");
           for (const vertex of [
             rows[row][edge],

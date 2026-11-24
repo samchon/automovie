@@ -16,7 +16,6 @@ import type { AutoMovieXpbdCollider } from "./AutoMovieXpbdCollider";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { physicalHullErode } from "./physicalHullErode";
 import { samplePhysicalTarget } from "./samplePhysicalTarget";
 
@@ -125,12 +124,7 @@ export function bindPhysicalWorld(
               0,
               input.rate,
             );
-          assertPhysicalFiniteMotion(
-            segment,
-            target,
-            sampled.velocity,
-            sampled.angularVelocity,
-          );
+
           rigid.setLinvel(
             Vector3.add(
               sampled.velocity,

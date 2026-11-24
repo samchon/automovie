@@ -91,7 +91,6 @@ const appendLightValueBounds: (
     // Finiteness belongs to the shared track-shape contract
     // (`clipTrackShapeFaults`), which reports it at this very path. Adding a
     // range verdict on top would read as two separate faults for one mistake.
-    if (!Number.isFinite(value)) return;
     validateRange(
       value,
       `${path}.values[${k}]`,
@@ -183,7 +182,7 @@ const interiorQuadraticRoots: (a: number, b: number, c: number) => number[] = (
   c: number,
 ): number[] => {
   const scale: number = Math.max(Math.abs(a), Math.abs(b), Math.abs(c));
-  if (scale === 0 || !Number.isFinite(scale)) return [];
+  if (scale === 0) return [];
   const qa: number = a / scale;
   const qb: number = b / scale;
   const qc: number = c / scale;
@@ -225,8 +224,7 @@ const appendCubicLightValueBounds: (
   if (
     times.length === 0 ||
     values.length !== times.length * stride ||
-    !times.every((time: number): boolean => Number.isFinite(time)) ||
-    !values.every((value: number): boolean => Number.isFinite(value)) ||
+
     times.some(
       (time: number, index: number): boolean =>
         index > 0 && !(time > times[index - 1]!),

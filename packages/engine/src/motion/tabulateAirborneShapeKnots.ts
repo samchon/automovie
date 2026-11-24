@@ -42,7 +42,7 @@ export function tabulateAirborneShapeKnots(
   const times: number[] = [grid.from];
   const knots: resolveAutoMovieMomentum.IPosed[] = [read(grid.from, 0)];
   const spacing: number = (grid.to - grid.from) / grid.intervals;
-  const refine: boolean = grid.intervals >= 4 && Number.isFinite(grid.turn);
+  const refine: boolean = grid.intervals >= 4;
   const pending: IKnot[] = [];
   for (let k: number = 1; k <= grid.intervals; ++k) {
     const end: number =
@@ -96,10 +96,6 @@ function maximumTurn(
       a.parts[i]!.inertiaRotation,
       b.parts[i]!.inertiaRotation,
     );
-    if (!Number.isFinite(angle))
-      throw new Error(
-        "A tabulated shape history needs finite principal-frame turns",
-      );
     largest = Math.max(largest, angle);
   }
   return largest;

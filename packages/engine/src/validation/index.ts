@@ -88,5 +88,4 @@ export * from "./validateTransformScalars";
 export * from "./validateUniqueBy";
 export * from "./validateUniqueIds";
 export * from "./validateUniqueValues";
-export * from "./validateVectorArtifact";
 export * from "./violation";

@@ -69,8 +69,8 @@ export function limitPhysicalSwingTwist(
   const shrink: number = measure > 1 ? 1 / Math.sqrt(measure) : 1;
   const limitedSwing: IAutoMovieQuaternion = PhysicalRotationVector.exp(
     Vector3.add(
-      Vector3.scale(limit.swingAxis, Number.isFinite(shrink) ? su * shrink : 0),
-      Vector3.scale(v, Number.isFinite(shrink) ? sv * shrink : 0),
+      Vector3.scale(limit.swingAxis, su * shrink),
+      Vector3.scale(v, sv * shrink),
     ),
   );
   const limitedTwist: IAutoMovieQuaternion = PhysicalRotationVector.exp(

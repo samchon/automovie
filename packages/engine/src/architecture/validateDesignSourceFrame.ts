@@ -51,7 +51,7 @@ export const validateDesignSourceFrame: (
       `unknown source frame view "${String(frame.view)}"`,
       frame.view,
     );
-  if (!Number.isSafeInteger(frame.page) || frame.page < 1)
+  if (frame.page < 1)
     collector.push(
       "range",
       `${path}.page`,
@@ -66,7 +66,7 @@ export const validateDesignSourceFrame: (
       frame.level,
     );
   for (const axis of ["width", "height"] as const)
-    if (!Number.isFinite(frame.bounds[axis]) || frame.bounds[axis] <= 0)
+    if (frame.bounds[axis] <= 0)
       collector.push(
         "range",
         `${path}.bounds.${axis}`,
@@ -78,9 +78,8 @@ export const validateDesignSourceFrame: (
       axis === "x" ? frame.bounds.width : frame.bounds.height;
     const value: number = frame.anchor[axis];
     if (
-      !Number.isFinite(value) ||
       value < 0 ||
-      (Number.isFinite(limit) && value > limit)
+      (value > limit)
     )
       collector.push(
         "range",
@@ -99,7 +98,6 @@ export const validateDesignSourceFrame: (
     (candidate: IAutoMovieDesignScaleCandidate, index: number): void => {
       const candidatePath: string = `${path}.scaleCandidates[${index}]`;
       if (
-        !Number.isFinite(candidate.metersPerUnit) ||
         candidate.metersPerUnit <= 0
       )
         collector.push(
@@ -134,14 +132,6 @@ export const validateDesignSourceFrame: (
   collector.direction(`${path}.up`, frame.up, "frame up");
   if (frame.north !== null)
     collector.direction(`${path}.north`, frame.north, "frame north");
-  for (const axis of ["x", "y", "z"] as const)
-    if (!Number.isFinite(frame.origin[axis]))
-      collector.push(
-        "range",
-        `${path}.origin.${axis}`,
-        `frame origin ${axis} must be finite, but was ${frame.origin[axis]}`,
-        frame.origin[axis],
-      );
   const axisXLength: number = Math.hypot(
     frame.axisX.x,
     frame.axisX.y,
@@ -152,24 +142,8 @@ export const validateDesignSourceFrame: (
     frame.axisY.y,
     frame.axisY.z,
   );
-  if (!Number.isFinite(axisXLength))
-    collector.push(
-      "range",
-      `${path}.axisX`,
-      "frame x axis must have a finite computed length",
-      frame.axisX,
-    );
-  if (!Number.isFinite(axisYLength))
-    collector.push(
-      "range",
-      `${path}.axisY`,
-      "frame y axis must have a finite computed length",
-      frame.axisY,
-    );
   if (
-    Number.isFinite(axisXLength) &&
     axisXLength > AXIS_EPSILON &&
-    Number.isFinite(axisYLength) &&
     axisYLength > AXIS_EPSILON &&
     Math.abs(
       Vector3.dot(

@@ -12,7 +12,7 @@ export function samplePhysicalOwnership(
   bone: string,
   seconds: number,
 ): IAutoMoviePhysicalOwnershipEvent["kind"] {
-  if (!Number.isFinite(seconds) || seconds < 0 || seconds > duration)
+  if (seconds < 0 || seconds > duration)
     throw new Error("Physics ownership read outside completed film");
   for (let index: number = events.length - 1; index >= 0; index--) {
     const entry: IAutoMoviePhysicalOwnershipEvent = events[index]!;

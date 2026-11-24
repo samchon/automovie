@@ -77,7 +77,7 @@ export namespace alignHumanHandSurface {
       normal: { ...rest.normal },
       forward: { ...rest.forward },
     };
-    let inverse: IAutoMovieQuaternion | undefined;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(basis(fixed));
     return (
       world: Pick<
         IAutoMovieMotionHumanHand.IFrame,
@@ -85,7 +85,7 @@ export namespace alignHumanHandSurface {
       >,
     ): IAutoMovieQuaternion => {
       const into: IAutoMovieQuaternion = basis(world);
-      return composed(into, (inverse ??= Quaternion.inverse(basis(fixed))));
+      return composed(into, inverse);
     };
   }
 }

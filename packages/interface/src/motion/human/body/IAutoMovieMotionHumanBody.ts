@@ -19,8 +19,8 @@ import type { IAutoMovieMotionHumanLimbReads } from "../posture/IAutoMovieMotion
 /**
  * A performer's body as motion laws read it: the canonical VRM rig and its
  * physical profile, with the measure, the anatomical surfaces, the rig's
- * topology, rest joint positions, immutable FK prerequisites and bone-local
- * mass model derived once on its first actual read.
+ * topology, rest joint positions, immutable FK prerequisites, bone-local mass
+ * model and every solved quiet-stance property derived once when it is made.
  *
  * Any canonical humanoid serves: a Human adapted by
  * `AutoMovieHumanCanonicalBody.adapt` (the polygon man), an imported VRM
@@ -101,14 +101,15 @@ export interface IAutoMovieMotionHumanBody {
 
   /**
    * The rig's bound demand of every bone a collider rides
-   * (`HumanColliders.bones`), made on its first read: a whole-body reader of
-   * the colliders or the mass (`HumanBalance.centre`) reads a pose through it.
+   * (`HumanColliders.bones`), made once when the body is made: a whole-body
+   * reader of the colliders or the mass (`HumanBalance.centre`) reads a pose
+   * through it.
    */
   colliderBones: IAutoMovieSkeletonPoseResolution.IBoneDemand;
 
   /**
-   * Bone-local mass/inertia model derived on its first read, once successfully,
-   * from the unchanged rig/profile.
+   * Bone-local mass/inertia model, derived once when the body is made from its
+   * rig and profile.
    */
   massModel: IAutoMovieResolveCenterOfMass.IModel;
 
@@ -139,13 +140,19 @@ export interface IAutoMovieMotionHumanBody {
   bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieBone>;
 
   /**
-   * The shoulder's clinical angles, degrees, of the side's unloaded hanging arm
+   * Each side's shoulder clinical angles, degrees, of its unloaded hanging arm
    * (`AutoMovieMotionHumanBend.hanging`), the angles an elbow's strain is
-   * measured from; read once per side on its first use, null when the rig has
-   * no arm chain.
-   *
-   * @param side The arm's side.
-   * @returns The shoulder's angles, or null for a rig without an arm chain.
+   * measured from; solved once per side when the body is made, null when the
+   * rig has no arm chain.
    */
-  hanging: (side: AutoMovieHumanSide) => IAutoMovieResolvedJointAngles | null;
+  hanging: Record<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null>;
+
+  /**
+   * Each side's twist of a flat hand's thumb metacarpal that clears the thumb
+   * of the palmar plane, degrees added to the flat shape's (`bendFloorThumb`):
+   * a property of the hand's own shape, solved once per side when the body is
+   * made, read in a posture at the origin; zero when the flat thumb clears the
+   * palm or its joint has no twist range.
+   */
+  flatThumb: Record<AutoMovieHumanSide, number>;
 }

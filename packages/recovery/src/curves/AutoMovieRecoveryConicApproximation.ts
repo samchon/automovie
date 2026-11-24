@@ -75,27 +75,20 @@ export namespace AutoMovieRecoveryConicApproximation {
     options: IAutoMovieConicApproximation.IOptions,
   ): string[] {
     const errors: string[] = [];
-    if (
-      !Number.isFinite(curve.domain[0]) ||
-      !Number.isFinite(curve.domain[1]) ||
-      curve.domain[0] >= curve.domain[1]
-    )
+    if (curve.domain[0] >= curve.domain[1])
       errors.push("Source domain must be finite and strictly increasing.");
     if (
       curve.breaks.some(
-        (t: number): boolean =>
-          !Number.isFinite(t) || t <= curve.domain[0] || t >= curve.domain[1],
+        (t: number): boolean => t <= curve.domain[0] || t >= curve.domain[1],
       )
     )
       errors.push(
         "Every supplied break must be finite and strictly inside the source domain.",
       );
-    if (!Number.isFinite(options.toleranceMm) || options.toleranceMm <= 0)
+    if (options.toleranceMm <= 0)
       errors.push("toleranceMm must be finite and positive.");
     if (
-      !Number.isSafeInteger(options.maximumArcs) ||
       options.maximumArcs < 1 ||
-      !Number.isSafeInteger(options.maximumDepth) ||
       options.maximumDepth < 1 ||
       options.maximumDepth > 52
     )

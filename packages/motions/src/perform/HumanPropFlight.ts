@@ -60,7 +60,9 @@ type IFlightsLaunchesItem = {
  */
 export namespace HumanPropFlight {
   /**
-   * A prop's flights in film order, found once the performance is placed.
+   * A prop's flights in film order: those the performance prepared once it was
+   * placed (`IAutoMovieMotionHumanPerformanceState.flights`), or those the
+   * placed performance gives now.
    *
    * @param self The performance.
    * @param subject The prop.
@@ -76,9 +78,27 @@ export namespace HumanPropFlight {
     subject: string,
     through: number = Infinity,
   ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
-    const kept: readonly IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
-      self.flights.get(subject);
-    if (kept !== undefined) return kept;
+    return self.flights.get(subject) ?? sweep(self, subject, through);
+  }
+
+  /**
+   * Sweep a prop's flights from the placed launches: every launch flown in film
+   * order, each until the next takes custody, with the staged interceptions
+   * admitted once the schedule is resolved. What the performance prepares.
+   *
+   * @param self The performance.
+   * @param subject The prop.
+   * @param through Optional film second limiting a point-in-time read during
+   *   placement.
+   * @returns The flights.
+   */
+  export function sweep(
+    self: IAutoMovieMotionHumanPerformanceState,
+    subject: string,
+    through: number = Infinity,
+  ): readonly IAutoMovieMotionHumanPropFlight.IFlight[] {
+    // A launch reading its own prop while its flights are swept sees the
+    // flights before it.
     const building: IAutoMovieMotionHumanPropFlight.IFlight[] | undefined =
       self.flying.get(subject);
     if (building !== undefined) return building;
@@ -110,7 +130,7 @@ export namespace HumanPropFlight {
     // even past the last placed action: a catch of a long pass reads its
     // flight after the thrower's own action ends. Final admission repeats
     // the sweep over the placed film.
-    if (self.resolving && Number.isFinite(through)) filmEnd = through;
+    if (self.resolving && through < Infinity) filmEnd = through;
     launches.sort((a, b): number => a.seconds - b.seconds);
     if (launches.length === 0) {
       if (!self.resolving) admitCaptures(self, subject, []);
@@ -137,7 +157,6 @@ export namespace HumanPropFlight {
     } finally {
       self.flying.delete(subject);
     }
-    if (!self.resolving) self.flights.set(subject, out);
     return out;
   }
 

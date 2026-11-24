@@ -29,7 +29,7 @@ export const renderCrossDissolveFrames: (
   renderIncoming: () => void,
   alpha: number,
 ): void => {
-  if (!Number.isFinite(alpha) || alpha < 0 || alpha > 1)
+  if (alpha < 0 || alpha > 1)
     throw new Error("Cross-dissolve alpha must be finite and inside [0, 1].");
   const size: THREE.Vector2 = renderer.getDrawingBufferSize(
     new THREE.Vector2(),

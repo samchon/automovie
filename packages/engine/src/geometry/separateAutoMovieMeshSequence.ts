@@ -30,18 +30,13 @@ export function separateAutoMovieMeshSequence(
   if (axis !== "x" && axis !== "y" && axis !== "z")
     throw new Error("Mesh clearance needs an X, Y or Z depth axis.");
   const depth: number = { x: 0, y: 1, z: 2 }[axis];
-  if (!Number.isFinite(clearance) || clearance < 0)
+  if (clearance < 0)
     throw new Error(
       "Mesh separation clearance must be finite and nonnegative.",
     );
   const intervals: { minimum: number; maximum: number }[] = meshes.map(
     (mesh: IAutoMovieMesh): { minimum: number; maximum: number } => {
       triangleIndicesOf(mesh, "Mesh clearance (complete triangle buffers)");
-      for (let i: number = 0; i < mesh.positions.length; ++i)
-        if (!Number.isFinite(mesh.positions[i]))
-          throw new Error(
-            "Mesh clearance needs finite complete triangle buffers.",
-          );
       let minimum: number = Infinity;
       let maximum: number = -Infinity;
       for (let i: number = depth; i < mesh.positions.length; i += 3) {
@@ -70,16 +65,12 @@ export function separateAutoMovieMeshSequence(
           travel[earlier]! + (clearance - minimum),
         );
     }
-    if (!Number.isFinite(travel[later]))
-      throw new Error("Mesh separation exceeds finite translation.");
   }
   const centre: number = (travel.at(-1) ?? 0) / 2;
   return meshes.map((mesh: IAutoMovieMesh, index: number): IAutoMovieMesh => {
     const result: IAutoMovieMesh = structuredClone(mesh);
     for (let i: number = depth; i < result.positions.length; i += 3) {
       result.positions[i] += travel[index]! - centre;
-      if (!Number.isFinite(result.positions[i]))
-        throw new Error("Mesh separation exceeds finite positions.");
     }
     return result;
   });

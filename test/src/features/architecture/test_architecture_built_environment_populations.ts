@@ -109,7 +109,10 @@ const field: (input: {
 /**
  * A residence whose rooms are furnished by populations as much as by elements.
  *
- * Every population is a whole-metre grid centred on its own anchor, so each expected box is hand arithmetic over `(column - (columns - 1) / 2) * spacing.x` and `row * spacing.z` rather than a transcript of what the query printed.
+ * Every population is a whole-metre grid centred on its own anchor, so each
+ * expected box is hand arithmetic over `(column - (columns - 1) / 2) *
+ * spacing.x` and `row * spacing.z` rather than a transcript of what the query
+ * printed.
  */
 const residence: () => IAutoMovieBuiltEnvironment =
   (): IAutoMovieBuiltEnvironment => ({
@@ -253,19 +256,35 @@ const unpopulated: () => IAutoMovieBuiltEnvironment =
   };
 
 /**
- * Fold compact population membership into room content bounds, node identities and lowered sets without per-member expansion.
+ * Fold compact population membership into room content bounds, node identities
+ * and lowered sets without per-member expansion.
  *
  * Scenarios:
+ *
  * 1. The record validates, so nothing below is read off a malformed building.
- * 2. A room furnished only by a population is measured rather than reported empty: `undercroft` holds no element at all and answers x 0.75..3.25, y -2.5..-1.5, z 2.5..5, including each cask's local box rather than only its origin.
- * 3. The element-only solar box matches the authored unit chest and the same record with populations stripped under the existing vector tolerance.
- * 4. A room holding both is the union: `great-hall` reaches x 1.5..7.5, y 0..1, z 1.5..8.5 from one table, one flagging field, and its half of the paving.
- * 5. The negative pair. That answer excludes the undercroft's casks two and a half metres below it, the porch's paving two metres beyond it, and the slate nine metres above it, each of which would move a bound if declared membership leaked.
- * 6. The root-owned roof field is excluded from the queried rooms and contributes to root bounds Y -2.5..10 and Z -0.5..12.5 together with all descendant content.
- * 7. `builtEnvironmentSpacePopulations` names which sets a space owns, folding descendants exactly as the bounds query does.
- * 8. `builtEnvironmentSpaceNodes` lists the two elements and five population owner ids without expanding the authored 30 members.
- * 9. Empty content reports null, and the tested hall fidelity stays exact with or without these populations.
- * 10. Lowering hands the populations to the world as the compact sets they are, while a record without populations omits the key entirely.
+ * 2. A room furnished only by a population is measured rather than reported empty:
+ *    `undercroft` holds no element at all and answers x 0.75..3.25, y
+ *    -2.5..-1.5, z 2.5..5, including each cask's local box rather than only its
+ *    origin.
+ * 3. The element-only solar box matches the authored unit chest and the same
+ *    record with populations stripped under the existing vector tolerance.
+ * 4. A room holding both is the union: `great-hall` reaches x 1.5..7.5, y 0..1, z
+ *    1.5..8.5 from one table, one flagging field, and its half of the paving.
+ * 5. The negative pair. That answer excludes the undercroft's casks two and a half
+ *    metres below it, the porch's paving two metres beyond it, and the slate
+ *    nine metres above it, each of which would move a bound if declared
+ *    membership leaked.
+ * 6. The root-owned roof field is excluded from the queried rooms and contributes
+ *    to root bounds Y -2.5..10 and Z -0.5..12.5 together with all descendant
+ *    content.
+ * 7. `builtEnvironmentSpacePopulations` names which sets a space owns, folding
+ *    descendants exactly as the bounds query does.
+ * 8. `builtEnvironmentSpaceNodes` lists the two elements and five population owner
+ *    ids without expanding the authored 30 members.
+ * 9. Empty content reports null, and the tested hall fidelity stays exact with or
+ *    without these populations.
+ * 10. Lowering hands the populations to the world as the compact sets they are,
+ *     while a record without populations omits the key entirely.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls space content/population/node/fidelity queries and lowering after validating the populated record. Authored min/max, ordered set/node ids, null emptiness, fidelity labels and compact set/count/key observations expose missing population content, sibling/root leaks or per-member set-piece expansion.
  * @evidence contracts/development/testing.md#independent-expectations Local grid arithmetic (column-(columns-1)/2)*spacing.x and row*spacing.z plus anchors and prototype extents gives each literal box under the original vclose limits; hall exclusion coordinates use nclose tolerance zero. Counts 6+4+12+4+4=30 and the two model elements determine compact output observations. The population-stripped solar relation shares the lowerer, and authored prototype bounds are a geometric premise rather than independently measured model meshes.
@@ -523,11 +542,9 @@ export function test_architecture_built_environment_populations(): void {
         observed["sets"][4] === "paving-porch" &&
         Object.hasOwn(observed, "slots") &&
         typeof observed["slots"] === "number" &&
-        Number.isInteger(observed["slots"]) &&
         nclose(observed["slots"], 30, 0) &&
         Object.hasOwn(observed, "setPieces") &&
         typeof observed["setPieces"] === "number" &&
-        Number.isInteger(observed["setPieces"]) &&
         nclose(observed["setPieces"], 2, 0) &&
         Object.hasOwn(observed, "bareOmitsTheKey") &&
         observed["bareOmitsTheKey"] === false

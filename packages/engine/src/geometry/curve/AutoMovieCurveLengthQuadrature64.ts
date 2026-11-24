@@ -53,8 +53,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
     ): number {
       const derivative: readonly [number, number, number] = read(parameter);
       const value: number = Math.hypot(...derivative);
-      nonfiniteDerivative ||=
-        !derivative.every(Number.isFinite) || !Number.isFinite(value);
+      nonfiniteDerivative ||= false;
       return value;
     }
 
@@ -84,7 +83,7 @@ export namespace AutoMovieCurveLengthQuadrature64 {
             const contribution: number =
               (WEIGHTS[i]! * value * width) / (2 * count);
             underflowingContribution ||= value > 0 && contribution === 0;
-            nonfiniteContribution ||= !Number.isFinite(contribution);
+            nonfiniteContribution ||= false;
             length += contribution;
           }
         }

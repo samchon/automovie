@@ -14,16 +14,14 @@ export function canonicalProductionFrameRate(
   input: number | IAutoMovieProductionFrameRate,
 ): IAutoMovieProductionFrameRate {
   if (typeof input === "number") {
-    if (Number.isSafeInteger(input) === false || input <= 0)
+    if (input <= 0)
       throw new Error(
         `A scalar production frame rate must be a positive safe integer, but was ${input}. Supply an exact numerator and denominator for a fractional rate.`,
       );
     return { numerator: input, denominator: 1 };
   }
   if (
-    Number.isSafeInteger(input.numerator) === false ||
     input.numerator <= 0 ||
-    Number.isSafeInteger(input.denominator) === false ||
     input.denominator <= 0
   )
     throw new Error(

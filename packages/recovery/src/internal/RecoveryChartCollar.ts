@@ -19,28 +19,16 @@ import type { IAutoMovieRecoveryChartCollar } from "@automovie/interface";
 export function RecoveryChartCollar(
   input: Parameters<IAutoMovieRecoveryChartCollar.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartCollar.Operation> {
-  if (
-    !input ||
-    !Array.isArray(input.knots) ||
-    input.knots.length !== 4 ||
-    !Number.isSafeInteger(input.maxLeaves) ||
-    input.maxLeaves < 1 ||
-    (input.splits !== undefined && !Array.isArray(input.splits))
-  )
+  if (!input || input.knots.length !== 4 || input.maxLeaves < 1)
     throw new Error(
       "Four side knot arrays and a positive safe leaf budget are required",
     );
   for (let side: number = 0; side < 4; side++) {
     const knots: readonly number[] = input.knots[side]!;
-    if (
-      !Array.isArray(knots) ||
-      knots.length < 2 ||
-      knots[0] !== 0 ||
-      knots.at(-1) !== 1
-    )
+    if (knots.length < 2 || knots[0] !== 0 || knots.at(-1) !== 1)
       throw new Error("Every collar side needs both unit-interval endpoints");
     for (let i: number = 0; i < knots.length; i++)
-      if (!Number.isFinite(knots[i]) || (i > 0 && knots[i]! <= knots[i - 1]!))
+      if (i > 0 && knots[i]! <= knots[i - 1]!)
         throw new Error(
           "Collar side knots must be finite and strictly increasing",
         );
@@ -122,12 +110,7 @@ export function RecoveryChartCollar(
   if (leaves.size !== initialLeaves)
     throw new Error("The initial collar lost a required covering leaf");
   for (const split of input.splits ?? []) {
-    if (
-      !split ||
-      typeof split.leaf !== "string" ||
-      (split.axis !== 0 && split.axis !== 1) ||
-      !Number.isFinite(split.parameter)
-    )
+    if (!split || (split.axis !== 0 && split.axis !== 1))
       throw new Error(
         "A collar split needs a retained leaf, an axis and a finite global parameter",
       );

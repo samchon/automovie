@@ -126,10 +126,7 @@ export namespace AutoMovieArchetypeEquineComfort {
         q: AutoMovieArchetypeEquineComfortCue.Act,
       ): number => p.from - q.from,
     )) {
-      if (
-        !(Number.isFinite(act.from) && Number.isFinite(act.seconds)) ||
-        !(act.seconds > 0)
-      )
+      if (!(act.seconds > 0))
         refuse("seconds", act.seconds, `a ${act.kind} needs a positive window`);
       if (act.from < last)
         refuse("from", act.from, `the ${act.kind} overlaps the act before it`);
@@ -139,10 +136,7 @@ export namespace AutoMovieArchetypeEquineComfort {
           act.from,
           `the ${act.kind} is asked for while the horse is moving`,
         );
-      if (
-        act.kind === "paw" &&
-        !(Number.isInteger(act.strokes) && act.strokes > 0)
-      )
+      if (act.kind === "paw" && !(act.strokes > 0))
         refuse(
           "strokes",
           act.strokes,

@@ -9,7 +9,6 @@ import { Vector3 } from "../../math/Vector3";
 import { withArticle } from "../../text/withArticle";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { validateColor } from "../../validation/validateColor";
-import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 import { lightTypeOf } from "./lightTypeOf";
 
 /**
@@ -69,14 +68,11 @@ export const validateLightPlacementShape: (
       `a point light radiates in every direction and takes no direction`,
       light.direction,
     );
-  else if (
-    !isFiniteStageVector3(light.direction) ||
-    Vector3.length(light.direction) === 0
-  )
+  else if (Vector3.length(light.direction) === 0)
     out.push(
       "range",
       `${path}.direction`,
-      `direction must be a finite non-zero vector`,
+      `direction must be a non-zero vector`,
       light.direction,
     );
 
@@ -95,13 +91,7 @@ export const validateLightPlacementShape: (
       `a directional light is infinitely distant and takes no position`,
       light.position,
     );
-  else if (!isFiniteStageVector3(light.position))
-    out.push(
-      "range",
-      `${path}.position`,
-      `position must be a finite vector`,
-      light.position,
-    );
+
 
   if (light.range !== undefined) {
     if (!falloff)
@@ -111,7 +101,7 @@ export const validateLightPlacementShape: (
         `${withArticle(type)} light has no distance falloff and takes no range`,
         light.range,
       );
-    else if (!Number.isFinite(light.range) || light.range < 0)
+    else if (light.range < 0)
       out.push(
         "range",
         `${path}.range`,
@@ -129,7 +119,6 @@ export const validateLightPlacementShape: (
         light.coneAngle,
       );
     else if (
-      !Number.isFinite(light.coneAngle) ||
       light.coneAngle <= 0 ||
       light.coneAngle > 90
     )
@@ -243,7 +232,6 @@ const validateLightShadow: (
   const shadow: IAutoMovieLightShadow = light.shadow;
   const mapSize: number = shadow.mapSize;
   if (
-    !Number.isSafeInteger(mapSize) ||
     mapSize <= 0
   )
     out.push(

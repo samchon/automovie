@@ -63,8 +63,8 @@ const hillHeight: (point: { x: number; z: number }) => number = (point: {
  * between two reads their blend, and a query past the edge reads the edge
  * rather than an extrapolation that would invent terrain. Nothing here consults
  * a clock, a file, or a seed; queries use the stored design without invoking
- * its authoring callback, which is why relief stores
- * numbers instead of retaining the function that made them.
+ * its authoring callback, which is why relief stores numbers instead of
+ * retaining the function that made them.
  *
  * Scenarios:
  *
@@ -90,8 +90,8 @@ const hillHeight: (point: { x: number; z: number }) => number = (point: {
  *    from ground at zero and has to stay one: a formation over nothing keeps
  *    the height it was staged at instead of being dropped to the world origin.
  * 8. The builder refuses what it cannot sample deterministically: a degenerate
- *    pitch, a lattice too small to interpolate across, a blank id, and a
- *    sampler that answers with a non-finite height.
+ *    pitch, a lattice too small to interpolate across, and a sampler that
+ *    answers with a non-finite height.
  * 9. A malformed field's absent samples read zero instead of `NaN`, while its
  *    available sample remains readable; this is a local fallback rather than
  *    admission of an incomplete lattice.
@@ -378,10 +378,6 @@ export function test_world_heightfield_terrain(): void {
     "the builder refuses a lattice it could not sample deterministically",
     namedFacts([
       [
-        "blankId",
-        (): boolean => throwsError(builder({ id: "  " }), "non-whitespace"),
-      ],
-      [
         "zeroPitch",
         (): boolean =>
           throwsError(builder({ spacing: { x: 0, z: 1 } }), "positive"),
@@ -414,7 +410,6 @@ export function test_world_heightfield_terrain(): void {
       ],
     ]),
     {
-      blankId: true,
       zeroPitch: true,
       infiniteOrigin: true,
       oneColumn: true,

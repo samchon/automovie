@@ -67,8 +67,6 @@ export function AirborneConstantShapeHistory(
   if (
     span !== undefined &&
     !(
-      Number.isFinite(span.from) &&
-      Number.isFinite(span.to) &&
       span.to > span.from
     )
   )
@@ -187,7 +185,7 @@ export namespace AirborneConstantShapeHistory {
     if (
       state === undefined ||
       !state.active ||
-      !(Number.isFinite(from) && Number.isFinite(to) && to > from) ||
+      !(to > from) ||
       (state.span !== undefined &&
         (from < state.span.from || to > state.span.to))
     )

@@ -24,8 +24,8 @@ import { PhysicalPerformanceFixtures } from "../internal/PhysicalPerformanceFixt
 
 /**
  * An authored slow walk is one the engine's drives can hold: the engine
- * stickman and the canonical Human (its stored profile and fitted public
- * Stand, `PhysicalHumanProfiles`), each walking 0.12 m/s for a second from
+ * stickman and the canonical Human (its stored profile and fitted public Stand,
+ * `PhysicalHumanProfiles`), each walking 0.12 m/s for a second from
  * planner-placed footfalls (the maintained slow-walk fixture), a swing and a
  * heel strike of each foot, read with no simulation at the frames that carry
  * each property, which the planner's phases give: every stance's heel strike
@@ -33,24 +33,23 @@ import { PhysicalPerformanceFixtures } from "../internal/PhysicalPerformanceFixt
  *
  * Scenarios:
  *
- * 1. Planted supports: at each stance's middle its authored endpoint stays
- *    within one percent of the 0.35 m stride of where it struck.
- * 2. Holding: at every key frame, each joint's target lies within two
- *    degrees of its range (`measurePhysicalJointLimits`), the joint bound a
- *    tracked walk keeps, and its drive at that target, at rest and asked to
- *    follow the target's rate toward the neighbouring key frame, with the
- *    gravity moment of everything below it as feed-forward
- *    (`physicalGravityTorques`), forecasts no demand past its torque cap
- *    (`physicalJointMotorCommand`): the gravity moment plus the damping's kd
- *    w fit within the cap. PD with gravity compensation has its equilibrium
- *    at the target (Takegaki and Arimoto 1981), so a held target leaves no
- *    static error while it is reachable and the compensation fits within the
- *    caps.
- * 3. Push: the stickman's root servo (`AutoMoviePhysicalTracking.force`) on
- *    its mass, pushed at 0.15 and 0.3 m/s along the walk, stays below its
- *    force bound, so its displacement scales with the push, the larger
- *    peaking at twice the smaller; and both come back within a millimetre
- *    within a second, as the walk the push lands in goes on.
+ * 1. Planted supports: at each stance's middle its authored endpoint stays within
+ *    one percent of the 0.35 m stride of where it struck.
+ * 2. Holding: at every key frame, each joint's target lies within two degrees of
+ *    its range (`measurePhysicalJointLimits`), the joint bound a tracked walk
+ *    keeps, and its drive at that target, at rest and asked to follow the
+ *    target's rate toward the neighbouring key frame, with the gravity moment
+ *    of everything below it as feed-forward (`physicalGravityTorques`),
+ *    forecasts no demand past its torque cap (`physicalJointMotorCommand`): the
+ *    gravity moment plus the damping's kd w fit within the cap. PD with gravity
+ *    compensation has its equilibrium at the target (Takegaki and Arimoto
+ *    1981), so a held target leaves no static error while it is reachable and
+ *    the compensation fits within the caps.
+ * 3. Push: the stickman's root servo (`AutoMoviePhysicalTracking.force`) on its
+ *    mass, pushed at 0.15 and 0.3 m/s along the walk, stays below its force
+ *    bound, so its displacement scales with the push, the larger peaking at
+ *    twice the smaller; and both come back within a millimetre within a second,
+ *    as the walk the push lands in goes on.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States both walks and each held property with its source.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the planner's phases and the authored targets, and calls `physicalGravityTorques`, `physicalJointMotorCommand` and `AutoMoviePhysicalTracking.force` on the authored poses and the fixture's gains.
@@ -73,10 +72,10 @@ export async function test_physical_authored_locomotion(): Promise<void> {
     [
       "Human",
       keyed(
-        PhysicalHumanProfiles.load("m-average"),
+        await PhysicalHumanProfiles.load("m-average"),
         duration,
         steps,
-        PhysicalHumanProfiles.stand("m-average"),
+        await PhysicalHumanProfiles.stand("m-average"),
       ),
     ],
   ];
@@ -99,7 +98,9 @@ export async function test_physical_authored_locomotion(): Promise<void> {
       const point: IAutoMovieVector3 = at(step);
       const slip: number = Math.hypot(point.x - anchor.x, point.z - anchor.z);
       if (slip > 0.01 * stride)
-        failures.push(`${label}: ${limb.bone} slides ${slip} m at ${step / 120} s`);
+        failures.push(
+          `${label}: ${limb.bone} slides ${slip} m at ${step / 120} s`,
+        );
     }
 
     // 2. Holding, at the key frames.
@@ -131,7 +132,10 @@ export async function test_physical_authored_locomotion(): Promise<void> {
       const interval: number = (neighbour - step) / 120;
       const bodies: Map<string, AutoMovieXpbdBody> = new Map(
         profile.segments.map(
-          (segment: IAutoMoviePhysicalSegment, i: number): [string, AutoMovieXpbdBody] => {
+          (
+            segment: IAutoMoviePhysicalSegment,
+            i: number,
+          ): [string, AutoMovieXpbdBody] => {
             const pose: IAutoMovieRigidTransform = poses[segment.bone]!;
             const body: AutoMovieXpbdBody = new AutoMovieXpbdBody(
               i,
@@ -206,7 +210,9 @@ export async function test_physical_authored_locomotion(): Promise<void> {
   // 3. Push.
   const body = walks[0]![1].walk.body;
   const mass: number = body.profile.mass;
-  const respond = (speed: number): { peak: number; tail: number; force: number } => {
+  const respond = (
+    speed: number,
+  ): { peak: number; tail: number; force: number } => {
     let x: number = 0;
     let v: number = speed;
     let peak: number = 0;
@@ -231,16 +237,24 @@ export async function test_physical_authored_locomotion(): Promise<void> {
   const once = respond(0.15);
   const twice = respond(0.3);
   if (!(twice.force < body.maximumRootForce))
-    failures.push(`the pushed root servo reaches its bound, ${twice.force} N of ${body.maximumRootForce}`);
+    failures.push(
+      `the pushed root servo reaches its bound, ${twice.force} N of ${body.maximumRootForce}`,
+    );
   if (!(Math.abs(twice.peak / once.peak - 2) < 0.2))
-    failures.push(`the push displaces the root ${once.peak} and ${twice.peak} m, not in proportion`);
+    failures.push(
+      `the push displaces the root ${once.peak} and ${twice.peak} m, not in proportion`,
+    );
   if (!(once.tail < 0.001 && twice.tail < 0.001))
-    failures.push(`the pushed root is ${once.tail} and ${twice.tail} m off after a second`);
+    failures.push(
+      `the pushed root is ${once.tail} and ${twice.tail} m off after a second`,
+    );
   TestValidator.equals("an authored slow walk is holdable", failures, []);
 }
 
 /** The profile's joints with every joint after all the joints below it. */
-function postorder(profile: IAutoMoviePhysicalProfile): IAutoMoviePhysicalJoint[] {
+function postorder(
+  profile: IAutoMoviePhysicalProfile,
+): IAutoMoviePhysicalJoint[] {
   const children: Map<string, IAutoMoviePhysicalJoint[]> = new Map();
   for (const joint of profile.joints)
     children.set(joint.parent, [...(children.get(joint.parent) ?? []), joint]);
@@ -275,8 +289,8 @@ interface IWalk {
 }
 
 /**
- * The fixture's walk planned at the frames that carry its properties, read
- * from its planner's phases.
+ * The fixture's walk planned at the frames that carry its properties, read from
+ * its planner's phases.
  */
 function keyed(
   profile: IAutoMoviePhysicalProfile,

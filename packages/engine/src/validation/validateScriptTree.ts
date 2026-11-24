@@ -220,7 +220,7 @@ export function validateScriptTree(
       (line: (typeof node.payload.dialogue)[number], j: number): void => {
         if (
           line.anchor !== null &&
-          (!Number.isFinite(line.anchor) || line.anchor < 0)
+          (line.anchor < 0)
         )
           out.push(
             "range",

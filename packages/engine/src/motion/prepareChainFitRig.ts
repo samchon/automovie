@@ -166,7 +166,7 @@ function prepareReferences(
     weight: (): number => {
       if (weight === undefined) {
         const value: number = props.referenceWeight ?? 1;
-        if (!Number.isFinite(value) || value < 0)
+        if (value < 0)
           throw new Error(
             `fitChainToTarget referenceWeight must be finite and non-negative, but was ${value}`,
           );

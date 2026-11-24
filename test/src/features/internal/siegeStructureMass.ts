@@ -11,7 +11,10 @@ import { nclose } from "./nclose";
 /** The actual public launcher with its complete real coarse solids. */
 type Engine = ReturnType<typeof createSiegeEngine>;
 
-/** An independently measured uniform actual solid and its central principal moments per kilogram. */
+/**
+ * An independently measured uniform actual solid and its central principal
+ * moments per kilogram.
+ */
 interface ISolid {
   /** Actual source volume in cubic metres. */
   volume: number;
@@ -24,12 +27,12 @@ interface ISolid {
 }
 
 /**
- * Independently observe the complete real siege composite under its stated mass.
+ * Independently observe the complete real siege composite under its stated
+ * mass.
  *
  * @param engine Actual source engine at rest, including every fitting and cord.
  * @param label Complete kind/seed identity.
  * @param findings Whole-round failure collector.
- *
  * @evidence contracts/development/common.md#meaningful-documentation Defines actual primitive volumes and model-frame centroid/inertia under the existing uniform relative-density premise and fixed total kilograms. This coarse composite is independent of the reduced launcher armMass/counterweight controls; no measured component calibration is asserted.
  * @evidence contracts/development/implementation.md#principled-implementation Read every actual box/cylinder's dimensions and rigid transform. Textbook volume and central principal moments, rotated into model axes and combined by the parallel-axis theorem, give an independent centre and all six tensor components. Every visible real solid contributes positive volume.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Measure actual solids, sum their volumes/centres, then reduce their central and offset tensor contributions under the stated total mass.
@@ -71,7 +74,7 @@ export function siegeStructureMass(
           (3 * shape.radius ** 2 + shape.height ** 2) / 12,
         ];
       } else throw new Error(`Unsupported actual siege solid ${part.id}`);
-      if (!(Number.isFinite(volume) && volume > 0))
+      if (!(volume > 0))
         throw new Error(`Invalid actual siege volume ${part.id}`);
       return {
         volume,
@@ -139,7 +142,10 @@ export function siegeStructureMass(
       tensor[component],
     );
 
-  /** Every independent component retains the existing absolute comparison budget. */
+  /**
+   * Every independent component retains the existing absolute comparison
+   * budget.
+   */
   function near(name: string, actual: number, expected: number): void {
     try {
       TestValidator.predicate(

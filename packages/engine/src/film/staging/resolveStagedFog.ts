@@ -56,14 +56,6 @@ export function resolveStagedFog(
     transmittance === 1
       ? 0
       : Math.sqrt(-Math.log(transmittance)) / cameraDepthM;
-  if (!Number.isFinite(density)) {
-    out.push(
-      "range",
-      path,
-      "depth and transmittance must produce a finite fog density",
-      reference,
-    );
-    return undefined;
-  }
+
   return fog === undefined ? { density, color } : undefined;
 }

@@ -55,7 +55,10 @@ export function prepareCrawlPalms(
       { surface: "palm", shape: "flat", forward },
     ),
   };
-  const contacts: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+  const contacts: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+    left: { ...HumanHand.offset(body, "left", "palm", "flat").point },
+    right: { ...HumanHand.offset(body, "right", "palm", "flat").point },
+  };
   return (
     posture: IAutoMovieMotionHumanPosture,
     palm: (side: AutoMovieHumanSide) => IAutoMovieVector3,
@@ -74,9 +77,7 @@ export function prepareCrawlPalms(
         rotation: frame.rotation,
         fallback: "hang",
       });
-      const contact: IAutoMovieVector3 = (contacts[side] ??= {
-        ...HumanHand.offset(body, side, "palm", "flat").point,
-      });
+      const contact: IAutoMovieVector3 = contacts[side];
       out = {
         ...out,
         joints: { ...out.joints, ...flat[side] },

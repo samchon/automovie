@@ -21,12 +21,7 @@ export namespace SiegeClearance {
     first: number,
     last: number,
   ): number {
-    if (
-      ![height, cosine, sine, first, last].every((value: number): boolean =>
-        Number.isFinite(value),
-      ) ||
-      last < first
-    )
+    if (last < first)
       throw new RangeError(
         "Siege angular support needs a finite ordered domain",
       );
@@ -40,8 +35,6 @@ export namespace SiegeClearance {
       Math.ceil((a - stationary) / turn) <= Math.floor((b - stationary) / turn)
     )
       low = Math.min(low, down(height - up(Math.hypot(cosine, sine))));
-    if (!Number.isFinite(low))
-      throw new RangeError("Siege angular support is not representable");
     return low;
 
     /**
@@ -111,14 +104,7 @@ export namespace SiegeClearance {
     last: number,
   ): number {
     const length: number = Vector3.length(Vector3.subtract(to, from));
-    if (
-      !(
-        Number.isFinite(length) &&
-        length > 0 &&
-        Number.isFinite(radius) &&
-        radius >= 0
-      )
-    )
+    if (!(length > 0 && radius >= 0))
       throw new RangeError("Siege support needs an actual finite cylinder");
     const candidates: Set<number> = new Set([first, last]);
     let low: number = Infinity;
@@ -185,7 +171,7 @@ export namespace SiegeClearance {
     maximum: number,
     fits: (radius: number) => boolean,
   ): number {
-    if (!(Number.isFinite(maximum) && maximum > 0) || !fits(0))
+    if (!(maximum > 0) || !fits(0))
       throw new RangeError(
         "Siege centreline/cord domain cannot clear the declared floor",
       );

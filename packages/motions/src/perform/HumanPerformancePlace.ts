@@ -39,7 +39,6 @@ import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
-import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 
 /**
  * One intent placed in the performance: its law found, its entry state read,
@@ -195,21 +194,11 @@ export namespace HumanPerformancePlace {
         : undefined;
     if (!trial) self.trial = undefined;
 
-    // Nothing is placed while the entry state is read, as while a plan is
-    // made, so its reads share the placed people's displayed poses by second
-    // (`HumanSegment.planning`): a pose its samples, anchors or a held prop's
-    // hand read again is read once, as an animation graph evaluates a pose
-    // once per update and lets every reader share it.
     // An overlay entering where the act before it in its chain ends reads
     // that act's end, which hands its channels on (`HumanSegmentOverlay.handing`).
     const read: () => ReturnType<typeof HumanSegment.entry> = (): ReturnType<
       typeof HumanSegment.entry
-    > =>
-      HumanSegment.planning(
-        self.people.values(),
-        (): ReturnType<typeof HumanSegment.entry> =>
-          HumanSegment.entry(person, previous, start, blend),
-      );
+    > => HumanSegment.entry(person, previous, start, blend);
     const entry: ReturnType<typeof HumanSegment.entry> =
       kept === undefined
         ? over
@@ -227,8 +216,7 @@ export namespace HumanPerformancePlace {
 
     // The performer's own bones are those of the entry pose, fixed for the
     // action: admitted once, as the action is placed, and every read takes fresh
-    // bones of that one reading (`poseBones.read`), as a kept displayed pose
-    // gives its readers (`HumanSegmentShown.bones`).
+    // bones of that one reading (`poseBones.read`).
     const entered: ReturnType<typeof poseBones.read> = poseBones.read(
       body,
       entry.pose,
@@ -368,18 +356,13 @@ export namespace HumanPerformancePlace {
     // A plan too fast for the speed bound is replanned slower by its own
     // refusal's factor (`HumanPerformanceTempo`).
     let plan: IAutoMovieMotionHumanActionPlan =
-      kept?.plan ??
-      HumanSegment.planning(self.people.values(), () =>
-        HumanPerformanceTempo.plan(law, context),
-      );
+      kept?.plan ?? HumanPerformanceTempo.plan(law, context);
     const share: number =
       kept?.share ??
       (row === undefined ? 0 : HumanSegment.share(row.entry, plan));
     if (kept === undefined && share > 0) {
       context.start = start - share * plan.duration;
-      plan = HumanSegment.planning(self.people.values(), () =>
-        HumanPerformanceTempo.plan(law, context),
-      );
+      plan = HumanPerformanceTempo.plan(law, context);
     }
 
     // A trial withdraws the meetings its planning recorded; the placement
@@ -451,7 +434,6 @@ export namespace HumanPerformancePlace {
       law,
       context,
       plan,
-      legSeeds: readHumanSegmentLegs.cold,
       start: context.start,
       entryTime: start,
       end: start + active,
@@ -467,7 +449,6 @@ export namespace HumanPerformancePlace {
     };
     HumanPerformanceContacts.hold(person, segment, false);
     person.segments.push(segment);
-    HumanSegment.placed(self.people.values());
     if (intent.anchor !== undefined)
       self.anchors.set(
         intent.anchor,

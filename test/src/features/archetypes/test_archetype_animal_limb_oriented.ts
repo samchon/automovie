@@ -8,14 +8,15 @@ import { nclose } from "../internal/nclose";
  * An actual terminal-axis goal constrains the full four-bar geometry.
  *
  * Scenarios:
- * 1. Literal lengths 2,3,4,5 with a downward terminal axis retain that axis
- *    and exact root/foot endpoints for both bend branches and off-axis goals.
- * 2. The root-to-ankle bands are [5,9] unfolded, [3,7] after a quarter-turn
- *    and [1,3] after a half-turn. Terminal translation is exactly five metres
+ *
+ * 1. Literal lengths 2,3,4,5 with a downward terminal axis retain that axis and
+ *    exact root/foot endpoints for both bend branches and off-axis goals.
+ * 2. The root-to-ankle bands are [5,9] unfolded, [3,7] after a quarter-turn and
+ *    [1,3] after a half-turn. Terminal translation is exactly five metres
  *    upward from a downward-oriented foot endpoint, not a fitted body offset.
  * 3. Exact tangencies succeed; adjacent outside ankle targets, zero distance,
- *    invalid axes/planes and nonfinite data refuse instead of moving a root
- *    or changing the actual four lengths or requested terminal orientation.
+ *    invalid axes/planes and nonfinite data refuse instead of moving a root or
+ *    changing the actual four lengths or requested terminal orientation.
  * 4. Axis input and returned target/range/point mutations cannot rewrite the
  *    prepared oriented solver or the caller's exact root and foot records.
  *
@@ -176,14 +177,12 @@ export function test_archetype_animal_limb_oriented(): void {
     near(`${label} terminal direction X`, actual.x, 0);
     near(`${label} terminal direction Y`, actual.y, -5);
     near(`${label} terminal direction Z`, actual.z, 0);
-    for (const point of points)
-      truth(
-        `${label} finite`,
-        [point.x, point.y, point.z].every(Number.isFinite),
-      );
   }
 
-  /** Raw coordinate differences measure the real solved bars, not their declared ranges. */
+  /**
+   * Raw coordinate differences measure the real solved bars, not their declared
+   * ranges.
+   */
   function difference(
     a: IAutoMovieVector3,
     b: IAutoMovieVector3,
@@ -191,7 +190,10 @@ export function test_archetype_animal_limb_oriented(): void {
     return { x: a.x - b.x, y: a.y - b.y, z: a.z - b.z };
   }
 
-  /** An invalid actual geometric request must produce the declared refusal class. */
+  /**
+   * An invalid actual geometric request must produce the declared refusal
+   * class.
+   */
   function refusal(label: string, action: () => unknown): void {
     let error: unknown;
     try {

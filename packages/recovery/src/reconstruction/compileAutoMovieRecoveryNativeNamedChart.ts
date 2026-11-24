@@ -118,8 +118,7 @@ export function compileAutoMovieRecoveryNativeNamedChart(
       !source.authority.trim() ||
       nativeNet.length !== 4 ||
       nativeNet.some(
-        (point: Readonly<AutoMovieVector3Tuple>): boolean =>
-          point.length !== 3 || !point.every(Number.isFinite),
+        (point: Readonly<AutoMovieVector3Tuple>): boolean => point.length !== 3,
       ) ||
       source.endpointAuthorities.length !== 2
     )
@@ -127,8 +126,6 @@ export function compileAutoMovieRecoveryNativeNamedChart(
         "A native cubic needs a name, four finite controls and two endpoint names",
       );
     if (
-      !Number.isFinite(source.start) ||
-      !Number.isFinite(source.end) ||
       source.start < 0 ||
       source.start > 1 ||
       source.end < 0 ||

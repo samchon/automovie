@@ -26,22 +26,16 @@ export function bowLimbs(
     ["half", half],
     ["brace", brace],
   ] as const)
-    if (!(Number.isFinite(value) && value > 0))
+    if (!(value > 0))
       refuse(
         axis,
         value,
         "a bow's limb and brace dimensions need finite positive lengths",
       );
-  if (!(Number.isFinite(travel) && travel >= 0))
+  if (!(travel >= 0))
     refuse("travel", travel, "a string draw needs finite nonnegative travel");
   const reach: number = Math.hypot(half, brace);
   const nock: number = brace + travel;
-  if (!(Number.isFinite(reach) && Number.isFinite(nock)))
-    refuse(
-      "geometry",
-      travel,
-      "the limb reach and drawn nock must be representable",
-    );
   if (travel > 0 && !(nock > brace))
     refuse(
       "geometry",
@@ -57,9 +51,7 @@ export function bowLimbs(
       feasible: {
         kind: "range",
         minimum: 0,
-        maximum: Number.isFinite(reach - brace + half)
-          ? reach - brace + half
-          : null,
+        maximum: reach - brace + half,
         unit: "m",
       },
       reason:
@@ -73,7 +65,7 @@ export function bowLimbs(
     const ratio: number = (n / reach + (brace / n) * (brace / reach)) / 2;
     const result: number =
       (Math.asin(ratio) - alpha) / AutoMovieArchetypeUnits.DEGREE;
-    if (!Number.isFinite(result))
+    if (!(Math.abs(ratio) <= 1))
       refuse(
         "geometry",
         x,
@@ -91,8 +83,6 @@ export function bowLimbs(
     const y: number = reach * Math.cos(alpha + phi);
     const z: number = reach * Math.sin(alpha + phi);
     const result: number = Math.abs(Math.hypot(y, z - (brace + x)) - half);
-    if (!Number.isFinite(result))
-      refuse("geometry", x, "the interpolated string length is not finite");
     return result;
   };
   const rows: [number, number][] = [[0, 0]];

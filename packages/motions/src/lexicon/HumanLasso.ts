@@ -102,7 +102,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: `a rope is swung from the saddle, and the performer is ${entered.kind}`,
       fix: "ride the horse first",
     });
-  if (!(Number.isInteger(params.swings) && params.swings >= 1))
+  if (!(params.swings >= 1))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "swings",
@@ -115,7 +115,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   HumanBound.above("flight", flight, 0, "s");
   if (
     params.dally !== undefined &&
-    !(Number.isInteger(params.dally.turns) && params.dally.turns >= 1)
+    !(params.dally.turns >= 1)
   )
     throw new HumanRefusal({
       kind: "parameter",

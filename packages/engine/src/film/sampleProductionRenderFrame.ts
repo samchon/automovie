@@ -37,7 +37,6 @@ export function sampleProductionRenderFrame(
   globalFrame: number,
 ): IAutoMovieProductionRenderFrame {
   if (
-    Number.isSafeInteger(globalFrame) === false ||
     globalFrame < 0 ||
     globalFrame >= timeline.totalFrames
   )

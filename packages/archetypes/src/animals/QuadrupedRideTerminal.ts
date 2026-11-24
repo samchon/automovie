@@ -100,7 +100,7 @@ export namespace QuadrupedRideTerminal {
       const vertical: number =
         normal === undefined ? direction.y : Vector3.dot(normal, direction);
       const clearance: number = Math.max(0, vertical) * shape.height + radial;
-      if (!(Number.isFinite(clearance) && clearance >= 0))
+      if (!(clearance >= 0))
         throw new RangeError(`The ${limb} sole clearance is not representable`);
       return { solver: prepared.oriented(direction, lateral), clearance };
     }

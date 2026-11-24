@@ -66,7 +66,7 @@ export function evaluateRecoveryScenePoint(
       (value: number, axis: number): number => value - centre[axis]!,
     );
     const norm: number = Math.hypot(...ray);
-    if (!(norm > 0) || !Number.isFinite(norm)) {
+    if (!(norm > 0)) {
       reasons.add("unresolved-ray");
       continue;
     }
@@ -112,13 +112,12 @@ export function evaluateRecoveryScenePoint(
     accepted: reasons.size === 0,
     reasons: [...reasons],
     maximumReprojectionPx:
-      Number.isFinite(maximumReprojectionPx) &&
       !reasons.has("nonpositive-depth") &&
       !reasons.has("unregistered-observation")
         ? maximumReprojectionPx
         : null,
-    minimumDepth: Number.isFinite(minimumDepth) ? minimumDepth : null,
+    minimumDepth: minimumDepth !== Infinity ? minimumDepth : null,
     supportingViews,
-    acuteParallaxDegrees: Number.isFinite(angle) ? angle : null,
+    acuteParallaxDegrees: angle !== -Infinity ? angle : null,
   };
 }

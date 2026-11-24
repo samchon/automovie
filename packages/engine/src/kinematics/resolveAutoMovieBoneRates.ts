@@ -36,8 +36,6 @@ export function resolveAutoMovieBoneRates(
   localBodyAngularRates: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>,
   root: resolveAutoMovieBoneRates.IRoot,
 ): Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> | undefined {
-  if (!finite(root.position) || !finite(root.linear) || !finite(root.angular))
-    return undefined;
 
   const resolved: Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate> =
     new Map();
@@ -58,10 +56,6 @@ export function resolveAutoMovieBoneRates(
     );
     if (
       local === undefined ||
-      !finite(local) ||
-      !finite(bone.worldPosition) ||
-      !finite(bone.worldRotation) ||
-      !Number.isFinite(bone.worldRotation.w) ||
       bone.bone !== definition.bone
     )
       return false;
@@ -83,7 +77,6 @@ export function resolveAutoMovieBoneRates(
       parentRate.angular,
       Quaternion.rotateVector(bone.worldRotation, local),
     );
-    if (!finite(linear) || !finite(angular)) return false;
 
     const rate: resolveAutoMovieBoneRates.IRate = { linear, angular };
     resolved.set(definition.bone, rate);
@@ -128,11 +121,3 @@ export namespace resolveAutoMovieBoneRates {
   }
 }
 
-/** Admit finite coordinates without normalizing, repairing or clamping them. */
-function finite(value: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(value.x) &&
-    Number.isFinite(value.y) &&
-    Number.isFinite(value.z)
-  );
-}

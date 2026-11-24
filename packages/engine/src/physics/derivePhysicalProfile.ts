@@ -81,7 +81,7 @@ export function derivePhysicalProfile(
       const shape: typeof part.geometry.shape = part.geometry.shape;
       const density: number =
         options.densities[part.material ?? ""] ?? options.density;
-      if (!(density > 0) || !Number.isFinite(density))
+      if (density <= 0)
         throw new Error(`Physical density must be positive for ${part.id}`);
       const scale: IAutoMovieVector3 = part.transform?.scale ?? unit;
       let rotation: IAutoMovieQuaternion = part.transform?.rotation ?? identity;
@@ -97,7 +97,7 @@ export function derivePhysicalProfile(
       }
       const mass: number =
         primitiveVolume(shape) * scale.x * scale.y * scale.z * density;
-      if (!(mass > 0) || !Number.isFinite(mass))
+      if (mass <= 0)
         throw new Error(
           `Physical provider requires a solid positive-volume part: ${part.id}`,
         );

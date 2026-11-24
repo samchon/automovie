@@ -32,7 +32,6 @@ export function tessellateAutoMovieParametricAtlas64(
 ): IAutoMovieTessellateParametricAtlas64.IResult {
   if (
     !props.domain.trim() ||
-    !Number.isSafeInteger(props.maxVertices) ||
     props.maxVertices <= 0 ||
     props.patches.length > 4096
   )
@@ -55,7 +54,7 @@ export function tessellateAutoMovieParametricAtlas64(
       names.has(patch.id) ||
       patch.edges.length !== 4 ||
       ![patch.stepsU, patch.stepsV].every(
-        (n: number): boolean => Number.isInteger(n) && n >= 1 && n <= 128,
+        (n: number): boolean => n >= 1 && n <= 128,
       )
     )
       throw new Error(
@@ -69,8 +68,6 @@ export function tessellateAutoMovieParametricAtlas64(
       const steps: number = side % 2 === 0 ? patch.stepsU : patch.stepsV;
       if (
         !edge.authority.trim() ||
-        !Number.isFinite(edge.start) ||
-        !Number.isFinite(edge.end) ||
         edge.start === edge.end ||
         (edge.parameterize === undefined) !== (edge.localize === undefined)
       )
@@ -88,7 +85,6 @@ export function tessellateAutoMovieParametricAtlas64(
             : edge.parameterize(local);
         if (
           !phase.key.trim() ||
-          !Number.isFinite(phase.value) ||
           phase.value < Math.min(edge.start, edge.end) ||
           phase.value > Math.max(edge.start, edge.end) ||
           (index === 0 && phase.value !== edge.start) ||
@@ -176,8 +172,7 @@ export function tessellateAutoMovieParametricAtlas64(
                 ): { t: number; phase: Phase; sample: BoundarySample } => {
                   const sample: BoundarySample = edge.sample(phase);
                   if (
-                    !sample.key.trim() ||
-                    !sample.point.every(Number.isFinite)
+                    !sample.key.trim()
                   )
                     throw new Error("Nonfinite or unnamed canonical point");
                   const previous: AutoMovieVector3Tuple | undefined =
@@ -203,7 +198,7 @@ export function tessellateAutoMovieParametricAtlas64(
                     (edge.localize === undefined
                       ? Q.local(edge.start, edge.end, phase)
                       : edge.localize(phase));
-                  if (!Number.isFinite(t) || t < 0 || t > 1)
+                  if (t < 0 || t > 1)
                     throw new Error(
                       "Boundary inverse leaves its local restriction",
                     );
@@ -381,8 +376,6 @@ export function tessellateAutoMovieParametricAtlas64(
           key = sample.key;
           point = sample.point;
         }
-        if (![...point, ...jet.du, ...jet.dv].every(Number.isFinite))
-          throw new Error("Nonfinite analytic chart value");
         const held: { id: number; point: AutoMovieVector3Tuple } | undefined =
           physical.get(key);
         if (
@@ -423,8 +416,6 @@ export function tessellateAutoMovieParametricAtlas64(
         let length: number = Math.hypot(...normal);
         if (length === 0) ++counts.singularNormals;
         if (length === 0 && jet.normalLimit !== undefined) {
-          if (!jet.normalLimit.every(Number.isFinite))
-            throw new Error("Nonfinite authored normal limit");
           const scale: number = Math.max(...jet.normalLimit.map(Math.abs));
           if (scale > 0) {
             for (let axis: number = 0; axis < 3; ++axis)

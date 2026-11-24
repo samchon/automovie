@@ -30,8 +30,6 @@ export function sampleAutoMovieProceduralSurface(
 ): IAutoMovieSampleProceduralSurface.IResult {
   const surface: IAutoMovieProceduralSurface = props.surface;
   const point: [number, number, number] = samplePoint(props);
-  if (!point.every(Number.isFinite))
-    throw new Error("procedural surface sample must be finite");
   const value: number = autoMovieProceduralPattern(surface, point);
   const [low, high]: [IAutoMovieColor, IAutoMovieColor] = surface.colors;
   const color: IAutoMovieColor = {

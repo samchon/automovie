@@ -39,8 +39,8 @@ export namespace AutoMovieMotionHumanArmChain {
    * continued fit holds its hand on the goal and moves the swivel at most one
    * articulation step from its seed (`hingedSwivelNear`), so the elbow follows
    * its hint smoothly and never across a ridge of the room. The course is plan
-   * data: each instant is fitted once, as a second at or past it is first read,
-   * and a second reads its arms off the two instants about it, blended joint by
+   * data: every instant is fitted once, in order, when the course is made, and
+   * a second reads its arms off the two instants about it, blended joint by
    * joint (`blendHumanJoint`), with no fit of its own; so a second's arms do
    * not depend on the order the seconds are read in.
    *
@@ -113,21 +113,20 @@ export namespace AutoMovieMotionHumanArmChain {
     // apart every frame (the overhead stretch's hold, 0.0004 degrees each
     // way). An IK seeded by the frame before solves nothing for a target
     // that has not moved, so a hold stays still.
+    // Every instant is fitted here, in order from the start, so a second
+    // read after is a closed-form blend of the two instants about it.
     let previous: string | undefined;
-    const instant = (k: number): IInstant => {
-      while (course.length <= k) {
-        const j: number = course.length;
-        const at: IAutoMovieMotionHumanPosture = posture(times[j]!);
-        const key: string = JSON.stringify(at);
-        course.push(
-          j > 0 && key === previous
-            ? course[j - 1]!
-            : fit(at, j === 0 ? {} : course[j - 1]!.near),
-        );
-        previous = key;
-      }
-      return course[k]!;
-    };
+    for (let j: number = 0; j < times.length; ++j) {
+      const at: IAutoMovieMotionHumanPosture = posture(times[j]!);
+      const key: string = JSON.stringify(at);
+      course.push(
+        j > 0 && key === previous
+          ? course[j - 1]!
+          : fit(at, j === 0 ? {} : course[j - 1]!.near),
+      );
+      previous = key;
+    }
+    const instant = (k: number): IInstant => course[k]!;
     return (
       seconds: number,
       now?: IAutoMovieMotionHumanPosture,

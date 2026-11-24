@@ -101,8 +101,8 @@ export function test_motion_mechanism_reduced_opening(): void {
       }
       all.check(
         name + ": the head enters and hips cross before continuation",
-        Number.isFinite(firstHead) &&
-          Number.isFinite(lastHips) &&
+        firstHead !== Infinity &&
+          lastHips !== -Infinity &&
           firstHead >= passed.start &&
           lastHips <= passed.end,
       );

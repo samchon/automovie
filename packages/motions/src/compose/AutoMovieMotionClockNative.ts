@@ -83,7 +83,7 @@ export namespace AutoMovieMotionClockNative {
 
   /**
    * A fixed window's uniform and minimum-jerk readers, its two instants
-   * resolved at the first native sample and kept for the rest. A custom clock's
+   * resolved here. A custom clock's
    * requested callback owns each read.
    */
   export function prepare(
@@ -98,9 +98,9 @@ export namespace AutoMovieMotionClockNative {
         progress: (seconds: number): number =>
           clock.progress(from, to, seconds),
       };
-    let ready: AutoMovieMotionInterval.IPrepared | undefined;
-    const interval = (): AutoMovieMotionInterval.IPrepared =>
-      (ready ??= AutoMovieMotionInterval.prepare(original, from, to));
+    const ready: AutoMovieMotionInterval.IPrepared =
+      AutoMovieMotionInterval.prepare(original, from, to);
+    const interval = (): AutoMovieMotionInterval.IPrepared => ready;
     return {
       linear: (seconds: number): number => {
         const read: IClock["linear"] = clock.linear;
@@ -118,8 +118,7 @@ export namespace AutoMovieMotionClockNative {
   }
 
   /**
-   * A fixed rise and fall's envelope, each window's instants resolved at its
-   * first native use and kept for the rest. A custom clock receives its own two
+   * A fixed rise and fall's envelope, each window's instants resolved here. A custom clock receives its own two
    * name tuples at every requested sample.
    */
   export function prepareEnvelope(
@@ -135,8 +134,10 @@ export namespace AutoMovieMotionClockNative {
     if (original === undefined)
       return (seconds: number): number =>
         clock.envelope([riseFrom, riseTo], [fallFrom, fallTo], seconds);
-    let rising: AutoMovieMotionInterval.IPrepared | undefined;
-    let falling: AutoMovieMotionInterval.IPrepared | undefined;
+    const rising: AutoMovieMotionInterval.IPrepared =
+      AutoMovieMotionInterval.prepare(original, riseFrom, riseTo);
+    const falling: AutoMovieMotionInterval.IPrepared =
+      AutoMovieMotionInterval.prepare(original, fallFrom, fallTo);
     return (seconds: number): number => {
       const read: IClock["envelope"] = clock.envelope;
       if (read !== original.envelope)
@@ -146,9 +147,7 @@ export namespace AutoMovieMotionClockNative {
           seconds,
         ]);
 
-      rising ??= AutoMovieMotionInterval.prepare(original, riseFrom, riseTo);
       const grown: number = rising.progress(seconds);
-      falling ??= AutoMovieMotionInterval.prepare(original, fallFrom, fallTo);
       return Math.max(0, grown - falling.progress(seconds));
     };
   }

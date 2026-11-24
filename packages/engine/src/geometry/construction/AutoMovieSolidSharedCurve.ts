@@ -155,9 +155,7 @@ export namespace AutoMovieSolidSharedCurve {
           [-dot(a.u, r), -dot(a.v, r)],
         );
         if (
-          move === null ||
-          !Number.isFinite(move[0]) ||
-          !Number.isFinite(move[1])
+          move === null
         )
           return `the part's foot of the loop point is singular at [${s}, ${phi}]`;
         s += move[0];
@@ -222,7 +220,7 @@ export namespace AutoMovieSolidSharedCurve {
     };
 
     // Where the first foot starts: the given chart point, or the nearest point of a grid over the part.
-    if (!(Number.isInteger(input.count) && input.count >= 8))
+    if (!(input.count >= 8))
       return refuse(
         "shared loop",
         `the count ${input.count} is not an integer of at least 8`,

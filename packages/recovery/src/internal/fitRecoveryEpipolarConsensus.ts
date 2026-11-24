@@ -195,7 +195,7 @@ export function fitRecoveryEpipolarConsensus(
     matrix,
     score,
     trials,
-    requiredTrialsAtFinalSupport: Number.isFinite(required) ? required : null,
+    requiredTrialsAtFinalSupport: required !== Infinity ? required : null,
     conditionalTrialTargetMet:
       trials >= required && trials >= budget.minimumRansacTrials,
     numericalRefusals,

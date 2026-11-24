@@ -46,8 +46,6 @@ export function RecoveryChartBoundaryNetworkAugment(
     return (
       a > 0 &&
       b > 0 &&
-      Number.isFinite(a) &&
-      Number.isFinite(b) &&
       n.reduce(
         (sum: number, value: number, k: number): number =>
           sum + (value / a) * (before[k]! / b),
@@ -81,15 +79,9 @@ export function RecoveryChartBoundaryNetworkAugment(
     for (let face: number = 0; face < chart.triangles.length; face++) {
       const t: [number, number, number] = chart.triangles[face]!;
       if (
-        !Array.isArray(t) ||
         t.length !== 3 ||
         new Set(t).size !== 3 ||
-        t.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= chart.verticesMm.length,
-        )
+        t.some((id: number): boolean => id < 0 || id >= chart.verticesMm.length)
       )
         throw new Error("Private triangle identities are invalid");
       const n: Readonly<AutoMovieVector3Tuple> = normal(
@@ -99,7 +91,7 @@ export function RecoveryChartBoundaryNetworkAugment(
       );
       originalNormals.push(n);
       const area: number = Math.hypot(...n) / 2;
-      if (!(area > 0 && Number.isFinite(area)))
+      if (!(area > 0))
         throw new Error(
           "Private source triangle area is collapsed or unrepresentable",
         );
@@ -203,7 +195,7 @@ export function RecoveryChartBoundaryNetworkAugment(
               opposite: number = old[(position + 2) % 3]!,
               id: number = chart.verticesMm.length;
             const local: number = (cut.fraction - qa) / (qb - qa);
-            if (!(local > 0 && local < 1 && Number.isFinite(local)))
+            if (!(local > 0 && local < 1))
               throw new Error("A bank-local cut has no representable phase");
             const prior: Readonly<AutoMovieVector3Tuple> = blend(
               chart.verticesMm[a]!,
@@ -279,12 +271,10 @@ export function RecoveryChartBoundaryNetworkAugment(
             chart.verticesMm[t[2]]!,
           ),
         ) / 2;
-      if (!(area > 0 && Number.isFinite(area)))
+      if (!(area > 0))
         throw new Error("Augmented private triangle area is unrepresentable");
       finalArea += area;
     }
-    if (!Number.isFinite(originalArea) || !Number.isFinite(finalArea))
-      throw new Error("Private source-area accounting became nonfinite");
     if (missingBanks)
       diagnostics.push(
         `${chart.name}: no registered subdivision-chain bank for ${missingBanks} base authorities; no connections fabricated`,

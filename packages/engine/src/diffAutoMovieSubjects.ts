@@ -58,7 +58,7 @@ export const diffAutoMovieSubjects: (
   afterArtifact: IAutoMovieSubjectArtifact,
   tolerance: number = AUTOMOVIE_SUBJECT_DIFF_DEFAULT_TOLERANCE,
 ): IAutoMovieSubjectDiff => {
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       "Subject diff tolerance must be finite and non-negative.",
     );

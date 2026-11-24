@@ -1,10 +1,11 @@
 import fs from "node:fs";
 
 /**
- * Read one regular file under an explicit byte bound and close the descriptor on
- * every path. A final byte probe detects growth beyond the original admitted size.
- * Concurrent replacement or mutation is not an immutable-source guarantee; callers
- * bind complete returned bytes to their expected hash before using them.
+ * Read one regular file under an explicit byte bound and close the descriptor
+ * on every path. A final byte probe detects growth beyond the original admitted
+ * size. Concurrent replacement or mutation is not an immutable-source
+ * guarantee; callers bind complete returned bytes to their expected hash before
+ * using them.
  *
  * @evidence contracts/development/implementation.md#principled-implementation Descriptor metadata admits a finite regular-file size before allocation, exact reads detect truncation and a one-byte probe detects appended content before transfer.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure This host helper owns only bounded file acquisition and cleanup while format and hash admission remain with command callers.
@@ -18,17 +19,12 @@ export function readAutoMovieRecoveryBoundedFile(
   file: string,
   maxBytes: number,
 ): Buffer {
-  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1)
+  if (maxBytes < 1)
     throw new Error("A positive safe integer maxInputBytes is required");
   const descriptor: number = fs.openSync(file, "r");
   try {
     const stat: fs.Stats = fs.fstatSync(descriptor);
-    if (
-      !stat.isFile() ||
-      !Number.isSafeInteger(stat.size) ||
-      stat.size < 1 ||
-      stat.size > maxBytes
-    )
+    if (!stat.isFile() || stat.size < 1 || stat.size > maxBytes)
       throw new Error(
         "Input must be a nonempty regular file within maxInputBytes",
       );

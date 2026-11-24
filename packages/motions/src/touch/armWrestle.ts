@@ -258,9 +258,8 @@ export namespace armWrestle {
     // that slides its elbow along the top has left it too.
     const asked: number = p.pin ?? PIN;
     HumanBound.within("pin", asked, 0, 90);
-    let projection:
-      | ReturnType<typeof prepareHumanPostureProjection>
-      | undefined;
+    const projection: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
     const elbows: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
       elbowBones,
@@ -275,7 +274,7 @@ export namespace armWrestle {
             {},
             resolution,
             undefined,
-            (projection ??= prepareHumanPostureProjection(body)),
+            projection,
           ).pose,
           resolution(),
         ).get(`${side}LowerArm`)!.worldPosition,

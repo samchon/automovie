@@ -78,7 +78,7 @@ export function createAutoMovieMeshSeparationQuery(
   if (representation !== "source" && representation !== "float32")
     throw new Error("Mesh separation needs source or float32 representation.");
   const indices: number[] = triangleIndicesOf(mesh, "Mesh separation");
-  if (indices.length === 0 || !mesh.positions.every(Number.isFinite))
+  if (indices.length === 0)
     throw new Error(
       "Mesh separation requires a nonempty finite resident surface.",
     );
@@ -146,8 +146,7 @@ export function createAutoMovieMeshSeparationQuery(
       options === undefined ||
       options === null ||
       clearance === undefined ||
-      !(clearance >= 0) ||
-      !Number.isFinite(clearance)
+      !(clearance >= 0)
     )
       throw new Error(
         "Mesh separation needs a nonnegative finite requested clearance.",
@@ -155,7 +154,6 @@ export function createAutoMovieMeshSeparationQuery(
     if (
       options.budget === undefined ||
       options.budget === null ||
-      !Number.isSafeInteger(options.budget.remaining) ||
       options.budget.remaining < 0
     )
       throw new Error(
@@ -183,7 +181,6 @@ export function createAutoMovieMeshSeparationQuery(
         metadata === null ||
         clearance !== 0 ||
         vertices.length !== 3 ||
-        !Number.isSafeInteger(metadata.triangle) ||
         !Array.isArray(metadata.weights) ||
         !Array.isArray(metadata.supports) ||
         metadata.supports.length === 0 ||
@@ -217,7 +214,6 @@ export function createAutoMovieMeshSeparationQuery(
       for (const id of metadata.supports) {
         const host: IResidentTriangle | undefined = byId.get(id);
         if (
-          !Number.isSafeInteger(id) ||
           host === undefined ||
           !support.every((p: IAutoMovieVector3): boolean =>
             host.reference.some(
@@ -345,8 +341,4 @@ const UNIT_AXES: readonly IAutoMovieVector3[] = [
 
 /** Whether a run slot holds a vector with three finite coordinates. */
 const finiteVertex = (p: IAutoMovieVector3 | undefined | null): boolean =>
-  p !== undefined &&
-  p !== null &&
-  Number.isFinite(p.x) &&
-  Number.isFinite(p.y) &&
-  Number.isFinite(p.z);
+  p !== undefined && p !== null;

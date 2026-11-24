@@ -154,9 +154,6 @@ export namespace AutoMovieArchetypeEquineLunge {
     >;
     const { centre, radius, bearing, reins, acceleration, turn, face } = params;
     if (
-      ![centre.x, centre.z, radius, bearing, acceleration, turn, face].every(
-        Number.isFinite,
-      ) ||
       !(radius > 0 && acceleration > 0 && turn > 0 && face >= 0) ||
       reins.length === 0 ||
       reins.some((rein: IRein): boolean => rein.work.length === 0)
@@ -187,7 +184,7 @@ export namespace AutoMovieArchetypeEquineLunge {
           AutoMovieArchetypeQuadrupedGait.range(species, work.gait, withers);
         const speed: number = work.speed ?? (range.minimum + range.maximum) / 2;
         if (
-          !(Number.isFinite(work.laps) && work.laps > 0) ||
+          !(work.laps > 0) ||
           !(speed >= range.minimum && speed <= range.maximum)
         )
           refuse(

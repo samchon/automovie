@@ -33,11 +33,7 @@ export function observeRecoveryCameraSet(
       descriptorComparisons +=
         2 * features[first]!.points.length * features[second]!.points.length;
   const pairCount: number = (views.length * (views.length - 1)) / 2;
-  if (
-    !Number.isSafeInteger(descriptorComparisons) ||
-    !Number.isSafeInteger(pairCount) ||
-    descriptorComparisons > maximumComparisons
-  )
+  if (descriptorComparisons > maximumComparisons)
     throw new Error("camera-map: aggregate descriptor pair budget exhausted");
   const pairs: IAutoMovieRecoveryCameraSetObservation["pairs"] = [];
   for (let first: number = 0; first < views.length; first++)

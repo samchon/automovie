@@ -96,7 +96,6 @@ const surfaceSpan: (
   for (let i: number = 0; i + 1 < uvs.length; i += 2) {
     const u: number = uvs[i]!;
     const v: number = uvs[i + 1]!;
-    if (!Number.isFinite(u) || !Number.isFinite(v)) return null;
     minU = Math.min(minU, u);
     maxU = Math.max(maxU, u);
     minV = Math.min(minV, v);
@@ -195,7 +194,7 @@ const checkBinding: (props: {
     // "surface-metres": the span is the surface's own extent and 1 / scale is
     // the tile the finish claims, so the two are directly comparable metres.
     if (axis.scale === undefined) continue;
-    if (!Number.isFinite(axis.scale) || axis.scale === 0) continue;
+    if (axis.scale === 0) continue;
     if (axis.wrap === "clamp") continue;
     const tile: number = 1 / Math.abs(axis.scale);
     if (tile <= axis.span * (1 + SCALE_EPSILON)) continue;

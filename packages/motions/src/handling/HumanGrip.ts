@@ -307,8 +307,16 @@ export namespace HumanGrip {
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
   ): (joints: IAutoMovieMotionHumanPosture["joints"]) => number {
-    let thumb: IAutoMovieCurlChainUntilContact.IChain | undefined;
-    let index: IAutoMovieCurlChainUntilContact.IChain | undefined;
+    const thumb: IAutoMovieCurlChainUntilContact.IChain = chain(
+      body,
+      side,
+      "Thumb",
+    );
+    const index: IAutoMovieCurlChainUntilContact.IChain = chain(
+      body,
+      side,
+      "Index",
+    );
     const requested: ReadonlySet<AutoMovieHumanoidBone> =
       new Set<AutoMovieHumanoidBone>([
         `${side}ThumbDistal`,
@@ -326,9 +334,7 @@ export namespace HumanGrip {
       digit: PrepareApertureTipDigit2,
     ): IAutoMovieVector3 => {
       const prepared: IAutoMovieCurlChainUntilContact.IChain =
-        digit === "Thumb"
-          ? (thumb ??= chain(body, side, digit))
-          : (index ??= chain(body, side, digit));
+        digit === "Thumb" ? thumb : index;
       const distal: IAutoMovieResolvedBone = resolved.get(prepared.bones[2]!)!;
       return Vector3.add(
         distal.worldPosition,

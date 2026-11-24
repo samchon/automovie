@@ -52,12 +52,7 @@ export const resolveAutoMovieEnvelopeRequest: (
     throw new Error(
       `envelope study "${request.id}" names instant "${request.instant}", which the environment context does not declare`,
     );
-  if (!Number.isFinite(request.indoor.airTemperature))
-    throw new Error(
-      `indoor air temperature must be finite, but was ${request.indoor.airTemperature}`,
-    );
   if (
-    !Number.isFinite(request.indoor.relativeHumidity) ||
     request.indoor.relativeHumidity < 0 ||
     request.indoor.relativeHumidity > 1
   )
@@ -76,14 +71,9 @@ export const resolveAutoMovieEnvelopeRequest: (
       throw new Error(`envelope assembly "${assembly.id}" is declared twice`);
     assemblies.add(assembly.id);
     for (const key of ["interiorFilm", "exteriorFilm", "area"] as const)
-      if (!Number.isFinite(assembly[key]) || assembly[key] <= 0)
+      if (assembly[key] <= 0)
         throw new Error(
           `envelope assembly "${assembly.id}" ${key} must be a finite number above zero, but was ${assembly[key]}`,
-        );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(assembly.position[axis]))
-        throw new Error(
-          `envelope assembly "${assembly.id}" position ${axis} must be finite, but was ${assembly.position[axis]}`,
         );
     if (assembly.layers.length === 0)
       throw new Error(
@@ -97,7 +87,7 @@ export const resolveAutoMovieEnvelopeRequest: (
         );
       layers.add(layer.id);
       for (const key of ["thickness", "conductivity"] as const)
-        if (!Number.isFinite(layer[key]) || layer[key] <= 0)
+        if (layer[key] <= 0)
           throw new Error(
             `layer "${layer.id}" ${key} must be a finite number above zero, but was ${layer[key]}`,
           );
@@ -113,13 +103,12 @@ export const resolveAutoMovieEnvelopeRequest: (
         `thermal bridge "${bridge.id}" runs along assembly "${bridge.assembly}", which the study does not declare`,
       );
     if (
-      !Number.isFinite(bridge.linearTransmittance) ||
       bridge.linearTransmittance < 0
     )
       throw new Error(
         `thermal bridge "${bridge.id}" linear transmittance must be a finite number at or above zero, but was ${bridge.linearTransmittance}`,
       );
-    if (!Number.isFinite(bridge.length) || bridge.length <= 0)
+    if (bridge.length <= 0)
       throw new Error(
         `thermal bridge "${bridge.id}" length must be a finite number above zero, but was ${bridge.length}`,
       );

@@ -153,8 +153,7 @@ export namespace handshake {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHandshake.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
-    const pumps: number = context.params.count ?? 2;
-    HumanBound.whole("count", pumps);
+    const pumps: number = HumanBound.whole("count", context.params.count ?? 2);
     const body: IAutoMovieMotionHumanBody = context.body;
     const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       context.params.partner,

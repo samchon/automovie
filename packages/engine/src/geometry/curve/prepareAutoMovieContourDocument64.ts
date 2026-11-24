@@ -14,12 +14,11 @@ import { admitAutoMovieContourEvents64 } from "./admitAutoMovieContourEvents64";
 export function prepareAutoMovieContourDocument64(
   input: IAutoMovieContourLoft64,
 ): IAutoMoviePrepareContourDocument64Document {
-  if (!Number.isFinite(input.chordToleranceMm) || input.chordToleranceMm <= 0)
+  if (input.chordToleranceMm <= 0)
     throw new Error("Positive physical curve chord tolerance required");
   if (
     input.sections.some(
       (section: IAutoMovieContourLoft64.ISection, i: number): boolean =>
-        !Number.isFinite(section.coordinateMm) ||
         (i > 0 && section.coordinateMm <= input.sections[i - 1]!.coordinateMm),
     )
   )

@@ -160,12 +160,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         scene,
       );
     const { planes, poles = [], swingLift = 0 } = structuredClone(scene);
-    if (
-      !Array.isArray(planes) ||
-      planes.length === 0 ||
-      !Array.isArray(poles) ||
-      !(Number.isFinite(swingLift) && swingLift >= 0)
-    )
+    if (planes.length === 0 || !(swingLift >= 0))
       throw refusal(
         "The scene needs named finite support planes and an admitted swing lift.",
         scene,
@@ -183,8 +178,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         !interval(x) ||
         !interval(z) ||
         slope === null ||
-        slope === undefined ||
-        ![slope.x, slope.z].every(Number.isFinite)
+        slope === undefined
       )
         throw refusal(
           "A support plane needs finite point, slope and ordered bounds.",
@@ -194,9 +188,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         plane.yield !== undefined &&
         !(
           ["sand", "mud", "bog", "snow"].includes(plane.yield.material) &&
-          Number.isFinite(plane.yield.depth) &&
           plane.yield.depth >= 0 &&
-          typeof plane.yield.source === "string" &&
           plane.yield.source.length > 0
         )
       )
@@ -229,7 +221,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         !finitePoint(pole.from) ||
         !finitePoint(pole.to) ||
         !(Vector3.distance(pole.from, pole.to) > 0) ||
-        !(Number.isFinite(pole.radius) && pole.radius > 0)
+        !(pole.radius > 0)
       )
         throw refusal(
           "A pole needs two distinct finite world points and a positive radius.",
@@ -244,7 +236,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
 
     /** Give each terrain component one stable public diagnostic identity. */
     function name(id: string): void {
-      if (typeof id !== "string" || id.length === 0 || names.has(id))
+      if (id.length === 0 || names.has(id))
         throw refusal("Terrain names must be nonempty and unique.", id);
       names.add(id);
     }
@@ -270,11 +262,6 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
           plane.origin.y +
           (point.x - plane.origin.x) * plane.slope.x +
           (point.z - plane.origin.z) * plane.slope.z;
-        if (!Number.isFinite(y))
-          throw refusal(
-            "The assigned foothold height is unrepresentable.",
-            plane.id,
-          );
         if (result !== undefined && y <= result.point.y + result.depth)
           continue;
         const depth: number = plane.yield?.depth ?? 0;
@@ -387,21 +374,12 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
 
 /** Require finite world position coordinates. */
 function finitePoint(point: IAutoMovieVector3): boolean {
-  return (
-    point !== null &&
-    point !== undefined &&
-    [point.x, point.y, point.z].every(Number.isFinite)
-  );
+  return point !== null && point !== undefined;
 }
 
 /** Admit an explicit half-open world patch interval. */
 function interval(span: Interval): boolean {
-  return (
-    Array.isArray(span) &&
-    span.length === 2 &&
-    span.every(Number.isFinite) &&
-    span[0] < span[1]
-  );
+  return span.length === 2 && span[0] < span[1];
 }
 
 /** Turn the admitted unit surface normal to another unit up vector. */

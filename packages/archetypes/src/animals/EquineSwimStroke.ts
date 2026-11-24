@@ -36,8 +36,6 @@ export function EquineSwimStroke(
   end: EquineSwimStroke.End,
   phase: number,
 ): EquineSwimStroke.IAngles {
-  if (!Number.isFinite(phase))
-    throw new RangeError("A swimming stroke phase must be finite");
   const at: number = phase - Math.floor(phase);
   const events: EquineSwimStroke.IEnd = EquineSwimStroke.EVENTS[end];
   return {

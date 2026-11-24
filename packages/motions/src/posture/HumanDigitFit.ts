@@ -375,7 +375,7 @@ export namespace HumanDigitFit {
               const depth: number =
                 digit.radius -
                 segmentDistance(digit.points[i - 1]!, digit.points[i]!);
-              if (!Number.isFinite(depth) || Math.abs(depth) <= roundoff)
+              if (Math.abs(depth) <= roundoff)
                 return undefined;
               if (depth > 0) return true;
             }

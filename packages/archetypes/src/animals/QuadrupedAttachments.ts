@@ -132,14 +132,7 @@ export namespace QuadrupedAttachments {
     fore: boolean,
     terminalRadius: number,
   ): IAutoMovieVector3[] {
-    if (
-      !(Number.isFinite(terminalRadius) && terminalRadius > 0) ||
-      initial.length !== 5 ||
-      initial.some(
-        (point: IAutoMovieVector3): boolean =>
-          ![point.x, point.y, point.z].every(Number.isFinite),
-      )
-    )
+    if (!(terminalRadius > 0) || initial.length !== 5)
       throw new RangeError(
         "Neutral attachment construction requires five finite joints and a positive terminal radius",
       );
@@ -153,7 +146,7 @@ export namespace QuadrupedAttachments {
         current.z - before.z,
       );
       if (
-        !(Number.isFinite(length) && length > 0) ||
+        !(length > 0) ||
         Math.abs(current.x - initial[0]!.x) >
           roundoff(current, initial[0]!, length)
       )
@@ -182,15 +175,6 @@ export namespace QuadrupedAttachments {
         z: point.z,
       }),
     );
-    if (
-      !(Number.isFinite(height) && Number.isFinite(offset)) ||
-      source.some(
-        (point: IAutoMovieVector3): boolean => !Number.isFinite(point.y),
-      )
-    )
-      throw new RangeError(
-        "Neutral terminal support is not finitely representable",
-      );
     const origin: IAutoMovieVector3 = source[0]!;
     if (parent.from.x !== parent.to.x)
       throw new RangeError(
@@ -198,14 +182,14 @@ export namespace QuadrupedAttachments {
       );
     const nearest: IAutoMovieVector3 = axisPoint(origin, parent);
     const lateral: number = Math.abs(origin.x - parent.from.x);
-    if (!(Number.isFinite(parent.radius) && parent.radius > lateral))
+    if (!(parent.radius > lateral))
       throw new RangeError(
         "Neutral limb plane must cut a positive section of its parent capsule",
       );
     const section: number = Math.sqrt(
       (parent.radius - lateral) * (parent.radius + lateral),
     );
-    if (!(Number.isFinite(section) && section > 0))
+    if (!(section > 0))
       throw new RangeError(
         "Neutral parent section is not finitely representable",
       );
@@ -246,7 +230,7 @@ export namespace QuadrupedAttachments {
       point.z - nearest.z,
     );
     if (
-      !(Number.isFinite(solid.radius) && solid.radius > 0) ||
+      !(solid.radius > 0) ||
       distance > solid.radius + roundoff(point, nearest, solid.radius)
     )
       throw new RangeError(
@@ -260,10 +244,6 @@ export namespace QuadrupedAttachments {
         z: point.z - solid.frame.translation.z,
       },
     );
-    if (![parentLocal.x, parentLocal.y, parentLocal.z].every(Number.isFinite))
-      throw new RangeError(
-        `The ${parent} attachment is not finitely representable in its parent frame`,
-      );
     return { parent, point: { ...point }, parentLocal };
   }
 
@@ -279,20 +259,7 @@ export namespace QuadrupedAttachments {
     const dy: number = solid.to.y - solid.from.y;
     const dz: number = solid.to.z - solid.from.z;
     const span: number = Math.hypot(dx, dy, dz);
-    if (
-      !(Number.isFinite(span) && span > 0) ||
-      ![
-        point.x,
-        point.y,
-        point.z,
-        solid.from.x,
-        solid.from.y,
-        solid.from.z,
-        solid.to.x,
-        solid.to.y,
-        solid.to.z,
-      ].every(Number.isFinite)
-    )
+    if (!(span > 0))
       throw new RangeError(
         "Attachment capsule axis and query must be finite and nondegenerate",
       );
@@ -303,10 +270,6 @@ export namespace QuadrupedAttachments {
       (point.x - solid.from.x) * ux +
       (point.y - solid.from.y) * uy +
       (point.z - solid.from.z) * uz;
-    if (!Number.isFinite(projection))
-      throw new RangeError(
-        "Attachment coordinates are not finitely representable",
-      );
     const along: number = Math.max(0, Math.min(span, projection));
     return {
       x: solid.from.x + along * ux,

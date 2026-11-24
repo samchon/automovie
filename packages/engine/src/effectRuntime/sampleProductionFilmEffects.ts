@@ -28,7 +28,6 @@ export const sampleProductionFilmEffects = (
 ): IAutoMovieProductionFilmEffectSample[] => {
   validateProductionFilmEffectIdentity(props.identity);
   if (
-    Number.isSafeInteger(props.timelineFrame) === false ||
     props.timelineFrame < 0
   )
     throw new AutoMovieFilmEffectRuntimeError(
@@ -37,8 +36,7 @@ export const sampleProductionFilmEffects = (
     );
   if (
     props.cameraDistance !== undefined &&
-    (Number.isFinite(props.cameraDistance) === false ||
-      props.cameraDistance < 0)
+    props.cameraDistance < 0
   )
     throw new AutoMovieFilmEffectRuntimeError(
       "film-effect-input-invalid",

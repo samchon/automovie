@@ -211,7 +211,7 @@ export function performShot(
       `beat "${describeInvalidValue(performance.beat)}" must be one of the script's beats`,
       performance.beat,
     );
-  if (!Number.isFinite(performance.duration) || !(performance.duration > 0))
+  if (!(performance.duration > 0))
     out.push(
       "range",
       "$input.duration",

@@ -283,7 +283,7 @@ function preparePad(
         ? context.frame.translation.y + pad.height
         : context.anchor(pad.height.anchor).translation.y;
   const shoulder: number = pad.shoulder ?? 1;
-  if (!Number.isFinite(height) || !Number.isFinite(shoulder) || shoulder <= 0)
+  if (shoulder <= 0)
     throw new Error(
       `Terrain grade "${id}" requires a finite height and positive finite shoulder.`,
     );
@@ -307,11 +307,9 @@ function preparePath(
   const maxSlope: number | undefined = recipe.maxSlope;
   if (
     recipe.points.length < 2 ||
-    !Number.isFinite(radius) ||
     radius <= 0 ||
-    !Number.isFinite(shoulder) ||
     shoulder <= 0 ||
-    (maxSlope !== undefined && (!Number.isFinite(maxSlope) || maxSlope < 0))
+    (maxSlope !== undefined && maxSlope < 0)
   )
     throw new Error(
       `Terrain path "${id}" requires at least two waypoints, positive widths and any slope limit to be finite and nonnegative.`,
@@ -331,10 +329,6 @@ function preparePath(
       const z: number = "anchor" in point ? anchored!.z : origin.z + point[1];
       const pad: IPad | undefined = padAt({ x, y: z });
       const y: number = anchored?.y ?? pad?.height ?? base({ x, z });
-      if (![x, y, z].every(Number.isFinite))
-        throw new Error(
-          `Terrain path "${id}" waypoint ${index} has a nonfinite coordinate.`,
-        );
       if (pad !== undefined && anchored !== undefined && y !== pad.height)
         throw new Error(
           `Terrain path "${id}" waypoint ${index} conflicts with the level of "${pad.id}".`,
@@ -348,7 +342,7 @@ function preparePath(
     const from: IAutoMovieVector3 = points[index]!;
     const to: IAutoMovieVector3 = points[index + 1]!;
     const length: number = Math.hypot(to.x - from.x, to.z - from.z);
-    if (!Number.isFinite(length) || length <= 0)
+    if (length <= 0)
       throw new Error(
         `Terrain path "${id}" segment ${index} has no finite run.`,
       );
@@ -357,10 +351,7 @@ function preparePath(
     const toLanding: number = fixed[index + 1] ? landing : 0;
     const required: number =
       Math.abs(to.y - from.y) / (length - fromLanding - toLanding);
-    if (
-      !Number.isFinite(required) ||
-      (maxSlope !== undefined && required > maxSlope)
-    )
+    if (maxSlope !== undefined && required > maxSlope)
       throw new Error(
         `Terrain path "${id}" segment ${index} requires slope ${required} between its waypoint constraints (limit ${maxSlope}).`,
       );

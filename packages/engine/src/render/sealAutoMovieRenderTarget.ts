@@ -62,7 +62,7 @@ export const sealAutoMovieRenderTarget: (
     ["width", settings.width],
     ["height", settings.height],
   ] as const)
-    if (!Number.isSafeInteger(value) || value <= 0)
+    if (value <= 0)
       throw new Error(
         `render target settings.${field} must be a positive integer, but was ${value}`,
       );
@@ -70,7 +70,7 @@ export const sealAutoMovieRenderTarget: (
     ["pixelRatio", settings.pixelRatio],
     ["exposure", settings.exposure],
   ] as const)
-    if (!Number.isFinite(value) || value <= 0)
+    if (value <= 0)
       throw new Error(
         `render target settings.${field} must be finite and above zero, but was ${value}`,
       );

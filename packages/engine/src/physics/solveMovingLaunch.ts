@@ -7,17 +7,6 @@ import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "./AutoMovieGravity";
 import { solveBallisticLaunch } from "./solveBallisticLaunch";
 
-const finiteVector: (v: IAutoMovieVector3) => boolean = (
-  v: IAutoMovieVector3,
-): boolean => {
-  if (!Number.isFinite(v.x)) return false;
-  if (!Number.isFinite(v.y)) return false;
-  return Number.isFinite(v.z);
-};
-
-const validArc: (arc: string) => arc is "direct" | "high" = (
-  arc: string,
-): arc is "direct" | "high" => arc === "direct" || arc === "high";
 
 /**
  * Solve the launch that **leads a moving target**: the aim that lands the
@@ -50,16 +39,10 @@ export const solveMovingLaunch: (
   arc: "direct" | "high" = "direct",
   iterations: number = 8,
 ): IAutoMovieBallisticSolution | null => {
-  if (!Number.isFinite(speed)) return null;
-  if (!(speed > 0)) return null;
-  if (!finiteVector(origin)) return null;
-  if (!finiteVector(gravity)) return null;
-  if (!validArc(arc)) return null;
-  if (!Number.isInteger(iterations)) return null;
+  if (speed <= 0) return null;
   if (iterations < 1) return null;
 
   const initialTarget: IAutoMovieVector3 = targetAt(0);
-  if (!finiteVector(initialTarget)) return null;
 
   // Track the closest solve by fixed-point residual |hitTime − t|, not just the
   // last iterate: when the target outpaces the fixed point the iteration can

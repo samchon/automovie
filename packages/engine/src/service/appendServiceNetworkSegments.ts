@@ -109,9 +109,6 @@ export function appendServiceNetworkSegments(
           `a run needs at least 2 route points, but had ${segment.route.length}`,
           segment.route.length,
         );
-      segment.route.forEach((point: IAutoMovieVector3, at: number): void =>
-        out.finiteVector(`${path}.route[${at}]`, point, "route point"),
-      );
       for (let at: number = 0; at + 1 < segment.route.length; ++at)
         if (
           distance(segment.route[at]!, segment.route[at + 1]!) <=

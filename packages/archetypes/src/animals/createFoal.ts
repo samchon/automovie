@@ -75,7 +75,7 @@ export function createFoal(
   AutoMovieArchetypeEquine.Dimension
 > {
   const age: number = params.age ?? 0;
-  if (!(Number.isFinite(age) && age >= 0 && age <= createFoal.WEANING))
+  if (!(age >= 0 && age <= createFoal.WEANING))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: createFoal.ARCHETYPE,

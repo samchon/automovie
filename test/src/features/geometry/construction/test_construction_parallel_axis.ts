@@ -19,12 +19,23 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Authored parallel planes keep their fixed chart axes while their source origin curves move, through tree conversion, source inspection and real lofting.
+ * Authored parallel planes keep their fixed chart axes while their source
+ * origin curves move, through tree conversion, source inspection and real
+ * lofting.
  *
  * Scenarios:
- * 1. Planes u=world Y and v=world X advance in Z while their origin Y follows the natural cubic through (0,10),(1,11),(2,10). At intermediate stations the basis remains fixed, the source point and final loft guide use the same independent closed-form origin, and no tangent-normal rotation is introduced.
- * 2. The same declaration at two metre scales a thousand apart preserves its basis and scales every origin/outline coordinate once. Open origin ends continue as their natural tangents.
- * 3. Invalid/nonfinite bases and malformed coordinate knots return named admission failures; modifying caller-owned directions after preparation cannot change the prepared axis.
+ *
+ * 1. Planes u=world Y and v=world X advance in Z while their origin Y follows the
+ *    natural cubic through (0,10),(1,11),(2,10). At intermediate stations the
+ *    basis remains fixed, the source point and final loft guide use the same
+ *    independent closed-form origin, and no tangent-normal rotation is
+ *    introduced.
+ * 2. The same declaration at two metre scales a thousand apart preserves its basis
+ *    and scales every origin/outline coordinate once. Open origin ends continue
+ *    as their natural tangents.
+ * 3. Invalid/nonfinite bases and malformed coordinate knots return named admission
+ *    failures; modifying caller-owned directions after preparation cannot
+ *    change the prepared axis.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the public parallel-axis record through ConstructionViews.frame, reads source edges through ViewCurves and lofts through ViewLoft, observing actual frames and surface guide positions rather than repository structure.
  * @evidence contracts/development/testing.md#independent-expectations The independent natural cubic ordinate is 10+1.5t-0.5t^3 for t in [0,1], reflected about t=1 on [1,2], with slopes +1.5/-1.5 beyond the ends. The fixed plane basis is input data, so source front-positive guide is (-3,Y(s)+2+s,s). Scale tolerance 2e-10 times the length scale covers binary64 conversion and periodic interpolation. This case proves the declared cubic course, not exact serialization of an arbitrary black-box axis.
@@ -42,7 +53,6 @@ export function test_construction_parallel_axis(): void {
   ): void => {
     if (
       actual.length !== expected.length ||
-      !expected.every(Number.isFinite) ||
       !actual.every((v: number, c: number): boolean =>
         nclose(v, expected[c]!, 2e-10 * scale),
       )
@@ -198,7 +208,10 @@ export function test_construction_parallel_axis(): void {
   );
 }
 
-/** Synthetic coordinate source in metres, independent of the frame converter under test. */
+/**
+ * Synthetic coordinate source in metres, independent of the frame converter
+ * under test.
+ */
 function outline(
   stations: readonly number[],
   values: readonly number[],

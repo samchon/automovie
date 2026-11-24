@@ -35,21 +35,11 @@ export function observeAutoMovieRecoveryPolyline<
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
 
     if (!options)
       return {
@@ -65,14 +55,8 @@ export function observeAutoMovieRecoveryPolyline<
       };
     if (
       !input ||
-      typeof input.name !== "string" ||
       !input.name.trim() ||
-      typeof input.closed !== "boolean" ||
-      !Array.isArray(input.pointsMm) ||
-      !Array.isArray(input.corners) ||
-      (options.curveFormat !== "bezier" && options.curveFormat !== "hermite") ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function")
+      (options.curveFormat !== "bezier" && options.curveFormat !== "hermite")
     )
       return {
         operator,

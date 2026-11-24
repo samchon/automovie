@@ -36,9 +36,7 @@ export function validateProductionFilmEffectRuntime(
     runtime.owner !== "film" ||
     runtime.clock !== "timeline-frame" ||
     runtime.startFrame < 0 ||
-    runtime.endFrame <= runtime.startFrame ||
-    Number.isSafeInteger(runtime.startFrame) === false ||
-    Number.isSafeInteger(runtime.endFrame) === false
+    runtime.endFrame <= runtime.startFrame
   )
     throw new AutoMovieFilmEffectRuntimeError(
       "film-effect-runtime-invalid",
@@ -54,7 +52,6 @@ export function validateProductionFilmEffectRuntime(
     runtime.frameRate.denominator !== frameRate.denominator ||
     runtime.effect.version !== 1 ||
     runtime.effect.intensity.from !== runtime.effect.intensity.to ||
-    Number.isFinite(runtime.effect.intensity.from) === false ||
     runtime.effect.intensity.from < 0 ||
     runtime.effect.intensity.from > 1
   )

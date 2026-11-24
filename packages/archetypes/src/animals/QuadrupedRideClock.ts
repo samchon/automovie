@@ -120,9 +120,6 @@ export namespace QuadrupedRideClock {
       const over: number = hold.over ?? hold.duration;
       if (
         !(
-          Number.isFinite(hold.start) &&
-          Number.isFinite(hold.duration) &&
-          Number.isFinite(over) &&
           over > 0 &&
           (hold.over === undefined
             ? hold.duration > 0

@@ -62,10 +62,8 @@ export namespace AutoMovieViewSectionConic {
     if (
       !Array.isArray(axisScale) ||
       axisScale.length !== 2 ||
-      !axisScale.every(
-        (value: number): boolean => Number.isFinite(value) && value !== 0,
-      ) ||
-      !(Number.isFinite(tolerance) && tolerance > 0)
+      !axisScale.every((value: number): boolean => value !== 0) ||
+      !(tolerance > 0)
     )
       return NaN;
     const scale: readonly [number, number] = [
@@ -80,11 +78,7 @@ export namespace AutoMovieViewSectionConic {
         arc.extents[0] * scale[q % 2]!,
         arc.extents[1] * scale[(q + 1) % 2]!,
       ];
-      if (
-        !derivativeLengths.every(
-          (value: number): boolean => Number.isFinite(value) && value > 0,
-        )
-      )
+      if (!derivativeLengths.every((value: number): boolean => value > 0))
         return NaN;
       for (const [end, patch] of [arc.start, arc.end].entries())
         if (patch !== null) {
@@ -92,7 +86,6 @@ export namespace AutoMovieViewSectionConic {
             scale[(q + end) % 2]!,
             scale[(q + end + 1) % 2]!,
           ]);
-          if (!Number.isFinite(measured)) return NaN;
           total += measured;
         }
 
@@ -143,8 +136,6 @@ export namespace AutoMovieViewSectionConic {
           const left: number = panel(domain.speed, current.a, middle);
           const right: number = panel(domain.speed, middle, current.b);
           const fine: number = left + right;
-          if (![current.coarse, left, right, fine].every(Number.isFinite))
-            return NaN;
           const floor: number =
             64 *
             Number.EPSILON *
@@ -180,7 +171,7 @@ export namespace AutoMovieViewSectionConic {
           }
         }
       }
-    return Number.isFinite(total) && total > 0 ? total : NaN;
+    return total > 0 ? total : NaN;
   }
 
   /** Actual finite-source, curvature or support diagnostic, otherwise null. */
@@ -188,8 +179,6 @@ export namespace AutoMovieViewSectionConic {
     section: Pick<IAutoMovieViewSection.ISection, "conics" | "box" | "girth">,
   ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
-    if (!Number.isFinite(section.girth))
-      return "the actual native arclength has no admitted finite quadrature";
     const e: readonly number[] = section.box.extents;
     for (let q: number = 0; q < 4; q++)
       for (let k: number = 0; k <= 96; k++) {
@@ -197,10 +186,10 @@ export namespace AutoMovieViewSectionConic {
         const phi: number = start + (k * Math.PI) / 192;
         const [r, first, second]: IAutoMoviePolarSector.Jet =
           AutoMovieViewConic.radius(section.conics, phi);
-        if (![r, first, second].every(Number.isFinite) || !(r > 0))
+        if (!(r > 0))
           return `nonfinite/nonpositive radius jet ${[r, first, second]} at angle ${phi}`;
         const turn: number = r * r + 2 * first * first - r * second;
-        if (!Number.isFinite(turn) || turn < -1e-12 * r * r)
+        if (turn < -1e-12 * r * r)
           return `concave or unrepresentable at angle ${phi} (curvature numerator ${turn})`;
         const along: number = r * Math.cos(phi - start);
         const across: number = r * Math.sin(phi - start);
@@ -300,7 +289,6 @@ export namespace AutoMovieViewSectionConic {
           points[i]![0] - points[i - 1]![0],
           points[i]![1] - points[i - 1]![1],
         );
-      if (![lower, upper].every(Number.isFinite)) return NaN;
       const floor: number = 64 * Number.EPSILON * (upper + lower);
       if (upper - lower <= Math.max(2 * current.tolerance, floor)) {
         total += (lower + upper) / 2;

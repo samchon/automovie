@@ -28,7 +28,6 @@ export function HumanQuadraticValue(
   curvatureBand: number = problem.band,
 ): number {
   let v: number = 0;
-  const finite: boolean = x === undefined || x.every(Number.isFinite);
   if (x !== undefined)
     for (let i: number = 0; i < problem.n; ++i) {
       const xi: number = x[i]!;
@@ -38,7 +37,7 @@ export function HumanQuadraticValue(
       const end: number = Math.min(curvatureBand, problem.n - 1 - i);
       for (let j: number = 1; j <= end; ++j) {
         const coefficient: number = row[j]!;
-        if (!finite || coefficient !== 0) v += coefficient * xi * x[i + j]!;
+        if (coefficient !== 0) v += coefficient * xi * x[i + j]!;
       }
     }
   for (const row of problem.rows) {
@@ -47,7 +46,7 @@ export function HumanQuadraticValue(
     if (x !== undefined)
       for (let a: number = 0; a < row.index.length; ++a) {
         const coefficient: number = row.coef[a]!;
-        if (!finite || coefficient !== 0) s += coefficient * x[row.index[a]!]!;
+        if (coefficient !== 0) s += coefficient * x[row.index[a]!]!;
       }
     const miss: number = Math.max(0, row.l - s, s - row.u);
     v += row.weight * miss;

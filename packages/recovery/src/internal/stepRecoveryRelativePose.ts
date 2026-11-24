@@ -15,11 +15,9 @@ export function stepRecoveryRelativePose(
   tangent: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[1],
   step: Parameters<IAutoMovieRecoveryRelativePoseStepOperation.Operation>[2],
 ): ReturnType<IAutoMovieRecoveryRelativePoseStepOperation.Operation> {
-  if (step.length !== 5 || !step.every(Number.isFinite) || tangent.length !== 2)
+  if (step.length !== 5 || tangent.length !== 2)
     throw new Error("camera-refinement: finite five-coordinate step required");
   const angle: number = Math.hypot(step[0]!, step[1]!, step[2]!);
-  if (!Number.isFinite(angle))
-    throw new Error("camera-refinement: nonrepresentable angular step");
   const quaternion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
     { x: step[0]!, y: step[1]!, z: step[2]! },
     (angle * 180) / Math.PI,
@@ -40,7 +38,7 @@ export function stepRecoveryRelativePose(
       value + tangent[0]![at]! * step[3]! + tangent[1]![at]! * step[4]!,
   );
   const norm: number = Math.hypot(...direction);
-  if (!rotation.every(Number.isFinite) || !(norm > 0) || !Number.isFinite(norm))
+  if (!(norm > 0))
     throw new Error("camera-refinement: nonrepresentable pose update");
   return {
     rotation,

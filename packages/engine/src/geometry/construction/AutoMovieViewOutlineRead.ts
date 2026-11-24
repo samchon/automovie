@@ -12,12 +12,8 @@ export namespace AutoMovieViewOutlineRead {
     station: number,
   ): number | string {
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
-    if (!Number.isFinite(x))
-      return `station ${station} is not finite inside the source parameter domain`;
     const y: number = valueAt(outline, station, x);
-    return Number.isFinite(y)
-      ? y
-      : `station ${station} has a nonfinite source value`;
+    return y;
   }
 
   /**
@@ -30,8 +26,6 @@ export namespace AutoMovieViewOutlineRead {
   ): IAutoMovieViewOutline.IReading | string {
     const { bottom, top }: IAutoMovieViewOutline.IEnds = outline.ends;
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
-    if (!Number.isFinite(x))
-      return `station ${station} is not finite inside the source parameter domain`;
     const pole: boolean = station === bottom || station === top;
     const polynomial: [number, number, number] | null = pole
       ? null
@@ -46,8 +40,6 @@ export namespace AutoMovieViewOutlineRead {
         : outline.hermite === undefined
           ? AutoMovieNaturalSpline.derivative(outline.spline, x)
           : AutoMovieViewHermite.derivative(outline.hermite, x);
-    if (!Number.isFinite(value) || !jet.every(Number.isFinite))
-      return `station ${station} has a nonfinite source value or parameter jet`;
     const change: [number, number] | null = AutoMovieViewParameter.jet(
       outline.parameter,
       station,
@@ -60,10 +52,7 @@ export namespace AutoMovieViewOutlineRead {
         jet[0] * change[0],
         jet[1] * change[0] * change[0] + jet[0] * change[1],
       ];
-      stationJetStatus = stationJet.every(Number.isFinite)
-        ? "regular"
-        : "nonfinite";
-      if (stationJetStatus === "nonfinite") stationJet = null;
+      stationJetStatus = "regular";
     }
     const [lo, hi]: readonly [number, number] = outline.domain;
     return {

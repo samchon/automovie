@@ -13,11 +13,7 @@ export const worldRamp: (
   const dz: number = input.to.z - input.from.z;
   const lengthSquared: number = dx * dx + dz * dz;
   if (
-    Number.isFinite(input.width) === false ||
     input.width <= 0 ||
-    Number.isFinite(input.baseHeight) === false ||
-    Number.isFinite(input.rise) === false ||
-    Number.isFinite(lengthSquared) === false ||
     lengthSquared <= 0
   )
     throw new Error(

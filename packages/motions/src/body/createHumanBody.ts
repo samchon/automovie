@@ -9,12 +9,11 @@ import {
   resolveAutoMovieCenterOfMass,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPosture,
   IAutoMoviePhysicalProfile,
-  IAutoMovieResolvedJointAngles,
   IAutoMovieSkeleton,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -24,6 +23,7 @@ import { standRelaxed } from "../actions/standRelaxed";
 import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
+import { bendFloorThumb } from "../everyday/bendFloorThumb";
 import { HumanColliders } from "../posture/HumanColliders";
 import { humanLimbReads } from "../posture/humanLimbReads";
 import { humanSettledJoints } from "../posture/humanSettledJoints";
@@ -37,11 +37,11 @@ type CreateHumanBody = "measure" | "surfaces";
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
  * @returns The body with its measure, surfaces, topology, rest joints, bone
- *   records by name, immutable canonical FK preparation, the quiet-stance
- *   alignment and the relaxed hanging arms, both solved here. The bone-local
- *   mass model, collider placement, hull faces and each side's hanging arm are
- *   prepared by their actual first queries. Recreate it after editing the input
- *   rig or profile.
+ *   records by name, immutable canonical FK preparation, bone-local mass model
+ *   and the bones its colliders ride, and its solved properties: each side's
+ *   unloaded hanging arm, the quiet-stance alignment, the relaxed hanging arms,
+ *   the tangle model and each flat hand's thumb twist, all made here once and
+ *   only read after. Recreate it after editing the input rig or profile.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -101,8 +101,15 @@ export function createHumanBody(
         });
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
-  let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
-  let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
+  const massModel: IAutoMovieMotionHumanBody["massModel"] =
+    resolveAutoMovieCenterOfMass.fromRig(poseResolution, profile);
+
+  // The bones the colliders ride are read off the rig, its rest joints and the
+  // profile alone.
+  const colliderBones: IAutoMovieMotionHumanBody["colliderBones"] =
+    poseResolution.prepareBones(
+      HumanColliders.bones({ skeleton, profile, rest }),
+    );
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
     if (!bones.has(record.bone)) bones.set(record.bone, record);
@@ -119,78 +126,117 @@ export function createHumanBody(
     upright,
     relaxed,
     tangle,
-  }: Pick<IAutoMovieMotionHumanBody, CreateHumanBodySolved>): IAutoMovieMotionHumanBody => {
-    const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
-      new Map();
-    const body: IAutoMovieMotionHumanBody = {
-      skeleton,
-      profile,
-      measure,
-      surfaces,
-      topology,
-      poseResolution,
-      chains,
+    hanging,
+    flatThumb,
+  }: Pick<
+    IAutoMovieMotionHumanBody,
+    CreateHumanBodySolved
+  >): IAutoMovieMotionHumanBody => ({
+    skeleton,
+    profile,
+    measure,
+    surfaces,
+    topology,
+    poseResolution,
+    chains,
 
-      // The rig's ROM projection is a constant of the body like its FK
-      // prerequisites: one pose clamp on this rig, read by every consumer.
-      projection,
-      settled,
+    // The rig's ROM projection is a constant of the body like its FK
+    // prerequisites: one pose clamp on this rig, read by every consumer.
+    projection,
+    settled,
 
-      // What each limb's fit reads of a pose is a value of the rig too.
-      reads,
-      tangle,
-      get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
-        colliderBones ??= poseResolution.prepareBones(
-          HumanColliders.bones(body),
-        );
-        return colliderBones;
-      },
-      get massModel(): IAutoMovieMotionHumanBody["massModel"] {
-        massModel ??= resolveAutoMovieCenterOfMass.fromRig(
-          poseResolution,
-          profile,
-        );
-        return massModel;
-      },
-      upright,
-      relaxed,
-      rest,
-      bones,
-      hanging: (
-        side: AutoMovieHumanSide,
-      ): IAutoMovieResolvedJointAngles | null => {
-        if (!hung.has(side))
-          hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
-        return hung.get(side)!;
-      },
-    };
-    return body;
-  };
+    // What each limb's fit reads of a pose is a value of the rig too.
+    reads,
+    tangle,
+    colliderBones,
+    massModel,
+    upright,
+    relaxed,
+    rest,
+    bones,
+    hanging,
+    flatThumb,
+  });
 
-  // Quiet standing is a property of the body, solved here once: the alignment
-  // on the rig's rest column, then the relaxed hanging arms on the aligned
-  // stance, then the tangle model on the solved stance, each solve reading
-  // only the record it is given and none reading what is solved after it.
+  // The body's solved properties, each solved here once on the record of the
+  // ones before it: the unloaded hanging arms on the rig's own rest, then the
+  // quiet stance's alignment on the rig's rest column, the relaxed hanging
+  // arms on the aligned stance, the tangle model on the solved stance, and
+  // each flat hand's thumb twist. No solve reads what is solved after it.
   const unsolved: Pick<IAutoMovieMotionHumanBody, CreateHumanBodySolved> = {
     upright: REST_COLUMN,
     relaxed: stand.RELAXED,
     tangle: UNTANGLED,
+    hanging: UNHUNG,
+    flatThumb: UNTURNED,
+  };
+  const unhung: IAutoMovieMotionHumanBody = record(unsolved);
+  const hanging: IAutoMovieMotionHumanBody["hanging"] = {
+    left: AutoMovieMotionHumanBend.hanging(unhung, "left"),
+    right: AutoMovieMotionHumanBend.hanging(unhung, "right"),
   };
   const upright: IAutoMovieMotionHumanBody["upright"] = standUpright.align(
-    record(unsolved),
+    record({ ...unsolved, hanging }),
   );
   const relaxed: IAutoMovieMotionHumanBody["relaxed"] = standRelaxed.solve(
-    record({ ...unsolved, upright }),
+    record({ ...unsolved, hanging, upright }),
   );
   const tangle: IAutoMovieMotionHumanBody["tangle"] =
     AutoMovieMotionHumanAuditTangleModel.build(
-      record({ ...unsolved, upright, relaxed }),
+      record({ ...unsolved, hanging, upright, relaxed }),
     );
-  return record({ upright, relaxed, tangle });
+  const thumbless: IAutoMovieMotionHumanBody = record({
+    ...unsolved,
+    hanging,
+    upright,
+    relaxed,
+    tangle,
+  });
+  const flatThumb: IAutoMovieMotionHumanBody["flatThumb"] = {
+    left: bendFloorThumb(thumbless, ORIGIN_POSTURE, "left"),
+    right: bendFloorThumb(thumbless, ORIGIN_POSTURE, "right"),
+  };
+  return record({ upright, relaxed, tangle, hanging, flatThumb });
 }
 
 /** The body's fields solved in stages from the records before them. */
-type CreateHumanBodySolved = "upright" | "relaxed" | "tangle";
+type CreateHumanBodySolved =
+  | "upright"
+  | "relaxed"
+  | "tangle"
+  | "hanging"
+  | "flatThumb";
+
+/**
+ * The flat thumbs' twists before they are solved. Their own solve
+ * (`bendFloorThumb`) reads none.
+ */
+const UNTURNED: IAutoMovieMotionHumanBody["flatThumb"] = {
+  left: 0,
+  right: 0,
+};
+
+/**
+ * A posture at the origin the flat thumbs are solved in: the thumb's clearance
+ * reads only the hand's own frame.
+ */
+const ORIGIN_POSTURE: IAutoMovieMotionHumanPosture = {
+  root: { x: 0, y: 0, z: 0 },
+  yaw: 0,
+  pitch: 0,
+  roll: 0,
+  joints: {},
+  limbs: {},
+};
+
+/**
+ * The hanging arms before they are solved. Their own solve
+ * (`AutoMovieMotionHumanBend.hanging`) reads none.
+ */
+const UNHUNG: IAutoMovieMotionHumanBody["hanging"] = {
+  left: null,
+  right: null,
+};
 
 /**
  * The tangle model before it is built: no segment. No solve before the model's

@@ -39,23 +39,16 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceSchedule } from "./HumanPerformanceSchedule";
 import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
-import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
-import { HumanSegment } from "./HumanSegment";
 import { anchorHumanPerformanceLayers } from "./anchorHumanPerformanceLayers";
 import { createHumanPerformancePerson } from "./createHumanPerformancePerson";
-import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
+import { prepareHumanPerformance } from "./prepareHumanPerformance";
+import { prepareHumanPerformancePlans } from "./prepareHumanPerformancePlans";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
 /** The alternatives of `HumanPerformanceStateLayer2`'s site. */
 type HumanPerformanceStateLayer2 =
   | IAutoMovieMotionHumanLayer
   | IAutoMovieMotionHumanLayer.IScheduled;
-
-/** The record of `IHumanPerformanceStatePosedEntry`'s site. */
-type IHumanPerformanceStatePosedEntry = {
-  seconds: number;
-  posed: IAutoMovieMotionHumanProp.IPosed;
-};
 
 /** The record of `IHumanPerformanceStateMeetingsEntry`'s site. */
 type IHumanPerformanceStateMeetingsEntry = {
@@ -117,9 +110,9 @@ export class HumanPerformanceState {
   /**
    * The spans in which each prop is held or worn, by the prop: who holds it in
    * which hand or wears it on which bone, from when to when and at which offset
-   * from the hand or the bone; found once the performance is placed.
+   * from the hand or the bone; solved once when the performance is prepared.
    */
-  public readonly gripCache: Map<
+  public readonly grips: Map<
     string,
     IAutoMovieMotionHumanPerformanceState.IGrip[]
   > = new Map();
@@ -142,6 +135,9 @@ export class HumanPerformanceState {
    * carrier and never follow or precede one.
    */
   public readonly riding: Set<number> = new Set();
+
+  /** The hands being read now, by performer and film second. */
+  public readonly holding: Map<string, Set<number>> = new Map();
 
   /** What stands in the performers' way. */
   public readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
@@ -193,7 +189,7 @@ export class HumanPerformanceState {
 
   /**
    * Whether the schedule is still being resolved: until every action is placed,
-   * a pose may read people not placed yet, so nothing is kept.
+   * a pose may read people not placed yet.
    */
   public resolving: boolean = true;
 
@@ -244,8 +240,8 @@ export class HumanPerformanceState {
     >();
 
   /**
-   * Each performer's solved soft parts, by subject, kept once the performance
-   * is placed (`HumanPerformanceSoft`).
+   * Each soft prop's solved lattice, by the prop, solved once when the
+   * performance is prepared (`HumanPerformanceSoft`).
    */
   public readonly soft: Map<
     string,
@@ -253,8 +249,8 @@ export class HumanPerformanceState {
   > = new Map();
 
   /**
-   * Each prop's articulation writers in film order, by the prop, kept once the
-   * performance is placed (`HumanPerformanceObject.writers`).
+   * Each prop's articulation writers in film order, by the prop, solved once
+   * when the performance is prepared (`HumanPerformanceObject.writers`).
    */
   public readonly writers: Map<
     string,
@@ -262,15 +258,8 @@ export class HumanPerformanceState {
   > = new Map();
 
   /**
-   * Each prop's last posed reading with its film second, by the prop, kept once
-   * the performance is placed (`HumanPerformanceObject.posed`).
-   */
-  public readonly posed: Map<string, IHumanPerformanceStatePosedEntry> =
-    new Map();
-
-  /**
-   * Each launched prop's flights, by the prop, kept once the performance is
-   * placed (`HumanPropFlight.flights`).
+   * Each launched prop's flights, by the prop, solved once when the
+   * performance is prepared (`HumanPropFlight.flights`).
    */
   public readonly flights: Map<
     string,
@@ -288,7 +277,8 @@ export class HumanPerformanceState {
 
   /**
    * Every hit of the placed performance in time order
-   * (`HumanPerformanceHits.hits`), kept on its first read once placed.
+   * (`HumanPerformanceHits.hits`), solved once when the performance is
+   * prepared.
    */
   public hits: readonly IAutoMovieInteractionEvent[] | undefined;
 
@@ -417,30 +407,19 @@ export class HumanPerformanceState {
     }
     // A linked wear binds its wearer's limbs from where the schedule puts it.
     HumanPerformanceBonds.attach(this);
-    // Placement evaluated plans while later actions and people were not yet
-    // placed; the contact resolution reads every plan as the whole placed
-    // performance shows it. Every action is placed now, so displayed poses
-    // are kept from here: the contact search reads each person's pose at the
-    // same seconds once per weapon and per stop hypothesis, and `contacts`
-    // forgets everyone whenever the applied stops change.
-    for (const person of this.people.values()) HumanSegment.settle(person);
+
+    // Placement planned while later actions and people were not yet placed;
+    // the contact resolution reads every plan as the whole placed performance
+    // shows it, so every plan is solved on it first, and again whenever the
+    // stops the resolution installs change.
+    prepareHumanPerformancePlans(this);
     HumanPerformanceContacts.contacts(this);
-    for (const person of this.people.values()) HumanSegment.settle(person);
 
     // Authored turns use the selected staged/physical policy after contacts.
     // Given momentum remains physical. Handback changes displayed rotation,
-    // so the poses read while preparing it are forgotten.
+    // so every plan is solved again on it.
     HumanPerformanceFlight.flights(this, this.people.values(), observation);
-    for (const person of this.people.values()) HumanSegment.settle(person);
-    // Every action is placed and settled: each plan's leg chain is prepared
-    // once, its knots fitted in order from the plan's start
-    // (`readHumanSegmentLegs.chain`).
-    for (const person of this.people.values())
-      for (const segment of [...person.segments, ...person.overlays])
-        segment.legSeeds = readHumanSegmentLegs.chain(
-          segment.plan,
-          person.performer.body,
-        );
+    prepareHumanPerformancePlans(this);
     this.handovers.clear();
     this.resolving = false;
     for (const entry of this.schedule.entries) {
@@ -460,11 +439,9 @@ export class HumanPerformanceState {
     for (const prop of this.props.values())
       if (prop.soft !== undefined)
         HumanPerformanceSoftBudget(prop.subject, prop.soft, this.duration);
-    for (const person of this.people.values()) {
-      for (const segment of person.segments)
-        HumanPreparedPlayback.prepare(segment.plan);
-      for (const overlay of person.overlays)
-        HumanPreparedPlayback.prepare(overlay.plan);
-    }
+
+    // Everything is resolved: every record a read evaluates is solved once
+    // here, so every later read is a pure function of its film second.
+    prepareHumanPerformance(this);
   }
 }

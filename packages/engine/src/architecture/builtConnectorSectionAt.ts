@@ -32,7 +32,7 @@ export const builtConnectorSectionAt: (
     environment,
     connectorId,
   );
-  if (!Number.isFinite(at) || at < 0 || at > 1)
+  if (at < 0 || at > 1)
     throw new Error(
       `connector "${connectorId}" of built environment "${environment.id}" can only be sectioned within [0, 1], but was asked at ${at}`,
     );

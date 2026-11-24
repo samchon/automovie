@@ -62,7 +62,7 @@ export function createLadder(
     createLadder.KINDS,
   );
   const rungs: number = params.rungs ?? 10;
-  if (!Number.isInteger(rungs) || rungs < 2 || rungs > createLadder.RUNGS)
+  if (rungs < 2 || rungs > createLadder.RUNGS)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "ladder",

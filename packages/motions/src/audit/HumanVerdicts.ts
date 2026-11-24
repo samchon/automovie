@@ -393,7 +393,8 @@ const inWater = (
 
 /** Whether a params' water names a surface: a height, or a water with one. */
 const surface = (water: IWatered["water"]): boolean =>
-  typeof water === "number" || typeof water?.surface === "number";
+  typeof water === "number" ||
+  (water !== undefined && water.surface !== undefined);
 
 /** An action's params as the water reading sees them. */
 interface IWatered {

@@ -18,8 +18,6 @@ import { readWorld } from "./readWorld";
 import { recompose } from "./recompose";
 import { validateInfluence } from "./validateInfluence";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"] as const;
-
 /**
  * Apply world-space aim, parent and analytic/iterative IK in producer order,
  * updating matrices and recomposing affected descendants. Springs and malformed
@@ -166,7 +164,6 @@ const applyTwoBoneIK: (
   childrenById: Map<string, string[]>,
 ): void => {
   validateInfluence("two-bone IK", d.influence);
-  if (d.pole !== null) validatePoleAngle(d.pole.angle);
   const rootId: string = d.chain[0]!;
   const midId: string = d.chain[1]!;
   const tipId: string = d.chain[2]!;
@@ -302,13 +299,6 @@ const clamp: (x: number, lo: number, hi: number) => number = (
   hi: number,
 ): number => Math.min(hi, Math.max(lo, x));
 
-const validatePoleAngle: (angle: number) => void = (angle: number): void => {
-  if (!Number.isFinite(angle))
-    throw new Error(
-      `world driver two-bone IK pole angle must be finite, but was ${angle}`,
-    );
-};
-
 const validateAimVector: (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
@@ -316,11 +306,6 @@ const validateAimVector: (
   label: "aimAxis" | "upAxis" | "worldUp",
   value: IAutoMovieVector3,
 ): void => {
-  for (const axis of VECTOR_AXES)
-    if (!Number.isFinite(value[axis]))
-      throw new Error(
-        `world driver aim ${label}.${axis} must be finite, but was ${value[axis]}`,
-      );
   if (Vector3.length(value) === 0)
     throw new Error(`world driver aim ${label} must be non-zero`);
 };

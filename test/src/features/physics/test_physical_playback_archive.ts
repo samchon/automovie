@@ -15,14 +15,19 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 
-/** A Node-computed archive replays the same performance without stepping a solver.
+/**
+ * A Node-computed archive replays the same performance without stepping a
+ * solver.
  *
  * Scenarios:
+ *
  * 1. Every sampled and fractional seek equals the original cached state exactly.
  * 2. Contact measurements and normalized input identity survive the archive.
  * 3. Decoding owns its bytes, so a caller's later mutation cannot change playback.
- * 4. Stale identities, corruption, truncation and declared allocation overflows refuse.
- * 5. Recovery histories require chronological steps, landings and handoffs; early cancellation remains distinct from early claimed landing/failure.
+ * 4. Stale identities, corruption, truncation and declared allocation overflows
+ *    refuse.
+ * 5. Recovery histories require chronological steps, landings and handoffs; early
+ *    cancellation remains distinct from early claimed landing/failure.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalPlayback`, `AutoMoviePhysicalSimulation`, `AutoMoviePhysicsCache`, `physicalInputDigest` on in-memory inputs and asserts the returned observations through 5x TestValidator.equals; 5 numbered scenarios (first: Every sampled and fractional seek equals the original cached state exactly.; last: Recovery histories require chronological steps, landings and handoffs; early cancellation remains distinct...). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (2 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -106,12 +111,7 @@ export async function test_physical_playback_archive(): Promise<void> {
     (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.samples![0]!.appliedImpulse = { a: -1, b: 0 };
     },
-    (cache: IAutoMoviePhysicsCache): void => {
-      cache.contacts[0]!.samples![0]!.appliedImpulse = { a: 0, b: Infinity };
-    },
-    (cache: IAutoMoviePhysicsCache): void => {
-      Reflect.set(cache.contacts[0]!.samples![0]!, "appliedImpulse", []);
-    },
+
     (cache: IAutoMoviePhysicsCache): void => {
       cache.contacts[0]!.normal = { x: 0, y: 0, z: 0 };
     },
@@ -181,7 +181,10 @@ export async function test_physical_playback_archive(): Promise<void> {
       { bone: "root", seconds: 0.9 },
     ],
   };
-  /** Own only codec metadata; the existing numeric frame stream is borrowed unchanged. */
+  /**
+   * Own only codec metadata; the existing numeric frame stream is borrowed
+   * unchanged.
+   */
   const copy: () => IAutoMoviePhysicsCache = (): IAutoMoviePhysicsCache => {
     const cache: IAutoMoviePhysicsCache = new Cache(
       simulation.cache.identity,

@@ -36,11 +36,7 @@ export namespace AutoMovieSolidMeshConstraints {
     point: Readonly<AutoMovieVector2Tuple>,
     period?: number,
   ): boolean | string {
-    if (
-      point.length !== 2 ||
-      !point.every(Number.isFinite) ||
-      (period !== undefined && !(Number.isFinite(period) && period > 0))
-    )
+    if (point.length !== 2 || (period !== undefined && !(period > 0)))
       return "constraint membership needs finite coordinates and a positive period";
     for (const segment of segments) {
       const a: Readonly<AutoMovieVector2Tuple> | undefined = vertices.get(
@@ -52,7 +48,6 @@ export namespace AutoMovieSolidMeshConstraints {
       if (
         a === undefined ||
         stored === undefined ||
-        !Number.isSafeInteger(segment.turn) ||
         (period === undefined && segment.turn !== 0)
       )
         return "constraint membership has an unavailable endpoint or invalid turn";
@@ -60,8 +55,6 @@ export namespace AutoMovieSolidMeshConstraints {
         stored[0],
         stored[1] + segment.turn * (period ?? 0),
       ];
-      if (![...a, ...b].every(Number.isFinite))
-        return "constraint membership cover is not representable";
       const shifts: number[] | null = images(point[1], a[1], b[1], period);
       if (shifts === null)
         return "constraint membership image is not representable";
@@ -70,8 +63,6 @@ export namespace AutoMovieSolidMeshConstraints {
           point[0],
           point[1] + lift * (period ?? 0),
         ];
-        if (!lifted.every(Number.isFinite))
-          return "constraint membership point is not representable";
         if (on(a, b, lifted)) return true;
       }
     }
@@ -89,17 +80,11 @@ export namespace AutoMovieSolidMeshConstraints {
     segments: readonly IAutoMovieSolidMeshConstraints.ISegment[],
     period?: number,
   ): IAutoMovieSolidMeshConstraints.IEdge[] | string {
-    if (period !== undefined && !(Number.isFinite(period) && period > 0))
+    if (period !== undefined && !(period > 0))
       return "constraint period must be finite and positive";
     for (const entry of vertices) {
       const [id, point]: [number, Readonly<AutoMovieVector2Tuple>] = entry;
-      if (
-        !Number.isSafeInteger(id) ||
-        id < 0 ||
-        point.length !== 2 ||
-        !Number.isFinite(point[0]) ||
-        !Number.isFinite(point[1])
-      )
+      if (id < 0 || point.length !== 2)
         return `constraint vertex ${id} needs an original nonnegative ID and finite chart coordinates`;
     }
     // The vertices by first coordinate: a vertex lies on a segment only inside
@@ -136,7 +121,6 @@ export namespace AutoMovieSolidMeshConstraints {
       if (
         a === undefined ||
         stored === undefined ||
-        !Number.isSafeInteger(segment.turn) ||
         (period === undefined && segment.turn !== 0)
       )
         return `constraint ${source} has an unavailable endpoint or invalid turn`;
@@ -144,7 +128,7 @@ export namespace AutoMovieSolidMeshConstraints {
         stored[0],
         stored[1] + segment.turn * (period ?? 0),
       ];
-      if (!b.every(Number.isFinite) || (a[0] === b[0] && a[1] === b[1]))
+      if (a[0] === b[0] && a[1] === b[1])
         return `constraint ${source} has no finite nonzero lifted span`;
       if (period !== undefined) {
         const magnitude: number = Math.max(
@@ -180,8 +164,6 @@ export namespace AutoMovieSolidMeshConstraints {
             point[0],
             point[1] + turn * (period ?? 0),
           ];
-          if (!lifted.every(Number.isFinite))
-            return `constraint ${source} has a nonfinite cover coordinate`;
           if (on(a, b, lifted)) cuts.push({ id, turn, point: lifted });
         }
       }
@@ -264,8 +246,6 @@ export namespace AutoMovieSolidMeshConstraints {
             target[0],
             target[1] + (turn + other.turn) * (period ?? 0),
           ];
-          if (![...c, ...d].every(Number.isFinite))
-            return "subconstraint cover coordinates are not finite";
           const crosses: boolean =
             orientAutoMovieSolidChart(a, b, c) *
               orientAutoMovieSolidChart(a, b, d) <
@@ -312,9 +292,5 @@ function images(
   if (period === undefined) return [0];
   const middle: number = first === last ? first : first / 2 + last / 2;
   const turn: number = Math.round((middle - value) / period);
-  return Number.isSafeInteger(turn) &&
-    Number.isSafeInteger(turn - 1) &&
-    Number.isSafeInteger(turn + 1)
-    ? [turn - 1, turn, turn + 1]
-    : null;
+  return [turn - 1, turn, turn + 1];
 }

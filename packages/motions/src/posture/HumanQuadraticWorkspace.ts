@@ -154,12 +154,6 @@ export namespace HumanQuadraticWorkspace {
     residuals: B.IResiduals;
 
     /**
-     * Final polishing x finiteness, valid only with its immediately returned
-     * rows/transpose products; other phases ignore it.
-     */
-    productFiniteX?: boolean;
-
-    /**
      * One mutable system/factor band, distinct from the retained polishing
      * factor.
      */
@@ -323,39 +317,19 @@ export namespace HumanQuadraticWorkspace {
    * @param out Disposable n-entry product buffer; every accumulator begins at
    *   positive zero, directly at diagonal production or by full reset before a
    *   scatter.
-   * @param finiteX Optional current-vector finiteness proved by its unchanged
-   *   producer or same-call reader; absent preserves the local check.
    */
   export function curvature(
     s: B.IScaled,
     x: Float64Array,
     out: Float64Array,
-    finiteX?: boolean,
   ): void {
     if (s.band === 0 || s.diagonal) {
-      if (s.band === 0 || finiteX === true) {
-        for (let i: number = 0; i < s.n; ++i) out[i] = 0 + s.p[i]![0]! * x[i]!;
-        return;
-      }
-      if (finiteX === undefined) {
-        let finite: boolean = true;
-        for (let i: number = 0; i < s.n; ++i) {
-          const xi: number = x[i]!;
-          if (!Number.isFinite(xi)) {
-            finite = false;
-            break;
-          }
-          out[i] = 0 + s.p[i]![0]! * xi;
-        }
-        if (finite) return;
-      }
+      for (let i: number = 0; i < s.n; ++i) out[i] = 0 + s.p[i]![0]! * x[i]!;
+      return;
     }
-
-    // A partial diagonal attempt may have encountered a nonfinite operand;
-    // reset before the unchanged scatter restores every original zero term.
     out.fill(0);
     const pattern: B.IScaled["pPattern"] = s.pPattern;
-    if (pattern !== undefined && (finiteX ?? x.every(Number.isFinite))) {
+    if (pattern !== undefined) {
       for (let i: number = 0; i < s.n; ++i) {
         const row: Float64Array = s.p[i]!;
         const xi: number = x[i]!;

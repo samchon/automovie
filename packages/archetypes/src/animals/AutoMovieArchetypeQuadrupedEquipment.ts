@@ -223,8 +223,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.admitHook("yoke.hook", yoke.hook);
     plan.positive("rig.neckRadius", rig.neckRadius);
     plan.positive("rig.back", rig.back);
-    plan.point("rig.neck", rig.neck);
-    plan.point("rig.poll", rig.poll);
     const axis: IAutoMovieVector3 = Vector3.subtract(rig.poll, rig.neck);
     const length: number = Vector3.length(axis);
     plan.positive("rig.neck.length", length);
@@ -238,7 +236,7 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.atMost("yoke.neckAt", yoke.neckAt, length);
     plan.atMost("yoke.hook.radius", yoke.hook.radius, yoke.radius);
     const minimum: number = 2 * (rig.neckRadius + yoke.radius + yoke.clearance);
-    if (!Number.isFinite(minimum) || yoke.width < minimum)
+    if (yoke.width < minimum)
       plan.refuse(
         "yoke.width",
         yoke.width,
@@ -308,7 +306,6 @@ export namespace AutoMovieArchetypeQuadrupedEquipment {
     plan.positive("rig.trunk", rig.trunk);
     plan.positive("rig.back", rig.back);
     plan.positive("rig.neckRadius", rig.neckRadius);
-    plan.point("rig.neck", rig.neck);
     const middle: number = rig.back - rig.barrel;
     plan.atMost("pack.width", pack.width, Math.min(2 * rig.barrel, 2 * middle));
     const span: number = Math.min(rig.trunk, 2 * (rig.neck.z - rig.neckRadius));

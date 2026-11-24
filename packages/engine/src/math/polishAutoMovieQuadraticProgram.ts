@@ -134,7 +134,6 @@ export function polishAutoMovieQuadraticProgram(
   // what bounds both correction loops; an infinite count would bound
   // neither. The admission is the refinement owner's own rule for the count.
   if (
-    !Number.isSafeInteger(options.maximumRefinements) ||
     options.maximumRefinements < 0
   )
     throw new Error(
@@ -146,7 +145,7 @@ export function polishAutoMovieQuadraticProgram(
     return result();
   }
   let merit: number = readMerit(primal, dual);
-  if (!Number.isFinite(merit) || merit < 0) {
+  if (merit < 0) {
     reason = "The original full-row KKT merit is not representable.";
     return result();
   }
@@ -160,10 +159,7 @@ export function polishAutoMovieQuadraticProgram(
       dualPasses++;
       dualUpdates.push(0);
       const gradient: number[] = readGradient(primal, dual);
-      if (!gradient.every(Number.isFinite)) {
-        reason = "The original fixed-primal stationarity is not representable.";
-        return result();
-      }
+
       for (let at: number = 0; at < input.rows.length; at++) {
         const row: IAutoMovieQuadraticRow = input.rows[at];
         let value: number = 0,
@@ -173,11 +169,7 @@ export function polishAutoMovieQuadraticProgram(
           value += coefficient * primal[row.indices[corner]];
           maximum = Math.max(maximum, Math.abs(coefficient));
         }
-        if (!Number.isFinite(value)) {
-          reason =
-            "The original fixed-primal affine value is not representable.";
-          return result();
-        }
+
         if (maximum === 0) continue;
         let squared: number = 0,
           projection: number = 0;
@@ -187,10 +179,7 @@ export function polishAutoMovieQuadraticProgram(
           projection += normalized * gradient[row.indices[corner]];
         }
         const correction: number = -(projection / squared) / maximum;
-        if (!Number.isFinite(correction)) {
-          reason = "The fixed-primal scalar correction is not representable.";
-          return result();
-        }
+
         const limit: (bound: number | null) => number = (
           bound: number | null,
         ): number =>
@@ -206,11 +195,7 @@ export function polishAutoMovieQuadraticProgram(
           lower,
           Math.min(upper, dual[at] + correction),
         );
-        if (!Number.isFinite(candidate)) {
-          reason =
-            "The original signed-dual scalar candidate is not representable.";
-          return result();
-        }
+
         if (!(readComplementarity(at, value, candidate) <= options.tolerance)) {
           if (candidate === 0) {
             reason =
@@ -239,7 +224,7 @@ export function polishAutoMovieQuadraticProgram(
       }
       merit = readMerit(primal, dual);
       merits.push(merit);
-      if (!Number.isFinite(merit) || merit < 0) {
+      if (merit < 0) {
         reason = "The original fixed-primal KKT merit is not representable.";
         return result();
       }
@@ -273,7 +258,6 @@ export function polishAutoMovieQuadraticProgram(
     input.rows.every((row: IAutoMovieQuadraticRow): boolean => {
       const value: number = valueOf(row, values);
       return (
-        Number.isFinite(value) &&
         (row.lower === null || row.lower - value <= options.tolerance) &&
         (row.upper === null || value - row.upper <= options.tolerance)
       );
@@ -299,10 +283,7 @@ export function polishAutoMovieQuadraticProgram(
       0,
     );
     const shift: number = (multiplier * squared) / objectiveScale;
-    if (!Number.isFinite(value) || !Number.isFinite(shift)) {
-      reason = "working-set-native-activity-not-representable";
-      return result();
-    }
+
     const point: boolean = group.lower !== null && group.lower === group.upper;
     const lower: boolean =
       group.lower !== null &&
@@ -370,7 +351,7 @@ export function polishAutoMovieQuadraticProgram(
     ) {
       const normalDual: number[] = restoreDual(normalMultipliers);
       const normalMerit: number = readMerit(normalOrigin, normalDual);
-      if (Number.isFinite(normalMerit) && normalMerit >= 0) {
+      if (normalMerit >= 0) {
         jointMerits.push(normalMerit);
         if (normalMerit <= options.tolerance) {
           primal = normalOrigin.slice();
@@ -401,10 +382,7 @@ export function polishAutoMovieQuadraticProgram(
       reason = "working-set-no-direction";
       return result();
     }
-    if (!direction.every(Number.isFinite)) {
-      reason = "working-set-direction-not-representable";
-      return result();
-    }
+
     let step: number = flat === null ? 1 : Infinity;
     let blocking: IAutoMovieQuadraticRefinementInterval | null = null,
       endpoint: number = 0,
@@ -424,10 +402,6 @@ export function polishAutoMovieQuadraticProgram(
       // A positive infinite quotient is beyond every finite step, not a lost
       // constraint: the original complete-row feasibility is still remeasured.
       if (ratio === Infinity) continue;
-      if (!Number.isFinite(ratio)) {
-        reason = "working-set-blocking-ratio-not-representable";
-        return result();
-      }
       if (ratio < step) {
         step = ratio;
         blocking = group;
@@ -435,14 +409,15 @@ export function polishAutoMovieQuadraticProgram(
         blockingOwner = travel < 0 ? group.lowerOwner : group.upperOwner;
       }
     }
-    if (!Number.isFinite(step)) {
+    // A flat descent that no endpoint blocks keeps its unbounded step.
+    if (step === Infinity) {
       reason = "working-set-flat-descent-has-no-finite-blocker";
       return result();
     }
     const next: number[] = preceding.map(
       (value: number, at: number): number => value + step * direction[at],
     );
-    if (!next.every(Number.isFinite) || !feasible(next)) {
+    if (!feasible(next)) {
       reason = "working-set-original-row-feasibility-refused";
       return result();
     }
@@ -452,7 +427,7 @@ export function polishAutoMovieQuadraticProgram(
       trialDual = restoreDual(solved.dual);
       const measured: number = readMerit(trialPrimal, trialDual);
       jointMerits.push(measured);
-      if (!Number.isFinite(measured) || measured < 0) {
+      if (measured < 0) {
         reason = "working-set-original-KKT-not-representable";
         return result();
       }

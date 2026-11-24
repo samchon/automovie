@@ -60,7 +60,6 @@ export function pickUpIntercept(
   if (
     !(closeAt > 0) ||
     !(closeAt <= maximumTime) ||
-    !Number.isFinite(context.start + closeAt) ||
     !(context.start + closeAt > context.start)
   )
     return refuse(
@@ -95,17 +94,11 @@ export function pickUpIntercept(
     );
 
   const frames: ViolationCollector = new ViolationCollector();
-  frames.finiteVector(
-    "socket.position",
-    socket.frame.translation,
-    "socket position",
-  );
   frames.unitQuaternion(
     "socket.rotation",
     socket.frame.rotation,
     "socket rotation",
   );
-  frames.finiteVector("mount.position", mount.offset.position, "mount offset");
   frames.unitQuaternion(
     "mount.rotation",
     mount.offset.rotation,
@@ -151,17 +144,11 @@ export function pickUpIntercept(
     const sample: IAutoMovieRigidTransform =
       i === 0 ? from : i === intervals ? to : prop.frame(seconds);
     const carrier: IAutoMovieRigidTransform = support.frame(seconds);
-    frames.finiteVector(
-      "support.position",
-      carrier.position,
-      "support position",
-    );
     frames.unitQuaternion(
       "support.rotation",
       carrier.rotation,
       "support rotation",
     );
-    frames.finiteVector("prop.position", sample.position, "prop position");
     frames.unitQuaternion("prop.rotation", sample.rotation, "prop rotation");
     if (frames.items.length !== 0)
       refuse(

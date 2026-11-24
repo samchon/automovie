@@ -22,16 +22,7 @@ export function physicalInertiaFactor(
   const yy: number = tensor[1]![1]!;
   const yz: number = tensor[1]![2]!;
   const zz: number = tensor[2]![2]!;
-  if (
-    !(xx > 0 && yy > 0 && zz > 0) ||
-    !Number.isFinite(xx) ||
-    !Number.isFinite(xy) ||
-    !Number.isFinite(xz) ||
-    !Number.isFinite(yy) ||
-    !Number.isFinite(yz) ||
-    !Number.isFinite(zz)
-  )
-    return null;
+  if (xx <= 0 || yy <= 0 || zz <= 0) return null;
 
   /** Direct multiplication shares the same authoritative symmetric entries. */
   const apply: (vector: IAutoMovieVector3) => IAutoMovieVector3 = (
@@ -59,18 +50,15 @@ export function physicalInertiaFactor(
   const lyx: number = xy / dx / dy;
   const lzx: number = xz / dx / dz;
   const cyz: number = yz / dy / dz;
-  const lyy: number = Math.sqrt(1 - lyx * lyx);
+  // A positive definite tensor keeps both pivots positive; a pivot at or
+  // below zero has no square root and the factorization does not exist.
+  const pivotY: number = 1 - lyx * lyx;
+  if (pivotY <= 0) return null;
+  const lyy: number = Math.sqrt(pivotY);
   const lzy: number = (cyz - lzx * lyx) / lyy;
-  const lzz: number = Math.sqrt(1 - lzx * lzx - lzy * lzy);
-  if (
-    !(lyy > 0 && lzz > 0) ||
-    !Number.isFinite(lyx) ||
-    !Number.isFinite(lzx) ||
-    !Number.isFinite(lyy) ||
-    !Number.isFinite(lzy) ||
-    !Number.isFinite(lzz)
-  )
-    return null;
+  const pivotZ: number = 1 - lzx * lzx - lzy * lzy;
+  if (pivotZ <= 0) return null;
+  const lzz: number = Math.sqrt(pivotZ);
 
   const independentX: boolean = xy === 0 && xz === 0;
   const independentY: boolean = xy === 0 && yz === 0;

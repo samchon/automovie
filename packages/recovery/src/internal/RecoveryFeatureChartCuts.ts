@@ -54,16 +54,13 @@ export function RecoveryFeatureChartCuts(
     input.occurrenceKeys.length !== count ||
     new Set(input.occurrenceKeys).size !== count ||
     [...input.physicalKeys, ...input.occurrenceKeys].some(
-      (word: string): boolean => typeof word !== "string" || !word.length,
+      (word: string): boolean => !word.length,
     ) ||
     input.verticesMm.some(
-      (p: Readonly<AutoMovieVector3Tuple>): boolean =>
-        p.length !== 3 || !p.every(Number.isFinite),
+      (p: Readonly<AutoMovieVector3Tuple>): boolean => p.length !== 3,
     ) ||
     input.triangleSourceFaces.length !== input.triangles.length ||
-    input.triangleSourceFaces.some(
-      (id: number): boolean => !Number.isSafeInteger(id) || id < 0,
-    )
+    input.triangleSourceFaces.some((id: number): boolean => id < 0)
   )
     fail(
       "aligned finite observations, unique occurrence keys and original face owners are required",
@@ -103,20 +100,13 @@ export function RecoveryFeatureChartCuts(
       rows: IAutoMovieRecoveryDirectedEdgeIncidence[] | undefined =
         source.edges.get(key);
     if (
-      !Number.isSafeInteger(feature.a) ||
-      !Number.isSafeInteger(feature.b) ||
       feature.a === feature.b ||
       rows?.length !== 2 ||
       features.has(key) ||
-      typeof feature.sourceEdge !== "string" ||
       !feature.sourceEdge ||
       feature.sourceFaces.length !== 2 ||
       feature.sourceFaces[0] === feature.sourceFaces[1] ||
-      !(
-        feature.angleDegrees > 0 &&
-        feature.angleDegrees <= 180 &&
-        Number.isFinite(feature.angleDegrees)
-      )
+      !(feature.angleDegrees > 0 && feature.angleDegrees <= 180)
     )
       fail(
         "features need unique interior edges and finite original crease provenance",

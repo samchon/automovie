@@ -78,7 +78,7 @@ export namespace HumanFreedomChoice {
    */
   export function turns(step: number, side: AutoMovieHumanSide): number[] {
     const count: number = Math.floor(180 / step);
-    if (!(step > 0 && Number.isSafeInteger(count)))
+    if (!(step > 0))
       throw new RangeError(
         `A hand's turns need a positive spacing with a safe integer count of turns to the half turn, not ${step} degrees`,
       );

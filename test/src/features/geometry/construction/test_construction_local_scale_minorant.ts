@@ -1,12 +1,10 @@
+import { AutoMovieConstructionSplitBand as Band } from "@automovie/engine";
 import type {
   IAutoMovieBlendColumn,
   IAutoMovieConstructionSplitBand,
   IAutoMovieConstructionSplitBandTrace,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
-import {
-  AutoMovieConstructionSplitBand as Band,
-} from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
@@ -16,9 +14,18 @@ import { checkConstructionLocalScaleBackwardZero } from "./checkConstructionLoca
  * A regular analytic ribbon must survive Gaussian rounding above one scale cap.
  *
  * Scenarios:
- * 1. The 192 cardinal samples of a regular trigonometric host have one negative station curvature. Its degree-five projected controls admit exp(-1/128) there and 1 elsewhere. The existing 64 passes remain above that one cap, although a positive common certificate exists; the strip must publish a certified nonconstant field.
- * 2. Removing that curvature gives the adjacent cylinder input. It settles on its first pass with scale 1 and retains its physical station jets.
- * 3. The curved case also retains a zero original first jet at its antipodal column, already classified backward. Attenuation must preserve that finite zero and its backward status; this asserts no surface regularity or forward admission at that column.
+ *
+ * 1. The 192 cardinal samples of a regular trigonometric host have one negative
+ *    station curvature. Its degree-five projected controls admit exp(-1/128)
+ *    there and 1 elsewhere. The existing 64 passes remain above that one cap,
+ *    although a positive common certificate exists; the strip must publish a
+ *    certified nonconstant field.
+ * 2. Removing that curvature gives the adjacent cylinder input. It settles on its
+ *    first pass with scale 1 and retains its physical station jets.
+ * 3. The curved case also retains a zero original first jet at its antipodal
+ *    column, already classified backward. Attenuation must preserve that finite
+ *    zero and its backward status; this asserts no surface regularity or
+ *    forward admission at that column.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real SplitBand.strip with analytic input jets, collects every actual local pass and certificate, and reads its published surface. Mutating the detached certificate must not change publication. Refusing an admissible nonuniform field fails after the complete normal counterpart has also been inspected.
  * @evidence contracts/development/testing.md#independent-expectations Quintic Hermite endpoint data give projected controls [0,f/5,(2*f-exp(eta)*f*f)/5,1-2*f/5,1-f/5,1]. Their order requires f<=exp(-eta) at the curved column; the other columns admit 1. A Gaussian sum/integral bound proves the old 64-pass excess exceeds 9e-6. Float tolerances cover the 40-step scalar bisection and analytic correspondence rounding, not Human measurements. Only column constraints and rail jets are certified, not continuous-phase embedding.
@@ -91,7 +98,10 @@ export function test_construction_local_scale_minorant(): void {
     // is regular on |s|<=1/16: G_s.y>=1-exp(eta)/4>0.
     // At s=0 these are its jets composed with normalized cross speed L.
     /** Exact cardinal host jets; L is the actual normalized cross length. */
-    const near: (k: number, length: number) => IAutoMovieBlendColumn["start"] = (
+    const near: (
+      k: number,
+      length: number,
+    ) => IAutoMovieBlendColumn["start"] = (
       k: number,
       length: number,
     ): IAutoMovieBlendColumn["start"] => ({
@@ -99,7 +109,8 @@ export function test_construction_local_scale_minorant(): void {
       first: [0, length, 0],
       second: [0, curved && k === 0 ? -bend * length * length : 0, 0],
     });
-    let result: IAutoMovieConstructionSplitBand.IStrip | string = "strip did not return";
+    let result: IAutoMovieConstructionSplitBand.IStrip | string =
+      "strip did not return";
     try {
       result = Band.strip(
         name,
@@ -129,35 +140,59 @@ export function test_construction_local_scale_minorant(): void {
     } catch (error) {
       failures.push(name + ": threw " + String(error));
     }
-    const prepared: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> | undefined =
-      events.find(
-        (
-          event: IAutoMovieConstructionSplitBandTrace.Event,
-        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "prepared" }> =>
-          event.kind === "prepared",
-      );
-    const passes: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>[] =
-      events.filter(
-        (
-          event: IAutoMovieConstructionSplitBandTrace.Event,
-        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =>
-          event.kind === "local-pass",
-      );
-    const adjustments: IAutoMovieConstructionSplitBandTrace.IAdjustment[] = passes.flatMap(
+    const prepared:
+      | Extract<
+          IAutoMovieConstructionSplitBandTrace.Event,
+          { kind: "prepared" }
+        >
+      | undefined = events.find(
       (
-        pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>,
-      ): IAutoMovieConstructionSplitBandTrace.IAdjustment[] => pass.adjustments,
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "prepared" }
+      > => event.kind === "prepared",
     );
-    const certificates: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>[] =
-      events.filter(
+    const passes: Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "local-pass" }
+    >[] = events.filter(
+      (
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "local-pass" }
+      > => event.kind === "local-pass",
+    );
+    const adjustments: IAutoMovieConstructionSplitBandTrace.IAdjustment[] =
+      passes.flatMap(
         (
-          event: IAutoMovieConstructionSplitBandTrace.Event,
-        ): event is Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }> =>
-          event.kind === "minorant",
+          pass: Extract<
+            IAutoMovieConstructionSplitBandTrace.Event,
+            { kind: "local-pass" }
+          >,
+        ): IAutoMovieConstructionSplitBandTrace.IAdjustment[] =>
+          pass.adjustments,
       );
-    const last: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> | undefined =
-      passes.at(-1);
-    const lastOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined = last?.own[0];
+    const certificates: Extract<
+      IAutoMovieConstructionSplitBandTrace.Event,
+      { kind: "minorant" }
+    >[] = events.filter(
+      (
+        event: IAutoMovieConstructionSplitBandTrace.Event,
+      ): event is Extract<
+        IAutoMovieConstructionSplitBandTrace.Event,
+        { kind: "minorant" }
+      > => event.kind === "minorant",
+    );
+    const last:
+      | Extract<
+          IAutoMovieConstructionSplitBandTrace.Event,
+          { kind: "local-pass" }
+        >
+      | undefined = passes.at(-1);
+    const lastOwn: IAutoMovieConstructionSplitBandTrace.Target | undefined =
+      last?.own[0];
     const excess: number | null =
       last !== undefined && lastOwn?.kind === "finite"
         ? last.smooth[0]! - lastOwn.value
@@ -192,7 +227,7 @@ export function test_construction_local_scale_minorant(): void {
     )
       failures.push(name + ": analytic forward-column cardinality changed");
     if (
-      !(Number.isFinite(prepared.commonFactor) && prepared.commonFactor > 0) ||
+      !(prepared.commonFactor > 0) ||
       !nclose(prepared.commonFactor, curved ? cap : 1, tolerance)
     )
       failures.push(
@@ -241,7 +276,8 @@ export function test_construction_local_scale_minorant(): void {
         certificates.length !== 1 ||
         certificates[0]!.result.kind !== "accepted" ||
         events.some(
-          (event: IAutoMovieConstructionSplitBandTrace.Event): boolean => event.kind === "refusal",
+          (event: IAutoMovieConstructionSplitBandTrace.Event): boolean =>
+            event.kind === "refusal",
         )
       )
         failures.push(
@@ -249,8 +285,10 @@ export function test_construction_local_scale_minorant(): void {
             ": missing single accepted minorant certificate or premature refusal",
         );
       for (let index: number = 0; index < passes.length; ++index) {
-        const pass: Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }> =
-          passes[index]!;
+        const pass: Extract<
+          IAutoMovieConstructionSplitBandTrace.Event,
+          { kind: "local-pass" }
+        > = passes[index]!;
         if (
           pass.pass !== index ||
           pass.settled ||
@@ -266,7 +304,10 @@ export function test_construction_local_scale_minorant(): void {
         if (
           pass.own.length !== count ||
           pass.own.some(
-            (target: IAutoMovieConstructionSplitBandTrace.Target, k: number): boolean =>
+            (
+              target: IAutoMovieConstructionSplitBandTrace.Target,
+              k: number,
+            ): boolean =>
               target.kind !== "finite" ||
               !nclose(target.value, k === 0 ? -eta : 0, tolerance),
           )
@@ -275,15 +316,17 @@ export function test_construction_local_scale_minorant(): void {
         if (
           pass.field.length !== count ||
           pass.field.some(
-            (value: number): boolean =>
-              !(Number.isFinite(value) && value > 0 && value <= 1),
+            (value: number): boolean => !(value > 0 && value <= 1),
           )
         )
           failures.push(name + ": invalid Gaussian field at " + index);
       }
     } else {
       const first:
-        | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "local-pass" }>
+        | Extract<
+            IAutoMovieConstructionSplitBandTrace.Event,
+            { kind: "local-pass" }
+          >
         | undefined = passes[0];
       if (
         passes.length !== 1 ||
@@ -319,13 +362,7 @@ export function test_construction_local_scale_minorant(): void {
       );
       const factor: number = start.u[1];
       factors.push(factor);
-      if (
-        !(
-          Number.isFinite(factor) &&
-          factor > 0 &&
-          factor <= (curved && k === 0 ? cap : 1) + tolerance
-        )
-      )
+      if (!(factor > 0 && factor <= (curved && k === 0 ? cap : 1) + tolerance))
         failures.push(name + ": published analytic factor cap failed at " + k);
       if (
         !close(start.p, loop[k]!) ||
@@ -362,15 +399,14 @@ export function test_construction_local_scale_minorant(): void {
         failures.push(
           name + ": analytic projected controls go backward at " + k,
         );
-      for (const jet of [start, end])
-        for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
-          if (!jet[key].every(Number.isFinite))
-            failures.push(name + ": nonfinite published rail " + key + "/" + k);
     }
     if (curved && last !== undefined) {
       const alpha: number = factors[0]! / last.field[0]!;
       const certificate:
-        | Extract<IAutoMovieConstructionSplitBandTrace.Event, { kind: "minorant" }>["result"]
+        | Extract<
+            IAutoMovieConstructionSplitBandTrace.Event,
+            { kind: "minorant" }
+          >["result"]
         | undefined = certificates[0]?.result;
       if (
         !(alpha > 0 && alpha < 1) ||

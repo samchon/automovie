@@ -8,12 +8,16 @@ import { sweepBranchedSkeleton } from "../internal/sweepBranchedSkeleton";
 import { throwsError } from "../internal/throwsError";
 
 /**
- * Volume-settled scales refuse overflow without partially publishing invalid pose scales.
+ * Volume-settled scales refuse overflow without partially publishing invalid
+ * pose scales.
  *
  * Scenarios:
  *
- * 1. The ordinary bent two-link arm activates a positive joint expansion, as independently volume-checked by the existing volume cases.
- * 2. A finite maximum girth factor fits the rest scale but overflows when multiplied by that expansion; the pose refuses and preserves the prior finite scale buffer.
+ * 1. The ordinary bent two-link arm activates a positive joint expansion, as
+ *    independently volume-checked by the existing volume cases.
+ * 2. A finite maximum girth factor fits the rest scale but overflows when
+ *    multiplied by that expansion; the pose refuses and preserves the prior
+ *    finite scale buffer.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Cold-compiles and poses the real volume-preserving rig, then applies the real girth setter and poses again. An unchecked final multiply returns Infinity, while partial publication changes the retained scale buffer despite refusal.
  * @evidence contracts/development/testing.md#independent-expectations Rest scale 1 times the finite maximum is representable, but any expansion above 1 overflows it. The bend loses swept volume before the joint correction, so its restoration requires expansion; existing volume tests own the independent volume measurement and correction magnitude.
@@ -65,7 +69,7 @@ export function test_geometry_sweep_pose_numeric_admission(): void {
   rig.pose(motion);
   TestValidator.predicate(
     "the ordinary bent joint has an active finite expansion",
-    Number.isFinite(rig.scales[0]!) && rig.scales[0]! > 1,
+    rig.scales[0]! > 1,
   );
   rig.girth((): number => Number.MAX_VALUE);
   const before: Float64Array = rig.scales.slice();

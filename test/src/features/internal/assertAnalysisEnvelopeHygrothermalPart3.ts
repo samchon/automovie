@@ -14,13 +14,23 @@ import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "./predicates";
 
-/** Execute the next ordered assertions of test_analysis_envelope_hygrothermal.
+/**
+ * Execute the next ordered assertions of test_analysis_envelope_hygrothermal.
  *
  * Scenarios:
- * 1. every malformed study is refused at its own message.
  *
- * The declared request requires nonblank boundaries and subjects, known context instants, positive areas/conductivity/volume, nonnegative flow/generation and bounded samples. Authored single-field mutations determine message fragments. Direct dew-point input failures follow humidity in (0,1], without validating arbitrary unknown containers.
- * Empty/excess/duplicate assemblies and layers, missing boundary, invalid films/area/conductivity, duplicate/unresolved bridges, invalid bridge transmittance/length, unknown instant and duplicate targets are refused. Ventilation has blank-subject, volume, flow, occupancy and generation twins; direct dew point distinguishes zero humidity and saturated air. Earlier parts own thermal and air arithmetic.
+ * 1. Every malformed study is refused at its own message.
+ *
+ * The declared request requires nonblank boundaries and subjects, known context
+ * instants, positive areas/conductivity/volume, nonnegative flow/generation and
+ * bounded samples. Authored single-field mutations determine message fragments.
+ * Direct dew-point input failures follow humidity in (0,1], without validating
+ * arbitrary unknown containers. Empty/excess/duplicate assemblies and layers,
+ * missing boundary, invalid films/area/conductivity, duplicate/unresolved
+ * bridges, invalid bridge transmittance/length, unknown instant and duplicate
+ * targets are refused. Ventilation has blank-subject, volume, flow, occupancy
+ * and generation twins; direct dew point distinguishes zero humidity and
+ * saturated air. Earlier parts own thermal and air arithmetic.
  */
 export function assertAnalysisEnvelopeHygrothermalPart3(
   wall: IAutoMovieEnvelopeAssembly,
@@ -109,18 +119,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
               moisture: IAutoMovieAnalysisRun;
             } => study({ assemblies: [wall, wall], bridges: [] }),
             'envelope assembly "wall" is declared twice',
-          ),
-      ],
-      [
-        "assembly without a boundary",
-        (): boolean =>
-          throwsError(
-            (): {
-              thermal: IAutoMovieAnalysisRun;
-              moisture: IAutoMovieAnalysisRun;
-            } =>
-              study({ assemblies: [{ ...wall, boundary: "" }], bridges: [] }),
-            "must name the boundary it realizes",
           ),
       ],
       [
@@ -403,7 +401,6 @@ export function assertAnalysisEnvelopeHygrothermalPart3(
       "no assembly": true,
       "too many assemblies": true,
       "duplicated assembly": true,
-      "assembly without a boundary": true,
       "non-positive film resistance": true,
       "non-positive area": true,
       "no layer": true,

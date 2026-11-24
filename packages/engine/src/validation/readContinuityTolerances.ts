@@ -26,9 +26,9 @@ export const readContinuityTolerances: (
 ): IAutoMovieContinuityTolerances | null => {
   const pos: number = position ?? DEFAULT_POSITION_TOLERANCE;
   const facing: number = facingDeg ?? DEFAULT_FACING_TOLERANCE_DEG;
-  const badPos: boolean = !Number.isFinite(pos) || pos < 0;
+  const badPos: boolean = pos < 0;
   const badFacing: boolean =
-    !Number.isFinite(facing) || facing < 0 || facing > 180;
+    facing < 0 || facing > 180;
   if (badPos)
     collector.push(
       "range",

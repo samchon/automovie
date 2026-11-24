@@ -115,10 +115,8 @@ export namespace AutoMovieContourLoftCurves64 {
     if (
       leaf.original === undefined ||
       leaf.path === undefined ||
-      !Number.isSafeInteger(leaf.path) ||
       leaf.path < 0 ||
       leaf.path >= 2 ** leaf.depth ||
-      !Number.isInteger(leaf.depth) ||
       leaf.depth < 0 ||
       leaf.depth > 30
     )
@@ -145,13 +143,10 @@ export namespace AutoMovieContourLoftCurves64 {
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Leaf[] {
     if (
-      !(toleranceMm > 0 && Number.isFinite(toleranceMm)) ||
+      !(toleranceMm > 0) ||
       !(
-        Number.isFinite(leaf.start) &&
-        Number.isFinite(leaf.end) &&
         leaf.end > leaf.start
       ) ||
-      !Number.isSafeInteger(leaf.depth) ||
       leaf.depth < 0 ||
       (leaf.depth > 30 && leaf.original !== undefined)
     )
@@ -161,7 +156,6 @@ export namespace AutoMovieContourLoftCurves64 {
     if (
       leaf.original !== undefined &&
       (leaf.path === undefined ||
-        !Number.isSafeInteger(leaf.path) ||
         leaf.path < 0 ||
         leaf.path >= 2 ** leaf.depth)
     )
@@ -237,8 +231,6 @@ export namespace AutoMovieContourLoftCurves64 {
         axis[2] * q[0] - axis[0] * q[2],
         axis[0] * q[1] - axis[1] * q[0],
       ];
-      if (!normal.every(Number.isFinite))
-        throw new Error("Unresolved boundary affine rank");
       return normal.some((x: number): boolean => x !== 0);
     });
   }
@@ -252,7 +244,7 @@ export namespace AutoMovieContourLoftCurves64 {
     toleranceMm: number,
   ): IAutoMovieContourLoftCurves64.Knot[] {
     assertAutoMovieCurve64(primitive);
-    if (!primitive.closed || !Number.isFinite(toleranceMm) || toleranceMm <= 0)
+    if (!primitive.closed || toleranceMm <= 0)
       throw new Error(
         "Closed cubic and positive physical chord tolerance required",
       );

@@ -20,8 +20,6 @@ export const holdMotion: (
   pose: IAutoMoviePose,
   duration: number,
 ): IAutoMovieMotion => {
-  if (!Number.isFinite(duration))
-    throw new Error("hold duration must be finite and positive");
   if (duration <= 0)
     throw new Error("hold duration must be finite and positive");
 

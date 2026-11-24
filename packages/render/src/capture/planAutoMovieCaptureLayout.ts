@@ -58,7 +58,7 @@ export function planAutoMovieCaptureLayout(
     count,
     group: props.group,
   }))
-    if (!(Number.isSafeInteger(value) && value > 0))
+    if (!(value > 0))
       throw new Error(
         `A capture layout's ${key} ${value} is not a positive whole number`,
       );

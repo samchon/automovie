@@ -25,7 +25,6 @@ export function RecoveryChartAreaObservations(
   input: Parameters<IAutoMovieRecoveryChartAreaObservations.Operation>[0],
 ): ReturnType<IAutoMovieRecoveryChartAreaObservations.Operation> {
   if (
-    !Number.isSafeInteger(input.maxObservations) ||
     input.maxObservations < 49 ||
     input.parameters.length !== input.verticesMm.length
   )
@@ -34,10 +33,7 @@ export function RecoveryChartAreaObservations(
     );
   if (
     input.physicalGradientLengthMm !== undefined &&
-    !(
-      input.physicalGradientLengthMm >= 0 &&
-      Number.isFinite(input.physicalGradientLengthMm)
-    )
+    !(input.physicalGradientLengthMm >= 0)
   )
     throw new Error(
       "The physical-gradient exchange length must be finite and nonnegative",
@@ -47,10 +43,7 @@ export function RecoveryChartAreaObservations(
       knots.length < 2 ||
       knots[0] !== 0 ||
       knots.at(-1) !== 1 ||
-      knots.some(
-        (x: number, i: number): boolean =>
-          !Number.isFinite(x) || (i > 0 && x <= knots[i - 1]!),
-      )
+      knots.some((x: number, i: number): boolean => i > 0 && x <= knots[i - 1]!)
     )
       throw new Error("Increasing unit-chart tensor knots are required");
   const rectangles: readonly (readonly [number, number, number, number])[] =
@@ -72,7 +65,6 @@ export function RecoveryChartAreaObservations(
     rectangles.some(
       (r: readonly number[]): boolean =>
         r.length !== 4 ||
-        !r.every(Number.isFinite) ||
         !(
           0 <= r[0]! &&
           r[0]! < r[1]! &&
@@ -192,17 +184,11 @@ export function RecoveryChartAreaObservations(
     maximumRelativeAreaDiscrepancy: number = 0;
   for (const triangle of input.triangles) {
     const source: Vertex[] = triangle.map((id: number): Vertex => {
-      if (!Number.isSafeInteger(id) || id < 0 || id >= input.verticesMm.length)
+      if (id < 0 || id >= input.verticesMm.length)
         throw new Error("Private source triangle address is invalid");
       const uv: readonly number[] = input.parameters[id]!,
         point: Readonly<AutoMovieVector3Tuple> = input.verticesMm[id]!;
-      if (
-        uv.length !== 2 ||
-        uv.some(
-          (x: number): boolean => !Number.isFinite(x) || x < 0 || x > 1,
-        ) ||
-        point.some((x: number): boolean => !Number.isFinite(x))
-      )
+      if (uv.length !== 2 || uv.some((x: number): boolean => x < 0 || x > 1))
         throw new Error("Finite unit-chart source observations are required");
       return { uv: [uv[0]!, uv[1]!], point };
     });
@@ -216,7 +202,7 @@ export function RecoveryChartAreaObservations(
       source[1]!.point,
       source[2]!.point,
     );
-    if (!(determinant > 0 && sourceArea > 0 && Number.isFinite(sourceArea)))
+    if (!(determinant > 0 && sourceArea > 0))
       throw new Error(
         "Positive private UV and physical source triangles are required for area fitting",
       );
@@ -259,7 +245,7 @@ export function RecoveryChartAreaObservations(
           c: Vertex = polygon[k + 1]!;
         const childArea: number = area(a.point, b.point, c.point);
         if (childArea === 0) continue;
-        if (!(childArea > 0 && Number.isFinite(childArea)))
+        if (!(childArea > 0))
           throw new Error("Clipped observation area is not representable");
         if (observations.length + 49 > input.maxObservations)
           throw new Error(
@@ -289,7 +275,7 @@ export function RecoveryChartAreaObservations(
             ) as [number, number, number];
             const weight: number =
               2 * childArea * x * weights[r]! * weights[s]!;
-            if (!(weight > 0 && Number.isFinite(weight)))
+            if (!(weight > 0))
               throw new Error(
                 "A positive source-area quadrature weight is not representable",
               );
@@ -313,11 +299,7 @@ export function RecoveryChartAreaObservations(
       Math.abs(retainedArea - sourceArea) / sourceArea,
     );
   }
-  if (
-    !observations.length ||
-    !Number.isFinite(sourceAreaMm2) ||
-    !Number.isFinite(integratedAreaMm2)
-  )
+  if (!observations.length)
     throw new Error("Finite positive source-area coverage is required");
   return {
     observations,

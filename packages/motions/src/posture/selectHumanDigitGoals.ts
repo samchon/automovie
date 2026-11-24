@@ -6,7 +6,6 @@ import type {
   IAutoMovieHumanDigitGoal,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanDigitFit } from "./HumanDigitFit";
@@ -14,7 +13,8 @@ import { HumanPosture } from "./HumanPosture";
 
 /**
  * Select independent world digit goals that can change requested bone frames.
- * Attached, malformed or unsupported goals keep the complete original request.
+ * Attached, contact or unsupported goals keep the complete original request;
+ * an attached goal can depend on another fitted digit and keeps the order.
  * The body is the unchanged canonical producer's rig/surface snapshot.
  */
 export function selectHumanDigitGoals(
@@ -23,8 +23,6 @@ export function selectHumanDigitGoals(
   requested: ReadonlySet<AutoMovieHumanoidBone>,
 ): NonNullable<IAutoMovieMotionHumanPosture["digits"]> {
   try {
-    if (Object.keys(digits).some((name: string): boolean => !NAMES.has(name)))
-      return digits;
     const byName: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
     for (const bone of body.skeleton.bones) byName.set(bone.bone, bone);
     const ancestors: Set<AutoMovieHumanoidBone> = new Set();
@@ -45,12 +43,10 @@ export function selectHumanDigitGoals(
       const goal: IAutoMovieHumanDigitGoal | undefined = digits[digit];
       if (goal === undefined) continue;
       if (
-        !Object.keys(goal).every((key: string): boolean => FIELDS.has(key)) ||
-        (goal.surface !== "tip" && goal.surface !== "pad") ||
-        !finite(goal.point) ||
+        goal.on !== undefined ||
+        goal.contact !== undefined ||
         (goal.normal !== undefined &&
-          (!finite(goal.normal) ||
-            Math.hypot(goal.normal.x, goal.normal.y, goal.normal.z) === 0))
+          Math.hypot(goal.normal.x, goal.normal.y, goal.normal.z) === 0)
       )
         return digits;
       const side: AutoMovieHumanSide = digit.startsWith("left")
@@ -76,9 +72,7 @@ export function selectHumanDigitGoals(
         body.surfaces.regions[key];
       if (
         region === undefined ||
-        !body.topology.reachableBones.has(region.bone) ||
-        !finite(region.point) ||
-        !finite(region.normal)
+        !body.topology.reachableBones.has(region.bone)
       )
         return digits;
       if (
@@ -95,23 +89,3 @@ export function selectHumanDigitGoals(
   }
 }
 
-/**
- * Finite scalar world/local geometry is required before omitting a numerical
- * fit.
- */
-function finite(point: IAutoMovieVector3): boolean {
-  return (
-    Number.isFinite(point.x) &&
-    Number.isFinite(point.y) &&
-    Number.isFinite(point.z)
-  );
-}
-
-/** Unknown raw names conservatively preserve the original full digit reader. */
-const NAMES: ReadonlySet<string> = new Set(HumanPosture.DIGITS);
-
-/**
- * An on attachment can depend on another fitted digit and therefore keeps the
- * original order.
- */
-const FIELDS: ReadonlySet<string> = new Set(["point", "normal", "surface"]);

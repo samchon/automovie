@@ -42,9 +42,8 @@ export function planAutoMovieVideoEncoding(
     props.spec.frameFormat;
   const frameCount: number = props.durationSeconds * fps;
   if (
-    !(Number.isFinite(fps) && fps > 0) ||
-    !(Number.isFinite(props.durationSeconds) && props.durationSeconds > 0) ||
-    !Number.isSafeInteger(frameCount) ||
+    !(fps > 0) ||
+    !(props.durationSeconds > 0) ||
     frameCount < 1 ||
     frameCount > MAXIMUM_FRAMES
   )
@@ -53,8 +52,7 @@ export function planAutoMovieVideoEncoding(
     );
   if (
     ![width, height].every(
-      (size: number): boolean =>
-        Number.isSafeInteger(size) && size > 0 && size % 2 === 0,
+      (size: number): boolean => size > 0 && size % 2 === 0,
     )
   )
     throw new Error(

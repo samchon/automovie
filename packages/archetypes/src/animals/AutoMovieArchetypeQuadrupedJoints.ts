@@ -214,17 +214,8 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
     const frame: IAutoMovieTransform = part.transform;
     if (
       ![shape.height, shape.radius].every(
-        (value: number): boolean => Number.isFinite(value) && value > 0,
+        (value: number): boolean => value > 0,
       ) ||
-      ![
-        frame.translation.x,
-        frame.translation.y,
-        frame.translation.z,
-        frame.rotation.x,
-        frame.rotation.y,
-        frame.rotation.z,
-        frame.rotation.w,
-      ].every(Number.isFinite) ||
       frame.scale.x !== 1 ||
       frame.scale.y !== 1 ||
       frame.scale.z !== 1
@@ -260,10 +251,7 @@ export namespace AutoMovieArchetypeQuadrupedJoints {
       to.y - from.y,
       to.z - from.z,
     );
-    if (
-      !(Number.isFinite(length) && length > 0) ||
-      ![from.x, from.y, from.z, to.x, to.y, to.z].every(Number.isFinite)
-    )
+    if (!(length > 0))
       throw new RangeError(
         `Quadruped ${part.id} axis is not finitely representable`,
       );

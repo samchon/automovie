@@ -66,24 +66,17 @@ export function flyPerformanceFlight(
   const t1: number = segment.start + declared.to * plan.duration;
   const evaluation: prepareHumanSegmentPose.IPrepared =
     prepareHumanSegmentPose(body);
-  // These mass-bearing frames are consumed by the flight before its turn
-  // invalidates every displayed pose. Other scene readers own their full pose.
+  // A person with no overlay, hold or stop shows the jump's own articulation.
   const isolated: boolean =
     person.overlays.length === 0 &&
     person.holds.length === 0 &&
     person.stops.size === 0;
+  // The mass-bearing frames alone, read before the flight's turn changes the
+  // displayed pose.
   const unturned: (seconds: number) => IAutoMoviePose = (
     seconds: number,
   ): IAutoMoviePose =>
-    isolated
-      ? HumanSegmentShown(person, seconds, requested, evaluation, false).pose
-      : HumanPerformanceRead.pose(
-          self,
-          subject,
-          seconds,
-          requested,
-          evaluation,
-        );
+    HumanSegmentShown(person, seconds, requested, evaluation);
   const readResolution: prepareHumanSegmentPose.IPrepared["resolution"] =
     evaluation.resolution;
   const root: (pose: IAutoMoviePose) => IAutoMovieQuaternion = (

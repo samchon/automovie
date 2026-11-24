@@ -171,9 +171,6 @@ const resolvePanel: (
 ): IResolvedPanel => {
   const u: IAutoMovieVector3 = unitAxis(frame.u, `${label} u`);
   const v: IAutoMovieVector3 = unitAxis(frame.v, `${label} v`);
-  finiteVector(frame.origin, `${label} origin`);
-  if (!Number.isFinite(anchor.u) || !Number.isFinite(anchor.v))
-    throw new Error(`${label} anchor must be finite`);
   if (Math.abs(Vector3.dot(u, v)) > 1e-6)
     throw new Error(`${label} axes must be perpendicular`);
   return { anchor, origin: frame.origin, u, v, normal: Vector3.cross(u, v) };
@@ -187,17 +184,9 @@ const unitAxis: (
   axis: IAutoMovieVector3,
   label: string,
 ): IAutoMovieVector3 => {
-  finiteVector(axis, label);
   if (Math.abs(Vector3.length(axis) - 1) > 1e-6)
     throw new Error(`${label} must be a unit vector`);
   return axis;
 };
 
 /** Refuse a vector with a non-finite component. */
-const finiteVector: (value: IAutoMovieVector3, label: string) => void = (
-  value: IAutoMovieVector3,
-  label: string,
-): void => {
-  if (![value.x, value.y, value.z].every(Number.isFinite))
-    throw new Error(`${label} must be finite`);
-};

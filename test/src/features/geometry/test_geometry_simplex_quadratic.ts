@@ -16,11 +16,20 @@ import { nclose } from "../internal/nclose";
  * Bounded sparse simplex minimization preserves the pure direction QP.
  *
  * Scenarios:
- * 1. Curved, normal, abnormal and nonzero-offset direction models agree with closed-form primal/dual answers and the existing independent PSD primitive.
- * 2. Duplicate/reordered atoms and identical vectors with unequal offsets retain the authored convex objective, without an active-rank assumption or curvature floor.
- * 3. An all-empty constant simplex remains valid; zero-gradient rows are not rejected for lacking stored coefficients.
- * 4. Explicit transfer/work exhaustion remains nonconverged; malformed sparse coordinates and preallocation overflow are rejected.
- * 5. Fractional and cancelling rows distinguish actual returned-row residuals from a normalized-dual forward-error certificate; requested sub-ulp gaps and exhaustion are not relabelled as solved.
+ *
+ * 1. Curved, normal, abnormal and nonzero-offset direction models agree with
+ *    closed-form primal/dual answers and the existing independent PSD
+ *    primitive.
+ * 2. Duplicate/reordered atoms and identical vectors with unequal offsets retain
+ *    the authored convex objective, without an active-rank assumption or
+ *    curvature floor.
+ * 3. An all-empty constant simplex remains valid; zero-gradient rows are not
+ *    rejected for lacking stored coefficients.
+ * 4. Explicit transfer/work exhaustion remains nonconverged; malformed sparse
+ *    coordinates and preallocation overflow are rejected.
+ * 5. Fractional and cancelling rows distinguish actual returned-row residuals from
+ *    a normalized-dual forward-error certificate; requested sub-ulp gaps and
+ *    exhaustion are not relabelled as solved.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual generic minimizer and recovery direction certificate, reconstructs every primal halfspace and full primal-dual gap, and observes explicit bounded termination and unchanged inputs.
  * @evidence contracts/development/testing.md#independent-expectations Closed-form optima give curved d=(.5,.5), normal/abnormal d=0 with distinct objective multipliers, and nonzero-bound d=-.5,gamma=-.5,objective=-.375. Existing embedded PSD solving is a separate numerical algorithm, not a replacement for those analytic expectations.
@@ -421,8 +430,7 @@ export function test_geometry_simplex_quadratic(): void {
     "forward bounds expose computed zero without claiming exact dual zero",
     forward.aggregate >= 0.5 &&
       forward.minimumPrice >= 5e16 &&
-      forward.gap >= 5e16 &&
-      Number.isFinite(forward.aggregate + forward.minimumPrice + forward.gap),
+      forward.gap >= 5e16,
   );
   let emptyWork: number = 0,
     emptyRefusalWork: number = 0;

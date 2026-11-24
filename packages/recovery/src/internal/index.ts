@@ -147,7 +147,6 @@ export * from "./prepareRecoverySceneReportCapacity";
 export * from "./projectRecoveryMapPoint";
 export * from "./readRecoveryEventCurveControls";
 export * from "./readRecoveryEventCurveParent";
-export * from "./readRecoveryMetadata";
 export * from "./rebindRecoveryCurveAuthorities";
 export * from "./reconstructRecovery";
 export * from "./reconstructRecoveryOpen";

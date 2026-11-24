@@ -46,10 +46,12 @@ export function handToFaceArm(
   // the drinker drinks: each read once, since over a carrier a read
   // resolves the posture.
   const at: Pick<IAutoMovieMotionHumanTarget.IPlace, OfAt> = place(atFace, 0);
-  let after: IAutoMovieMotionHumanTouchDrink.IAfter | undefined;
+  const drinks: boolean = props.upright && (own !== null || props.drink === undefined);
+  const after: IAutoMovieMotionHumanTouchDrink.IAfter | undefined = drinks
+    ? { posture: turned, place: place(turned, 0) }
+    : undefined;
   const drinking: () => IAutoMovieMotionHumanTouchDrink.IAfter =
-    (): IAutoMovieMotionHumanTouchDrink.IAfter =>
-      (after ??= { posture: turned, place: place(turned, 0) });
+    (): IAutoMovieMotionHumanTouchDrink.IAfter => after!;
   const vessel: IAutoMovieMotionHumanTouchDrink.IDrink | undefined =
     props.drink ??
     (props.upright && own === null

@@ -35,7 +35,7 @@ export function selectAutoMovieTriangleRegion(
 ): number[] {
   const { indices, boundary }: typeof props = props;
   const invalidIndex: (index: number) => boolean = (index: number): boolean =>
-    !Number.isInteger(index) || index < 0;
+    index < 0;
   if (
     indices.length % 3 !== 0 ||
     boundary.length < 3 ||

@@ -61,10 +61,6 @@ export const sampleFluidSpray: (
       `fluid domain "${domain.id}" cannot sample spray from a state of "${state.domain}"`,
     );
   const cameraDistance: number = props.cameraDistance ?? 0;
-  if (!Number.isFinite(cameraDistance))
-    throw new Error(
-      `fluid domain "${domain.id}" cannot sample spray at a non-finite camera distance`,
-    );
   const time: number = state.time;
   const particles: IAutoMovieFluidSprayParticle[] = [];
   for (const spray of domain.sprays)

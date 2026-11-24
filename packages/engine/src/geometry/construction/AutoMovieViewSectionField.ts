@@ -67,8 +67,6 @@ export namespace AutoMovieViewSectionField {
   ): IAutoMovieViewSectionField.IRadialJet | IAutoMovieConicArcField.IFailure {
     const fault: string | null = AutoMovieViewSectionReading.validate(prepared);
     if (fault !== null) return failure(fault);
-    if (!Number.isFinite(phi))
-      return failure("The section field requires a finite polar phase.");
     const ray: IAutoMovieViewConic.IRay | null = AutoMovieViewConic.read(
       prepared.geometry,
       phi,
@@ -108,7 +106,5 @@ function failure(detail: string): IAutoMovieConicArcField.IFailure {
 function stationJet(
   value: unknown,
 ): value is IAutoMovieViewSectionField.IStationJet {
-  return (
-    Array.isArray(value) && value.length === 3 && value.every(Number.isFinite)
-  );
+  return Array.isArray(value) && value.length === 3;
 }

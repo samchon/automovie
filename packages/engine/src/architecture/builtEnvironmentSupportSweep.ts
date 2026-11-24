@@ -80,15 +80,11 @@ export const builtEnvironmentSupportSweep: (
   props: IAutoMovieBuiltEnvironmentSupportSweep.IProps,
 ): IAutoMovieBuiltSupportSweepReport => {
   const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
     );
   const groundY: number = props.groundY ?? 0;
-  if (!Number.isFinite(groundY))
-    throw new RangeError(
-      `building ground height must be finite, but was ${String(groundY)}`,
-    );
 
   const {
     resolved,

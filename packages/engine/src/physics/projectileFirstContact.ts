@@ -72,23 +72,17 @@ export function projectileFirstContact(
   span: IAutoMovieProjectileFirstContact.ISpan,
   options: IAutoMovieProjectileFirstContact.IOptions,
 ): IAutoMovieHit | null {
-  if (
-    !(
-      Number.isFinite(span.from) &&
-      Number.isFinite(span.to) &&
-      span.to > span.from
-    )
-  )
+  if (span.to <= span.from)
     throw new RangeError(
-      `projectile contact span ${span.from} to ${span.to} is not finite and forward`,
+      `projectile contact span ${span.from} to ${span.to} is not forward`,
     );
-  if (!(Number.isFinite(options.thickness) && options.thickness > 0))
+  if (options.thickness <= 0)
     throw new RangeError(
-      `projectile contact thickness must be finite and positive, but was ${options.thickness}`,
+      `projectile contact thickness must be positive, but was ${options.thickness}`,
     );
-  if (!(Number.isFinite(options.radius) && options.radius >= 0))
+  if (options.radius < 0)
     throw new RangeError(
-      `projectile contact radius must be finite and non-negative, but was ${options.radius}`,
+      `projectile contact radius must be non-negative, but was ${options.radius}`,
     );
   if (options.tail !== undefined && projectile.attitude === undefined)
     throw new RangeError(

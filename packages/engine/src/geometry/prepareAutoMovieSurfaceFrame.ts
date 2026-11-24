@@ -21,37 +21,18 @@ export function prepareAutoMovieSurfaceFrame(
   points: readonly IAutoMovieVector3[],
   referenceNormal?: IAutoMovieVector3,
 ): IAutoMoviePreparedSurfaceFrame {
-  if (
-    points.length !== 3 ||
-    points.some(
-      (point: IAutoMovieVector3): boolean =>
-        ![point.x, point.y, point.z].every(Number.isFinite),
-    )
-  )
-    throw new Error(
-      "Surface preparation requires exactly three finite points.",
-    );
+  if (points.length !== 3)
+    throw new Error("Surface preparation requires exactly three points.");
 
   const first: IAutoMovieVector3 = Vector3.subtract(points[1], points[0]);
   const second: IAutoMovieVector3 = Vector3.subtract(points[2], points[0]);
-  if (
-    ![first.x, first.y, first.z, second.x, second.y, second.z].every(
-      Number.isFinite,
-    )
-  )
-    throw new Error("Surface point differences exceed finite coordinates.");
 
   let normal: IAutoMovieVector3 = Vector3.cross(
     Vector3.normalize(first),
     Vector3.normalize(second),
   );
   if (referenceNormal !== undefined) {
-    if (
-      ![referenceNormal.x, referenceNormal.y, referenceNormal.z].every(
-        Number.isFinite,
-      ) ||
-      Vector3.length(referenceNormal) === 0
-    )
+    if (Vector3.length(referenceNormal) === 0)
       throw new Error("Surface reference normal must be finite and nonzero.");
 
     const alignment: number = Vector3.dot(
@@ -82,8 +63,6 @@ export function prepareAutoMovieSurfaceFrame(
         y: Vector3.dot(delta, basis.y),
         z: Vector3.dot(delta, basis.normal),
       };
-      if (![offset.x, offset.y, offset.z].every(Number.isFinite))
-        throw new Error("Surface offsets exceed finite coordinates.");
       return Object.freeze(offset);
     },
   );

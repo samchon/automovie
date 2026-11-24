@@ -116,14 +116,6 @@ function planSwimImmersed(
         direction,
         waterAtShape,
       );
-    if (!Number.isFinite(trajectory.at(1).x[0]!))
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "water.density",
-        value: density,
-        reason: "the stroke has no finite path at this density",
-        fix: "use a medium with an admissible density for this body",
-      });
     return {
       duration,
       events: keys.events,
@@ -159,7 +151,8 @@ function planSwimImmersed(
     const t: number = Math.max(0, Math.min(duration, seconds));
     return k === 0 ? speed * t : Math.log1p(k * speed * t) / k;
   };
-  if (!Number.isFinite(distanceAt(duration)))
+  // The logarithm's argument must stay positive: 1 + k v t > 0.
+  if (k !== 0 && !(k * speed * Math.max(0, duration) > -1))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "speed",

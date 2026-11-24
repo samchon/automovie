@@ -17,13 +17,10 @@ export function sampleContactSurfaceResponse(
   input: IAutoMovieSampleContactSurfaceResponse.IInput,
 ): number {
   if (
-    !Number.isFinite(input.seconds) ||
     input.seconds < 0 ||
-    !(input.radius > 0) ||
-    !Number.isFinite(input.radius) ||
-    !(input.weightPerImpulse >= 0) ||
-    !Number.isFinite(input.weightPerImpulse) ||
-    !(input.decaySeconds > 0)
+    input.radius <= 0 ||
+    input.weightPerImpulse < 0 ||
+    input.decaySeconds <= 0
   )
     throw new Error("Invalid contact surface response time, radius or weights");
   let weight: number = 0;
@@ -37,7 +34,7 @@ export function sampleContactSurfaceResponse(
         event.source === "solver"
           ? event.impulse!
           : input.geometricImpulses[receipt.id];
-      if (impulse === undefined || !Number.isFinite(impulse) || impulse < 0)
+      if (impulse === undefined || impulse < 0)
         throw new Error(
           `Surface response requires an impulse for ${receipt.id}`,
         );

@@ -40,7 +40,7 @@ export const describeAutoMovieSubject: (
   props?: IAutoMovieDescribeSubject.IProps,
 ): IAutoMovieSubjectDescription => {
   const memberOffset: number = props?.memberOffset ?? 0;
-  if (Number.isSafeInteger(memberOffset) === false || memberOffset < 0)
+  if (memberOffset < 0)
     throw new Error(
       `Subject member offset must be a whole number of members from the first, but was ${memberOffset}.`,
     );

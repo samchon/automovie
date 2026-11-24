@@ -90,7 +90,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
       order === undefined
         ? curve.evaluate(t)
         : curve.derivative(t, order, side);
-    if (p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1]))
+    if (p.length !== 2)
       throw new Error(
         `Nonfinite source ${order === undefined ? "point" : "derivative"} at parameter ${t}.`,
       );
@@ -285,10 +285,9 @@ export function approximateAutoMovieRecoveryConicsAhn(
       p0[0] + startScale * first[0],
       p0[1] + startScale * first[1],
     ];
-    if (!p1.every(Number.isFinite)) return straight();
     const side: Readonly<AutoMovieVector2Tuple> = minus(p1, p0);
     const area: number = C.cross(side, chord);
-    if (area === 0 || !Number.isFinite(area)) return straight();
+    if (area === 0) return straight();
     const samples: Radial[] = [];
     let previousU: number = 0;
     for (let i: number = 1; i < 32; ++i) {
@@ -307,8 +306,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
         (b0 * p0[1] + b2 * p2[1]) / (b0 + b2),
       ];
       const idealWeight: number = b1 / (2 * root0 * root2);
-      if (!(idealWeight > 0) || !Number.isFinite(idealWeight))
-        return straight();
+      if (root0 === 0 || root2 === 0 || !(idealWeight > 0)) return straight();
       samples.push({ u, apex: b1, scale: C.distance(p1, base), idealWeight });
     }
 
@@ -349,8 +347,7 @@ export function approximateAutoMovieRecoveryConicsAhn(
         Math.max(error, Math.abs(residual(sample, weight))),
       0,
     );
-    if (!Number.isFinite(maximum) || !Number.isFinite(weight) || weight <= 0)
-      return straight();
+    if (weight <= 0) return straight();
     return {
       domain: [interval.a, interval.b],
       controls: [p0, p1, p2],

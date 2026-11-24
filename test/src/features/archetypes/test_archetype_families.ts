@@ -1,14 +1,33 @@
 import * as archetypes from "@automovie/archetypes";
 import { ARCHETYPE_FAMILIES } from "@automovie/archetypes";
-import manifest from "@automovie/archetypes/package.json";
 import { TestValidator } from "@nestia/e2e";
+import fs from "node:fs";
+import path from "node:path";
+
+import { repositoryRoot } from "../internal/repositoryRoot";
+
+/** What the test reads of the archetypes package's manifest. */
+interface IManifest {
+  /** The source export map, by subpath. */
+  exports: Record<string, unknown>;
+
+  /** The published configuration. */
+  publishConfig: {
+    /** The published export map, by subpath. */
+    exports: Record<string, unknown>;
+  };
+}
 
 /**
- * The package exports its model families and a separate environment authoring entry.
+ * The package exports its model families and a separate environment authoring
+ * entry.
  *
  * Scenarios:
- * 1. The families, root, manifest and environment authoring entry account for every source and published export path.
- * 2. Every `create*` function the root exports is held by exactly one family, and every producer a family holds is the root's own export.
+ *
+ * 1. The families, root, manifest and environment authoring entry account for
+ *    every source and published export path.
+ * 2. Every `create*` function the root exports is held by exactly one family, and
+ *    every producer a family holds is the root's own export.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the family table, the root module and the manifest's source and published export maps.
  * @evidence contracts/development/testing.md#independent-expectations The manifest declares the paths independently of the table, and the root's naming rule identifies all of its model producers.
@@ -16,7 +35,14 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership A unit test over module exports, discovered by its exported name; it builds no model and starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two scenarios and what each pins.
  */
-export function test_archetype_families(): void {
+export async function test_archetype_families(): Promise<void> {
+  // The package's manifest, read from its file rather than imported.
+  const manifest: IManifest = JSON.parse(
+    await fs.promises.readFile(
+      path.join(repositoryRoot(), "packages/archetypes/package.json"),
+      "utf8",
+    ),
+  );
   const byName: (a: string, b: string) => number = (
     a: string,
     b: string,

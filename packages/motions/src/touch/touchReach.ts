@@ -65,15 +65,11 @@ export namespace touchReach {
     laid: touchHold.Lay,
   ): number {
     let longest: number = 0;
-    let resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined;
-    let projection:
-      | ReturnType<typeof prepareHumanPostureProjection>
-      | undefined;
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution();
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
     for (const [side, target] of hands) {
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        (resolution ??= prepareHumanPoseResolution());
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        (projection ??= prepareHumanPostureProjection(body));
       longest = Math.max(
         longest,
         laidReach(

@@ -60,17 +60,6 @@ export namespace AutoMovieViewAxisJet {
           jet.second[key][k]! * inverse[0] * inverse[0] +
           jet.first[key][k]! * inverse[1];
       }
-    if (
-      ![
-        ...first.origin,
-        ...first.u,
-        ...first.v,
-        ...second.origin,
-        ...second.u,
-        ...second.v,
-      ].every(Number.isFinite)
-    )
-      return null;
     return { value: jet.value, first, second };
   }
 }

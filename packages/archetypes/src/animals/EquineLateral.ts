@@ -148,10 +148,7 @@ export namespace EquineLateral {
     const to: number = plan.when(span.from + span.span);
     if (leg.reverse === true || (leg.rise ?? 0) !== 0)
       refuse("A lateral figure needs a level forward leg");
-    if (
-      !(Number.isFinite(technique.blend) && technique.blend > 0) ||
-      2 * technique.blend > to - from
-    )
+    if (!(technique.blend > 0) || 2 * technique.blend > to - from)
       refuse("The entry and the recovery must fit inside the leg");
     let yaw: number;
     if (technique.kind === "pirouette") {
@@ -182,13 +179,7 @@ export namespace EquineLateral {
           technique.toward === "left" ? centred.rightHind : centred.leftHind;
         yaw = -Math.atan2(fore.x - hind.x, fore.z - hind.z) * DEGREE;
       } else {
-        if (
-          !(
-            Number.isFinite(technique.angle) &&
-            technique.angle > 0 &&
-            technique.angle <= MAXIMUM
-          )
-        )
+        if (!(technique.angle > 0 && technique.angle <= MAXIMUM))
           refuse(`The angle must lie above 0 and at most ${MAXIMUM} degrees`);
         yaw = sign * technique.angle;
       }

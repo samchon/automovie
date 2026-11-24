@@ -340,11 +340,12 @@ export namespace AutoMovieMotionHumanAuditTangleModel {
   ): Float64Array {
     const probes: IAutoMovieVector3[] = m.parts[i]!.probes;
     const baseline: Float64Array = reference(m, i, j);
-    const now: Float64Array = (
-      targets === undefined
-        ? prepareAutoMovieMotionHumanAuditDepths(placed[j]!)
-        : (targets[j] ??= prepareAutoMovieMotionHumanAuditDepths(placed[j]!))
-    )(probes, placed[i]!, room);
+    const known: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> | undefined =
+      targets?.[j];
+    const depths: ReturnType<typeof prepareAutoMovieMotionHumanAuditDepths> =
+      known ?? prepareAutoMovieMotionHumanAuditDepths(placed[j]!);
+    if (targets !== undefined && known === undefined) targets[j] = depths;
+    const now: Float64Array = depths(probes, placed[i]!, room);
     for (let k: number = 0; k < now.length; k++)
       now[k] = now[k]! - baseline[k]!;
     return now;

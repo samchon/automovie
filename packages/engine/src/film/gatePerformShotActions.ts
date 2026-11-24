@@ -71,7 +71,7 @@ export function gatePerformShotActions(
           'camera aim lookahead requires a "follow" move',
           action.lookahead,
         );
-      else if (!Number.isFinite(action.lookahead) || action.lookahead < 0)
+      else if (action.lookahead < 0)
         context.out.push(
           "range",
           `${path}.lookahead`,
@@ -102,7 +102,7 @@ export function gatePerformShotActions(
       });
     if (
       action.focalLength !== undefined &&
-      (!Number.isFinite(action.focalLength) || !(action.focalLength > 0))
+      (!(action.focalLength > 0))
     )
       context.out.push(
         "range",
@@ -112,7 +112,7 @@ export function gatePerformShotActions(
       );
     if (
       action.fNumber !== undefined &&
-      (!Number.isFinite(action.fNumber) || !(action.fNumber > 0))
+      (!(action.fNumber > 0))
     )
       context.out.push(
         "range",
@@ -201,8 +201,7 @@ function gateTiming(
   path: string,
 ): void {
   const duration: number = context.performance.duration;
-  const finiteStart: boolean = Number.isFinite(action.start);
-  if (!finiteStart || action.start < 0 || action.start > duration)
+  if (action.start < 0 || action.start > duration)
     context.out.push(
       "range",
       `${path}.start`,
@@ -213,7 +212,7 @@ function gateTiming(
     // An "auto" duration fills to the shot end, so an action starting exactly
     // there has no span, and a zero-span coupling bakes duplicate key times
     // that throw when sampled. A later start is already a start violation.
-    if (finiteStart && action.start === duration)
+    if (action.start === duration)
       context.out.push(
         "range",
         `${path}.duration`,
@@ -221,8 +220,7 @@ function gateTiming(
         action.duration,
       );
   } else {
-    const finiteDuration: boolean = Number.isFinite(action.duration);
-    if (!finiteDuration || !(action.duration > 0))
+    if (action.duration <= 0)
       context.out.push(
         "range",
         `${path}.duration`,
@@ -230,8 +228,6 @@ function gateTiming(
         action.duration,
       );
     if (
-      finiteStart &&
-      finiteDuration &&
       action.start + action.duration > duration
     )
       context.out.push(
@@ -243,7 +239,7 @@ function gateTiming(
   }
   if (
     action.repeat !== undefined &&
-    (!Number.isInteger(action.repeat) || action.repeat < 1)
+    (action.repeat < 1)
   )
     context.out.push(
       "range",

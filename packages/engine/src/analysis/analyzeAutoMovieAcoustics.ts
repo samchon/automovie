@@ -382,7 +382,7 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   ] as const)
     if (value.trim().length === 0)
       throw new Error(`an acoustic study must state a non-blank ${label}`);
-  if (!Number.isFinite(request.volume) || request.volume <= 0)
+  if (request.volume <= 0)
     throw new Error(
       `a room volume must be a finite number above zero, but was ${request.volume}`,
     );
@@ -393,12 +393,11 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     if (surfaces.has(surface.id))
       throw new Error(`acoustic surface "${surface.id}" is declared twice`);
     surfaces.add(surface.id);
-    if (!Number.isFinite(surface.area) || surface.area <= 0)
+    if (surface.area <= 0)
       throw new Error(
         `acoustic surface "${surface.id}" area must be a finite number above zero, but was ${surface.area}`,
       );
     if (
-      !Number.isFinite(surface.absorption) ||
       surface.absorption < 0 ||
       surface.absorption > 1
     )
@@ -411,13 +410,9 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     if (partitions.has(partition.id))
       throw new Error(`acoustic partition "${partition.id}" is declared twice`);
     partitions.add(partition.id);
-    if (!Number.isFinite(partition.area) || partition.area <= 0)
+    if (partition.area <= 0)
       throw new Error(
         `acoustic partition "${partition.id}" area must be a finite number above zero, but was ${partition.area}`,
-      );
-    if (!Number.isFinite(partition.transmissionLoss))
-      throw new Error(
-        `acoustic partition "${partition.id}" transmission loss must be finite, but was ${partition.transmissionLoss}`,
       );
     if (partition.transmissionLoss < 0)
       throw new Error(
@@ -429,19 +424,10 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     if (sources.has(source.id))
       throw new Error(`acoustic source "${source.id}" is declared twice`);
     sources.add(source.id);
-    if (!Number.isFinite(source.soundPower))
-      throw new Error(
-        `acoustic source "${source.id}" sound power must be finite, but was ${source.soundPower}`,
-      );
-    if (!Number.isFinite(source.directivity) || source.directivity <= 0)
+    if (source.directivity <= 0)
       throw new Error(
         `acoustic source "${source.id}" directivity must be a finite number above zero, but was ${source.directivity}`,
       );
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(source.position[axis]))
-        throw new Error(
-          `acoustic source "${source.id}" position ${axis} must be finite, but was ${source.position[axis]}`,
-        );
   }
   if (request.receivers.length > AUTOMOVIE_ANALYSIS_MAX_SAMPLES)
     throw new Error(
@@ -452,11 +438,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     if (receivers.has(receiver.id))
       throw new Error(`acoustic receiver "${receiver.id}" is declared twice`);
     receivers.add(receiver.id);
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(receiver.position[axis]))
-        throw new Error(
-          `acoustic receiver "${receiver.id}" position ${axis} must be finite, but was ${receiver.position[axis]}`,
-        );
   }
   assertAutoMovieAnalysisTargets(request.targets);
 };

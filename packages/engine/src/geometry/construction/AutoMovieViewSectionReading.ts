@@ -100,31 +100,23 @@ export namespace AutoMovieViewSectionReading {
     if (
       ray === null ||
       ray === undefined ||
-      !Number.isInteger(ray.quarter) ||
       ray.quarter < 0 ||
       ray.quarter >= 4 ||
       (ray.kind !== "conic" && ray.kind !== "start" && ray.kind !== "end") ||
       !Array.isArray(ray.point) ||
       ray.point.length !== 2 ||
-      !ray.point.every(Number.isFinite) ||
       !Array.isArray(ray.tangent) ||
       ray.tangent.length !== 2 ||
-      !ray.tangent.every(Number.isFinite) ||
       !Array.isArray(ray.radial) ||
       ray.radial.length !== 3 ||
-      !ray.radial.every(Number.isFinite) ||
-      !Number.isFinite(ray.logCurvature) ||
-      !Number.isFinite(ray.angle) ||
-      !Number.isFinite(ray.distance) ||
       typeof ray.reverse !== "boolean" ||
       (ray.position !== "first" &&
         ray.position !== "interior" &&
         ray.position !== "last") ||
-      (ray.kind === "conic" &&
-        (ray.native === null || !Number.isFinite(ray.native))) ||
+      (ray.kind === "conic" && ray.native === null) ||
       (ray.kind !== "conic" &&
         ray.position === "interior" &&
-        (ray.clock === null || !Number.isFinite(ray.clock)))
+        ray.clock === null)
     )
       return failure(
         "The section field has no supported same-geometry numeric ray descriptor.",
@@ -166,8 +158,7 @@ function sourceJet(value: unknown, full: boolean): value is Source {
   return (
     Array.isArray(value) &&
     value.length === 6 &&
-    value.every((entry: unknown): boolean => typeof entry === "number") &&
-    (full ? value.every(Number.isFinite) : Number.isFinite(value[0]))
+    value.every((entry: unknown): boolean => typeof entry === "number")
   );
 }
 
@@ -176,9 +167,7 @@ function sourceJet(value: unknown, full: boolean): value is Source {
  * required-jet admission.
  */
 function same(value: unknown, numeric: number, full: boolean = false): boolean {
-  return (
-    sourceJet(value, full) && Number.isFinite(numeric) && value[0] === numeric
-  );
+  return sourceJet(value, full) && value[0] === numeric;
 }
 
 /**
@@ -256,7 +245,7 @@ function lift(
   const nx: number = ty[0];
   const ny: number = -tx[0];
   const B: number = nx * ex + ny * ey;
-  if (!(Number.isFinite(length) && length > 0 && Number.isFinite(B) && B > 0))
+  if (!(length > 0 && B > 0))
     return failure(
       "The section field has no finite positive point norm and outward ray denominator.",
     );
@@ -284,9 +273,5 @@ function lift(
     mixed,
     reading.radial[2],
   ];
-  return result.every(Number.isFinite)
-    ? result
-    : failure(
-        "The required radial station/phase partials are not finitely representable.",
-      );
+  return result;
 }

@@ -262,8 +262,7 @@ const appendCombinedStateDefects: (
 const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   world: number[],
 ): boolean => {
-  if (world.some((entry: number): boolean => !Number.isFinite(entry)))
-    return true;
+
   const decomposed: IAutoMovieMatrix4.IDecomposeResult =
     Matrix4.decompose(world);
   const recomposed: number[] = Matrix4.compose(
@@ -276,7 +275,6 @@ const cannotRepresentWorldTrs: (world: number[]) => boolean = (
   for (let column: number = 0; column < 3; ++column)
     for (let row: number = 0; row < 3; ++row) {
       const index: number = column * 4 + row;
-      if (!Number.isFinite(recomposed[index]!)) return true;
       magnitude = Math.max(magnitude, Math.abs(world[index]!));
       difference = Math.max(
         difference,

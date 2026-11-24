@@ -34,15 +34,11 @@ export namespace RecoverySlabGraph {
     const count: number = source.triangles.length;
     if (source.canon.length !== source.heights.length)
       throw new Error("A finite aligned scalar chart is required");
-    for (let i: number = 0; i < source.heights.length; i++)
-      if (!Number.isFinite(source.heights[i]))
-        throw new Error("A finite aligned scalar chart is required");
     for (const triangle of source.triangles)
       if (
         triangle.length !== 3 ||
         triangle.some(
           (i: number): boolean =>
-            !Number.isSafeInteger(i) ||
             i < 0 ||
             i >= source.heights.length ||
             source.canon[i]! < 0 ||
@@ -58,11 +54,7 @@ export namespace RecoverySlabGraph {
         "triangles" | "canon" | "heights"
       >,
     ): IAutoMovieRecoverySlabConnectivityGroup[] => {
-      if (
-        !Number.isFinite(input.beforeMm) ||
-        !Number.isFinite(input.afterMm) ||
-        !(input.beforeMm < input.afterMm)
-      )
+      if (!(input.beforeMm < input.afterMm))
         throw new Error("Finite increasing slab bounds are required");
       const capacity: number = input.candidates?.length ?? count;
       const parent: Int32Array = new Int32Array(capacity).fill(-1);
@@ -97,7 +89,7 @@ export namespace RecoverySlabGraph {
       for (let ti: number = 0; ti < capacity; ti++) {
         const face: number =
           input.candidates === undefined ? ti : input.candidates[ti]!;
-        if (!Number.isSafeInteger(face) || face <= previous || face >= count)
+        if (face <= previous || face >= count)
           throw new Error(
             "Slab candidates must be increasing original face addresses",
           );
@@ -152,11 +144,7 @@ export namespace RecoverySlabGraph {
       ): Set<number> => {
         const result: Set<number> = new Set();
         for (const triangle of support) {
-          if (
-            !Number.isSafeInteger(triangle) ||
-            triangle < 0 ||
-            triangle >= count
-          )
+          if (triangle < 0 || triangle >= count)
             throw new Error(
               "Slab boundary support contains an invalid source face",
             );

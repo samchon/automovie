@@ -168,7 +168,7 @@ export function planAutoMovieContourSlabs64(
                 y: { i: number; error: number },
               ): number => x.error - y.error,
             );
-          if (!candidates.length || !Number.isFinite(candidates[0].error)) {
+          if (!candidates.length) {
             invalidEvents.add(event);
             continue;
           }

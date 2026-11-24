@@ -230,15 +230,15 @@ export namespace HumanPhysics {
     if (to === undefined) throw HumanPhysicsMissing("to");
     if (by !== "hips" && by !== "trunk")
       throw HumanPhysicsInvalid("by", by, "name hips or trunk");
-    if (!Number.isFinite(weight) || !(weight >= 0 && weight <= 1))
+    if (!(weight >= 0 && weight <= 1))
       throw HumanPhysicsInvalid("weight", weight, "give a weight from 0 to 1");
-    if (!Number.isFinite(ramp.in) || ramp.in < 0)
+    if (!(ramp.in >= 0))
       throw HumanPhysicsInvalid(
         "ramp.in",
         ramp.in,
         "give a nonnegative finite duration in seconds",
       );
-    if (!Number.isFinite(ramp.out) || ramp.out < 0)
+    if (!(ramp.out >= 0))
       throw HumanPhysicsInvalid(
         "ramp.out",
         ramp.out,
@@ -274,14 +274,6 @@ export namespace HumanPhysics {
       timing,
       resolve,
     );
-    if (!Number.isFinite(from))
-      throw HumanPhysicsInvalid(
-        "from",
-        from,
-        "resolve to a finite film second",
-      );
-    if (!Number.isFinite(to))
-      throw HumanPhysicsInvalid("to", to, "resolve to a finite film second");
     if (to < from)
       throw HumanPhysicsInvalid("to", to, "end at or after the opening bound");
     if (to < 0 || timing.duration < from) return null;

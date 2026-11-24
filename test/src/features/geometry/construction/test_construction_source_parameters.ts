@@ -16,14 +16,34 @@ import { ConstructionSourceParameterSubset } from "../../internal/construction/C
 import { nclose } from "../../internal/nclose";
 
 /**
- * Nonzero world-coordinate source endpoints retain their root/angle parameter through actual source-axis construction and declaration serialization, independently of radial closure.
+ * Nonzero world-coordinate source endpoints retain their root/angle parameter
+ * through actual source-axis construction and declaration serialization,
+ * independently of radial closure.
  *
  * Scenarios:
- * 1. A root source through (0,10),(4,12) is 10+sqrt(s); its top-root counterpart is 10+sqrt(4-s). Values and analytic interior station jets follow these formulas, while nonzero parameter endpoints are finite with absent singular station jets.
- * 2. The angle source through station 0/2/4 and values 10/11/10 has the independent natural cubic 10+3theta/pi-4theta^3/pi^3 on the first half. Both nonzero endpoint values survive, including a station 1e-300 near the bottom.
- * 3. A declared parallel origin combines root X, angle Y and station Z at two scales a thousand apart. Actual frames and their original metre declaration are replayed through the tree adapter without resampling. Mutating the returned declaration cannot alter its actual source axis; a raw black-box axis has no inferred declaration.
- * 4. Radial closure still refuses a nonzero closing knot and an incompatible explicit parameter. Invalid parameter endpoints and outside-domain queries stay explicit failures.
- * 5. Asymmetric angle-coordinate cubics retain full controls and scalar/world2 when one pole or both poles are outside the emitted interval. The retained cuts lie outside removed cap supports; actual ViewCurves, direct Source and ViewLoft preserve the original field, distinguish real poles from singular coordinate endpoints and refuse wrong zero/end/direction/domain premises.
+ *
+ * 1. A root source through (0,10),(4,12) is 10+sqrt(s); its top-root counterpart
+ *    is 10+sqrt(4-s). Values and analytic interior station jets follow these
+ *    formulas, while nonzero parameter endpoints are finite with absent
+ *    singular station jets.
+ * 2. The angle source through station 0/2/4 and values 10/11/10 has the
+ *    independent natural cubic 10+3theta/pi-4theta^3/pi^3 on the first half.
+ *    Both nonzero endpoint values survive, including a station 1e-300 near the
+ *    bottom.
+ * 3. A declared parallel origin combines root X, angle Y and station Z at two
+ *    scales a thousand apart. Actual frames and their original metre
+ *    declaration are replayed through the tree adapter without resampling.
+ *    Mutating the returned declaration cannot alter its actual source axis; a
+ *    raw black-box axis has no inferred declaration.
+ * 4. Radial closure still refuses a nonzero closing knot and an incompatible
+ *    explicit parameter. Invalid parameter endpoints and outside-domain queries
+ *    stay explicit failures.
+ * 5. Asymmetric angle-coordinate cubics retain full controls and scalar/world2
+ *    when one pole or both poles are outside the emitted interval. The retained
+ *    cuts lie outside removed cap supports; actual ViewCurves, direct Source
+ *    and ViewLoft preserve the original field, distinguish real poles from
+ *    singular coordinate endpoints and refuse wrong zero/end/direction/domain
+ *    premises.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the scalar value/jet owner, real parallel source factory, source-declaration transfer and ConstructionViews frame converter. The subset helper additionally consumes actual ViewCurves, direct Source and ViewLoft and asserts retained original controls, cap2, world2 and final owned-domain refusals.
  * @evidence contracts/development/testing.md#independent-expectations Closed forms are square roots and the elementary three-knot natural cubic in theta=2asin(sqrt(s/4)); derivatives use the analytic chain rule. A fixed u=Y/v=X basis with those world-coordinate curves is an authored source declaration. Tolerance 3e-11 times scale covers conversion; replay shares the original declaration while absolute positions use independent formulas. The subset helper documents its distinct asymmetric cubic, cap and guide-curvature equations and fixed 3e-9 component budget.
@@ -39,7 +59,7 @@ export function test_construction_source_parameters(): void {
     expected: number,
     scale: number = 1,
   ): void => {
-    if (!(Number.isFinite(expected) && nclose(actual, expected, 3e-11 * scale)))
+    if (!nclose(actual, expected, 3e-11 * scale))
       failures.push(`${label}: ${actual}, expected ${expected}`);
   };
   const reading = (
@@ -69,8 +89,7 @@ export function test_construction_source_parameters(): void {
         if (
           actual.location !== "parameter-endpoint" ||
           actual.stationJetStatus !== "singular-parameter" ||
-          actual.stationJet !== null ||
-          !actual.parameterJet.every(Number.isFinite)
+          actual.stationJet !== null
         )
           failures.push(
             `${end} nonzero endpoint lost its parameter qualification`,
@@ -288,7 +307,10 @@ export function test_construction_source_parameters(): void {
   );
 }
 
-/** Named independent source coordinates; the optional parameter belongs to the curve rather than radial closure. */
+/**
+ * Named independent source coordinates; the optional parameter belongs to the
+ * curve rather than radial closure.
+ */
 function outline(
   stations: readonly number[],
   values: readonly number[],

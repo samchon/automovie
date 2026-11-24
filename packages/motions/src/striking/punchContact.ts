@@ -185,23 +185,30 @@ export namespace punchContact {
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
     const at: IAutoMovieMotionTarget = p.at;
-    let varied: IAutoMovieHumanoidSurfaces.IFrame | undefined;
-    let variedBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
-    let partner: IAutoMovieMotionHumanPerformerReader | undefined;
+    const partner: IAutoMovieMotionHumanPerformerReader | undefined =
+      tangent !== undefined && at.kind === "person"
+        ? context.performer(at.subject)
+        : undefined;
+    const varied: IAutoMovieHumanoidSurfaces.IFrame | undefined =
+      partner !== undefined && at.kind === "person"
+        ? StrikingBody.frame(partner.body, at.region, tangent!)
+        : undefined;
+    const variedBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+      varied === undefined
+        ? undefined
+        : new Set<AutoMovieHumanoidBone>([varied.bone]);
     const aim: (seconds: number) => IAutoMovieVector3 = (
       seconds: number,
     ): IAutoMovieVector3 => {
       if (tangent !== undefined && at.kind === "person") {
-        const other: IAutoMovieMotionHumanPerformerReader = (partner ??=
-          context.performer(at.subject));
-        const frame: IAutoMovieHumanoidSurfaces.IFrame = (varied ??=
-          StrikingBody.frame(other.body, at.region, tangent));
+        const other: IAutoMovieMotionHumanPerformerReader = partner!;
+        const frame: IAutoMovieHumanoidSurfaces.IFrame = varied!;
         return resolveAutoMovieHumanoidSurfaces.point(
           frame,
           other
             .bones(
               seconds,
-              (variedBones ??= new Set<AutoMovieHumanoidBone>([frame.bone])),
+              variedBones!,
             )
             .get(frame.bone)!,
         );

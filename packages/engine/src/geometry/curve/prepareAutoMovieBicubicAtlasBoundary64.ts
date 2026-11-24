@@ -49,7 +49,7 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
         (_: unknown, k: number): number => authority.controlIds[k]!,
       ).some(
         (id: number): boolean =>
-          !Number.isSafeInteger(id) || id < 0 || id >= input.controlsMm.length,
+          id < 0 || id >= input.controlsMm.length,
       )
     )
       throw new Error(
@@ -243,7 +243,6 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
     const key: string = root(`control:${constraint.id}`),
       previous: AutoMovieVector3Tuple | undefined = positions.get(key);
     if (
-      !constraint.point.every(Number.isFinite) ||
       (previous &&
         constraint.point.some(
           (value: number, axis: number): boolean => value !== previous[axis],

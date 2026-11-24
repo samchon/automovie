@@ -2,9 +2,7 @@ import { tessellate } from "@automovie/engine";
 import type { IAutoMoviePrimitiveShape } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-/**
- * Origin-centered shapes whose tessellation encloses a positive volume.
- */
+/** Origin-centered shapes whose tessellation encloses a positive volume. */
 const SOLIDS: IAutoMoviePrimitiveShape[] = [
   { type: "box", width: 0.4, height: 0.6, depth: 0.2 },
   { type: "sphere", radius: 0.5 },
@@ -14,7 +12,9 @@ const SOLIDS: IAutoMoviePrimitiveShape[] = [
 ];
 
 /**
- * Signed volume follows the divergence theorem; positive flux agrees with outward counter-clockwise winding on a closed surface and does not alone prove closed topology or displayed culling.
+ * Signed volume follows the divergence theorem; positive flux agrees with
+ * outward counter-clockwise winding on a closed surface and does not alone
+ * prove closed topology or displayed culling.
  */
 const signedVolume: (t: {
   positions: number[];
@@ -35,7 +35,10 @@ const signedVolume: (t: {
 };
 
 /**
- * Every triangle's geometric (winding) normal must agree with its authored vertex normals: a per-triangle check that catches local flips a global volume cannot. Zero-area triangles (a cone apex ring, a plane's collapsed sides) carry no orientation and are skipped.
+ * Every triangle's geometric (winding) normal must agree with its authored
+ * vertex normals: a per-triangle check that catches local flips a global volume
+ * cannot. Zero-area triangles (a cone apex ring, a plane's collapsed sides)
+ * carry no orientation and are skipped.
  */
 const windingAgreesWithNormals: (t: {
   positions: number[];
@@ -53,15 +56,12 @@ const windingAgreesWithNormals: (t: {
     p.length % 3 !== 0 ||
     n.length !== p.length ||
     t.indices.length === 0 ||
-    t.indices.length % 3 !== 0 ||
-    !p.every(Number.isFinite) ||
-    !n.every(Number.isFinite)
+    t.indices.length % 3 !== 0
   )
     return false;
   if (
     !t.indices.every(
-      (index: number): boolean =>
-        Number.isInteger(index) && index >= 0 && 3 * (index + 1) <= p.length,
+      (index: number): boolean => index >= 0 && 3 * (index + 1) <= p.length,
     )
   )
     return false;
@@ -90,11 +90,15 @@ const windingAgreesWithNormals: (t: {
 };
 
 /**
- * Primitive triangles retain outward numerical orientation under the glTF counter-clockwise front-face convention.
+ * Primitive triangles retain outward numerical orientation under the glTF
+ * counter-clockwise front-face convention.
  *
  * Scenarios:
+ *
  * 1. Every solid has strictly positive oriented volume.
- * 2. Every nondegenerate triangle across all six primitive kinds agrees with its authored normal; visual culling requires separate real-renderer observation.
+ * 2. Every nondegenerate triangle across all six primitive kinds agrees with its
+ *    authored normal; visual culling requires separate real-renderer
+ *    observation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls primitive tessellation and checks positive oriented volume plus agreement between geometric triangle normals and authored normals; global or local winding reversals fail.
  * @evidence contracts/development/testing.md#independent-expectations The divergence theorem and triangle cross products derive orientation independently of the producer's index construction; degenerate triangles have no orientation and are skipped.

@@ -40,10 +40,7 @@ export namespace AutoMovieArchetypeEquineCutting {
     cow: readonly AutoMovieArchetypeCourse.ISample[],
     cut: ICut,
   ): AutoMovieArchetypeCourse.ISample[] {
-    if (
-      !(cut.reaction > 0 && cut.offset > 0 && Number.isFinite(cut.herd)) ||
-      cow.length < 2
-    )
+    if (!(cut.reaction > 0 && cut.offset > 0) || cow.length < 2)
       refuse(
         "cut",
         cut,

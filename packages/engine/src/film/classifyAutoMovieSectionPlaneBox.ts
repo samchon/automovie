@@ -39,8 +39,6 @@ export function classifyAutoMovieSectionPlaneBox(
 ): AutoMovieSectionPlaneState {
   for (const axis of AXES)
     if (
-      Number.isFinite(props.min[axis]) === false ||
-      Number.isFinite(props.max[axis]) === false ||
       props.min[axis] > props.max[axis]
     )
       throw new RangeError(

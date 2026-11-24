@@ -226,12 +226,7 @@ function samples(
   read: (seconds: number) => IPlayback["table"][number],
 ): IPlayback {
   if (
-    !(
-      Number.isFinite(from) &&
-      Number.isFinite(to) &&
-      Number.isFinite(to - from) &&
-      to > from
-    )
+    !(to > from)
   )
     throw new Error("Flight playback needs a positive finite interval");
   const step: number = integrateMotionTrajectory.STEP;

@@ -51,13 +51,6 @@ export function observeAutoMovieSweptCollision(
         ? [interval.paths[0], interval.paths[1]]
         : [interval.paths[1], interval.paths[0]];
     const { startSeconds, endSeconds } = interval.props;
-    if (
-      ![
-        startSeconds + interval.filmOffset,
-        endSeconds + interval.filmOffset,
-      ].every(Number.isFinite)
-    )
-      throw new Error("Invalid collision interval clock");
     if (!paths[0].trim() || paths[0] === paths[1])
       throw new Error("Invalid collision motion pair");
     const identity: string = key("sweep", ...paths, String(startSeconds));

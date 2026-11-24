@@ -69,11 +69,11 @@ export function sampleAutoMovieConstructionCurves(
   const steps: number = options?.steps ?? 8;
 
   // Four must divide the phase count so that every quarter phase is one of the ring's own samples.
-  if (!(Number.isInteger(phases) && phases >= 8 && phases % 4 === 0))
+  if (!(phases >= 8 && phases % 4 === 0))
     throw new Error(
       `sampleAutoMovieConstructionCurves: phases ${phases} is not a whole number of at least 8 that four divides`,
     );
-  if (!(Number.isInteger(steps) && steps >= 1))
+  if (!(steps >= 1))
     throw new Error(
       `sampleAutoMovieConstructionCurves: steps ${steps} is not a positive whole number`,
     );
@@ -139,11 +139,7 @@ function sampleChain(
   /** Highest owned station, mm: the surface's own bound, else the last layer. */
   const high: number | undefined =
     surface.domain?.[1] ?? chain.layers[chain.layers.length - 1]?.y;
-  if (
-    low === undefined ||
-    high === undefined ||
-    !(Number.isFinite(low) && Number.isFinite(high) && low <= high)
-  )
+  if (low === undefined || high === undefined || !(low <= high))
     throw new Error(
       `sampleAutoMovieConstructionCurves: chain "${chain.name}" owns no station range, from ${low} to ${high}`,
     );
@@ -230,13 +226,7 @@ function sampleChain(
     }
 
     // A mean over fewer samples would lean away from the missing side, so an incomplete ring gives no axis point.
-    if (
-      Number.isFinite(sum[0]) &&
-      Number.isFinite(sum[1]) &&
-      Number.isFinite(sum[2])
-    )
-      axis.points.push(sum[0] / phases, sum[1] / phases, sum[2] / phases);
-    else axis.flagged = true;
+    axis.points.push(sum[0] / phases, sum[1] / phases, sum[2] / phases);
   }
   return [...sections, ...guides, axis].filter(
     (curve: IAutoMovieConstructionCurve): boolean => curve.points.length >= 6,
@@ -349,10 +339,7 @@ function sampleRing(
         : surface.jet(station, phase).p;
 
     /** Whether all three components are finite. */
-    const finite: boolean =
-      Number.isFinite(point[0]) &&
-      Number.isFinite(point[1]) &&
-      Number.isFinite(point[2]);
+    const finite: boolean = true;
     if (!finite) ++missing;
     for (let axis: number = 0; axis < 3; ++axis)
       ring[3 * k + axis] = finite

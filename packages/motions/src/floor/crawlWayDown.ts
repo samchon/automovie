@@ -62,6 +62,7 @@ export function crawlWayDown(
         pitch,
         tucks,
         hover: bear,
+        balanced: context.params.balance?.by === "hips",
       });
 }
 

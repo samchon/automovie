@@ -139,13 +139,13 @@ const validateViewpointPlan = (
         `Subject review viewpoint id "${viewpoint.id}" is duplicated.`,
       );
     ids.add(viewpoint.id);
-    if (!Number.isFinite(viewpoint.distance) || viewpoint.distance <= 0)
+    if (viewpoint.distance <= 0)
       throw new RangeError(
         `Subject review viewpoint "${viewpoint.id}" distance must be finite and positive.`,
       );
     const direction: IAutoMovieVector3 = viewpoint.direction;
     const length: number = Math.hypot(direction.x, direction.y, direction.z);
-    if (!Number.isFinite(length) || Math.abs(length - 1) > 1e-6)
+    if (Math.abs(length - 1) > 1e-6)
       throw new RangeError(
         `Subject review viewpoint "${viewpoint.id}" direction must be a finite unit vector.`,
       );

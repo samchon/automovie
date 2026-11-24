@@ -69,7 +69,7 @@ export function hingedSwivelNear<T extends { overshoot: number }>(props: {
   met?: (candidate: T) => boolean;
 }): T {
   const near: IAutoMovieSwivelNear = props.near;
-  if (!(near.tolerance > 0) || !Number.isFinite(near.tolerance))
+  if (!(near.tolerance > 0))
     throw new Error("A continued fit needs a positive finite tolerance");
 
   const ratio: number = near.tolerance / (2 * STEP);

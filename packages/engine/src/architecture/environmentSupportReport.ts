@@ -77,7 +77,7 @@ export function environmentSupportReport(
   props: IAutoMovieEnvironmentSupportReport.IProps,
 ): IAutoMovieSetPieceSupport[] {
   const tolerance: number = props.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       `environment support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
     );

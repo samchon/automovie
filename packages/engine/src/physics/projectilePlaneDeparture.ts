@@ -45,7 +45,7 @@ export function projectilePlaneDeparture(
   if (options.tail !== undefined && projectile.attitude?.kind !== "fixed")
     return undefined;
   if (projectile.drag !== undefined && contact.from < 0) return undefined;
-  if (!Number.isFinite(contact.gap)) return undefined;
+  if (contact.gap === Infinity) return undefined;
   if (projectile.drag !== undefined)
     return projectileDragDeparture(normal, projectile, contact);
 
@@ -54,27 +54,20 @@ export function projectilePlaneDeparture(
     normal,
   );
   const acceleration: number = Vector3.dot(projectile.gravity, normal);
-  if (!Number.isFinite(speed) || !Number.isFinite(acceleration))
-    throw new RangeError(
-      "Projectile plane departure needs finite normal motion",
-    );
   if (speed < 0 || (speed === 0 && acceleration <= 0)) return undefined;
   if (acceleration >= 0) return { kind: "no-entry" };
 
   const apex: number = contact.from - speed / acceleration;
   const end: number = Math.min(contact.to, apex);
-  if (!(Number.isFinite(end) && end > contact.from)) return undefined;
+  if (end === Infinity || end <= contact.from) return undefined;
   const endGap: number = contact.at(end);
-  if (Number.isFinite(endGap) && endGap > 0)
+  if (endGap !== Infinity && endGap > 0)
     return { kind: "clearance", seconds: end };
   const endSpeed: number = Vector3.dot(
     projectileAt(projectile, end).velocity,
     normal,
   );
-  if (!Number.isFinite(endSpeed))
-    throw new RangeError(
-      "Projectile plane departure needs finite normal motion",
-    );
+
   if (endSpeed >= 0)
     return end === contact.to ? { kind: "no-entry" } : undefined;
 
@@ -84,15 +77,12 @@ export function projectilePlaneDeparture(
     const seconds: number = lo + (hi - lo) / 2;
     if (!(seconds > lo && seconds < hi)) return undefined;
     const gap: number = contact.at(seconds);
-    if (Number.isFinite(gap) && gap > 0) return { kind: "clearance", seconds };
+    if (gap !== Infinity && gap > 0) return { kind: "clearance", seconds };
     const velocity: number = Vector3.dot(
       projectileAt(projectile, seconds).velocity,
       normal,
     );
-    if (!Number.isFinite(velocity))
-      throw new RangeError(
-        "Projectile plane departure needs finite normal motion",
-      );
+
     if (velocity > 0) lo = seconds;
     else hi = seconds;
   }

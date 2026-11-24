@@ -45,18 +45,10 @@ export namespace RecoveryBezierFit {
     const n: number = source.length;
     if (
       n < (input.closed ? 3 : 2) ||
-      !source.every(
-        (p: AutoMovieVector3Tuple): boolean =>
-          p.length === 3 && p.every(Number.isFinite),
-      )
+      !source.every((p: AutoMovieVector3Tuple): boolean => p.length === 3)
     )
       throw new Error("Fitting needs finite ordered physical observations");
-    if (
-      !(input.toleranceMm > 0) ||
-      !Number.isFinite(input.toleranceMm) ||
-      !Number.isSafeInteger(input.maxSpans) ||
-      input.maxSpans < 1
-    )
+    if (!(input.toleranceMm > 0) || input.maxSpans < 1)
       throw new Error(
         "Fitting needs a positive tolerance and integer span budget",
       );
@@ -72,11 +64,7 @@ export namespace RecoveryBezierFit {
     for (let i: number = 1; i < points.length; i++) {
       const length: number = distance(points[i - 1]!, points[i]!);
       const total: number = cumulative[i - 1]! + length;
-      if (
-        !(length > 0) ||
-        !Number.isFinite(total) ||
-        total <= cumulative[i - 1]!
-      )
+      if (!(length > 0) || total <= cumulative[i - 1]!)
         throw new Error(
           "Adjacent observations collapse or physical length is unresolved",
         );
@@ -84,7 +72,7 @@ export namespace RecoveryBezierFit {
     }
     const knots: Set<number> = new Set([0, points.length - 1]);
     for (const corner of input.corners) {
-      if (!Number.isSafeInteger(corner) || corner < 0 || corner >= n)
+      if (corner < 0 || corner >= n)
         throw new Error("Corner index does not address an observation");
       knots.add(corner);
     }
@@ -145,12 +133,7 @@ export namespace RecoveryBezierFit {
         );
       const total: number = u[u.length - 1]!;
       for (let i: number = 1; i < u.length; i++) u[i] = u[i]! / total;
-      if (
-        !u.every(
-          (x: number, i: number): boolean =>
-            Number.isFinite(x) && (i === 0 || x > u[i - 1]!),
-        )
-      )
+      if (!u.every((x: number, i: number): boolean => i === 0 || x > u[i - 1]!))
         throw new Error("Fitting parameter intervals are not representable");
       const arc: number = cumulative[job.last]! - cumulative[job.first]!;
       const weights: number[] = p.map(
@@ -187,11 +170,7 @@ export namespace RecoveryBezierFit {
             a: AutoMovieVector3Tuple = B.value(dd, u[i]!);
           const denominator: number = dot(v, v) + dot(q, a);
           const candidate: number = u[i]! - dot(q, v) / denominator;
-          if (
-            Number.isFinite(candidate) &&
-            candidate > u[i - 1]! &&
-            candidate < u[i + 1]!
-          )
+          if (candidate > u[i - 1]! && candidate < u[i + 1]!)
             next[i] = candidate;
         }
         if (
@@ -305,8 +284,7 @@ export namespace RecoveryBezierFit {
       beta: number = (bx * aa - ax * ab) / determinant;
     const fallback: boolean =
       !(determinant > 64 * Number.EPSILON * aa * bb) ||
-      !(alpha > 0 && beta > 0) ||
-      !Number.isFinite(alpha + beta);
+      !(alpha > 0 && beta > 0);
     if (fallback) {
       alpha = distance(start, end) / 3;
       beta = alpha;
@@ -356,8 +334,6 @@ export namespace RecoveryBezierFit {
         split = i + 1;
       }
     }
-    if (!Number.isFinite(sample + bound))
-      throw new Error("Curve fitting arithmetic is unresolved");
     return { sample, bound, split };
   }
 
@@ -377,8 +353,7 @@ export namespace RecoveryBezierFit {
   /** Normalize a measurable tangent without inventing a direction at degeneracy. */
   function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
-    if (!(length > 0) || !Number.isFinite(length))
-      throw new Error("Observation tangent is unresolved");
+    if (!(length > 0)) throw new Error("Observation tangent is unresolved");
     return scale(a, 1 / length);
   }
 }

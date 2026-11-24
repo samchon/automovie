@@ -18,13 +18,13 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { prepareHumanPostureCourse } from "../actions/prepareHumanPostureCourse";
 import { stand } from "../actions/stand";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
-import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
@@ -181,7 +181,6 @@ export namespace lieDown {
     const hips: IAutoMovieVector3 = lieDownHips({ from, body });
     const lower: ReturnType<typeof lowerHumanPosture.prepare> =
       lowerHumanPosture.prepare(body);
-    let held: IAutoMovieMotionHumanPosture | undefined;
     const floor: ReturnType<typeof knockdown.prepareRest> =
       knockdown.prepareRest(body);
     const folded: ReturnType<typeof floorSeat.prepare> | undefined =
@@ -196,8 +195,6 @@ export namespace lieDown {
     });
     const readFeet: ReturnType<typeof StrikingBody.prepareTrunk> =
       StrikingBody.prepareTrunk(body, feetBones);
-    const arms: ReturnType<typeof floorArmRoom.prepare> =
-      floorArmRoom.prepare(body);
     const rollSide: AutoMovieHumanSide | undefined = lieDownRollSide({
       position,
     });
@@ -363,50 +360,85 @@ export namespace lieDown {
       readAtPlan,
       projectAtPlan,
     });
-    const at: (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      let index: number = 0;
-      for (let i: number = 0; i < route.length; i++)
-        if (seconds >= clock.at(phases[i]!.name)) index = i;
+    // Each key-to-key blend at a weight, as the posture reads it.
+    const keyed = (
+      index: number,
+      w: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture =>
+      entered === null && index === 1 && w < 1
+        ? release!(w)
+        : placed(index, w, read, project);
+    const arms: ReturnType<typeof floorArmRoom.prepare> = floorArmRoom.prepare(
+      body,
+      route.map(
+        (_: readonly [string, string], index: number) =>
+          (w: number): IAutoMovieMotionHumanPosture =>
+            keyed(index, w, readAtPlan, projectAtPlan),
+      ),
+      readAtPlan,
+      projectAtPlan,
+    );
+    // A phase's exact posture at a second, every constraint solved: the
+    // floor rest, the feet's pins, the rolling heel, each arm's room and a
+    // folded sitting's legs. It is read only here, at the phase's knots.
+    const exact = (index: number, seconds: number): IAutoMovieMotionHumanPosture => {
       const u: number = progress[index]!.progress(seconds);
-
-      // Arrived, the posture no longer changes: it is rested on the floor once and held.
-      const arrived: boolean = index === route.length - 1 && u >= 1;
-      if (arrived && held !== undefined) return held;
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const project: ReturnType<typeof prepareHumanPostureProjection> =
-        projection ?? prepareHumanPostureProjection(body);
       const rested: IAutoMovieMotionHumanPosture = arms(
         index,
         u,
         (w: number): IAutoMovieMotionHumanPosture =>
-          entered === null && index === 1 && w < 1
-            ? release!(w, read, project)
-            : placed(index, w, read, project),
-        read,
-        project,
+          keyed(index, w, readAtPlan, projectAtPlan),
+        readAtPlan,
+        projectAtPlan,
       );
 
       // A folded sitting folds its legs over the last phase of its route.
-      const out: IAutoMovieMotionHumanPosture =
-        folded === undefined || index < route.length - 1 || u <= 0
-          ? rested
-          : folded(rested, u, read, project);
-      if (arrived) held = out;
-      return out;
+      return folded === undefined || index < route.length - 1 || u <= 0
+        ? rested
+        : folded(rested, u, readAtPlan, projectAtPlan);
     };
 
-    // The arrived posture is rested on the floor once, here, and held: every
-    // query from the arrival on reads it.
-    held = at(duration);
+    // Each phase is a posture course through its exact postures at evenly
+    // spaced seconds, as many as keep every arm within the audit's
+    // allowance between two of them (`floorArmRoom.count`), at rest at both
+    // ends as the phase's minimum-jerk progress is.
+    const starts: number[] = route.map(
+      (_: readonly [string, string], i: number): number =>
+        clock.at(phases[i]!.name),
+    );
+    const courses: ((seconds: number) => IAutoMovieMotionHumanPosture)[] =
+      route.map(
+        (
+          _: readonly [string, string],
+          i: number,
+        ): ((seconds: number) => IAutoMovieMotionHumanPosture) => {
+          const from: number = starts[i]!;
+          const to: number = clock.at(phases[i + 1]!.name);
+          const n: number =
+            to > from
+              ? floorArmRoom.count(
+                  body,
+                  keyed(i, 0, readAtPlan, projectAtPlan),
+                  keyed(i, 1, readAtPlan, projectAtPlan),
+                )
+              : 0;
+          const knots: prepareHumanPostureCourse.IKnot[] = [];
+          for (let j: number = 0; j <= n; j++) {
+            const seconds: number =
+              n === 0 ? from : from + ((to - from) * j) / n;
+            knots.push({ seconds, posture: exact(i, seconds) });
+          }
+          return prepareHumanPostureCourse(knots);
+        },
+      );
+    const at = (seconds: number): IAutoMovieMotionHumanPosture => {
+      let index: number = 0;
+      for (let i: number = 0; i < route.length; i++)
+        if (seconds >= starts[i]!) index = i;
+      return courses[index]!(seconds);
+    };
     const lying: IAutoMovieMotionHumanPrimitive = lieDownLying({
       duration,
       at,
@@ -450,21 +482,6 @@ export namespace lieDown {
       ...planned,
       base: sitting ? { kind: "seated" } : { kind: "lying" },
     };
-    // Each key-to-key blend's arm room (`floorArmRoom`) is read once when
-    // placement is final, at one interior second of the blend, so the first
-    // displayed second of a blend reads a kept scan instead of making it.
-    // The playback has no phase of its own: only its setup is used.
-    HumanPreparedPlayback.attach(lain, body, {
-      mode: "posture",
-      phases: [],
-      prepare: (): void => {
-        for (let i: number = 0; i < route.length; i++) {
-          const from: number = clock.at(phases[i]!.name);
-          const to: number = clock.at(phases[i + 1]!.name);
-          if (to > from) at((from + to) / 2);
-        }
-      },
-    });
     return lain;
   }
 }

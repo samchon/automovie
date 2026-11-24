@@ -87,8 +87,8 @@ export namespace balletStep {
         reason: `a turnout of ${turnout} degrees exceeds the hip's external rotation of ${outward.toFixed(0)} degrees`,
         fix: `turn out at most ${outward.toFixed(0)} degrees`,
       });
-    const position: number = p.position ?? 1;
-    if (!(Number.isInteger(position) && position >= 1 && position <= 5))
+    const position: number = Math.round(p.position ?? 1);
+    if (!(position >= 1 && position <= 5))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "position",
@@ -138,8 +138,7 @@ export namespace balletStep {
           fix: `split at most ${reach.toFixed(0)} degrees`,
         });
     }
-    const count: number = p.count ?? 4;
-    HumanBound.whole("count", count);
+    const count: number = HumanBound.whole("count", p.count ?? 4);
     const beats: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
       context,
       p.bpm ?? dance.BPM,

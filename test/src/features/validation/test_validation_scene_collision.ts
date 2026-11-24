@@ -15,14 +15,23 @@ import assert from "node:assert/strict";
 import { nclose } from "../internal/nclose";
 
 /**
- * Compare two candidate searches against known closed solids and named permission.
+ * Compare two candidate searches against known closed solids and named
+ * permission.
  *
  * Scenarios:
- * 1. Both searches agree with an exhaustive sphere oracle across formations, a prop and independently nested paths. Input order cannot change the findings.
- * 2. A closed solid wholly inside a box produces a signed negative witness. Exact tangency remains a candidate, while a remote part yields no finding.
- * 3. A named hand contact expires exactly at the second its half-open window ends, without affecting the independent forearm contact.
- * 4. Proxies, envelope-only and absent geometry retain distinct evidence; an exhausted search reports remaining work.
- * 5. Enclosing cord segments in one deformable body skip their own pairs, prove clearance when separated, and stay below confirmation when they overlap a post.
+ *
+ * 1. Both searches agree with an exhaustive sphere oracle across formations, a
+ *    prop and independently nested paths. Input order cannot change the
+ *    findings.
+ * 2. A closed solid wholly inside a box produces a signed negative witness. Exact
+ *    tangency remains a candidate, while a remote part yields no finding.
+ * 3. A named hand contact expires exactly at the second its half-open window ends,
+ *    without affecting the independent forearm contact.
+ * 4. Proxies, envelope-only and absent geometry retain distinct evidence; an
+ *    exhausted search reports remaining work.
+ * 5. Enclosing cord segments in one deformable body skip their own pairs, prove
+ *    clearance when separated, and stay below confirmation when they overlap a
+ *    post.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the geometry, permissions, external grouping and incomplete coverage observations.
  * @evidence contracts/development/testing.md#behavioral-verification Exercises the public scene kernel with the real convex query, asserting pair identities, signed witnesses, permission and coverage.
@@ -381,7 +390,7 @@ export async function test_validation_scene_collision(): Promise<void> {
         seconds: 0,
         maxComparisons: 100,
       }),
-    /distinct nonempty paths/,
+    /distinct paths/,
   );
 }
 

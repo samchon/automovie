@@ -4,8 +4,6 @@ import {
   type IAutoMovieGrammarShotObservation,
   type IAutoMovieGrammarSubjectObservation,
   type IAutoMovieNormalizedGrammarShot,
-  IAutoMovieQuaternion,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { compareCodeUnits } from "../text/compareCodeUnits";
@@ -39,8 +37,6 @@ export function normalizeGrammarShot(
     assertGrammarPositive(camera.fovY, `${path}.fovY`);
     if (camera.fovY >= 180) throw new Error(`${path}.fovY must be below 180.`);
     assertGrammarPositive(camera.aspect, `${path}.aspect`);
-    finiteVector(camera.position, `${path}.position`);
-    finiteQuaternion(camera.rotation, `${path}.rotation`);
   }
 
   const subjects: IAutoMovieGrammarSubjectObservation[] = [
@@ -60,14 +56,10 @@ export function normalizeGrammarShot(
       );
     subjectById.set(subject.id, subject);
     const path: string = `${input.id}.${subject.id}`;
-    finiteVector(subject.start, `${path}.start`);
-    finiteVector(subject.end, `${path}.end`);
     assertGrammarPositive(subject.height, `${path}.height`);
-    if (Number.isFinite(subject.radius) === false || subject.radius < 0)
+    if (subject.radius < 0)
       throw new Error(`${path}.radius must be finite and non-negative.`);
     if (subject.eyeline !== null) {
-      finiteVector(subject.eyeline.start, `${path}.eyeline.start`);
-      finiteVector(subject.eyeline.end, `${path}.eyeline.end`);
     }
   }
   if (
@@ -97,16 +89,3 @@ export function normalizeGrammarShot(
   return { ...input, subjects, subjectById, actionAxis, styleIntent };
 }
 
-/** Throws at the first of `x`, `y`, `z` that is missing or not finite. */
-function finiteVector(value: IAutoMovieVector3, path: string): void {
-  for (const key of ["x", "y", "z"] as const)
-    if (Number.isFinite(value[key]) === false)
-      throw new Error(`${path}.${key} must be finite.`);
-}
-
-/** Throws at the first of `x`, `y`, `z`, `w` that is missing or not finite. */
-function finiteQuaternion(value: IAutoMovieQuaternion, path: string): void {
-  for (const key of ["x", "y", "z", "w"] as const)
-    if (Number.isFinite(value[key]) === false)
-      throw new Error(`${path}.${key} must be finite.`);
-}

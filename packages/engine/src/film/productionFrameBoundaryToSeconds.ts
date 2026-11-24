@@ -23,7 +23,7 @@ import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 export function productionFrameBoundaryToSeconds(
   props: IAutoMovieProductionFrameBoundaryToSeconds.IProps,
 ): number {
-  if (Number.isSafeInteger(props.frame) === false || props.frame < 0)
+  if (props.frame < 0)
     throw new Error(
       `Production frame boundary ${props.frame} must be a nonnegative safe integer.`,
     );

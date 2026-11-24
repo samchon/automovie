@@ -18,7 +18,6 @@ import type {
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { HumanBound } from "../law/HumanBound";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanSurfaceGlide } from "./HumanSurfaceGlide";
 import { pivotSurfaceFoot } from "./pivotSurfaceFoot";

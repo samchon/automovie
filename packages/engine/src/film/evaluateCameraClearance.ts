@@ -16,21 +16,11 @@ import { Vector3 } from "../math/Vector3";
 import { sampleTimes } from "../motion/sampleTimes";
 import { compareCodeUnits } from "../text/compareCodeUnits";
 
-/** Reject a non-finite coordinate or an inverted box. */
+/** Reject an inverted box. */
 function assertBox(
   box: IAutoMovieEvaluateCameraClearanceBox,
   path: string,
 ): void {
-  const coordinates: number[] = [
-    box.min.x,
-    box.min.y,
-    box.min.z,
-    box.max.x,
-    box.max.y,
-    box.max.z,
-  ];
-  if (!coordinates.every(Number.isFinite))
-    throw new Error(`${path} must contain finite coordinates`);
   if (box.min.x > box.max.x || box.min.y > box.max.y || box.min.z > box.max.z)
     throw new Error(`${path} minimum must not exceed maximum`);
 }
@@ -210,9 +200,9 @@ function obstaclesByNode(
 export function evaluateCameraClearance(
   input: IAutoMovieCameraClearanceEvaluation,
 ): IAutoMovieCameraClearanceReport {
-  if (!(Number.isFinite(input.sampleRate) && input.sampleRate > 0))
+  if (!(input.sampleRate > 0))
     throw new Error("$input.sampleRate must be finite and greater than zero");
-  if (!(Number.isFinite(input.duration) && input.duration >= 0))
+  if (!(input.duration >= 0))
     throw new Error("$input.duration must be finite and non-negative");
 
   if (input.revision !== input.currentRevision)
@@ -233,7 +223,7 @@ export function evaluateCameraClearance(
   if (
     suppliedTimes.some(
       (time: number): boolean =>
-        !Number.isFinite(time) || time < 0 || time > input.duration,
+        time < 0 || time > input.duration,
     ) ||
     suppliedTimes.some(
       (time: number, index: number): boolean =>

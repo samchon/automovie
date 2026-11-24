@@ -130,7 +130,7 @@ export namespace AutoMovieArchetypeSea {
    */
   export function of(options: IOptions): ISea {
     const height: number = options.height;
-    if (!(Number.isFinite(height) && height >= 0))
+    if (!(height >= 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "sea",
@@ -145,16 +145,6 @@ export namespace AutoMovieArchetypeSea {
     );
     const heading: number =
       options.heading === undefined ? random.float(0) * 360 : options.heading;
-    if (!Number.isFinite(heading))
-      throw new AutoMovieArchetypeRefusal({
-        kind: "parameter",
-        archetype: "sea",
-        axis: "heading",
-        value: heading,
-        feasible: null,
-        reason: `a wave heading of ${heading} degrees is not finite`,
-        fix: "give a finite heading in degrees or leave it to the seed",
-      });
     const components: IComponent[] = [];
     if (height > 0) {
       const peak: number =
@@ -195,12 +185,10 @@ export namespace AutoMovieArchetypeSea {
       0,
     );
     if (
-      !Number.isFinite(crest) ||
-      !Number.isFinite(steepest) ||
       components.some(
         (c: IComponent): boolean =>
           ![c.frequency, c.wavenumber, c.amplitude].every(
-            (value: number): boolean => Number.isFinite(value) && value > 0,
+            (value: number): boolean => value > 0,
           ),
       )
     )

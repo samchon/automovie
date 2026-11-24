@@ -10,7 +10,6 @@ import {
 
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
 
 /**
@@ -82,12 +81,6 @@ export function gatePerformShotCamera(
         context,
         camera,
         `$staged.scene.cameras[${index}]`,
-        job !== undefined
-          ? job.intent.move === "whip"
-          : frames.some(
-              (entry: IAutoMoviePerformShotFrameJob): boolean =>
-                entry.action.move === "whip",
-            ),
       );
     },
   );
@@ -170,35 +163,12 @@ function validateFramingCamera(
   context: IAutoMovieEnginePerformShotGateContext,
   camera: IAutoMovieCamera,
   path: string,
-  readsRotation: boolean,
 ): void {
-  if (
-    typeof camera.fovY !== "number" ||
-    !(camera.fovY > 0 && camera.fovY < 180)
-  )
+  if (!(camera.fovY > 0 && camera.fovY < 180))
     context.out.push(
       "range",
       `${path}.fovY`,
       `a camera that frames must have a vertical field of view within (0, 180)°, but "${describeInvalidValue(camera.id)}" has ${describeInvalidValue(camera.fovY)}`,
       camera.fovY,
-    );
-  if (!isFiniteStageVector3(camera.transform.translation))
-    context.out.push(
-      "range",
-      `${path}.transform.translation`,
-      `a camera that frames must be placed at a finite point, but "${camera.id}" is not`,
-      camera.transform.translation,
-    );
-  const rotation: IAutoMovieCamera["transform"]["rotation"] =
-    camera.transform.rotation;
-  if (
-    readsRotation &&
-    ![rotation.x, rotation.y, rotation.z, rotation.w].every(Number.isFinite)
-  )
-    context.out.push(
-      "range",
-      `${path}.transform.rotation`,
-      `a "whip" pans from the camera's staged orientation, so "${camera.id}" must carry a finite rotation`,
-      rotation,
     );
 }

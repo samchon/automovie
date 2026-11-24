@@ -242,13 +242,7 @@ export namespace createDog {
     unit: string,
     maximum?: number,
   ): void {
-    if (
-      !(
-        Number.isFinite(value) &&
-        value > 0 &&
-        (maximum === undefined || value <= maximum)
-      )
-    )
+    if (!(value > 0 && (maximum === undefined || value <= maximum)))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "dog",

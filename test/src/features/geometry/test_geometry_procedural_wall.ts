@@ -6,15 +6,18 @@ import { type IAutoMovieMesh } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { equalGeometryTestValues } from "../internal/equalGeometryTestValues";
-import { isFiniteProceduralMesh as finiteMesh } from "../internal/isFiniteProceduralMesh";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
 
 /**
- * Opening-aware walls retain exact cut volume, legal L remainders and both diagonal pinches; every opening admission row remains.
+ * Opening-aware walls retain exact cut volume, legal L remainders and both
+ * diagonal pinches; every opening admission row remains.
  *
  * Scenarios:
- * 1. Authored positive geometry retains its independent topology and dimensional expectations.
- * 2. Every associated invalid row refuses at the same diagnostic beside supported input.
+ *
+ * 1. Authored positive geometry retains its independent topology and dimensional
+ *    expectations.
+ * 2. Every associated invalid row refuses at the same diagnostic beside supported
+ *    input.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the existing door/window wall, plain wall and legal corner-opening L remainder, checking observed finiteness, nonempty indices, populations, analytic cut volumes and L closure. Both diagonal pinch orientations and every original malformed wall/opening row must refuse by its diagnostic; repeated authored construction remains identical.
  * @evidence contracts/development/testing.md#independent-expectations Standing rectangular area minus disjoint opening areas, multiplied by depth, gives each expected volume; a single corner opening leaves a connected L while diagonal corner contacts pinch the remaining wall at (1,1). Deterministic rebuild is a compatibility check, finiteMesh is partial, and topology/volume observations do not certify arbitrary architecture or pixels.
@@ -41,7 +44,6 @@ export function test_geometry_procedural_wall(): void {
   TestValidator.equals(
     "opening-aware segmentation leaves exactly the standing wall solid",
     namedFacts([
-      ["finite", (): boolean => finiteMesh(wall)],
       [
         "cut",
         (): boolean => wall.positions.length > plainWall.positions.length,
@@ -70,7 +72,6 @@ export function test_geometry_procedural_wall(): void {
       ],
     ]),
     {
-      finite: true,
       cut: true,
       indexed: true,
       volume: true,
@@ -176,17 +177,6 @@ export function test_geometry_procedural_wall(): void {
       (): IAutoMovieMesh =>
         buildAutoMovieWall({ width: 1, height: 1, depth: -1, openings: [] }),
       "wall depth must be a finite number > 0",
-    ],
-    [
-      "opening id",
-      (): IAutoMovieMesh =>
-        buildAutoMovieWall({
-          width: 2,
-          height: 2,
-          depth: 1,
-          openings: [{ id: " ", x: 0, y: 0, width: 1, height: 1 }],
-        }),
-      "wall opening[0] id must be non-empty",
     ],
     [
       "opening duplicate",

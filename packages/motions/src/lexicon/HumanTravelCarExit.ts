@@ -80,27 +80,18 @@ export namespace HumanTravelCarExit {
           liftShare,
         }: typeof params = params;
         if (
-          ![
-            width,
-            bench.depth,
-            floor,
-            gap,
-            landingDistance,
-            duckDegrees,
-            turnSeconds,
-            stagger,
-            liftShare,
-          ].every(Number.isFinite) ||
-          width <= 0 ||
-          gap < 0 ||
-          bench.depth <= 2 * gap ||
-          landingDistance <= 0 ||
-          duckDegrees < 0 ||
-          turnSeconds <= 0 ||
-          stagger < 0 ||
-          stagger >= 1 ||
-          liftShare <= 0 ||
-          liftShare >= 0.5
+          !(
+            width > 0 &&
+            gap >= 0 &&
+            bench.depth > 2 * gap &&
+            landingDistance > 0 &&
+            duckDegrees >= 0 &&
+            turnSeconds > 0 &&
+            stagger >= 0 &&
+            stagger < 1 &&
+            liftShare > 0 &&
+            liftShare < 0.5
+          )
         )
           throw new HumanRefusal({
             kind: "parameter",

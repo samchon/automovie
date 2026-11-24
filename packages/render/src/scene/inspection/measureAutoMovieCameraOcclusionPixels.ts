@@ -68,7 +68,7 @@ export function measureAutoMovieCameraOcclusionPixels(
   if (
     (factor !== 1 && factor !== 2) ||
     ![width, height, sampleWidth * sampleHeight * 4].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     )
   )
     return unsupported("invalid delivery pixel audit request");
@@ -113,10 +113,8 @@ export function measureAutoMovieCameraOcclusionPixels(
     context.MAX_VIEWPORT_DIMS,
   ) as Int32Array;
   if (
-    !Number.isSafeInteger(depthBits) ||
     depthBits < 16 ||
     depthBits > 32 ||
-    !Number.isSafeInteger(maximum) ||
     !(sampleWidth <= (viewport[0] ?? 0)) ||
     !(sampleHeight <= (viewport[1] ?? 0))
   )
@@ -386,7 +384,6 @@ function projectRange(
         clip.set(x, y, z, 1).applyMatrix4(projection);
         if (!(clip.w > 0)) return undefined;
         point.set(clip.x / clip.w, clip.y / clip.w, clip.z / clip.w);
-        if (!point.toArray().every(Number.isFinite)) return undefined;
         min.min(point);
         max.max(point);
       }

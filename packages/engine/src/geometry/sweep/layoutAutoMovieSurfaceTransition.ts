@@ -68,7 +68,7 @@ export const layoutAutoMovieSurfaceTransition: (
   ]
 > => {
   for (const n of [start, end, rows])
-    if (!Number.isSafeInteger(n) || n < 1)
+    if (n < 1)
       throw new Error(`transition counts must be positive integers, not ${n}`);
   const fine: number = Math.max(start, end);
   const coarse: number = Math.min(start, end);

@@ -28,8 +28,7 @@ export function gestureAdmit(
   p: IAutoMovieMotionHumanGesture.IParams,
   rhythm: (typeof gestureStrokeTables.RHYTHM)[IAutoMovieMotionHumanGestureStroke.Kind],
 ): gestureAdmit.IAdmitted {
-  const cycles: number = p.count ?? rhythm.cycles;
-  HumanBound.whole("count", cycles);
+  const cycles: number = HumanBound.whole("count", p.count ?? rhythm.cycles);
   const hold: number = p.hold ?? 0;
   HumanBound.least("hold", hold, 0, "s");
   const depth: number = p.depth ?? gesture.BOW;

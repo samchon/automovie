@@ -177,7 +177,6 @@ const actorPoseAt: (
   skeleton: IAutoMovieSkeleton | null,
 ): IAutoMoviePose => {
   if (
-    Number.isFinite(time) === false ||
     time < 0 ||
     time > compiled.shot.duration
   )

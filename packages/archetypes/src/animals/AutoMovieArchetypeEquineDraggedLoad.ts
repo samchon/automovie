@@ -101,7 +101,7 @@ export function AutoMovieArchetypeEquineDraggedLoad(
   const depth: number = params.depth ?? 0;
   const lift: number = params.lift ?? 0;
   const raise: number = params.raise ?? 1;
-  if (!(Number.isFinite(params.length) && params.length > 0))
+  if (!(params.length > 0))
     refuse("length", params.length, "the trace must be a positive length");
   if (!(depth >= 0) || !(lift >= 0) || !(raise > 0))
     refuse(

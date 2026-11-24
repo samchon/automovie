@@ -81,12 +81,10 @@ export interface IAutoMovieMotionHumanPerformanceState {
   /**
    * The spans in which each prop is held or worn, by the prop: who holds it in
    * which hand or wears it on which bone, from when to when and at which offset
-   * from the hand or the bone; found once the performance is placed.
+   * from the hand or the bone; solved once when the performance is prepared
+   * (`prepareHumanPerformance`), empty while the schedule is resolved.
    */
-  readonly gripCache: Map<
-    string,
-    IAutoMovieMotionHumanPerformanceState.IGrip[]
-  >;
+  readonly grips: Map<string, IAutoMovieMotionHumanPerformanceState.IGrip[]>;
 
   /**
    * The meetings of the mutual actions, by their kind, start and performers:
@@ -116,6 +114,13 @@ export interface IAutoMovieMotionHumanPerformanceState {
    * carrier and never follow or precede one.
    */
   readonly riding: Set<number>;
+
+  /**
+   * The hands being read now, by performer and film second: a re-entrant read
+   * is a posture reading the prop its own hand holds. Entries exist only while
+   * their read runs.
+   */
+  readonly holding: Map<string, Set<number>>;
 
   /** What stands in the performers' way. */
   readonly obstacles: readonly IAutoMovieMotionHumanObstacle[];
@@ -159,7 +164,8 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /**
    * Whether the schedule is still being resolved: until every action is placed,
-   * a pose may read people not placed yet, so nothing is kept.
+   * a pose may read people not placed yet, and a read of a person whose part
+   * still waits is refused or places them first.
    */
   resolving: boolean;
 
@@ -222,14 +228,14 @@ export interface IAutoMovieMotionHumanPerformanceState {
   >;
 
   /**
-   * Each performer's solved soft parts, by subject, kept once the performance
-   * is placed (`HumanPerformanceSoft.of`).
+   * Each soft prop's solved lattice, by the prop, solved once when the
+   * performance is prepared (`HumanPerformanceSoft.prepare`).
    */
   readonly soft: Map<string, IAutoMovieMotionHumanPerformanceSoft.ISolved>;
 
   /**
-   * Each prop's articulation writers in film order, by the prop, kept once the
-   * performance is placed (`HumanPerformanceObject.writers`).
+   * Each prop's articulation writers in film order, by the prop, solved once
+   * when the performance is prepared (`HumanPerformanceObject.writers`).
    */
   readonly writers: Map<
     string,
@@ -237,22 +243,8 @@ export interface IAutoMovieMotionHumanPerformanceState {
   >;
 
   /**
-   * Each prop's last posed reading with its film second, by the prop, kept once
-   * the performance is placed (`HumanPerformanceObject.posed`).
-   */
-  readonly posed: Map<
-    string,
-    {
-      /** The film second read. */
-      seconds: number;
-      /** The prop posed at that second. */
-      posed: IAutoMovieMotionHumanProp.IPosed;
-    }
-  >;
-
-  /**
-   * Each launched prop's flights, by the prop, kept once the performance is
-   * placed (`HumanPropFlight.flights`).
+   * Each launched prop's flights, by the prop, solved once when the
+   * performance is prepared (`HumanPropFlight.flights`).
    */
   readonly flights: Map<
     string,
@@ -267,8 +259,8 @@ export interface IAutoMovieMotionHumanPerformanceState {
 
   /**
    * Every hit of the placed performance in time order
-   * (`HumanPerformanceHits.hits`), kept on its first read once the performance
-   * is placed; none before.
+   * (`HumanPerformanceHits.hits`), solved once when the performance is
+   * prepared; none before.
    */
   hits: readonly IAutoMovieInteractionEvent[] | undefined;
 }

@@ -53,15 +53,16 @@ const second: IAutoMovieFormationStageMarkSet = {
 };
 
 /**
- * A quarter-turned ensemble holds the correct individual marks through
- * multiple sets. A mark is a point from the unit anchor, distinct from
- * the displacement the member channel stores.
+ * A quarter-turned ensemble holds the correct individual marks through multiple
+ * sets. A mark is a point from the unit anchor, distinct from the displacement
+ * the member channel stores.
  *
  * Scenarios:
- * 1. A rotated unit travels between absolute marks, holds through a gap,
- *    and retains the last assigned facing when the next mark omits it.
- * 2. A late joiner, an unset slot and a separately rotated block keep
- *    their own rest placement.
+ *
+ * 1. A rotated unit travels between absolute marks, holds through a gap, and
+ *    retains the last assigned facing when the next mark omits it.
+ * 2. A late joiner, an unset slot and a separately rotated block keep their own
+ *    rest placement.
  * 3. The resulting cues enter an ordinary shot. Invalid authored sets fail.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The actual compiler feeds the member sampler and placement and the ordinary sparse shot cue admission. Interval holds, earlier and later performers, retained facing and refusal cases exercise the public entry.
@@ -193,7 +194,6 @@ export function test_world_formation_stage_marks(): void {
 
   const mark = first.marks[0]!;
   const refused: readonly IAutoMovieFormationStageMarkSet[][] = [
-    [{ ...first, id: " " }],
     [first, { ...second, id: first.id }],
     [{ ...first, start: -1 }],
     [{ ...first, end: Infinity }],

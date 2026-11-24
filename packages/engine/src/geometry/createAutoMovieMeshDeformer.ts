@@ -58,12 +58,7 @@ export function createAutoMovieMeshDeformer(
       const radius: number[] = components(field.radius);
       const displacement: number[] = components(field.displacement);
       const stretch: number[] = components(field.stretch);
-      if (
-        ![...center, ...radius, ...displacement, ...stretch].every(
-          Number.isFinite,
-        ) ||
-        radius.some((value: number): boolean => value <= 0)
-      )
+      if (radius.some((value: number): boolean => value <= 0))
         throw new Error(
           "Mesh deformation fields need finite vectors and strictly positive radii.",
         );
@@ -77,30 +72,19 @@ export function createAutoMovieMeshDeformer(
     if (mesh.physicalVertices !== undefined)
       resolveAutoMovieMeshPhysicalVertices(mesh);
     const indices: number[] = triangleIndicesOf(mesh, "Mesh deformation");
-    if (
-      !mesh.positions.every(Number.isFinite) ||
-      (mesh.normals !== null &&
-        (mesh.normals.length !== mesh.positions.length ||
-          !mesh.normals.every(Number.isFinite)))
-    )
+    if (mesh.normals !== null && mesh.normals.length !== mesh.positions.length)
       throw new Error(
-        "Mesh deformation needs finite complete positions, aligned normals and resident triangle indices.",
+        "Mesh deformation needs complete positions, aligned normals and resident triangle indices.",
       );
     if (
       influence !== undefined &&
       (influence.length !== mesh.positions.length / 3 ||
         influence.some(
           ({ weight, gradient }: IAutoMovieMeshDeformationInfluence): boolean =>
-            ![weight, gradient.x, gradient.y, gradient.z].every(
-              Number.isFinite,
-            ) ||
-            weight < 0 ||
-            weight > 1,
+            weight < 0 || weight > 1,
         ))
     )
-      throw new Error(
-        "Mesh influence needs one bounded weight and finite inverse-metre gradient per vertex.",
-      );
+      throw new Error("Mesh influence needs one bounded weight per vertex.");
     const positions: number[] = [];
     const normals: number[] | null = mesh.normals === null ? null : [];
     // Store the analytic cofactor matrix even when shading normals are absent.
@@ -168,10 +152,6 @@ export function createAutoMovieMeshDeformer(
       }
       const { matrix }: IAutoMovieJacobianCofactor =
         cofactorAutoMovieJacobian(jacobian);
-      if (!target.every(Number.isFinite))
-        throw new Error(
-          "Mesh deformation must remain finite and preserve local surface orientation.",
-        );
       positions.push(target[0]!, target[1]!, target[2]!);
       cofactors.push(matrix);
       if (normals !== null) {

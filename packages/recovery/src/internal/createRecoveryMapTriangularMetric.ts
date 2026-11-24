@@ -26,11 +26,6 @@ export function createRecoveryMapTriangularMetric(
       throw new Error(
         "camera-feasible: matching owned factor and positive original scales required",
       );
-    for (let column: number = 0; column < cameraWidth; column++)
-      if (!Number.isFinite(row[column]))
-        throw new Error(
-          "camera-feasible: matching owned factor and positive original scales required",
-        );
   }
   for (let point: number = 0; point < triangles.length; point++) {
     const rows: readonly (readonly number[])[] | undefined = triangles[point];
@@ -48,11 +43,6 @@ export function createRecoveryMapTriangularMetric(
         throw new Error(
           "camera-feasible: matching owned factor and positive original scales required",
         );
-      for (let column: number = 0; column < row.length; column++)
-        if (!Number.isFinite(row[column]))
-          throw new Error(
-            "camera-feasible: matching owned factor and positive original scales required",
-          );
     }
   }
   const divide: (value: number, pivot: number) => number = (
@@ -60,7 +50,7 @@ export function createRecoveryMapTriangularMetric(
     pivot: number,
   ): number => {
     const answer: number = value / pivot;
-    if (pivot === 0 || !Number.isFinite(answer))
+    if (pivot === 0)
       throw new Error("camera-feasible: unresolved triangular metric action");
     return answer;
   };
@@ -94,8 +84,7 @@ export function createRecoveryMapTriangularMetric(
         for (let previous: number = 0; previous < axis; previous++)
           value -= triangular[previous]![axis]! * right[previous]!;
         right[axis] = value / triangular[axis]![axis]!;
-        if (triangular[axis]![axis] === 0 || !Number.isFinite(right[axis]))
-          return null;
+        if (triangular[axis]![axis] === 0) return null;
       }
       for (let column: number = 0; column < cameraWidth; column++)
         for (let axis: number = 0; axis < 3; axis++)
@@ -106,8 +95,7 @@ export function createRecoveryMapTriangularMetric(
       for (let previous: number = 0; previous < axis; previous++)
         value -= camera[previous]![axis]! * cameraRight[previous]!;
       cameraRight[axis] = value / camera[axis]![axis]!;
-      if (camera[axis]![axis] === 0 || !Number.isFinite(cameraRight[axis]))
-        return null;
+      if (camera[axis]![axis] === 0) return null;
     }
     const indices: number[] = Array.from(
       { length: cameraWidth },
@@ -160,8 +148,6 @@ export function createRecoveryMapTriangularMetric(
         for (let axis: number = 0; axis < 3; axis++)
           physical.push(local[axis]! / pointScales[point]![axis]!);
       }
-      if (!physical.every(Number.isFinite))
-        throw new Error("camera-feasible: nonrepresentable physical step");
       return physical;
     },
     toPhysicalCovector: (value: readonly number[]): number[] => {
@@ -187,8 +173,6 @@ export function createRecoveryMapTriangularMetric(
       }
       for (let axis: number = 0; axis < cameraWidth; axis++)
         physical[axis]! *= cameraScales[axis]!;
-      if (!physical.every(Number.isFinite))
-        throw new Error("camera-feasible: nonrepresentable physical covector");
       return physical;
     },
   };

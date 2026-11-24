@@ -34,8 +34,6 @@ export function withHumanStagePropLink(
   );
   if (byId.get(articulation)?.kind !== "hinge" || prop.articulate === undefined)
     throw new Error(`${prop.subject}.link requires a poseable hinge`);
-  if (!Number.isFinite(typeof start === "number" ? start : (start.offset ?? 0)))
-    throw new Error("Give the link track a finite start time or cue offset");
   if (keys.length < 2 || keys[0]!.seconds !== 0)
     throw new Error("Give the link track at least two keys starting at zero");
 
@@ -44,10 +42,7 @@ export function withHumanStagePropLink(
       key: withHumanStagePropLink.IKey,
       index: number,
     ): withHumanStagePropLink.IKey => {
-      if (
-        !Number.isFinite(key.seconds) ||
-        (index > 0 && key.seconds <= keys[index - 1]!.seconds)
-      )
+      if (index > 0 && key.seconds <= keys[index - 1]!.seconds)
         throw new Error(
           "Link key seconds must be finite and strictly increasing",
         );

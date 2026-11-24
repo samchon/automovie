@@ -22,7 +22,7 @@ export function createAutoMovieQuadraticMemory(): IAutoMovieCreateQuadraticMemor
       length: number,
       use: (heap: IAutoMovieQuadraticHeap, address: number) => T,
     ): T {
-      if (!Number.isInteger(length) || length <= 0 || length > 0xffffffff)
+      if (length <= 0 || length > 0xffffffff)
         throw new Error(
           "Quadratic workspace needs a positive bounded integer byte count.",
         );

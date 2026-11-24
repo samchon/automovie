@@ -44,7 +44,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     props.renderer.getContext();
   const observed: unknown = context.getParameter(context.DEPTH_BITS) as unknown;
   const observedDepthBits: number | null =
-    typeof observed === "number" && Number.isFinite(observed) ? observed : null;
+    typeof observed === "number" ? observed : null;
   const base: {
     camera: string;
     sourceNear: number | null;
@@ -70,17 +70,10 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     observedDepthBits,
     projection,
   };
-  const levels: number = 2 ** props.source.depthPrecision.minimumDepthBits - 1;
   if (
-    props.source.id.trim().length === 0 ||
-    !Number.isFinite(props.source.near) ||
     props.source.near <= 0 ||
-    !Number.isFinite(props.source.far) ||
     props.source.far <= props.source.near ||
-    !Number.isSafeInteger(props.source.depthPrecision.minimumDepthBits) ||
     props.source.depthPrecision.minimumDepthBits <= 0 ||
-    !Number.isSafeInteger(levels) ||
-    !Number.isFinite(props.source.depthPrecision.maximumStepMeters) ||
     props.source.depthPrecision.maximumStepMeters <= 0
   )
     return { ...base, status: "invalid-source", passed: false };
@@ -91,11 +84,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
     return { ...base, status: "projection-mismatch", passed: false };
   if (projection !== "standard")
     return { ...base, status: "nonstandard-projection", passed: false };
-  if (
-    observedDepthBits === null ||
-    !Number.isSafeInteger(observedDepthBits) ||
-    observedDepthBits < 0
-  )
+  if (observedDepthBits === null || observedDepthBits < 0)
     return { ...base, status: "invalid-capability", passed: false };
   if (observedDepthBits < props.source.depthPrecision.minimumDepthBits)
     return { ...base, status: "insufficient-capability", passed: false };
@@ -104,4 +93,4 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
 
 const finiteOrNull: (value: number) => number | null = (
   value: number,
-): number | null => (Number.isFinite(value) ? value : null);
+): number | null => value;

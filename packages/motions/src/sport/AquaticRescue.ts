@@ -352,16 +352,18 @@ export namespace AquaticRescue {
         bend: local(w.bend),
       };
     };
-    let held: IAutoMovieHumanLimbGoal | undefined;
+    const chestAt: ReturnType<typeof AquaticPosture.markers> =
+      AquaticPosture.markers(body, ["chest"]);
+    const held: IAutoMovieHumanLimbGoal = inFrame(
+      chestAt(bodyAt(hold)).get("chest")!,
+    );
     const grip = (
       shaped: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): IAutoMovieHumanLimbGoal =>
       seconds < hold
         ? inFrame(chestAt(shaped).get("chest")!)
-        : (held ??= inFrame(chestAt(bodyAt(hold)).get("chest")!));
-    const chestAt: ReturnType<typeof AquaticPosture.markers> =
-      AquaticPosture.markers(body, ["chest"]);
+        : held;
     // The near arm reaches from its last crawl stroke to the victim's
     // sternum as one admitted course and holds it through the tow
     // (`courseArmGoal`); the victim never reads the rescuer.

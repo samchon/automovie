@@ -57,8 +57,7 @@ export namespace salto {
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanSalto.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
-    const turns: number = p.turns ?? 1;
-    HumanBound.whole("turns", turns);
+    const turns: number = HumanBound.whole("turns", p.turns ?? 1);
 
     // A salto is a jump asked for whole somersaults: the flight
     // pass turns it by the momentum its composed shape needs, and a request

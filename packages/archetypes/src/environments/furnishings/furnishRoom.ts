@@ -75,19 +75,12 @@ export function furnishRoom(
   const layout: IAutoMovieFurnishingLayout = params.layout;
   const [width, depth] = layout.room;
   const aisle: number = layout.aisle ?? furnishRoom.DEFAULT_AISLE;
-  if (
-    ![width, depth, aisle].every(
-      (n: number): boolean => Number.isFinite(n) && n > 0,
-    )
-  )
+  if (![width, depth, aisle].every((n: number): boolean => n > 0))
     throw new Error(
       `${context.id} room and aisle need positive finite dimensions`,
     );
   const grid: furnishRoom.IGrid | undefined = params.grid;
-  if (
-    grid !== undefined &&
-    (!Number.isSafeInteger(grid.count) || grid.count < 1)
-  )
+  if (grid !== undefined && grid.count < 1)
     throw new Error(`${context.id} ${grid.capacity} needs a positive integer`);
 
   const room: FurnishingRect.IRect = {
@@ -138,14 +131,6 @@ export function furnishRoom(
     if (original === undefined)
       throw new Error(
         `${context.id} overrides.${role} names no furnished prop`,
-      );
-    if (
-      ![override.at[0], override.at[1], override.heading ?? 0].every(
-        Number.isFinite,
-      )
-    )
-      throw new Error(
-        `${context.id} overrides.${role} needs a finite position and heading`,
       );
     const candidate: FurnishingRect.IPlacement = FurnishingRect.locate(
       original.placement.model,
@@ -280,8 +265,6 @@ function placeGrid(
     1 + Math.floor((depth - 2 * aisle - groupDepth) / pitchZ),
   );
   const capacity: number = columns * rows;
-  if (!Number.isSafeInteger(capacity))
-    throw new Error(`${id} room is too large to index its furnishing grid`);
   if (capacity < grid.count)
     throw capacityError(id, grid.capacity, grid.count, capacity);
 

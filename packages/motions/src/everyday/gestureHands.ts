@@ -314,10 +314,6 @@ export namespace gestureHands {
     envelope: (seconds: number) => number,
     plan?: Parameters<typeof AutoMovieMotionHumanArmPlanned.planned>[4],
   ): Map<AutoMovieHumanSide, IAutoMovieMotionHumanArmTrajectory.Played> {
-    // The planner passes the exact posture returned by before to each arm.
-    // Keep that posture's hand requests with it, rather than evaluating the
-    // complete two-hand gesture again for every goal and scalar weight.
-    const frames: WeakMap<IAutoMovieMotionHumanPosture, IPrior> = new WeakMap();
     return AutoMovieMotionHumanArmPlanned.planned(
       body,
       span,
@@ -329,10 +325,10 @@ export namespace gestureHands {
           rest: begin[side]!,
           back: rest[side]!,
           goal: (
-            posture: IAutoMovieMotionHumanPosture,
+            _posture: IAutoMovieMotionHumanPosture,
             at: number,
           ): IAutoMovieHumanLimbGoal => {
-            const before: IPrior = frames.get(posture) ?? prior(at);
+            const before: IPrior = prior(at);
             const request: IAutoMovieMotionHumanArmTarget.ISided =
               before.requests.find(
                 (hand: IAutoMovieMotionHumanArmTarget.ISided): boolean =>
@@ -348,11 +344,8 @@ export namespace gestureHands {
         _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
         resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
         projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-      ): IAutoMovieMotionHumanPosture => {
-        const before: IPrior = prior(at, undefined, resolution, projection);
-        frames.set(before.posture, before);
-        return before.posture;
-      },
+      ): IAutoMovieMotionHumanPosture =>
+        prior(at, undefined, resolution, projection).posture,
       plan,
     );
   }

@@ -271,7 +271,6 @@ export function descendDigitTasks(
         accepted ||
         !served ||
         J2.length === 0 ||
-        !Number.isFinite(maximum) ||
         !(maximum / 2 > step)
       )
         break;

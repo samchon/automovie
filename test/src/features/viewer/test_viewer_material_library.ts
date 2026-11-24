@@ -15,10 +15,15 @@ import { boxModel, material } from "../internal/renderFixtures";
  *
  * Scenarios:
  *
- * 1. Null selects a builder's own default, while blank, absent, conflicting, and unrequested ids are refused rather than rendered with a fallback.
- * 2. Repeated requests for one flat material build one shared object without requiring a texture cache, and library disposal releases it exactly once.
- * 3. A textured material requires the shot cache, decodes once, and separates ownership: the library disposes the material while the cache later disposes its binding-private texture and decoded source.
- * 4. A throwing first material listener cannot skip another material's release; repeated disposal preserves the same failure without another attempt.
+ * 1. Null selects a builder's own default, while absent, conflicting, and
+ *    unrequested ids are refused rather than rendered with a fallback.
+ * 2. Repeated requests for one flat material build one shared object without
+ *    requiring a texture cache, and library disposal releases it exactly once.
+ * 3. A textured material requires the shot cache, decodes once, and separates
+ *    ownership: the library disposes the material while the cache later
+ *    disposes its binding-private texture and decoded source.
+ * 4. A throwing first material listener cannot skip another material's release;
+ *    repeated disposal preserves the same failure without another attempt.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls buildAutoMovieMaterialLibrary and AutoMovieTextureCache through their real material/event seams, asserting resolution refusals, shared requested identity, independent cache ownership and complete failure-preserving material retirement.
  * @evidence contracts/development/testing.md#independent-expectations Requested ids and null-default semantics determine resolution expectations; public dispose events independently count one attempt per owned material while texture events prove cache ownership, and the injected listener Error reference must survive repeated disposal unchanged.
@@ -50,12 +55,6 @@ export async function test_viewer_material_library(): Promise<void> {
   );
   defaults.dispose();
 
-  const blank: string | null = await buildAutoMovieMaterialLibrary({
-    models: [flatModel],
-    materialIds: ["  "],
-  })
-    .then((): null => null)
-    .catch((error: unknown): string => (error as Error).message);
   const absent: string | null = await buildAutoMovieMaterialLibrary({
     models: [flatModel],
     materialIds: ["fabric"],
@@ -75,13 +74,12 @@ export async function test_viewer_material_library(): Promise<void> {
   TestValidator.equals(
     "invalid cross-model identities retain the resolver's explicit refusal",
     [
-      blank?.includes("must not be blank") === true,
       absent?.includes("is absent") === true,
       conflicting?.includes(
         'conflicting definitions in models: "conflicting-model", "flat-model"',
       ) === true,
     ],
-    [true, true, true],
+    [true, true],
   );
 
   const flat: IAutoMovieMaterialLibrary = await buildAutoMovieMaterialLibrary({

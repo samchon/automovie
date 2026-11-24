@@ -26,10 +26,7 @@ export function distanceAutoMovieViewOutline(
   domain: readonly [number, number],
 ): number[] | string {
   if (
-    !Number.isFinite(targetStation) ||
-    !Number.isFinite(targetValue) ||
     domain.length !== 2 ||
-    !domain.every(Number.isFinite) ||
     domain[0] > domain[1] ||
     domain[0] < outline.domain[0] ||
     domain[1] > outline.domain[1]
@@ -76,8 +73,6 @@ export function distanceAutoMovieViewOutline(
         (h * h * (curvatures[i + 1]! - curvatures[i]!)) / 6,
       ]),
     ];
-    if (![...station, ...ordinate].every(Number.isFinite))
-      return `source graph distance interval ${i} has unrepresentable displacement coefficients`;
 
     // A common positive scale preserves distance stationarity while avoiding
     // overflow when the two coordinate polynomials are multiplied.
@@ -115,8 +110,6 @@ export function distanceAutoMovieViewOutline(
     for (const t of rootsAutoMovieViewPolynomial(polynomial)) {
       if (!(t > lower && t < upper)) continue;
       const s: number = AutoMovieViewParameter.station(p, x0 + h * t);
-      if (!Number.isFinite(s))
-        return `source graph distance interval ${i} has an unrepresentable station`;
       if (s > domain[0] && s < domain[1]) result.push(s);
     }
   }

@@ -42,7 +42,7 @@ export function fitRigidMeshTransform(
     new Set(vertices).size !== vertices.length ||
     vertices.some(
       (v: number): boolean =>
-        !Number.isInteger(v) || v < 0 || v * 3 >= reference.length,
+        v < 0 || v * 3 >= reference.length,
     )
   )
     throw new Error(
@@ -54,8 +54,6 @@ export function fitRigidMeshTransform(
     for (let k: number = 0; k < 3; k++) {
       const x: number = reference[3 * vertex + k];
       const y: number = target[3 * vertex + k];
-      if (!Number.isFinite(x) || !Number.isFinite(y))
-        throw new Error("Rigid fitting needs finite corresponding positions.");
       a[k] += x / vertices.length;
       b[k] += y / vertices.length;
     }
@@ -72,8 +70,6 @@ export function fitRigidMeshTransform(
         Math.abs(target[3 * vertex + k] - b[k]),
       );
     }
-  if (![...a, ...b, referenceScale, targetScale].every(Number.isFinite))
-    throw new Error("Rigid fitting exceeded finite coordinate arithmetic.");
   // Positive uniform rescaling of either cloud leaves the maximizing rotation
   // unchanged. Normalize before multiplication to avoid overflow and underflow.
   const referenceDivisor: number = referenceScale === 0 ? 1 : referenceScale;

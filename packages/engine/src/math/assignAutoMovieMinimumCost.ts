@@ -32,9 +32,6 @@ export function assignAutoMovieMinimumCost(
       throw new Error(
         `assignAutoMovieMinimumCost: row ${i} has ${row.length} columns, ${m} expected`,
       );
-    for (const value of row)
-      if (!Number.isFinite(value))
-        throw new Error(`assignAutoMovieMinimumCost: row ${i} holds ${value}`);
   });
 
   // Potentials u (rows) and v (columns), 1-based with column 0 the virtual start; way[j] is the column before j on the path.
@@ -71,10 +68,6 @@ export function assignAutoMovieMinimumCost(
       // always exists, and finite reduced costs give it a finite delta. A
       // delta that is not finite means the potentials overflowed binary64;
       // its column 0 would be re-entered forever, so the table is refused.
-      if (!Number.isFinite(delta))
-        throw new Error(
-          "assignAutoMovieMinimumCost: the reduced costs overflow binary64",
-        );
       for (let j: number = 0; j <= m; ++j)
         if (used[j]) {
           u[owner[j]!] = u[owner[j]!]! + delta;

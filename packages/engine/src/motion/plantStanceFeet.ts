@@ -59,13 +59,12 @@ export const plantStanceFeet: (
   );
   const tolerance: number = props.tolerance ?? DEFAULT_TOLERANCE;
   const legs: readonly IAutoMovieFootLeg[] = props.legs ?? DEFAULT_LEGS;
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new Error("contact tolerance must be finite and non-negative");
-  if (typeof props.groundY === "number" && !Number.isFinite(props.groundY))
-    throw new Error("source ground height must be finite");
+
   if (
     props.sampleRate !== undefined &&
-    (!Number.isFinite(props.sampleRate) || props.sampleRate <= 0)
+    (props.sampleRate <= 0)
   )
     throw new Error(
       `sampleRate must be a finite number > 0, but was ${props.sampleRate}`,

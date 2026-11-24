@@ -184,11 +184,6 @@ export const validateServiceNetwork: (
             sleeve.opening,
           );
       }
-      out.finiteVector(
-        `${path}.position`,
-        sleeve.position,
-        "penetration position",
-      );
       positive(sleeve.radius, `${path}.radius`, "penetration radius", out);
       appendServiceSleeveOnFace(environment, sleeve, path, out);
       if (!citedPenetrations.has(sleeve.id))
@@ -298,7 +293,7 @@ const positive: (
   label: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(value) || value <= 0)
+  if (value <= 0)
     out.push(
       "range",
       path,
@@ -319,7 +314,7 @@ const nonNegative: (
   label: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(value) || value < 0)
+  if (value < 0)
     out.push(
       "range",
       path,

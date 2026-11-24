@@ -47,7 +47,6 @@ export function approximateAutoMovieRecoveryCompactCurves(
   });
   if (
     ![3, 4, 5, "mixed"].includes(options.degree) ||
-    !Number.isSafeInteger(options.maximumQueries) ||
     options.maximumQueries < 1
   )
     diagnostics.push(
@@ -55,8 +54,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
     );
   if (
     curve.knots.some(
-      (t: number): boolean =>
-        !Number.isFinite(t) || t <= curve.domain[0] || t >= curve.domain[1],
+      (t: number): boolean => t <= curve.domain[0] || t >= curve.domain[1],
     )
   )
     diagnostics.push(
@@ -120,10 +118,6 @@ export function approximateAutoMovieRecoveryCompactCurves(
       order === undefined
         ? curve.evaluate(t)
         : curve.derivative(t, order, side);
-    if (!borrowed.every(Number.isFinite))
-      throw new Error(
-        "Source returned nonfinite compact-fit coordinates or jets.",
-      );
     const p: Readonly<AutoMovieVector2Tuple> = [borrowed[0], borrowed[1]];
     if (order === undefined) observations.set(t, p);
     return p;
@@ -246,12 +240,7 @@ export function approximateAutoMovieRecoveryCompactCurves(
       for (let j: number = 0; j < width; ++j)
         solution[j] += projection * decomposition.rightColumns[k]![j]!;
     }
-    if (
-      !solution.every(Number.isFinite) ||
-      solution[0]! <= 0 ||
-      solution[1]! <= 0
-    )
-      return undefined;
+    if (solution[0]! <= 0 || solution[1]! <= 0) return undefined;
     const controls: Readonly<AutoMovieVector2Tuple>[] = [
       p,
       [p[0] + solution[0]! * u[0], p[1] + solution[0]! * u[1]],
@@ -304,27 +293,33 @@ export function approximateAutoMovieRecoveryCompactCurves(
     ];
     const area: number = Q.cross(x, y);
 
-    /** Recover rational u from source barycentric coordinates along an apex ray. */
-    function radial(t: number): number {
+    /**
+     * Recover rational u from source barycentric coordinates along an apex ray,
+     * or null outside the triangle or on a degenerate ray.
+     */
+    function radial(t: number): number | null {
       if (t === piece.domain[0]) return 0;
       if (t === piece.domain[1]) return 1;
       const q: Readonly<AutoMovieVector2Tuple> = observe(t);
       const delta: Readonly<AutoMovieVector2Tuple> = [q[0] - p[0], q[1] - p[1]];
-      if (area === 0)
-        return (delta[0] * y[0] + delta[1] * y[1]) / (y[0] ** 2 + y[1] ** 2);
+      if (area === 0) {
+        const length: number = y[0] ** 2 + y[1] ** 2;
+        return length === 0
+          ? null
+          : (delta[0] * y[0] + delta[1] * y[1]) / length;
+      }
       const b1: number = Q.cross(delta, y) / area;
       const b2: number = Q.cross(x, delta) / area;
       const b0: number = 1 - b1 - b2;
-      return b0 < 0 || b2 < 0
-        ? NaN
+      return b0 < 0 || b2 < 0 || b0 + b2 === 0
+        ? null
         : Math.sqrt(b2) / (Math.sqrt(b0) + Math.sqrt(b2));
     }
     let maximum: number = 0;
     let previous: number = -Infinity;
     for (const t of at) {
-      const u: number = radial(t);
-      if (!Number.isFinite(u) || u < previous || u < 0 || u > 1)
-        return Infinity;
+      const u: number | null = radial(t);
+      if (u === null || u < previous || u < 0 || u > 1) return Infinity;
       previous = u;
       maximum = Math.max(maximum, Q.distance(observe(t), C.evaluate(piece, u)));
     }
@@ -334,9 +329,8 @@ export function approximateAutoMovieRecoveryCompactCurves(
       let high: number = piece.domain[1];
       for (let j: number = 0; j < 28; ++j) {
         const middle: number = (low + high) / 2;
-        const value: number = radial(middle);
-        if (!Number.isFinite(value)) return Infinity;
-        if (value < u) low = middle;
+        const value: number | null = radial(middle);
+        if (value !== null && value < u) low = middle;
         else high = middle;
       }
       maximum = Math.max(

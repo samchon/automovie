@@ -40,8 +40,6 @@ export const locateAutoMovieSweepPoint: (
   const { surface, point }: typeof props = props;
   if (surface.sweep.correspondence === "parameter")
     throw new Error("sweep point location requires direction correspondence");
-  if (![point.x, point.y, point.z].every(Number.isFinite))
-    throw new Error("sweep point to locate is not finite");
   function plane(u: number): number {
     const f: IAutoMovieSweepFrame = surface.frame(u);
     return (

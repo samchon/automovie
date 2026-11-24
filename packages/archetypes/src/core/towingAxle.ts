@@ -21,10 +21,7 @@ export function towingAxle(
 ): IAutoMovieVector3 {
   const a: IAutoMovieVector3 = left.frame.translation;
   const b: IAutoMovieVector3 = right.frame.translation;
-  if (
-    ![a.x, a.y, a.z, b.x, b.y, b.z].every(Number.isFinite) ||
-    !(a.y > 0 && b.y > 0)
-  )
+  if (!(a.y > 0 && b.y > 0))
     throw new RangeError(
       "Towing requires actual finite wheel centres with positive ground clearance",
     );
@@ -51,7 +48,6 @@ export function towingAxle(
     );
     if (
       contact.kind !== "knob" ||
-      ![axis.x, axis.y, axis.z].every(Number.isFinite) ||
       Math.abs(Math.abs(axis.x) - 1) > 64 * Number.EPSILON ||
       Math.abs(axis.y) > 64 * Number.EPSILON ||
       Math.abs(axis.z) > 64 * Number.EPSILON

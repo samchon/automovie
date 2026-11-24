@@ -89,12 +89,14 @@ export function supportStep(props: supportStep.IProps): number {
     steps === 1 ? props.move / 3 : (2 * props.move) / (3 * (steps + 1));
   // A stepping foot's course keeps the heading it leaves with (turned out
   // from the body's), read once from the key it leaves.
-  const headings: Partial<Record<AutoMovieHumanSide, number>> = {};
   const first: IAutoMovieMotionHumanPosture = keys.at(-1)!.posture;
+  const headings: Record<AutoMovieHumanSide, number> = {
+    left: supportCourse.footHeading(body, first, "left"),
+    right: supportCourse.footHeading(body, first, "right"),
+  };
   const leaving: (foot: AutoMovieHumanSide) => number = (
     foot: AutoMovieHumanSide,
-  ): number =>
-    (headings[foot] ??= supportCourse.footHeading(body, first, foot));
+  ): number => headings[foot];
   // A stance that names its shoulders' height holds both shoulder joints
   // there in the step's lift keys, the body hanging on its hands.
   const height: number | undefined = props.stance.shoulders;

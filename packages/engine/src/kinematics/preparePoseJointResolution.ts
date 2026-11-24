@@ -563,10 +563,7 @@ function clinicalValue(
   previous: number | null | undefined,
   convention: preparePoseJointResolution.IConvention,
 ): number | null {
-  if (value !== null && !Number.isFinite(value))
-    throw new Error(
-      `jointToQuaternion ${axis} must be finite or null, but was ${value}`,
-    );
+
 
   // A prior successful nonnull reading already admitted this immutable frame.
   if (

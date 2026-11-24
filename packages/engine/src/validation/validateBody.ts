@@ -21,7 +21,7 @@ export const validateBody: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!Number.isFinite(body.mass) || body.mass <= 0)
+  if (body.mass <= 0)
     collector.push(
       "range",
       `${path}.mass`,
@@ -63,7 +63,7 @@ export const validateBody: (
     );
   if (body.drag !== undefined)
     for (const field of ["coefficient", "area"] as const)
-      if (!(Number.isFinite(body.drag[field]) && body.drag[field] > 0))
+      if (!(body.drag[field] > 0))
         collector.push(
           "range",
           `${path}.drag.${field}`,
@@ -72,7 +72,7 @@ export const validateBody: (
         );
   if (
     body.contact?.embed !== undefined &&
-    !(Number.isFinite(body.contact.embed) && body.contact.embed >= 0)
+    !(body.contact.embed >= 0)
   )
     collector.push(
       "range",
@@ -90,7 +90,7 @@ export const validateBody: (
     );
   if (
     body.contact?.fracture !== undefined &&
-    !(Number.isFinite(body.contact.fracture) && body.contact.fracture > 0)
+    !(body.contact.fracture > 0)
   )
     collector.push(
       "range",
@@ -124,15 +124,5 @@ export const validateBody: (
       90,
       "glance angle",
     );
-  if (body.centerOfMass !== null) {
-    const com: IAutoMovieVector3 = body.centerOfMass;
-    for (const axis of ["x", "y", "z"] as const)
-      if (!Number.isFinite(com[axis]))
-        collector.push(
-          "range",
-          `${path}.centerOfMass.${axis}`,
-          `centerOfMass.${axis} must be finite, but was ${com[axis]}`,
-          com[axis],
-        );
-  }
+
 };

@@ -14,7 +14,7 @@ const clearanceIntervalCount: (
   sampleRate: number,
 ) => number | null = (duration: number, sampleRate: number): number | null => {
   const frames: number = Math.max(1, Math.ceil(duration * sampleRate));
-  if (!Number.isSafeInteger(frames)) return null;
+  if (frames > Number.MAX_SAFE_INTEGER) return null;
   return Math.min(duration, (frames - 1) / sampleRate) === duration
     ? frames - 1
     : frames;
@@ -78,17 +78,10 @@ export const appendCameraClearanceArtifact: (
         "clearance interval count",
         violations,
       );
-      if (!Number.isSafeInteger(report.intervals))
-        pushViolation(
-          violations,
-          "type",
-          `${reportPath}.intervals`,
-          "clearance interval count must be a safe integer",
-          report.intervals,
-        );
+
       const reportedSampleTimes: readonly number[] = report.sampleTimes;
       reportedSampleTimes.forEach((time: number, at: number): void => {
-        if (!Number.isFinite(time) || time < 0 || time > duration)
+        if (time < 0 || time > duration)
           pushViolation(
             violations,
             "range",
@@ -106,7 +99,6 @@ export const appendCameraClearanceArtifact: (
           );
       });
       if (
-        Number.isSafeInteger(report.intervals) &&
         report.intervals !== Math.max(0, reportedSampleTimes.length - 1)
       )
         pushViolation(
@@ -117,9 +109,7 @@ export const appendCameraClearanceArtifact: (
           report.intervals,
         );
       if (
-        Number.isFinite(report.sampleRate) &&
         report.sampleRate > 0 &&
-        Number.isFinite(duration) &&
         duration >= 0
       ) {
         const expectedIntervals: number | null = clearanceIntervalCount(

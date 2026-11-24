@@ -16,18 +16,21 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /**
- * A floor-chain fit converges when it can and otherwise reports its true residual.
+ * A floor-chain fit converges when it can and otherwise reports its true
+ * residual.
  *
  * Scenarios:
+ *
  * 1. A planted sole on a raised plane with a horizontal goal inside the leg's
- *    reach meets the endpoint, every sole witness and the 0.2 mm display bound.
+ *    reach meets the endpoint, every sole witness and the 0.2 mm display
+ *    bound.
  * 2. The same sole with a goal beyond the leg's reach stops short and returns a
  *    residual above tolerance that equals the error measured at its pose.
- * 3. A one-iteration budget on the feasible goal is still reported at the error
- *    of the pose it returns and is never better than the full budget.
- * 4. A planted patch without witnesses asked for an endpoint height the box
- *    cannot reach while touching reports its hover gap. A non-planted patch
- *    with the same request treats the plane only as a lower bound.
+ * 3. A one-iteration budget on the feasible goal is still reported at the error of
+ *    the pose it returns and is never better than the full budget.
+ * 4. A planted patch without witnesses asked for an endpoint height the box cannot
+ *    reach while touching reports its hover gap. A non-planted patch with the
+ *    same request treats the plane only as a lower bound.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `solvePhysicalFloorChainTarget` on the four-support primitive. Each returned residual must equal the norm of the endpoint, height, witness and floor errors measured from the returned pose. A fitter that stops on stagnation and reports a converged or stale residual fails, as does one that drops a planted patch's hover gap. Convergence is required only where the goal is feasible.
  * @evidence contracts/development/testing.md#independent-expectations Reach comes from the fixture's 0.45 m links, its hip read from the body's joint anchor, and its 0.1 m sole. Feasibility follows from 0.9 m against the hip's drop to a 0.02 m plane. Floor clearance comes from the box's eight transformed corners, not the engine's bounds query. The 0.2 mm display bound is #3095's acceptance criterion. Rows are weighted as the documented residual contract states, so the oracle restates that contract, not solver output.
@@ -174,10 +177,7 @@ export function test_physical_floor_fit_residual(): void {
       lowerBound ? Math.min(0, gap) : gap,
     ];
     const measured: number = Math.hypot(...rows);
-    if (
-      !Number.isFinite(result.residual) ||
-      Math.abs(result.residual - measured) > 1e-9 * Math.max(1, measured)
-    )
+    if (!(Math.abs(result.residual - measured) <= 1e-9 * Math.max(1, measured)))
       findings.push(
         `${label}: residual ${result.residual}, measured ${measured} from ${JSON.stringify(rows)}`,
       );

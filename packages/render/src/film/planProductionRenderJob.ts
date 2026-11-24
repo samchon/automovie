@@ -75,10 +75,7 @@ export const planProductionRenderJob: (
 ) => IAutoMovieProductionRenderJobPlan = (
   props: IAutoMoviePlanProductionRenderJobProps,
 ): IAutoMovieProductionRenderJobPlan => {
-  if (
-    Number.isSafeInteger(props.chunkFrames) === false ||
-    props.chunkFrames <= 0
-  )
+  if (props.chunkFrames <= 0)
     throw new Error(
       `chunkFrames must be a positive safe integer, but was ${props.chunkFrames}.`,
     );

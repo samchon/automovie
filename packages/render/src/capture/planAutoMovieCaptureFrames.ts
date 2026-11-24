@@ -46,19 +46,19 @@ export function planAutoMovieCaptureFrames(
   props: IAutoMovieCaptureFramePlanProps,
 ): IAutoMovieCaptureFramePlan {
   const { durationSeconds, fps, sampling, window } = props;
-  if (!(Number.isFinite(fps) && fps > 0))
+  if (!(fps > 0))
     throw new Error(`A capture's frame rate ${fps} is not positive`);
-  if (!(Number.isFinite(durationSeconds) && durationSeconds > 0))
+  if (!(durationSeconds > 0))
     throw new Error(
       `A capture's duration ${durationSeconds} s is not positive`,
     );
-  if (!(Number.isSafeInteger(window) && window >= 0))
+  if (!(window >= 0))
     throw new Error(
       `A capture window of ${window} frames is not a whole number`,
     );
   const count: number = Math.ceil(durationSeconds * fps - ON_GRID);
   const inside: (seconds: number) => boolean = (seconds: number): boolean =>
-    Number.isFinite(seconds) && seconds >= 0 && seconds <= durationSeconds;
+    seconds >= 0 && seconds <= durationSeconds;
 
   // Instants keyed by what they show: a frame index, or a second between frames.
   const instants: Map<string, IAutoMovieCaptureTime> = new Map();

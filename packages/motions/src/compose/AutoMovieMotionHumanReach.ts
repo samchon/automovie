@@ -165,19 +165,19 @@ export namespace AutoMovieMotionHumanReach {
     point: IAutoMovieVector3,
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
   ) => IAutoMovieMotionHumanReach.ICheck {
-    let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined;
+    const read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined =
+      limb.endsWith("Arm")
+        ? HumanTrunk.prepareResolve(
+            body,
+            SHOULDERS[limb === "leftArm" ? "left" : "right"],
+          )
+        : undefined;
     return (
       posture: IAutoMovieMotionHumanPosture,
       point: IAutoMovieVector3,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ): IAutoMovieMotionHumanReach.ICheck => {
-      if (limb.endsWith("Arm"))
-        read ??= HumanTrunk.prepareResolve(
-          body,
-          SHOULDERS[limb === "leftArm" ? "left" : "right"],
-        );
-      return checkOn(body, posture, limb, point, resolution, read);
-    };
+    ): IAutoMovieMotionHumanReach.ICheck =>
+      checkOn(body, posture, limb, point, resolution, read);
   }
 
   /**

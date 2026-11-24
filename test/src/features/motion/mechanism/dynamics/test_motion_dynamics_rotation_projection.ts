@@ -42,11 +42,14 @@ import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * Projection onto a bounded hinge discards the perpendicular rotation and clips the requested flexion.
+ * Projection onto a bounded hinge discards the perpendicular rotation and clips
+ * the requested flexion.
  *
  * Scenarios:
+ *
  * 1. Project an off-axis quaternion onto a bounded hinge.
- * 2. Recompose the selected lower and effector frames and independently check two orientation roots.
+ * 2. Recompose the selected lower and effector frames and independently check two
+ *    orientation roots.
  * 3. Compare mirrored clinical twists on bent and straight arms.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Recompose world rotation from the selected lower and effector frames, resolve the fitted hinge endpoint and reflect the requested hand frame across the median plane.
@@ -232,7 +235,10 @@ function pairedProjection(): void {
   proximalScalars();
 }
 
-/** Foreign clamp return values are current borrowed records, without genuine immutable provenance. */
+/**
+ * Foreign clamp return values are current borrowed records, without genuine
+ * immutable provenance.
+ */
 function foreignLower(
   skeleton: IAutoMovieSkeleton,
   lowerBasis: IAutoMovieJointAxes,
@@ -287,7 +293,10 @@ function foreignLower(
   }
 }
 
-/** Read each actual candidate quaternion and commit only successful lower admission. */
+/**
+ * Read each actual candidate quaternion and commit only successful lower
+ * admission.
+ */
 function proximalScalars(): void {
   const basis: IAutoMovieJointAxes = normalizeJointAxes(
     {
@@ -502,7 +511,10 @@ function hingeRoots(): void {
 
 /** Independent dimensions, declared bounds and exact current goal of one leg. */
 interface IFixture {
-  /** Owned source whose three chain joints are an independently authored legal pose. */
+  /**
+   * Owned source whose three chain joints are an independently authored legal
+   * pose.
+   */
   source: Omit<IAutoMovieFitChainToTargetProps, "target">;
   /** Analytic model-metre ankle point, never a fitted endpoint. */
   target: IAutoMovieVector3;
@@ -597,7 +609,10 @@ function count(events: readonly string[], wanted: string): number {
   return events.filter((event: string): boolean => event === wanted).length;
 }
 
-/** Full public FK and declared scalar boxes independently observe a returned pose. */
+/**
+ * Full public FK and declared scalar boxes independently observe a returned
+ * pose.
+ */
 function physical(
   fixture: IFixture,
   fitted: IAutoMovieSeededChainFit,
@@ -663,25 +678,25 @@ function physical(
     const limit: number = joint.bone === "leftLowerLeg" ? 150 : 120;
     check(
       `${joint.bone}: flexion respects the declared box`,
-      Number.isFinite(joint.flexion ?? 0) &&
-        Math.abs(joint.flexion ?? 0) <= limit + ROM_TOLERANCE,
+      Math.abs(joint.flexion ?? 0) <= limit + ROM_TOLERANCE,
     );
     check(
       `${joint.bone}: abduction respects the declared box`,
-      Number.isFinite(joint.abduction ?? 0) &&
-        Math.abs(joint.abduction ?? 0) <=
-          (joint.bone === "leftLowerLeg" ? ROM_TOLERANCE : 120 + ROM_TOLERANCE),
+      Math.abs(joint.abduction ?? 0) <=
+        (joint.bone === "leftLowerLeg" ? ROM_TOLERANCE : 120 + ROM_TOLERANCE),
     );
     check(
       `${joint.bone}: twist respects the declared box`,
-      Number.isFinite(joint.twist ?? 0) &&
-        Math.abs(joint.twist ?? 0) <=
-          (joint.bone === "leftUpperLeg" ? 120 + ROM_TOLERANCE : ROM_TOLERANCE),
+      Math.abs(joint.twist ?? 0) <=
+        (joint.bone === "leftUpperLeg" ? 120 + ROM_TOLERANCE : ROM_TOLERANCE),
     );
   }
 }
 
-/** A symmetric two-root family must be reported as a decline before near fallback. */
+/**
+ * A symmetric two-root family must be reported as a decline before near
+ * fallback.
+ */
 function ambiguous(
   fixture: IFixture,
   check: (label: string, valid: boolean) => void,

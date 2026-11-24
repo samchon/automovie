@@ -124,9 +124,7 @@ export const validateAutoMovieFormationMotions: (
           : null;
       if (
         lattice !== null &&
-        (Number.isSafeInteger(lattice.ranks) === false ||
-          Number.isSafeInteger(lattice.files) === false ||
-          lattice.ranks < 1 ||
+        (lattice.ranks < 1 ||
           lattice.files < 1 ||
           lattice.ranks * lattice.files < unit.count)
       )
@@ -149,8 +147,6 @@ export const validateAutoMovieFormationMotions: (
           .join(", ")}) rather than "${cue.gait}"`,
       );
     if (
-      Number.isFinite(cue.start) === false ||
-      Number.isFinite(cue.end) === false ||
       cue.start < 0 ||
       cue.end <= cue.start ||
       cue.end > contract.durationSeconds
@@ -166,10 +162,8 @@ export const validateAutoMovieFormationMotions: (
       if (
         [state.translation.x, state.translation.y, state.translation.z].some(
           (number: number): boolean =>
-            Number.isFinite(number) === false ||
             Math.abs(number) > 1_000_000_000,
         ) ||
-        Number.isFinite(state.facingOffsetDeg) === false ||
         Math.abs(state.facingOffsetDeg) > 360_000
       )
         fail(
@@ -179,7 +173,7 @@ export const validateAutoMovieFormationMotions: (
       if (
         [state.spacingScale.lateral, state.spacingScale.depth].some(
           (number: number): boolean =>
-            Number.isFinite(number) === false || number < 0.25 || number > 4,
+            number < 0.25 || number > 4,
         )
       )
         fail(

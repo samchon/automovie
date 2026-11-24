@@ -71,7 +71,7 @@ export namespace HumanInteractionMesh {
     if (n < 4)
       throw new Error("An interaction mesh needs at least four points");
     const inside: (index: number) => boolean = (index: number): boolean =>
-      Number.isInteger(index) && index >= 0 && index < n;
+      index >= 0 && index < n;
     for (const bone of props.bones)
       if (!(bone.length > 0) || !inside(bone.from) || !inside(bone.to))
         throw new Error(

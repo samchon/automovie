@@ -65,8 +65,12 @@ export function dressTurn(props: IDressTurnProps): number {
   const fitted: Map<number, number> = new Map();
   const resolution: ReturnType<typeof prepareHumanPoseResolution> =
     prepareHumanPoseResolution();
-  let readHand: ReturnType<typeof poseBones.prepare> | undefined;
-  let gripAt: ReturnType<typeof HumanHand.preparePoint> | undefined;
+  const readHand: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
+    props.body,
+    new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
+  );
+  const gripAt: ReturnType<typeof HumanHand.preparePoint> =
+    HumanHand.preparePoint(props.body, props.side, "grip");
   const missed: (degrees: number) => number = (degrees: number): number => {
     const known: number | undefined = fitted.get(degrees);
     if (known !== undefined) return known;
@@ -104,15 +108,10 @@ export function dressTurn(props: IDressTurnProps): number {
         undefined,
         resolution,
       );
-    readHand ??= poseBones.prepare(
-      props.body,
-      new Set<AutoMovieHumanoidBone>([`${props.side}Hand`]),
-    );
     const bones: ReturnType<typeof poseBones> = readHand(
       resolved.pose,
       resolution(),
     );
-    gripAt ??= HumanHand.preparePoint(props.body, props.side, "grip");
     const miss: number = Vector3.length(
       Vector3.subtract(
         Vector3.add(

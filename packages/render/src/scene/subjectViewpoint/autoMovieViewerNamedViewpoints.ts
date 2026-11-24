@@ -25,7 +25,7 @@ import type { IAutoMovieViewerViewpoint } from "./IAutoMovieViewerViewpoint.js";
 export function autoMovieViewerNamedViewpoints(
   distanceFactor: number = 1.25,
 ): IAutoMovieViewerViewpoint[] {
-  if (!(Number.isFinite(distanceFactor) && distanceFactor > 0))
+  if (!(distanceFactor > 0))
     throw new RangeError(
       `named viewpoint distance factor must be positive and finite, not ${distanceFactor}`,
     );

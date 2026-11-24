@@ -140,14 +140,7 @@ export function sampleAutoMovieCameraOcclusion(
       raycaster.ray.direction
         .subVectors(interior, raycaster.ray.origin)
         .normalize();
-      if (
-        raycaster.ray.direction.lengthSq() === 0 ||
-        ![
-          ...raycaster.ray.direction.toArray(),
-          ...raycaster.ray.origin.toArray(),
-        ].every(Number.isFinite)
-      )
-        continue;
+      if (raycaster.ray.direction.lengthSq() === 0) continue;
       const intersections: Intersection[] = raycaster
         .intersectObjects(candidates, false)
         .filter((hit: Intersection): boolean =>

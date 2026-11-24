@@ -29,8 +29,6 @@ export function triangulateAutoMovieParameterCell64<T>(
     v1: number = -Infinity;
   for (const value of boundary) {
     const uv: readonly [number, number] = coordinates(value);
-    if (!Number.isFinite(uv[0]) || !Number.isFinite(uv[1]))
-      throw new Error("Finite parameter perimeter coordinates required");
     points.push({ value, u: uv[0], v: uv[1] });
     u0 = Math.min(u0, uv[0]);
     u1 = Math.max(u1, uv[0]);

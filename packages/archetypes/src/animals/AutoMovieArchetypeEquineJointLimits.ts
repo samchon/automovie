@@ -211,11 +211,7 @@ export namespace AutoMovieArchetypeEquineJointLimits {
     studyDoi: IStudy["doi"],
     includedAngle: number,
   ): IComparison | null {
-    if (
-      !Number.isFinite(includedAngle) ||
-      includedAngle < 0 ||
-      includedAngle > 360
-    )
+    if (includedAngle < 0 || includedAngle > 360)
       throw new RangeError(
         "An equine included angle must be within [0, 360] degrees",
       );

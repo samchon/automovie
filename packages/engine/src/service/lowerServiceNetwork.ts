@@ -49,7 +49,7 @@ export const lowerServiceNetwork: (
 ): IAutoMovieSubjectContribution => {
   const { network, environment }: typeof props = props;
   const sides: number = props.sides ?? DEFAULT_SIDES;
-  if (!Number.isInteger(sides) || sides < 3)
+  if (sides < 3)
     throw new Error(
       `a swept service run needs at least 3 sides, but ${sides} was requested`,
     );

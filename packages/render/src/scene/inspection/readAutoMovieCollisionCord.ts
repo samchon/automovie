@@ -66,12 +66,7 @@ export function readAutoMovieCollisionCord(
         cord.points[i + 2],
       ).applyMatrix4(mesh.matrixWorld),
     );
-  if (
-    !(radius > 0) ||
-    !Number.isFinite(radius) ||
-    points.length < 2 ||
-    !points.every(readAutoMovieCollisionTopology.finite)
-  ) {
+  if (!(radius > 0) || points.length < 2) {
     add({ id: identity, geometry: null }, undefined, "no-displayed-geometry");
     return;
   }

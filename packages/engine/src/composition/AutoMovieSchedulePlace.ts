@@ -53,7 +53,7 @@ export namespace AutoMovieSchedulePlace {
         subject: intent.subject,
         capability: intent.capability,
       };
-    if (!(timing.duration >= 0) || !Number.isFinite(timing.duration))
+    if (!(timing.duration >= 0))
       throw new AutoMovieScheduleError(
         `Invalid duration of ${intent.subject}.${intent.capability}`,
         { ...who, code: "timing", value: timing.duration },

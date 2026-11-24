@@ -19,7 +19,6 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieHumanCanonicalBody,
   IAutoMovieHumanCanonicalSolids,
-  IAutoMovieHumanParameters,
   IAutoMovieJointConstraint,
   IAutoMovieJointPose,
   IAutoMovieMeasurePhysicalJointLimits,
@@ -34,7 +33,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
+import type { IMotionHumanPerson } from "../internal/people/IMotionHumanPerson";
+import { MOTION_HUMAN_PEOPLE } from "../internal/people/MOTION_HUMAN_PEOPLE";
 
 /**
  * The canonical Human profile agrees with the sources its provider names.
@@ -74,12 +74,12 @@ import PEOPLE from "../internal/MOTION_HUMAN_PEOPLE.json";
  * @evidence contracts/development/common.md#meaningful-documentation Documents the five source comparisons, their reference sources and which tolerances belong to displayed geometry and which to native joint coordinates.
  */
 export async function test_physical_human_profile_sources(): Promise<void> {
-  const person: { mass: number; params: unknown } = PEOPLE["m-average"];
+  const person: IMotionHumanPerson = MOTION_HUMAN_PEOPLE["m-average"];
   const body: IAutoMovieHumanCanonicalBody.IBody =
-    AutoMovieHumanCanonicalBody.prepare(
-      person.params as IAutoMovieHumanParameters,
-      { mass: person.mass, id: "m-average" },
-    );
+    AutoMovieHumanCanonicalBody.prepare(person.params, {
+      mass: person.mass,
+      id: "m-average",
+    });
   const profile: IAutoMoviePhysicalProfile = body.profile;
   const joints: Map<string, IAutoMovieHumanCanonicalSolids.IJoint> = new Map(
     body.joints.map(

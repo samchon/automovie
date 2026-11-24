@@ -6,7 +6,8 @@ import type {
 import { createRecoveryCameraChart } from "./createRecoveryCameraChart";
 
 /** One view's supplied pixel chart, constructed for the numerical phases. */
-type Chart = ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;
+type Chart =
+  ReturnType<IAutoMovieRecoveryCameraChartCreationOperation.Operation>;
 
 /**
  * Prepare the resident pair before any image-sized allocation: the caller's
@@ -21,7 +22,7 @@ export function admitRecoveryCameraPair(
   const charts: Chart[] = [];
   for (const view of input.views) {
     pixels += view.width * view.height;
-    if (!Number.isSafeInteger(pixels) || pixels > input.budget.maxPixels)
+    if (pixels > input.budget.maxPixels)
       throw new Error(
         "invalid-camera-input: exact RGB population exceeds dimensions or pixel budget",
       );

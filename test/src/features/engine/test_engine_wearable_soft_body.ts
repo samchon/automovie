@@ -30,22 +30,23 @@ import { wearableSoftBodyTestDomain as domain } from "../internal/wearableSoftBo
  *    torso capsule at its radius with one contact, the budget counts one anchor
  *    and one capsule per step over four boundary records, and a repeat run is
  *    identical.
- * 2. Full structural stiffness moves the free particle toward the moved anchor
- *    and its x coordinate matches the full-projection expectation.
+ * 2. Full structural stiffness moves the free particle toward the moved anchor and
+ *    its x coordinate matches the full-projection expectation.
  * 3. A static curtain keeps its exact rest state.
  * 4. Validation refuses a bound anchor that also states a position, a blank
  *    capsule actor, a zero radius and coincident capsule ends, and leaves an
  *    unresolved moving capsule clean.
  * 5. Budget overflow, a missing actor, a non-unit rotation, a static seek of a
- *    moving domain, and boundary records missing an anchor or a capsule refuse.
+ *    moving domain, and boundary records missing an anchor or a capsule
+ *    refuse.
  * 6. A node-bound anchor adds its offset, a capsule-only domain budgets one
  *    record, a named state starts at step 0, and a distant capsule leaves the
  *    rest untouched.
- * 7. Wearable admission refuses fractional steps, missing frames, a domain with
- *    no moving boundary, a misnumbered frame, missing or repeated nodes, actors
+ * 7. Wearable admission refuses fractional steps, missing frames, a domain with no
+ *    moving boundary, a misnumbered frame, missing or repeated nodes, actors
  *    and bones, non-finite coordinates, and invalid subject bounds.
- * 8. The boundary solver refuses missing, misnumbered, invalid, static,
- *    repeated, non-finite, blank, foreign and zero-radius records.
+ * 8. The boundary solver refuses missing, misnumbered, invalid, static, repeated,
+ *    non-finite, blank, foreign and zero-radius records.
  * 9. A particle coincident with a point, horizontal or diagonal capsule returns
  *    finite positions.
  *
@@ -407,17 +408,15 @@ export function test_engine_wearable_soft_body(): void {
     ),
   );
 
-  wearableSoftBodyTestAdmission(
-    staticDomain,
-    nodeDomain,
-    capsuleOnly,
-    nodeFrame,
-  );
+  wearableSoftBodyTestAdmission(staticDomain, nodeDomain, capsuleOnly);
   wearableSoftBodyTestBoundaries(staticDomain);
   wearableSoftBodyTestCapsuleEscape(capsuleOnly);
 }
 
-/** Observe only successful admission; this does not synthesize missing capsule geometry. */
+/**
+ * Observe only successful admission; this does not synthesize missing capsule
+ * geometry.
+ */
 const clean: (validation: IAutoMovieValidation) => boolean = (
   validation: IAutoMovieValidation,
 ): boolean => validation.success === true;

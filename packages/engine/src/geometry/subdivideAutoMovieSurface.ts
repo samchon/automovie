@@ -57,7 +57,6 @@ export function subdivideAutoMovieSurface(
   props: IAutoMovieSubdivideSurface.IProps,
 ): IAutoMovieSubdivisionSurface {
   if (
-    !Number.isSafeInteger(props.levels) ||
     props.levels < 1 ||
     props.levels > MAX_LEVELS
   )

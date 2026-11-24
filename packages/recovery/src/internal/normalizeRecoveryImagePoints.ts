@@ -25,12 +25,7 @@ export function normalizeRecoveryImagePoints(
     distance += Math.hypot(point[0] - cx, point[1] - cy);
   distance /= points.length;
   const scale: number = Math.SQRT2 / distance;
-  if (
-    !(distance > 0) ||
-    !Number.isFinite(distance) ||
-    !(scale > 0) ||
-    !Number.isFinite(scale)
-  )
+  if (!(distance > 0) || !(scale > 0))
     throw new Error(
       "camera-design: coincident or unrepresentable normalization",
     );
@@ -51,12 +46,5 @@ export function normalizeRecoveryImagePoints(
     0,
     1,
   ];
-  if (
-    !transform.every(Number.isFinite) ||
-    normalized.some(
-      (point: [number, number]): boolean => !point.every(Number.isFinite),
-    )
-  )
-    throw new Error("camera-design: normalized chart is not finite");
   return { points: normalized, transform };
 }

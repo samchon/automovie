@@ -31,8 +31,7 @@ export function HumanObjectCord(
   if (
     declaration === undefined ||
     declaration.length === null ||
-    !Number.isFinite(declaration.length) ||
-    declaration.length <= 0
+    !(declaration.length > 0)
   )
     throw new HumanRefusal({
       kind: "parameter",
@@ -42,7 +41,6 @@ export function HumanObjectCord(
       fix: "name a span with a positive rest length",
     });
   if (
-    !Number.isSafeInteger(props.links) ||
     props.links < 2 ||
     props.links >= SOFT_MAX_PARTICLES
   )
@@ -191,10 +189,8 @@ export namespace HumanObjectCord {
         length,
       );
     if (
-      !Number.isFinite(length) ||
-      length <= 0 ||
-      !Number.isFinite(distance) ||
-      distance <= 0 ||
+      !(length > 0) ||
+      !(distance > 0) ||
       distance - length > precision
     )
       throw new HumanRefusal({
@@ -228,14 +224,6 @@ export namespace HumanObjectCord {
       out.push(point.x, point.y, point.z);
     }
     out.push(to.x, to.y, to.z);
-    if (!out.every(Number.isFinite))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "span",
-        value: id,
-        reason: "the starting endpoints did not produce finite rest positions",
-        fix: "use a representable span and world placement",
-      });
     return out;
   }
 }

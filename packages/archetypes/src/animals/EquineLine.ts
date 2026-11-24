@@ -52,7 +52,7 @@ export namespace EquineLine {
     held: Held<Id, D>,
     length: number,
   ): AutoMovieArchetypeRide.IRide<Id, D> {
-    if (!(Number.isFinite(length) && length > 0))
+    if (!(length > 0))
       throw new RangeError("A line has a positive finite length");
     const at = (seconds: number): AutoMovieArchetypeRide.ISample<Id, D> => {
       const base: AutoMovieArchetypeRide.ISample<Id, D> = ride.at(seconds);

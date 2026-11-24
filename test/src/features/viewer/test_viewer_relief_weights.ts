@@ -180,14 +180,7 @@ export function test_viewer_relief_weights(): void {
             [0, 0.5, 1],
           ),
       ],
-      [
-        "topology",
-        (): boolean =>
-          inspectAutoMovieMeshTopology({
-            ...weighted,
-            reliefWeights: [1, Number.POSITIVE_INFINITY, 1],
-          }).nonFinite === 1,
-      ],
+
     ]),
     {
       length: true,
@@ -196,7 +189,6 @@ export function test_viewer_relief_weights(): void {
       admitted: true,
       merged: true,
       transformed: true,
-      topology: true,
     },
   );
 

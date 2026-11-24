@@ -196,12 +196,6 @@ export namespace AutoMovieConicArcField {
       ...ray.radial,
       ray.logCurvature,
     ];
-    if (!required.every(Number.isFinite))
-      return {
-        kind: "failure",
-        detail:
-          "The selected conic has no finite required point2/tangent1 source reading.",
-      };
 
     return {
       kind: "reading",
@@ -234,19 +228,17 @@ export namespace AutoMovieConicArcField {
   ): IAutoMovieConicArcField.IReading | IAutoMovieConicArcField.IFailure {
     if (
       ray.native === null ||
-      !Number.isFinite(ray.native) ||
       !(
         extents[0][0] > 0 &&
         extents[1][0] > 0 &&
         shoulder[0] > 0 &&
         shoulder[0] < 1
-      ) ||
-      ![...extents[0], ...extents[1], ...shoulder].every(Number.isFinite)
+      )
     )
       return {
         kind: "failure",
         detail:
-          "Raw conic reading requires finite supplied source jets and a selected native clock.",
+          "Raw conic reading requires supplied source jets and a selected native clock.",
       };
 
     const ops: IAutoMovieAlgebra<IAutoMovieConicFieldJet.IJet> =

@@ -88,7 +88,7 @@ function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanThrowPottery.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanThrowPottery.IParams = context.params;
-  if (!(Number.isFinite(p.duration) && p.duration > 0))
+  if (!(p.duration > 0))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "duration",

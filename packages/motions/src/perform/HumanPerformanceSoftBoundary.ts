@@ -413,10 +413,6 @@ export namespace HumanPerformanceSoftBoundary {
       out[a.particle * 3 + 1] = a.position.y;
       out[a.particle * 3 + 2] = a.position.z;
     }
-    if (!out.every(Number.isFinite))
-      throw new Error(
-        `Soft prop "${domain.id}" has nonfinite initial positions.`,
-      );
     return out;
   };
 }

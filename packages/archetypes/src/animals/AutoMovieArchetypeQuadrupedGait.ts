@@ -376,7 +376,7 @@ export namespace AutoMovieArchetypeQuadrupedGait {
         fix: `give a ${axis} inside its range`,
       });
     }
-    if (!(Number.isFinite(withers) && withers > 0))
+    if (!(withers > 0))
       refuse("withers", withers, 0, null, "m", "a height is positive");
     if (!(tempo >= -1 && tempo <= 1))
       refuse(

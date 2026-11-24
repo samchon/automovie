@@ -98,8 +98,6 @@ export function triangulateRecoverySceneTrack(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
-  if (!point.every(Number.isFinite))
-    return { point: null, reasons: ["nonfinite-point"] };
   const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
     evaluateRecoveryScenePoint(point, observations, poses, charts, policy);
   return { point: measured.accepted ? point : null, reasons: measured.reasons };

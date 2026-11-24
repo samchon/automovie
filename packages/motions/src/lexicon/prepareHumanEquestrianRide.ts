@@ -312,8 +312,7 @@ function times(context: Context, id: string): readonly number[] {
     ...new Set(
       context
         .cue(id)
-        .map((cue: ITimesCue): number => cue.seconds - context.start)
-        .filter(Number.isFinite),
+        .map((cue: ITimesCue): number => cue.seconds - context.start),
     ),
   ].sort((a: number, b: number): number => a - b);
 }

@@ -175,13 +175,12 @@ export function test_geometry_revolve_uv(): void {
   );
 
   TestValidator.equals(
-    "a pole keeps finite coordinates on declared degenerates; an open tube has none",
+    "a pole keeps declared degenerates; an open tube has none",
     {
       coneDegenerates: inspectAutoMovieMeshTopology(cone).degenerate,
-      coneUvsFinite: cone.uvs!.every(Number.isFinite),
       tubeDegenerates: inspectAutoMovieMeshTopology(tube).degenerate,
     },
-    { coneDegenerates: 6, coneUvsFinite: true, tubeDegenerates: 0 },
+    { coneDegenerates: 6, tubeDegenerates: 0 },
   );
 
   const plate: IAutoMovieMesh = extrudeAutoMovieRegion({

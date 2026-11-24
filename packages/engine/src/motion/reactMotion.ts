@@ -34,12 +34,8 @@ export const reactMotion: (
   // while durations >= 0.4 s keep the exact 0.16 s snap.
   peak: number = Math.min(0.16, duration * 0.4),
 ): IAutoMovieMotion => {
-  if (!Number.isFinite(duration))
-    throw new Error("react duration must be finite and positive");
   if (duration <= 0)
     throw new Error("react duration must be finite and positive");
-  if (!Number.isFinite(peak))
-    throw new Error("react peak must be finite and within duration");
   if (peak <= 0)
     throw new Error("react peak must be finite and within duration");
   if (peak >= duration)

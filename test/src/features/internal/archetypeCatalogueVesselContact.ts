@@ -40,7 +40,10 @@ type Action = "hold" | "use" | "carry";
 /** The two surveyed bodies the vessel rows use. */
 type Actor = "m-average" | "f-average";
 
-/** The vessel part a hand closes on: a glass's or a mug's body, or a mug's handle. */
+/**
+ * The vessel part a hand closes on: a glass's or a mug's body, or a mug's
+ * handle.
+ */
 type Handle = "body" | "handle";
 
 /** The hand part a grip gap is measured from: the palm or the bracing thumb. */
@@ -77,7 +80,8 @@ type Span = readonly [
 ];
 
 /**
- * Reads the produced material and the posed actor across a fixed vessel seed range.
+ * Reads the produced material and the posed actor across a fixed vessel seed
+ * range.
  *
  * @param kind The produced vessel.
  * @param action The post-pickup relation.
@@ -315,7 +319,10 @@ export function archetypeCatalogueVesselContact(
 
 /** Adjacent requests exercise the exact handle and facing admissions. */
 export namespace archetypeCatalogueVesselContact {
-  /** A missing grip and a known unfit orientation must each name the actual constraint. */
+  /**
+   * A missing grip and a known unfit orientation must each name the actual
+   * constraint.
+   */
   export function refusals(): void {
     const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
     const cases: readonly [Vessel, Action, Refused, string][] = [
@@ -428,7 +435,7 @@ function observe(
   const previous: IWorst | undefined = worst.get(metric);
   if (previous === undefined || !(gap <= previous.gap))
     worst.set(metric, {
-      gap: Number.isFinite(gap) ? gap : Infinity,
+      gap: gap,
       seed,
       seconds,
     });

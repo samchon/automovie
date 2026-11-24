@@ -52,7 +52,6 @@ export const instanceSlot: (
   slot: number,
 ): IAutoMovieInstanceSlot => {
   if (
-    Number.isSafeInteger(slot) === false ||
     slot < 0 ||
     slot >= instanceSet.count
   )
@@ -121,14 +120,9 @@ export const instanceSlot: (
       : undefined;
   const palette: string =
     explicit?.palette ?? instanceSet.variation.palette[paletteIndex];
-  if (
-    [position.x, position.y, position.z, scale, ...Object.values(traits)].some(
-      (value: number): boolean => Number.isFinite(value) === false,
-    ) ||
-    palette === undefined
-  )
+  if (palette === undefined)
     throw new RangeError(
-      `Instance set "${instanceSet.id}" slot ${slot} derived non-finite variation or an empty palette.`,
+      `Instance set "${instanceSet.id}" slot ${slot} has an empty palette.`,
     );
   const legacy: boolean =
     instanceSet.prototypes === undefined &&
@@ -335,7 +329,7 @@ const localInstancePoint: (
     ): number => sum + segment.length,
     0,
   );
-  if (Number.isFinite(total) === false || total <= 0)
+  if (total <= 0)
     throw new RangeError(
       `Instance set "${instanceSet.id}" route "${layout.route}" must have finite non-zero length.`,
     );

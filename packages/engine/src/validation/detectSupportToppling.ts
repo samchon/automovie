@@ -37,7 +37,7 @@ export const detectSupportToppling: (
     );
     return { validation: collector.toValidation(), events: [], toppling: null };
   }
-  if (!Number.isFinite(margin) || margin < 0) {
+  if (margin < 0) {
     collector.push(
       "range",
       `${path}.margin`,

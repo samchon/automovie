@@ -9,11 +9,14 @@ import { PhysicalFixtures } from "../internal/PhysicalFixtures";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 import { PhysicalSupportFixtures } from "../internal/PhysicalSupportFixtures";
 
-/** Shared support-only and balance admission.
+/**
+ * Shared support-only and balance admission.
  *
  * Scenarios:
+ *
  * 1. One stationary tracking support with minimumSupports=1 remains legal.
- * 2. Missing carriers, sparse declarations and disconnected chains refuse.
+ * 2. Missing carriers, wrong witness carriers, disconnected chains and a
+ *    misordered reach refuse.
  * 3. Empty explicit floor witnesses retain the documented shape fallback.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMoviePhysicalSimulation` on in-memory inputs and asserts the returned observations through no assertion call; 3 numbered scenarios (first: One stationary tracking support with minimumSupports=1 remains legal.; last: Empty explicit floor witnesses retain the documented shape fallback.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
@@ -53,25 +56,9 @@ export function test_physical_support_pattern_admission(): void {
     (limb: Pattern["limbs"][number]): void => {
       limb.chain = ["upper-1", "lower-0", "support-0"];
     },
-    (limb: Pattern["limbs"][number]): void => {
-      const before: string[] = limb.chain;
-      limb.chain = new Array<string>(before.length);
-      limb.chain[0] = before[0]!;
-      limb.chain[before.length - 1] = before.at(-1)!;
-    },
-    (limb: Pattern["limbs"][number]): void => {
-      limb.contacts = new Array<string>(1);
-    },
-    (limb: Pattern["limbs"][number]): void => {
-      limb.floorPoints = new Array<
-        NonNullable<typeof limb.floorPoints>[number]
-      >(1);
-    },
+
     (limb: Pattern["limbs"][number]): void => {
       limb.reach = { root: "lower-0", middle: "upper-0", tip: "support-0" };
-    },
-    (limb: Pattern["limbs"][number]): void => {
-      limb.localPoint = { x: NaN, y: 0, z: 0 };
     },
   ];
   for (const mutate of mutations) {

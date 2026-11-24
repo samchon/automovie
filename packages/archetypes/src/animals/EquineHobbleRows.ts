@@ -89,10 +89,7 @@ export namespace EquineHobbleRows {
       };
       return Vector3.distance(cuff("leftFore"), cuff("rightFore"));
     };
-    if (
-      !(Number.isInteger(cue.count) && cue.count >= 1) ||
-      !(cue.length > 0 && cue.strap > 0)
-    )
+    if (!(cue.count >= 1) || !(cue.length > 0 && cue.strap > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "horse",

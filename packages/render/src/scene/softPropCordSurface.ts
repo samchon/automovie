@@ -15,7 +15,6 @@ export function softPropCordSurface(
   const positions: readonly number[] = surface.mesh.positions;
   const projectedRadius: number = Math.fround(radius);
   if (
-    !Number.isFinite(projectedRadius) ||
     projectedRadius <= 0 ||
     surface.bounds !== null ||
     (surface.mesh.indices?.length ?? 0) !== 0 ||
@@ -32,14 +31,6 @@ export function softPropCordSurface(
       positions,
       offset,
     );
-    if (
-      !Number.isFinite(Math.fround(point.x)) ||
-      !Number.isFinite(Math.fround(point.y)) ||
-      !Number.isFinite(Math.fround(point.z))
-    )
-      throw new Error(
-        `Soft prop domain "${surface.domain}" has an unrepresentable cord particle.`,
-      );
     const previous: THREE.Vector3 | undefined = points[points.length - 1];
     if (previous === undefined || !point.equals(previous)) points.push(point);
   }
@@ -55,10 +46,6 @@ export function softPropCordSurface(
       geometry.getAttribute("position").array,
     );
     const normals: number[] = Array.from(geometry.getAttribute("normal").array);
-    if (!vertices.every(Number.isFinite) || !normals.every(Number.isFinite))
-      throw new Error(
-        `Soft prop domain "${surface.domain}" generated nonfinite tube geometry.`,
-      );
     geometry.computeBoundingBox();
     const box: THREE.Box3 = geometry.boundingBox!;
     const bounds: IAutoMovieSoftBounds = {

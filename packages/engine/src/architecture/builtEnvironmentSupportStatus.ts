@@ -79,7 +79,7 @@ export const builtEnvironmentSupportStatus: (
 ): IAutoMovieBuiltSupportResult => {
   const tolerance: number =
     props.query.tolerance ?? AUTOMOVIE_SUPPORT_TOLERANCE;
-  if (!Number.isFinite(tolerance) || tolerance < 0)
+  if (tolerance < 0)
     throw new RangeError(
       `building support tolerance must be finite and non-negative, but was ${String(tolerance)}`,
     );

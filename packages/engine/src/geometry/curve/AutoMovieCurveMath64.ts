@@ -109,25 +109,16 @@ export namespace AutoMovieCurveMath64 {
     span: readonly (readonly number[])[],
     dy: number,
   ): IAutoMovieCurveMath64.IToHermiteResult {
-    if (!(dy > 0 && Number.isFinite(dy)))
+    if (!(dy > 0))
       throw new Error(
         "A positive finite cubic Hermite chart width is required",
       );
     if (
       span.length !== 4 ||
-      ![0, 1, 2, 3].every(
-        (i: number): boolean =>
-          Object.hasOwn(span, i) &&
-          Array.isArray(span[i]) &&
-          span[i]!.length === 3 &&
-          [0, 1, 2].every(
-            (axis: number): boolean =>
-              Object.hasOwn(span[i]!, axis) && Number.isFinite(span[i]![axis]),
-          ),
-      )
+      !span.every((control: readonly number[]): boolean => control.length === 3)
     )
       throw new Error(
-        "Exactly four finite three-component cubic Bernstein controls are required",
+        "Exactly four three-component cubic Bernstein controls are required",
       );
     return {
       start: clone(span[0]!),
@@ -165,13 +156,11 @@ export namespace AutoMovieCurveMath64 {
     return [0, 1, 2].map((axis: number): number => {
       const delta: number = b[axis]! - a[axis]!;
       let value: number = ordinary[axis]!;
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
-        value = (3 * delta) / dy;
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
-        value = 3 * (delta / dy);
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+      if (value === 0 && a[axis] !== b[axis]) value = (3 * delta) / dy;
+      if (value === 0 && a[axis] !== b[axis]) value = 3 * (delta / dy);
+      if (value === 0 && a[axis] !== b[axis])
         value = 3 * (b[axis]! / dy - a[axis]! / dy);
-      if (!Number.isFinite(value) || (value === 0 && a[axis] !== b[axis]))
+      if (value === 0 && a[axis] !== b[axis])
         throw new Error("Cubic endpoint derivative is unresolved in binary64");
       return value;
     }) as AutoMovieVector3Tuple;

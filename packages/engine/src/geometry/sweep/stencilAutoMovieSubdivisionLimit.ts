@@ -40,7 +40,7 @@ export const stencilAutoMovieSubdivisionLimit: (
     if (face.length !== 4) throw new Error(`fit face ${f} is not a quad`);
     for (let k: number = 0; k < 4; ++k) {
       const a: number = face[k]!;
-      if (!Number.isInteger(a) || a < 0 || a >= count)
+      if (a < 0 || a >= count)
         throw new Error(`fit face ${f} names vertex ${a} out of range`);
       const b: number = face[(k + 1) % 4]!;
       const d: number = face[(k + 2) % 4]!;

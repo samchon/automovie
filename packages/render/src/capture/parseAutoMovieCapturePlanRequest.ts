@@ -260,7 +260,7 @@ function shadeOf(text: string): AutoMovieInspectionShade {
 /** The number a text spells, NaN for blank or malformed text. */
 function finite(text: string): number {
   const value: number = text.trim() === "" ? Number.NaN : Number(text);
-  return Number.isFinite(value) ? value : Number.NaN;
+  return value;
 }
 
 /** A finite number in `[minimum, maximum]`, or null when the key is absent. */
@@ -291,7 +291,7 @@ function whole(
 ): number | null {
   if (text === null) return null;
   const value: number = finite(text);
-  if (!(Number.isSafeInteger(value) && value >= minimum))
+  if (!(value >= minimum))
     refuse(key, text, `a whole number of at least ${minimum}`);
   return value;
 }

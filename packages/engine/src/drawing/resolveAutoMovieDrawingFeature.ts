@@ -75,7 +75,6 @@ export const resolveAutoMovieDrawingFeature = (
     // Integral on purpose: a fractional index names no axis, and would
     // otherwise produce a zero direction reported as a collapsed scale.
     if (
-      !Number.isInteger(feature.index) ||
       feature.index < 0 ||
       feature.index > 2
     )
@@ -295,7 +294,6 @@ const check = (
       count,
     );
   if (
-    !Number.isInteger(feature.index) ||
     feature.index < 0 ||
     feature.index >= count
   )

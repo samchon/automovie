@@ -65,7 +65,6 @@ export function createRecoveryFeasibleSqpArc(
     return result;
   };
   if (
-    !Number.isSafeInteger(n) ||
     n < 1 ||
     n > 0x7fffffff ||
     m < 1 ||
@@ -74,10 +73,10 @@ export function createRecoveryFeasibleSqpArc(
     tilted.length !== n ||
     !(tolerance > 0 && tolerance < 1) ||
     ![options.maxSweeps, options.maxEntries, options.maxResidentEntries].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
+      (value: number): boolean => value > 0,
     ) ||
     ![options.retainedEntries, options.maxWork].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value >= 0,
+      (value: number): boolean => value >= 0,
     ) ||
     !(options.minimumSingularRatio > 0 && options.minimumSingularRatio < 1)
   )
@@ -92,11 +91,7 @@ export function createRecoveryFeasibleSqpArc(
     return value;
   };
   const spend: (amount: number) => boolean = (amount: number): boolean => {
-    if (
-      !Number.isSafeInteger(amount) ||
-      amount < 0 ||
-      amount > options.maxWork - result.report.work
-    )
+    if (amount < 0 || amount > options.maxWork - result.report.work)
       return false;
     charge(amount);
     result.report.work += amount;
@@ -109,7 +104,7 @@ export function createRecoveryFeasibleSqpArc(
   for (let at: number = 0; at < m; at++) {
     Z += model.rows[at]!.indices.length;
     physicalZ += model.physicalRows[at]!.indices.length;
-    if (!Number.isFinite(weights[at]) || weights[at]! < 0)
+    if (weights[at]! < 0)
       throw new Error(
         "camera-sqp: finite nonnegative baseline weights required",
       );
@@ -118,8 +113,6 @@ export function createRecoveryFeasibleSqpArc(
   result.report.selectedRows = H;
   const base: number = 2 * (Z + physicalZ) + 3 * m + 2 * n + 128;
   const initialExtra: number = 32 * n + 16 * m + 1024;
-  if (![Z, physicalZ, base, initialExtra].every(Number.isSafeInteger))
-    return fail("capacity-unrepresentable");
   if (
     base + initialExtra > options.maxEntries ||
     options.retainedEntries + initialExtra > options.maxResidentEntries
@@ -135,7 +128,6 @@ export function createRecoveryFeasibleSqpArc(
     if (
       row.indices.length !== row.values.length ||
       row.offset !== model.physicalRows[at]!.offset ||
-      !Number.isFinite(row.offset) ||
       row.offset < 0 ||
       (at === 0 && row.offset !== 0)
     )
@@ -146,12 +138,7 @@ export function createRecoveryFeasibleSqpArc(
     for (let entry: number = 0; entry < row.indices.length; entry++) {
       const axis: number = row.indices[entry]!,
         value: number = row.values[entry]!;
-      if (
-        !Number.isSafeInteger(axis) ||
-        axis < 0 ||
-        axis >= n ||
-        !Number.isFinite(value)
-      )
+      if (axis < 0 || axis >= n)
         throw new Error("camera-sqp: finite admitted coordinates required");
       if (at === 0) c[axis] = value;
       else if (weights[at]! > 0 && value !== 0) map[axis] = -2;
@@ -172,8 +159,6 @@ export function createRecoveryFeasibleSqpArc(
     1024 * (Z + physicalZ + n + m + H * H) +
     512 * n * n +
     8192;
-  if (![extra, reserve, q * H, H * H].every(Number.isSafeInteger))
-    return fail("capacity-unrepresentable");
   if (
     base + extra > options.maxEntries ||
     options.retainedEntries + extra > options.maxResidentEntries ||
@@ -217,7 +202,7 @@ export function createRecoveryFeasibleSqpArc(
     }
     const largest: number = factor.singularValues[0]!;
     const ratio: number = factor.singularValues[H - 1]! / largest;
-    result.report.designRatio = Number.isFinite(ratio) ? ratio : null;
+    result.report.designRatio = largest > 0 ? ratio : null;
     if (
       !(largest > 0) ||
       factor.numericalRank !== H ||
@@ -233,9 +218,8 @@ export function createRecoveryFeasibleSqpArc(
         z[coordinates[at]!]! += factor.leftColumns[k]![at]! * amount;
     }
   }
-  if (!z.every(Number.isFinite)) return fail("working-dual-or-step-unresolved");
   let physical: number[] = model.fromMetric(z);
-  if (physical.length !== n || !physical.every(Number.isFinite))
+  if (physical.length !== n)
     throw new Error("camera-sqp: physical metric action changed coordinates");
   const equalityRight: (step: readonly number[]) => number[] = (
     step: readonly number[],
@@ -248,8 +232,6 @@ export function createRecoveryFeasibleSqpArc(
       return value;
     });
   const beforeRight: number[] = equalityRight(physical);
-  if (!beforeRight.every(Number.isFinite))
-    return fail("full-affine-qp-unqualified");
   const beforeError: number = beforeRight.reduce(
     (maximum: number, value: number): number =>
       Math.max(maximum, Math.abs(value)),
@@ -268,10 +250,8 @@ export function createRecoveryFeasibleSqpArc(
         adjustment[coordinates[at]!]! += factor.leftColumns[k]![at]! * amount;
     }
     for (let at: number = 0; at < n; at++) z[at]! += adjustment[at]!;
-    if (!z.every(Number.isFinite))
-      return fail("working-equality-refinement-unresolved");
     physical = model.fromMetric(z);
-    if (physical.length !== n || !physical.every(Number.isFinite))
+    if (physical.length !== n)
       throw new Error("camera-sqp: physical metric action changed coordinates");
     const afterRight: number[] = equalityRight(physical);
     const afterError: number = afterRight.reduce(
@@ -279,7 +259,7 @@ export function createRecoveryFeasibleSqpArc(
         Math.max(maximum, Math.abs(value)),
       0,
     );
-    if (!Number.isFinite(afterError) || !(afterError < beforeError))
+    if (!(afterError < beforeError))
       return fail("working-equality-refinement-unresolved");
   }
   if (factor !== null)
@@ -293,19 +273,10 @@ export function createRecoveryFeasibleSqpArc(
       for (let at: number = 0; at < H; at++)
         lambda[at]! += factor.rightColumns[k]![at]! * amount;
     }
-  if (
-    !lambda.every(
-      (value: number): boolean => Number.isFinite(value) && value >= 0,
-    )
-  )
+  if (!lambda.every((value: number): boolean => value >= 0))
     return fail("working-dual-or-step-unresolved");
   const stationarity: number[] = model.toPhysicalCovector(z);
-  if (
-    physical.length !== n ||
-    stationarity.length !== n ||
-    !physical.every(Number.isFinite) ||
-    !stationarity.every(Number.isFinite)
-  )
+  if (physical.length !== n || stationarity.length !== n)
     throw new Error("camera-sqp: physical metric action changed coordinates");
   let equality: number = 0,
     violation: number = 0,
@@ -341,7 +312,6 @@ export function createRecoveryFeasibleSqpArc(
     stationarityScale: scale,
   });
   if (
-    ![residual, violation, equality, scale].every(Number.isFinite) ||
     violation > tolerance ||
     equality > tolerance ||
     residual > tolerance * scale
@@ -388,7 +358,7 @@ export function createRecoveryFeasibleSqpArc(
     if (result.report.correctionAttempted)
       throw new Error("camera-sqp: one correction per base model required");
     result.report.correctionAttempted = true;
-    if (values.length !== H || !values.every(Number.isFinite)) {
+    if (values.length !== H) {
       result.report.correctionFailure = "trial-values-unresolved";
       return null;
     }
@@ -403,12 +373,7 @@ export function createRecoveryFeasibleSqpArc(
         tightening.value;
       const value: number = -values[index]! - margin;
       // The desired negative margin must survive in this RHS; the RHS itself may be positive.
-      if (
-        !(margin > 0) ||
-        !Number.isFinite(margin) ||
-        !Number.isFinite(value) ||
-        !(value < -values[index]!)
-      ) {
+      if (!(margin > 0) || !(value < -values[index]!)) {
         result.report.correctionFailure = "trial-target-unresolved";
         return null;
       }
@@ -425,7 +390,7 @@ export function createRecoveryFeasibleSqpArc(
           retainedFactor.leftColumns[k]![at]! * amount;
     }
     const answer: number[] = model.fromMetric(correction);
-    if (answer.length !== n || !answer.every(Number.isFinite)) {
+    if (answer.length !== n) {
       result.report.correctionFailure = "correction-unresolved";
       return null;
     }
@@ -439,10 +404,7 @@ export function createRecoveryFeasibleSqpArc(
       let value: number = -right[at]!;
       for (let entry: number = 0; entry < row.indices.length; entry++)
         value += row.values[entry]! * answer[row.indices[entry]!]!;
-      if (
-        !Number.isFinite(value) ||
-        Math.abs(value) > tolerance * Math.max(1, Math.abs(right[at]!))
-      ) {
+      if (Math.abs(value) > tolerance * Math.max(1, Math.abs(right[at]!))) {
         result.report.correctionFailure = "correction-equality-unresolved";
         return null;
       }

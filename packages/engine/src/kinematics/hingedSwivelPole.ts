@@ -69,7 +69,7 @@ export namespace hingedSwivelPole {
     let best: T | null = null;
     for (const branch of props.branches) {
       const peak: number | null = props.pole(branch.posed);
-      if (peak === null || !Number.isFinite(peak)) return null;
+      if (peak === null) return null;
 
       // The nearest swivel from the peak whose two-step bracket the range does
       // not certainly refuse. Two at the same distance, one either way, are

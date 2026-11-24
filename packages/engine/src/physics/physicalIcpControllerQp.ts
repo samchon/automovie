@@ -22,8 +22,8 @@ import { solveDenseActiveSet } from "./solveDenseActiveSet";
  * reference's warm-started active set (l.865-866) changes only the iterations;
  * `solveDenseActiveSet` solves it cold.
  *
- * A program the solver cannot solve, or a solution with a coordinate that is
- * not a number, gives null, as `solve()` returns false then (l.871-882).
+ * A program the solver cannot solve gives null, as `solve()` returns false
+ * then (l.871-882).
  *
  * @param input The program's terms. Points and matrices are in the caller's
  *   horizontal frame, metres; weights are the reference's, the rate weights
@@ -95,10 +95,12 @@ export function physicalIcpControllerQp(
   // submits that input again (l.770-771), so the program counts the
   // dynamics task twice whenever the direction weight is not zero; this
   // port keeps that. The direction is normalized as `setDesiredFeedbackDirection`
-  // does (l.500-505): a zero direction gives not a number, so the program
-  // fails.
+  // does (l.500-505): a zero direction has no normal, where the reference's
+  // division gives not a number and its program fails, so the program fails
+  // here before dividing.
   if (input.directionWeight !== 0) {
     const norm: number = Math.hypot(input.direction.x, input.direction.y);
+    if (norm === 0) return null;
     const d: Polygon.IPoint = {
       x: input.direction.x * (1 / norm),
       y: input.direction.y * (1 / norm),
@@ -247,14 +249,14 @@ function magnitudeRows(
 ): solveDenseActiveSet.IRow[] {
   const x: number = Math.abs(maximum.x);
   const y: number = Math.abs(maximum.y);
-  if (!Number.isFinite(x) && !Number.isFinite(y)) return [];
+  if (x === Infinity && y === Infinity) return [];
   const t: physicalIcpControllerQp.IMatrix = maximum.transform;
   return [
     { a: [t[0][0], t[0][1], t[0][0], t[0][1]], b: x },
     { a: [t[1][0], t[1][1], t[1][0], t[1][1]], b: y },
     { a: [-t[0][0], -t[0][1], -t[0][0], -t[0][1]], b: x },
     { a: [-t[1][0], -t[1][1], -t[1][0], -t[1][1]], b: y },
-  ].filter((row: solveDenseActiveSet.IRow): boolean => Number.isFinite(row.b));
+  ].filter((row: solveDenseActiveSet.IRow): boolean => row.b !== Infinity);
 }
 
 /**
@@ -266,7 +268,7 @@ function rateRows(
   rate: physicalIcpControllerQp.IInput["rate"],
   total: Polygon.IPoint,
 ): solveDenseActiveSet.IRow[] {
-  if (!Number.isFinite(rate.limit)) return [];
+  if (rate.limit === Infinity) return [];
   const step: number = rate.dt * rate.limit;
   return [
     { a: [1, 0, 1, 0], b: total.x + step },

@@ -293,16 +293,6 @@ export namespace HumanSwordThrust {
           },
           armTravel,
         );
-
-        // Observations read while the schedule was being resolved are
-        // dropped once the performance settles. The plan is extended in
-        // place, so any getter it carries is not read early.
-        const settled: IAutoMovieMotionHumanActionPlan["settle"] =
-          planned.settle;
-        planned.settle = (): void => {
-          follow.settle();
-          settled?.call(planned);
-        };
         return planned;
       },
     };

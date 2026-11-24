@@ -28,8 +28,6 @@ export function AutoMovieLoftViewWorldJet(
   station: number,
   phase: number,
 ): IAutoMovieSolidSurface.IJet | string {
-  if (!Number.isFinite(station) || !Number.isFinite(phase))
-    return "Original view world2 requires a finite station and phase.";
   if (axis === null || typeof axis !== "object")
     return "Original view world2 has no actual axis owner.";
   const readAxis: IAutoMovieAxis["jet"] = axis.jet;
@@ -84,8 +82,7 @@ function frameRows(value: unknown): number[][] | null {
       if (!Array.isArray(vector) || vector.length !== 3) return null;
       for (const index of [0, 1, 2]) {
         const component: unknown = vector[index];
-        if (typeof component !== "number" || !Number.isFinite(component))
-          return null;
+        if (typeof component !== "number") return null;
         row.push(component);
       }
     }

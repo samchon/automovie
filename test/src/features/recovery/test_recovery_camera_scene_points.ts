@@ -14,13 +14,21 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
 import { nclose } from "../internal/nclose";
 
 /**
- * A new point uses its actual registered rays rather than assumed seed visibility.
+ * A new point uses its actual registered rays rather than assumed seed
+ * visibility.
  *
  * Scenarios:
- * 1. A point seen only in views two/three/four triangulates in the shared gauge and exposes its real strongest acute supporting pair.
- * 2. Missing/duplicate/unregistered observations, zero-baseline rays, nonpositive depth and an inconsistent retained pixel refuse independently.
- * 3. A borrowed raw-norm observer preserves diagnostics and ordered independent robust cost/SSE, exposes partial rejected measurements without acceptance, and propagates its original error.
- * 4. The actual feasible map's initial evaluation rejects a final unsupported measurement before checking a nonfinite partial objective, without any trial or input mutation.
+ *
+ * 1. A point seen only in views two/three/four triangulates in the shared gauge
+ *    and exposes its real strongest acute supporting pair.
+ * 2. Missing/duplicate/unregistered observations, zero-baseline rays, nonpositive
+ *    depth and an inconsistent retained pixel refuse independently.
+ * 3. A borrowed raw-norm observer preserves diagnostics and ordered independent
+ *    robust cost/SSE, exposes partial rejected measurements without acceptance,
+ *    and propagates its original error.
+ * 4. The actual feasible map's initial evaluation rejects a final unsupported
+ *    measurement before checking a nonfinite partial objective, without any
+ *    trial or input mutation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls multiview DLT, point qualification and the actual feasible map's initial evaluation. Independent depth/pixel gates, ordered residual reduction and the map's original initial-feasibility error distinguish geometric refusal from premature objective-overflow failure.
  * @evidence contracts/development/testing.md#independent-expectations Prescribed coordinates and independent scalar R*X+t/pinhole equations define pixels, ordered residual norms and vector soft-L1/SSE sums. Reflected world Z gives negative depth and coincident poses cannot supply parallax; these are analytic conditions rather than photographed truth.
@@ -293,30 +301,6 @@ export function test_recovery_camera_scene_points(): void {
         partial.push(norm);
       },
     );
-  const rawNonfinite: IAutoMovieRecoveryMapObservation[] = measured.map(
-    (
-      observation: IAutoMovieRecoveryMapObservation,
-      at: number,
-    ): IAutoMovieRecoveryMapObservation =>
-      at === 2
-        ? { ...observation, pixel: [Infinity, observation.pixel[1]] }
-        : observation,
-  );
-  let partialCost: number = 0;
-  const invalid: ReturnType<typeof evaluateRecoveryScenePoint> =
-    evaluateRecoveryScenePoint(
-      fixture.points[48]!,
-      rawNonfinite,
-      fixture.poses,
-      charts,
-      fixture.input.policy,
-      (norm: number): void => {
-        partialCost +=
-          norm *
-          (norm / (Math.hypot(1, norm / fixture.input.policy.lossScalePx) + 1));
-      },
-    );
-  const discarded: number | null = invalid.accepted ? partialCost : null;
   const marker: Error = new Error("raw residual observer marker");
   let originalError: boolean = false;
   try {
@@ -340,8 +324,6 @@ export function test_recovery_camera_scene_points(): void {
       !badObserved.accepted &&
       partial.length === 3 &&
       partial[2]! > fixture.input.policy.maximumReprojectionErrorPx &&
-      discarded === null &&
-      !Number.isFinite(partialCost) &&
       originalError &&
       JSON.stringify({
         observations,

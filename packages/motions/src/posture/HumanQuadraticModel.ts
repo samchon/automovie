@@ -20,16 +20,12 @@ type OfRowsResult = "l" | "u" | "weight" | "key";
 /** The alternatives of `OfRowsItem`'s site. */
 type OfRowsItem = "l" | "u" | "weight" | "key";
 
-/** The alternatives of `OfRawItem`'s site. */
-type OfRawItem = "index" | "coef";
-
 /** The alternatives of `SolveBoundsItem`'s site. */
 type SolveBoundsItem = "l" | "u" | "weight" | "key";
 
 /**
  * Admit and snapshot a fixed convexification without retaining its source.
- * Numeric preparation already owns scaled P/q/A copies; original row zeros are
- * copied too so exceptional IEEE products remain source-independent.
+ * Numeric preparation already owns scaled P/q/A copies.
  *
  * @param problem Finite convex banded data with admitted ordered row storage.
  * @param tolerance The public quadratic solver's unchanged relative residual
@@ -42,25 +38,17 @@ export function HumanQuadraticModel(
   tolerance: number,
 ): HumanQuadraticModel.IModel {
   const s: B.IScaled = Preparation.scaled(problem);
-
-  // CSR already copies every entry of a zero-free row. Only omitted
-  // entries require an original-layout snapshot for exceptional products.
-  const raw: (
-    | Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRawItem>
-    | undefined
-  )[] = new Array(s.m);
   const rows: Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRowsItem>[] =
     problem.rows.map(
       (
         row: IAutoMovieMotionHumanQuadraticProgram.IRow,
-        r: number,
-      ): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRowsResult> => {
-        if (row.coef.length !== s.start[r + 1]! - s.start[r]!)
-          raw[r] = { index: [...row.index], coef: [...row.coef] };
-        return { l: row.l, u: row.u, weight: row.weight, key: row.key };
-      },
+      ): Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, OfRowsResult> => ({
+        l: row.l,
+        u: row.u,
+        weight: row.weight,
+        key: row.key,
+      }),
     );
-  s.raw = raw;
   const memory: Workspace.IMemory = {
     rho: new Float64Array(s.m),
     thresholds: new Float64Array(s.m),
@@ -105,22 +93,16 @@ export function HumanQuadraticModel(
         )
           continue;
         if (
-          !(Number.isFinite(l) || l === -Infinity) ||
-          !(Number.isFinite(u) || u === Infinity) ||
+          !(l < Infinity) ||
+          !(u > -Infinity) ||
           l > u ||
-          (weight !== undefined && (!Number.isFinite(weight) || weight < 0))
+          (weight !== undefined && !(weight >= 0))
         )
           throw new RangeError(`Malformed quadratic row ${r}`);
         const lo: number = l * s.e[r]!;
         const hi: number = u * s.e[r]!;
         const scaledWeight: number =
           weight === undefined ? -1 : (s.c * weight) / s.e[r]!;
-        if (
-          (Number.isFinite(l) && !Number.isFinite(lo)) ||
-          (Number.isFinite(u) && !Number.isFinite(hi)) ||
-          !Number.isFinite(scaledWeight)
-        )
-          throw new RangeError(`Quadratic row ${r} overflows its scaling`);
 
         // Initial rho depends on scaled free/equality/interval classes,
         // not the interval values or penalty. Fixed matrices and SIGMA

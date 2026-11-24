@@ -52,7 +52,7 @@ export function AutoMovieArchetypeEquinePackLoad(
     });
   };
   for (const key of ["length", "height", "thickness", "mass"] as const)
-    if (!(Number.isFinite(load[key]) && load[key] > 0))
+    if (!(load[key] > 0))
       refuse(`load.${key}`, load[key], "must be finite and positive");
   const models: Record<
     AutoMovieArchetypeEquinePackLoad.Side,

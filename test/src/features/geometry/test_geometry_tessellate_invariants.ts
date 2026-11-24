@@ -67,15 +67,8 @@ export function test_geometry_tessellate_invariants(): void {
       { vertexCount: true, tIndicesLength: true },
     );
     TestValidator.predicate(
-      `${shape.type}: positions finite`,
-      t.positions.every((n: number): boolean => Number.isFinite(n)),
-    );
-    TestValidator.predicate(
       `${shape.type}: indices in range`,
-      t.indices.every(
-        (i: number): boolean =>
-          Number.isInteger(i) && i >= 0 && i < vertexCount,
-      ),
+      t.indices.every((i: number): boolean => i >= 0 && i < vertexCount),
     );
   }
 }

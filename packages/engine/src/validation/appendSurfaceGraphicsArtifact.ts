@@ -105,7 +105,6 @@ export function appendSurfaceGraphicsArtifact(
         const keyPath: string = `${keysPath}[${keyIndex}]`;
         const time: number = key.time;
         if (
-          !Number.isFinite(time) ||
           (keyIndex === 0 && time !== 0) ||
           time <= previous ||
           time < 0 ||

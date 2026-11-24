@@ -1,8 +1,6 @@
-import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -11,11 +9,9 @@ import type {
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCrouch,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionManner,
-  IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
@@ -24,22 +20,17 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
-import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
-import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
-import { hipJoints } from "../posture/hipJoints";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { HumanTrunk } from "./HumanTrunk";
 import { bendLower } from "./bendLower";
 import { braceOnThigh } from "./braceOnThigh";
+import { crouchLegs } from "./crouchLegs";
 import { prepareHumanTrunkBalance } from "./prepareHumanTrunkBalance";
 
 /**
@@ -293,188 +284,16 @@ export namespace crouch {
         ["ascend", "end"],
       );
 
-    // The leg's angles move together over the descent, the shank's tilt and
-    // the thigh's each by its share, so the ankle never passes the crouching
-    // ankle: it takes the shank's tilt until it reaches it, and the heel rises
-    // about the toes' joint by the rest.
-    const lift: (s: number) => number = (s: number): number =>
-      Math.max(0, shankTilt * s - dorsiflexion);
-
-    // The feet at a share of the descent: each pivots about its toes' joint
-    // by the heel's lift there.
-    const placements: (
-      posture: IAutoMovieMotionHumanPosture,
-      s: number,
-    ) => Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> = (
-      posture: IAutoMovieMotionHumanPosture,
-      s: number,
-    ): Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> => {
-      const foot: (
-        side: AutoMovieHumanSide,
-      ) => IAutoMovieMotionHumanFoot.IPlacement = (
-        side: AutoMovieHumanSide,
-      ): IAutoMovieMotionHumanFoot.IPlacement => {
-        const goal: IAutoMovieHumanLimbGoal = posture.limbs[`${side}Leg`]!;
-        const flat: IAutoMovieMotionHumanFoot.IPlacement = {
-          ankle: goal.point,
-          rotation: goal.rotation ?? HumanFrame.turn(yaw),
-        };
-        return heel === 0
-          ? flat
-          : HumanFoot.pivot(
-              body,
-              side,
-              "mtp",
-              HumanFoot.point(body, side, "mtp", flat),
-              HumanFoot.heading(flat.rotation),
-              -lift(s),
-            );
-      };
-      return { left: foot("left"), right: foot("right") };
-    };
-    const feet: (
-      posture: IAutoMovieMotionHumanPosture,
-      placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    ) => IAutoMovieMotionHumanPosture["limbs"] = (
-      posture: IAutoMovieMotionHumanPosture,
-      placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    ): IAutoMovieMotionHumanPosture["limbs"] => {
-      const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-      for (const side of ["left", "right"] as const)
-        limbs[`${side}Leg`] = AutoMovieMotionHumanLeg.goal(
-          body,
-          posture,
-          side,
-          placed[side],
-          true,
-        );
-      return limbs;
-    };
-
-    // The hip joints over each ankle at a share, from the leg's two lengths
-    // at the share's tilts, averaged over the two legs. The standing legs
-    // stand a little off the straight vertical leg this places at the start;
-    // that difference is carried in by the share, so the root starts where
-    // the standing posture puts it and ends where the leg's geometry does.
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const rad: (deg: number) => number = (deg: number): number =>
-      (deg * Math.PI) / 180;
-    const joints: ReturnType<typeof hipJoints> = hipJoints(
+    const atShare: crouchLegs.AtShare = crouchLegs({
       body,
-      standing.root,
-      HumanFrame.turn(yaw),
-    );
-    const over: (
-      s: number,
-      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    ) => IAutoMovieVector3 = (
-      s: number,
-      placed: Record<
-        AutoMovieHumanSide,
-        IAutoMovieMotionHumanFoot.IPlacement
-      > = placements(standing, s),
-    ): IAutoMovieVector3 => {
-      let out: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const side of ["left", "right"] as const) {
-        const hip: IAutoMovieVector3 = Vector3.add(
-          Vector3.add(placed[side].ankle, {
-            x: 0,
-            y:
-              m.shank * Math.cos(rad(shankTilt * s)) +
-              m.thigh * Math.cos(rad(thighTilt * s)),
-            z: 0,
-          }),
-          Vector3.scale(
-            forward,
-            m.shank * Math.sin(rad(shankTilt * s)) -
-              m.thigh * Math.sin(rad(thighTilt * s)),
-          ),
-        );
-        out = Vector3.add(
-          out,
-          Vector3.scale(Vector3.subtract(hip, joints[side]), 0.5),
-        );
-      }
-      return out;
-    };
-    const start: IAutoMovieVector3 = over(0);
-    const move: (
-      s: number,
-      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    ) => IAutoMovieVector3 = (
-      s: number,
-      placed?: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        Vector3.subtract(over(s, placed), start),
-        Vector3.scale(start, s),
-      );
-
-    /**
-     * Bind fixed raw geometry for one share; every inclination still tips the
-     * trunk and writes actual current-root knee goals.
-     */
-    function atShare(
-      posture: IAutoMovieMotionHumanPosture,
-      s: number,
-    ): (
-      inclination: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ) => IAutoMovieMotionHumanPosture {
-      // Moving and tipping the root leave these raw leg goals unchanged.
-      // Share only their current placements, rebuilding the actual knees below.
-      const placed: Record<
-        AutoMovieHumanSide,
-        IAutoMovieMotionHumanFoot.IPlacement
-      > = placements(posture, s);
-      const moved: IAutoMovieMotionHumanPosture = {
-        ...posture,
-        root: Vector3.add(
-          posture.root,
-          move(s, posture === standing ? placed : undefined),
-        ),
-      };
-      const limit: number = HumanTrunk.pelvisLimit(body, moved.root, yaw, {
-        left: placed.left.ankle,
-        right: placed.right.ankle,
-      });
-      return (
-        inclination: number,
-        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      ): IAutoMovieMotionHumanPosture => {
-        const inclined: ReturnType<typeof HumanTrunk.incline> =
-          HumanTrunk.incline(moved.joints, inclination, limit);
-        const tipped: IAutoMovieMotionHumanPosture =
-          AutoMovieMotionHumanLean.tip(
-            body,
-            { ...moved, joints: inclined.joints },
-            inclined.pitch,
-            0,
-          );
-        const toes: readonly [number, number, number] = [
-          heel === 0 ? 0 : lift(s),
-          0,
-          0,
-        ];
-        return lowerHumanPosture(
-          body,
-          {
-            ...tipped,
-            joints:
-              heel === 0
-                ? tipped.joints
-                : { ...tipped.joints, leftToes: toes, rightToes: [...toes] },
-            limbs: feet(tipped, placed),
-          },
-          undefined,
-          resolution,
-        );
-      };
-    }
-
+      m,
+      yaw,
+      heel,
+      dorsiflexion,
+      shankTilt,
+      thighTilt,
+      standing,
+    });
     // The measured key applies as far as the lumbar spine can incline
     // when the pelvis has no room for another turn.
     const most: number =

@@ -21,23 +21,14 @@ export function compileImpactEffects(
   input: IAutoMovieCompileImpactEffects.IInput,
 ): IAutoMovieCompiledEffect[] {
   if (
-    !(input.endSeconds > 0) ||
-    !(input.fixedStepSeconds > 0) ||
-    !(input.particlesPerImpulse > 0) ||
-    !(input.speedPerImpulse > 0) ||
-    ![
-      input.endSeconds,
-      input.fixedStepSeconds,
-      input.particlesPerImpulse,
-      input.speedPerImpulse,
-      input.upwardFraction,
-    ].every(Number.isFinite)
+    input.endSeconds <= 0 ||
+    input.fixedStepSeconds <= 0 ||
+    input.particlesPerImpulse <= 0 ||
+    input.speedPerImpulse <= 0
   )
     throw new Error("Invalid impact-effect time, emission or velocity scale");
   if (
-    !Number.isSafeInteger(input.maximumEffects) ||
     input.maximumEffects <= 0 ||
-    !Number.isSafeInteger(input.recipe.budget.maxParticles) ||
     input.recipe.budget.maxParticles <= 0 ||
     input.recipe.budget.maxParticles > 4096
   )
@@ -59,14 +50,13 @@ export function compileImpactEffects(
         receipt.source === "solver"
           ? receipt.impulse!
           : input.geometricImpulses[receipt.id];
-      if (impulse === undefined || !Number.isFinite(impulse) || impulse < 0)
+      if (impulse === undefined || impulse < 0)
         throw new Error(
           `Impact effect requires a measured or formula impulse for ${receipt.id}`,
         );
       if (impulse === 0 || receipt.seconds >= input.endSeconds) return [];
       if (
         receipt.separation > 0 ||
-        !Number.isFinite(receipt.seconds) ||
         receipt.seconds < 0
       )
         throw new Error(`Impact effect refuses non-contact ${receipt.id}`);

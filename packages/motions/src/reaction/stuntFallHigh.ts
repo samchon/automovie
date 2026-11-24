@@ -111,7 +111,7 @@ export function stuntFallHigh(
   const free: number = Math.min(drop, (cap * cap) / (2 * g));
   const freeTime: number = Math.sqrt((2 * free) / g);
   const flight: number =
-    freeTime + (drop - free) / (Number.isFinite(cap) ? cap : 1);
+    freeTime + (drop - free) / (cap === Infinity ? 1 : cap);
   const heightAt = (t: number): number =>
     t <= freeTime
       ? hips0.y - 0.5 * g * t * t

@@ -60,10 +60,13 @@ export namespace AutoMovieMotionHumanAuditBalance {
     to: number;
   }
 
-  /** Displayed bones and the mass centre, computed at most once on the stencil. */
+  /** Displayed bones and their mass centre at one instant of the stencil. */
   interface IStencilSample {
+    /** The displayed bones. */
     bones: Bones;
-    centre?: IAutoMovieVector3;
+
+    /** Their centre of mass, world metres. */
+    centre: IAutoMovieVector3;
   }
 
   /** Read or allocate the one sample shared by overlapping stencils. */
@@ -95,10 +98,13 @@ export namespace AutoMovieMotionHumanAuditBalance {
     // any support geometry or mass data.
     const spans: readonly HumanPhysics.ISpan[] = motion.segments(subject);
     const candidates: ISampledInterval[] = [];
-    let times: HumanAuditMotion.IGrid | undefined;
+    const times: HumanAuditMotion.IGrid = HumanAuditMotion.lattice(
+      0,
+      motion.duration,
+      rate,
+    );
     for (const span of spans)
       for (const interval of HumanPhysics.intervals(span)) {
-        times ??= HumanAuditMotion.lattice(0, motion.duration, rate);
         // Preserve the exact action-clock comparison at an endpoint even
         // when reversing the offset rounds onto the adjacent grid tick.
         const from: number = Math.max(
@@ -111,13 +117,18 @@ export namespace AutoMovieMotionHumanAuditBalance {
         );
         if (from <= to) candidates.push({ span, from, to });
       }
-    if (times === undefined || candidates.length === 0) return worst;
+    if (candidates.length === 0) return worst;
     candidates.sort(
       (a: ISampledInterval, b: ISampledInterval): number => a.from - b.from,
     );
-    let windows: IAutoMovieMotionHumanAuditMotion.IWindow[] | undefined;
-    let model: IAutoMovieResolveCenterOfMass.IModel | undefined;
-    let hold: number | undefined;
+    const windows: IAutoMovieMotionHumanAuditMotion.IWindow[] =
+      HumanAuditMotion.windows(motion, subject);
+    const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
+    const hold: number =
+      1 /
+      resolveAutoMovieCenterOfMass.frequency(
+        resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
+      );
     const samples: Map<number, IStencilSample> = new Map();
     const sampleAt: StencilAt = (
       seconds: number,
@@ -125,8 +136,10 @@ export namespace AutoMovieMotionHumanAuditBalance {
     ): IStencilSample => {
       const known: IStencilSample | undefined = samples.get(seconds);
       if (known !== undefined) return known;
+      const read: Bones = bones ?? motion.bones(subject, seconds);
       const sample: IStencilSample = {
-        bones: bones ?? motion.bones(subject, seconds),
+        bones: read,
+        centre: resolveAutoMovieCenterOfMass.place(model, read),
       };
       samples.set(seconds, sample);
       return sample;
@@ -135,12 +148,7 @@ export namespace AutoMovieMotionHumanAuditBalance {
       seconds: number,
       bones?: Bones,
     ): IAutoMovieVector3 => {
-      const sample: IStencilSample = sampleAt(seconds, bones);
-      sample.centre ??= resolveAutoMovieCenterOfMass.place(
-        (model ??= body.massModel),
-        sample.bones,
-      );
-      return sample.centre;
+      return sampleAt(seconds, bones).centre;
     };
     const active: ISampledInterval[] = [];
     let next: number = 0;
@@ -165,12 +173,6 @@ export namespace AutoMovieMotionHumanAuditBalance {
         continue;
       // A foot that lifts within the pendulum's own time is a step being
       // taken: the body is walking there, not standing.
-      windows ??= HumanAuditMotion.windows(motion, subject);
-      hold ??=
-        1 /
-        resolveAutoMovieCenterOfMass.frequency(
-          resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-        );
       if (!standing(windows, t, Math.min(motion.duration, t + hold))) continue;
       const before: number = times.at(Math.max(0, i - 1));
       const after: number = times.at(Math.min(times.length - 1, i + 1));

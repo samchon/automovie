@@ -13,10 +13,8 @@ import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { PhysicalRotationVector as Rotation } from "./PhysicalRotationVector";
-import { assertPhysicalFiniteMotion } from "./assertPhysicalFiniteMotion";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
-import { physicalSupportPoint } from "./physicalSupportPoint";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { stabilizePhysicalJointReturn } from "./stabilizePhysicalJointReturn";
 
@@ -156,12 +154,6 @@ export function advancePhysicalOwnership(input: {
     if (selected.has(bone)) {
       delete transitions[bone];
       if (!rigid.isDynamic()) {
-        assertPhysicalFiniteMotion(
-          segment,
-          actual[bone]!.pose,
-          actual[bone]!.velocity,
-          actual[bone]!.angularVelocity,
-        );
         const velocity: IAutoMovieVector3 = rigid.linvel();
         const angular: IAutoMovieVector3 = rigid.angvel();
         rigid.setDynamic(true);
@@ -383,7 +375,7 @@ export function advancePhysicalOwnership(input: {
       author(segment);
       continue;
     }
-    write(segment, joint);
+    write(segment);
   }
   return selected;
 
@@ -420,7 +412,7 @@ export function advancePhysicalOwnership(input: {
         Vector3.cross(goal.angularVelocity, distal),
       );
     }
-    write(segment, joint);
+    write(segment);
   }
 
   /** Detach only coordinates this ownership pass actually changes. */
@@ -432,30 +424,10 @@ export function advancePhysicalOwnership(input: {
     return input.goals[bone]!;
   }
 
-  /**
-   * Validate the same actual collider/display trajectory before handing it to
-   * the solver.
-   */
-  function write(
-    segment: IAutoMoviePhysicalSegment,
-    joint?: IAutoMoviePhysicalJoint,
-  ): void {
+  /** Hand the same actual collider/display trajectory to the solver. */
+  function write(segment: IAutoMoviePhysicalSegment): void {
     const bone: string = segment.bone;
     const goal: IAutoMovieSamplePhysicalTarget.IResult = input.goals[bone]!;
-    assertPhysicalFiniteMotion(
-      segment,
-      goal.pose,
-      goal.velocity,
-      goal.angularVelocity,
-    );
-    if (joint) {
-      const anchor: IAutoMovieVector3 = physicalSupportPoint(
-        goal.pose,
-        joint.childFrame.position,
-      );
-      if (![anchor.x, anchor.y, anchor.z].every(Number.isFinite))
-        throw new Error(`Derived joint anchor is not finite: ${joint.id}`);
-    }
     const rigid: AutoMovieXpbdBody = segments.get(bone)!;
     rigid.setNextKinematicTranslation(goal.pose.position);
     rigid.setNextKinematicRotation(goal.pose.rotation);

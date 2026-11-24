@@ -248,7 +248,6 @@ export namespace AutoMovieArchetypeArticulation {
       ): boolean => {
         const { minimum, maximum } = range(affordance);
         return (
-          Number.isFinite(travel) &&
           (minimum === null || travel >= minimum) &&
           (maximum === null || travel <= maximum)
         );

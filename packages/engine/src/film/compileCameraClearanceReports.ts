@@ -141,7 +141,7 @@ export function compileCameraClearanceReports(
     );
     return undefined;
   }
-  if (!(Number.isFinite(runtime.sampleRate) && runtime.sampleRate > 0)) {
+  if (!(runtime.sampleRate > 0)) {
     props.out.push(
       "range",
       "$input.cameraClearance.sampleRate",

@@ -33,7 +33,7 @@ export function calibrateRecoveryEpipolarMatrix(
     );
   const largest: number = factors.singularValues[0]!;
   const ratio: number = factors.singularValues[1]! / largest;
-  if (!(ratio > factors.relativeNullCutoff) || !Number.isFinite(ratio))
+  if (largest === 0 || !(ratio > factors.relativeNullCutoff))
     throw new Error("camera-essential: two resolved directions required");
   const frames: number[][] = [];
   for (const columns of [factors.leftColumns, factors.rightColumns]) {
@@ -44,7 +44,7 @@ export function calibrateRecoveryEpipolarMatrix(
       { x: b[0]!, y: b[1]!, z: b[2]! },
     );
     const length: number = Math.hypot(cross.x, cross.y, cross.z);
-    if (!(length > 0) || !Number.isFinite(length))
+    if (!(length > 0))
       throw new Error("camera-essential: unresolved orientation frame");
     frames.push([
       a[0]!,
@@ -69,7 +69,7 @@ export function calibrateRecoveryEpipolarMatrix(
     AutoMovieMatrix3.multiply(essential, first.inverse),
   );
   const pixelNorm: number = Math.hypot(...pixel);
-  if (!(pixelNorm > 0) || !Number.isFinite(pixelNorm))
+  if (!(pixelNorm > 0))
     throw new Error(
       "camera-essential: nonrepresentable calibrated pixel matrix",
     );

@@ -55,7 +55,7 @@ export const validateCapsule: (
       { from: capsule.from, to: capsule.to },
     );
   }
-  if (!Number.isFinite(capsule.radius) || capsule.radius <= 0) {
+  if (capsule.radius <= 0) {
     valid = false;
     collector.push(
       "range",

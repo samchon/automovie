@@ -305,9 +305,10 @@ export namespace kick {
         );
         return carried(geometry().posture(t, undefined, source, projection), t);
       },
-      settle: (): void => {
+      prepare: (): void => {
         built = undefined;
         ride = undefined;
+        geometry();
       },
       ...(strikes
         ? {

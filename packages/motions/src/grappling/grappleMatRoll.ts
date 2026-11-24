@@ -63,8 +63,6 @@ export function grappleMatRoll(
       if (time >= endTime) return settled;
       const posture: IAutoMovieMotionHumanPosture = roll(
         minimumJerk.share((time - startTime) / (endTime - startTime)),
-        resolution,
-        projection,
       );
       return {
         ...posture,

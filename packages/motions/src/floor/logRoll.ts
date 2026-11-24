@@ -233,7 +233,7 @@ function count(
   travel: IAutoMovieVector3,
 ): number {
   if (p.halfTurns !== undefined) {
-    if (!(Number.isInteger(p.halfTurns) && p.halfTurns >= 1))
+    if (!(p.halfTurns >= 1))
       throw new HumanRefusal({
         kind: "parameter",
         axis: "halfTurns",

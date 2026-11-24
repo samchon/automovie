@@ -43,16 +43,14 @@ export function observeRecoveryOrderedCuts(
   if (
     ![frame.n, frame.u, frame.v].every(
       (v: Readonly<AutoMovieVector3Tuple>): boolean =>
-        v.every(Number.isFinite) && Math.abs(Math.hypot(...v) - 1) < 1e-10,
+        Math.abs(Math.hypot(...v) - 1) < 1e-10,
     )
   )
     throw new Error("Ordered lineage requires a finite orthonormal frame");
   if (
     input.originalTriangleIds.length !== input.triangles.length ||
     new Set(input.originalTriangleIds).size !== input.triangles.length ||
-    input.originalTriangleIds.some(
-      (v: number): boolean => !Number.isSafeInteger(v) || v < 0,
-    )
+    input.originalTriangleIds.some((v: number): boolean => v < 0)
   )
     throw new Error("Original face mapping is not a complete injection");
   const inverse: Map<number, number> = new Map(
@@ -89,7 +87,6 @@ export function observeRecoveryOrderedCuts(
   for (const saved of input.savedSections) {
     if (
       seen.has(saved.coordinateMm) ||
-      !Number.isFinite(saved.coordinateMm) ||
       saved.sourceIdentity !== input.sourceIdentity ||
       saved.sourceSelectionIdentity !== input.sourceSelectionIdentity ||
       saved.exactCoordinateAliases !== input.exactCoordinateAliases ||

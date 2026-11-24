@@ -44,14 +44,13 @@ export function compileHumanPerformanceContinuation(
 ): ICompileHumanPerformanceContinuationResult {
   if (
     input.composition.kind !== "sequence" ||
-    !Number.isInteger(retainedParts) ||
     retainedParts < 1 ||
     retainedParts >= input.composition.parts.length
   )
     refuse(
       "choose complete leading groups of a source sequence with an existing tail",
     );
-  if (!Number.isFinite(sourceSeconds) || sourceSeconds < 0)
+  if (!(sourceSeconds >= 0))
     refuse("the source second must be finite and nonnegative");
   if (
     input.flight === "physical" ||

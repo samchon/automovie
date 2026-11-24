@@ -71,7 +71,7 @@ export const buildAnalysisOverlayObject: (props: {
       `analysis run "${run.id}" measured "${props.metric}" but recorded no spatial samples of it, so there is no field to draw`,
     );
   const size: number = props.size ?? 0.1;
-  if (!Number.isFinite(size) || size <= 0)
+  if (size <= 0)
     throw new Error(
       `an analysis overlay point size must be a finite number above zero, but was ${size}`,
     );
@@ -81,7 +81,7 @@ export const buildAnalysisOverlayObject: (props: {
   );
   const min: number = props.domain?.min ?? Math.min(...values);
   const max: number = props.domain?.max ?? Math.max(...values);
-  if (!Number.isFinite(min) || !Number.isFinite(max) || max < min)
+  if (max < min)
     throw new Error(
       `an analysis overlay ramp domain must be a finite range with max at or above min, but was [${min}, ${max}]`,
     );

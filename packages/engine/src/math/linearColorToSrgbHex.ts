@@ -23,10 +23,6 @@ export const linearColorToSrgbHex: (
 const srgbHexChannel: (component: number) => string = (
   component: number,
 ): string => {
-  if (Number.isFinite(component) === false)
-    throw new Error(
-      `Linear color component ${component} is not a finite number.`,
-    );
   return Math.round(
     linearChannelToSrgb(Math.min(1, Math.max(0, component))) * 255,
   )

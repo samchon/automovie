@@ -193,10 +193,6 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     >,
     floorMinimum: number,
   ): IBound {
-    if (!Number.isFinite(floorMinimum))
-      throw new RangeError(
-        "The quadruped body-floor root bound must be finite",
-      );
     const bound: IBound = { minimum: floorMinimum, maximum: Infinity };
     for (const limb of AutoMovieArchetypeQuadrupedBody.LIMBS) {
       const [low, high] = limbBounds(limb, constraints?.[limb]);
@@ -268,16 +264,6 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
     const goal: IAutoMovieVector3 = constraint.goal;
     const radial: AutoMovieArchetypeQuadrupedLimb.IRange = constraint.reach;
     if (
-      ![
-        attachment.x,
-        attachment.y,
-        attachment.z,
-        goal.x,
-        goal.y,
-        goal.z,
-        radial.minimum,
-        radial.maximum,
-      ].every(Number.isFinite) ||
       radial.minimum < 0 ||
       !(radial.maximum > 0 && radial.maximum >= radial.minimum)
     )
@@ -301,16 +287,10 @@ export namespace AutoMovieArchetypeQuadrupedRootRange {
           : horizontal <= radial.maximum
             ? goal.y - attachment.y + vertical(radial.maximum, horizontal)
             : -Infinity;
-    if (!Number.isFinite(horizontal))
-      throw new RangeError(`The ${limb} horizontal goal is not finite`);
     const low: number =
       goal.y -
       attachment.y +
       (horizontal < radial.minimum ? vertical(radial.minimum, horizontal) : 0);
-    if (
-      !(Number.isFinite(low) && (Number.isFinite(high) || high === -Infinity))
-    )
-      throw new RangeError(`The ${limb} root interval is not representable`);
     return [low, high];
   }
 

@@ -102,7 +102,7 @@ export function AutoMovieArchetypeEquineDraft(
     "deceleration",
     "sag",
   ] as const)
-    if (!(Number.isFinite(params[key]) && params[key] > 0))
+    if (!(params[key] > 0))
       refuse(key, params[key], "must be finite and positive");
   if (params.pull.length === 0 || params.depart.length === 0)
     refuse(

@@ -9,15 +9,7 @@ export function prepareRecoveryFeasibleReportCapacity(
   persistedReports: number,
 ): IAutoMovieRecoveryFeasibleReportCapacity {
   const reservedEntries: number = 512 * (persistedReports + 1);
-  if (
-    !Number.isSafeInteger(sceneEntries) ||
-    sceneEntries <= 0 ||
-    !Number.isSafeInteger(fitEntries) ||
-    fitEntries <= 0 ||
-    !Number.isSafeInteger(persistedReports) ||
-    persistedReports < 0 ||
-    !Number.isSafeInteger(reservedEntries)
-  )
+  if (sceneEntries <= 0 || fitEntries <= 0 || persistedReports < 0)
     throw new Error("camera-feasible: safe fixed reporting scope required");
   if (reservedEntries >= sceneEntries)
     throw new RecoveryFeasibleCapacityError("resident");

@@ -25,9 +25,6 @@ export namespace AutoMovieLoftViewSource {
     const last: number = part.stations[part.stations.length - 1] ?? NaN;
     if (
       !(
-        Number.isFinite(first) &&
-        Number.isFinite(last) &&
-        Number.isFinite(last - first) &&
         last > first
       )
     )

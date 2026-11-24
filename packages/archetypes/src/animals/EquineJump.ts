@@ -244,7 +244,7 @@ export namespace EquineJump {
         refuse("A baulk must bring the horse to a halt and pause there");
       return undefined;
     }
-    if (!(Number.isFinite(technique.clearance) && technique.clearance >= 0))
+    if (!(technique.clearance >= 0))
       refuse("The clearance must be a nonnegative number of metres");
     const obstacles: EquineObstacle.IObstacle[] = EquineObstacle.read(
       plan,

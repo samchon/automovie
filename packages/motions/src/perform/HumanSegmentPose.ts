@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanBody,
@@ -87,11 +86,71 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return HumanSegmentShown(person, seconds, requested, prepared).pose;
+    return HumanSegmentShown(person, seconds, requested, prepared);
   }
 
   /** The difference interval of every rate read of a shown pose, seconds. */
   export const STEP: number = 1e-3;
+
+  /**
+   * The inertialization offset of the transition that entered an action
+   * (`inertializePose`, Bollo 2018): the source action's displayed state just
+   * before the cut against the entered action's leaf, carries and overlays
+   * included, just after it, each side's rates read on fits continued from its
+   * cut fits, so the offset keeps the motion rather than differences in fit
+   * resolution. The performance solves it once when it is prepared
+   * (`IAutoMovieMotionHumanSegment.IPrepared.offset`).
+   *
+   * @param person The person.
+   * @param segment The entered action.
+   * @param prepared Same-body preparation borrowed for the evaluation.
+   * @returns The offset, or none for an action entered without one.
+   */
+  export function offset(
+    person: IAutoMovieMotionHumanSegment.IPerson,
+    segment: IAutoMovieMotionHumanSegment,
+    prepared: prepareHumanSegmentPose.IPrepared = prepareHumanSegmentPose(
+      person.performer.body,
+    ),
+  ): ((elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose) | undefined {
+    const transition: IAutoMovieMotionHumanSegment["transition"] =
+      segment.transition;
+    if (transition === undefined || transition.kind === "redirect")
+      return undefined;
+    const rig: IAutoMoviePoseRig = humanRig(person.performer.body);
+    const codec: () => IAutoMoviePoseJointCodec.ICodec =
+      poseJointCodec.prepare(rig);
+    return inertializePose(
+      continued(
+        (t: number, near?: INear): ISeeded =>
+          seeded(person, transition.source, t, near, prepared),
+        transition.cut,
+        "before",
+        rig,
+        transition.blend,
+        codec,
+      ).state,
+      // Include the target's carry and overlays; a bare-posture offset
+      // would add their arm placement a second time.
+      continued(
+        (t: number, near?: INear): ISeeded =>
+          readHumanSegmentLeaf(person, segment, t, near, undefined, prepared),
+        transition.cut,
+        "after",
+        rig,
+        transition.blend,
+        codec,
+      ).state,
+      transition.blend,
+      // A joint cut as it passes the next action's pose keeps its rate and
+      // follows through; stopped short it would lose that rate at once.
+      true,
+      // Joints blend as rotations read through the displayed rig, so an arm
+      // hanging at its shoulder chart's gimbal does not swing on the way.
+      rig,
+      codec,
+    );
+  }
 
   /**
    * {@link of} with every limb fit's seed. Names distinguish the chain, overlay
@@ -196,13 +255,11 @@ export namespace HumanSegmentPose {
     if (carried.length !== 0) {
       const active: IAutoMovieMotionHumanSegment.IOverlay[] =
         HumanSegmentOverlay.running(person, seconds);
-      const driven: Partial<Record<AutoMovieHumanSide, boolean>> = {};
       kept = carried.filter(
         (h: IAutoMovieMotionHumanSegment.IHeld): boolean =>
-          !(driven[h.side] ??= active.some(
-            (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
-              HumanSegment.drives(o.plan, h.side),
-          )),
+          !active.some((o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
+            HumanSegment.drives(o.plan, h.side),
+          ),
       );
     }
     if (kept.length !== 0)
@@ -223,15 +280,19 @@ export namespace HumanSegmentPose {
 
     // A stopped weapon's limb holds its contact when its law does not take its
     // stops itself; a law that does shows its own dwell and recoil.
-    let stopped: ReturnType<typeof HumanSegmentStop.reader> | undefined;
     if (segment.plan.stop === undefined)
       for (const w of segment.plan.weapons ?? []) {
         const s: number | undefined = person.stops.get(
           HumanSegment.weapon(segment, w.id),
         );
         if (s === undefined || seconds <= s) continue;
-        const goal: IAutoMovieHumanLimbGoal = (stopped ??=
-          HumanSegmentStop.reader(person, segment, prepared))(w, s);
+        const goal: IAutoMovieHumanLimbGoal = HumanSegmentStop.goal(
+          person,
+          segment,
+          w,
+          s,
+          prepared,
+        );
         posture = { ...posture, limbs: { ...posture.limbs, [w.limb]: goal } };
         pose = fit(
           `stop:${w.id}:${w.limb}`,
@@ -247,49 +308,14 @@ export namespace HumanSegmentPose {
       transition.kind !== "redirect" &&
       seconds - transition.cut < transition.blend
     ) {
-      // Read source rates before the cut and target rates after it, where
-      // their laws exist. Continue each side's cut fits so the offset keeps
-      // the motion rather than differences in fit resolution.
-      if (transition.offset === undefined || transition.offset === null) {
-        const rig: IAutoMoviePoseRig = humanRig(body);
-        const codec: () => IAutoMoviePoseJointCodec.ICodec =
-          poseJointCodec.prepare(rig);
-        transition.offset = inertializePose(
-          continued(
-            (t: number, near?: INear): ISeeded =>
-              seeded(person, transition.source, t, near, prepared),
-            transition.cut,
-            "before",
-            rig,
-            transition.blend,
-            codec,
-          ).state,
-          // Include the target's carry and overlays; a bare-posture offset
-          // would add their arm placement a second time.
-          continued(
-            (t: number, near?: INear): ISeeded => shown(t, near),
-            transition.cut,
-            "after",
-            rig,
-            transition.blend,
-            codec,
-          ).state,
-          transition.blend,
-          // A joint cut as it passes the next action's pose keeps its rate and
-          // follows through; stopped short it would lose that rate at once.
-          true,
-          // Joints blend as rotations read through the displayed rig, so an arm
-          // hanging at its shoulder chart's gimbal does not swing on the way.
-          rig,
-          codec,
-        );
-      }
+      // The offset the performance prepared, or, while the schedule is
+      // resolved, the one the displayed state at the cut gives now.
+      const decay: (elapsed: number, pose: IAutoMoviePose) => IAutoMoviePose =
+        segment.prepared?.offset ?? offset(person, segment, prepared)!;
 
       // The offset pose is clamped first and the planted limbs re-solved last,
       // so no later step moves a plant (the limb fit keeps its own angles in range).
-      pose = clamp(
-        transition.offset(Math.max(0, seconds - transition.cut), pose),
-      );
+      pose = clamp(decay(Math.max(0, seconds - transition.cut), pose));
       plain = false;
     }
 

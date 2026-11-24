@@ -7,19 +7,24 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 
-/** Three literal non-humanoid identities for the independent large-coordinate chain. */
+/**
+ * Three literal non-humanoid identities for the independent large-coordinate
+ * chain.
+ */
 type Bone = "base" | "link" | "tip";
 
 /**
  * Actual composed rigid frames must remain representable, without a size cap.
  *
  * Scenarios:
+ *
  * 1. Finite parent/child X translations of +/-1e308 each prepare normally but
- *    their same-sign world sum exceeds binary64 and read must throw RangeError.
- * 2. A finite root placement plus a finite base translation likewise refuses
- *    at the actual composed-frame boundary rather than returning Infinity.
- * 3. Three 1e307 local translations under a 2e307 root retain the literal
- *    world coordinates 3e307, 4e307 and 5e307 with finite unit quaternions.
+ *    their same-sign world sum exceeds binary64 and read must throw
+ *    RangeError.
+ * 2. A finite root placement plus a finite base translation likewise refuses at
+ *    the actual composed-frame boundary rather than returning Infinity.
+ * 3. Three 1e307 local translations under a 2e307 root retain the literal world
+ *    coordinates 3e307, 4e307 and 5e307 with finite unit quaternions.
  * 4. The finite chain 1e308, -1e308, 1e308 retains the exact cancelling
  *    coordinates 1e308, zero and 1e308 rather than rejecting large operands.
  *
@@ -66,29 +71,22 @@ export function test_kinematics_articulated_rig_representability(): void {
     const frame: IAutoMovieTransform = largeFrames.get(bone)!;
     TestValidator.predicate(
       `${bone} preserves a representable large world coordinate`,
-      Number.isFinite(frame.translation.x) &&
-        nclose(frame.translation.x / 1e307, expected, 1e-12) &&
+      nclose(frame.translation.x / 1e307, expected, 1e-12) &&
         nclose(frame.translation.y, 0, 1e-12) &&
         nclose(frame.translation.z, 0, 1e-12),
     );
     TestValidator.predicate(
       `${bone} returns a finite nonzero unit quaternion`,
-      [
-        frame.rotation.x,
-        frame.rotation.y,
-        frame.rotation.z,
-        frame.rotation.w,
-      ].every(Number.isFinite) &&
-        nclose(
-          Math.hypot(
-            frame.rotation.x,
-            frame.rotation.y,
-            frame.rotation.z,
-            frame.rotation.w,
-          ),
-          1,
-          1e-12,
+      nclose(
+        Math.hypot(
+          frame.rotation.x,
+          frame.rotation.y,
+          frame.rotation.z,
+          frame.rotation.w,
         ),
+        1,
+        1e-12,
+      ),
     );
   }
 
@@ -101,12 +99,14 @@ export function test_kinematics_articulated_rig_representability(): void {
   ] as const)
     TestValidator.predicate(
       `${bone} preserves finite large cancellation`,
-      Number.isFinite(cancelled.get(bone)!.translation.x) &&
-        nclose(cancelled.get(bone)!.translation.x / 1e308, expected, 1e-12),
+      nclose(cancelled.get(bone)!.translation.x / 1e308, expected, 1e-12),
     );
 }
 
-/** A finite three-link identity-rotation input; its local X values are supplied explicitly. */
+/**
+ * A finite three-link identity-rotation input; its local X values are supplied
+ * explicitly.
+ */
 function rig(
   localX: readonly [number, number, number],
 ): IAutoMovieArticulatedRig<Bone> {

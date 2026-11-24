@@ -25,11 +25,6 @@ export function cofactorAutoMovieJacobian(
 ): IAutoMovieJacobianCofactor {
   if (jacobian.length !== 9)
     throw new Error("Mesh Jacobian needs nine row-major entries.");
-  for (let index: number = 0; index < 9; index++)
-    if (!Number.isFinite(jacobian[index]))
-      throw new Error(
-        "Mesh deformation must remain finite and preserve local surface orientation.",
-      );
   const a: IAutoMovieVector3 = Vector3.create(
     jacobian[0],
     jacobian[3],
@@ -49,7 +44,7 @@ export function cofactorAutoMovieJacobian(
   const ca: IAutoMovieVector3 = Vector3.cross(c, a);
   const ab: IAutoMovieVector3 = Vector3.cross(a, b);
   const determinant: number = Vector3.dot(a, bc);
-  if (!Number.isFinite(determinant) || determinant <= 0)
+  if (determinant <= 0)
     throw new Error(
       "Mesh deformation must remain finite and preserve local surface orientation.",
     );

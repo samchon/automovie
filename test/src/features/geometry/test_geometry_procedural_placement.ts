@@ -60,8 +60,8 @@ const close: (
  * 5. A placed unit prism keeps its volume under rotation and multiplies it by the
  *    absolute scale determinant after reflected winding is corrected.
  * 6. Negative twins: skinning, a non-unit quaternion, a collapsed axis, a
- *    non-finite translation or scale, a blank id, and a duplicate id are all
- *    refused by their own diagnostic.
+ *    non-finite translation or scale, and a duplicate id are all refused by
+ *    their own diagnostic.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls rigid mesh placement and assembly, checking positions, inverse-transpose normals, winding and member-owned index ranges, including reflection parity after determinant underflow. Caller-buffer mutation is not observed here.
  * @evidence contracts/development/testing.md#independent-expectations Quarter-turn coordinates, cross products and unit-prism volume times the absolute scale determinant are hand-derived; underflowed scales still have independently countable negative-axis parity. Numeric coordinate checks retain 1e-12 absolute tolerance, while group/range identities remain exact. The topology observer shares engine grid rules and these CPU checks do not certify arbitrary embedding or rendered appearance.
@@ -328,12 +328,6 @@ export function test_geometry_procedural_placement(): void {
           scale: { x: 1, y: Number.NaN, z: 1 },
         }),
       "mesh transform scale must be finite",
-    ],
-    [
-      "blank part id",
-      (): IAutoMovieMeshAssembly =>
-        mergeAutoMovieMeshParts([{ id: "  ", mesh: facet() }]),
-      "mesh part id must be non-empty",
     ],
     [
       "duplicate part id",

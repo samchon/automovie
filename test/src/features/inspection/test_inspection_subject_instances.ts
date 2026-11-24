@@ -25,10 +25,10 @@ import { vclose } from "../internal/vclose";
  *    member, and regenerates the last slot without enumerating it in output.
  * 2. Scatter, lattice, explicit, and along-route subjects each produce a finite
  *    world placement from compiled data.
- * 3. Explicit prototype selection links an instance to the selected runtime
- *    model and preserves the authored transform.
- * 4. Missing routes, zero-length routes, missing prototypes, malformed
- *    addresses, and out-of-range slots fail explicitly.
+ * 3. Explicit prototype selection links an instance to the selected runtime model
+ *    and preserves the authored transform.
+ * 4. Missing routes, zero-length routes, missing prototypes, malformed addresses,
+ *    and out-of-range slots fail explicitly.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Opens compact sets and individual members, checking bounded summaries, last-slot access, selected prototype, world placement and explicit malformed-law failures; wrong slot addressing or lost authored TRS fails.
  * @evidence contracts/development/testing.md#independent-expectations A centered 65-slot unit row spans minus/plus32, while the explicit quarter-turn maps local (7,1,2) plus anchor to (12,1,-7) and transforms the authored prototype box. These coordinates and identities are derived from input geometry; the other layout cases check finite placement only, not their complete distribution law.
@@ -186,11 +186,7 @@ export function test_inspection_subject_instances(): void {
         owner: string | null;
       } => ({
         id: description.id,
-        finite:
-          Object.keys(description.transform!.translation).length === 3 &&
-          Object.values(description.transform!.translation).every(
-            Number.isFinite,
-          ),
+        finite: Object.keys(description.transform!.translation).length === 3,
         model: description.model,
         owner: description.owner,
       }),

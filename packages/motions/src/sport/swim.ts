@@ -134,8 +134,7 @@ export namespace swim {
     const p: IAutoMovieMotionHumanSwim.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const cycles: number = p.count ?? 3;
-    HumanBound.whole("count", cycles);
+    const cycles: number = HumanBound.whole("count", p.count ?? 3);
     const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       p.manner,

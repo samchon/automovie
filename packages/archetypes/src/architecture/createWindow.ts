@@ -59,10 +59,7 @@ export function createWindow(
   params: createWindow.IParams,
   seed?: number,
 ): AutoMovieArchetype<createWindow.Affordance, createWindow.Dimension> {
-  if (
-    params.fractureEnergy !== undefined &&
-    !(Number.isFinite(params.fractureEnergy) && params.fractureEnergy > 0)
-  )
+  if (params.fractureEnergy !== undefined && !(params.fractureEnergy > 0))
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "window",

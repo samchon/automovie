@@ -253,9 +253,8 @@ export function grappleArms(
 
   // The arms leave the floor's own arms as the reach starts, the angles
   // shown before it; the entry's were not, and the reach jumped from them.
-  let begun: IAutoMoviePose | undefined;
-  const start = (): IAutoMoviePose =>
-    (begun ??= resolveHumanPosture(body, base.posture(reach)));
+  const begun: IAutoMoviePose = resolveHumanPosture(body, base.posture(reach));
+  const start = (): IAutoMoviePose => begun;
   const lay = (end: number): IAutoMovieMotionHumanActionPlan => {
     const laid: IAutoMovieMotionHumanActionPlan = courseArmGoal({
       context,
@@ -309,9 +308,10 @@ export function grappleArms(
       ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
     ): IAutoMovieMotionHumanPosture =>
       sides.length === 0 ? base.posture(...args) : course().posture(...args),
-    settle: (): void => {
+    prepare: (): void => {
+      floor.prepare?.();
       coursed = undefined;
-      floor.settle?.();
+      if (sides.length !== 0) course().prepare?.();
     },
     goals,
   };

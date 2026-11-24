@@ -49,10 +49,7 @@ export function createHalter(
   head: createHalter.IHead,
   params: createHalter.IParams = {},
 ): AutoMovieArchetype<createHalter.Affordance, never> {
-  if (
-    !(Number.isFinite(head.length) && head.length > 0) ||
-    !(Number.isFinite(head.radius) && head.radius > 0)
-  )
+  if (!(head.length > 0) || !(head.radius > 0))
     throw new RangeError("A halter fits a head of positive length and radius");
   const draw: AutoMovieArchetypeDrawSession<never> =
     new AutoMovieArchetypeDrawSession<never>("halter", {}, undefined, {});

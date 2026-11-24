@@ -71,7 +71,7 @@ export namespace AutoMovieArchetypeEquineLiberty {
           row.from + row.entry + row.hold + row.exit,
       ),
     );
-    if (!(Number.isFinite(recline.from) && recline.from >= last))
+    if (!(recline.from >= last))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: animal.archetype,

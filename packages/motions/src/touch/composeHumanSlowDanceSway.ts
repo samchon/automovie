@@ -23,7 +23,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 export function composeHumanSlowDanceSway<
   Chain extends IAutoMovieMotionHumanChainCore,
 >(chain: Chain, params: IAutoMovieMotionHumanDance.ISlowDanceSway): Chain {
-  if (!(Number.isInteger(params.count) && params.count >= 1))
+  if (!(params.count >= 1))
     throw new HumanRefusal({
       kind: "parameter",
       axis: "count",

@@ -60,7 +60,7 @@ export function rideBicycle(
     ["chainring", gear.chainring],
     ["sprocket", gear.sprocket],
   ] as const)
-    if (!(Number.isInteger(teeth) && teeth > 0))
+    if (!(teeth > 0))
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",
@@ -247,13 +247,7 @@ export namespace rideBicycle {
     interval: readonly [number, number],
   ): ReturnType<typeof rideBicycle> {
     const [takeoff, touchdown]: typeof interval = interval;
-    if (
-      !Number.isFinite(takeoff) ||
-      !Number.isFinite(touchdown) ||
-      takeoff < 0 ||
-      touchdown <= takeoff ||
-      touchdown > ride.duration
-    )
+    if (takeoff < 0 || touchdown <= takeoff || touchdown > ride.duration)
       throw new AutoMovieArchetypeRefusal({
         kind: "parameter",
         archetype: "bicycle",

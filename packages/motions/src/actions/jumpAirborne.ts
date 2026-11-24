@@ -274,7 +274,7 @@ export namespace jumpAirborne {
               Vector3.dot(Vector3.lerp(apart, apartEnd, passAt), rightward),
           );
     const passing = (s: number): IAutoMovieVector3 =>
-      passBump === 0
+      passAt === undefined || passBump === 0
         ? { x: 0, y: 0, z: 0 }
         : Vector3.scale(
             rightward,

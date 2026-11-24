@@ -59,10 +59,9 @@ function plan(
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanButton = context.params;
   if (
-    !Number.isFinite(p.travel) ||
     p.travel === 0 ||
     ![p.radius, p.thickness, p.duration].every(
-      (value: number): boolean => Number.isFinite(value) && value > 0,
+      (value: number): boolean => value > 0,
     )
   )
     throw new HumanRefusal({
@@ -412,7 +411,7 @@ function place(
 
 /** A finite aperture dimension stated in metres. */
 function positive(value: number | undefined): value is number {
-  return value !== undefined && Number.isFinite(value) && value > 0;
+  return value !== undefined && value > 0;
 }
 
 /** A garment model or closure the law cannot stage. */

@@ -29,17 +29,15 @@ export function mixRecoveryFeasibleSqpStep(
       (value: number, at: number): number =>
         (1 - weight) * value + weight * tilted[at]!,
     );
-    if (!step.every(Number.isFinite)) return null;
     for (let at: number = 0; at < rows.length; at++) {
       const row: IAutoMovieSimplexAtom = rows[at]!;
       let slope: number = 0;
       for (let entry: number = 0; entry < row.indices.length; entry++)
         slope += row.values[entry]! * step[row.indices[entry]!]!;
       if (
-        !Number.isFinite(slope) ||
-        (at === 0
+        at === 0
           ? !(slope < 0)
-          : slope > row.offset || (row.offset === 0 && !(slope < 0)))
+          : slope > row.offset || (row.offset === 0 && !(slope < 0))
       )
         return null;
     }
@@ -75,11 +73,7 @@ export function mixRecoveryFeasibleSqpStep(
       true,
     );
     const difference: number = second - first;
-    if (
-      ![first, second, margin, difference].every(Number.isFinite) ||
-      !(product < 1)
-    )
-      return result;
+    if (!(product < 1)) return result;
     if (difference < 0) {
       if (first > -margin)
         lower = Math.max(

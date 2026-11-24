@@ -111,7 +111,6 @@ export function AutoMovieConstructionNativeProfile(
   let latest: Station | undefined;
   const at: (station: number) => Station = (station: number): Station => {
     if (
-      !Number.isFinite(station) ||
       station < source.domain[0] ||
       station > source.domain[1]
     )

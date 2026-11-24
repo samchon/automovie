@@ -26,7 +26,6 @@ import { validateSceneEnvironment } from "../validation/validateSceneEnvironment
 import { validateSpace } from "../validation/validateSpace";
 import { lookRotation } from "./lookRotation";
 import { admitStageSupport } from "./staging/admitStageSupport";
-import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { lightTypeOf } from "./staging/lightTypeOf";
 import { lowerCameraClearanceEnvelope } from "./staging/lowerCameraClearanceEnvelope";
 import { lowerLightPlacement } from "./staging/lowerLightPlacement";
@@ -170,20 +169,6 @@ export function stageScene(
         `placement must name a script cast node, but "${describeInvalidValue(actor.node)}" is not in the cast`,
         actor.node,
       );
-    if (!isFiniteStageVector3(actor.position))
-      out.push(
-        "range",
-        `${path}.position`,
-        "actor position must be a finite vector",
-        actor.position,
-      );
-    if (!Number.isFinite(actor.facingDeg))
-      out.push(
-        "range",
-        `${path}.facingDeg`,
-        `actor facingDeg must be finite, but was ${describeInvalidValue(actor.facingDeg)}`,
-        actor.facingDeg,
-      );
     if (actor.attach === undefined) return;
     if (actor.attach.parent === actor.node)
       out.push(
@@ -204,20 +189,7 @@ export function stageScene(
   set.forEach((piece: IAutoMovieStageSetPiece, i: number): void => {
     const path: string = `$input.set[${i}]`;
     claim(piece.node, `${path}.node`);
-    if (!isFiniteStageVector3(piece.position))
-      out.push(
-        "range",
-        `${path}.position`,
-        "set position must be a finite vector",
-        piece.position,
-      );
-    if (piece.facingDeg !== undefined && !Number.isFinite(piece.facingDeg))
-      out.push(
-        "range",
-        `${path}.facingDeg`,
-        `set facingDeg must be finite when present, but was ${describeInvalidValue(piece.facingDeg)}`,
-        piece.facingDeg,
-      );
+
     if (piece.facingDeg !== undefined && piece.rotation !== undefined)
       out.push(
         "type",
@@ -234,7 +206,6 @@ export function stageScene(
       ];
       const length: number = Math.hypot(...components);
       if (
-        !components.every(Number.isFinite) ||
         Math.abs(length - 1) > UNIT_QUATERNION_TOLERANCE
       )
         out.push(
@@ -250,7 +221,7 @@ export function stageScene(
       const scale: IAutoMovieVector3 = setPieceScale(piece.scale);
       if (
         ![scale.x, scale.y, scale.z].every(
-          (axis: number): boolean => Number.isFinite(axis) && axis > 0,
+          (axis: number): boolean => axis > 0,
         )
       )
         out.push(
@@ -323,7 +294,7 @@ export function stageScene(
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {
     const path: string = `$input.lights[${i}]`;
     claim(light.node, `${path}.node`);
-    if (!Number.isFinite(light.intensity) || light.intensity < 0)
+    if (light.intensity < 0)
       out.push(
         "range",
         `${path}.intensity`,

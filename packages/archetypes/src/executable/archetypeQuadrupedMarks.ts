@@ -137,7 +137,6 @@ export function archetypeQuadrupedMarks(
     // Support heights are exact; their X/Z projection is an inspection ruler, not a fabricated contact point.
     for (const part of animal.parts) {
       const height: number = QuadrupedRestFloor(part);
-      if (!Number.isFinite(height)) continue;
       const centre: IAutoMovieVector3 = part.transform!.translation;
       marks.push(
         mark(

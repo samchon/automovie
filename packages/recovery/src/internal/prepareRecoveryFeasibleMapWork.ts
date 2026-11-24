@@ -20,12 +20,7 @@ export function prepareRecoveryFeasibleMapWork(
 ): IAutoMovieRecoveryFeasibleMapWork {
   const cameras: number = initialPoses.length;
   const points: number = initialLandmarks.length;
-  if (
-    points < 6 ||
-    cameras < 2 ||
-    points > budget.maxTracks ||
-    !Number.isSafeInteger(4 * points)
-  )
+  if (points < 6 || cameras < 2 || points > budget.maxTracks)
     throw new Error("camera-feasible: bounded landmark metadata required");
   charge(4 * points);
   const observations: number = initialLandmarks.reduce(
@@ -86,11 +81,7 @@ export function prepareRecoveryFeasibleMapWork(
     points < 6 ||
     points > budget.maxTracks ||
     observations > budget.maxObservations ||
-    (adaptive &&
-      (!Number.isSafeInteger(agreementEntries) ||
-        agreementEntries <= 0 ||
-        !Number.isSafeInteger(agreementWork) ||
-        agreementWork <= 0)) ||
+    (adaptive && (agreementEntries <= 0 || agreementWork <= 0)) ||
     ![
       retained,
       evaluationWork,
@@ -102,9 +93,7 @@ export function prepareRecoveryFeasibleMapWork(
       options.directionBudget.maxEntries,
       options.directionBudget.maxIterations,
       options.directionBudget.maxWork,
-    ].every(
-      (value: number): boolean => Number.isSafeInteger(value) && value > 0,
-    ) ||
+    ].every((value: number): boolean => value > 0) ||
     !identityGauge
   )
     throw new Error(

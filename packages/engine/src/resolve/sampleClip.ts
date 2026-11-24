@@ -28,7 +28,7 @@ export const sampleClip: (
   clip: IAutoMovieClip,
   seconds: number,
 ): Map<string, IAutoMovieSampledChannel> => {
-  validateSampleTime(seconds, clip.duration);
+  validateSampleTime(clip.duration);
   const time: number = normalizeTime(seconds, clip.duration, clip.loop);
   const out: Map<string, IAutoMovieSampledChannel> = new Map<
     string,
@@ -170,16 +170,13 @@ const normalizeQuatArray: (q: number[]) => number[] = (
 };
 
 /**
- * The clip's own duration, plus the query time. Duration comes from the shared
+ * The clip's own duration. Duration comes from the shared
  * contract ({@link clipDurationFault}), so the artifact gate that exists to
  * spare a consumer this throw refuses exactly what would reach it (#1353).
  */
-const validateSampleTime: (seconds: number, duration: number) => void = (
-  seconds: number,
+const validateSampleTime: (duration: number) => void = (
   duration: number,
 ): void => {
-  if (!Number.isFinite(seconds))
-    throw new Error(`sampleClip seconds must be finite, but was ${seconds}`);
   const fault: IAutoMovieClipShapeFault | null = clipDurationFault(duration);
   if (fault !== null) throw new Error(`sampleClip clip ${fault.message}`);
 };

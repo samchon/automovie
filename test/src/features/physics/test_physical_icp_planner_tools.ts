@@ -111,10 +111,10 @@ export function test_physical_icp_planner_tools(): void {
     { x: 0.38, z: 0.18 },
     { x: 0.6, z: 0 },
   ];
-  const swings = [0.6, 0.5, Number.NaN];
-  const swingSplits = [0.5, 0.4, Number.NaN];
-  const transfers = [0.25, 0.2, 0.3, Number.NaN];
-  const transferSplits = [0.5, 0.6, 0.5, Number.NaN];
+  const swings = [0.6, 0.5];
+  const swingSplits = [0.5, 0.4];
+  const transfers = [0.25, 0.2, 0.3];
+  const transferSplits = [0.5, 0.6, 0.5];
   const corners = tools.cornerPoints({
     entries,
     exits,
@@ -147,7 +147,7 @@ export function test_physical_icp_planner_tools(): void {
   const skipped = tools.cornerPoints({
     entries,
     exits,
-    swings: [0.6, Number.NaN, Number.NaN],
+    swings: [0.6, undefined],
     swingSplits,
     transfers,
     transferSplits,
@@ -156,7 +156,7 @@ export function test_physical_icp_planner_tools(): void {
   });
   TestValidator.predicate(
     "no swing, no corner",
-    Number.isNaN(skipped.entries[1]!.x) && Number.isNaN(skipped.exits[1]!.z),
+    skipped.entries[1] === undefined && skipped.exits[1] === undefined,
   );
   const onExit: number = 0.6 * 0.5 + 0.2 * 0.6;
   near(

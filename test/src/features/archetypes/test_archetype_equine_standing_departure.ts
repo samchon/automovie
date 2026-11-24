@@ -56,7 +56,7 @@ export function test_archetype_equine_standing_departure(): void {
   );
   TestValidator.predicate(
     "a hoof actually lands after the standing departure",
-    () => Number.isFinite(first) && first > 0,
+    () => first > 0,
   );
   const swing: ReturnType<typeof departure.at> = departure.at(first / 2);
   const landed: ReturnType<typeof departure.at> = departure.at(first);

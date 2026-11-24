@@ -20,8 +20,6 @@ export const arrangeMotion: (
   placements: IAutoMoviePlacement[],
 ): IAutoMovieMotion => {
   for (const placement of placements) {
-    if (!Number.isFinite(placement.start))
-      throw new Error("motion placement start must be finite");
     if (placement.start < 0)
       throw new Error("motion placement start must be non-negative");
     if (placement.motion.keyframes.length === 0)
@@ -29,7 +27,6 @@ export const arrangeMotion: (
         `motion placement "${placement.motion.id}" must have keyframes`,
       );
     if (
-      !Number.isFinite(placement.motion.duration) ||
       placement.motion.duration <= 0
     )
       throw new Error(

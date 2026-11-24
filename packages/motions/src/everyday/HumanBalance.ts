@@ -94,12 +94,10 @@ export namespace HumanBalance {
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
       prepareHumanPostureProjection(body);
     let frames: ReturnType<typeof poseBones.prepare> | undefined;
-    let model: prepareAutoMovieMassModel.IPrepared | undefined;
+    const model: prepareAutoMovieMassModel.IPrepared =
+      prepareAutoMovieMassModel(body.massModel);
     const mass: () => prepareAutoMovieMassModel.IPrepared =
-      (): prepareAutoMovieMassModel.IPrepared => {
-        model ??= prepareAutoMovieMassModel(body.massModel);
-        return model;
-      };
+      (): prepareAutoMovieMassModel.IPrepared => model;
     const at: (back: number) => HumanBalanceReading.IReading = (
       back: number,
     ): HumanBalanceReading.IReading => {

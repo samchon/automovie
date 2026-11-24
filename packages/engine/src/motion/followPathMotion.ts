@@ -61,14 +61,13 @@ export const followPathMotion: (
   props: IAutoMovieFollowPathMotion.IProps,
 ): IAutoMoviePathLocomotion => {
   const turnWindow: number = props.turnWindow ?? DEFAULT_TURN_WINDOW;
-  if (!Number.isFinite(props.speed) || props.speed <= 0)
+  if (props.speed <= 0)
     throw new Error("path speed must be finite and positive");
-  if (!Number.isFinite(props.gait.duration) || props.gait.duration <= 0)
+  if (props.gait.duration <= 0)
     throw new Error("path gait duration must be finite and positive");
-  if (!Number.isFinite(turnWindow) || turnWindow < 0)
+  if (turnWindow < 0)
     throw new Error("path turn window must be finite and non-negative");
-  if (typeof props.ground === "number" && !Number.isFinite(props.ground))
-    throw new Error("path ground height must be finite");
+
 
   const segments: ISegment[] = buildSegments(props.waypoints);
   const last: ISegment = segments[segments.length - 1]!;
@@ -77,10 +76,8 @@ export const followPathMotion: (
     1,
     Math.round(length / (props.speed * props.gait.duration)),
   );
-  if (!Number.isSafeInteger(cycles))
-    throw new Error("path cycle count must be a safe positive integer");
   const duration: number = cycles * props.gait.duration;
-  if (!Number.isFinite(duration) || duration <= 0)
+  if (duration <= 0)
     throw new Error("path duration must be finite and positive");
   const speed: number = length / duration;
   const halfWindows: number[] = cornerHalfWindows(segments, turnWindow);
@@ -176,24 +173,16 @@ const buildSegments: (waypoints: readonly IAutoMovieVector3[]) => ISegment[] = (
 ): ISegment[] => {
   if (waypoints.length < 2)
     throw new Error("path needs at least two waypoints");
-  for (let i: number = 0; i < waypoints.length; ++i) {
-    if (!Number.isFinite(waypoints[i]!.x))
-      throw new Error(`path waypoint[${i}].x must be finite`);
-    if (!Number.isFinite(waypoints[i]!.z))
-      throw new Error(`path waypoint[${i}].z must be finite`);
-  }
   const segments: ISegment[] = [];
   let from: number = 0;
   for (let i: number = 0; i + 1 < waypoints.length; ++i) {
     const dx: number = waypoints[i + 1]!.x - waypoints[i]!.x;
     const dz: number = waypoints[i + 1]!.z - waypoints[i]!.z;
     const stretch: number = Math.hypot(dx, dz);
-    if (!Number.isFinite(stretch))
-      throw new Error(`path stretch ${i} must have a finite XZ length`);
     if (stretch <= MIN_SEGMENT)
       throw new Error(`path waypoints ${i} and ${i + 1} coincide in XZ`);
     const end: number = from + stretch;
-    if (!Number.isFinite(end) || end <= from)
+    if (end <= from)
       throw new Error(`path stretch ${i} must advance a finite arc length`);
     segments.push({
       x: waypoints[i]!.x,
@@ -305,7 +294,5 @@ const groundHeightAt: (
   if (ground === undefined) return 0;
   if (typeof ground === "number") return ground;
   const y: number = ground(x, z);
-  if (!Number.isFinite(y))
-    throw new Error(`path ground height at (${x}, ${z}) must be finite`);
   return y;
 };

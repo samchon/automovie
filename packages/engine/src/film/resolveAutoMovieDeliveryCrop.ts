@@ -30,7 +30,7 @@ export function resolveAutoMovieDeliveryCrop(
   if (
     [resolved.left, resolved.top, resolved.right, resolved.bottom].every(
       (edge: number): boolean =>
-        Number.isFinite(edge) && edge >= 0 && edge <= 1,
+        edge >= 0 && edge <= 1,
     ) === false ||
     resolved.left >= resolved.right ||
     resolved.top >= resolved.bottom

@@ -73,11 +73,6 @@ export function observeAutoMovieRecoveryAtlas(
     boundaryObservations: number;
     feature: boolean;
   }[] = [];
-  if (
-    input.inventoryOnly !== undefined &&
-    typeof input.inventoryOnly !== "boolean"
-  )
-    throw new Error("Inventory mode must be an explicit boolean");
   if (!(input.cornerDegrees > 0 && input.cornerDegrees < 180))
     throw new Error("A source crease/corner threshold in degrees is required");
   const sourceNormals: number[][] = RecoveryAtlasObservationNormals(input);
@@ -90,11 +85,7 @@ export function observeAutoMovieRecoveryAtlas(
   const planeOwners: Map<string, number> = new Map();
   const priorityFaces: Set<number> = new Set(input.priorityFaces ?? []);
   for (const face of priorityFaces)
-    if (
-      !Number.isSafeInteger(face) ||
-      face < 0 ||
-      face >= input.triangles.length
-    )
+    if (face < 0 || face >= input.triangles.length)
       throw new Error(
         "Private work priorities must address original source faces",
       );

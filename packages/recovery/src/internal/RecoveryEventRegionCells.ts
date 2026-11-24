@@ -27,7 +27,7 @@ export function RecoveryEventRegionCells(
   }: ReturnType<IAutoMovieRecoveryEventRegionSource.Operation> = prepared;
   const lower: number = query.beforeMm,
     upper: number = query.afterMm;
-  if (!Number.isFinite(lower) || !Number.isFinite(upper) || !(lower < upper))
+  if (!(lower < upper))
     throw new Error("Finite increasing event-region bounds are required");
   const result: ReturnType<
     ReturnType<IAutoMovieRecoveryEventRegion.Operation>
@@ -119,11 +119,7 @@ export function RecoveryEventRegionCells(
   };
   let previous: number = -1;
   for (const face of query.candidates) {
-    if (
-      !Number.isSafeInteger(face) ||
-      face <= previous ||
-      face >= source.triangles.length
-    )
+    if (face <= previous || face >= source.triangles.length)
       throw new Error(
         "Event candidates must be increasing original face addresses",
       );

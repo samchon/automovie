@@ -85,17 +85,13 @@ export const transportAutoMovieSweepSpine: (
     (at(k + 1, axis) - at(k - 1, axis)) / (before + after) +
     (at(k + 1, axis) - at(k, axis)) / after;
   // a declared end direction replaces the derivative's own and keeps its speed
-  const steer = (base: number, direction: Float64Array, what: string): void => {
+  const steer = (base: number, direction: Float64Array): void => {
     const size: number = Math.hypot(
       direction[0]!,
       direction[1]!,
       direction[2]!,
     );
     if (size === 0) return;
-    if (!Number.isFinite(size))
-      throw new Error(
-        `sweep spine ${what} tangent must be finite and not zero`,
-      );
     const speed: number = Math.hypot(
       segments[base]!,
       segments[base + 1]!,
@@ -203,17 +199,6 @@ export const transportAutoMovieSweepSpine: (
   };
 
   const update = (): void => {
-    for (let k: number = 0; k < 3 * n; ++k)
-      if (!Number.isFinite(points[k]!))
-        throw new Error(`sweep spine point ${Math.floor(k / 3)} is not finite`);
-    if (
-      !(
-        Number.isFinite(normal[0]!) &&
-        Number.isFinite(normal[1]!) &&
-        Number.isFinite(normal[2]!)
-      )
-    )
-      throw new Error("sweep spine normal is not finite");
     let total: number = 0;
     knots[0] = 0;
     for (let k: number = 1; k < n; ++k) {
@@ -251,8 +236,8 @@ export const transportAutoMovieSweepSpine: (
         segments[g + 9 + a] = slope(k + 1, a, span, b1) * span;
       }
     }
-    steer(6, start, "start");
-    steer(12 * (n - 2) + 9, end, "end");
+    steer(6, start);
+    steer(12 * (n - 2) + 9, end);
     if (!frames) return;
     tangent(0, scratch, 3);
     const dot: number =

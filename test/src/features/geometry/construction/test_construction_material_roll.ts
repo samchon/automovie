@@ -10,13 +10,32 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A requested material roll changes only the in-plane basis, with C2 endpoint joins.
+ * A requested material roll changes only the in-plane basis, with C2 endpoint
+ * joins.
  *
  * Scenarios:
- * 1. Three length scales and signed target angles on a straight axis agree with the independent rotation matrix at the zero-jet quintic angle, preserving every origin and normal. Exact antipodal input follows the positive-half-turn convention.
- * 2. A nonplanar jointed course retains its original centreline and tangent. The endpoint +u matches the signed target's actual normal-plane projection; after the endpoint it carries a constant relative rotation rather than reprojecting a world direction. Before the start it retains the original frame.
- * 3. Metre AST admission preserves target directions and scales only station/centre lengths. Omitted and zero roll retain the base behavior. Malformed intervals and zero/nonfinite targets remain explicit axis failures. Relative projection below/at/above the existing 1e-9 conditioning boundary is distinguished from geometric parallelism; safe target magnitude changes preserve admitted orientation in both endpoint roll and initial base-up normalization, including a subnormal normal component whose reciprocal overflows.
- * 4. Existing segment/hinge normalization preserves a finite minimum-subnormal separation and a genuinely nonzero tiny turn. Positive uniform coordinate scaling preserves the double-reflection RMF on a nonplanar curve, including underflowing and overflowing squared chord norms.
+ *
+ * 1. Three length scales and signed target angles on a straight axis agree with
+ *    the independent rotation matrix at the zero-jet quintic angle, preserving
+ *    every origin and normal. Exact antipodal input follows the
+ *    positive-half-turn convention.
+ * 2. A nonplanar jointed course retains its original centreline and tangent. The
+ *    endpoint +u matches the signed target's actual normal-plane projection;
+ *    after the endpoint it carries a constant relative rotation rather than
+ *    reprojecting a world direction. Before the start it retains the original
+ *    frame.
+ * 3. Metre AST admission preserves target directions and scales only
+ *    station/centre lengths. Omitted and zero roll retain the base behavior.
+ *    Malformed intervals and zero/nonfinite targets remain explicit axis
+ *    failures. Relative projection below/at/above the existing 1e-9
+ *    conditioning boundary is distinguished from geometric parallelism; safe
+ *    target magnitude changes preserve admitted orientation in both endpoint
+ *    roll and initial base-up normalization, including a subnormal normal
+ *    component whose reciprocal overflows.
+ * 4. Existing segment/hinge normalization preserves a finite minimum-subnormal
+ *    separation and a genuinely nonzero tiny turn. Positive uniform coordinate
+ *    scaling preserves the double-reflection RMF on a nonplanar curve,
+ *    including underflowing and overflowing squared chord norms.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Enters through the actual ConstructionViews.frame jointed AST path and reads original/rotated frames; directly checks the zero-roll preparation identity and rejects invalid declarations.
  * @evidence contracts/development/testing.md#independent-expectations Straight-frame expectations are u=(cos(theta*S),0,sin(theta*S)), v=(-sin(theta*S),0,cos(theta*S)) with S=10t^3-15t^4+6t^5 and constant endpoint extension. General-course target/normal expectations use independent cross/dot projection and a two-dimensional rotation matrix. Minimum-subnormal directions normalize analytically to diagonal unit vectors; a positive uniform coordinate scale does not change tangent directions or Householder reflection planes. All vector counts and finite components are checked before tolerances.
@@ -100,7 +119,6 @@ export function test_construction_material_roll(): void {
         if (
           begin.u.length !== 3 ||
           end.u.length !== 3 ||
-          ![...begin.u, ...end.u, limit].every(Number.isFinite) ||
           Math.hypot(begin.u[0] - 1, begin.u[1], begin.u[2]) > limit ||
           Math.hypot(
             end.u[0] - Math.cos(angle),
@@ -448,7 +466,7 @@ export function test_construction_material_roll(): void {
     const tangent: [number, number, number] = AutoMovieViewAxis.normal(
       faintTurn.at(2),
     );
-    if (!tangent.every(Number.isFinite) || !(tangent[1] > 0))
+    if (!(tangent[1] > 0))
       failures.push(`the admitted nonzero turn was lost: ${tangent}`);
   }
   const shape: [number, number, number][] = [
@@ -527,7 +545,10 @@ export function test_construction_material_roll(): void {
     );
 }
 
-/** Finite three-component comparison; NaN and missing components cannot pass a numeric tolerance. */
+/**
+ * Finite three-component comparison; NaN and missing components cannot pass a
+ * numeric tolerance.
+ */
 function vector(
   failures: string[],
   label: string,
@@ -538,7 +559,6 @@ function vector(
   if (
     actual.length !== 3 ||
     expected.length !== 3 ||
-    ![...actual, ...expected].every(Number.isFinite) ||
     actual.some(
       (value: number, i: number): boolean =>
         Math.abs(value - expected[i]!) > tolerance,

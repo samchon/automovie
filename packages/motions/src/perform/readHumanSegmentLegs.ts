@@ -33,9 +33,9 @@ function free(
  * under the running overlays, named by their ordinals in placement order
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading overlay
  * keeps both the leaf with it and the one without. The seeds are the plan's leg
- * chain at the second (`segment.legSeeds`, prepared by
- * `readHumanSegmentLegs.chain` once the performance has placed and settled
- * every action), for a free leg alone (a goal neither planted nor in contact):
+ * chain at the second (`IAutoMovieMotionHumanSegment.IPrepared.legs`, made by
+ * `readHumanSegmentLegs.chain` once the performance is prepared; none
+ * before), for a free leg alone (a goal neither planted nor in contact):
  * a leg is only continued from them, never placed at them, and its fit takes
  * the closed-form root nearest the seed (on another branch where the seed's has
  * no legal one). A planted leg keeps its own fit: where its goal asks no turn
@@ -58,10 +58,14 @@ export function readHumanSegmentLegs(
 ): Map<string, IAutoMovieSwivelSeed> {
   // Only a free leg takes a seed (below): with none at this second the
   // plan's chain is not read, so none of its frames is fitted for nothing.
-  if (!free(limbs.leftLeg) && !free(limbs.rightLeg)) return new Map();
-  const chain: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
-    segment.legSeeds(local);
   const out: Map<string, IAutoMovieSwivelSeed> = new Map();
+  if (
+    segment.prepared === undefined ||
+    (!free(limbs.leftLeg) && !free(limbs.rightLeg))
+  )
+    return out;
+  const chain: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
+    segment.prepared.legs(local);
   if (chain.size === 0) return out;
   const ordinals: number[] =
     person.overlays.length === 0
@@ -95,17 +99,6 @@ interface IRates {
 /** The plan-level leg chain the display's legs continue. */
 export namespace readHumanSegmentLegs {
   /**
-   * The legs' seeds before the performance has prepared its chains: none, so a
-   * leg read while the schedule is still being placed or settled fits cold.
-   */
-  export const cold: (
-    seconds: number,
-  ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = (): ReadonlyMap<
-    AutoMovieHumanLimb,
-    IAutoMovieSwivelSeed
-  > => new Map();
-
-  /**
    * A plan's leg chain: the legs' seeds at knots on the plan's frame grid
    * (`AutoMovieMotionHumanArmCourse.STEP`), the first knot fitted cold and each
    * later one continuing the knot before it, so each knot takes the closed-form
@@ -120,9 +113,8 @@ export namespace readHumanSegmentLegs {
    * leg has no seed at one of the two knots, a second takes the knot at or
    * before it. The chain reads the plan's own leg goals alone. It is prepared
    * once, every knot fitted in order from the plan's start, when the
-   * performance has placed and settled every action
-   * (`IAutoMovieMotionHumanSegment.legSeeds`), and a second is a closed-form
-   * evaluation of the prepared knots.
+   * performance is prepared (`IAutoMovieMotionHumanSegment.IPrepared.legs`),
+   * and a second is a closed-form evaluation of the prepared knots.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.

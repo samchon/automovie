@@ -7,8 +7,7 @@
 // extractSolutionsFromSolver l.447-460, computeFeedForwardAndFeedBackAlphas
 // l.462-488, computeCMPPositions l.490-504 and scaleFeedbackWeightWithGain
 // l.506-519; ICPControllerHelper.java l.20-81; CapturePointTools.java
-// computeCenterOfMassVelocity l.378-383; the caller's NaN guard,
-// LinearMomentumRateControlModule.java l.569-598; parameters from
+// computeCenterOfMassVelocity l.378-383; parameters from
 // zulu/.../ZuluICPControllerParameters.java l.9-114, ICPControllerParameters.java
 // l.38-41, l.61-64, l.118-129 and l.145-148, ICPControlGains.java l.10-13,
 // IntegratorGains.java (ihmc-robotics-toolkit) l.7-9 and
@@ -29,9 +28,11 @@ import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  *   pivot offset being zero (l.295-308). Zulu's alpha calculators are null, so
  *   the feed-forward and feedback alphas are zero (l.462-488) and the
  *   feed-forward is the perfect point itself (l.372-375).
- * - Error: xi - xi_d, dead-banded along itself (l.315-351). With Zulu's zero band
- *   an exactly zero error scales by 0 / 0 and is not a number, as in the
- *   reference; the program then fails and the last solution stays.
+ * - Error: xi - xi_d, dead-banded along itself (l.315-351); an error within the
+ *   band, an exactly zero error under Zulu's zero band included, is zero, the
+ *   band's limit there, where the reference divides 0 / 0. A zero error gives
+ *   a zero feedback direction, so the program fails and the last solution
+ *   stays, as in the reference.
  * - Gains: K = 1 + K_p along and across the plan's motion, carried into the
  *   caller's frame; a plan at rest takes the across gain both ways
  *   (`ICPControllerHelper` l.30-57). The CoP weight is the forward and lateral
@@ -43,11 +44,7 @@ import type { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
  *   (`WalkingControllerParameters` l.616-619, `ICPControllerQPSolver`
  *   l.705-727).
  * - Output: the centre of pressure, feed-forward plus dCoP, and the pivot, that
- *   plus dCMP and the smart integral (l.490-504). A pivot that is not a number
- *   becomes the capture point, and a centre of pressure that is not a number
- *   becomes the pivot, as the reference's caller guards them
- *   (`LinearMomentumRateControlModule` l.576-598); the state keeps what the
- *   reference keeps, a not-a-number integral included.
+ *   plus dCMP and the smart integral (l.490-504).
  *
  * Points are in one horizontal frame of the caller's, metres; the controller is
  * invariant under its rotations and reflections.
@@ -98,7 +95,7 @@ export function physicalIcpController(input: {
   };
   const magnitude: number = Math.hypot(raw.x, raw.y);
   const error: Polygon.IPoint =
-    magnitude < p.deadband
+    magnitude <= p.deadband
       ? { x: 0, y: 0 }
       : {
           x: raw.x * ((magnitude - p.deadband) / magnitude),
@@ -183,17 +180,15 @@ export function physicalIcpController(input: {
     },
   });
 
-  // The outputs with zero alphas (l.490-504), then the caller's guard
-  // (LinearMomentumRateControlModule l.569-598).
+  // The outputs with zero alphas (l.490-504).
   const cop: Polygon.IPoint = {
     x: perfectCop.x + copDelta.x,
     y: perfectCop.y + copDelta.y,
   };
-  let cmp: Polygon.IPoint = {
+  const cmp: Polygon.IPoint = {
     x: cop.x + cmpDelta.x + integrator.integral.x,
     y: cop.y + cmpDelta.y + integrator.integral.y,
   };
-  if (Number.isNaN(cmp.x) || Number.isNaN(cmp.y)) cmp = { ...input.capture };
   return {
     state: {
       copDelta,
@@ -202,7 +197,7 @@ export function physicalIcpController(input: {
       ignoreRateLimit: false,
       failures: solution ? input.state.failures : input.state.failures + 1,
     },
-    cop: Number.isNaN(cop.x) || Number.isNaN(cop.y) ? { ...cmp } : cop,
+    cop,
     cmp,
     converged: solution !== null,
   };

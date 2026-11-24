@@ -42,8 +42,7 @@ export function composeHumanBladeExchange(
   if (exchange.cue.trim() === "")
     throw new Error("Name the staged blade exchange with a nonblank cue");
   if (
-    !Number.isFinite(exchange.blockLeadSeconds) ||
-    exchange.blockLeadSeconds < 0
+    !(exchange.blockLeadSeconds >= 0)
   )
     throw new Error(
       "Give the staged block a finite nonnegative lead in seconds",

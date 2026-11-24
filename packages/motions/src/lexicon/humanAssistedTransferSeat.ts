@@ -120,7 +120,7 @@ export namespace humanAssistedTransferSeat {
     const turns: number = seat.yaw - context.entry.posture.yaw;
     const turn: number = ((((turns + 180) % 360) + 360) % 360) - 180;
     const along: number = ref.along ?? 0;
-    if (!Number.isFinite(along) || Math.abs(along) >= candidate.width / 2)
+    if (!(Math.abs(along) < candidate.width / 2))
       return refuse(
         axis,
         along,

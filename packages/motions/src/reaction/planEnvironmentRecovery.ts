@@ -280,8 +280,7 @@ function slip(
     HumanSupportFrame.contact(context, `${asked.foot}Foot`);
   if (
     !foot.planted ||
-    !Number.isFinite(asked.coefficient) ||
-    asked.coefficient < 0 ||
+    !(asked.coefficient >= 0) ||
     (asked.support === undefined
       ? surface.kind !== "ground"
       : surface.kind !== "prop" || surface.subject !== asked.support)
@@ -301,7 +300,7 @@ function slip(
     carrier.acceleration,
   );
   const required: number = HumanLoad.required(relative);
-  if (!Number.isFinite(required) || required <= asked.coefficient)
+  if (required === Infinity || required <= asked.coefficient)
     throw refuse(
       "coefficient",
       asked.coefficient,

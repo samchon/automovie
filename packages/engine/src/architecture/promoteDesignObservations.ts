@@ -66,7 +66,7 @@ export const promoteDesignObservations: (
     );
   }
   const floor: number = props.minimumConfidence ?? 1;
-  if (!Number.isFinite(floor) || floor < 0 || floor > 1)
+  if (floor < 0 || floor > 1)
     throw new Error(
       `design reference "${props.reference.id}" cannot be promoted at confidence floor ${floor}: a floor is a finite number within [0, 1].`,
     );

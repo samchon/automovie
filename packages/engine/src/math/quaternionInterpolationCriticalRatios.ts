@@ -29,7 +29,7 @@ export function quaternionInterpolationCriticalRatios(
   }
   const ratios: Set<number> = new Set();
   function keep(ratio: number): void {
-    if (Number.isFinite(ratio) && ratio > 0 && ratio < 1) ratios.add(ratio);
+    if (ratio > 0 && ratio < 1) ratios.add(ratio);
   }
   if (dot > QUATERNION_NLERP_DOT_THRESHOLD) {
     const difference: number[] = right.map(

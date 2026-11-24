@@ -69,10 +69,10 @@ export namespace AutoMovieMotionHumanCourse {
     const { knots, count, dt }: ISolve = ((): ISolveResult => {
       const resolution: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution();
-      let projection:
-        | ReturnType<typeof prepareHumanPostureProjection>
-        | undefined;
-      let mass: ReturnType<typeof HumanBalance.prepareCentre> | undefined;
+      const projection: ReturnType<typeof prepareHumanPostureProjection> =
+        prepareHumanPostureProjection(props.body);
+      const mass: ReturnType<typeof HumanBalance.prepareCentre> =
+        HumanBalance.prepareCentre(props.body);
       const centre: (seconds: number, along: number) => number = (
         seconds: number,
         along: number,
@@ -82,8 +82,6 @@ export namespace AutoMovieMotionHumanCourse {
           along,
           resolution,
         );
-        mass ??= HumanBalance.prepareCentre(props.body);
-        projection ??= prepareHumanPostureProjection(props.body);
         return Vector3.dot(mass(posture, resolution, projection), forward);
       };
       const omega: number = resolveAutoMovieCenterOfMass.frequency(

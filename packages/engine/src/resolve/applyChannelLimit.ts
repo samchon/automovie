@@ -20,7 +20,6 @@ export const applyChannelLimit: (
   limit: IAutoMovieChannelLimit,
 ): IAutoMovieClampOutcome => {
   const key: string = channelKey(limit.channel);
-  validateFiniteValues(value, key);
   validateFiniteBounds(limit.min, key, "min", value.length);
   validateFiniteBounds(limit.max, key, "max", value.length);
   validateOrderedBounds(limit.min, limit.max, key);
@@ -54,17 +53,6 @@ export const applyChannelLimit: (
   return { value: out, violations };
 };
 
-const validateFiniteValues: (value: number[], key: string) => void = (
-  value: number[],
-  key: string,
-): void => {
-  for (let i: number = 0; i < value.length; ++i)
-    if (!Number.isFinite(value[i]!))
-      throw new Error(
-        `channel limit "${key}" value[${i}] must be finite, but was ${value[i]!}`,
-      );
-};
-
 const validateFiniteBounds: (
   bounds: (number | null)[] | null,
   key: string,
@@ -83,10 +71,6 @@ const validateFiniteBounds: (
     if (i >= width)
       throw new Error(
         `channel limit "${key}" ${side}[${i}] is outside value width ${width}, but was ${bound}`,
-      );
-    if (!Number.isFinite(bound))
-      throw new Error(
-        `channel limit "${key}" ${side}[${i}] must be finite, but was ${bound}`,
       );
   }
 };

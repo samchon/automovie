@@ -8,8 +8,8 @@ import type {
 import { motionAuditGeometry } from "./motionAuditGeometry";
 
 /**
- * Refuse invalid consumer frames before geometry, speed and angular comparisons
- * can hide a nonfinite measurement.
+ * Refuse consumer frames off the sampled clock, missing a carrier, or with a
+ * rotation off unit length before geometry, speed and angular comparisons.
  */
 export function admitPhysicalMotionFrame(
   frame: IAutoMoviePhysicalFrame,
@@ -17,8 +17,6 @@ export function admitPhysicalMotionFrame(
   seconds: number,
 ): void {
   if (
-    !frame?.bodies ||
-    !Number.isFinite(frame.seconds) ||
     Math.abs(frame.seconds - seconds) >
       64 * Number.EPSILON * Math.max(1, Math.abs(seconds))
   )
@@ -34,25 +32,7 @@ export function admitPhysicalMotionFrame(
       const state: IAutoMoviePhysicalSegmentState | undefined =
         frame.bodies[body.id]?.[bone];
       if (
-        !state?.position ||
-        !state.rotation ||
-        !state.velocity ||
-        !state.angularVelocity ||
-        ![state.position.x, state.position.y, state.position.z].every(
-          Number.isFinite,
-        ) ||
-        ![
-          state.rotation.x,
-          state.rotation.y,
-          state.rotation.z,
-          state.rotation.w,
-          state.velocity.x,
-          state.velocity.y,
-          state.velocity.z,
-          state.angularVelocity.x,
-          state.angularVelocity.y,
-          state.angularVelocity.z,
-        ].every(Number.isFinite) ||
+        state === undefined ||
         Math.abs(
           Math.hypot(
             state.rotation.x,

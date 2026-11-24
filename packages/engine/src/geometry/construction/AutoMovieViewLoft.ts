@@ -109,9 +109,7 @@ export namespace AutoMovieViewLoft {
       });
 
     // Inputs: stations, the order and every curve's knots.
-    if (
-      !(Number.isInteger(part.order) && part.order >= 8 && part.order % 4 === 0)
-    ) {
+    if (!(part.order >= 8 && part.order % 4 === 0)) {
       report(
         "order",
         `order ${part.order} is not a positive multiple of 4 of at least 8`,
@@ -128,10 +126,9 @@ export namespace AutoMovieViewLoft {
       values.length >= 2 &&
       values.every(
         (v: number, i: number): boolean =>
-          Number.isFinite(v) &&
-          (i === 0 ||
-            (v > values[i - 1]! &&
-              v - values[i - 1]! >= AutoMovieLoftContract.splineGap(values))),
+          i === 0 ||
+          (v > values[i - 1]! &&
+            v - values[i - 1]! >= AutoMovieLoftContract.splineGap(values)),
       );
     if (!rising(part.stations)) {
       report(
@@ -476,17 +473,6 @@ export namespace AutoMovieViewLoft {
           return [r * Math.cos(phi), r * Math.sin(phi)];
         },
       );
-      if (
-        !points.every((p: [number, number]): boolean =>
-          p.every(Number.isFinite),
-        )
-      ) {
-        report(
-          "view chain",
-          `station ${row.station} mm: a compatibility row sample has no finite radius`,
-        );
-        return { ...empty(), sections, chains };
-      }
       const coefficients: number[] = AutoMovieSplineCurve.interpolate(points);
       layers.push({
         y: row.station,
@@ -550,8 +536,7 @@ export namespace AutoMovieViewLoft {
         !(
           phases.length === part.samples &&
           phases.every(
-            (p: number, k: number): boolean =>
-              Number.isFinite(p) && (k === 0 || p > phases[k - 1]!),
+            (p: number, k: number): boolean => k === 0 || p > phases[k - 1]!,
           ) &&
           phases[phases.length - 1]! - phases[0]! < 2 * Math.PI
         )

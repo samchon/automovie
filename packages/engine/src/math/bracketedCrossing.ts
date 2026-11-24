@@ -48,13 +48,10 @@ export function bracketedCrossing(props: {
   const first: number = read(props.low);
   const last: number = read(props.high);
   if (
-    Number.isFinite(first) &&
-    Number.isFinite(last) &&
     first !== 0 &&
     last !== 0 &&
     first > 0 !== last > 0 &&
-    props.tolerance > 0 &&
-    Number.isFinite(props.tolerance)
+    props.tolerance > 0
   )
     bracketedRoot(
       (x: number): number =>

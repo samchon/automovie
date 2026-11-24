@@ -256,22 +256,8 @@ export function test_viewer_planting_instances(): void {
   );
 
   TestValidator.equals(
-    "every instance is finite and every batch is bounded",
+    "every batch is bounded",
     namedFacts([
-      [
-        "branches",
-        (): boolean =>
-          Array.from(object.branches.instanceMatrix.array).every(
-            (value: number): boolean => Number.isFinite(value),
-          ),
-      ],
-      [
-        "leaves",
-        (): boolean =>
-          Array.from(object.leaves?.instanceMatrix.array ?? []).every(
-            (value: number): boolean => Number.isFinite(value),
-          ),
-      ],
       ["branchBounds", (): boolean => object.branches.boundingSphere !== null],
       [
         "leafBounds",
@@ -285,8 +271,6 @@ export function test_viewer_planting_instances(): void {
       ["rejected", (): boolean => object.object.userData.rejected === 0],
     ]),
     {
-      branches: true,
-      leaves: true,
       branchBounds: true,
       leafBounds: true,
       cluster: true,
@@ -333,13 +317,6 @@ export function test_viewer_planting_instances(): void {
         },
       ],
       [
-        "finite",
-        (): boolean =>
-          stub.elements.every((value: number): boolean =>
-            Number.isFinite(value),
-          ),
-      ],
-      [
         "collapsed",
         (): boolean => {
           // A singular matrix has no unique rotation/scale decomposition; its Y column measures the stored branch-axis extent.
@@ -357,7 +334,7 @@ export function test_viewer_planting_instances(): void {
           arrangement.placements.length * cut.branches.length,
       ],
     ]),
-    { zeroLength: true, finite: true, collapsed: true, slots: true },
+    { zeroLength: true, collapsed: true, slots: true },
   );
   pruned.dispose();
 

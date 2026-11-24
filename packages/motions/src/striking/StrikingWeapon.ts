@@ -243,8 +243,8 @@ export namespace StrikingWeapon {
 
     /**
      * The same ends with the limb's fits continued from a neighbouring second's
-     * and their seeds returned; with it the capsules read the course off its
-     * knot table (`StrikingWeaponTable`) instead of solving every second cold.
+     * and their seeds returned (`StrikingWeaponTable.reader`); the capsules
+     * read the course through it when it is given.
      */
     read?: StrikingWeaponTable.IRead;
   }
@@ -261,47 +261,22 @@ export namespace StrikingWeapon {
       throw new Error("A weapon chain has one radius per capsule");
 
     // The chain's ends are its action's course posed at a second: a pure
-    // function of the second on one built geometry (`IChain.on`). The
-    // contact scans of a limb's capsules, the provisional hit track and the
-    // settled resolution all read the same seconds, so each second is posed
-    // once for a geometry and forgotten when the law builds another.
-    const posed: Map<number, readonly IAutoMovieVector3[]> = new Map();
-    let on: object | undefined;
-    //
-    // A chain that can continue a fit is read off its knot table, one table a
-    // geometry: the first knot cold, each later one from the knot before.
-    let free: IChain["ends"] | undefined;
-    const shared: IChain = {
-      ...chain,
-      ends: (seconds: number): readonly IAutoMovieVector3[] => {
-        const now: object = chain.on();
-        if (now !== on) {
-          posed.clear();
-          free = undefined;
-          on = now;
-        }
-        let ends: readonly IAutoMovieVector3[] | undefined = posed.get(seconds);
-        if (ends === undefined) {
-          free ??=
-            chain.read === undefined
-              ? chain.ends
-              : StrikingWeaponTable(chain.read, chain.from);
-          ends = free(seconds);
-          posed.set(seconds, ends);
-        }
-        return ends;
-      },
-    };
-    return shared.ids.map(
+    // function of the second on the law's solved geometry. A reader of
+    // several capsules of the chain reads them together (`IChain` of
+    // `IAutoMovieMotionWeaponPath`, `StrikingWeaponSample.sample`), so the
+    // limb is posed once a second for all of them.
+    const ends = (seconds: number): readonly IAutoMovieVector3[] =>
+      chain.read === undefined ? chain.ends(seconds) : chain.read(seconds).ends;
+    return chain.ids.map(
       (id: string, i: number): IAutoMovieMotionWeaponPath => ({
         id,
         limb: chain.limb,
-        ...radius(shared.radii[i]!),
-        from: shared.from,
-        to: shared.to,
-        path: (seconds: number): IAutoMovieVector3 => shared.ends(seconds)[i]!,
-        tail: (seconds: number): IAutoMovieVector3 =>
-          shared.ends(seconds)[i + 1]!,
+        ...radius(chain.radii[i]!),
+        from: chain.from,
+        to: chain.to,
+        path: (seconds: number): IAutoMovieVector3 => ends(seconds)[i]!,
+        tail: (seconds: number): IAutoMovieVector3 => ends(seconds)[i + 1]!,
+        chain: { ends, index: i },
       }),
     );
   }

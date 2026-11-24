@@ -48,10 +48,7 @@ export namespace RecoveryChartSurface {
       if (
         ids.length < 2 ||
         ids.some(
-          (id: number): boolean =>
-            !Number.isSafeInteger(id) ||
-            id < 0 ||
-            id >= input.verticesMm.length,
+          (id: number): boolean => id < 0 || id >= input.verticesMm.length,
         )
       )
         throw new Error("Four nonempty private boundary paths are required");
@@ -141,7 +138,7 @@ export namespace RecoveryChartSurface {
       if (
         values.some(
           (value: number, i: number): boolean =>
-            !Number.isFinite(value) || (i > 0 && value <= values[i - 1]!),
+            i > 0 && value <= values[i - 1]!,
         )
       )
         throw new Error(
@@ -184,12 +181,7 @@ export namespace RecoveryChartSurface {
       );
     const maximumRows: number = input.maxObservationRows ?? 250_000,
       maximumRefinements: number = input.maxRefinements ?? 4;
-    if (
-      !Number.isSafeInteger(maximumRows) ||
-      maximumRows < 49 ||
-      !Number.isSafeInteger(maximumRefinements) ||
-      maximumRefinements < 0
-    )
+    if (maximumRows < 49 || maximumRefinements < 0)
       throw new Error(
         "Finite area-observation and refinement budgets are required",
       );

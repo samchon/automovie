@@ -211,13 +211,18 @@ export function test_motion_fall_vehicle_hit(): void {
       name: string,
     ): number => {
       const s: IAutoMovieMotionHumanSegment = segment(take);
-      const event: IAutoMovieMotionEvent | undefined = s.plan.events.find(
+      const event: IAutoMovieMotionEvent = s.plan.events.find(
+        (e: IAutoMovieMotionEvent): boolean => e.name === name,
+      )!;
+      return s.start + event.share * (s.end - s.start);
+    };
+    const has: (take: HumanPerformance, name: string) => boolean = (
+      take: HumanPerformance,
+      name: string,
+    ): boolean =>
+      segment(take).plan.events.some(
         (e: IAutoMovieMotionEvent): boolean => e.name === name,
       );
-      return event === undefined
-        ? NaN
-        : s.start + event.share * (s.end - s.start);
-    };
     const hips: (
       take: HumanPerformance,
       seconds: number,
@@ -239,7 +244,7 @@ export function test_motion_fall_vehicle_hit(): void {
       const wraps: boolean = centre > top;
       all.check(
         `${fit} a sedan ${wraps ? "wraps" : "projects"} a body whose centre of mass is ${centre.toFixed(3)} m against its ${top.toFixed(3)} m front`,
-        !Number.isNaN(when(take, wraps ? "wrap" : "forwardProjection")),
+        has(take, wraps ? "wrap" : "forwardProjection"),
       );
       if (wraps) {
         const off: number = when(take, "separate");
@@ -271,7 +276,7 @@ export function test_motion_fall_vehicle_hit(): void {
       assertTakeClean(`${fit} struck by a truck`, take);
       all.check(
         `${fit} a front above the hips projects the body`,
-        !Number.isNaN(when(take, "forwardProjection")),
+        has(take, "forwardProjection"),
       );
       const end: IAutoMovieVector3 = hips(take, segment(take).end);
       all.check(

@@ -34,11 +34,7 @@ export function measureAutoMovieCurveLength64(
   pieces: IAutoMovieMeasureCurveLength64.IPieces,
   subdivisions: number = 1,
 ): IAutoMovieCurveLengthMeasurement64 {
-  if (
-    !Number.isSafeInteger(subdivisions) ||
-    subdivisions < 1 ||
-    subdivisions > 1024
-  )
+  if (subdivisions < 1 || subdivisions > 1024)
     throw new Error("Curve length subdivisions must be an integer in [1,1024]");
   if (pieces.length === 0)
     throw new Error("Curve length needs an original piece");
@@ -46,17 +42,7 @@ export function measureAutoMovieCurveLength64(
   // Closed finite derivative charts are admitted before either numerical observation.
   for (const piece of pieces) {
     const [a, b]: readonly [number, number] = piece.domain;
-    if (
-      !(
-        Number.isFinite(a) &&
-        Number.isFinite(b) &&
-        b > a &&
-        Number.isFinite(b - a)
-      )
-    )
-      throw new Error(
-        "Curve length needs finite increasing representable domains",
-      );
+    if (!(b > a)) throw new Error("Curve length needs increasing domains");
   }
   const measured: IAutoMovieCurveLengthQuadrature64.IMeasureResult =
     AutoMovieCurveLengthQuadrature64.measure(pieces, subdivisions, true);
@@ -72,8 +58,6 @@ export function measureAutoMovieCurveLength64(
     throw new Error(
       "Curve speed integration contribution is not representable",
     );
-  if (![measured.coarseMm, measured.fineMm].every(Number.isFinite))
-    throw new Error("Curve speed integration overflow");
   return {
     lengthMm: measured.fineMm,
     differenceMm: Math.abs(measured.fineMm - measured.coarseMm),

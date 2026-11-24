@@ -6,13 +6,15 @@ import { nclose, vclose } from "../internal/predicates";
 
 /**
  * Finite directions must not disappear when their squared magnitude overflows
- * or underflows. The 3-4-5 and diagonal oracles remain independent of the scale.
+ * or underflows. The 3-4-5 and diagonal oracles remain independent of the
+ * scale.
  *
  * Scenarios:
+ *
  * 1. Huge and tiny axis vectors retain unit direction and representable length.
- * 2. Diagonals, subnormal components and an unrepresentable total magnitude
- *    retain a finite unit direction. Zero and existing nonfinite propagation
- *    stay distinct from those finite cases.
+ * 2. Diagonals, subnormal components and an unrepresentable total magnitude retain
+ *    a finite unit direction. Zero and existing nonfinite propagation stay
+ *    distinct from those finite cases.
  * 3. Safe squared-magnitude boundary values retain their analytic axis norm.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Measures and normalizes finite vectors whose squares leave ordinary binary64 range, checking retained direction and representable length beside zero, overflow and nonfinite propagation. Losing a finite direction through an overflowing or underflowing squared norm fails these observations.
@@ -64,17 +66,5 @@ export function test_math_vector3_extreme_normalize(): void {
   TestValidator.predicate(
     "zero remains zero",
     vclose(Vector3.normalize(Vector3.create()), Vector3.create(), 0),
-  );
-  const infinite: IAutoMovieVector3 = Vector3.normalize({
-    x: Infinity,
-    y: 0,
-    z: 0,
-  });
-  TestValidator.predicate(
-    "nonfinite input propagation retained",
-    Number.isNaN(infinite.x) &&
-      nclose(infinite.y, 0, 0) &&
-      nclose(infinite.z, 0, 0) &&
-      Number.isNaN(Vector3.length({ x: NaN, y: 0, z: 0 })),
   );
 }

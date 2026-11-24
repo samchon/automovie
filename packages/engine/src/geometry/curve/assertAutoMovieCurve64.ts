@@ -38,7 +38,7 @@ export function assertAutoMovieCurve64(
   const scalar: (x: unknown) => asserts x is number = (
     x: unknown,
   ): asserts x is number => {
-    if (typeof x !== "number" || !Number.isFinite(x))
+    if (typeof x !== "number")
       throw new Error("Finite numeric coefficients required");
   };
   const vector: (v: unknown) => void = (v: unknown): void => {
@@ -100,7 +100,7 @@ export function assertAutoMovieCurve64(
   for (const width of curve.phaseIntervals) {
     scalar(width);
     const next: number = cumulative + width;
-    if (width <= 0 || !Number.isFinite(next) || next <= cumulative)
+    if (width <= 0 || next <= cumulative)
       throw new Error("Unresolved parameter partition");
     cumulative = next;
   }
@@ -116,7 +116,6 @@ export function assertAutoMovieCurve64(
         "rationalBezier",
         "rationalXZPolynomialYBezier",
       ].includes(piece.primitive) ||
-      !Number.isSafeInteger(piece.degree) ||
       piece.degree < 0
     )
       throw new Error("Invalid actual Bernstein degree");

@@ -191,7 +191,7 @@ export function gateAuthoredObjectMotions(
           track.interpolation,
         );
       track.times.forEach((time: number, timeIndex: number): void => {
-        if (Number.isFinite(time) && time >= 0 && time <= gate.duration) {
+        if (time >= 0 && time <= gate.duration) {
           times.add(time);
           return;
         }

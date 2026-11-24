@@ -25,23 +25,16 @@ export function compileAutoMovieRecoverySupportLoft(
     if (
       !recipe ||
       recipe.family !== "finite-view-convex-support" ||
-      typeof recipe.objectId !== "string" ||
       !recipe.objectId.trim() ||
-      typeof recipe.frame !== "string" ||
       !recipe.frame.trim() ||
       !recipe.loft ||
-      !Array.isArray(recipe.loft.planes) ||
-      !Array.isArray(recipe.loft.spans) ||
       !recipe.loft.spans.length ||
       !recipe.dimensions ||
       ![
         recipe.dimensions.widthScale,
         recipe.dimensions.depthScale,
         recipe.dimensions.heightScale,
-      ].every(
-        (scale: number): boolean =>
-          Number.isFinite(scale) && scale >= 0.25 && scale <= 4,
-      ) ||
+      ].every((scale: number): boolean => scale >= 0.25 && scale <= 4) ||
       recipe.coverage?.lateralSurface !==
         "inferred-finite-view-convex-support" ||
       recipe.coverage.endCaps !== "unobserved" ||
@@ -50,7 +43,6 @@ export function compileAutoMovieRecoverySupportLoft(
       recipe.coverage.cameras !== "supplied" ||
       recipe.coverage.enclosure !== "not-certified" ||
       !budget ||
-      !Number.isSafeInteger(budget.maxPlanes) ||
       budget.maxPlanes < 3 ||
       recipe.loft.planes.length > budget.maxPlanes
     )
@@ -60,10 +52,7 @@ export function compileAutoMovieRecoverySupportLoft(
     for (const plane of recipe.loft.planes)
       if (
         !plane ||
-        !Array.isArray(plane.normal) ||
         plane.normal.length !== 2 ||
-        !Number.isFinite(plane.normal[0]) ||
-        !Number.isFinite(plane.normal[1]) ||
         Math.abs(Math.hypot(...plane.normal) - 1) > 64 * Number.EPSILON
       )
         throw new Error(

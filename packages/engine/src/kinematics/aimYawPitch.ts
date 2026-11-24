@@ -1,7 +1,5 @@
 import { IAutoMovieVector3, IAutoMovieYawPitch } from "@automovie/interface";
 
-const VECTOR_AXES: readonly ["x", "y", "z"] = ["x", "y", "z"];
-
 /**
  * The yaw and pitch, in degrees, that aim from `from` at `to` for an actor
  * facing `facingDeg` about +Y: the angles a head, an eye or a camera turns
@@ -34,14 +32,21 @@ export const aimYawPitch: (
   to: IAutoMovieVector3,
   facingDeg: number,
 ): IAutoMovieYawPitch => {
-  validateVector("from", from);
-  validateVector("to", to);
-  validateFinite("facingDeg", facingDeg);
   let dx: number = to.x - from.x;
   let dy: number = to.y - from.y;
   let dz: number = to.z - from.z;
   if (dx === 0 && dy === 0 && dz === 0) return { yawDeg: 0, pitchDeg: 0 };
-  if (!Number.isFinite(dx) || !Number.isFinite(dy) || !Number.isFinite(dz)) {
+  // A component difference can overflow only past half the largest double;
+  // the endpoints are then read on their common scale.
+  const extent: number = Math.max(
+    Math.abs(from.x),
+    Math.abs(from.y),
+    Math.abs(from.z),
+    Math.abs(to.x),
+    Math.abs(to.y),
+    Math.abs(to.z),
+  );
+  if (extent > Number.MAX_VALUE / 2) {
     const scale: number = Math.max(
       Math.abs(from.x),
       Math.abs(from.y),
@@ -74,18 +79,3 @@ export const aimYawPitch: (
   };
 };
 
-const validateVector: (
-  label: "from" | "to",
-  value: IAutoMovieVector3,
-) => void = (label: "from" | "to", value: IAutoMovieVector3): void => {
-  for (const axis of VECTOR_AXES)
-    validateFinite(`${label}.${axis}`, value[axis]);
-};
-
-const validateFinite: (label: string, value: number) => void = (
-  label: string,
-  value: number,
-): void => {
-  if (!Number.isFinite(value))
-    throw new Error(`aimYawPitch ${label} must be finite, but was ${value}`);
-};

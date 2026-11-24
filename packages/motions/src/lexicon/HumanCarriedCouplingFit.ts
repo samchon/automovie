@@ -355,9 +355,13 @@ export namespace HumanCarriedCouplingFit {
               });
               const state: IAutoMovieMotionHumanQuadraticProgram.IState =
                 prepared.solve(trusted.rows, warm.state);
-              warm.state = state;
-              if (state.status !== "solved" && state.status !== "polished")
+              // Only a converged state warms the next solve: an unfinished one
+              // may hold a diverged iterate.
+              if (state.status !== "solved" && state.status !== "polished") {
+                warm.state = undefined;
                 return { trial: x, merit: Infinity, failed: true };
+              }
+              warm.state = state;
 
               // The model merit at the solution: the change's quadratic about
               // the iterate and the priced linearised gaps, plus the change's

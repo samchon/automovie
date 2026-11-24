@@ -20,12 +20,10 @@ export function solvePhysicalTargetStep(
     !input.errors.length ||
     input.columns.length !== input.coordinates.length ||
     input.columns.length > 64 ||
-    !Number.isFinite(input.damping) ||
     input.damping <= 0 ||
-    !input.errors.every(Number.isFinite) ||
     input.columns.some(
       (column: readonly number[]): boolean =>
-        column.length !== input.errors.length || !column.every(Number.isFinite),
+        column.length !== input.errors.length,
     ) ||
     input.coordinates.some(
       (coordinate: {
@@ -33,9 +31,6 @@ export function solvePhysicalTargetStep(
         minimum: number;
         maximum: number;
       }): boolean =>
-        ![coordinate.value, coordinate.minimum, coordinate.maximum].every(
-          Number.isFinite,
-        ) ||
         coordinate.minimum > coordinate.maximum ||
         coordinate.value < coordinate.minimum ||
         coordinate.value > coordinate.maximum,

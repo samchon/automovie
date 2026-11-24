@@ -59,21 +59,11 @@ export function observeAutoMovieRecovery(
   let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
     cancellationRequested = requested === true;
     return cancellationRequested;
   };
   try {
     probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
 
     if (cancelled())
       return {
@@ -81,11 +71,7 @@ export function observeAutoMovieRecovery(
         status: "cancelled",
         diagnostics: ["Cancelled before observation"],
       };
-    if (
-      !input ||
-      !Array.isArray(input.verticesMm) ||
-      !Array.isArray(input.triangles)
-    )
+    if (!input)
       return {
         operator,
         status: "refused",
@@ -94,15 +80,6 @@ export function observeAutoMovieRecovery(
         ],
       };
 
-    if (
-      options.onSourceLineage !== undefined &&
-      typeof options.onSourceLineage !== "function"
-    )
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Source lineage observer must be a function"],
-      };
     const value: IAutoMovieRecoveryMeshSections =
       AutoMovieRecoveryMeshSections.extract(
         input,

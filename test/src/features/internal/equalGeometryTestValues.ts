@@ -1,9 +1,16 @@
 import { nclose } from "./nclose";
 
 /**
- * Compare the existing finite plain geometry records without a numeric tolerance. Numeric leaves use nclose(..., 0); array width/order/hole presence, ordered enumerable keys, null, undefined and other discrete leaves retain their meaning.
+ * Compare the existing finite plain geometry records without a numeric
+ * tolerance. Numeric leaves use nclose(..., 0); array width/order/hole
+ * presence, ordered enumerable keys, null, undefined and other discrete leaves
+ * retain their meaning.
  *
- * This assertion observer accepts acyclic arrays/plain records, with linear visited-component work, depth-proportional stack and temporary key arrays. It retains no resource and does not distinguish numeric zero signs; the ray caster's explicit Object.is checks own that representation contract. It neither generates expected values nor validates meshes.
+ * This assertion observer accepts acyclic arrays/plain records, with linear
+ * visited-component work, depth-proportional stack and temporary key arrays. It
+ * retains no resource and does not distinguish numeric zero signs; the ray
+ * caster's explicit Object.is checks own that representation contract. It
+ * neither generates expected values nor validates meshes.
  */
 export function equalGeometryTestValues(
   actual: unknown,
@@ -13,7 +20,6 @@ export function equalGeometryTestValues(
     return (
       typeof actual === "number" &&
       typeof expected === "number" &&
-      Number.isFinite(expected) &&
       nclose(actual, expected, 0)
     );
   if (

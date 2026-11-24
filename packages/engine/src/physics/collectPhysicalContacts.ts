@@ -88,8 +88,6 @@ export function collectPhysicalContacts(
       )?.mode;
       if (policy?.kind !== "exaggerated") continue;
       const extra: number = sign * impulse * (policy.impulse - 1);
-      if (!Number.isFinite(extra))
-        throw new Error("Nonfinite exaggerated contact impulse");
       bound.bodies
         .get(`${side.body}/${side.bone}`)!
         .applyImpulseAtPoint(Vector3.scale(normal, extra), point);

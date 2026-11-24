@@ -1,7 +1,6 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import { HumanQuadraticBand as B } from "./HumanQuadraticBand";
-import { HumanQuadraticEntries } from "./HumanQuadraticEntries";
 import { HumanQuadraticPreparation as Preparation } from "./HumanQuadraticPreparation";
 import { HumanQuadraticWorkspace as Workspace } from "./HumanQuadraticWorkspace";
 
@@ -21,8 +20,7 @@ type IHumanQuadraticSolveResidual = { primal: number; dual: number };
  * @param duals Optional keyed unscaled multipliers when warm is absent.
  * @param memory Optional model-owned scratch; no returned iterate aliases it.
  * @returns Fresh unscaled iterates with the existing termination diagnostics.
- * @throws {RangeError} For incompatible warm data or nonfinite numerical
- *   results.
+ * @throws {RangeError} For incompatible warm data.
  */
 export function HumanQuadraticSolve(
   rows: readonly Pick<IAutoMovieMotionHumanQuadraticProgram.IRow, "key">[],
@@ -58,11 +56,10 @@ export function HumanQuadraticSolve(
 
   // Adaptation supplies both vectors so its new rho emits the next rhs
   // product and soft cuts; initial row-state production emits them later.
-  const steps: (currentZ?: Float64Array, currentY?: Float64Array) => boolean = (
+  const steps: (currentZ?: Float64Array, currentY?: Float64Array) => void = (
     currentZ?: Float64Array,
     currentY?: Float64Array,
-  ): boolean => {
-    let finite: boolean = true;
+  ): void => {
     for (let r: number = 0; r < m; ++r) {
       const step: number =
         lo[r] === -Infinity && hi[r] === Infinity
@@ -75,14 +72,12 @@ export function HumanQuadraticSolve(
       if (currentZ !== undefined) {
         const value: number = step * currentZ[r]! - currentY![r]!;
         rowRhs[r] = value;
-        if (!Number.isFinite(value)) finite = false;
         if (weight[r]! >= 0) {
           softUpper[r] = hi[r]! + thresholds[r]!;
           softLower[r] = lo[r]! - thresholds[r]!;
         }
       }
     }
-    return finite;
   };
   if (memory === undefined || memory.resetSteps) {
     steps();
@@ -98,7 +93,6 @@ export function HumanQuadraticSolve(
   let x: Float64Array = spare?.x ?? new Float64Array(n);
   let z: Float64Array = spare?.z ?? new Float64Array(m);
   let y: Float64Array = spare?.y ?? new Float64Array(m);
-  let finiteRows: boolean = true;
   if (spare !== undefined && warm === undefined) {
     x.fill(0);
     y.fill(0);
@@ -106,24 +100,15 @@ export function HumanQuadraticSolve(
   if (warm !== undefined) {
     if (warm.x.length !== n || warm.z.length !== m || warm.y.length !== m)
       throw new RangeError("Malformed quadratic warm start");
-    for (let i: number = 0; i < n; ++i) {
-      const value: number = warm.x[i]!;
-      if (!Number.isFinite(value))
-        throw new RangeError("Malformed quadratic warm start");
-      x[i] = value / d[i]!;
-    }
+    for (let i: number = 0; i < n; ++i) x[i] = warm.x[i]! / d[i]!;
     for (let r: number = 0; r < m; ++r) {
       const value: number = warm.z[r]!;
       const multiplier: number = warm.y[r]!;
-      if (!Number.isFinite(value) || !Number.isFinite(multiplier))
-        throw new RangeError("Malformed quadratic warm start");
       const scaledZ: number = value * e[r]!;
       const scaledY: number = (c * multiplier) / e[r]!;
       z[r] = scaledZ;
       y[r] = scaledY;
-      const product: number = rho[r]! * scaledZ - scaledY;
-      rowRhs[r] = product;
-      if (!Number.isFinite(product)) finiteRows = false;
+      rowRhs[r] = rho[r]! * scaledZ - scaledY;
       if (weight[r]! >= 0) {
         softUpper[r] = hi[r]! + thresholds[r]!;
         softLower[r] = lo[r]! - thresholds[r]!;
@@ -140,16 +125,10 @@ export function HumanQuadraticSolve(
         row.key === undefined || duals === undefined
           ? undefined
           : duals.get(row.key);
-      if (known !== undefined) {
-        if (!Number.isFinite(known))
-          throw new RangeError(`Quadratic row ${r} multiplier must be finite`);
-        y[r] = (c * known) / e[r]!;
-      }
+      if (known !== undefined) y[r] = (c * known) / e[r]!;
       const value: number = Math.min(hi[r]!, Math.max(lo[r]!, 0));
       z[r] = value;
-      const product: number = rho[r]! * value - y[r]!;
-      rowRhs[r] = product;
-      if (!Number.isFinite(product)) finiteRows = false;
+      rowRhs[r] = rho[r]! * value - y[r]!;
       if (weight[r]! >= 0) {
         softUpper[r] = hi[r]! + thresholds[r]!;
         softLower[r] = lo[r]! - thresholds[r]!;
@@ -169,38 +148,16 @@ export function HumanQuadraticSolve(
     const check: boolean = (it + 1) % CHECK === 0 || it + 1 === ITERATIONS;
 
     // Column gathers preserve each rhs component's original row/duplicate
-    // sequence, including its initial SIGMA*x-q. A producer-proved finite
-    // row vector permits compression; exceptional products stay original.
-    if (finiteRows) {
-      const order: B.IScaled["transpose"] = s.transpose;
-      for (let i: number = 0; i < n; ++i) {
-        let value: number = SIGMA * x[i]! - s.q[i]!;
-        const end: number = order.start[i + 1]!;
-        for (let a: number = order.start[i]!; a < end; ++a)
-          value += vals[order.entries[a]!]! * rowRhs[order.rows[a]!]!;
-        rhs[i] = value;
-      }
-    } else {
-      for (let i: number = 0; i < n; ++i) rhs[i] = SIGMA * x[i]! - s.q[i]!;
-      for (let r: number = 0; r < m; ++r) {
-        const w: number = rowRhs[r]!;
-        if (Number.isFinite(w)) {
-          const single: number = singleton[r]!;
-          if (single >= 0) rhs[cols[single]!]! += vals[single]! * w;
-          else {
-            const end: number = start[r + 1]!;
-            for (let a: number = start[r]!; a < end; ++a)
-              rhs[cols[a]!]! += vals[a]! * w;
-          }
-        } else {
-          const row: ReturnType<typeof HumanQuadraticEntries> =
-            HumanQuadraticEntries(s, r);
-          for (let a: number = 0; a < row.index.length; ++a)
-            rhs[row.index[a]!]! += row.coef[a]! * w;
-        }
-      }
+    // sequence, including its initial SIGMA*x-q.
+    const order: B.IScaled["transpose"] = s.transpose;
+    for (let i: number = 0; i < n; ++i) {
+      let value: number = SIGMA * x[i]! - s.q[i]!;
+      const end: number = order.start[i + 1]!;
+      for (let a: number = order.start[i]!; a < end; ++a)
+        value += vals[order.entries[a]!]! * rowRhs[order.rows[a]!]!;
+      rhs[i] = value;
     }
-    const finiteXt: boolean = B.substitute(factor, rhs, xt, x, ALPHA);
+    B.substitute(factor, rhs, xt, x, ALPHA);
 
     // Only a termination/certificate check reads the previous multipliers;
     // every row update reads only its own unchanged y entry and shared xt.
@@ -208,22 +165,14 @@ export function HumanQuadraticSolve(
 
     // x does not enter these row products or prox steps; consume each
     // unchanged xt product directly instead of storing a separate vector.
-    finiteRows = true;
     for (let r: number = 0; r < m; ++r) {
       let product: number = 0;
-      if (finiteXt) {
-        const single: number = singleton[r]!;
-        if (single >= 0) product = 0 + vals[single]! * xt[cols[single]!]!;
-        else {
-          const end: number = start[r + 1]!;
-          for (let a: number = start[r]!; a < end; ++a)
-            product += vals[a]! * xt[cols[a]!]!;
-        }
-      } else {
-        const row: ReturnType<typeof HumanQuadraticEntries> =
-          HumanQuadraticEntries(s, r);
-        for (let a: number = 0; a < row.index.length; ++a)
-          product += row.coef[a]! * xt[row.index[a]!]!;
+      const single: number = singleton[r]!;
+      if (single >= 0) product = 0 + vals[single]! * xt[cols[single]!]!;
+      else {
+        const end: number = start[r + 1]!;
+        for (let a: number = start[r]!; a < end; ++a)
+          product += vals[a]! * xt[cols[a]!]!;
       }
       const step: number = rho[r]!;
       const multiplier: number = y[r]!;
@@ -249,25 +198,12 @@ export function HumanQuadraticSolve(
       const nextY: number = multiplier + step * (relaxed - next);
       y[r] = nextY;
       z[r] = next;
-      const nextRhs: number = step * next - nextY;
-      rowRhs[r] = nextRhs;
-      if (!Number.isFinite(nextRhs)) finiteRows = false;
+      rowRhs[r] = step * next - nextY;
     }
     if (!check) continue;
 
     // Termination on the unscaled residuals (section 3.4).
     const at: B.IResiduals = B.residuals(s, x, z, y, work);
-    if (
-      !Number.isFinite(at.primal) ||
-      !Number.isFinite(at.primalScale) ||
-      !Number.isFinite(at.dual) ||
-      !Number.isFinite(at.dualScale) ||
-      !Number.isFinite(at.scaledPrimal) ||
-      !Number.isFinite(at.scaledPrimalScale) ||
-      !Number.isFinite(at.scaledDual) ||
-      !Number.isFinite(at.scaledDualScale)
-    )
-      throw new RangeError("Quadratic iteration produced a nonfinite residual");
     residual.primal = at.primal;
     residual.dual = at.dual;
     if (
@@ -306,7 +242,7 @@ export function HumanQuadraticSolve(
         rho = adapted.rho;
         thresholds = adapted.thresholds;
       }
-      finiteRows = steps(z, y);
+      steps(z, y);
       factor = B.factor(s, rho, SIGMA, work);
     }
   }
@@ -331,15 +267,11 @@ export function HumanQuadraticSolve(
         polished.products,
       );
       const primalOk: boolean =
-        Number.isFinite(at.primal) &&
-        Number.isFinite(at.primalScale) &&
-        (at.primal <= residual.primal ||
-          at.primal <= ABSOLUTE + tolerance * at.primalScale);
+        at.primal <= residual.primal ||
+        at.primal <= ABSOLUTE + tolerance * at.primalScale;
       const dualOk: boolean =
-        Number.isFinite(at.dual) &&
-        Number.isFinite(at.dualScale) &&
-        (at.dual <= residual.dual ||
-          at.dual <= ABSOLUTE + tolerance * at.dualScale);
+        at.dual <= residual.dual ||
+        at.dual <= ABSOLUTE + tolerance * at.dualScale;
       if (primalOk && dualOk) {
         if (memory !== undefined) memory.spare = { x, z, y };
         x = polished.x;
@@ -362,19 +294,11 @@ export function HumanQuadraticSolve(
     status,
     residual,
   };
-  let finite: boolean = true;
-  for (let i: number = 0; i < n; ++i) {
-    out.x[i] = d[i]! * x[i]!;
-    if (!Number.isFinite(out.x[i]!)) finite = false;
-  }
+  for (let i: number = 0; i < n; ++i) out.x[i] = d[i]! * x[i]!;
   for (let r: number = 0; r < m; ++r) {
     out.z[r] = z[r]! / e[r]!;
     out.y[r] = (e[r]! * y[r]!) / c;
-    if (!Number.isFinite(out.z[r]!) || !Number.isFinite(out.y[r]!))
-      finite = false;
   }
-  if (!finite)
-    throw new RangeError("Quadratic unscaling produced a nonfinite iterate");
   return out;
 }
 

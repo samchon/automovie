@@ -52,8 +52,6 @@ export function boundAutoMovieConvexSeparation(
   if (
     a.length < 1 ||
     b.length < 1 ||
-    !isFiniteRun(a) ||
-    !isFiniteRun(b) ||
     !(sufficient >= 0)
   )
     throw new Error(
@@ -90,10 +88,6 @@ export function boundAutoMovieConvexSeparation(
             Math.abs(v.y),
             Math.abs(v.z),
           );
-          if (!Number.isFinite(scale))
-            throw new Error(
-              "Convex separation requires finite face differences.",
-            );
           if (
             scale > 0 &&
             offer(Vector3.cross(divideVector(u, scale), divideVector(v, scale)))
@@ -116,25 +110,6 @@ export function boundAutoMovieConvexSeparation(
     }
   return best;
 }
-
-/**
- * Whether every slot of a run, holes included, holds a vertex with three finite
- * coordinates.
- */
-const isFiniteRun = (run: readonly IAutoMovieVector3[]): boolean => {
-  for (let index: number = 0; index < run.length; index++) {
-    const point: IAutoMovieVector3 | undefined | null = run[index];
-    if (
-      point === undefined ||
-      point === null ||
-      !Number.isFinite(point.x) ||
-      !Number.isFinite(point.y) ||
-      !Number.isFinite(point.z)
-    )
-      return false;
-  }
-  return true;
-};
 
 /** A vector divided componentwise by a positive scalar. */
 const divideVector = (

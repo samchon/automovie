@@ -145,9 +145,7 @@ export namespace AutoMovieConicHermite {
     angle: number,
   ): readonly [number, number] | null {
     const selected: Located | null = locateReading(patch, angle);
-    return selected !== null && selected.reading.point.every(Number.isFinite)
-      ? selected.reading.point
-      : null;
+    return selected !== null ? selected.reading.point : null;
   }
 
   /** Read only the radius of the same admitted projective source point. */
@@ -161,7 +159,7 @@ export namespace AutoMovieConicHermite {
       selected.position === "first"
         ? patch.extent
         : Math.hypot(...selected.reading.point);
-    return Number.isFinite(value) && value > 0 ? value : NaN;
+    return value > 0 ? value : NaN;
   }
 
   /** The original inverse, including its exact endpoint and residual policy. */
@@ -169,13 +167,11 @@ export namespace AutoMovieConicHermite {
     patch: IAutoMovieConicHermite.IPatch,
     angle: number,
   ): Located | null {
-    if (!(Number.isFinite(angle) && angle >= 0 && angle <= patch.angle))
-      return null;
+    if (!(angle >= 0 && angle <= patch.angle)) return null;
 
     const ops: IAutoMovieConicFieldJet.IAlgebra<number> =
       AutoMovieConicFieldJet.NUMBER;
     const weightLogs: number[] = patch.weights.map(Math.log);
-    if (!weightLogs.every(Number.isFinite)) return null;
 
     if (angle === 0 || angle === patch.angle) {
       const position: "first" | "last" = angle === 0 ? "first" : "last";
@@ -225,7 +221,7 @@ export namespace AutoMovieConicHermite {
       Number.EPSILON *
       (1 + Math.abs(clock) + Math.max(...weightLogs.map(Math.abs))) *
       patch.angle;
-    if (!(Number.isFinite(residual) && residual <= floor)) return null;
+    if (!(residual <= floor)) return null;
 
     return { reading, clock, position: "interior" };
   }

@@ -26,7 +26,6 @@ export function integrateAutoMovieRadialField(
   props: IAutoMovieIntegrateRadialField.IProps,
 ): IAutoMovieIntegrateRadialField.IOutput {
   if (
-    !Number.isFinite(props.radius) ||
     props.radius <= 0 ||
     (props.power !== 2 && props.power !== 3) ||
     !Array.isArray(props.polygon) ||
@@ -43,9 +42,7 @@ export function integrateAutoMovieRadialField(
       !Array.isArray(point) ||
       point.length !== 2 ||
       !Object.hasOwn(point, 0) ||
-      !Object.hasOwn(point, 1) ||
-      !Number.isFinite(point[0]) ||
-      !Number.isFinite(point[1])
+      !Object.hasOwn(point, 1)
     )
       throw new Error("A radial footprint needs dense finite planar pairs");
   }
@@ -54,15 +51,12 @@ export function integrateAutoMovieRadialField(
     if (
       !Object.hasOwn(props.sites, i) ||
       site === null ||
-      typeof site !== "object" ||
-      !Number.isFinite(site.x) ||
-      !Number.isFinite(site.y) ||
-      !Number.isFinite(site.z)
+      typeof site !== "object"
     )
       throw new Error("A radial field needs dense finite site coordinates");
   }
   const radiusSquared: number = props.radius * props.radius;
-  if (!Number.isFinite(radiusSquared) || radiusSquared === 0)
+  if (radiusSquared === 0)
     throw new Error(
       "Radial support radius exceeds the squared-coordinate range",
     );
@@ -70,8 +64,6 @@ export function integrateAutoMovieRadialField(
     (p: readonly [number, number]): Point => [...p],
   );
   const signed: number = area(polygon);
-  if (!Number.isFinite(signed))
-    throw new Error("Radial footprint area exceeds finite arithmetic");
   if (signed < 0) polygon.reverse();
   const extent: number = Math.abs(signed);
   if (extent === 0 || polygon.length < 3 || props.sites.length === 0)
@@ -92,8 +84,6 @@ export function integrateAutoMovieRadialField(
         site.x * site.x -
         site.y * site.y -
         site.z * site.z;
-      if (![...normal, constant].every(Number.isFinite))
-        throw new Error("Radial site partition exceeds finite arithmetic");
       if (normal[0] === 0 && normal[1] === 0 && constant === 0) {
         if (j < i) cell = [];
         continue;
@@ -110,8 +100,6 @@ export function integrateAutoMovieRadialField(
     gradient[0] += result.gradient[0];
     gradient[1] += result.gradient[1];
   }
-  if (![integral, ...gradient].every(Number.isFinite))
-    throw new Error("Radial footprint integration exceeded finite arithmetic");
   return {
     integral: Math.max(0, Math.min(extent, integral)),
     gradient,

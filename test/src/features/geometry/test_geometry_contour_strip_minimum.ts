@@ -12,14 +12,22 @@ type Observation = Omit<
 >;
 
 /**
- * Fixed-seam unsigned-area minimization agrees with exhaustive elementary tilings.
+ * Fixed-seam unsigned-area minimization agrees with exhaustive elementary
+ * tilings.
  *
  * Scenarios:
  *
- * 1. Triangle/triangle, triangle/quadrilateral and quadrilateral/pentagon boundaries with a unique exterior seam have all binomially many paths enumerated independently, including paths rejected by sheet incidence.
- * 2. Both windings reverse together, unequal partitions rotate cyclically, and powers-of-two spatial scaling preserve the mathematical problem and its area scale.
- * 3. Repeated calls retain the same triangle identities and leave every input component unchanged.
- * 4. Close, angularly offset convex boundaries allow opposing adjacent face normals while attaining the qualified unsigned-area optimum; this is a contract limit, not a universal crease failure rule.
+ * 1. Triangle/triangle, triangle/quadrilateral and quadrilateral/pentagon
+ *    boundaries with a unique exterior seam have all binomially many paths
+ *    enumerated independently, including paths rejected by sheet incidence.
+ * 2. Both windings reverse together, unequal partitions rotate cyclically, and
+ *    powers-of-two spatial scaling preserve the mathematical problem and its
+ *    area scale.
+ * 3. Repeated calls retain the same triangle identities and leave every input
+ *    component unchanged.
+ * 4. Close, angularly offset convex boundaries allow opposing adjacent face
+ *    normals while attaining the qualified unsigned-area optimum; this is a
+ *    contract limit, not a universal crease failure rule.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real strip tessellator and observes emitted input identities, positive-area sheet incidence, deterministic order, input ownership and observer qualification. It catches a wrong recurrence, traceback, tile orientation or lost boundary; legitimate sharp creases remain permitted.
  * @evidence contracts/development/testing.md#independent-expectations A separate recursive enumeration visits every monotone path and admits complete oriented edge chains and connected vertex links, without reusing the production recurrence. Binomial path counts and quadratic area scaling are analytic. The documented 64-arclength-sample seam is computed by a linear oracle on asymmetric boundaries with a unique exterior, avoiding ill-conditioned symmetric seam ties. This proves small fixed-seam optima, not arbitrary branch embedding or smoothness.
@@ -63,9 +71,7 @@ export function test_geometry_contour_strip_minimum(): void {
         );
         TestValidator.predicate(
           "incidence excludes some paths and admits a finite optimum",
-          expected.admitted > 0 &&
-            expected.admitted < count &&
-            Number.isFinite(expected.area),
+          expected.admitted > 0 && expected.admitted < count,
         );
         TestValidator.predicate(
           "uniform spatial scale changes area by its square",

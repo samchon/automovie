@@ -55,9 +55,7 @@ export function planAutoMovieCapture(
   if (subject.name.trim() === "")
     throw new Error("A capture subject has no name");
   if (
-    ![subject.width, subject.height].every(
-      (size: number): boolean => Number.isSafeInteger(size) && size > 0,
-    )
+    ![subject.width, subject.height].every((size: number): boolean => size > 0)
   )
     throw new Error(
       `Subject ${subject.name}'s raster ${subject.width}x${subject.height} is not a positive whole number of pixels`,

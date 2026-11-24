@@ -336,7 +336,6 @@ export namespace AquaticPool {
     if (
       placed.affordance.kind !== "ledge" ||
       length === undefined ||
-      !Number.isFinite(length) ||
       !(offset < length / 2) ||
       !(Math.abs(along.y) <= 1e-8) ||
       !(Vector3.dot(normal, forward) <= -1 + 1e-8)

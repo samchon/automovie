@@ -40,15 +40,13 @@ export const interpolateAutoMovieSpline: (
   const xs: Float64Array = Float64Array.from(props.knots);
   const ys: Float64Array = Float64Array.from(props.values);
   for (let k: number = 0; k < n; ++k) {
-    if (!Number.isFinite(xs[k]!) || !Number.isFinite(ys[k]!))
-      throw new Error(`spline interpolation knot ${k} is not finite`);
     if (k > 0 && !(xs[k]! > xs[k - 1]!))
       throw new Error(`spline interpolation knot ${k} does not increase`);
   }
   const period: number = props.period ?? 0;
   if (
     props.period !== undefined &&
-    (!Number.isFinite(period) || xs[0]! < 0 || !(xs[n - 1]! < period))
+    (xs[0]! < 0 || !(xs[n - 1]! < period))
   )
     throw new Error("periodic knots must lie in [0, period)");
   const m: Float64Array = new Float64Array(n);

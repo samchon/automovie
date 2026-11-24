@@ -16,15 +16,23 @@ const LB: number = 0.45359237;
 const FT: number = 0.3048;
 
 /**
- * A field gun runs back on firing by its recoil track and comes to rest at its run.
+ * A field gun runs back on firing by its recoil track and comes to rest at its
+ * run.
  *
  * Scenarios, at four seeds:
- * 1. The track holds 0 before the shot and the gun's `recoil` after its end, rises monotonically between, and stops: its rate at the end is zero.
- * 2. It starts at the speed the 6.1 lb shot's momentum at 1439 ft/s gives the gun's mass, and lasts twice the run over that speed.
- * 3. The same shot second gives the same track; a later shot second shifts it whole.
- * 4. At the run's end the whole carriage and tube stand the run behind where they stood, and the pose is an admitted model.
+ *
+ * 1. The track holds 0 before the shot and the gun's `recoil` after its end, rises
+ *    monotonically between, and stops: its rate at the end is zero.
+ * 2. It starts at the speed the 6.1 lb shot's momentum at 1439 ft/s gives the
+ *    gun's mass, and lasts twice the run over that speed.
+ * 3. The same shot second gives the same track; a later shot second shifts it
+ *    whole.
+ * 4. At the run's end the whole carriage and tube stand the run behind where they
+ *    stood, and the pose is an admitted model.
  * 5. A naval gun, which has no recoil slider, is refused at `kind`.
- * 6. Non-finite shot/sample seconds and a start so large that the interval collapses are refused. Endpoint playback itself can drive the articulation, exactly at its bound.
+ * 6. Non-finite shot/sample seconds and a start so large that the interval
+ *    collapses are refused. Endpoint playback itself can drive the
+ *    articulation, exactly at its bound.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the track over its span and poses the gun at its end; a track that does not stop at the run, moves backward, depends on anything but the shot's second, or a gun that does not move with it is caught.
  * @evidence contracts/development/testing.md#independent-expectations The shot's mass and speed are the 1861 manual's, written here; the start speed and duration are worked from them by momentum and even slowing.
@@ -75,7 +83,7 @@ export function test_archetype_cannon_recoil(): void {
       const x: number = track.travel(
         track.start + ((track.end - track.start) * k) / 100,
       );
-      if (!(Number.isFinite(x) && x >= last - 1e-12 && x >= 0 && x <= run))
+      if (!(x >= last - 1e-12 && x >= 0 && x <= run))
         findings.push(`@${seed}: the run goes forward at step ${k}`);
       last = x;
     }
