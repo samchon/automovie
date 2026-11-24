@@ -143,17 +143,34 @@ export namespace AutoMovieHumanBodyPreparation {
     > = context.neckBoundary(common);
     const solution: IAutoMovieHumanTrunkSolution =
       context.trunkSolution(boundary);
-    return AutoMovieHumanBodyLaneInterim.of({
-      params: context.params,
-      solution,
-      scale: context.limbs.legs.scale,
-      stature: context.stature,
-      crotch: context.limbs.crotch,
-      trunk: context.trunkInputs,
-      neckConnection: boundary.connection,
-      sources: context.limbSources(context.limbRest(boundary)),
-      frame: context.frame,
-    });
+    const input: IAutoMovieHumanBodyLane.IInput =
+      AutoMovieHumanBodyLaneInterim.of({
+        params: context.params,
+        solution,
+        scale: context.limbs.legs.scale,
+        stature: context.stature,
+        crotch: context.limbs.crotch,
+        trunk: context.trunkInputs,
+        neckConnection: boundary.connection,
+        sources: context.limbSources(context.limbRest(boundary)),
+        frame: context.frame,
+      });
+    const { axilla, acromion, biacromial } = context.trunkInputs;
+    return {
+      ...input,
+      trunk: {
+        ...input.trunk,
+        views: {
+          ...input.trunk.views,
+          shoulder: {
+            lower: axilla,
+            upper: acromion,
+            neck: boundary.seat.side,
+            lateral: biacromial / 2,
+          },
+        },
+      },
+    };
   }
 
   /**

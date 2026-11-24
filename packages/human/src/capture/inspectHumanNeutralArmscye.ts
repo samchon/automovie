@@ -1,13 +1,9 @@
 import {
-  AutoMovieIllinois,
   AutoMovieLoftViewFullSource,
-  AutoMovieViewParameter,
   AutoMovieSolidVector as V,
-  bracketedMinimum,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
-  IAutoMovieHumanBodyLane,
   IAutoMovieLoftViewFullSource,
   IAutoMovieSolidSharedCurve,
   IAutoMovieViewPart,
@@ -15,9 +11,8 @@ import type {
 
 import { AutoMovieHumanBodyLaw } from "../generation/AutoMovieHumanBodyLaw";
 import { AutoMovieHumanNeckBoundary } from "../generation/AutoMovieHumanNeckBoundary";
-import { AutoMovieHumanTrunkRows } from "../generation/AutoMovieHumanTrunkRows";
+import { AutoMovieHumanArmscyeOpening } from "../generation/arm/AutoMovieHumanArmscyeOpening";
 import { AutoMovieHumanArmscyePort } from "../generation/conic/AutoMovieHumanArmscyePort";
-import { AutoMovieHumanJoinLoop } from "../generation/conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
 import { inspectHumanArmscyeAssembly } from "./inspectHumanArmscyeAssembly";
 import { inspectHumanArmscyeMeridians } from "./inspectHumanArmscyeMeridians";
@@ -56,37 +51,29 @@ type Options = {
  * @see https://www.iso.org/standard/61686.html
  */
 export function inspectHumanNeutralArmscye(options: Options): void {
-  const body = options.engineBody
-    ? AutoMovieHumanBodyLaw.define(AutoMovieHumanNeutralParameters)
-    : undefined;
-  const context =
-    body?.prepared ?? AutoMovieHumanBodyLaw.prepareSources(AutoMovieHumanNeutralParameters);
+  if (options.engineBody) {
+    const body = AutoMovieHumanBodyLaw.define(AutoMovieHumanNeutralParameters);
+    console.log(
+      JSON.stringify({ assembly: inspectHumanArmscyeAssembly(body.lane) }),
+    );
+    return;
+  }
+  const context = AutoMovieHumanBodyLaw.prepareSources(
+    AutoMovieHumanNeutralParameters,
+  );
   const common = context.common();
-  const scoped = { ...context, common: () => common };
-  const head = body === undefined
-    ? context.headSource(common).source.tapeInvariant.part
-    : undefined;
-  const { axilla: lower, acromion: upper } = context.trunkInputs;
-  const { neckBase } = context.headInputs;
-  const scale = context.limbs.legs.scale;
-  const neck = {
-    suprasternale: neckBase.suprasternaleHeight * scale,
-    side: neckBase.sideNeckPointHeight * scale,
-    cervicale: neckBase.cervicaleHeight * scale,
-  };
+  const head = context.headSource(common).source.tapeInvariant.part;
   const boundary = context.neckBoundary(common);
-  const original = { ...scoped, neckBoundary: () => boundary };
-  inspect(original, head, { lower, upper, neck }, options, body?.lane);
+  inspect(
+    { ...context, common: () => common, neckBoundary: () => boundary },
+    head,
+    options,
+  );
 }
 
 function inspect(
   context: ReturnType<typeof AutoMovieHumanBodyLaw.prepareSources>,
-  head: IAutoMovieViewPart | undefined,
-  levels: {
-    lower: number;
-    upper: number;
-    neck: { suprasternale: number; side: number; cervicale: number };
-  },
+  head: IAutoMovieViewPart,
   {
     useDatum,
     chordDirection: useChordDirection,
@@ -99,43 +86,54 @@ function inspect(
     engineTorsoRange,
     acromialTorso,
     engineMeridianGuide,
-    engineBody,
   }: Options,
-  lane?: IAutoMovieHumanBodyLane.IDefinition,
 ): void {
-  const { lower, upper, neck } = levels;
+  const { axilla: lower, acromion: upper } = context.trunkInputs;
+  const { neckBase } = context.headInputs;
+  const scale = context.limbs.legs.scale;
+  const neck = {
+    suprasternale: neckBase.suprasternaleHeight * scale,
+    side: neckBase.sideNeckPointHeight * scale,
+    cervicale: neckBase.cervicaleHeight * scale,
+  };
   const chordDirection = useChordDirection || anatomicalShoulder;
   const firstClearRing = useFirstClearRing || anatomicalShoulder;
   const boundary = context.neckBoundary();
-  const trunk = lane === undefined
-    ? AutoMovieHumanBodyLaw.trunkSource(context)
-    : undefined;
-  const sourceSites = trunk === undefined ? [] : [...trunk.sections.keys()];
-  const base = lane?.sourceParts.get("trunk") ??
-    trunk?.sources.filter((item) => item.name === "trunk").at(-1)?.result.part;
+  const input = AutoMovieHumanBodyLaw.bodyInput(context);
+  // The torso support comparison starts from the independently wider original.
+  const trunk = AutoMovieHumanBodyLaw.trunkSource(context, {
+    ...input,
+    trunk: {
+      ...input.trunk,
+      views: { ...input.trunk.views, shoulder: undefined },
+    },
+  });
+  const sourceSites = [...trunk.sections.keys()];
+  const base = trunk.sources.filter(({ name }) => name === "trunk").at(-1)
+    ?.result.part;
   if (base === null || base === undefined || !(upper > lower))
     throw new Error(
       `Armscye inspection needs the original trunk and ordered axilla/acromion levels (${lower}, ${upper} mm). Available planes: ${sourceSites.join(", ")}`,
     );
+  const datum = { lower, upper, neck: boundary.seat.side };
   const host =
     useDatum || anatomicalShoulder
-      ? shoulderDatum(
-          base, lower, upper, boundary.seat.side,
+      ? AutoMovieHumanArmscyeOpening.torso(
+          base,
+          datum,
           anatomicalShoulder && !acromialTorso ? 0 : 1,
         )
       : base;
-  const wall = AutoMovieLoftViewFullSource.create(host);
-  const contact = head === undefined
-    ? undefined
-    : neckContact(wall, head, boundary.seat.y, host.samples);
+  const prepared = AutoMovieHumanArmscyeOpening.prepare(host, lower, upper);
+  const { wall } = prepared;
+  const contact = neckContact(wall, head, boundary.seat.y, host.samples);
   const rest = context.limbRest(boundary);
-  const openings: Array<Parameters<typeof inspectHumanArmscyeAssembly>[2][number]> = [];
   if (engineTorsoRange && !anatomicalShoulder)
     throw new Error("The torso support range needs --anatomical-shoulder");
   for (const side of ["left", "right"] as const) {
     try {
       const limb = rest.arm(side);
-      const arm = lane?.sourceParts.get(`arm.${side}`) ?? context
+      const arm = context
         .limbSources({ ...rest, arm: () => limb })
         .arm(side)
         .definition().part;
@@ -152,15 +150,18 @@ function inspect(
         enginePort,
         engineCrestRange,
         engineMeridianGuide,
-        engineBody,
       };
       if (engineTorsoRange) {
         // Two bisection levels across the same person's two breadths.
         const torsoRange = Array.from({ length: 5 }, (_, i) => {
           const share = i / 4;
           try {
-            const part = shoulderDatum(base, lower, upper, boundary.seat.side, share);
-            const source = AutoMovieLoftViewFullSource.create(part);
+            const part = AutoMovieHumanArmscyeOpening.torso(base, datum, share);
+            const source = AutoMovieHumanArmscyeOpening.prepare(
+              part,
+              lower,
+              upper,
+            );
             return {
               share,
               ...observe(part, source, arm, lower, upper, side, {
@@ -187,11 +188,7 @@ function inspect(
               posterior: wall.point(station, Math.PI),
             })),
           }
-        : observe(host, wall, arm, lower, upper, side, observation);
-      if (engineBody && "port" in result && result.port !== undefined) {
-        openings.push({ side, port: result.port, guide: result.guide });
-        continue;
-      }
+        : observe(host, prepared, arm, lower, upper, side, observation);
       console.log(
         JSON.stringify({
           side,
@@ -224,8 +221,6 @@ function inspect(
       );
     }
   }
-  if (lane !== undefined)
-    console.log(JSON.stringify({ assembly: inspectHumanArmscyeAssembly(lane, host, openings) }));
 }
 
 function sectionSight(
@@ -256,95 +251,6 @@ function sectionSight(
       Math.abs(shaft.point(mark, 0)[0] - shaft.point(mark, Math.PI)[0]) / 2,
     count: arm.samples,
   });
-}
-
-/**
- * ESTIMATE: the shoulder's transverse upper line follows the direction between
- * the existing acromion and the measured side-neck point. Dissections locate
- * lateral trapezius insertion and deltoid origin in this region. Use the
- * straight anatomical chord's derivatives where the input owns only the
- * endpoints. At the axilla use the upper arm's take-off from the person's own
- * axillary breadth toward the acromion. The original width knots and the exact
- * neck contact are kept. The chain rule converts both straight chord jets to
- * the original outline's normalized parameter.
- *
- * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC2666142/
- * @see https://pmc.ncbi.nlm.nih.gov/articles/PMC12975017/
- */
-function shoulderDatum(
-  part: IAutoMovieViewPart,
-  lower: number,
-  upper: number,
-  neck: AutoMovieVector3Tuple,
-  supportShare: number,
-): IAutoMovieViewPart {
-  const change = (
-    outline: IAutoMovieViewPart.IOutline,
-    side: 1 | -1,
-  ): IAutoMovieViewPart.IOutline => {
-    const at = (s: number): number =>
-      AutoMovieViewParameter.at(outline.parameter, s);
-    const acromion = outline.knots.find((knot) => knot.station === upper);
-    const axilla = outline.knots.find((knot) => knot.station === lower);
-    if (acromion === undefined || axilla === undefined)
-      throw new Error(
-        "The torso outline does not declare both armscye heights",
-      );
-    const span =
-      at(outline.knots.at(-1)!.station) - at(outline.knots[0]!.station);
-    const neckRadius = neck[2] * side - part.axis.at(neck[1]).origin[2];
-    const author = (
-      knot: IAutoMovieViewPart.IKnot,
-      slope: number,
-    ): IAutoMovieViewPart.IKnot => {
-      const inverse = AutoMovieViewParameter.inverseJet(
-        outline.parameter,
-        knot.station,
-      );
-      if (inverse === null)
-        throw new Error("An armscye knot leaves its regular outline chart");
-      return {
-        ...knot,
-        jet: {
-          first: slope * inverse[0] * span,
-          second: slope * inverse[1] * span * span,
-        },
-      };
-    };
-    // ESTIMATE: the independent torso retains the axillary breadth at the
-    // acromial level. The existing axilla rule already subtracts the person's
-    // upper-arm tape radius from the bony width. The connection can then own
-    // the upper arm's lateral soft-tissue course between both source sheets.
-    // https://mreed.umtri.umich.edu/Anthro/Hotzman_2011_ANSURIII_Measurements_a548497.pdf
-    const breadth = supportShare === 1
-      ? acromion.value
-      : axilla.value + supportShare * (acromion.value - axilla.value);
-    const shoulderLine = author(
-      { ...acromion, value: breadth },
-      (neckRadius - breadth) / (neck[1] - upper),
-    );
-    const underarmLine = author(
-      axilla,
-      (breadth - axilla.value) / (upper - lower),
-    );
-    return {
-      ...outline,
-      knots: outline.knots.map((knot) =>
-        knot === acromion
-          ? shoulderLine
-          : knot === axilla
-            ? underarmLine
-            : knot,
-      ),
-    };
-  };
-  return {
-    ...part,
-    side: {
-      positive: change(part.side.positive, 1),
-      negative: change(part.side.negative, -1),
-    },
-  };
 }
 
 /** The original head's lower field is exact here, before the upper tape fit. */
@@ -379,7 +285,7 @@ function neckContact(
 
 function observe(
   host: IAutoMovieViewPart,
-  wall: IAutoMovieLoftViewFullSource.IReader,
+  prepared: AutoMovieHumanArmscyeOpening.IPrepared,
   arm: IAutoMovieViewPart,
   lower: number,
   upper: number,
@@ -395,92 +301,23 @@ function observe(
     engineCrestRange: boolean;
     engineCrest?: true;
     engineMeridianGuide: boolean;
-    engineBody: boolean;
   },
 ) {
-  const { chordDirection, firstClearRing, slopeGrid, medialTorso, sideNeck } =
-    options;
-  const shaft = AutoMovieLoftViewFullSource.create(arm);
-  const mark = arm.front.positive.knots.find(
-    ({ site }) => site === "deltoid",
-  )?.station;
-  if (mark === undefined || !(mark > shaft.domain[0] && mark < shaft.domain[1]))
-    throw new Error(
-      `${arm.name} has deltoid at ${mark} and original domain ${shaft.domain.join(" to ")} mm`,
-    );
-  if (!(lower > wall.domain[0] && upper < wall.domain[1]))
-    throw new Error(
-      `The axilla/acromion span ${lower} to ${upper} mm leaves the retained trunk`,
-    );
-  const markOrigin = arm.axis.at(mark).origin;
-  const quarter =
-    side === "left"
-      ? ([0, Math.PI] as const)
-      : ([Math.PI, 2 * Math.PI] as const);
-  const phaseAt = (
-    station: number,
-    x: number,
-    read = wall.pointAt(station),
-  ): number => {
-    const phase = AutoMovieIllinois.root(
-      (angle) => read(angle)[0] - x,
-      ...quarter,
-      1e-9,
-      100,
-    );
-    if (phase === null || Math.abs(read(phase)[0] - x) > 1e-7)
-      throw new Error(
-        `Deltoid AP coordinate ${x} mm has no bounded lateral trunk address at ${station} mm`,
-      );
-    return phase;
-  };
-  const apertures = [shaft.point(mark, 0)[0], shaft.point(mark, Math.PI)[0]];
-  const reach = Math.abs(apertures[0]! - apertures[1]!) / 2;
-  let apex = upper;
-  if (sideNeck !== undefined) {
-    const lateral = side === "left" ? 1 : -1;
-    const original = wall.point(
-      upper,
-      side === "left" ? Math.PI / 2 : (3 * Math.PI) / 2,
-    );
-    const neck: AutoMovieVector3Tuple = [
-      sideNeck[0],
-      sideNeck[1],
-      lateral * sideNeck[2],
-    ];
-    const course = V.sub(neck, original);
-    const length = V.norm(course);
-    if (!(length > reach))
-      throw new Error("The upper seam has no one-fold reach before the neck");
-    apex += (reach * course[1]) / length;
-  }
-  const middle = (lower + apex) / 2;
-  const height = (apex - lower) / 2;
-  const root = medialTorso ? arm.axis.jet?.(shaft.domain[0]) : null;
-  const address = (point: AutoMovieVector3Tuple) => {
-    if (root !== undefined && root !== null) {
-      const { value, first } = root;
-      const from = V.sub(point, value.origin);
-      const normal = V.cross(value.v, value.u);
-      const step = V.dot(from, normal) / V.dot(first.origin, normal);
-      if (step < 0 && (sideNeck !== undefined || step >= -reach)) {
-        const q = V.sub(from, V.scale(first.origin, step));
-        return {
-          station: shaft.domain[0] + step,
-          phase: Math.atan2(V.dot(q, value.v), V.dot(q, value.u)),
-          radius: V.norm(q),
-        };
-      }
-    }
-    const [station, phase] = AutoMovieHumanJoinLoop.address(
-      arm,
-      shaft.domain,
-      point,
-      mark,
-    );
-    const radius = V.norm(V.sub(point, arm.axis.at(station).origin));
-    return { station, phase, radius };
-  };
+  const { chordDirection, slopeGrid, sideNeck } = options;
+  const { wall } = prepared;
+  const opening = prepared.arm(arm, side, options);
+  const {
+    shaft,
+    apex,
+    mark,
+    reach,
+    after,
+    outlet,
+    centre,
+    address,
+    physical,
+    targetClock,
+  } = opening;
   const normal = (
     loop: IAutoMovieSolidSharedCurve.Loop,
     clock: number,
@@ -540,87 +377,6 @@ function observe(
       return { error: String(error) };
     }
   };
-  // The source axis carries fore-aft lean. Prescribe the conic in world AP
-  // coordinates and recover the parent's angular values and exact two jets.
-  const origin = arm.axis.at(shaft.domain[0]).origin;
-  const axis = V.sub(markOrigin, origin);
-  const inclination = axis[0] / axis[1];
-  const depthCentre = (apertures[0]! + apertures[1]!) / 2;
-  const depthRadius = (apertures[0]! - apertures[1]!) / 2;
-  const centreX = (s: number): number =>
-    depthCentre + (s - markOrigin[1]) * inclination;
-  const physical: IAutoMovieSolidSharedCurve.Loop = (clock) => {
-    const cos = Math.cos(clock);
-    const sin = Math.sin(clock);
-    const s = middle + height * cos;
-    const ds = -height * sin;
-    const dds = -height * cos;
-    const x = centreX(s) + depthRadius * sin;
-    const dpX = inclination * ds + depthRadius * cos;
-    const ddpX = inclination * dds - depthRadius * sin;
-    const phase = phaseAt(s, x);
-    const { u, v, uu, uv, vv } = wall.jet(s, phase);
-    const dp = (dpX - u[0] * ds) / v[0];
-    const ddp =
-      (ddpX -
-        u[0] * dds -
-        uu[0] * ds ** 2 -
-        2 * uv[0] * ds * dp -
-        vv[0] * dp ** 2) /
-      v[0];
-    return { point: [s, phase], first: [ds, dp], second: [dds, ddp] };
-  };
-  const rim =
-    firstClearRing || sideNeck !== undefined
-      ? Array.from({ length: arm.samples }, (_, i) =>
-          wall.point(...physical((2 * Math.PI * i) / arm.samples).point),
-        )
-      : [];
-  const after = firstClearRing
-    ? Math.max(...rim.map((point) => address(point).station))
-    : null;
-  // Clock the upper meridian by the stock's superior point. Its actual
-  // tangent distinguishes anterior and posterior, even when the local radial
-  // image of the opening is not monotone.
-  const superiorClock = (station: number) => {
-    const point = shaft.pointAt(station);
-    const step = (2 * Math.PI) / arm.samples;
-    const phases = Array.from({ length: arm.samples }, (_, i) => i * step);
-    const highest = phases.reduce(
-      (best, p) => (point(p)[1] > point(best)[1] ? p : best),
-      0,
-    );
-    const top = bracketedMinimum(
-      (p) => -point(p)[1],
-      highest - step,
-      highest + step,
-      0.001 / reach,
-    ).at;
-    const sense = Math.sign(shaft.jet(station, top).v[0]);
-    if (sense === 0)
-      throw new Error("The upper arm outline has no directed anterior tangent");
-    return (clock: number): number => top + sense * clock;
-  };
-  const forwardOriginal = (station: number): boolean => {
-    const phase = superiorClock(station);
-    return rim.every((point, i) => {
-      const stock = shaft.jet(station, phase((2 * Math.PI * i) / arm.samples));
-      return V.dot(stock.u, V.sub(stock.p, point)) > 0;
-    });
-  };
-  const outlet =
-    after !== null
-      ? clearOutlet({
-          wall,
-          shaft,
-          arm,
-          limit: mark + reach,
-          side,
-          phaseAt,
-          after,
-          accept: sideNeck === undefined ? undefined : forwardOriginal,
-        })
-      : mark;
   if (slopeGrid)
     return {
       after,
@@ -644,50 +400,20 @@ function observe(
         },
       }),
     };
-  const portAt = (top: number, rows: number) => {
-    const station = (lower + top) / 2;
-    const x = centreX(station);
-    const crest = options.engineMeridianGuide ? options.crest : undefined;
-    const lateral = side === "left" ? 1 : -1;
-    return {
-      host,
-      arm,
-      wall,
-      outlet,
-      start: shaft.domain[0],
-      side,
-      centre: [station, phaseAt(station, x)] as [number, number],
-      centreX,
-      radius: depthRadius,
-      height: (top - lower) / 2,
-      phaseExtent:
-        Math.abs(phaseAt(station, x - depthRadius) - phaseAt(station, x + depthRadius)) / 2,
+  const portAt = (top: number, rows: number) =>
+    opening.portAt(
+      top,
       rows,
-      ...(crest === undefined
-        ? {}
-        : {
-            meridian: {
-              clock: 0,
-              section: { axis: 2 as const, value: (lateral * crest.lateral) / 1000 },
-              through: { axis: 1 as const, value: crest.height / 1000 },
-            },
-          }),
-    };
-  };
-  const targetClock = sideNeck === undefined ? null : superiorClock(outlet);
-  if (options.engineBody && targetClock !== null) {
-    const stock = shaft.pointAt(outlet);
-    const span = Math.max(...rim.map((point, i) =>
-      V.norm(V.sub(point, stock(targetClock((2 * Math.PI * i) / arm.samples)))),
-    ));
-    const rows = Math.ceil(span / AutoMovieHumanTrunkRows.MAX_GAP);
-    return { port: inspectHumanArmscyePort.definition(portAt(apex, rows)), guide: rim };
-  }
+      options.engineMeridianGuide ? options.crest : undefined,
+    );
   if (options.engineCrest && options.crest !== undefined)
     return {
       apex,
       outlet,
-      stockCrest: inspectHumanArmscyePort.crest(portAt(apex, 1), options.crest.lateral),
+      stockCrest: inspectHumanArmscyePort.crest(
+        portAt(apex, 1),
+        options.crest.lateral,
+      ),
     };
   if (options.engineCrestRange) {
     if (sideNeck === undefined || options.crest === undefined)
@@ -698,7 +424,10 @@ function observe(
     const crestRange = Array.from({ length: 5 }, (_, i) => {
       const top = i === 4 ? neck : apex + ((neck - apex) * i) / 4;
       try {
-        return { top, ...inspectHumanArmscyePort.crest(portAt(top, 1), lateral) };
+        return {
+          top,
+          ...inspectHumanArmscyePort.crest(portAt(top, 1), lateral),
+        };
       } catch (error) {
         return { top, error: String(error) };
       }
@@ -716,14 +445,14 @@ function observe(
     reach,
     count: arm.samples,
     loop: physical,
-    centre: [middle, phaseAt(middle, centreX(middle))],
+    centre,
     materialPhase: (point, clock) =>
       targetClock === null ? address(point).phase : targetClock(clock),
     chordDirection,
     crest: options.crest,
     mark: outlet,
     surfaces: {
-      host: surface(host, wall, middle),
+      host: surface(host, wall, centre[0]),
       child: {
         ...surface(arm, shaft, outlet),
         domain: [outlet, elbow],
@@ -750,53 +479,6 @@ function observe(
     enginePort,
     moveMilliseconds: performance.now() - began,
   };
-}
-
-/**
- * Keep the first complete original section past the parent curve that has
- * lateral clearance at every sampled azimuth. Invert the actual host at the
- * point's AP coordinate. A point outside the AP range of a level section cannot
- * lie inside that section. The clearance comes from the campaign overlap
- * tolerance.
- */
-function clearOutlet(input: {
-  wall: IAutoMovieLoftViewFullSource.IReader;
-  shaft: IAutoMovieLoftViewFullSource.IReader;
-  arm: IAutoMovieViewPart;
-  after: number;
-  limit: number;
-  side: "left" | "right";
-  accept?: (station: number) => boolean;
-  phaseAt: (
-    station: number,
-    x: number,
-    read: (phase: number) => AutoMovieVector3Tuple,
-  ) => number;
-}): number {
-  const { wall, shaft, arm, after, limit, side, phaseAt, accept } = input;
-  const sense = side === "left" ? 1 : -1;
-  const phases = Array.from(
-    { length: arm.samples },
-    (_, i) => (2 * Math.PI * i) / arm.samples,
-  );
-  const clear = arm.stations.find((station) => {
-    if (!(station > after && station < Math.min(limit, shaft.domain[1])))
-      return false;
-    const ring = shaft.pointAt(station);
-    const separated = phases.every((phase) => {
-      const [x, y, z] = ring(phase);
-      if (y < wall.domain[0] || y > wall.domain[1]) return false;
-      const section = wall.pointAt(y);
-      if (x < section(Math.PI)[0] || x > section(0)[0]) return true;
-      return sense * (z - section(phaseAt(y, x, section))[2]) > 0.01;
-    });
-    return separated && (accept?.(station) ?? true);
-  });
-  if (clear === undefined)
-    throw new Error(
-      "No original arm section clears the retained torso inside one fold reach",
-    );
-  return clear;
 }
 
 function surface(

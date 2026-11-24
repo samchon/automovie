@@ -13,6 +13,8 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanTrunkRows } from "../AutoMovieHumanTrunkRows";
+import { AutoMovieHumanArmscyeOpening } from "../arm/AutoMovieHumanArmscyeOpening";
+import { AutoMovieHumanConstructionView } from "../limb/AutoMovieHumanConstructionView";
 import { AutoMovieHumanSiteViewPart } from "../limb/AutoMovieHumanSiteViewPart";
 import { AutoMovieHumanTrunkAxis } from "./AutoMovieHumanTrunkAxis";
 import { AutoMovieHumanTrunkConnection } from "./AutoMovieHumanTrunkConnection";
@@ -357,8 +359,40 @@ export namespace AutoMovieHumanTrunkViewPart {
       ...built,
       diagnostics: [...diagnostics, ...built.diagnostics],
     };
-    return views.connection === undefined
-      ? prepared
-      : AutoMovieHumanTrunkConnection.apply(prepared, views.connection);
+    const connected: IAutoMovieHumanSourceDefinition =
+      views.connection === undefined
+        ? prepared
+        : AutoMovieHumanTrunkConnection.apply(prepared, views.connection);
+    if (
+      views.shoulder === undefined ||
+      connected.part === null ||
+      connected.view === null
+    )
+      return connected;
+    try {
+      const part: IAutoMovieViewPart = AutoMovieHumanArmscyeOpening.torso(
+        connected.part,
+        views.shoulder,
+      );
+      return {
+        ...connected,
+        part,
+        view: AutoMovieHumanConstructionView.of(part, connected.view.axis),
+      };
+    } catch (error: unknown) {
+      return {
+        part: null,
+        view: null,
+        diagnostics: [
+          ...connected.diagnostics,
+          {
+            producer: `view.${NAME}`,
+            level: 2,
+            contract: "canonical armscye source",
+            detail: error instanceof Error ? error.message : String(error),
+          },
+        ],
+      };
+    }
   }
 }

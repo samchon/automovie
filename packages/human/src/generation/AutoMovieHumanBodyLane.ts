@@ -1,6 +1,7 @@
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionNode,
+  IAutoMovieConstructionPort,
   IAutoMovieConstructionView,
   IAutoMovieHumanBodyLane,
   IAutoMovieHumanBodyTree,
@@ -15,13 +16,14 @@ import type {
 
 import { AutoMovieHumanBodyPublication } from "./AutoMovieHumanBodyPublication";
 import { AutoMovieHumanBodyTree } from "./AutoMovieHumanBodyTree";
+import { AutoMovieHumanArmscyeOpening } from "./arm/AutoMovieHumanArmscyeOpening";
 import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
 
 /**
  * The body lane's subtree (#3047 to #3051) as one construction tree realized by
  * the engine (`AutoMovieHumanBodyTree`): every part a view node built from its
- * views, every join a merge node with a search seed and fold widths, published
- * as chains and the realized body for the calibration, from the laws the caller
+ * views, junctions with their native construction operators, published as
+ * chains and the realized body for the calibration, from the laws the caller
  * binds.
  *
  * Parts: the trunk with its breasts and gluteal masses
@@ -37,10 +39,10 @@ import { AutoMovieHumanTrunkBuild } from "./trunk/AutoMovieHumanTrunkBuild";
  * at the ankle's front), and the leg with its foot onto the trunk (seeded at
  * the inguinal fold, R the caller's operational join softness, capped at half
  * the gap between the two hip centres so the two legs' rails never cross at the
- * perineum); each digit onto its arm's palm, and the arm with its hand onto the
- * trunk (seeded at the axilla vault). A digit's or a toe's web is capped at
- * half the gap to its nearest neighbour's base, so neighbouring webs' rails
- * never cross.
+ * perineum); each digit onto its arm's palm, and the arm with its hand through
+ * the original torso's anatomical shoulder port. A digit's or a toe's web is
+ * capped at half the gap to its nearest neighbour's base, so neighbouring webs'
+ * rails never cross.
  *
  * Failed original definitions keep their diagnostics. Admitted originals remain
  * attempt leaves: the engine performs their lofts and names failed leaves/joins
@@ -189,6 +191,28 @@ export namespace AutoMovieHumanBodyLane {
     sources.push(...trunk.sources);
     diagnostics.push(...trunk.diagnostics);
     let root: IAutoMovieConstructionNode | null = trunk.trunk;
+    const shoulder = input.trunk.views.shoulder;
+    const torso: IAutoMovieViewPart | null | undefined = trunk.sources
+      .filter(
+        ({ name }: IAutoMovieHumanNamedSource): boolean =>
+          name === trunk.trunk?.name,
+      )
+      .at(-1)?.result.part;
+    let opening: ReturnType<
+      typeof AutoMovieHumanArmscyeOpening.production
+    > | null = null;
+    if (shoulder !== undefined && torso != null) {
+      try {
+        opening = AutoMovieHumanArmscyeOpening.production(torso, shoulder);
+      } catch (error: unknown) {
+        diagnostics.push({
+          producer: "port.shoulders",
+          level: 3,
+          contract: "armscye parent source",
+          detail: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     // Both originals already own the same whole regular boundary and jets.
     if (input.head !== undefined && root !== null && trunk.trunk !== null)
@@ -209,6 +233,7 @@ export namespace AutoMovieHumanBodyLane {
       input.sides.right.leg.bones.hip,
     ];
     const perineum: number = distance(hips[0], hips[1]) / 2;
+    const handAttachments: IAutoMovieHumanHandAttachment.IConnection[] = [];
 
     for (const name of ["left", "right"] as const) {
       const side: IAutoMovieHumanBodyLane.ISide = input.sides[name];
@@ -322,31 +347,52 @@ export namespace AutoMovieHumanBodyLane {
         IAutoMovieHumanBodyLane.ISide,
         "arm" | "fingers"
       > = side.prepareArm?.() ?? side;
+      const armSource: IAutoMovieHumanSourceDefinition =
+        upperSources.arm.definition;
       const arm: IAutoMovieConstructionView | null = original(
         `arm.${name}`,
-        upperSources.arm.definition,
+        armSource,
       );
-      const fingers: IAutoMovieConstructionNode | null = branches(
-        arm,
-        upperSources.fingers,
-      );
+      const digits: IAutoMovieHumanBodyLane.IDigit[] = upperSources.fingers;
+      for (const { digit } of digits)
+        if (digit.attachment !== undefined)
+          handAttachments.push(digit.attachment);
+      const fingers: IAutoMovieConstructionNode | null = branches(arm, digits);
       if (
         arm !== null &&
         fingers !== null &&
         root !== null &&
         trunk.trunk !== null
-      )
-        root = AutoMovieHumanBodyTree.join(
-          root,
-          fold(
-            fingers,
-            arm.name,
-            trunk.trunk.name,
-            upperSources.arm.trunk,
-            side.arm.trunk.radius,
-          ),
-          limits,
-        );
+      ) {
+        if (shoulder === undefined)
+          root = AutoMovieHumanBodyTree.join(
+            root,
+            fold(
+              fingers,
+              arm.name,
+              trunk.trunk.name,
+              upperSources.arm.trunk,
+              upperSources.arm.trunk.radius,
+            ),
+            limits,
+          );
+        else if (opening !== null && armSource.part !== null) {
+          try {
+            const port: IAutoMovieConstructionPort = opening(
+              armSource.part,
+              name,
+            );
+            root = { ...port, host: root, part: fingers };
+          } catch (error: unknown) {
+            diagnostics.push({
+              producer: `port.${arm.name}`,
+              level: 3,
+              contract: "armscye child source",
+              detail: error instanceof Error ? error.message : String(error),
+            });
+          }
+        }
+      }
     }
     // Composite mass parents already contain the same leg originals here.
     for (const mass of trunk.masses) {
@@ -355,17 +401,6 @@ export namespace AutoMovieHumanBodyLane {
         AutoMovieHumanBodyTree.massFold(mass, sources, diagnostics);
       if (fold !== null) root = AutoMovieHumanBodyTree.join(root, fold, limits);
     }
-    const handAttachments: IAutoMovieHumanHandAttachment.IConnection[] = [
-      "left",
-      "right",
-    ].flatMap((side: string): IAutoMovieHumanHandAttachment.IConnection[] =>
-      input.sides[side as "left" | "right"].fingers.flatMap(
-        (
-          digit: IAutoMovieHumanBodyLane.IDigit,
-        ): IAutoMovieHumanHandAttachment.IConnection[] =>
-          digit.digit.attachment === undefined ? [] : [digit.digit.attachment],
-      ),
-    );
     const sourceParts: ReadonlyMap<string, IAutoMovieViewPart> =
       AutoMovieHumanBodyTree.context(input.head?.source.sources, sources);
     diagnostics.push(...(input.diagnostics?.slice(preparedDiagnostics) ?? []));
@@ -377,7 +412,9 @@ export namespace AutoMovieHumanBodyLane {
       sources,
       handAttachments,
       sourceParts,
-      ...(input.head === undefined ? {} : { loopSources: input.head.loopSources }),
+      ...(input.head === undefined
+        ? {}
+        : { loopSources: input.head.loopSources }),
     };
   }
 

@@ -186,8 +186,9 @@ export namespace AutoMovieHumanBodyLaw {
    */
   export function trunkSource(
     context: IAutoMovieHumanBodySources.IOriginal,
+    input?: IAutoMovieHumanBodyLane.IInput,
   ): IAutoMovieHumanTrunkBuild.IOutput {
-    return AutoMovieHumanBodyPreparation.trunkSource(context);
+    return AutoMovieHumanBodyPreparation.trunkSource(context, input);
   }
 
   /** Loft the selected original in its explicit observation scope. */

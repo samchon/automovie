@@ -32,6 +32,7 @@ import { AutoMovieHumanTrunkRows } from "../generation/AutoMovieHumanTrunkRows";
 import { AutoMovieHumanHeadLane } from "../generation/head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
 import { buildHumanSurfaceCapture } from "./buildHumanSurfaceCapture";
+import { inspectHumanArmscyeRegion } from "./inspectHumanArmscyeRegion";
 import { inspectHumanNeutralArmscye } from "./inspectHumanNeutralArmscye";
 import { inspectHumanNeutralTopology } from "./inspectHumanNeutralTopology";
 
@@ -172,6 +173,13 @@ export namespace buildHumanNeutralCapture {
     return evaluate(parameters);
   }
 
+  /** Inspect the production ports using only their actual original fields. */
+  export function shoulders(
+    parameters: IAutoMovieHumanParameters = AutoMovieHumanNeutralParameters,
+  ): ReturnType<typeof inspectHumanArmscyeRegion> {
+    return inspectHumanArmscyeRegion(parameters);
+  }
+
   /** Dispatch the separately invoked neutral diagnostic command. */
   export function command(args: readonly string[]): void {
     if (args.includes("--sources")) inspectNeutralSources();
@@ -183,13 +191,15 @@ export namespace buildHumanNeutralCapture {
         slices: args.includes("--level-slices"),
         slopeGrid: args.includes("--slope-grid"),
         anatomicalShoulder:
-          args.includes("--anatomical-shoulder") || args.includes("--engine-body"),
+          args.includes("--anatomical-shoulder") ||
+          args.includes("--engine-body"),
         enginePort: args.includes("--engine-port"),
         engineCrestRange: args.includes("--engine-crest-range"),
         engineTorsoRange: args.includes("--engine-torso-range"),
         acromialTorso: args.includes("--acromial-torso"),
         engineMeridianGuide:
-          args.includes("--engine-meridian-guide") || args.includes("--engine-body"),
+          args.includes("--engine-meridian-guide") ||
+          args.includes("--engine-body"),
         engineBody: args.includes("--engine-body"),
       });
     else if (args.includes("--head-skin")) inspectNeutralHead(true);
