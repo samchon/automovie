@@ -11,12 +11,13 @@ Work as a single agent. Start subagents only on the user's explicit order and in
 
 ## Supervision
 
-The main session audits the subagents' work periodically and after the fact. Each audit:
+The main session audits the subagents' work periodically and after the fact, for violations of:
 
-- checks the work against the user's orders and decisions and the skills' rules;
-- warns on each violation and orders its correction.
+- the user's orders;
+- the user's decisions;
+- the skills' rules.
 
-It adds no approval step of its own for routine work. What the project's rules reserve for approval, such as destructive or outward-facing actions and the user's decisions, still goes to the user.
+It warns on each violation and orders its correction. It adds no approval step of its own for routine work. What the project's rules reserve for approval, such as destructive or outward-facing actions and the user's decisions, still goes to the user.
 
 ## Agents
 
