@@ -19,11 +19,11 @@ import { createCart } from "./createCart";
  */
 export namespace CartFit {
   /**
-   * The models made for the horse an author fixed, each model without a stated range of horses made for every one.
+   * The models made for the horse an author fixed, each model without a stated range of horses made for every one, and, when the author fixed the clearance, only the models whose shafts are not read, since read shafts and not the clearance place the single tree.
    *
    * @param models The kind's read models.
-   * @param params The parameters, whose fixed withers height selects.
-   * @returns The models whose range admits the fixed withers height, or every model when it is free.
+   * @param params The parameters, whose fixed withers height and clearance select.
+   * @returns The models whose range admits the fixed withers height and, with a fixed clearance, whose shafts are not read; every model when both are free.
    */
   export function models(
     models:
@@ -48,12 +48,23 @@ export namespace CartFit {
       >
     | undefined {
     const withers: number | undefined = params.withersHeight;
-    if (models === undefined || withers === undefined) return models;
+    const clearance: number | undefined = params.clearance;
+    if (
+      models === undefined ||
+      (withers === undefined && clearance === undefined)
+    )
+      return models;
     return Object.fromEntries(
       Object.entries(models).filter(([name]: [string, unknown]): boolean => {
+        if (
+          clearance !== undefined &&
+          CART_MODELS.shafts[name as createCart.Model] !== undefined
+        )
+          return false;
         const band: IAutoMovieArchetypeBand | undefined =
           CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
         return (
+          withers === undefined ||
           band === undefined ||
           (band.minimum <= withers && withers <= band.maximum)
         );
@@ -62,12 +73,15 @@ export namespace CartFit {
   }
 
   /**
-   * A horse's cart fitted to the horse of its withers height: the girth that height gives the horse, and, where the cart's shafts are not read, shafts reaching from the horse's point of shoulder, where their tips stand, past its point of buttock by the drawn clearance to the single tree (IVC Carriage's 8 to 20 in from the horse to the vehicle's nearest part).
+   * A horse's cart fitted to the horse of its withers height: the girth that height gives the horse, and, where the cart's shafts are not read, shafts reaching from the horse's point of shoulder, where their tips stand, past its point of buttock by the drawn or fixed clearance to the single tree (IVC Carriage's 8 to 20 in from the horse to the vehicle's nearest part). Read shafts place the single tree themselves, so a clearance the author fixed on a model that reads them is refused rather than ignored.
    *
    * @param draw The cart's draw, its height, clearance and any read shafts recorded; the girth and, where unread, the shafts' length are derived into it.
+   * @param params The parameters, whose `clearance` tells a fixed clearance from a drawn one.
+   * @throws {AutoMovieArchetypeRefusal} When the author fixed the clearance and the cart's shafts are read.
    */
   export function harness(
     draw: AutoMovieArchetypeDrawSession<createCart.Dimension>,
+    params: Pick<createCart.IParams, "clearance">,
   ): void {
     const drawn: Readonly<Partial<Record<createCart.Dimension, number>>> =
       draw.values;
@@ -75,7 +89,25 @@ export namespace CartFit {
       "girth",
       createHorse.PROFILE.girth(drawn.withersHeight!),
     );
-    if (drawn.shaftLength !== undefined) return;
+    if (drawn.shaftLength !== undefined) {
+      if (params.clearance !== undefined)
+        throw new AutoMovieArchetypeRefusal({
+          kind: "parameter",
+          archetype: "cart",
+          axis: "clearance",
+          value: params.clearance,
+          feasible: {
+            kind: "alternatives",
+            values: Object.keys(CART_MODELS.figures.cart ?? {}).filter(
+              (name: string): boolean =>
+                CART_MODELS.shafts[name as createCart.Model] === undefined,
+            ),
+          },
+          reason: `the ${draw.provenance.models.model ?? "cart"} reads its shafts, ${drawn.shaftLength} m, which place its single tree, not the clearance`,
+          fix: "leave clearance out, or give a model whose shafts are not read",
+        });
+      return;
+    }
     const horse: AutoMovieArchetypeEquine.IRig = AutoMovieArchetypeEquine.rig({
       withersHeight: drawn.withersHeight!,
       girth,

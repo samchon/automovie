@@ -36,7 +36,7 @@ type Producer = (
  * @param params The kind, its read model and options, and any dimension the author fixes.
  * @param seed The seed that picks the model and its options and draws every dimension left free inside its band; absent, the first model and option, and each dimension the middle of its band.
  * @returns The carrier.
- * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, or a model or option the kind does not offer.
+ * @throws {AutoMovieArchetypeRefusal} For a fixed dimension outside its band, one the kind lacks or one the model reads, a fixed clearance on a cart whose shafts are read, or a model or option the kind does not offer.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States how the carrier stands, where it is pushed or drawn from and where it is loaded.
  * @evidence contracts/development/implementation.md#principled-implementation Selects the canonical producer for the saved kind while preserving its original parameters and seed.
@@ -356,7 +356,7 @@ export namespace createCart {
    * - `wheelDiameter`: a castor or a road wheel.
    * - `track`: between a drawn kind's wheels, centre to centre.
    * - `shaftLength`: a cart's shafts from the tip to the single tree.
-   * - `clearance`: a cart's single tree behind the horse's point of buttock, which sets the shafts' length where they are not read.
+   * - `clearance`: a cart's single tree behind the horse's point of buttock, which sets the shafts' length where they are not read. Fixed, it picks a model whose shafts are not read, and a given model whose shafts are read refuses it.
    * - `seatHeight`: a cart's seat above the ground.
    * - `gripHeight`: a rickshaw's shafts above the ground where the standing runner's hands hold them, the hanging wrist's height.
    * - `floorWidth`, `floorDepth`: a chariot floor's width across and depth along it.
@@ -422,7 +422,7 @@ export namespace createCart {
     /** Which carrier. */
     kind: Kind;
 
-    /** Which read model of the kind; drawn from the seed when absent, a cart's among those made for a fixed withers height. */
+    /** Which read model of the kind; drawn from the seed when absent, a cart's among those made for a fixed withers height and, with a fixed clearance, among those whose shafts are not read. */
     model?: Model;
 
     /** Which castors, for a trolley; drawn from the seed when absent. */
