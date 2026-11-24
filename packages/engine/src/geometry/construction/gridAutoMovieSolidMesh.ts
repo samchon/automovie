@@ -39,6 +39,8 @@ const { cross, norm, sub }: typeof AutoMovieSolidVector = AutoMovieSolidVector;
  * Source/grid/loop data must stay coherent during this synchronous preparation.
  * An explicit numeric physical2 admission failure is a named refusal; actual
  * source callback and ownership errors retain their original thrown identity.
+ *
+ * @see https://doc.cgal.org/latest/Periodic_2_triangulation_2/index.html Periodic simplices pair each vertex with its lift in the chosen cover.
  */
 export function gridAutoMovieSolidMesh(
   mesh: IAutoMovieSolidMesh.IMesh,
@@ -164,6 +166,14 @@ export function gridAutoMovieSolidMesh(
     return id;
   };
 
+  // A boundary vertex reuses its original chart, which can be one cover
+  // away from this grid. Translate each reused corner to the cell's cover
+  // before taking either edge turns or triangle corner lifts.
+  const lift = (id: number, column: number): number =>
+    period === undefined || id >= base
+      ? 0
+      : Math.round((phases[column]! - chart.get(id)![1]) / period);
+
   // A quadrilateral's own first fundamental form: the least-squares linear map from its four chart points to their skin points about
   // their centroids, `J = (sum dX dC^T)(sum dC dC^T)^-1`, read as the shear and scale of `J^T J` over its first entry.
   const point = (id: number): readonly number[] | undefined =>
@@ -283,7 +293,7 @@ export function gridAutoMovieSolidMesh(
     b: number;
     c: number;
     d: number;
-    wrap: number;
+    lifts: [number, number, number, number];
     choice: "first" | "other" | "tie";
     first: number;
     other: number;
@@ -342,6 +352,10 @@ export function gridAutoMovieSolidMesh(
       const c: number = at(i + 1, next);
       const d: number = at(i, next);
       const wrap: number = next === 0 ? 1 : 0;
+      const la: number = lift(a, j);
+      const lb: number = lift(b, j);
+      const lc: number = lift(c, next) + wrap;
+      const ld: number = lift(d, next) + wrap;
 
       // A full cell is cut from its first corner unless its other diagonal
       // bends the cell's two triangles against each other by well under half
@@ -369,7 +383,7 @@ export function gridAutoMovieSolidMesh(
         b,
         c,
         d,
-        wrap,
+        lifts: [la, lb, lc, ld],
         choice:
           other < BEND * first
             ? "other"
@@ -380,10 +394,10 @@ export function gridAutoMovieSolidMesh(
         other: norm(sub(pd, pb)),
       });
       for (const edge of [
-        { a, b, turn: 0 },
-        { a: b, b: c, turn: wrap },
-        { a: c, b: d, turn: 0 },
-        { a: d, b: a, turn: -wrap },
+        { a, b, turn: lb - la },
+        { a: b, b: c, turn: lc - lb },
+        { a: c, b: d, turn: ld - lc },
+        { a: d, b: a, turn: la - ld },
       ]) {
         const key: string =
           edge.a < edge.b
@@ -414,17 +428,19 @@ export function gridAutoMovieSolidMesh(
   };
   const tie: "first" | "other" =
     sums.other < sums.first * (1 - DIAGONAL_ROUNDING) ? "other" : "first";
-  for (const cut of cuts)
+  for (const cut of cuts) {
+    const [la, lb, lc, ld] = cut.lifts;
     if ((cut.choice === "tie" ? tie : cut.choice) === "other")
       full.push(
-        { vertices: [cut.a, cut.b, cut.d], lifts: [0, 0, cut.wrap] },
-        { vertices: [cut.b, cut.c, cut.d], lifts: [0, cut.wrap, cut.wrap] },
+        { vertices: [cut.a, cut.b, cut.d], lifts: [la, lb, ld] },
+        { vertices: [cut.b, cut.c, cut.d], lifts: [lb, lc, ld] },
       );
     else
       full.push(
-        { vertices: [cut.a, cut.b, cut.c], lifts: [0, 0, cut.wrap] },
-        { vertices: [cut.a, cut.c, cut.d], lifts: [0, cut.wrap, cut.wrap] },
+        { vertices: [cut.a, cut.b, cut.c], lifts: [la, lb, lc] },
+        { vertices: [cut.a, cut.c, cut.d], lifts: [la, lc, ld] },
       );
+  }
   const readers: ((u: number, v: number) => boolean)[] = loops.map(
     (loop: IAutoMovieSolidMesh.ILoop): ((u: number, v: number) => boolean) =>
       AutoMovieSolidCycle.prepare(loop, period),

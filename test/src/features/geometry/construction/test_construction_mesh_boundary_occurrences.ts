@@ -29,12 +29,14 @@ import { nclose } from "../../internal/nclose";
  *    or endpoint classification; coordinates retain their actual face cover.
  * 5. Flat/bounded winding sources at exact seams, neighbouring doubles and
  *    signed subnormals agree with their independently known station sides.
+ * 6. A cylinder with original rim points on either side of the grid cover
+ *    retains every indexed rim vertex and draws the same complete surface.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face/close and reads IOpen chart/winding/end, world triangles, shared edge incidence and failure atomicity with no foreign replacement.
  * @evidence contracts/development/testing.md#independent-expectations A unit cylinder has known radial normals and opposite endpoint traversals. A bottom-contact rectangle removes exactly 0.6 chart area from 4 times 2pi, while only the untouched top remains a full endpoint.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers chart reflection, cutter inversion, three units, full/partial endpoints, source period translation, callback presence/absence and original source IDs.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_boundary_occurrences; it generates no person, host, render, process or independent triangulator.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cylinders at three units and both chart orientations return two complete).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cylinders at three units and both chart orientations return two complete).
  */
 export function test_construction_mesh_boundary_occurrences(): void {
   const failures: string[] = [];
@@ -45,10 +47,57 @@ export function test_construction_mesh_boundary_occurrences(): void {
   for (const turns of [0, 3]) partial(failures, turns);
   occurrences(failures);
   cycleSeams(failures);
+  wrappedDomain(failures);
   if (failures.length !== 0)
     throw new Error(
       `Mesh endpoint occurrence findings:\n${failures.join("\n")}`,
     );
+}
+
+/** An exact rim may start on either side of the regular grid's seam. */
+function wrappedDomain(failures: string[]): void {
+  const surface: IAutoMovieSolidSurface = cylinder(1, 1);
+  const period: number = surface.period!;
+  const phases: number[] = Array.from(
+    { length: 8 },
+    (_, k): number => (k * period) / 8,
+  );
+  for (const turn of [-1, 1]) {
+    const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+    const owner: number = AutoMovieSolidMesh.owner(mesh, surface);
+    const vertices: number[] = phases.map((v): number =>
+      AutoMovieSolidMesh.vertex(mesh, surface.jet(0, v).p, owner, 0, v),
+    );
+    const ordered: number[] = phases.map(
+      (_, k): number => (k + turn + phases.length) % phases.length,
+    );
+    const chart: [number, number][] = ordered.map((k, i) => [
+      0,
+      phases[k]! + (i + turn < 0 || i + turn >= phases.length ? turn * period : 0),
+    ]);
+    try {
+      const open: IAutoMovieSolidMesh.IOpen[] = AutoMovieSolidMesh.face(mesh, {
+        surface,
+        stations: [0, 2, 4],
+        phases,
+        loops: [],
+        domainLoops: [
+          { kind: "start", chart, vertices: ordered.map((k) => vertices[k]!) },
+        ],
+      });
+      const bottom = open.find(({ end }) => end === "bottom");
+      if (
+        open.length !== 2 ||
+        bottom?.vertices.length !== phases.length ||
+        vertices.some((id) => !bottom.vertices.includes(id)) ||
+        mesh.positions.length !== 3 * 3 * phases.length ||
+        mesh.indices.length !== 3 * 2 * 2 * phases.length
+      )
+        failures.push(`wrapped grid ${turn}: changed the source rim or skin`);
+    } catch (error) {
+      failures.push(`wrapped grid ${turn}: ${String(error)}`);
+    }
+  }
 }
 
 /** A flat or bounded-height winding boundary crosses each phase once, including raw seam neighbours. */

@@ -276,7 +276,8 @@ export function AutoMovieConstructionSplitRealize(
           surface: c.face,
           stations: Array.from(
             { length: node.rows + 1 },
-            (_: unknown, i: number): number => (c.band.length * i) / node.rows,
+            (_: unknown, i: number): number =>
+              i === node.rows ? c.band.length : (c.band.length * i) / node.rows,
           ),
           phases: Array.from({ length: n }, (_: unknown, k: number): number =>
             clock(k),

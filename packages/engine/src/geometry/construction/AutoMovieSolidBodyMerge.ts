@@ -294,7 +294,8 @@ export namespace AutoMovieSolidBodyMerge {
       surface: blendSurface,
       stations: Array.from(
         { length: input.rows + 1 },
-        (_: unknown, i: number): number => (blend.length * i) / input.rows,
+        (_: unknown, i: number): number =>
+          i === input.rows ? blend.length : (blend.length * i) / input.rows,
       ),
       phases: Array.from(
         { length: input.count },
