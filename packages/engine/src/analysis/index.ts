@@ -18,7 +18,6 @@ export * from "./autoMovieSkyward";
 export * from "./autoMovieSolidBlocks";
 export * from "./autoMovieSunDirection";
 export * from "./constants";
-export * from "./isAutoMovieAnalysisDomain";
 export * from "./resolveAutoMovieDaylightRequest";
 export * from "./resolveAutoMovieEnvelopeRequest";
 export * from "./sealAutoMovieAnalysisRun";

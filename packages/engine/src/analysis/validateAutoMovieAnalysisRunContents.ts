@@ -10,7 +10,6 @@ import {
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { autoMovieAnalysisTargetMet } from "./autoMovieAnalysisTargetMet";
 import { AUTOMOVIE_ANALYSIS_MAX_SAMPLES } from "./constants/AUTOMOVIE_ANALYSIS_MAX_SAMPLES";
-import { isAutoMovieAnalysisDomain } from "./isAutoMovieAnalysisDomain";
 
 /**
  * Check every field of one analysis run except its seal.
@@ -67,13 +66,7 @@ export const validateAutoMovieAnalysisRunContents: (
     run.inputRevision,
     "analysis run input revision",
   );
-  if (!isAutoMovieAnalysisDomain(run.domain))
-    out.push(
-      "type",
-      `${root}.domain`,
-      `unknown analysis domain "${String(run.domain)}"`,
-      run.domain,
-    );
+
   out.nonEmpty(`${root}.solver.id`, run.solver.id, "solver id");
   out.nonEmpty(`${root}.solver.version`, run.solver.version, "solver version");
   out.nonEmpty(

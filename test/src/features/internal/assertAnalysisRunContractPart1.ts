@@ -1,6 +1,5 @@
 import {
   autoMovieAnalysisRunDigest,
-  isAutoMovieAnalysisDomain,
   sealAutoMovieAnalysisRun,
   validateAutoMovieAnalysisRun,
 } from "@automovie/engine";
@@ -16,14 +15,22 @@ import { TestValidator } from "@nestia/e2e";
 import { sealedAnalysisRun } from "./analysisFixtures";
 import { hasViolation, throwsError } from "./predicates";
 
-/** Execute the next ordered assertions of test_analysis_run_contract.
+/**
+ * Execute the next ordered assertions of test_analysis_run_contract.
  *
  * Scenarios:
- * 1. a sealed run validates, re-seals identically, and refuses every edit.
- * 2. moving a separator across a field boundary changes the run digest.
  *
- * A run sealed through the public builder must validate and reseal identically; independently editing covered fields while retaining its seal must refuse it. Moving newline or pipe characters between named fields must not collapse the canonical field boundaries. Recomputing fixture seals isolates contents rules and is not an independent SHA-256 oracle.
- * Working seal, reseal, changed digest/contents, unknown domain and separator-relocation pairs distinguish integrity from structural admission. Later parts own detailed identity, metric, sample, warning and summary rules.
+ * 1. A sealed run validates, re-seals identically, and refuses every edit.
+ * 2. Moving a separator across a field boundary changes the run digest.
+ *
+ * A run sealed through the public builder must validate and reseal identically;
+ * independently editing covered fields while retaining its seal must refuse it.
+ * Moving newline or pipe characters between named fields must not collapse the
+ * canonical field boundaries. Recomputing fixture seals isolates contents rules
+ * and is not an independent SHA-256 oracle. Working seal, reseal, changed
+ * digest/contents and separator-relocation pairs distinguish integrity from
+ * structural admission. Later parts own detailed identity, metric, sample,
+ * warning and summary rules.
  */
 export function assertAnalysisRunContractPart1(): {
   digest: (fill: string) => `sha256:${string}`;
@@ -177,8 +184,6 @@ export function assertAnalysisRunContractPart1(): {
           }),
         "at least one metric",
       ),
-      knownDomain: isAutoMovieAnalysisDomain("thermal"),
-      unknownDomain: isAutoMovieAnalysisDomain("structural"),
     },
     {
       clean: { success: true },
@@ -188,8 +193,6 @@ export function assertAnalysisRunContractPart1(): {
       current: true,
       stale: true,
       refusesInvalid: true,
-      knownDomain: true,
-      unknownDomain: false,
     },
   );
 
