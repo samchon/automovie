@@ -218,9 +218,9 @@ function inspectShotSize(
   if (shot.primarySubject === null || shot.declaredShotSize === null) return;
   const start: Framing = sizeOf(shot, "start");
   const end: Framing = sizeOf(shot, "end");
-  const measured: IAutoMovieCameraIntent["framing"][] = [start, end].filter(
-    (value: Framing): value is IAutoMovieCameraIntent["framing"] =>
-      value !== null,
+  const measured: IAutoMovieCameraIntent["framing"][] = [start, end].flatMap(
+    (value: Framing): IAutoMovieCameraIntent["framing"][] =>
+      value === null ? [] : [value],
   );
   if (
     measured.length === 0 ||

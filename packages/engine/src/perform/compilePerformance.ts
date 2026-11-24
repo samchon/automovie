@@ -237,9 +237,8 @@ const layerClips: (
       (clip: IAutoMovieMotion): IAutoMovieGaitCycle | null =>
         clip.gaitCycle ?? null,
     )
-    .filter(
-      (cycle: IAutoMovieGaitCycle | null): cycle is IAutoMovieGaitCycle =>
-        cycle !== null,
+    .flatMap((cycle: IAutoMovieGaitCycle | null): IAutoMovieGaitCycle[] =>
+      cycle === null ? [] : [cycle],
     );
 
   return {

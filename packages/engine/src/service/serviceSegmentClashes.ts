@@ -37,10 +37,10 @@ export const serviceSegmentClashes: (
     (segment: IAutoMovieServiceSegment): Set<string> =>
       new Set(
         [owner.get(segment.from), owner.get(segment.to)]
-          .filter(
+          .flatMap(
             (
               node: IAutoMovieServiceNode | undefined,
-            ): node is IAutoMovieServiceNode => node !== undefined,
+            ): IAutoMovieServiceNode[] => (node === undefined ? [] : [node]),
           )
           .map((node: IAutoMovieServiceNode): string => node.id),
       ),

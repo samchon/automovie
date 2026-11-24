@@ -230,8 +230,8 @@ export function gridAutoMovieSolidMesh(
   const du: number[] = stations.map((u: number, i: number): number =>
     Math.min(
       ...[stations[i - 1], stations[i + 1]]
-        .filter(
-          (value: number | undefined): value is number => value !== undefined,
+        .flatMap((value: number | undefined): number[] =>
+          value === undefined ? [] : [value],
         )
         .map((value: number): number => Math.abs(value - u)),
     ),

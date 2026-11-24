@@ -148,10 +148,11 @@ export function trackPhysicalBalanceTargets(input: {
           .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
             joints.get(bone),
           )
-          .filter(
+          .flatMap(
             (
               joint: IAutoMoviePhysicalJoint | undefined,
-            ): joint is IAutoMoviePhysicalJoint => !!joint,
+            ): IAutoMoviePhysicalJoint[] =>
+              joint === undefined ? [] : [joint],
           ),
       });
     const interval: IAutoMoviePhysicalTargetInterval.IPlan = Interval.plan({

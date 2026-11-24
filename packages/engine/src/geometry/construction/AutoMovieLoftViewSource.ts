@@ -200,8 +200,8 @@ export namespace AutoMovieLoftViewSource {
     }
     if (extents === null || admitted === null)
       return { source: null, diagnostics };
-    const tips: number[] = [ends.bottom, ends.top].filter(
-      (s: number | undefined): s is number => s !== undefined,
+    const tips: number[] = [ends.bottom, ends.top].flatMap(
+      (s: number | undefined): number[] => (s === undefined ? [] : [s]),
     );
     const knots: number[] = original
       .flatMap((o: IAutoMovieViewPart.IOutline): number[] =>

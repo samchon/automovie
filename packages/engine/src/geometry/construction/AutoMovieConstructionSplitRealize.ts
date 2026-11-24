@@ -847,7 +847,9 @@ function fan(
     };
     // The fork an arc ends at is the first column of the arc that starts there.
     const arcs: Arc[] = plan.flatMap((stretches: (Arc | Seam)[]): Arc[] =>
-      stretches.filter((s: Arc | Seam): s is Arc => s.kind === "arc"),
+      stretches.flatMap((s: Arc | Seam): Arc[] =>
+        s.kind === "arc" ? [s] : [],
+      ),
     );
     const forkOf = (phi: number): string => {
       const at: Arc | undefined = arcs.find(
@@ -988,10 +990,10 @@ function fan(
               const i2: number = stretch.forward ? j + 1 : q - j - 1;
               const [left, right]: [number, number] = beside(stretch.index);
               const other: number = c === left ? right : left;
-              const otherStretch: Seam = plan[other]!.find(
-                (s: Arc | Seam): s is Seam =>
-                  s.kind === "seam" && s.index === stretch.index,
-              )!;
+              const otherStretch: Seam = plan[other]!.flatMap(
+                (s: Arc | Seam): Seam[] =>
+                  s.kind === "seam" && s.index === stretch.index ? [s] : [],
+              )[0]!;
               const from: number = clock(
                 shareColumn(other, stretch.index, i1)!,
               );

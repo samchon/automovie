@@ -63,7 +63,7 @@ export function physicalShapePenetration(
     [1, 3, 2],
   ]
     .map((t: number[]): IFace | null => face(vertices, t[0]!, t[1]!, t[2]!))
-    .filter((f: IFace | null): f is IFace => f !== null);
+    .flatMap((f: IFace | null): IFace[] => (f === null ? [] : [f]));
   let nearest: IFace | null = null;
   for (
     let iteration: number = 0;

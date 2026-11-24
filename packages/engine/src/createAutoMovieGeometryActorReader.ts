@@ -121,10 +121,11 @@ const findCompiledActor: (
   const candidates: IAutoMovieCompiledShotSource[] =
     shotId === undefined
       ? [...shots.values()]
-      : [shots.get(shotId)].filter(
+      : [shots.get(shotId)].flatMap(
           (
             value: IAutoMovieCompiledShotSource | undefined,
-          ): value is IAutoMovieCompiledShotSource => value !== undefined,
+          ): IAutoMovieCompiledShotSource[] =>
+            value === undefined ? [] : [value],
         );
   const matches: IAutoMovieGeometryActorReader.ICompiledActor[] = [];
   for (const compiled of candidates) {

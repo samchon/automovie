@@ -39,11 +39,11 @@ export const simulateAutoMovieWearableSoftBody: (
     (anchor: IAutoMovieSoftAnchor): boolean => anchor.binding !== undefined,
   );
   const bodyCapsules: IAutoMovieSoftCollider.IBodyCapsule[] =
-    props.domain.colliders.filter(
+    props.domain.colliders.flatMap(
       (
         collider: IAutoMovieSoftCollider,
-      ): collider is IAutoMovieSoftCollider.IBodyCapsule =>
-        collider.kind === "body-capsule",
+      ): IAutoMovieSoftCollider.IBodyCapsule[] =>
+        collider.kind === "body-capsule" ? [collider] : [],
     );
   if (movingAnchors.length === 0 && bodyCapsules.length === 0)
     throw new Error(

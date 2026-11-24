@@ -249,7 +249,9 @@ export function createAutoMovieSupportSectionQuery(
       },
     );
     const angles: number[] = faces
-      .filter((face: number | undefined): face is number => face !== undefined)
+      .flatMap((face: number | undefined): number[] =>
+        face === undefined ? [] : [face],
+      )
       .map((face: number): number =>
         Math.atan2(normals[face][1], normals[face][0]),
       )
@@ -262,13 +264,12 @@ export function createAutoMovieSupportSectionQuery(
           angle <
         Math.PI,
     );
+    const complete: number[] = seed.flatMap(
+      (index: number | undefined): number[] =>
+        index === undefined ? [] : [index],
+    );
     previous =
-      bounded &&
-      seed.every(
-        (index: number | undefined): index is number => index !== undefined,
-      )
-        ? seed
-        : undefined;
+      bounded && complete.length === seed.length ? complete : undefined;
     return result;
   };
 }

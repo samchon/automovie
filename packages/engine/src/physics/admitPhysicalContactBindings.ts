@@ -156,10 +156,11 @@ export function admitPhysicalContactBindings(
   const supportRows: Map<string, IAutoMovieFootfallPattern["limbs"][number]> =
     new Map(
       [body.balance?.pattern, body.supportTracking?.pattern]
-        .filter(
+        .flatMap(
           (
             pattern: IAutoMovieFootfallPattern | undefined,
-          ): pattern is IAutoMovieFootfallPattern => pattern !== undefined,
+          ): IAutoMovieFootfallPattern[] =>
+            pattern === undefined ? [] : [pattern],
         )
         .flatMap(
           (

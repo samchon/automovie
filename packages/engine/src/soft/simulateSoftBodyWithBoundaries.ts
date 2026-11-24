@@ -44,11 +44,11 @@ export const simulateSoftBodyWithBoundaries: (
   );
   const bodyCapsuleIds: Set<string> = new Set(
     domain.colliders
-      .filter(
+      .flatMap(
         (
           collider: IAutoMovieSoftCollider,
-        ): collider is IAutoMovieSoftCollider.IBodyCapsule =>
-          collider.kind === "body-capsule",
+        ): IAutoMovieSoftCollider.IBodyCapsule[] =>
+          collider.kind === "body-capsule" ? [collider] : [],
       )
       .map(
         (collider: IAutoMovieSoftCollider.IBodyCapsule): string => collider.id,

@@ -50,10 +50,10 @@ export function solvePhysicalChainTarget(
     .map((bone: string): IAutoMoviePhysicalJoint | undefined =>
       parents.get(bone),
     )
-    .filter(
+    .flatMap(
       (
         joint: IAutoMoviePhysicalJoint | undefined,
-      ): joint is IAutoMoviePhysicalJoint => joint !== undefined,
+      ): IAutoMoviePhysicalJoint[] => (joint === undefined ? [] : [joint]),
     )
     .reverse();
   const descendants: Map<string, string[]> = new Map(
