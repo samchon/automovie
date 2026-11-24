@@ -1,29 +1,17 @@
 ---
 name: multi-agent
-description: Sets how the director uses and supervises its subagents.
+description: Sets how the director follows the user's orders on subagents and keeps them working.
 ---
 
 # Multi-agent
 
-## Default
+## Assignments
 
-Use the subagents the [director](../production/director.md#assignments) assigns: a writer, an Evidence answerer and an independent reviewer. When the user orders other roles, another number or no subagents, follow the user's order.
-
-Do not add roles, gates, phases or schedules the user did not order.
-
-## Supervision
-
-The director audits the subagents' finished work every 10 minutes, or at the interval the user sets. It checks for violations of:
-
-- the user's orders;
-- the user's decisions;
-- the skills' rules.
-
-On a violation, it shows the subagent the problem and orders a fix. It adds no approval step. Approvals the rules require go to the user.
-
-## Subagents
+The [director](../production/director.md#assignments) assigns a writer, an Evidence answerer and an independent reviewer. When the user orders other roles, another number or no subagents, follow the user's order.
 
 Start a new subagent only where its role needs independence, as the reviewer and the Evidence answerer do.
+
+## Continuing
 
 A Claude Code subagent may stop and say:
 
