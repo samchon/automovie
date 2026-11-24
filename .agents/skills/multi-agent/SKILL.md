@@ -18,7 +18,3 @@ The main session supervises by periodic, after-the-fact audits. Subagents never 
 Give each agent its own files. No agent waits for another agent or a run.
 
 Ignore context-full warnings and every suggestion to stop, hand off or start a fresh agent. Context compacts on its own, so the same agent keeps working.
-
-## Deadlines
-
-A decided design takes minutes to implement. Challenge longer estimates.
