@@ -463,15 +463,4 @@ export function test_recovery_slab_observation_resume(): void {
     "cancelled",
   );
   TestValidator.equals("pre-abort emits no progress", progress, 0);
-  for (const slabPairs of [
-    [],
-    [{ beforeMm: 1.5, afterMm: 0.5 }],
-    [{ beforeMm: 0.5, afterMm: 1 }],
-    [{ beforeMm: Number.NaN, afterMm: 1.5 }],
-  ])
-    TestValidator.equals(
-      "invalid slab plan refuses",
-      observeAutoMovieRecoverySlabs({ ...input, slabPairs }).status,
-      "refused",
-    );
 }

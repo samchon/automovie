@@ -18,7 +18,7 @@ States millimetre projection, original direction and address ownership, caller h
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-For V vertices, T faces and K endpoint planes, source admission and indexing use O(V+T log T) time and O(V+T) storage. Each indexed raw cut visits its A intersecting faces and sorts candidates in O(A log A), with worst-case O(T+A log A); contour binding visits samples and incident faces. The existing slab owner documents source-cell/critical costs. Optional callback cloning is linear in each delivered metadata record; no fitting cost exists.
+For V vertices, T faces and K endpoint planes, source incidence and indexing use O(V+T log T) time and O(V+T) storage. Each indexed raw cut visits its A intersecting faces and sorts candidates in O(A log A), with worst-case O(T+A log A); contour binding visits samples and incident faces. The existing slab owner documents source-cell/critical costs. Optional callback cloning is linear in each delivered metadata record; no fitting cost exists.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
