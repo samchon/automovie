@@ -16,8 +16,6 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
 import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PATTERN";
 import { validateDeclaredReferences } from "../validation/validateDeclaredReferences";
 import { AUTO_MOVIE_DESIGN_ISSUE_KINDS } from "./constants/AUTO_MOVIE_DESIGN_ISSUE_KINDS";
-import { AUTO_MOVIE_DESIGN_REFERENCE_MEDIA } from "./constants/AUTO_MOVIE_DESIGN_REFERENCE_MEDIA";
-import { isAutoMovieDesignReferenceMedia } from "./isAutoMovieDesignReferenceMedia";
 import { validateDesignSourceFrame } from "./validateDesignSourceFrame";
 
 /**
@@ -96,13 +94,6 @@ export const validateDesignReference: (
       `${root}.digest`,
       `design reference digest must be a lowercase "sha256:" hex digest, but was ${String(reference.digest)}`,
       reference.digest,
-    );
-  if (!isAutoMovieDesignReferenceMedia(reference.media))
-    out.push(
-      "type",
-      `${root}.media`,
-      `design reference media must be one of ${AUTO_MOVIE_DESIGN_REFERENCE_MEDIA.join(", ")}, but was ${String(reference.media)}`,
-      reference.media,
     );
 
   if (reference.frames.length === 0)

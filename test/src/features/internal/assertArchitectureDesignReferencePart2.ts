@@ -1,17 +1,26 @@
 import {
-  AutoMovieDesignReferenceMedia,
   type IAutoMovieDesignAnalysisOutcome,
   type IAutoMovieDesignReference,
 } from "@automovie/interface";
 
-/** Execute the next ordered assertions of test_architecture_design_reference.
+/**
+ * Execute the next ordered assertions of test_architecture_design_reference.
  *
  * Scenarios:
+ *
  * 1. Prepare the authored inputs used by the following assertions.
  *
- * This part returns the authored single-field malformed-reference mutations and their located error paths. It invokes no product operation and makes no assertion itself; Part3 applies each mutation to a fresh valid reference and checks the validator.
- * The declared reference schema determines the literal paths paired with malformed ids, versions, media, frames, dimensions, transforms and observations. A changed validator path or accepted malformed field fails the following part; these fixtures do not verify external asset bytes or drawing interpretation.
- * Each mutation changes one previously valid field, including empty, duplicate, unknown, zero, fractional and nonfinite values. Part1 owns positive reference/registration behavior and Part3 executes the negative cases; this input table alone proves neither.
+ * This part returns the authored single-field malformed-reference mutations and
+ * their located error paths. It invokes no product operation and makes no
+ * assertion itself; Part3 applies each mutation to a fresh valid reference and
+ * checks the validator. The declared reference schema determines the literal
+ * paths paired with malformed ids, versions, frames, dimensions, transforms and
+ * observations. A changed validator path or accepted malformed field fails the
+ * following part; these fixtures do not verify external asset bytes or drawing
+ * interpretation. Each mutation changes one previously valid field, including
+ * empty, duplicate, unknown, zero, fractional and nonfinite values. Part1 owns
+ * positive reference/registration behavior and Part3 executes the negative
+ * cases; this input table alone proves neither.
  */
 export function assertArchitectureDesignReferencePart2(): {
   malformed: ReadonlyArray<
@@ -44,12 +53,7 @@ export function assertArchitectureDesignReferencePart2(): {
         (value.digest = "sha1:abcd" as string),
       "$input.digest",
     ],
-    [
-      "unregistrable media",
-      (value: IAutoMovieDesignReference): AutoMovieDesignReferenceMedia =>
-        (value.media = "image/gif" as IAutoMovieDesignReference["media"]),
-      "$input.media",
-    ],
+
     [
       "no frame at all",
       (value: IAutoMovieDesignReference): never[] => (value.frames = []),
