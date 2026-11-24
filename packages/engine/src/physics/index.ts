@@ -45,6 +45,7 @@ export * from "./auditPhysicalOutcomes";
 export * from "./bindPhysicalKinematicFrame";
 export * from "./bindPhysicalWorld";
 export * from "./bodyCenterOfMass";
+export * from "./capturePhysicalSimulationCheckpoint";
 export * from "./checkpointPhysicalSimulation";
 export * from "./choosePhysicalSupportFit";
 export * from "./collectPhysicalContacts";

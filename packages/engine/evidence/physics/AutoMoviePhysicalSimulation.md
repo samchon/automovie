@@ -88,7 +88,7 @@ Integrates admitted SI inputs at 1/(rate*substeps) seconds, applies interval pol
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Admission/digest, prefix selection/restoration, the run's step and snapshot plan (`planPhysicalSimulationSteps`), world binding, tracking/contact owners and replay storage have separate responsibilities; this method coordinates their fixed-step order.
+Admission/digest, prefix selection/restoration, the run's step and snapshot plan (`planPhysicalSimulationSteps`), checkpoint capture (`capturePhysicalSimulationCheckpoint`), world binding, tracking/contact owners and replay storage have separate responsibilities; this method coordinates their fixed-step order.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

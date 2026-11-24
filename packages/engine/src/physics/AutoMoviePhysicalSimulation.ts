@@ -17,6 +17,7 @@ import type { IPhysicalCoupledTargetSchedule } from "./IPhysicalCoupledTargetSch
 import { admitPhysicalSimulation } from "./admitPhysicalSimulation";
 import { assertPhysicalReturnPath } from "./assertPhysicalReturnPath";
 import { bindPhysicalWorld } from "./bindPhysicalWorld";
+import { capturePhysicalSimulationCheckpoint } from "./capturePhysicalSimulationCheckpoint";
 import { checkpointPhysicalSimulation } from "./checkpointPhysicalSimulation";
 import { collectPhysicalContacts } from "./collectPhysicalContacts";
 import { computePhysicalKinematicFrames } from "./computePhysicalKinematicFrames";
@@ -453,45 +454,15 @@ export class AutoMoviePhysicalSimulation {
         for (const key of active.keys())
           if (!found.has(key)) active.delete(key);
         cache.frames.push(readPhysicalFrame(bound, seconds));
-        if (snapshots.has(step)) {
-          cache.checkpoints.set(step, world.takeSnapshot());
-          cache.controllerCheckpoints.set(step, {
-            contactCount: cache.contacts.length,
-            episodes: [...active.values()].map(
-              (
-                value: IAutoMovieContactReceipt,
-              ): {
-                receipt: Omit<IAutoMovieContactReceipt, "samples">;
-                sampleCount: number;
-              } => {
-                const { samples, ...receipt }: IAutoMovieContactReceipt = value;
-                return {
-                  receipt: structuredClone(receipt),
-                  sampleCount: samples!.length,
-                };
-              },
-            ),
-            active: [...active].map(
-              ([key, receipt]: [string, IAutoMovieContactReceipt]): [
-                string,
-                string,
-              ] => [key, receipt.id],
-            ),
-            softened: [...softened],
-            released: [...bound.released],
-            contactReleased: [...bound.contactReleased],
-            balanceTargets: structuredClone(Object.fromEntries(bound.planned)),
-            supportTargets: structuredClone(
-              Object.fromEntries(bound.supportPlanned),
-            ),
-            contactTargets: structuredClone(
-              Object.fromEntries(bound.contactTargets),
-            ),
-            handoffs: structuredClone(Object.fromEntries(bound.handoffs)),
-            ownershipCount: cache.ownership.length,
+        if (snapshots.has(step))
+          capturePhysicalSimulationCheckpoint({
+            cache,
+            world,
+            bound,
+            active,
+            softened,
+            step,
           });
-          cache.balanceCheckpoints.set(step, structuredClone(cache.recovery));
-        }
         if (step % owned.yieldEvery === 0 || step === count)
           await yieldPhysicalSimulation(
             step,
