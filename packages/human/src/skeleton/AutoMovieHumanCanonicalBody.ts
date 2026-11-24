@@ -3,6 +3,7 @@ import {
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
+  physicalShapeBounds,
   resolvePose,
   rotationBetween,
 } from "@automovie/engine";
@@ -16,6 +17,7 @@ import type {
   IAutoMovieHumanCanonicalSolids,
   IAutoMovieHumanParameters,
   IAutoMovieHumanSkeleton,
+  IAutoMoviePhysicalProfile,
   IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
@@ -74,8 +76,8 @@ export namespace AutoMovieHumanCanonicalBody {
    * line and the thumb's two hinges along its metacarpal (the bind holds a
    * relaxed hand, and a finger angle of zero is the extended finger, as in
    * the VRM T-pose and the Neutral-0 position), each thigh and shank straightened along -Y with the foot keeping its
-   * bind orientation, and the whole body raised or lowered so its lowest foot
-   * joint sphere touches the floor. Every humanoid-named joint becomes a rig
+   * bind orientation, and the whole body raised or lowered so its lowest
+   * drawn foot surface touches the floor. Every humanoid-named joint becomes a rig
    * bone with an identity rest rotation, the toes bone at the hallux's
    * metatarsophalangeal joint, and every other joint rides its nearest
    * humanoid ancestor. The contact profile is built from the same joints and
@@ -406,23 +408,6 @@ function canonical(
     );
   }
 
-  // Floor: the lowest foot joint sphere touches Y = 0.
-  let floor: number = Infinity;
-  for (const bone of bind)
-    if (/(Foot|Subtalar|Midfoot|Hallux|Toe\d)/.test(bone.bone))
-      for (const p of [position.get(bone.bone)!, tip.get(bone.bone)!])
-        if (p !== null) floor = Math.min(floor, p.y - bone.radius);
-  const lift = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-    x: p.x,
-    y: p.y - floor,
-    z: p.z,
-  });
-  for (const bone of bind) {
-    position.set(bone.bone, lift(position.get(bone.bone)!));
-    const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;
-    tip.set(bone.bone, end === null ? null : lift(end));
-  }
-
   const carrier: Map<string, AutoMovieHumanoidBone> = new Map();
   for (const bone of bind) {
     const toe: string | null = toeSide(bone.bone);
@@ -435,6 +420,49 @@ function canonical(
           : carrier.get(bone.parent!)!,
     );
   }
+  const profile: IAutoMoviePhysicalProfile = Profile.build(
+    new Map(
+      bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
+        bone.bone,
+        {
+          parent: bone.parent,
+          carrier: carrier.get(bone.bone)!,
+          position: position.get(bone.bone)!,
+          tip: tip.get(bone.bone)!,
+          radius: bone.radius,
+        },
+      ]),
+    ),
+    options.mass,
+    options.id,
+    options.person,
+  );
+
+  // Ground the same surfaces the polygon and the motion contact solver read.
+  // Translation affects the two body-space profile fields. The shapes,
+  // mass centres per segment and joint frames are already bone-local.
+  let floor: number = Infinity;
+  for (const segment of profile.segments)
+    if (/^(left|right)(Foot|Toes)$/u.test(segment.bone))
+      for (const shape of segment.shapes)
+        floor = Math.min(floor, physicalShapeBounds(segment.neutral, shape).min.y);
+  if (!Number.isFinite(floor))
+    throw new Error("The canonical body needs a finite foot surface");
+  const lift = (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+    x: p.x,
+    y: p.y - floor,
+    z: p.z,
+  });
+  for (const bone of bind) {
+    position.set(bone.bone, lift(position.get(bone.bone)!));
+    const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;
+    tip.set(bone.bone, end === null ? null : lift(end));
+  }
+
+  profile.centerOfMass = lift(profile.centerOfMass);
+  for (const segment of profile.segments)
+    segment.neutral.position = lift(segment.neutral.position);
+
   const bones: IAutoMovieBone[] = [];
   const placed: Map<AutoMovieHumanoidBone, IAutoMovieVector3> = new Map();
   const add = (
@@ -474,23 +502,7 @@ function canonical(
   }
   return {
     skeleton: { id: options.id, bones },
-    profile: Profile.build(
-      new Map(
-        bind.map((bone: IBind): [string, IAutoMovieHumanCanonicalSolids.IJoint] => [
-          bone.bone,
-          {
-            parent: bone.parent,
-            carrier: carrier.get(bone.bone)!,
-            position: position.get(bone.bone)!,
-            tip: tip.get(bone.bone)!,
-            radius: bone.radius,
-          },
-        ]),
-      ),
-      options.mass,
-      options.id,
-      options.person,
-    ),
+    profile,
     joints: bind.map((bone: IBind): IAutoMovieHumanCanonicalBody.IJoint => {
       const p: IAutoMovieVector3 = position.get(bone.bone)!;
       const end: IAutoMovieVector3 | null = tip.get(bone.bone)!;

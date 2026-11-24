@@ -76,8 +76,8 @@ export namespace IAutoMovieHumanCanonicalBody {
   line and the thumb's two hinges along its metacarpal (the bind holds a
   relaxed hand, and a finger angle of zero is the extended finger, as in
   the VRM T-pose and the Neutral-0 position), each thigh and shank straightened along -Y with the foot keeping its
-  bind orientation, and the whole body raised or lowered so its lowest foot
-  joint sphere touches the floor. Every humanoid-named joint becomes a rig
+  bind orientation, and the whole body raised or lowered so its lowest
+  drawn foot surface touches the floor. Every humanoid-named joint becomes a rig
   bone with an identity rest rotation, the toes bone at the hallux's
   metatarsophalangeal joint, and every other joint rides its nearest
   humanoid ancestor. The contact profile is built from the same joints and
