@@ -68,11 +68,11 @@ Required fields are `point`, `frame`, `local`; callers supply the complete recor
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-A course reader can own the original station preparations for its fixed integration endpoints.
+A course reader owns the admitted scalar field and can prepare its fixed integration endpoints. Value inversion and the final physical jet read the same original field.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The declared integration interval determines the endpoint preparations. The final phase query can receive the same preparation that produced its selected trial.
+The declared integration interval determines the endpoint preparations. The physical jet is requested at the selected station. A phase-only query can receive the numeric station preparation that produced its point trial.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

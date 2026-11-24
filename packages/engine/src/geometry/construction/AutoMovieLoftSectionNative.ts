@@ -180,14 +180,10 @@ export namespace AutoMovieLoftSectionNative {
         `Native physical source2: ${source.detail}`,
       );
 
-    /** Successful metadata validation of these unexposed, copied numeric records. */
-    let verified: boolean = false;
+    // Admission belongs to the copied station, independently of phase reads.
+    const fault: string | null = AutoMovieViewSectionReading.validate(source);
     return (phi: number): IAutoMovieLoftSectionJet => {
       const ray: IAutoMovieViewConic.IRay = locate(source.geometry, phi);
-      const fault: string | null = verified
-        ? null
-        : AutoMovieViewSectionReading.validate(source);
-      if (fault === null) verified = true;
       const radial:
         | IAutoMovieViewSectionField.IRadialJet
         | IAutoMovieConicArcField.IFailure =

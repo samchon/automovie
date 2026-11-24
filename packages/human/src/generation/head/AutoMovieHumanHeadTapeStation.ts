@@ -25,8 +25,19 @@ export namespace AutoMovieHumanHeadTapeStation {
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     station: number,
   ): IAutoMovieHumanHeadTapeStation.IPrepared {
-    const inputs: IAutoMovieLoftViewRead.IValues | string =
-      AutoMovieLoftViewRead.values(reader.source, station);
+    return section(
+      reader,
+      station,
+      AutoMovieLoftViewRead.values(reader.source, station),
+    );
+  }
+
+  /** Place the conics from one original scalar reading in its world frame. */
+  function section(
+    reader: IAutoMovieHumanHeadTapeSource.IReader,
+    station: number,
+    inputs: IAutoMovieLoftViewRead.IValues | string,
+  ): IAutoMovieHumanHeadTapeStation.IPrepared {
     if (typeof inputs === "string")
       throw new Error(`Head tape original value: ${inputs}`);
     const frame: IAutoMovieLoftSectionFrame = reader.part.axis.at(station);
@@ -64,12 +75,15 @@ export namespace AutoMovieHumanHeadTapeStation {
     reader: IAutoMovieHumanHeadTapeSource.IReader,
     ends?: IAutoMovieHumanHeadTapeStation.CreateEnds,
   ): IAutoMovieHumanHeadTapeStation.IOutput {
+    const field = AutoMovieLoftViewRead.prepare(reader.source);
+    const read = (station: number): IAutoMovieHumanHeadTapeStation.IPrepared =>
+      section(reader, station, field.values(station));
     const low: IAutoMovieHumanHeadTapeStation.IPrepared | undefined =
-      ends === undefined ? undefined : prepare(reader, ends[0]);
+      ends === undefined ? undefined : read(ends[0]);
     const high: IAutoMovieHumanHeadTapeStation.IPrepared | undefined =
       ends === undefined || ends[1] === ends[0]
         ? low
-        : prepare(reader, ends[1]);
+        : read(ends[1]);
 
     /** Prepare each interior trial from the same original source. */
     const at: (station: number) => IAutoMovieHumanHeadTapeStation.IPrepared = (
@@ -77,9 +91,10 @@ export namespace AutoMovieHumanHeadTapeStation {
     ): IAutoMovieHumanHeadTapeStation.IPrepared => {
       if (low?.station === station) return low;
       if (high?.station === station) return high;
-      return prepare(reader, station);
+      return read(station);
     };
     return {
+      jets: field.jets,
       point(
         station: number,
         phase: number,

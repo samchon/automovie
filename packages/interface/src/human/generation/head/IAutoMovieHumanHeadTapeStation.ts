@@ -1,5 +1,6 @@
 import type { IAutoMovieLoftSectionFrame } from "../../../construction/IAutoMovieLoftSectionFrame";
 import type { IAutoMovieLoftSectionPhase } from "../../../construction/IAutoMovieLoftSectionPhase";
+import type { IAutoMovieLoftViewRead } from "../../../construction/IAutoMovieLoftViewRead";
 import type { AutoMovieVector3Tuple } from "../../../geometry/AutoMovieVector3Tuple";
 import type { IAutoMovieHumanHeadTapeSource } from "./IAutoMovieHumanHeadTapeSource";
 
@@ -54,6 +55,9 @@ export namespace IAutoMovieHumanHeadTapeStation {
 
   /** A course reader with optional fixed integration endpoint preparations. */
   export interface IOutput {
+    /** Read the admitted original scalar jets at a selected station in mm. */
+    jets(station: number): IAutoMovieLoftViewRead.IJets | string;
+
     /**
      * Actual Point0 and the source that produced this bracket trial.
      */
