@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The production id binds asset authorization while model materials, shot environments, surface-graphic image uses and each shot's font sources enumerate uses; facts resolves one asset path to byte-header dimensions/media or undefined.
+The production id binds asset authorization while model materials, shot environments and surface-graphic image uses enumerate uses; facts resolves one asset path to byte-header dimensions/media or undefined.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -14,4 +14,4 @@ The callback's purity and truthful byte provenance are caller premises; a manife
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents exact production scope, borrowed model/scene/font/ledger populations, that closure checks a font asset's licence because it alone holds the ledger, and undefined unreadable-image meaning; callback errors and effects may propagate.
+Documents exact production scope, borrowed model/scene/ledger populations and undefined unreadable-image meaning; callback errors and effects may propagate.

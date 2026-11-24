@@ -20,7 +20,7 @@ The object shell over a functional core is the production's own style; installed
 
 <!-- @source `prepareAutoMovieFlames` and `prepareAutoMovieSurfaceGraphics` in `@automovie/render`, and `IFilmProduction` in `src/IFilmProduction.ts`. -->
 
-Supply the place's prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` a shot whose camera moves is refused.
+Supply the place's prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second.
 
 The film draws only what it mounts. After building a shot's scene, mount its flames with `prepareAutoMovieFlames` and its surface graphics with `prepareAutoMovieSurfaceGraphics`. Apply both whenever the film places that shot and dispose both with the film, as the returned objects' JSDoc sets. A feed layer stays empty until the film's `beforeDraw` calls the graphics' `renderFeeds` with the film's `optics`.
 

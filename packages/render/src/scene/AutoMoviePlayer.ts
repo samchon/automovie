@@ -6,7 +6,6 @@ import {
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
-  IAutoMovieDialogueMouth,
   IAutoMovieExpression,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
@@ -17,18 +16,16 @@ import type {
   IAutoMovieSkeleton,
   IAutoMovieSpringStep,
 } from "@automovie/interface";
-import type * as THREE from "three";
 
-import type { IAutoMovieDialogueMouthFigure } from "./IAutoMovieDialogueMouthFigure.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import type { IAutoMovieSpringAxisSettlement } from "./IAutoMovieSpringAxisSettlement.js";
 import type { IAutoMovieSpringConfig } from "./IAutoMovieSpringConfig.js";
 import { applyExpression } from "./applyExpression.js";
 import { applyPose } from "./applyPose.js";
-import { autoMovieVisemeChannelWeights } from "./autoMovieVisemeChannelWeights.js";
-import { bindAutoMovieDialogueMouth } from "./bindAutoMovieDialogueMouth.js";
 
-/** One joint's three solver states, retained in this player's spring map. */
+/**
+ * One joint's three solver states, retained in this player's spring map.
+ */
 interface IAxisSprings {
   /** Flexion value and velocity carried between bounded solver updates. */
   flexion: IAutoMovieSpringStep;
@@ -54,12 +51,6 @@ interface IAxisSprings {
  * targets or imported-runtime expression sinks when the target provides them;
  * when the target's `lookAt` is `"bone"`, its gaze channels turn the eye bones
  * instead (`resolveLookAt`).
- *
- * The player binds the model's root as a dialogue-mouth figure
- * (`bindAutoMovieDialogueMouth`): when the model sits under a speaking actor's
- * scene node, the draw page layers the actor's viseme weights over the
- * expression last sampled after each placement, so a delivered or captured VRM
- * or imported figure moves its mouth with no code of the film's own.
  */
 export class AutoMoviePlayer {
   private lastSample: IAutoMovieMotionSample | null = null;
@@ -69,7 +60,6 @@ export class AutoMoviePlayer {
   >();
   private lastSeconds: number | null = null;
   private lastUpdateSeconds: number | null = null;
-  private lastPose: IAutoMoviePose | null = null;
 
   public constructor(
     private readonly target: IAutoMovieModelObject,
@@ -95,22 +85,18 @@ export class AutoMoviePlayer {
     private readonly restFrames?: Partial<
       Record<AutoMovieHumanoidBone, IAutoMovieRestFrame>
     >,
-  ) {
-    bindAutoMovieDialogueMouth(target.object, {
-      show: (
-        mouth: IAutoMovieDialogueMouth | null,
-      ): IAutoMovieDialogueMouthFigure.IShown | null => this.showMouth(mouth),
-    });
-  }
+  ) {}
 
-  /** Swap the clip being played, preserving active spring follow-through. */
+  /**
+   * Swap the clip being played, preserving active spring follow-through.
+   */
   public setMotion(motion: IAutoMovieMotion): void {
     this.motion = motion;
   }
 
   /**
-   * Sample the clip at elapsed `seconds` and apply pose and expression. Springs
-   * hold on equal or backward timestamps and advance at most 1/15 second.
+   * Sample the clip at elapsed `seconds` and apply pose and expression.
+   * Springs hold on equal or backward timestamps and advance at most 1/15 second.
    */
   public update(seconds: number): void {
     const deltaSeconds: number =
@@ -143,7 +129,6 @@ export class AutoMoviePlayer {
       this.jointAxes,
       this.restFrames,
     );
-    this.lastPose = pose;
     applyExpression(this.target, sample.expression);
     this.target.afterAutoMovieFrame?.({
       seconds,
@@ -272,60 +257,4 @@ export class AutoMoviePlayer {
   public get lastExpression(): IAutoMovieExpression | null {
     return this.lastSample?.expression ?? null;
   }
-
-  /**
-   * Show a dialogue mouth over the expression last sampled: apply that
-   * expression again with the mouth's viseme weights layered over it, or alone
-   * for null, then flush an imported runtime with no time elapsed, so springs
-   * hold. Before the first update there is no authored expression to layer over
-   * and nothing is shown. The figure shows the weights only when its model has
-   * a part to show them on: an expression sink, or a morph target named after a
-   * mouth preset or channel the weights set.
-   */
-  private showMouth(
-    mouth: IAutoMovieDialogueMouth | null,
-  ): IAutoMovieDialogueMouthFigure.IShown | null {
-    if (this.lastSample === null || this.lastPose === null) return null;
-    const expression: IAutoMovieExpression | null = this.lastSample.expression;
-    applyExpression(this.target, expression, mouth?.visemes);
-    this.target.afterAutoMovieFrame?.({
-      seconds: this.lastUpdateSeconds ?? 0,
-      deltaSeconds: 0,
-      pose: this.lastPose,
-      expression,
-    });
-    return mouth === null || !showsMouth(this.target)
-      ? null
-      : { visemes: { ...mouth.visemes } };
-  }
-}
-
-/**
- * Every expression preset and channel a viseme weight can set, lowercased, as
- * `applyExpression` matches morph names.
- */
-const MOUTH_CHANNELS: ReadonlySet<string> = new Set(
-  [
-    ...autoMovieVisemeChannelWeights({ aa: 1, E: 1, I: 1, O: 1, U: 1 }).keys(),
-  ].map((name: string): string => name.toLowerCase()),
-);
-
-/** Whether a model can show viseme weights: a sink, or a mouth morph target. */
-function showsMouth(target: IAutoMovieModelObject): boolean {
-  if ((target.expressionTargets?.length ?? 0) !== 0) return true;
-  let found: boolean = false;
-  target.object.traverse((object: THREE.Object3D): void => {
-    const dictionary: Record<string, number> | undefined = (
-      object as THREE.Mesh
-    ).morphTargetDictionary;
-    if (
-      !found &&
-      dictionary !== undefined &&
-      Object.keys(dictionary).some((name: string): boolean =>
-        MOUTH_CHANNELS.has(name.toLowerCase()),
-      )
-    )
-      found = true;
-  });
-  return found;
 }

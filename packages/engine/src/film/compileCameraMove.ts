@@ -10,7 +10,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ease } from "../motion/ease";
-import { cameraFrameEntryMoves } from "./cameraFrameEntryMoves";
 import { canonicalProductionFrameRate } from "./canonicalProductionFrameRate";
 import { FRAMING_AIM_FRACTION } from "./constants/FRAMING_AIM_FRACTION";
 import { FRAMING_HEIGHT_FRACTION } from "./constants/FRAMING_HEIGHT_FRACTION";
@@ -33,6 +32,15 @@ const PUSH_IN_TO: number = 0.8;
 
 /** A truck crosses this multiple of the framed distance toward screen-left. */
 const TRUCK_DISTANCE: number = 1;
+
+/**
+ * Frame rate the moving paths are keyed at when the caller states no delivery
+ * rate: 24 frames per second, the theatrical sound-film rate.
+ */
+const FALLBACK_FRAME_RATE: IAutoMovieProductionFrameRate = {
+  numerator: 24,
+  denominator: 1,
+};
 
 /** Seconds within which two key times are the same instant. */
 const SAME_INSTANT: number = 1e-9;
@@ -113,8 +121,7 @@ interface IKey {
  * the same instant as a zero-span one wins. Entries must be sorted by `start`
  * and must not overlap, which `performShot` checks. Returns null for no
  * entries, and throws an `Error` for a framing or move outside the grammar, an
- * invalid `frameRate`, a moving entry (`cameraFrameEntryMoves`) without a
- * `frameRate` to key it at, or a frame index that is not a safe integer.
+ * invalid `frameRate`, or a frame index that is not a safe integer.
  *
  * @param props.clipId - Id the returned clip carries.
  * @param props.camera - The staged camera: its id names the tracks, its
@@ -129,7 +136,7 @@ interface IKey {
  *   portrait output requires its actual aspect and is not bounded by that
  *   fallback. A subject with no `radius` is unaffected.
  * @param props.frameRate - Exact delivery frame rate the moving paths are keyed
- *   at; it may be omitted only when no entry moves the camera.
+ *   at; omitted, 24 frames per second.
  */
 export function compileCameraMove(
   props: IAutoMovieCompileCameraMove.IProps,
@@ -144,19 +151,9 @@ export function compileCameraMove(
       ? props.aspect
       : 1;
   const halfX: number = halfY * aspect;
-
-  // A moving path is keyed at the delivery frames, so it needs their rate; a
-  // locked-off or whip camera is keyed at its authored instants alone.
-  entries.forEach((entry: IAutoMovieCameraFrameEntry, i: number): void => {
-    if (props.frameRate === undefined && cameraFrameEntryMoves(entry))
-      throw new Error(
-        `camera frame entry ${i} moves the camera with "${entry.action.move}", but no delivery frame rate was given to key it at`,
-      );
-  });
-  const rate: IAutoMovieProductionFrameRate | undefined =
-    props.frameRate === undefined
-      ? undefined
-      : canonicalProductionFrameRate(props.frameRate);
+  const rate: IAutoMovieProductionFrameRate = canonicalProductionFrameRate(
+    props.frameRate ?? FALLBACK_FRAME_RATE,
+  );
 
   const keys: IKey[] = [];
   function push(
@@ -340,14 +337,14 @@ export function compileCameraMove(
         break;
       }
       case "push-in": {
-        for (const t of frameKeyTimes(t0, t1, rate!)) {
+        for (const t of frameKeyTimes(t0, t1, rate)) {
           const f: IKey = framedAt(subject.base, distanceAt(t));
           key(t, f.pos, f.rot);
         }
         break;
       }
       case "orbit": {
-        for (const t of frameKeyTimes(t0, t1, rate!)) {
+        for (const t of frameKeyTimes(t0, t1, rate)) {
           const swing: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
             UP,
             ORBIT_DEGREES * eased(t),
@@ -364,7 +361,7 @@ export function compileCameraMove(
       case "truck": {
         // Travel is perpendicular to the bearing, so the staged depth holds;
         // stage the camera on the other side for rightward travel.
-        for (const t of frameKeyTimes(t0, t1, rate!)) {
+        for (const t of frameKeyTimes(t0, t1, rate)) {
           const base: IAutoMovieVector3 = subject.at?.(t) ?? subject.base;
           const aim: IAutoMovieVector3 = aimOf(base);
           const pos: IAutoMovieVector3 = Vector3.add(
@@ -382,7 +379,7 @@ export function compileCameraMove(
           break;
         }
         const lookahead: number = action.lookahead ?? 0;
-        for (const t of frameKeyTimes(t0, t1, rate!)) {
+        for (const t of frameKeyTimes(t0, t1, rate)) {
           const base: IAutoMovieVector3 = subject.at(t);
           const aimTime: number = Math.min(t + lookahead, shotDuration);
           // Sample the current base before a future read can reuse its storage.

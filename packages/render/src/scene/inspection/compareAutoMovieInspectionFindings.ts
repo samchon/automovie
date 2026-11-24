@@ -7,21 +7,16 @@ import type { IAutoMovieInspectionDiagnostics } from "@automovie/interface";
  * category, an error above any other; then the checker's rank, larger worse,
  * with an absent rank below every present one. Rank is compared only among
  * findings of the same identity, as `IAutoMovieInspectionDiagnostics.IWitness`
- * states, so callers pass two observations of one identity. Two present ranks
- * whose difference is at most `tolerance` times the larger magnitude are
- * equal.
+ * states, so callers pass two observations of one identity.
  *
  * @param current The observation being placed.
  * @param previous The observation it is compared with.
- * @param tolerance Relative rank tolerance, nonnegative; zero, the default,
- *   compares ranks exactly.
  * @returns A positive number when `current` is worse, a negative number when it
  *   is better, and zero when neither is.
  */
 export function compareAutoMovieInspectionFindings(
   current: IAutoMovieInspectionDiagnostics.IFinding,
   previous: IAutoMovieInspectionDiagnostics.IFinding,
-  tolerance: number = 0,
 ): number {
   if (current.confidence !== previous.confidence)
     return current.confidence === "confirmed" ? 1 : -1;
@@ -29,12 +24,5 @@ export function compareAutoMovieInspectionFindings(
     return current.category === "error" ? 1 : -1;
   const now: number = current.witness.rank ?? -Infinity;
   const before: number = previous.witness.rank ?? -Infinity;
-  if (
-    Number.isFinite(now) &&
-    Number.isFinite(before) &&
-    Math.abs(now - before) <=
-      tolerance * Math.max(Math.abs(now), Math.abs(before))
-  )
-    return 0;
   return now > before ? 1 : now < before ? -1 : 0;
 }

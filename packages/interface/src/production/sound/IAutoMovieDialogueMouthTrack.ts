@@ -5,10 +5,10 @@ import type { IAutoMovieDialogueMouthRange } from "./IAutoMovieDialogueMouthRang
  * actor, the mouth values that line gives the actor over its speech span.
  *
  * Render's `planAutoMovieDialogueMouths` builds it from the admitted lines on
- * the film clock. A draw host hands it to the draw page once, before the first
- * picture, as JSON, and the page shows it on the speaking actors' figures.
- * Engine's `sampleAutoMovieDialogueMouth` reads one actor's mouth from it at
- * any second.
+ * the film clock. A draw host hands it to the drawn subject once, before the
+ * first picture, and it crosses into the draw page as JSON. Engine's
+ * `sampleAutoMovieDialogueMouth` reads one actor's mouth from it at any
+ * second.
  */
 export interface IAutoMovieDialogueMouthTrack {
   /** Film frames per second; frame `f` stands for film second `f / fps`. */

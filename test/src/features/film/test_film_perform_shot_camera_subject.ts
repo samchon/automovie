@@ -19,7 +19,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import {
   FIXTURE_BONE,
   fixtureRegionDrivesBone,
@@ -40,9 +39,7 @@ import { namedFacts, vclose, violationCount } from "../internal/predicates";
 type ICoverage = IAutoMovieBlockingCoverage;
 
 /**
- * A pose marching the root along model +X, with an elbow key only when the
- * existing region fixture enables it. The locomote fixture omits elbow keys;
- * this scenario observes the carried root displacement.
+ * A pose marching the root along model +X, with an elbow key only when the existing region fixture enables it. The locomote fixture omits elbow keys; this scenario observes the carried root displacement.
  */
 const march: (x: number, drivesBone: boolean) => IAutoMoviePose = (
   x: number,
@@ -204,7 +201,6 @@ const perform: (
   ) => IAutoMovieVector3 | null,
 ): IAutoMoviePerformedShot =>
   performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script,
     staged,
     performance: makePerformanceWrite({
@@ -237,15 +233,11 @@ const keysOf: (
   );
 
 /**
- * Camera, bone, actor and projectile subjects reach their intended numerical
- * framing paths.
+ * Camera, bone, actor and projectile subjects reach their intended numerical framing paths.
  *
  * Scenarios:
- *
- * 1. Frame a camera in hero/coverage takes while keeping cameras out of pose
- *    performances.
- * 2. Use a live moving bone for follow/focus and accept a missing later-sample
- *    fallback.
+ * 1. Frame a camera in hero/coverage takes while keeping cameras out of pose performances.
+ * 2. Use a live moving bone for follow/focus and accept a missing later-sample fallback.
  * 3. Keep placed-actor and launched-projectile follow keys moving.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and checks take identities, key counts, performance membership, focus point and endpoint movement, catching missing facing rotation, frozen live focus or a camera injected as a performer.

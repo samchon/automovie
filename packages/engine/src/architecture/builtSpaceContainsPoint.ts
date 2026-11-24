@@ -24,10 +24,9 @@ const CONTAINMENT_EPSILON: number = 1e-9;
  * measured in metres only for unit normals. A shell is read by
  * `createAutoMovieMeshWindingQuery`: a point on a shell triangle within its
  * area-scaled slack is inside, and otherwise the winding number distinguishes
- * the outer region from inward-wound voids. A point with a coordinate that is
- * not finite lies in no shell. Raw binary64 products and sums can overflow or
- * lose accuracy for extreme or nearly degenerate inputs; the returned Boolean
- * is not an exact containment certificate.
+ * the outer region from inward-wound voids. Raw binary64 products and sums can
+ * overflow or lose accuracy for extreme or nearly degenerate inputs; the
+ * returned Boolean is not an exact containment certificate.
  *
  * @param space Logical space whose stated volume is tested.
  * @param point World point, in metres.
@@ -59,11 +58,9 @@ export const builtSpaceContainsPoint: (
  * The shell is not validated here, so its triples are admitted as the
  * arithmetic can read them: a triple naming a missing or non-finite vertex and
  * a trailing incomplete triple are dropped before the winding query, which
- * would refuse them, and a shell with no triangle left contains nothing. A
- * point with a coordinate that is not finite lies in no shell, as the
- * solid-angle sum this query replaced read it, rather than reaching the query,
- * which refuses it. For a closed consistently wound shell, inward void walls
- * cancel the outer winding in the void, so the void reads empty.
+ * would refuse them, and a shell with no triangle left contains nothing. For a
+ * closed consistently wound shell, inward void walls cancel the outer winding
+ * in the void, so the void reads empty.
  */
 const spaceShellContainsPoint: (
   shell: IAutoMovieSpaceShell,
@@ -72,12 +69,6 @@ const spaceShellContainsPoint: (
   shell: IAutoMovieSpaceShell,
   point: IAutoMovieVector3,
 ): boolean => {
-  if (
-    !Number.isFinite(point.x) ||
-    !Number.isFinite(point.y) ||
-    !Number.isFinite(point.z)
-  )
-    return false;
   const positions: number[] = [];
   for (let face: number = 0; face + 2 < shell.triangles.length; face += 3) {
     const corners: IAutoMovieVector3[] = [];

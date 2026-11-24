@@ -173,8 +173,8 @@ interface IAllowed {
 
 /**
  * Inert dimensions that move no rest geometry by design: an articulation's
- * limit or ratio, a mass or timing property, an affordance's place, or a part
- * the catalog's form does not carry.
+ * limit or ratio, a mass or timing property, an affordance's place, or a figure
+ * the seedless middle's read model supersedes.
  */
 const INERT: readonly IAllowed[] = [
   {
@@ -211,6 +211,12 @@ const INERT: readonly IAllowed[] = [
         "how the road wheels follow the steering wheel sets articulation ranges, not rest geometry",
     }),
   ),
+  {
+    rows: /^cart-cart$/,
+    dimension: "clearance",
+    reason:
+      "clearance sets the shafts' length only where the read model gives none; the seedless middle's first model reads its shafts",
+  },
   {
     rows: /^(horse|pony|donkey|mule)$/,
     dimension: "breechingDrop",

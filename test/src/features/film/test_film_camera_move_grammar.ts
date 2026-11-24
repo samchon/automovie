@@ -63,7 +63,7 @@ const SUBJECT: IAutoMovieFramedSubject = {
  * 1. `static medium` → one key at the framed position `(0, 1.44, 0.62)` (the
  *    staged bearing is +Z), rotation identity (−Z already faces the aim),
  *    emitted as `translation` + `rotation` node tracks on the camera.
- * 2. `push-in medium` → an eased dolly keyed at every frame of the stated 24 fps
+ * 2. `push-in medium` → an eased dolly keyed at every frame of the 24 fps default
  *    (49 keys) from `0.62×1.25 = 0.775` to `0.62×0.8 = 0.496` along the
  *    bearing, easeInOut so it starts slow (the quarter-mark key sits at 0.7401,
  *    short of a linear 0.705), spanning start → shot end.
@@ -83,7 +83,6 @@ export function test_film_camera_move_grammar(): void {
     camera: camera(),
     entries: [{ action: frame("static", "medium"), subject: SUBJECT }],
     shotDuration: 2,
-    frameRate: { numerator: 24, denominator: 1 },
   });
   TestValidator.predicate("static compiles", still !== null);
   if (still === null) return;
@@ -133,7 +132,6 @@ export function test_film_camera_move_grammar(): void {
       camera: camera(),
       entries: [{ action: frame("push-in", "medium"), subject: SUBJECT }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "push-in keys every 24 fps frame",
@@ -183,7 +181,6 @@ export function test_film_camera_move_grammar(): void {
       camera: yawed,
       entries: [{ action: frame("whip", "medium"), subject: SUBJECT }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "whip snaps in 0.2 s",

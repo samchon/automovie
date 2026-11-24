@@ -1,5 +1,6 @@
 import { preparePhysicalGeometry } from "@automovie/engine";
 import type {
+  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieInspectionDiagnostics,
@@ -21,21 +22,20 @@ import { markFilmProduction } from "./markFilmProduction";
 
 /**
  * One registered film as a draw subject: what the capture, the render and the
- * inspector create, draw and place.
+ * Viewer create, draw and place.
  *
- * The film is created as the inspector creates it, at its delivery raster (1280
- * × 720 when it states none), placed by its own `seek` at a second clamped to
- * its running time, and marked by `markFilmProduction`. Its `optics`,
- * `shading`, `beforeDraw`, soft props and marks are read for the film as last
- * placed, at the same clamped second, so a capture, a delivered frame and the
- * inspector show the same state through the same camera response. A film with
- * `playback` hands its timeline over as the subject's `cut`, which the render
- * records in its report, and its sequence, whose transitions every film picture
- * draws through the film's `seekShot`: the shot and its shot-local time pass
- * through unclamped, a sample's handle before the trim included, and the film
- * second is clamped. A film with `sound` carries it as the subject's sound
- * list, and the capture and the render show its dialogue mouths on the film's
- * bound figures.
+ * The film is created as the Viewer creates it, at its delivery raster (1280 ×
+ * 720 when it states none), placed by its own `seek` at a second clamped to its
+ * running time, and marked by `markFilmProduction`. Its `optics`, `shading`,
+ * `beforeDraw`, soft props and marks are read for the film as last placed, at
+ * the same clamped second, so a capture, a delivered frame and the Viewer show
+ * the same state through the same camera response. A film with `playback` hands
+ * its timeline over as the subject's `cut`, which the render records in its
+ * report, and its sequence, whose transitions every film picture draws through
+ * the film's `seekShot`: the shot and its shot-local time pass through
+ * unclamped, a sample's handle before the trim included, and the film second is
+ * clamped. A film with `speak` takes the dialogue mouths the capture and the
+ * render hand the subject, and reads them in its own placements.
  *
  * @param name The film's registered name, which the subject is drawn under.
  * @param film The registered film.
@@ -69,6 +69,12 @@ export function subjectOfFilm(
           ? {}
           : { delivery: production.delivery }),
         ...(production.sound === undefined ? {} : { sound: production.sound }),
+        ...(production.speak === undefined
+          ? {}
+          : {
+              speak: (mouths: IAutoMovieDialogueMouths): void =>
+                production.speak!(mouths),
+            }),
         ...(production.playback === undefined
           ? {}
           : {

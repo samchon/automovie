@@ -12,7 +12,6 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -62,20 +61,14 @@ const marchSynth: () => IAutoMovieMotion = (): IAutoMovieMotion =>
   makeMotion([keyframe(0, march(0)), keyframe(1, march(1))], 1);
 
 /**
- * Camera follow uses world displacement and keeps stationary/point subjects
- * total.
+ * Camera follow uses world displacement and keeps stationary/point subjects total.
  *
  * Scenarios:
- *
- * 1. Follow a one-metre model-X root march and keep the rootless neighbour's
- *    endpoint X coordinate unchanged.
+ * 1. Follow a one-metre model-X root march and keep the rootless neighbour's endpoint X coordinate unchanged.
  * 2. Produce one static key for a point subject.
- * 3. Rotate the same march by staged +90-degree facing and check zero X drift and
- *    minus-one Z travel.
- * 4. Aim half a second ahead of the march while matching every base translation
- *    key and converging to the base aim at the shot end.
- * 5. Refuse negative and infinite lookahead and an authored lookahead on a static
- *    move.
+ * 3. Rotate the same march by staged +90-degree facing and check zero X drift and minus-one Z travel.
+ * 4. Aim half a second ahead of the march while matching every base translation key and converging to the base aim at the shot end.
+ * 5. Refuse negative and infinite lookahead and an authored lookahead on a static move.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and reads camera translation keys, catching ignored root X travel, a node-local/world-frame mix, rootless endpoint X drift or a static-point path with more than one key. Lookahead additionally checks executed rotation, translation and located gate refusals. It does not compare every rootless coordinate or interior key.
  * @evidence contracts/development/testing.md#independent-expectations The authored one-metre X translation fixes X displacement; a +90-degree Y placement maps it to world minus-Z, and the rootless fixture requires equal endpoint X coordinates. The opening lookahead ray must cross the subject's world Z=0 plane at X=0.5; the shot end has no future displacement and must retain the ordinary aim. The translation comparison isolates the effect of changing lookahead.
@@ -91,7 +84,6 @@ export function test_film_perform_shot_camera_follow(): void {
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const marching: IAutoMoviePerformedShot = performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: performance(followFrame),
@@ -109,7 +101,6 @@ export function test_film_perform_shot_camera_follow(): void {
   );
 
   const ahead: IAutoMoviePerformedShot = performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: performance({ ...followFrame, lookahead: 0.5 }),
@@ -180,7 +171,6 @@ export function test_film_perform_shot_camera_follow(): void {
       ] satisfies Partial<IAutoMovieCameraAction>[]
     ).every((overrides: Partial<IAutoMovieCameraAction>): boolean => {
       const result: IAutoMoviePerformedShot = performShot({
-        frameFormat: SQUARE_FRAME_AT_24_FPS,
         script: makeScriptWrite(),
         staged,
         performance: performance({ ...followFrame, ...overrides }),
@@ -199,7 +189,6 @@ export function test_film_perform_shot_camera_follow(): void {
   );
 
   const rootless: IAutoMoviePerformedShot = performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: performance(followFrame),
@@ -216,7 +205,6 @@ export function test_film_perform_shot_camera_follow(): void {
   }
 
   const pointed: IAutoMoviePerformedShot = performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: performance({
@@ -249,7 +237,6 @@ export function test_film_perform_shot_camera_follow(): void {
   );
   if (turnedStaged.success !== true) throw new Error("staging must succeed");
   const turned: IAutoMoviePerformedShot = performShot({
-    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged: turnedStaged,
     performance: performance(followFrame),

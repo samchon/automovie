@@ -9,10 +9,8 @@
 export interface IAutoMovieFlamesObject {
   /**
    * Shape every flame for shot-local `seconds`, show the ones burning and hide
-   * the rest, and write each bound flame's light clip at `seconds` onto its
-   * built light: its flickering intensity, zero outside `on`, and its place at
-   * the emitter. The shape is evaluated at exactly `seconds`, not at the
-   * light's key grid. A non-finite time throws a `RangeError`.
+   * the rest. The shape is evaluated at exactly `seconds`, not at the light's
+   * key grid. A non-finite time throws a `RangeError`.
    */
   apply(seconds: number): void;
 

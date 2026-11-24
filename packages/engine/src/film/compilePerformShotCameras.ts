@@ -1,7 +1,6 @@
 import {
   IAutoMovieActionTarget,
   IAutoMovieCamera,
-  type IAutoMovieCameraCoverageEntry,
   type IAutoMovieCameraFrameEntry,
   IAutoMovieCameraIntent,
   IAutoMovieClip,
@@ -15,7 +14,6 @@ import {
   IAutoMovieShotCoverage,
 } from "@automovie/interface";
 
-import { cameraFrameEntryMoves } from "./cameraFrameEntryMoves";
 import { compileCameraClearanceReports } from "./compileCameraClearanceReports";
 import { compileCameraCoverage } from "./compileCameraCoverage";
 import { compileCameraMove } from "./compileCameraMove";
@@ -50,11 +48,9 @@ import { resolvedPerformShotPoint } from "./resolvedPerformShotPoint";
  * @param props.scope Clip id scope: the shot id when given, else the beat id.
  * @param props.frameFormat Delivery raster and clock: its width over height is
  *   the framing aspect, a non-positive side or none giving a square fit, and
- *   its `fps` and `frameRate` key the moving paths. Without `fps`, a live or
- *   coverage entry that moves the camera (`cameraFrameEntryMoves`) is a `type`
- *   violation at `$input.frameFormat.fps`; a shot whose cameras only hold or
- *   whip needs no rate. A rate `resolveProductionFrameRate` refuses is a
- *   `range` violation at the same path.
+ *   its `fps` and `frameRate` key the moving paths, the compiler's 24 fps
+ *   fallback applying without `fps`. A rate `resolveProductionFrameRate`
+ *   refuses is a `range` violation at `$input.frameFormat.fps`.
  * @param props.models Compiler-owned models of the staged nodes, if any.
  * @param props.formationMotions The shot's compact formation cues.
  * @param props.motions The compiled actor clips by node id.
@@ -86,69 +82,48 @@ export function compilePerformShotCameras(
     on: IAutoMovieActionTarget,
     start?: number,
   ) => IAutoMovieFramedSubject = createPerformShotSubjectFramer(context, props);
-  const entries: IAutoMovieCameraFrameEntry[] = props.frames.map(
-    (job: IAutoMoviePerformShotFrameJob): IAutoMovieCameraFrameEntry => ({
-      action: job.action,
-      subject: frame(job.action.on, job.action.start),
-    }),
-  );
-  const takes: IAutoMovieCameraCoverageEntry[] = props.coverageJobs.map(
-    ({
-      intent,
-      camera,
-    }: IAutoMoviePerformShotCoverageJob): IAutoMovieCameraCoverageEntry => ({
-      action: {
-        verb: "frame",
-        actor: camera.id,
-        start: 0,
-        duration: "auto",
-        framing: intent.framing,
-        move: intent.move,
-        on: intent.on,
-      },
-      subject: frame(intent.on),
-      intent: {
-        start: 0,
-        framing: intent.framing,
-        move: intent.move,
-        focus: null,
-        focalLength: null,
-      },
-    }),
-  );
-
-  // A moving path is keyed at the delivery frames; without their rate it is
-  // refused rather than keyed at a rate the film may not have.
-  if (
-    frameRate === undefined &&
-    [...entries, ...takes].some(cameraFrameEntryMoves)
-  ) {
-    if (format?.fps === undefined)
-      context.out.push(
-        "type",
-        "$input.frameFormat.fps",
-        "a moving camera frame entry needs the delivery frame rate its path is keyed at",
-        format?.fps,
-      );
-    return { cameraMotion: null, cameraIntent: [], coverage: [] };
-  }
   const cameraMotion: IAutoMovieClip | null = compileCameraMove({
     clipId: `cam:${props.scope}`,
     camera: hero,
-    entries,
+    entries: props.frames.map(
+      (job: IAutoMoviePerformShotFrameJob): IAutoMovieCameraFrameEntry => ({
+        action: job.action,
+        subject: frame(job.action.on, job.action.start),
+      }),
+    ),
     shotDuration: duration,
     aspect,
     frameRate,
   });
   const coverage: IAutoMovieShotCoverage[] = props.coverageJobs.map(
-    (
-      { camera }: IAutoMoviePerformShotCoverageJob,
-      index: number,
-    ): IAutoMovieShotCoverage =>
+    ({
+      intent,
+      camera,
+    }: IAutoMoviePerformShotCoverageJob): IAutoMovieShotCoverage =>
       compileCameraCoverage({
         camera,
         clipId: `cam:${props.scope}:${camera.id}`,
-        entries: [takes[index]!],
+        entries: [
+          {
+            action: {
+              verb: "frame",
+              actor: camera.id,
+              start: 0,
+              duration: "auto",
+              framing: intent.framing,
+              move: intent.move,
+              on: intent.on,
+            },
+            subject: frame(intent.on),
+            intent: {
+              start: 0,
+              framing: intent.framing,
+              move: intent.move,
+              focus: null,
+              focalLength: null,
+            },
+          },
+        ],
         shotDuration: duration,
         aspect,
         frameRate,

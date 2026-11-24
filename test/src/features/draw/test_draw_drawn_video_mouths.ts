@@ -1,20 +1,17 @@
 import type {
   IAutoMovieCaptureSubject,
   IAutoMovieDialogueLipSync,
-  IAutoMovieDialogueMouth,
   IAutoMovieDialogueMouthTrack,
   IAutoMovieDrawnVideoResult,
   IAutoMovieFilmSound,
   IAutoMovieProductionPhonemeChunk,
 } from "@automovie/interface";
 import {
-  AutoMovieDialogueMouthStage,
+  AutoMovieDialogueMouthRecorder,
   AutoMovieDrawSession,
-  bindAutoMovieDialogueMouth,
   renderAutoMovieDrawnVideo,
 } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
-import * as THREE from "three";
 
 import { createDialogueReceiptFixture } from "../internal/createDialogueReceiptFixture";
 import { answerDrawCall } from "./answerDrawCall";
@@ -22,28 +19,27 @@ import { createDrawPageDouble } from "./createDrawPageDouble";
 
 /**
  * A drawn film's speakers are handed their mouths before the first frame, and
- * each line's lip sync is measured on the mouths the figures showed on the
- * drawn frames.
+ * each line's lip sync is measured on the mouths the subject read on the drawn
+ * frames.
  *
  * Scenarios:
  *
  * 1. Three phoneme-driven lines bound to three actors at 24 fps: the session hands
  *    the page the track of all three before it draws the first frame.
- * 2. A figure of `actor-ana` that shows each viseme mouth as it is handed passes
- *    with a lag of 0 frames.
- * 3. A figure that shows each mouth three frames after it is handed it (125 ms)
- *    fails with a lag of −3 frames: the sound leads the drawn mouth by more
- *    than 45 ms, though the track itself is on time.
- * 4. `actor-ben`, whose figure shows only the jaw, is `envelope-jaw`, and
- *    `actor-cal`, whose node holds no figure, is `mouth-not-drawn`, although
- *    the page handed its mouth on every frame.
- * 5. A transparent layer writes no soundtrack and reports no sound, but its page
- *    is still handed the same track.
+ * 2. A subject that reads `actor-ana`'s visemes at each drawn second passes with a
+ *    lag of 0 frames.
+ * 3. A subject that reads them three frames late (125 ms) fails with a lag of −3
+ *    frames: the sound leads the drawn mouth by more than 45 ms, though the
+ *    track itself is on time.
+ * 4. `actor-ben`, whose figure reads only the jaw, is `envelope-jaw`, and
+ *    `actor-cal`, whose mouth the subject never reads, is `mouth-not-drawn`.
+ * 5. A transparent layer writes no soundtrack and reports no sound, but its
+ *    subject is still handed the same track.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the lines, what each actor's figure shows, and the entry each must give.
- * @evidence contracts/development/testing.md#behavioral-verification Drives `renderAutoMovieDrawnVideo` through a draw session over a page double that shows the handed track on bound figures through `AutoMovieDialogueMouthStage`, as `installAutoMovieDraw` does after each placement. A route that measured a series recomputed from the track would pass the late figure; one that never handed the track, measured a jaw-driven figure, or measured a mouth no figure drew, fails.
- * @evidence contracts/development/testing.md#independent-expectations The late figure shows each mouth three frames after its sound, which is a lag of −3 frames or −125 ms at 24 fps, outside ITU-R BT.1359-1's −45 ms limit; an on-time mouth has lag 0. The phoneme durations are irregular, so no other lag in the ±6-frame window repeats the pattern.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs an on-time and a late viseme figure, a jaw-driven figure and a node without one, and an opaque and a transparent render; the lag arithmetic belongs to `test_engine_lip_sync_lag`, the figures render drives to `test_draw_dialogue_mouth_stage` and the publication gate to `test_cli_render_video_lip_sync`.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the lines, how the subject reads each actor's mouth, and the entry each must give.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives `renderAutoMovieDrawnVideo` through a draw session over a page double whose subject reads the handed track through `AutoMovieDialogueMouthRecorder`, as `installAutoMovieDraw` does. A route that measured a series recomputed from the track would pass the late subject; one that never handed the track, or measured a jaw-driven figure, fails.
+ * @evidence contracts/development/testing.md#independent-expectations The late subject shows each mouth three frames after its sound, which is a lag of −3 frames or −125 ms at 24 fps, outside ITU-R BT.1359-1's −45 ms limit; an on-time mouth has lag 0. The phoneme durations are irregular, so no other lag in the ±6-frame window repeats the pattern.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs an on-time and a late visemes subject, a jaw-driven and an unread actor, and an opaque and a transparent render; the lag arithmetic belongs to `test_engine_lip_sync_lag` and the publication gate to `test_cli_render_video_lip_sync`.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_draw_drawn_video_mouths`; the page, files and encoder are doubles and nothing is launched.
  */
 export async function test_draw_drawn_video_mouths(): Promise<void> {
@@ -118,8 +114,8 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
     sound,
   };
 
-  // The page's figures: ana's shows each mouth `late` showings after it is
-  // handed it, ben's draws the jaw, and cal's node holds no figure.
+  // The subject's seek: ana's visemes `late` frames behind the drawn second,
+  // ben's jaw, and nothing for cal.
   const render: (
     late: number,
     transparent?: boolean,
@@ -133,42 +129,16 @@ export async function test_draw_drawn_video_mouths(): Promise<void> {
     result: IAutoMovieDrawnVideoResult;
     calls: createDrawPageDouble.ICall[];
   }> => {
-    const root: THREE.Scene = new THREE.Scene();
-    const figure: (actor: string) => THREE.Object3D = (
-      actor: string,
-    ): THREE.Object3D => {
-      const node: THREE.Group = new THREE.Group();
-      node.name = actor;
-      const body: THREE.Group = new THREE.Group();
-      node.add(body);
-      root.add(node);
-      return body;
-    };
-    const handedToAna: (IAutoMovieDialogueMouth | null)[] = [];
-    bindAutoMovieDialogueMouth(figure("actor-ana"), {
-      show: (mouth: IAutoMovieDialogueMouth | null) => {
-        handedToAna.push(mouth);
-        const shown: IAutoMovieDialogueMouth | null | undefined =
-          handedToAna[handedToAna.length - 1 - late];
-        return shown === null || shown === undefined
-          ? null
-          : { visemes: { ...shown.visemes } };
-      },
-    });
-    bindAutoMovieDialogueMouth(figure("actor-ben"), {
-      show: (mouth: IAutoMovieDialogueMouth | null) =>
-        mouth === null ? null : { jaw: mouth.jaw },
-    });
-    figure("actor-cal");
-    let stage: AutoMovieDialogueMouthStage | null = null;
+    let recorder: AutoMovieDialogueMouthRecorder | null = null;
     const double: createDrawPageDouble.IDouble = createDrawPageDouble({
       subject,
       renderer: "test",
       answer: (call) => {
-        stage ??= new AutoMovieDialogueMouthStage(handed(double.calls)!);
-        stage.clear();
-        stage.show(root, call.seconds);
-        return { ...answerDrawCall(call), mouths: stage.drawn() };
+        recorder ??= new AutoMovieDialogueMouthRecorder(handed(double.calls)!);
+        recorder.clear();
+        recorder.mouths.visemes("actor-ana", call.seconds - late / 24);
+        recorder.mouths.jaw("actor-ben", call.seconds);
+        return { ...answerDrawCall(call), mouths: recorder.drawn() };
       },
     });
     const session: AutoMovieDrawSession = await AutoMovieDrawSession.open({

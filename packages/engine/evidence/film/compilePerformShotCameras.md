@@ -6,15 +6,15 @@ Every take compiles through the one framing grammar with its own staged camera a
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The camera stage of `performShot` in one place. It reads the delivery raster and clock once, as an aspect and an exact rate shared by hero and coverage takes, and reports a refused rate, or a moving take with no rate (`cameraFrameEntryMoves`), to the collector before any take compiles, delegating the solve to `compileCameraMove` and `compileCameraCoverage`, measurement to the subject framer and obstruction to `compileCameraClearanceReports`.
+The camera stage of `performShot` in one place. It reads the delivery raster and clock once, as an aspect and an exact rate shared by hero and coverage takes, and reports a refused rate to the collector, delegating the solve to `compileCameraMove` and `compileCameraCoverage`, measurement to the subject framer and obstruction to `compileCameraClearanceReports`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Hero and coverage are compiled by the same grammar and framer; a coverage take gets no invented lens intent, a moving take without the delivery rate is refused rather than keyed at an assumed one, and an obstructed take is reported rather than nudged.
+Hero and coverage are compiled by the same grammar and framer; a coverage take gets no invented lens intent, and an obstructed take is reported rather than nudged.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each compiled field, how the delivery raster and clock become the aspect and key rate, when a missing rate is a violation, the clip id formats, the locked-off case, what an intent carries and who reads it, how coverage plays, the shared framer, and where clearance refusals go.
+States each compiled field, how the delivery raster and clock become the aspect and key rate, the clip id formats, the locked-off case, what an intent carries and who reads it, how coverage plays, the shared framer, and where clearance refusals go.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

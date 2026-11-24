@@ -8,9 +8,8 @@
  */
 export interface IAutoMovieProductionPhonemeChunk {
   /**
-   * IPA phoneme symbols in spoken order; whitespace, the stress and length
-   * marks ˈ ˌ ː ˑ and the tone letters ˥ ˦ ˧ ˨ ˩ take no share, and a diacritic
-   * or modifier letter such as ʰ belongs to the phoneme before it.
+   * IPA phoneme symbols in spoken order; whitespace and the stress and length
+   * marks ˈ ˌ ː take no share.
    */
   phonemes: string;
 

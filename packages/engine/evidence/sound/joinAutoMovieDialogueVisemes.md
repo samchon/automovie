@@ -6,7 +6,7 @@ The comment states the sample-to-frame rule and why it is the emission clock, th
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The mix places the line's decoded samples at unit rate from its start frame's nearest sample tick, and the speech span ends on the first frame whose nearest tick holds them all (productionSpeechEndFrame). A source bound scaled by the decoded count over the source count is that same decoded offset, within half a sample of the exact rate ratio, and reading it between nearest-tick frame boundaries puts it on the span's own clock, so the receipt's last bound ends on the span's end frame instead of a hair past it, as 13 979 samples at 22.05 kHz in a 30000/1001 fps film did. Frames stay fractional so the coarticulation sampler reads exact phoneme centres.
+The line's samples play at unit rate from its start frame's tick, so a sample's film time is the start frame plus its sample index over the model-native rate, in frames at the film rate. Frames stay fractional so the coarticulation sampler reads exact phoneme centres.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ Unbound, unknown or ambiguous speakers return their own `not-run` reasons instea
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the visemes and the bindings; each bound costs at most three exact tick computations.
+Linear in the visemes and the bindings.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

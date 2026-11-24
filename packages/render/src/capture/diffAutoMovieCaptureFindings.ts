@@ -20,18 +20,6 @@ interface ISummary {
   intervals: [from: number, to: number][];
 }
 
-/**
- * Relative tolerance under which two rounds' ranks of one finding are the same:
- * float32's machine epsilon, 2^-23.
- *
- * The GPU holds and draws the scene's geometry in single precision, so ranks
- * closer than float32's relative step describe the same drawn picture. Moving
- * unchanged float32 geometry through double-precision world matrices moves a
- * rank by about 1e-12 of itself, well inside this; a change of one float32 step
- * or more is reported.
- */
-const RANK_TOLERANCE: number = 2 ** -23;
-
 /** Consecutive coverage of one obligation with one status. */
 interface ISpan {
   /** First sample, film seconds. */
@@ -65,8 +53,7 @@ interface ISpan {
  * other round's status over the first interval it did not check, or
  * `not-sampled` when no coverage row of that round reaches into it. An identity
  * both rounds have is `carried`, and its change compares the two worst
- * observations by the same order, with ranks within 2^-23 of the larger one,
- * float32's relative precision, counted the same.
+ * observations.
  *
  * The outcome reads errors only: `worse` when an error is new or carried worse,
  * `better` when none is new, carried worse or unmatched and one is fixed or
@@ -110,7 +97,6 @@ export function diffAutoMovieCaptureFindings(props: {
               compareAutoMovieInspectionFindings(
                 summary.worst.finding,
                 old.worst.finding,
-                RANK_TOLERANCE,
               ),
             ),
             earlier: old.worst,

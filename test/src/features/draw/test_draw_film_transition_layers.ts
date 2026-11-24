@@ -410,7 +410,6 @@ function picture(props: {
     camera: (): THREE.Camera => camera,
     prepare: (): void => record("prepare"),
     restore: (): void => record("restore"),
-    voice: (): void => {},
   });
   return {
     film,

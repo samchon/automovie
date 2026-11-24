@@ -26,17 +26,15 @@ import { hasViolation, nclose } from "../internal/predicates";
  *    30`.
  * 2. Delivered at the exact rate 30000/1001, its keys sit at `k × 1001 / 30000`,
  *    the render frame sampler's instants.
- * 3. A frame format without `fps`, or no frame format, refuses the push-in at
- *    `$input.frameFormat.fps` instead of keying it at an assumed rate.
+ * 3. A frame format without `fps` keys at the 24 fps fallback, 49 keys.
  * 4. A fractional `fps` of 29.97 without its exact rate is refused at
  *    `$input.frameFormat.fps`.
- * 5. A static camera needs no rate: without `fps` it compiles one key.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Performs a push-in shot through performShot with each frame format and reads the hero camera clip's key times or the located refusal, and a static shot without a rate. A compiler that keys a missing rate at any fixed rate, or that refuses a locked-off camera, fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected instants are the delivered frame times of the stated rate over the two-second span; #4043 requires the moving path at the delivery rate, so without one the only correct outcome is a refusal; the fractional refusal follows the production rule that a decimal rate does not identify its exact fraction.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers an integer rate, an exact fractional rate, an absent rate with and without a raster, a malformed rate, and a static camera that needs none; the keyed paths themselves are owned by test_film_camera_move_continuity.
+ * @evidence contracts/development/testing.md#behavioral-verification Performs a push-in shot through performShot with each frame format and reads the hero camera clip's key times or the located refusal.
+ * @evidence contracts/development/testing.md#independent-expectations The expected instants are the delivered frame times of the stated rate over the two-second span; the fractional refusal follows the production rule that a decimal rate does not identify its exact fraction.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers an integer rate, an exact fractional rate, an absent rate and a malformed rate; the keyed paths themselves are owned by test_film_camera_move_continuity.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous unit test through the portable performShot seam with in-memory fixtures; no renderer, process or file is involved.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the five scenarios with the frame format each performs and the keys or refusal it expects.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with the frame format each performs and the keys or refusal it expects.
  */
 export function test_film_camera_move_delivery_rate(): void {
   const staged: IAutoMovieStagedSet = stageScene(
@@ -46,10 +44,8 @@ export function test_film_camera_move_delivery_rate(): void {
   if (staged.success !== true) throw new Error("staging must succeed");
   const perform: (
     frameFormat: IAutoMoviePerformShotProps["frameFormat"],
-    move?: "push-in" | "static",
   ) => IAutoMoviePerformedShot = (
     frameFormat: IAutoMoviePerformShotProps["frameFormat"],
-    move: "push-in" | "static" = "push-in",
   ): IAutoMoviePerformedShot =>
     performShot({
       script: makeScriptWrite(),
@@ -62,7 +58,7 @@ export function test_film_camera_move_delivery_rate(): void {
             start: 0,
             duration: "auto",
             framing: "medium",
-            move,
+            move: "push-in",
             on: { kind: "node", node: "knightA" },
           },
         ],
@@ -70,7 +66,7 @@ export function test_film_camera_move_delivery_rate(): void {
       }),
       synthesize: validSynthesizer,
       skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-      ...(frameFormat === undefined ? {} : { frameFormat }),
+      frameFormat,
     });
   const times: (shot: IAutoMoviePerformedShot) => number[] = (
     shot: IAutoMoviePerformedShot,
@@ -106,17 +102,10 @@ export function test_film_camera_move_delivery_rate(): void {
       ntsc[60] === 2,
   );
 
-  const unrated: IAutoMoviePerformedShot = perform({
-    width: 1920,
-    height: 1080,
-  });
-  const unformatted: IAutoMoviePerformedShot = perform(undefined);
-  TestValidator.predicate(
-    "a moving camera without a delivery rate is refused",
-    unrated.success === false &&
-      hasViolation(unrated, "type", "$input.frameFormat.fps") &&
-      unformatted.success === false &&
-      hasViolation(unformatted, "type", "$input.frameFormat.fps"),
+  TestValidator.equals(
+    "no fps keys at the 24 fps fallback",
+    times(perform({ width: 1920, height: 1080 })).length,
+    49,
   );
 
   const refused: IAutoMoviePerformedShot = perform({
@@ -128,11 +117,5 @@ export function test_film_camera_move_delivery_rate(): void {
     "a decimal rate without its exact fraction is refused",
     refused.success === false &&
       hasViolation(refused, "range", "$input.frameFormat.fps"),
-  );
-
-  TestValidator.equals(
-    "a static camera needs no rate",
-    times(perform({ width: 1920, height: 1080 }, "static")).length,
-    1,
   );
 }

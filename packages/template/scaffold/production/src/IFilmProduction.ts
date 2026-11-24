@@ -1,6 +1,7 @@
 import type {
   IAutoMovieContactReceipt,
   IAutoMovieDeliveryContentAudit,
+  IAutoMovieDialogueMouths,
   IAutoMovieFilmOptics,
   IAutoMovieFilmShading,
   IAutoMovieFilmSound,
@@ -28,22 +29,18 @@ import type * as THREE from "three";
  * from `optics` and `shading` to `softPropsAt`, `beforeDraw`, `marks`, `views`
  * and the inspection sources, describes the film as last placed, the placed
  * shot at its own shot-local time, and takes the film second only to name the
- * picture; only the dialogue mouths follow the film second. The capture and the
- * render show each speaking actor's mouth after every placement on the figures
- * bound under the actor's scene node, the node `sound`'s speaker binding names:
- * an `AutoMoviePlayer` model, a `createAutoMovieHumanPolygonFigure` polygon
- * man, or a figure bound with `bindAutoMovieDialogueMouth`.
+ * picture; only the dialogue mouths follow the film second.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The comment names what one mount holds; each member states what it owns and when it runs.
  * @evidence contracts/development/design.md#principled-representation Playback, seeking and capture all place the scene through one seek per second, so a second reached by any path draws the same state.
- * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces and render-target work, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; the dialogue mouths reach the film's figures through their bindings, not through a member.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. The capture and the render show the mouths on the same bound figures, so stills and delivered frames show the same mouths; the inspector shows the authored mouth.
+ * @evidence contracts/development/design.md#minimal-and-owned-surface The hosts read the film scene and placement, optional soft surfaces and render-target work, the delivery intent and sound list, and the review sources: physical marks, named views, and film marks; they hand the film its dialogue mouths.
+ * @evidence contracts/development/design.md#prohibited-design-shortcuts No playback-only or capture-only member exists; named views move only a separate inspection camera, so the film camera and delivered captures are unchanged. `speak` comes from every host that reads the sound files, the capture and the render alike, so stills and delivered frames show the same mouths; the Viewer reads no sound file and shows the authored mouth.
  */
 export interface IFilmProduction {
-  /** Scene the inspector renders, owned by this mount. */
+  /** Scene the Viewer renders, owned by this mount. */
   scene: THREE.Scene;
 
-  /** Camera the inspector renders through; camera entities move it in `seek`. */
+  /** Camera the Viewer renders through; camera entities move it in `seek`. */
   camera: THREE.PerspectiveCamera;
 
   /**
@@ -130,7 +127,7 @@ export interface IFilmProduction {
   /**
    * The film's camera response as last placed: exposure in EV100, white
    * balance, tone curve, glare and the adopted grade as ASC CDL values. Read
-   * right after each placement, before each beauty picture of the inspector, a
+   * right after each placement, before each beauty picture of the Viewer, a
    * capture or the delivered video and before each `graphics` plate, so a
    * transition's outgoing tail, placed by `seekShot`, takes its own exposure,
    * white balance and focus. Absent draws the scene light straight to the
@@ -168,7 +165,7 @@ export interface IFilmProduction {
   /**
    * Render-target work for the film as last placed, run on the host's renderer
    * right after each placement, a transition shot's and a sub-frame sample's
-   * included, before each picture of the inspector, a capture or the delivered
+   * included, before each picture of the Viewer, a capture or the delivered
    * video: draw the placed shot's surface feeds with `renderFeeds` of the
    * surface graphics `prepareAutoMovieSurfaceGraphics` returned, resolving each
    * feed camera by id and passing the film's `optics` for the same placement,
@@ -195,6 +192,26 @@ export interface IFilmProduction {
    * soundtrack; a film with a sound list leaves `delivery.audio.path` unset.
    */
   sound?: IAutoMovieFilmSound;
+
+  /**
+   * Takes the dialogue mouths of `sound`'s lines, handed once before the first
+   * frame by the capture and the render. Keep them, and in `seek` and
+   * `seekShot` read each speaking actor's mouth at the film second placed:
+   * `jaw(actor, seconds)` as the jaw opening of a Human or polygon man, or
+   * `visemes(actor, seconds)` for `applyExpression` on a VRM or imported model,
+   * layered over the authored expression. The render measures each
+   * phoneme-driven line's lip sync on the mouths read here. Absent, no mouth
+   * follows the sound. The Viewer hands none and shows the authored mouth.
+   *
+   * @evidence contracts/development/common.md#meaningful-documentation States when the mouths arrive, how and where the film reads each form, what the render measures, and what absence and the Viewer show.
+   * @evidenceExclude contracts/development/implementation.md#principled-implementation The film owns its figures; this signature has no algorithm.
+   * @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure The film owns its figures; this signature has no body.
+   * @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts The signature hands over host-owned mouths without providing a fallback.
+   * @evidenceExclude contracts/development/implementation.md#efficient-algorithms The signature chooses no traversal or allocation strategy.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The film keeps the one handed sampler for every seek.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The film holds the sampler until `dispose`; the draw page owns its record.
+   */
+  speak?: (mouths: IAutoMovieDialogueMouths) => void;
 
   /**
    * The film's cut, layout and declared breaks, so motion is never examined
@@ -256,10 +273,10 @@ export interface IFilmProduction {
   };
 
   /**
-   * Optional named review cameras that the inspector's `view` parameter
-   * selects, such as a side-on view, one behind each subject or a high 45°
-   * view; each places the inspection camera for the film as last placed at the
-   * drawn second and leaves the film camera untouched.
+   * Optional named review cameras that the Viewer's `view` parameter selects,
+   * such as a side-on view, one behind each subject or a high 45° view; each
+   * places the inspection camera for the film as last placed at the drawn
+   * second and leaves the film camera untouched.
    */
   views?: Readonly<
     Record<
@@ -277,9 +294,9 @@ export interface IFilmProduction {
    * Optional inspection marks of the film at an exact second: what its owners
    * locate, such as the construction curves of its built forms from
    * `markAutoMovieConstructionCurves`. They are drawn only when an inspection's
-   * `marks` parameter names their kinds, in the inspector and in a capture
-   * alike, and are asked for right after the drawn second's last placement, the
-   * shot the picture shows most of, so they describe that shot.
+   * `marks` parameter names their kinds, in the Viewer and in a capture alike,
+   * and are asked for right after the drawn second's last placement, the shot
+   * the picture shows most of, so they describe that shot.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the marks locate, when they are drawn, when they are asked for and which placement they describe.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.
@@ -335,7 +352,7 @@ export interface IFilmProduction {
   seekShot?(shot: string, seconds: number, filmSeconds: number): void;
 
   /**
-   * Releases the scene's resources when the inspector page closes.
+   * Releases the scene's resources when the Viewer page closes.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States what the call releases and when.
    * @evidenceExclude contracts/development/implementation.md#principled-implementation A signature has no body; the film that implements it answers.

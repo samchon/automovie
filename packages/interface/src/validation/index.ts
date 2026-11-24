@@ -28,7 +28,6 @@ export type { IAutoMoviePlacedContact } from "./IAutoMoviePlacedContact";
 export type { IAutoMoviePlacedContinuity } from "./IAutoMoviePlacedContinuity";
 export type { IAutoMovieSceneCollision } from "./IAutoMovieSceneCollision";
 export type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
-export type { IAutoMovieShotFontSources } from "./IAutoMovieShotFontSources";
 export type { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
 export type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
 export type { IAutoMovieSweptCapsuleCollision } from "./IAutoMovieSweptCapsuleCollision";

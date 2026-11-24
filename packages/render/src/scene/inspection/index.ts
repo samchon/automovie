@@ -66,7 +66,6 @@ export * from "./placeAutoMovieInspectionLabels.js";
 export * from "./planAutoMovieInspectionTrailTimes.js";
 export * from "./reduceAutoMovieInspectionEpisodes.js";
 export * from "./renderWithAutoMovieInspectionDiagnostics.js";
-export * from "./reportAutoMovieCameraFrameEdge.js";
 export * from "./resolveAutoMovieInspectionColors.js";
 export * from "./resolveAutoMovieInspectionView.js";
 export * from "./sampleAutoMovieInspectionTrails.js";

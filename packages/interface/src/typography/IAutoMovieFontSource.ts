@@ -4,10 +4,9 @@
  *
  * A closed union on `kind`. `engine` admission checks only what the record
  * states: unique nonblank ids, the required fields, and for an asset its ledger
- * licence and `"font"` use, which `validateTextureAssets` checks because it
- * holds the asset ledger; the shot gates hold none. `render`, or a host that
- * calls `engine` itself, decodes the bytes with the `ingest` TrueType decoder
- * before any frame is drawn and refuses with the decoder's diagnostic.
+ * licence and `"font"` use. `render`, or a host that calls `engine` itself,
+ * decodes the bytes with the `ingest` TrueType decoder before any frame is
+ * drawn and refuses with the decoder's diagnostic.
  */
 export type IAutoMovieFontSource =
   | IAutoMovieFontSource.IEmbedded

@@ -6,7 +6,7 @@ Engine sampling supplies pose and expression at elapsed seconds, `resolveLookAt`
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-The player coordinates one clip and built model while the host owns the animation loop; numerical interpolation and kinematics remain in engine and renderer mutation stays in viewer adapters. It binds its model's root as a dialogue-mouth figure, because it alone holds the expression last sampled that a draw page's viseme layer must go over.
+The player coordinates one clip and built model while the host owns the animation loop; numerical interpolation and kinematics remain in engine and renderer mutation stays in viewer adapters.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -14,7 +14,7 @@ The maximum spring step bounds integration after stalls and ROM is reapplied aft
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States host rendering ownership, elapsed-second sampling, stateful spring timing, expression synchronization, bone gaze, the dialogue-mouth binding, optional clinical rest frames and post-spring ROM clamping.
+States host rendering ownership, elapsed-second sampling, stateful spring timing, expression synchronization, bone gaze, optional clinical rest frames and post-spring ROM clamping.
 
 # src/scene/AutoMoviePlayer.ts#AutoMoviePlayer.prototype.setMotion
 

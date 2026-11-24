@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Cross-check every sampled material/environment project image with manifest registration, production consumer authorization, media/edge facts and consistent color intent; model-carried images resolve first, skip the ledger and keep a model-scoped intent check. Each shot's font sources go through validateAutoMovieFontSources with this ledger, so a font file without a licence or a font use is refused here, the one check holding the ledger, and a font use no source names is stale.
+Cross-check every sampled material/environment project image with manifest registration, production consumer authorization, media/edge facts and consistent color intent; model-carried images resolve first, skip the ledger and keep a model-scoped intent check.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-materialTextureSlots owns consumer slots, validateAutoMovieFontSources owns the font record rules and facts is the host-provided header-fact seam; byte digest ownership stays with the manifest gate and font decoding with render.
+materialTextureSlots owns consumer slots and facts is the host-provided header-fact seam; byte digest ownership stays with the manifest gate.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -14,7 +14,7 @@ Facts do not prove full decoding, and this validator does not reread or redigest
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Material versus environment media, positive pixel edges/portable limit, carried-image precedence, font admission against the ledger and stale-use errors are stated.
+Material versus environment media, positive pixel edges/portable limit, carried-image precedence and stale-use errors are stated.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

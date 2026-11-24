@@ -41,13 +41,12 @@ interface IStone {
  *    within 1e-9 m; a cobble's `grip` aperture is its X extent.
  * 5. The same seed gives byte-identical parts, body and affordances; two seeds
  *    give different hull vertices.
- * 6. For seeds 0, 1 and 2, `form: "ball"` is one sphere of the drawn diameter
- *    centred over the origin (its centre's x and z within 1e-12 m of zero), on
+ * 6. For seeds 0, 1 and 2, `form: "ball"` is one sphere of the drawn diameter on
  *    its lowest point at the origin, weighing pi d^3 / 6 of granite, with the
  *    earlier contacts.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces stones through the public producer and measures their colliders, mass and affordance frames, which catches a hull scaled or turned wrong, a stone that rocks on a point or tips off its base, a mass from the wrong volume, contacts off the hull, an unseeded form and a ball form that changed its size, mass, contacts or centre.
- * @evidence contracts/development/testing.md#independent-expectations The diameter is the drawn dimension and the X extent is measured on the collider; the base, plan distances, volume and surface distances come from the engine's hull of the collider's corners, independent of the producer's cell; the 5 % margin is a stability requirement for a stone that rests on its base; the sphere's volume pi d^3 / 6 is worked by hand, and its centre over the origin follows from the documented ball resting on its lowest point at the origin.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces stones through the public producer and measures their colliders, mass and affordance frames, which catches a hull scaled or turned wrong, a stone that rocks on a point or tips off its base, a mass from the wrong volume, contacts off the hull, an unseeded form and a ball form that changed.
+ * @evidence contracts/development/testing.md#independent-expectations The diameter is the drawn dimension and the X extent is measured on the collider; the base, plan distances, volume and surface distances come from the engine's hull of the collider's corners, independent of the producer's cell; the 5 % margin is a stability requirement for a stone that rests on its base; the sphere's volume pi d^3 / 6 is worked by hand.
  * @evidence contracts/development/testing.md#distinguishing-cases Both kinds over 64 seeds each, both forms, a repeated seed against a different one; band coverage stays with `test_archetype_nature_rock_bands`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
@@ -212,8 +211,6 @@ export function test_archetype_nature_rock_shape(): void {
         stone.shapes().length !== 1 ||
         shape.kind !== "sphere" ||
         Math.abs(shape.radius - r) > 1e-12 ||
-        Math.abs(shape.transform.position.x) > 1e-12 ||
-        Math.abs(shape.transform.position.z) > 1e-12 ||
         Math.abs(archetypeExtent(stone, "y").low) > 1e-12 ||
         Math.abs(stone.body.mass - mass) > 1e-12 * mass ||
         !contacts

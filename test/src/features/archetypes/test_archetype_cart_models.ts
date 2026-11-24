@@ -35,12 +35,12 @@ const refusal = (call: () => unknown): AutoMovieArchetypeRefusal | null => {
  * Scenarios:
  * 1. Over 200 seeds (`archetypeModelSweep`), a trolley's castors are Wanzl's 100 or 125 mm; a cart's wheels the multi-use cart's 43 in or the Dennett gig's 4 ft 5 in, and the multi-use cart's shafts 89.5 or 93.5 in on its 57 in track; a rickshaw's length and width one of the Edo-Tokyo Museum's two or the Powerhouse's; a chariot's wheels one of Carter's six; a brougham's height, width, length and wheels the Brewster's, the Miner, Stevens' or the Peters'.
  * 2. A cart whose shafts are not read, the gig, takes shafts reaching from the horse's point of shoulder past its point of buttock, 185/172 of its withers height behind (Jensen et al. 2019), by a clearance of 8 to 20 in (IVC Carriage).
- * 3. The multi-use cart draws its horse inside its 14.2 to 16.3 hh and the horse's own 1.58 to 1.80 m; with the horse fixed taller than 16.3 hh, only the gig is picked. With the clearance fixed at 0.3 m, only the gig, whose shafts are not read, is picked, and its shafts reach 0.3 m past the point of buttock.
- * 4. A fixed shaft length on the multi-use cart, whose shafts are read, a fixed clearance on it, which its read shafts would override, and a model on a trolley, which has none, are refused at their axes.
+ * 3. The multi-use cart draws its horse inside its 14.2 to 16.3 hh and the horse's own 1.58 to 1.80 m; with the horse fixed taller than 16.3 hh, only the gig is picked.
+ * 4. A fixed shaft length on the multi-use cart, whose shafts are read, and a model on a trolley, which has none, are refused at their axes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Produces each kind with models for 200 seeds and compares the figures it was built at with every read model's, and a gig's shafts with the horse's length; a draw that mixes two models, a model that never appears, shafts that reach into the horse, a cart drawn for a horse it is not made for, and a fixed clearance a read model ignores in silence is caught.
+ * @evidence contracts/development/testing.md#behavioral-verification Produces each kind with models for 200 seeds and compares the figures it was built at with every read model's, and a gig's shafts with the horse's length; a draw that mixes two models, a model that never appears, shafts that reach into the horse or a cart drawn for a horse it is not made for is caught.
  * @evidence contracts/development/testing.md#independent-expectations The models' figures are written here from their sources (Wanzl's EL series, the multi-use cart's seller, the Carriage Foundation's and the museums' records, Carter's notes), the point of buttock's 185/172 from Jensen et al. and the clearance from IVC Carriage.
- * @evidence contracts/development/testing.md#distinguishing-cases Every kind with read models, both cart models and both shafts, a free and a fixed horse, a free and a fixed clearance, and a refused figure, a refused clearance and a refused axis.
+ * @evidence contracts/development/testing.md#distinguishing-cases Every kind with read models, both cart models and both shafts, a free and a fixed horse, and a refused figure and a refused axis.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios and what each pins.
  */
@@ -135,15 +135,6 @@ export function test_archetype_cart_models(): void {
       findings.push(
         `cart@${seed}: a 1.75 m horse drew a cart on ${tall} m wheels, not the gig`,
       );
-    const set: Readonly<Partial<Record<createCart.Dimension, number>>> =
-      createCart({ kind: "cart", clearance: 0.3 }, seed).dimensions;
-    if (
-      Math.abs(set.wheelDiameter! - 53 * IN) > 1e-9 ||
-      Math.abs(set.shaftLength! - (185 / 172) * set.withersHeight! - 0.3) > 1e-9
-    )
-      findings.push(
-        `cart@${seed}: a fixed 0.3 m clearance drew ${set.wheelDiameter} m wheels and shafts ${set.shaftLength} m long`,
-      );
   }
   TestValidator.equals("a cart's shafts and horse fit", findings, []);
 
@@ -154,12 +145,9 @@ export function test_archetype_cart_models(): void {
         createCart({ kind: "cart", model: "multiUse", shaftLength: 2.3 }, 1),
       )?.axis,
       refusal((): unknown =>
-        createCart({ kind: "cart", model: "multiUse", clearance: 0.3 }, 1),
-      )?.axis,
-      refusal((): unknown =>
         createCart({ kind: "trolley", model: "brewster" }, 1),
       )?.axis,
     ],
-    ["shaftLength", "clearance", "model"],
+    ["shaftLength", "model"],
   );
 }

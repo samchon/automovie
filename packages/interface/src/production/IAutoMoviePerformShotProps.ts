@@ -86,8 +86,8 @@ export interface IAutoMoviePerformShotProps {
    * Delivery raster and clock. The raster sets the horizontal half of the
    * framing fit: omitted, or with a non-positive side, a wide subject is fitted
    * to a square frame, which stands back far enough for any raster of that
-   * height. The clock sets the frames moving camera paths are keyed at: without
-   * it, a camera entry that moves is refused.
+   * height. The clock sets the frames moving camera paths are keyed at:
+   * omitted, the camera compiler keys at 24 frames per second.
    */
   frameFormat?: {
     /**
@@ -103,11 +103,10 @@ export interface IAutoMoviePerformShotProps {
     height: number;
 
     /**
-     * Delivery frames per second. Omitted, a live or coverage camera entry that
-     * moves is a `type` violation at `$input.frameFormat.fps`. Without
-     * `frameRate` it must be a positive safe integer; with it, it must equal
-     * that rate's quotient, and a violation of either is a `range` violation at
-     * the same path.
+     * Delivery frames per second. Omitted, the camera compiler's 24 fps
+     * fallback applies. Without `frameRate` it must be a positive safe integer;
+     * with it, it must equal that rate's quotient. A violation of either is
+     * reported at `$input.frameFormat.fps`.
      */
     fps?: number;
 

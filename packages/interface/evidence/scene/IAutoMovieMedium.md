@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The scattering and absorption coefficients per metre and the Henyey-Greenstein parameter, the three quantities single scattering in a homogeneous medium needs; ranges are runtime checks in staging and in engine's validateSceneMedium, which buildScene runs, because TypeScript cannot bound numbers.
+The scattering and absorption coefficients per metre and the Henyey-Greenstein parameter, the three quantities single scattering in a homogeneous medium needs; ranges are runtime checks in staging because TypeScript cannot bound numbers.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-interface owns it; staging admits it on a stage and validateSceneMedium on a scene, the scene carries it, render's `applySceneMedium` attaches it and the film response stage marches it.
+interface owns it; staging admits it, the scene carries it, render's `applySceneMedium` attaches it and the film response stage marches it.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

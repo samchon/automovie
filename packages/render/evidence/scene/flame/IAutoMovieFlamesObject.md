@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the meshes' names and parents, by which a host finds them, the applier's exact-time evaluation, visibility and bound lights, and disposal.
+States the meshes' names and parents, by which a host finds them, the applier's exact-time evaluation and visibility, and disposal.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -20,7 +20,7 @@ No mutable cue data is exposed.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what one call shapes, shows and hides, what it writes onto a bound flame's light, that the shape is taken at the exact time, and the refusal of a non-finite time.
+States what one call shapes, shows and hides, that the shape is taken at the exact time, and the refusal of a non-finite time.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

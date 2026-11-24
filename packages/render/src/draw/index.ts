@@ -1,6 +1,6 @@
 export * from "./accumulateAutoMovieFilmSamples.js";
 export * from "./AUTO_MOVIE_DRAW_GLOBALS.js";
-export * from "./AutoMovieDialogueMouthStage.js";
+export * from "./AutoMovieDialogueMouthRecorder.js";
 export * from "./AutoMovieDrawFilm.js";
 export * from "./AutoMovieDrawPlacement.js";
 export * from "./AutoMovieDrawSession.js";
@@ -18,7 +18,6 @@ export * from "./IAutoMovieDrawResult.js";
 export * from "./IAutoMovieDrawScene.js";
 export * from "./IAutoMovieDrawSubject.js";
 export * from "./installAutoMovieDraw.js";
-export * from "./isAutoMovieDrawFilmPicture.js";
 export * from "./isAutoMoviePlainBeautyRequest.js";
 export * from "./observeAutoMoviePlacedInspection.js";
 export * from "./placeAutoMovieDrawLayer.js";

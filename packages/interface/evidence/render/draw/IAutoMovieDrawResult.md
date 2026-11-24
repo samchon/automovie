@@ -6,7 +6,7 @@ The picture is the call's raster in bytes, four per pixel, rows from the top, wr
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Read by `AutoMovieDrawSession`, which checks the size, stamps the legend and the labels through the capture run and records the camera, the resolved patterns and any sample diagnostics; for the mask shade it passes on the palette the page painted with, which only the page can see and the delivery host records as the mask's convention; it passes on the dialogue mouths the actors' figures showed, which the delivery render measures lip sync on.
+Read by `AutoMovieDrawSession`, which checks the size, stamps the legend and the labels through the capture run and records the camera, the resolved patterns and any sample diagnostics; for the mask shade it passes on the palette the page painted with, which only the page can see and the delivery host records as the mask's convention; it passes on the dialogue mouths the subject read, which the delivery render measures lip sync on.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

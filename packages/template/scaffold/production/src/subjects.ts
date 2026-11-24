@@ -12,7 +12,7 @@ import { subjectOfFilm } from "./subjectOfFilm";
  * name: what the draw-only page `automovie capture --module src/subjects.ts`
  * and `automovie render --module src/subjects.ts` build over this module
  * offers, and what `automovie inspect` shows. Each film becomes its subject by
- * `subjectOfFilm`, so a capture, a delivered frame and the inspector place and
+ * `subjectOfFilm`, so a capture, a delivered frame and the Viewer place and
  * read it the same way.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States what the subjects are, who draws them, and which mapping makes each one.

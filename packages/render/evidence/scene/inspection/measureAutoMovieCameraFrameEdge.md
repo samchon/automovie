@@ -6,15 +6,15 @@ States the crossing test and its slack, the unit and frame of an extent, why an 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Uses Three's normalized frustum planes from the actual delivery projection, so crop and aspect are included. A side is crossed when the box corner furthest outside its plane lies beyond 32 ulps of the plane arithmetic, the test the framing grade applies. Perspective division maps the convex box beyond the near plane to a convex region, so its normalized device extremes lie at the vertices of the box clipped by that plane. A side crossed only before the near plane has no extent, because the GPU draws nothing there, and stays a crossed side, as #4048 item 2 requires; with no extent on any side there is no drawn surface past an edge, so the surface check is not run and its outcome is null.
+Uses Three's normalized frustum planes from the actual delivery projection, so crop and aspect are included. A side is crossed when the box corner furthest outside its plane lies beyond 32 ulps of the plane arithmetic, the test the framing grade applies. Perspective division maps the convex box beyond the near plane to a convex region, so its normalized device extremes lie at the vertices of the box clipped by that plane. A side crossed only before the near plane cannot be cut, because the GPU draws nothing there.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Read the projection and bounds, list crossed sides, measure their extents, then let measureAutoMovieCameraFrameEdgeSurface judge the drawn surface, cut, clear or wholly outside, only when some side has an extent.
+Read the projection and bounds, list crossed sides, measure their extents, then let measureAutoMovieCameraFrameEdgeSurface judge the drawn surface only when some side has an extent.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A box crossing alone never stands for a confirmed cut, and a crossing before the near plane is not cleared as if the surface had been checked; an unreadable surface is reported unmeasured, and missing bounds or a non-finite projection are reported apart from a clear frame.
+A box crossing alone never stands for a confirmed cut; an unreadable surface is reported unmeasured, and missing bounds or a non-finite projection are reported apart from a clear frame.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

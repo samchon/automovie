@@ -40,11 +40,11 @@ import { hasViolation, namedFacts, nclose } from "../internal/predicates";
  * 6. Quantity contributor/total volume match 336 within 1e-6, and the faceted space produces its unsupported curvature gap beside the exact-declared twin.
  * 7. The drafter cannot section a shell and says so: a cut sheet of the shelled hall draws no region for it and carries an `unsupported` gap naming the subject, while the same sheet of a celled hall draws the region and raises no such gap. A sheet that does draw a faceted space owns up to that under the same subject the take-off uses, so the two artifacts cannot disagree about whether a dome was drawn or approximated.
  * 8. Either spelling answers one set of questions: `builtSpaceStatesVolume` and `builtSpaceIsConvex` read a shell, one cell, several cells and nothing at all without any caller counting cells for itself.
- * 9. Missing-vertex triples give zero volume and false containment; the existing repeated-index facet mutation preserves the tested inside/outside answers without NaN poisoning; a point with a NaN or infinite coordinate is outside a closed shell rather than refused.
+ * 9. Missing-vertex triples give zero volume and false containment; the existing repeated-index facet mutation preserves the tested inside/outside answers without NaN poisoning.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls shell and descendant containment, signed volume, spelling/convexity/fidelity readers, building admission, quantity take-off and drawing derivation. Literal point Booleans, volumes, selected gap subject/status/reason fragments, region counts and malformed-shell path membership expose filled atrium voids, lost boundary admission, absent-volume confusion or downstream gaps presented as solved geometry.
  * @evidence contracts/development/testing.md#independent-expectations Authored boxes give 10*4*10-4*4*4=336 m3 under volume tolerance 1e-9 and quantity tolerance 1e-6; explicit face/edge/corner/void points supply independent membership expectations. Hand-written index/vertex mutations and shell-versus-cell twins determine refusal/gap/region expectations. Fidelity labels are authored metadata, and selected region counts/gaps do not independently validate full drawing geometry, arbitrary shell topology or curved-space accuracy.
- * @evidence contracts/development/testing.md#distinguishing-cases Inside/outside/void/boundary points, malformed facets/indices/winding, exclusive cell/shell spelling, fidelity folding, quantity and drawing controls, empty volume, unvalidated dangling/flat facets and non-finite query points retain the original cases; this does not certify arbitrary shells or render a curved solid.
+ * @evidence contracts/development/testing.md#distinguishing-cases Inside/outside/void/boundary points, malformed facets/indices/winding, exclusive cell/shell spelling, fidelity folding, quantity and drawing controls, empty volume and unvalidated dangling/flat facets retain the original cases; this does not certify arbitrary shells or render a curved solid.
  * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit test_architecture_built_space_shell imports the actual engine/archetype operations and owns its locally enumerated cases; no dynamic registration, consumer installation, native artifact build, process, browser or GPU host is required.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A shelled hall with an atrium void: a point in the room is inside, a point in the void is **outside**, a point beyond the hall is outside,...).
  */
@@ -440,24 +440,12 @@ export function test_architecture_built_space_shell(): void {
             { x: 9, y: 9, z: 9 },
           ) === false,
       ],
-      [
-        "aNonFinitePointIsOutsideRatherThanRefused",
-        (): boolean =>
-          [NaN, Infinity, -Infinity].every(
-            (value: number): boolean =>
-              builtSpaceContainsPoint(
-                { id: "x", kind: "room", parent: null, cells: [], shell: cube },
-                { x: 1, y: value, z: 1 },
-              ) === false,
-          ),
-      ],
     ]),
     {
       danglingEnclosesNothing: true,
       danglingHoldsNothing: true,
       aFlatFacetIsSkippedRatherThanSummed: true,
       andWhatItLeavesOpenStaysOutside: true,
-      aNonFinitePointIsOutsideRatherThanRefused: true,
     },
   );
 }

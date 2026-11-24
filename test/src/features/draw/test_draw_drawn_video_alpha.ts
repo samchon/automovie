@@ -35,18 +35,13 @@ const SUBJECT: IAutoMovieCaptureSubject = {
   marks: [],
 };
 
-/**
- * A picture whose left column is a sign and right column transparent: opaque at
- * second 0, and at second 0.25 the midpoint of a fade, which the page's
- * compositor draws as the sign's straight colour at half alpha.
- */
+/** A picture whose left column is an opaque sign and right column transparent. */
 function answer(call: IAutoMovieDrawCall): IAutoMovieDrawResult {
-  const sign: number = call.seconds === 0 ? 255 : 128;
   return {
     ...answerDrawCall(call),
     pixels: btoa(
       String.fromCharCode(
-        ...[200, 40, 20, sign, 0, 0, 0, 0, 200, 40, 20, sign, 0, 0, 0, 0],
+        ...[200, 40, 20, 255, 0, 0, 0, 0, 200, 40, 20, 255, 0, 0, 0, 0],
       ),
     ),
   };
@@ -61,19 +56,16 @@ function answer(call: IAutoMovieDrawCall): IAutoMovieDrawResult {
  * 1. Two frames are drawn in the beauty pass with `background` `transparent`.
  * 2. Each frame file is an RGBA PNG whose sign pixels decode at alpha 255 and
  *    whose background decodes at alpha 0.
- * 3. At second 0.25, a fade's midpoint, the sign pixel the page draws at half
- *    alpha decodes from its file at alpha 127 or 128 with its straight colour
- *    within one code value, while it is opaque at second 0.
- * 4. The encoder is handed the alpha wrap: the frame pattern at 4/1, `-c:v copy`,
+ * 3. The encoder is handed the alpha wrap: the frame pattern at 4/1, `-c:v copy`,
  *    `-an`, one input and the output last.
- * 5. Control passes over a transparent background are refused before any frame is
+ * 4. Control passes over a transparent background are refused before any frame is
  *    drawn.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Drives the public renderer over the page double with recording write and encode functions and decodes the written files; an opaque request, a dropped alpha channel, a file that associates or flattens a half-covered pixel, an encode vector or an audio input fails.
- * @evidence contracts/development/testing.md#independent-expectations The page double's pixels state the alpha each file must keep, and the PNG specification stores straight, unassociated colour, so a half-alpha pixel's colour is written unchanged; the wrap's arguments are FFmpeg's stream-copy options for an image sequence.
- * @evidence contracts/development/testing.md#distinguishing-cases Opaque, half-covered and transparent pixels, the same pixel inside and outside the fade, and a refused combination; the GPU blend that draws a fade's bytes is owned by `test_draw_alpha_blend_gpu`, and the publish of `film.mov` and the sample check by `test_cli_render_alpha_delivery`.
+ * @evidence contracts/development/testing.md#behavioral-verification Drives the public renderer over the page double with recording write and encode functions and decodes the written files; an opaque request, a dropped alpha channel, an encode vector or an audio input fails.
+ * @evidence contracts/development/testing.md#independent-expectations The page double's pixels state the alpha each file must keep; the wrap's arguments are FFmpeg's stream-copy options for an image sequence.
+ * @evidence contracts/development/testing.md#distinguishing-cases Opaque against transparent pixels and a refused combination; the publish of `film.mov` and the sample check are owned by `test_cli_render_alpha_delivery`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_drawn_video_alpha`; the page, files and encoder are in-memory doubles and nothing is launched.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export async function test_draw_drawn_video_alpha(): Promise<void> {
   const open: () => Promise<{
@@ -149,23 +141,7 @@ export async function test_draw_drawn_video_alpha(): Promise<void> {
     [6, 255, 0],
   );
 
-  // 3. A fade's midpoint keeps the sign's straight colour at half alpha.
-  const fade: { pixels: Uint8ClampedArray } = await decodeAutoMovieRasterPng(
-    files.get("frames/frame_00001.png")!,
-  );
-  TestValidator.equals(
-    "a fade's midpoint keeps its straight colour and halves its alpha",
-    [
-      Math.abs(fade.pixels[0]! - 200) <= 1,
-      Math.abs(fade.pixels[1]! - 40) <= 1,
-      Math.abs(fade.pixels[2]! - 20) <= 1,
-      fade.pixels[3] === 127 || fade.pixels[3] === 128,
-      fade.pixels[7],
-    ],
-    [true, true, true, true, 0],
-  );
-
-  // 4. The wrap.
+  // 3. The wrap.
   TestValidator.equals(
     "the alpha wrap's vector",
     [...encoded],
@@ -194,7 +170,7 @@ export async function test_draw_drawn_video_alpha(): Promise<void> {
     ],
   );
 
-  // 5. No control passes over transparency.
+  // 4. No control passes over transparency.
   const refused: Awaited<ReturnType<typeof open>> = await open();
   const reason: string = await renderAutoMovieDrawnVideo({
     session: refused.session,

@@ -40,14 +40,13 @@ interface IProps {
  * triangles further clipped to the four side planes (Sutherland-Hodgman), over
  * their whole projected area. Front and back faces both count, so a closed
  * surface weighs its silhouette twice in both sums. The far plane is not
- * applied. A surface that projects some area, none of it inside the frame,
- * shows nowhere in the picture, so it is `outside`, not cut.
+ * applied.
  *
  * @param props Subject meshes, frustum planes, projection and the triangle
  *   budget.
  * @returns `cut` with the triangles examined, the opacity of the cut surface
- *   and the visible fraction; `outside`; `clear`; `over-budget` when the
- *   triangles to examine exceed the budget; or `unmeasured` with the reason.
+ *   and the visible fraction; `clear`; `over-budget` when the triangles to
+ *   examine exceed the budget; or `unmeasured` with the reason.
  */
 export function measureAutoMovieCameraFrameEdgeSurface(
   props: IProps,
@@ -148,7 +147,6 @@ export function measureAutoMovieCameraFrameEdgeSurface(
     }
   }
   if (cut === undefined) return { status: "clear", triangles };
-  if (total > 0 && inside === 0) return { status: "outside", triangles };
   return {
     status: "cut",
     triangles,
@@ -175,20 +173,10 @@ export namespace measureAutoMovieCameraFrameEdgeSurface {
         opaque: boolean;
 
         /**
-         * Projected area inside the frame over the whole projected area, in (0,
+         * Projected area inside the frame over the whole projected area, in [0,
          * 1]; absent when the surface projects to no area.
          */
         fraction?: number;
-      }
-    | {
-        /**
-         * The drawn surface beyond the near plane projects some area and none
-         * of it inside the frame: no part of the subject shows.
-         */
-        status: "outside";
-
-        /** Drawn triangles examined. */
-        triangles: number;
       }
     | {
         /**

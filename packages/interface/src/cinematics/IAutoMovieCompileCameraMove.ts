@@ -94,9 +94,8 @@ export namespace IAutoMovieCompileCameraMove {
      * Exact delivery frame rate in frames per second. Push-in, orbit, truck and
      * follow are keyed at every shot-local frame instant `k × denominator /
      * numerator` inside their spans, so a delivered frame reads the eased path
-     * itself, which needs this rate: omitted, an entry that moves the camera, a
-     * follow of an animated subject included, throws, and only holds and whips
-     * compile. Terms that are not positive safe integers throw.
+     * itself. Omitted, the compiler keys at 24 frames per second; terms that
+     * are not positive safe integers throw.
      */
     frameRate?: IAutoMovieProductionFrameRate;
   };

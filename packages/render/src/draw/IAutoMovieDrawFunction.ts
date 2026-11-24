@@ -7,8 +7,8 @@ import type {
 
 /**
  * The draw-only function a page installs under `AUTO_MOVIE_DRAW_GLOBALS.draw`,
- * which every host calls to get pictures: describe the subject, hand the page
- * the film's dialogue mouths when it has a sound list, then draw one call at a
+ * which every host calls to get pictures: describe the subject, hand it the
+ * film's dialogue mouths when it has a sound list, then draw one call at a
  * time.
  *
  * `installAutoMovieDraw` provides it; `AutoMovieDrawSession` calls it from Node
@@ -20,10 +20,9 @@ export interface IAutoMovieDrawFunction {
   describe(): Promise<IAutoMovieDrawDescription>;
 
   /**
-   * Take the film's dialogue mouths over `track`, replacing any taken before;
-   * every later draw shows them on the speaking actors' bound figures and
-   * reports the mouths those figures showed. An actor with no bound figure
-   * under its scene node shows none.
+   * Hand the subject the film's dialogue mouths over `track`, replacing any
+   * handed before; every later draw reports the mouths the subject read. A
+   * subject without `speak` takes none, and its draws report none.
    */
   speak(track: IAutoMovieDialogueMouthTrack): Promise<void>;
 

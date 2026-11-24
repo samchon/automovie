@@ -3,5 +3,4 @@ export * from "./buildAutoMovieTextGeometry";
 export * from "./flattenAutoMovieQuadratic";
 export * from "./layoutAutoMovieText";
 export * from "./regionsOfAutoMovieGlyph";
-export * from "./reviewAutoMovieFontLicences";
 export * from "./validateAutoMovieFontSources";

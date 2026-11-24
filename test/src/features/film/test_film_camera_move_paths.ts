@@ -47,7 +47,7 @@ const frame: (
  *
  * Scenarios:
  *
- * 1. `orbit` over two seconds → 49 keys, one per frame of the stated 24 fps,
+ * 1. `orbit` over two seconds → 49 keys, one per frame of the 24 fps default,
  *    sweeping 45°, every position at distance `d` from the aim, the last
  *    bearing swung off the initial +Z, and the swept angle **eased** in and out
  *    (the mid-arc segments turn faster than the end ones).
@@ -80,7 +80,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [{ action: frame("orbit"), subject }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals("orbit keys", orbit.tracks[0]!.times.length, 49);
   const aim: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -139,7 +138,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [{ action: frame("follow", 0, 1), subject: marching }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals("follow keys", follow.tracks[0]!.times.length, 25);
   for (let k: number = 0; k < 25; ++k)
@@ -163,7 +161,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [{ action: frame("follow"), subject }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "static-subject follow holds",
@@ -180,7 +177,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [{ action: frame("truck", 0, 2), subject }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "truck keys every 24 fps frame",
@@ -215,7 +211,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [{ action: frame("truck", 0, 1), subject: marching }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.predicate(
     "truck keeps tracking an animated subject",
@@ -233,7 +228,6 @@ export function test_film_camera_move_paths(): void {
       },
       entries: [{ action: frame("truck", 0, 2), subject }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "a vertical staged bearing uses the total screen-left fallback",
@@ -270,7 +264,6 @@ export function test_film_camera_move_paths(): void {
         },
       ],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.equals(
     "same-instant keys collapse to the later framing",
@@ -296,7 +289,6 @@ export function test_film_camera_move_paths(): void {
       },
       entries: [{ action: frame("static"), subject }],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     })!;
   TestValidator.predicate(
     "degenerate bearing falls back to +Z",
@@ -317,7 +309,6 @@ export function test_film_camera_move_paths(): void {
       camera: CAMERA,
       entries: [],
       shotDuration: 2,
-      frameRate: { numerator: 24, denominator: 1 },
     }),
     null,
   );

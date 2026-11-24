@@ -28,17 +28,10 @@ import { nclose } from "../internal/predicates";
  * 6. A unit box centred at x 1 m and 1.25 m from the camera crosses the right side
  *    and the near plane: its right extent is measured beyond the near plane,
  *    and it keeps its near-clip finding.
- * 7. A slab from 0.2 to 0.95 m across and 0.25 to 3 m deep crosses the right side
- *    only before the near plane: the right side is reported crossed, with no
- *    extent and no rank, as a candidate on a checked row.
- * 8. A vertical plank from (5, -4) to (6, -5.5) in x and z has a world box that
- *    crosses the right side while all of its surface lies outside the frame: it
- *    is wholly outside, a confirmed `camera-subject-outside-frame` error with
- *    no cut warning, on a checked frame-edge row.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls observeAutoMoviePlacedCamera in capture mode on real Three meshes and asserts the frame-edge coverage row, finding code, category, confidence, crossed sides, extents, rank and visible fraction; catches a cut left unreported, a whole-box crossing reported as a confirmed cut, an extent measured before the near plane, a blocking category and a subject showing nowhere in frame reported as cut.
- * @evidence contracts/development/testing.md#independent-expectations The 90-degree square camera projects a point at x and depth d to x / d, with the frame edge at 1. The x 3.5 m box reaches 4 / 4.5 = 0.889; the x 5 m box reaches 5.5 / 4.5 = 1.222, 2 / 9 past the edge, on x and on y when raised to y 5 m. The flat square spans x 4.5 to 5.5 m at depth 5 m, so 0.9 to 1.1: half its area is inside and it reaches 0.1 past the edge. The turned box's corners reach 4.707 / 5 = 0.941 and 4 / 4.293 = 0.932, while its world box corner reaches 4.707 / 4.293 = 1.096. With the near plane at 1 m, the near-crossing box is cut by that plane at depth 1 m, where its x 1.5 m edge projects to 1.5, 0.5 past the edge; its x 1.5 m corner at 0.75 m, before the near plane, would give 1. The slab's x 0.95 m corner at depth 0.25 m projects to 3.8, past the right edge, while beyond the near plane its x 0.95 m edge at depth 1 m projects to 0.95, inside; #4048 item 2 requires such a side reported as crossed without an extent. The plank's world box corner at x 5 m and depth 5.5 m projects to 0.909, inside, so the box crosses the right side, while along the plank x exceeds depth by 1 - 0.5 t for t in [0, 1], so every surface point projects past 1 and none shows.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs inside, crossing and corner-crossing boxes, a confirmed surface cut with a bounds-only crossing on a readable and an unreadable surface, a side crossing beyond the near plane with one only before it, and a box crossing around a surface wholly outside; whole-subject exclusion by bounds is owned by test_inspection_camera_visibility, host budgets by test_inspection_camera_host_budgets and the delivery raster by test_inspection_camera_delivery_aspect.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls observeAutoMoviePlacedCamera in capture mode on real Three meshes and asserts the frame-edge coverage row, finding code, category, confidence, crossed sides, extents, rank and visible fraction; catches a cut left unreported, a whole-box crossing reported as a confirmed cut, an extent measured before the near plane and a blocking category.
+ * @evidence contracts/development/testing.md#independent-expectations The 90-degree square camera projects a point at x and depth d to x / d, with the frame edge at 1. The x 3.5 m box reaches 4 / 4.5 = 0.889; the x 5 m box reaches 5.5 / 4.5 = 1.222, 2 / 9 past the edge, on x and on y when raised to y 5 m. The flat square spans x 4.5 to 5.5 m at depth 5 m, so 0.9 to 1.1: half its area is inside and it reaches 0.1 past the edge. The turned box's corners reach 4.707 / 5 = 0.941 and 4 / 4.293 = 0.932, while its world box corner reaches 4.707 / 4.293 = 1.096. With the near plane at 1 m, the near-crossing box is cut by that plane at depth 1 m, where its x 1.5 m edge projects to 1.5, 0.5 past the edge; its x 1.5 m corner at 0.75 m, before the near plane, would give 1.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs inside, crossing and corner-crossing boxes, a confirmed surface cut with a bounds-only crossing on a readable and an unreadable surface, and a side crossing beyond the near plane with one before it; whole-subject exclusion is owned by test_inspection_camera_visibility, host budgets by test_inspection_camera_host_budgets and the delivery raster by test_inspection_camera_delivery_aspect.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit over in-memory Three objects without a GL context, browser or film.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its geometry and its expected packet.
  */
@@ -228,73 +221,8 @@ export function test_inspection_camera_frame_edge(): void {
     ),
   );
 
-  // 7. Across the right side only before the near plane.
-  const slabGeometry: THREE.BoxGeometry = new THREE.BoxGeometry(
-    0.75,
-    0.2,
-    2.75,
-  );
-  const slab: THREE.Mesh = new THREE.Mesh(slabGeometry, material);
-  slab.position.set(0.575, 0, -1.625);
-  scene.add(slab);
-  const before: IPacket = observe([{ path: "slab", target: slab }]);
-  const beforeCut: IAutoMovieInspectionDiagnostics.IFinding | undefined =
-    cut(before);
-  TestValidator.predicate(
-    "a side crossed only before the near plane is reported without an extent",
-    measure(beforeCut, "crossed-sides") === "right" &&
-      measure(beforeCut, "right-edge-extent") === undefined &&
-      beforeCut?.confidence === "candidate" &&
-      beforeCut.witness.rank === undefined &&
-      row(before)?.status === "checked",
-  );
-  slab.removeFromParent();
-
-  // 8. A plank whose world box crosses the right side while all of it is outside.
-  const plankGeometry: THREE.PlaneGeometry = new THREE.PlaneGeometry(
-    Math.hypot(1, 1.5),
-    1,
-  );
-  const plank: THREE.Mesh = new THREE.Mesh(plankGeometry, material);
-  plank.position.set(5.5, 0, -4.75);
-  plank.rotation.set(0, Math.atan2(1.5, 1), 0);
-  scene.add(plank);
-  scene.updateMatrixWorld(true);
-  const gone: IPacket = observe([{ path: "plank", target: plank }]);
-  TestValidator.equals(
-    "a surface wholly outside the frame is out of frame, not cut",
-    [
-      observeAutoMovieCameraInspection({ scene, camera, target: plank })
-        .framing,
-      gone.findings.map(
-        (finding: IAutoMovieInspectionDiagnostics.IFinding): string[] => [
-          finding.check,
-          finding.code,
-          finding.category,
-          finding.confidence,
-        ],
-      ),
-      row(gone)?.status,
-    ],
-    [
-      "crosses-side",
-      [
-        [
-          "camera-framing",
-          "camera-subject-outside-frame",
-          "error",
-          "confirmed",
-        ],
-      ],
-      "checked",
-    ],
-  );
-  plank.removeFromParent();
-
   geometry.dispose();
   flatGeometry.dispose();
-  slabGeometry.dispose();
-  plankGeometry.dispose();
   material.dispose();
   shader.dispose();
 }

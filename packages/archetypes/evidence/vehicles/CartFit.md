@@ -22,15 +22,15 @@ States which models it keeps and when it keeps them all.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A model without a read range of horses is made for every horse; one with a range keeps the fixed height inside it. A fixed clearance sets the shafts' length, so it keeps only the models whose shafts are not read, which derive their shafts from it.
+A model without a read range of horses is made for every horse; one with a range keeps the fixed height inside it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One filter over the kind's models, by the fixed withers height and the fixed clearance.
+One filter over the kind's models.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-None: every model is kept or left by its read range and whether its shafts are read.
+None: every model is kept or left by its read range.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -48,19 +48,19 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is derived and from what, and when a fixed clearance is refused.
+States what is derived and from what.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The girth from the horse's own profile at the drawn height, and the shafts from the horse's rig, its point of shoulder to its point of buttock and the drawn or fixed clearance.
+The girth from the horse's own profile at the drawn height, and the shafts from the horse's rig, its point of shoulder to its point of buttock and the drawn clearance.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The girth, then the shafts where none were read; where they were read, a fixed clearance is refused.
+The girth, then the shafts where none were read.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Read shafts are kept, never replaced by the derived length, and a clearance the author fixed on such a cart is refused naming the models that take it, never ignored in silence, as the draw session refuses a fixed figure of a read model.
+Read shafts are kept, never replaced by the derived length.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

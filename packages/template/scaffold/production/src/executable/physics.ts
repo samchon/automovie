@@ -10,7 +10,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-/** Precompute the authored numerical input in Node; inspector playback only downloads its archive. */
+/** Precompute the authored numerical input in Node; Viewer playback only downloads its archive. */
 async function main(): Promise<void> {
   const [file, destination, byteLimit]: string[] = process.argv.slice(2);
   if (!file || !destination)

@@ -34,35 +34,8 @@ export interface IAutoMovieInspectorSceneHost {
    * pixel ratio.
    */
   size(): IAutoMovieInspectorSceneHost.ISize;
-
-  /**
-   * Optional sound: the files a subject's sound list names and a player for the
-   * master mixed from them. Absent, the inspector plays no sound.
-   */
-  sound?: IAutoMovieInspectorSceneHost.ISound;
 }
 export namespace IAutoMovieInspectorSceneHost {
-  /** The production's sound files and the device that plays a master. */
-  export interface ISound {
-    /** Read one production-relative file whole; reject when it cannot be read. */
-    read(path: string): Promise<Uint8Array>;
-
-    /** Decode a 48 kHz stereo 16-bit WAVE master for playback. */
-    load(wav: Uint8Array): Promise<ISoundtrack>;
-  }
-
-  /** A decoded master, sample 0 at film second 0. */
-  export interface ISoundtrack {
-    /** Play from a film second at a rate, replacing any playback started. */
-    play(seconds: number, rate: number): void;
-
-    /** Stop playing. */
-    stop(): void;
-
-    /** Stop and release the decoded master. */
-    dispose(): void;
-  }
-
   /**
    * The part of `THREE.WebGLRenderer` the inspector's mount calls, including
    * what `AutoMovieFilmResponseStage` and `AutoMovieFilmIndirectStage` drive

@@ -25,12 +25,9 @@ const BASE64: RegExp =
  * by the source id. Sources are decoded in list order and the first refusal
  * rejects the whole list, so a shot with an undecodable font draws nothing.
  *
- * `engine` shot admission already checked ids and fields, and
- * `validateTextureAssets`, the check that holds the production's asset ledger,
- * checked each asset source's registration, licence and `"font"` use; this
- * function reads no ledger, so it checks no licence. It still refuses a
- * duplicate id, malformed base64 and an asset source without a reader, because
- * it is also what a host calls directly.
+ * `engine` admission already checked ids, fields and licences; this function
+ * still refuses a duplicate id, malformed base64 and an asset source without a
+ * reader, because it is also what a host calls directly.
  *
  * @param props.sources The shot's font sources.
  * @param props.readAsset Reads a project asset's bytes by its ledger path;

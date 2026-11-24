@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Checks the three ranges at their fields and the fog exclusion at the medium through appendSceneMediumArtifact, with either fog form as the exclusion's fog, reading the value as unknown because staging is reachable without the structural gate; returns the authored record unchanged when admitted.
+Checks the three ranges at their fields and the fog exclusion at the medium, reading the value as unknown because staging is reachable without the structural gate; returns the authored record unchanged when admitted.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Kept beside `resolveStagedFog`, the other atmosphere admission `stageScene` composes; the medium's own rules live in appendSceneMediumArtifact, which validateSceneMedium shares, so a stage and a scene authored directly are refused alike.
+Kept beside `resolveStagedFog`, the other atmosphere admission `stageScene` composes.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

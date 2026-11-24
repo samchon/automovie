@@ -70,7 +70,7 @@ export function CartConstruction(
     },
     createCart.BANDS,
   );
-  fit?.(draw, params);
+  fit?.(draw);
   const d: Partial<Record<createCart.Dimension, number>> = { ...draw.values };
   const builder: AutoMovieArchetypeBuilder<
     createCart.Affordance,

@@ -12,7 +12,6 @@ import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHA
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
 import { applyFilmIndirectPatch } from "./applyFilmIndirectPatch.js";
 import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
-import { collectAutoMovieFilmBlendedObjects } from "./collectAutoMovieFilmBlendedObjects.js";
 
 /**
  * The indirect light of a directly rendered film's beauty pass: measures what a
@@ -31,9 +30,7 @@ import { collectAutoMovieFilmBlendedObjects } from "./collectAutoMovieFilmBlende
  * 4. With `occlusion`, renders a depth and view-space normal prepass of the scene
  *    through the beauty camera at the beauty raster, background and display
  *    overlays (`toneMapped: false`, which the response stage draws last) off,
- *    and blended and additive meshes (`collectAutoMovieFilmBlendedObjects`: a
- *    flame, a glass) off, since they cover nothing behind them, every other
- *    object drawn with one double-sided normal material;
+ *    every object drawn with one double-sided normal material;
  * 5. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
  *    blur into a visibility target;
  * 6. Turns on the patch's terms that were asked for, calls `beauty`, which draws
@@ -330,12 +327,9 @@ export class AutoMovieFilmIndirectStage {
     const override: THREE.Material | null = scene.overrideMaterial;
 
     // Display overlays state no scene light and are drawn after the response,
-    // so they occlude nothing; a blended or additive mesh, a flame or a glass,
-    // covers nothing behind it, so it occludes nothing either.
-    const overlays: Map<THREE.Object3D, number> = new Map([
-      ...collectAutoMovieFilmOverlays(scene),
-      ...collectAutoMovieFilmBlendedObjects(scene),
-    ]);
+    // so they occlude nothing.
+    const overlays: Map<THREE.Object3D, number> =
+      collectAutoMovieFilmOverlays(scene);
     try {
       // 4. Depth and view-space normals at the beauty raster.
       for (const object of overlays.keys()) object.layers.mask = 0;

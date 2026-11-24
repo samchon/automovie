@@ -14,7 +14,7 @@ Every malformed field gets its own finding; an unknown kind is refused, and no f
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States each rule per kind, the optional ledger, who supplies it and what its absence checks, and why bytes are not examined here.
+States each rule per kind, the optional ledger and what its absence checks, and why bytes are not examined here.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

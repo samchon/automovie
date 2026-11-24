@@ -10,7 +10,7 @@ This factory owns only the default engineering population, independent of narrat
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The documented src/test conventions are production defaults, not fixture paths or tailored expected answers; the composition folder is the scaffold layout's screenplay realization, documented by its own composition and films contracts; a supplied path replaces only its checklist file, a supplied skills root moves only where they are read, and a null common path removes only the shared claim.
+The documented src/test conventions are production defaults, not fixture paths or tailored expected answers; the composition folder is the scaffold layout's screenplay realization, documented by its own contract; a supplied path replaces only its checklist file, a supplied skills root moves only where they are read, and a null common path removes only the shared claim.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

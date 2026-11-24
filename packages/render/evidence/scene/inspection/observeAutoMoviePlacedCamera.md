@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Bounds exclusion yields a confirmed framing error, and so does a drawn surface that the frame-edge check finds wholly outside the frame, since nothing of the subject shows. A subject in frame whose drawn surface reaches in front of the near plane is cut open in the picture; on an opaque stock surface that is a confirmed error, witnessed on the near plane where the cut shows. Exact pixel counts from the host renderer confirm the authored coverage limit. Sparse ray witnesses can suggest occlusion but never satisfy a pixel obligation. A side crossing is a warning under its own optional check, because a frame edge often cuts a subject by intent: confirmed on an opaque drawn surface, a candidate from a transparent surface, an envelope, a deferred check or bounds that cross a side only before the near plane, which list the side without an extent or rank.
+Bounds exclusion yields a confirmed framing error. A subject in frame whose drawn surface reaches in front of the near plane is cut open in the picture; on an opaque stock surface that is a confirmed error, witnessed on the near plane where the cut shows. Exact pixel counts from the host renderer confirm the authored coverage limit. Sparse ray witnesses can suggest occlusion but never satisfy a pixel obligation. A side crossing is a warning under its own optional check, because a frame edge often cuts a subject by intent: confirmed on an opaque drawn surface, a candidate from a transparent surface, an envelope or a deferred check.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

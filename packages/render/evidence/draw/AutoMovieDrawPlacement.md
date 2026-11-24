@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One page's placement state: the subject's name, which a refused plan names, the inspection bound to the objects the last placement produced, the framing box per view text, selection and span of seconds on the subject's clock, and the dialogue-mouth stage of the handed track.
+One page's placement state: the subject's name, which a refused plan names, the inspection bound to the objects the last placement produced, the framing box per view text, selection and span of seconds on the subject's clock, and the mouth recorder of the handed track.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -14,67 +14,37 @@ No member names a subject or a pass; the framing key is the request's own fields
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-The class comment states which shot every placement places and on which clock, what `inspect`, `frame`, `restore`, `speak` and `voice` do, in which order a placement clears the mouths, places and shows them, and what `mouths` reports.
+The class comment states which shot every placement places and on which clock, what `inspect`, `frame`, `restore` and `speak` do, in which order a placement clears the mouths and places, and what `mouths` reports.
 
 # src/draw/AutoMovieDrawPlacement.ts#AutoMovieDrawPlacement.prototype.speak
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States that the mouths are taken and shown from the next placement on.
+States that only a subject with `speak` is handed the mouths.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Wraps the track in `AutoMovieDialogueMouthStage`, which shows it on the actors' bound figures, so no subject code reads or applies a mouth.
+Wraps the track in `AutoMovieDialogueMouthRecorder` and hands its mouths to the subject once, so every later read is recorded.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The stage owns the showing and the record; this method only creates it.
+The recorder owns the record; this method only binds it.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The track is taken whatever the subject is; an actor with no bound figure simply shows nothing.
+A subject without `speak` is left untouched and reports no mouths rather than a made-up record.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Constant work beyond the stage's actor list.
+Constant work.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-One stage per page; nothing to share.
+One binding per page; nothing to share.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The stage is held for the page's life, replacing any earlier one.
-
-# src/draw/AutoMovieDrawPlacement.ts#AutoMovieDrawPlacement.prototype.voice
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is shown at which second, and that a page handed no mouths shows none.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The page calls it right after every placement it draws, on the scene as just placed, so the mouth layers over the expression that placement authored and follows the film second the placement drew.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-A call of the stage it owns.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Without a stage nothing is shown or recorded.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-The stage's showing cost.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-Each placement is shown once.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains nothing beyond the stage's record.
+The recorder is held for the page's life, replacing any earlier one.
 
 # src/draw/AutoMovieDrawPlacement.ts#AutoMovieDrawPlacement.prototype.mouths
 
@@ -84,19 +54,19 @@ States what is returned and when it is absent.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Returns what the figures showed since the last clear, which `place` makes right before the drawn second's placement.
+Returns the recorder's reads since the last clear, which `place` makes right before the drawn second's placement.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-A read of the stage it owns.
+A read of the recorder it owns.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Undefined without a stage, so a page handed no mouths reports none.
+Undefined without a recorder, so a subject without `speak` reports no mouths.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the actors shown.
+Linear in the actors read.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

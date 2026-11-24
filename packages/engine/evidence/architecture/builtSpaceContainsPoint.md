@@ -10,11 +10,11 @@ One public reader of both volume spellings. The shell helper only drops the trip
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Names no space; surface-first handling admits boundary points without selecting a ray direction. Dropping triples with a missing or non-finite vertex, and answering false for a point with a non-finite coordinate, keep the old false answers instead of throwing; the numeric slack and raw solid-angle arithmetic are the query's stated approximations, not an exact certificate.
+Names no space; surface-first handling admits boundary points without selecting a ray direction. Dropping triples with a missing or non-finite vertex keeps an unvalidated shell's old false answers instead of throwing; the numeric slack and raw solid-angle arithmetic are the query's stated approximations, not an exact certificate.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States both spellings and the empty case, that the boundary counts as inside, the cell slack and its unit caveat for unnormalized normals, how shells are read through the winding query, which triples are dropped, that a non-finite point lies in no shell, and how voids read.
+States both spellings and the empty case, that the boundary counts as inside, the cell slack and its unit caveat for unnormalized normals, how shells are read through the winding query, which triples are dropped and how voids read.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

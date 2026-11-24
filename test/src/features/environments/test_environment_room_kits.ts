@@ -57,12 +57,9 @@ const ROLES: Readonly<Record<string, readonly string[]>> = {
  * 2. Bedroom: a room 0.10 m narrower than the drawn bed width plus 2 x 0.76 m is
  *    refused naming the bed's side clearance, and one 0.10 m wider is
  *    accepted.
- * 3. Kitchen: a room leaving 1.10 m in front of the run's deepest piece is
- *    accepted for one cook (1.10 >= 1.067) and refused for two (1.10 < 1.219),
- *    naming the work aisle. A room 0.01 m too shallow for the refrigerator's
- *    1.067 m aisle, which still leaves the shallower counters and range at
- *    least 1.067 m, is refused for one cook, naming the refrigerator's work
- *    aisle.
+ * 3. Kitchen: a room leaving 1.10 m in front of the counter run is accepted for
+ *    one cook (1.10 >= 1.067) and refused for two (1.10 < 1.219), naming the
+ *    work aisle.
  * 4. Office: three desk groups fit, each office chair faces its desk, and the
  *    filing cabinet's 0.76 m by 1.22 m clear floor holds no chair.
  * 5. Living room: under two seeds that change the sofa, the coffee table stays
@@ -72,8 +69,8 @@ const ROLES: Readonly<Record<string, readonly string[]>> = {
  *    kit.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds every kit through the public environments entry and reads staged frames, runtime models and anchors, which catches a piece outside its room, a missing role or affordance, a clearance not reserved or reserved at the wrong figure, a chair turned away from its desk and a table that does not follow the sofa.
- * @evidence contracts/development/testing.md#independent-expectations The 0.76 m, 1.22 m, 1.067 m and 1.219 m figures are the issue's cited ADA and NKBA values, and the NKBA Kitchen Planning Guideline 6 measures the work aisle from the counter frontage, tall cabinets and appliances alike, so the refrigerator keeps it too; the room sizes are computed from the drawn models' rest boxes measured through the engine, and the 0.45 m default and 0.6 m gap are the kit's documented input.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a bedroom 0.10 m either side of its bound, one and two cooks against the same room, a room that keeps the counters' aisle but not the refrigerator's, two seeds and two table gaps; `test_environment_furnishing_relations` owns the relation cases and `test_environment_furnishing` the cafe and gym.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.76 m, 1.22 m, 1.067 m and 1.219 m figures are the issue's cited ADA and NKBA values, the room sizes are computed from the drawn models' rest boxes measured through the engine, and the 0.45 m default and 0.6 m gap are the kit's documented input.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs a bedroom 0.10 m either side of its bound, one and two cooks against the same room, two seeds and two table gaps; `test_environment_furnishing_relations` owns the relation cases and `test_environment_furnishing` the cafe and gym.
  * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory rooms; it starts no renderer or host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists its six scenarios with the input and expected behavior of each.
  */
@@ -191,34 +188,20 @@ export function test_environment_room_kits(): void {
     createBedroomKit({ room: BEDROOM }),
   );
 
-  // The kitchen leaves 1.10 m in front of its run. The NKBA measures the work
-  // aisle from the counter frontage, tall cabinets and appliances alike, so
-  // the run's front is its deepest piece, the refrigerator included.
+  // The kitchen leaves 1.10 m in front of its deepest work piece.
   const wide: IAutoMovieEnvironment = build(createKitchenKit({ room: [8, 3] }));
   const run: string[] = ROLES.kitchen!.slice();
   const runWidth: number = run.reduce((sum: number, role: string): number => {
     const rest: IAutoMoviePropBox = restOf(wide, role);
     return sum + rest.max.x - rest.min.x;
   }, 0);
-  const depthOf: (roles: readonly string[]) => number = (
-    roles: readonly string[],
-  ): number =>
-    Math.max(
-      ...roles.map((role: string): number => {
-        const rest: IAutoMoviePropBox = restOf(wide, role);
-        return rest.max.z - rest.min.z;
-      }),
-    );
-  const frontage: number = depthOf(run);
+  const frontage: number = Math.max(
+    ...["counter-1", "range", "counter-2"].map((role: string): number => {
+      const rest: IAutoMoviePropBox = restOf(wide, role);
+      return rest.max.z - rest.min.z;
+    }),
+  );
   const KITCHEN: readonly [number, number] = [runWidth + 0.3, frontage + 1.1];
-
-  // A room 0.01 m too shallow for the refrigerator's one-cook aisle, which
-  // still leaves the shallower counters and range theirs.
-  const counters: number = depthOf(["counter-1", "range", "counter-2"]);
-  const SHALLOW: readonly [number, number] = [
-    runWidth + 0.3,
-    depthOf(["refrigerator"]) + 1.067 - 0.01,
-  ];
   const kitchen: IAutoMovieEnvironment = build(
     createKitchenKit({ room: KITCHEN, cooks: 1 }),
   );
@@ -256,16 +239,6 @@ export function test_environment_room_kits(): void {
           (): IAutoMovieEnvironment =>
             build(createKitchenKit({ room: KITCHEN, cooks: 2 })),
           ["flat/room", "work aisle clearance"],
-        ),
-    ],
-    [
-      "a room that keeps the counters' aisle but not the refrigerator's is refused naming the refrigerator",
-      (): boolean =>
-        SHALLOW[1] - counters >= 1.067 &&
-        throwsError(
-          (): IAutoMovieEnvironment =>
-            build(createKitchenKit({ room: SHALLOW, cooks: 1 })),
-          ["flat/room refrigerator", "work aisle clearance"],
         ),
     ],
     [
@@ -380,6 +353,6 @@ export function test_environment_room_kits(): void {
       .map(([name]: [string, boolean]): string => name)
       .join("; ")}`,
     Object.values(facts).every((ok: boolean): boolean => ok) &&
-      Object.keys(facts).length === 11,
+      Object.keys(facts).length === 10,
   );
 }

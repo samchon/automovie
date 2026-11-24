@@ -31,10 +31,7 @@ const BASE64: RegExp =
  * decoder, so `render`, or a host that builds lettering itself, decodes the
  * font, checks an embedded digest against its bytes and refuses with the
  * decoder's diagnostic. Without a ledger the asset checks are the structural
- * ones only, as at the shot gates (`performShot`'s surface admission and
- * `validateShotArtifact`), which carry no ledger; `validateTextureAssets`,
- * which holds the production's asset ledger, passes it, so the licence and
- * font-use refusals run there.
+ * ones only, as at an artifact boundary that carries no ledger.
  */
 export const validateAutoMovieFontSources: (
   sources: unknown,

@@ -254,8 +254,7 @@ export function test_engine_sound_dialogue_own_length(): void {
       bindings: [{ speaker: "ann", actor: "ann" }],
       visemes,
       sourceSampleRate: 24_000,
-      sourceSamples: 48_000,
-      clock: { fps: 24, sampleRate: 48_000 },
+      fps: 24,
     }).timeline;
   TestValidator.predicate(
     "a chunk maps to frames at the line's real rate",

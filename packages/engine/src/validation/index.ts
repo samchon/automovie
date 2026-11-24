@@ -85,7 +85,6 @@ export * from "./validatePoseResult";
 export * from "./validateProfileCapabilities";
 export * from "./validateRange";
 export * from "./validateSceneEnvironment";
-export * from "./validateSceneMedium";
 export * from "./validateScriptTree";
 export * from "./validateSelfIntersection";
 export * from "./validateShotArtifact";

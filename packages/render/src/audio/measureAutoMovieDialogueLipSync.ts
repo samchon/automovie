@@ -14,36 +14,33 @@ import type {
 import { autoMovieVisemeChannelWeights } from "../scene/autoMovieVisemeChannelWeights.js";
 
 /**
- * Measure each adopted line's lip-sync lag from the mouth the drawn figures
- * showed on each frame, without reading pixels.
+ * Measure each adopted line's lip-sync lag from the mouth the drawn subject
+ * read on each frame, without reading pixels.
  *
- * `drawn[f]` holds what the actors' bound figures showed at output frame `f`,
- * as the draw page records it after placing that frame
- * (`AutoMovieDialogueMouthStage`). A line missing from the track binds to no
- * single actor and is `speaker-not-bound`; a line without phoneme chunks is
- * `envelope-jaw`. For a phoneme-driven line, the window is its speech span
- * widened by `ceil(0.25 × fps)` frames on each side and clipped to the film.
- * When a figure of the actor showed visemes on a frame of the span, the mouth
- * series is, per window frame, the `jawOpen` channel weight those visemes give
- * a VRM or imported model (`autoMovieVisemeChannelWeights`), 0 on a frame where
- * none showed, and the level series is the line's frame level
- * (`productionDialogueFrameLevels`), 0 outside the span;
- * `measureAutoMovieLipSyncLag` names the lag and the verdict. When the actor's
- * figures showed only a jaw, the figure follows the line's own loudness, as the
- * Human and the polygon man do until #3185 resolves viseme shapes, and the line
- * is `envelope-jaw`. When no figure showed the mouth, because the actor has no
- * figure bound under its node or the figure has no part to show it on, the line
- * is `mouth-not-drawn`.
+ * `drawn[f]` holds what the subject read while it was placed at output frame
+ * `f`. A line missing from the track binds to no single actor and is
+ * `speaker-not-bound`; a line without phoneme chunks is `envelope-jaw`. For a
+ * phoneme-driven line, the window is its speech span widened by `ceil(0.25 ×
+ * fps)` frames on each side and clipped to the film. When the subject read the
+ * actor's visemes on a frame of the span, the mouth series is, per window
+ * frame, the `jawOpen` channel weight those visemes give a VRM or imported
+ * model (`autoMovieVisemeChannelWeights`), 0 on a frame where it read none, and
+ * the level series is the line's frame level (`productionDialogueFrameLevels`),
+ * 0 outside the span; `measureAutoMovieLipSyncLag` names the lag and the
+ * verdict. When it read only the actor's jaw, the figure follows the line's own
+ * loudness, as the Human and the polygon man do until #3185 resolves viseme
+ * shapes, and the line is `envelope-jaw`. When it read neither, the line is
+ * `mouth-not-drawn`.
  *
- * @param props The adopted lines, the mouth track handed to the page, the
- *   plan's clock and frame count, and the mouths shown on each drawn frame.
+ * @param props The adopted lines, the mouth track handed to the subject, the
+ *   plan's clock and frame count, and the mouths read on each drawn frame.
  * @returns One entry per line, in list order.
  */
 export function measureAutoMovieDialogueLipSync(props: {
   /** The adopted lines with their receipts and 48 kHz samples. */
   lines: readonly IAutoMovieMixFilmSound.ILine[];
 
-  /** The mouth track the page was handed. */
+  /** The mouth track the subject was handed. */
   track: IAutoMovieDialogueMouthTrack;
 
   /** The film clock at 48 kHz and its frame count. */
@@ -53,8 +50,8 @@ export function measureAutoMovieDialogueLipSync(props: {
   >;
 
   /**
-   * The mouths the figures showed at each output frame, by frame index; absent
-   * where the page handed no mouths.
+   * The mouths the subject read at each output frame, by frame index; absent
+   * where it read none.
    */
   drawn: readonly (readonly IAutoMovieDrawnMouth[] | undefined)[];
 }): IAutoMovieDialogueLipSync[] {
@@ -87,7 +84,7 @@ export function measureAutoMovieDialogueLipSync(props: {
       if (planned.ranges === null)
         return unmeasured(entry, planned, "envelope-jaw");
 
-      // How the actor's figures showed the mouth during the line.
+      // How the subject moved the actor's figure during the line.
       let visemes: boolean = false;
       let jaw: boolean = false;
       for (

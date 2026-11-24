@@ -29,11 +29,11 @@ import { stampAutoMovieDrawLegend } from "./stampAutoMovieDrawLegend.js";
  *
  * Every picture a host saves comes through `draw`, `drawing` or `frame`, which
  * call the page's draw function and decode what it returns; the session never
- * screenshots the page and injects no style into it. `speak` hands the page the
- * film's dialogue mouths before the first picture. Each call is bounded by the
- * session's timeout, so a subject that never reports ready fails the call with
- * the cell or frame it was drawing instead of holding the host forever. Calls
- * must not overlap.
+ * screenshots the page and injects no style into it. `speak` hands the subject
+ * the film's dialogue mouths before the first picture. Each call is bounded by
+ * the session's timeout, so a subject that never reports ready fails the call
+ * with the cell or frame it was drawing instead of holding the host forever.
+ * Calls must not overlap.
  *
  * ```ts
  * const session = await AutoMovieDrawSession.open({
@@ -159,9 +159,8 @@ export class AutoMovieDrawSession {
   }
 
   /**
-   * Hand the page the film's dialogue mouths over `track`, before the first
-   * picture; every later picture shows them on the speaking actors' bound
-   * figures and carries the mouths those figures showed.
+   * Hand the page's subject the film's dialogue mouths over `track`, before the
+   * first picture; every later picture carries the mouths the subject read.
    *
    * It rejects when the page's call throws or does not answer within the
    * timeout.

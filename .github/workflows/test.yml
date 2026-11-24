@@ -28,9 +28,6 @@ jobs:
           node-version: 22.x
       - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       - run: pnpm install
-      # The GPU blend test draws the shipped shaders in the headless Chromium
-      # the test package's Playwright pins, on its SwiftShader backend.
-      - run: pnpm --filter @automovie/test exec playwright install --with-deps chromium-headless-shell
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: node_modules/.cache/ttsc

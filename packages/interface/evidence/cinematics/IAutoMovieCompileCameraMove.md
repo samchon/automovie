@@ -10,7 +10,7 @@ Hero and alternate-take compilers use the same inputs to compileCameraMove; no r
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required camera and action records reuse canonical types; the optional aspect's fallback and the frame rate's requirement for moving entries are explicitly described, and the rate reuses the canonical exact production rate.
+Required camera and action records reuse canonical types; the optional aspect and frame-rate fallbacks are explicitly described, and the rate reuses the canonical exact production rate.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -28,8 +28,8 @@ Hero and coverage compilation share the same camera/action/subject contracts and
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The optional aspect has a stated square fallback; it is not evidence that a narrower output contains the subject. The frame rate has no fallback: it is optional only for entries that hold or whip, and a moving entry without it throws. No camera or subject identity changes the grammar.
+The optional aspect has a stated square fallback; it is not evidence that a narrower output contains the subject. The optional frame rate falls back to 24 fps, which keys the paths but does not align them with another delivery rate. No camera or subject identity changes the grammar.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines world placement, timebase, the aspect fallback, when the frame rate is required, input ordering, callback lifetime and the null/error outcomes.
+Defines world placement, timebase, aspect and frame-rate fallbacks, input ordering, callback lifetime and the null/error outcomes.

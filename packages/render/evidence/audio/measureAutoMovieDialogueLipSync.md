@@ -6,7 +6,7 @@ The comment states where the drawn mouths come from, which lines are measured, t
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The mouth series is the `jawOpen` weight of the visemes the actor's figures showed on each drawn frame, the value the page layered over a VRM or imported figure that has a part to show it, and the level series is the line's own frame RMS, so their lag is the lag between the drawn mouth and the sound (#4055). A mouth handed to no figure, or to a figure that cannot show it, is never recorded, so it cannot pass. A figure moved only by the jaw follows the line's own loudness and has zero lag by construction, so it is not measured.
+The mouth series is the `jawOpen` weight of the visemes the subject read on each drawn frame, the value it handed a VRM or imported figure, and the level series is the line's own frame RMS, so their lag is the lag between the drawn mouth and the sound (#4055). A figure moved only by the jaw follows the line's own loudness and has zero lag by construction, so it is not measured.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Render owns the route from drawn mouths to entries; the levels and the measureme
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No line is special-cased and no series is recomputed from the track: a figure that showed the mouth late is measured late.
+No line is special-cased and no series is recomputed from the track: a subject that drew the mouth late is measured late.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

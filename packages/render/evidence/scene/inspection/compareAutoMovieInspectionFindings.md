@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the three ordered keys, the rule for an absent rank, that rank compares only within one identity, the optional relative rank tolerance, and the sign of the result.
+States the three ordered keys, the rule for an absent rank, that rank compares only within one identity, and the sign of the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Implements the order `IAutoMovieInspectionDiagnostics.IEpisode.worst` documents: strongest confidence, then category, then rank, larger worse; an absent rank orders below any present one. The tolerance is relative because ranks carry checker-owned units; at its default of zero the reducer's order is exact.
+Implements the order `IAutoMovieInspectionDiagnostics.IEpisode.worst` documents: strongest confidence, then category, then rank, larger worse; an absent rank orders below any present one.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

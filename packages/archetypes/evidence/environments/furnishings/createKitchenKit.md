@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Lays one run along the -Z wall, each piece abutting the one before through `after`, and reserves the NKBA work aisle, 1.067 m for one cook or 1.219 m for two, as a front clearance across every piece of the run, as wide as that piece. NKBA Kitchen Planning Guideline 6 measures the aisle between the counter frontage, tall cabinets and appliances, so the refrigerator keeps it as the counters and the range do.
+Lays one run along the -Z wall, each piece abutting the one before through `after`, and reserves the NKBA work aisle, 1.067 m for one cook or 1.219 m for two, as a front clearance across each counter and the range, as wide as that piece. The refrigerator keeps none, because no cited figure covers it.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

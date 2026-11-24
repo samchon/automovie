@@ -62,12 +62,11 @@ interface ISpeech {
  * The same lines then give the subject its dialogue mouths: before the first
  * frame, `planAutoMovieDialogueMouths` plans the track and the session's
  * `speak` hands it to the page, also for a transparent layer, whose lines are
- * admitted by `admitAutoMovieFilmDialogue` without a mix. The page shows each
- * speaking actor's mouth on the figures bound under the actor's scene node,
- * each frame's beauty pass carries the mouths those figures showed, and the
- * sound record's `lipSync` measures each line against them
+ * admitted by `admitAutoMovieFilmDialogue` without a mix. Each frame's beauty
+ * pass carries the mouths the subject read for that frame, and the sound
+ * record's `lipSync` measures each line against them
  * (`measureAutoMovieDialogueLipSync`), so the lag is the lag of the mouth
- * actually drawn.
+ * actually handed to the drawing.
  *
  * A subject that supplies a `cut` gets the result's `cut`: one row per entry
  * with the output frames it is live in, from `planAutoMovieDeliveredCut` over
@@ -223,7 +222,6 @@ export async function renderAutoMovieDrawnVideo(props: {
       lines,
       speakers: subject.sound.speakers,
       frameRate,
-      loudness: subject.delivery?.loudness,
     });
     await props.session.speak(track);
     speech = { lines, track };
@@ -300,7 +298,7 @@ export async function renderAutoMovieDrawnVideo(props: {
       : reduceAutoMovieInspectionEpisodes(packets, times.length);
 
   // The soundtrack's record, with each line's lip sync measured against the
-  // mouths the figures showed on the drawn frames.
+  // mouths the subject read on the drawn frames.
   const sound: IAutoMovieDrawnVideoResult["sound"] =
     mixed === undefined || speech === undefined || soundtrack === null
       ? undefined

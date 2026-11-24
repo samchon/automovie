@@ -6,7 +6,7 @@ States the identity, the severity order and its owner, how intervals are read, w
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-An episode keeps its first and worst observations and its last sample, not every sample time, so an identity's intervals are its episodes' spans. A sample holds each identity once within a scope, so the five-field identity pairs findings across rounds. Absence is a fix or a new finding only where the other round checked the obligation over the whole span; consecutive output frames leave no unsampled time, so coverage ranges merge across them, and a gap between samples does not. Severity uses compareAutoMovieInspectionFindings, the order the reducer keeps the worst witness by. Across rounds it compares ranks at float32's relative precision, 2^-23: the GPU draws the scene in single precision, so closer ranks describe the same picture, and the double-precision noise of moving unchanged geometry, about 1e-12 of a rank, is not reported as a change.
+An episode keeps its first and worst observations and its last sample, not every sample time, so an identity's intervals are its episodes' spans. A sample holds each identity once within a scope, so the five-field identity pairs findings across rounds. Absence is a fix or a new finding only where the other round checked the obligation over the whole span; consecutive output frames leave no unsampled time, so coverage ranges merge across them, and a gap between samples does not. Severity uses compareAutoMovieInspectionFindings, the order the reducer keeps the worst witness by.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

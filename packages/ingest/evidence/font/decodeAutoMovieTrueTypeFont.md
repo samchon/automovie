@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Follows ISO/IEC 14496-22: the sfnt header and table directory, `head` units per em and `loca` format, `hhea` metrics, `maxp` glyph count, `hmtx` advances with the last full metric repeated, increasing `loca` offsets bounded by `glyf`, then the cmap, glyph, kern, `OS/2` and name readers. Only mapped glyphs are decoded, each once through the shared outline cache, and kerning is expanded from glyph pairs to every code point pair through the inverse cmap. Checksums are not verified, a stated limit: the asset ledger digest fixes the bytes. Composite components placed by matching point numbers are refused, a second stated limit with its reopening condition: point matching needs the font's numbered points of both outlines, which the decoded quadratic chains do not keep.
+Follows ISO/IEC 14496-22: the sfnt header and table directory, `head` units per em and `loca` format, `hhea` metrics, `maxp` glyph count, `hmtx` advances with the last full metric repeated, increasing `loca` offsets bounded by `glyf`, then the cmap, glyph, kern, `OS/2` and name readers. Only mapped glyphs are decoded, each once through the shared outline cache, and kerning is expanded from glyph pairs to every code point pair through the inverse cmap. Checksums are not verified, a stated limit: the asset ledger digest fixes the bytes.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Every unsupported container, missing table and out-of-range offset refuses with 
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the admitted versions, every refusal, every table read, the composite-glyph limit and its reopening condition, what is skipped (checksums, hinting, GPOS and GSUB through the record), purity and determinism.
+States the admitted versions, every refusal, every table read, what is skipped (checksums, hinting, GPOS and GSUB through the record), purity and determinism.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
