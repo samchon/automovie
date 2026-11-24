@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { Vector3 } from "../../math/Vector3";
-import { AUTO_MOVIE_LIGHT_TYPES } from "../../resolve/constants/AUTO_MOVIE_LIGHT_TYPES";
 import { withArticle } from "../../text/withArticle";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
 import { isRecord } from "../../validation/isRecord";
@@ -36,12 +35,11 @@ import { lightTypeOf } from "./lightTypeOf";
  *
  * A parameter that cannot act is refused rather than ignored, because silently
  * dropping a `coneAngle` on a point light stages a light that is not the one
- * authored. An unknown `type` is reported once and nothing else is judged,
- * since no rule set applies. The caller supplies a light record; malformed
- * ordinary JSON fields, including null vectors, colors and shadows, produce
- * located findings. A failed string conversion uses `an uninspectable value`
- * only in text and retains the authored value. Throwing property accessors and
- * nonterminating conversion hooks are outside that guarantee.
+ * authored. The caller supplies a light record; malformed ordinary JSON fields,
+ * including null vectors, colors and shadows, produce located findings. A
+ * failed string conversion uses `an uninspectable value` only in text and
+ * retains the authored value. Throwing property accessors and nonterminating
+ * conversion hooks are outside that guarantee.
  */
 export const validateLightPlacementShape: (
   light: IAutoMovieStageLight,
@@ -52,17 +50,7 @@ export const validateLightPlacementShape: (
   path: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  const type: IAutoMovieLight["type"] | null = lightTypeOf(light);
-  if (type === null) {
-    const declared: unknown = light.type;
-    out.push(
-      "type",
-      `${path}.type`,
-      `light type must be one of ${[...AUTO_MOVIE_LIGHT_TYPES].join(", ")}`,
-      declared,
-    );
-    return;
-  }
+  const type: IAutoMovieLight["type"] = lightTypeOf(light);
   const aimed: boolean = type !== "point";
   const positioned: boolean = type !== "directional";
   // Distance falloff is narrower than "has a position": an area panel stands

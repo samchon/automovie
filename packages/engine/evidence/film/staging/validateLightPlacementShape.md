@@ -14,7 +14,7 @@ No value is defaulted or clamped to pass, the area-shadow refusal is a stated re
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States per-kind ranges, color and shadow rules, inapplicable-parameter refusal, unknown-type handling, the caller's record premise and ordinary-field conversion fallback with its limits.
+States per-kind ranges, color and shadow rules, inapplicable-parameter refusal, the caller's record premise and ordinary-field conversion fallback with its limits.
 
 ## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
 

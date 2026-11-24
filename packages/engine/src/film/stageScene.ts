@@ -302,8 +302,7 @@ export function stageScene(
           light: IAutoMovieStageLight,
         ): Pick<IAutoMovieLight, "id" | "type" | "castShadow"> => ({
           id: light.node,
-          // A light of an unknown type is refused by its own shape check.
-          type: lightTypeOf(light) ?? "directional",
+          type: lightTypeOf(light),
           castShadow: light.castShadow,
         }),
       ),
