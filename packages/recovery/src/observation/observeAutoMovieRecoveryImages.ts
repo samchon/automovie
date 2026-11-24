@@ -26,27 +26,14 @@ export function observeAutoMovieRecoveryImages(
   let cancellationRequested: boolean = false;
   let cancellationCallback: boolean = false;
   let callback: boolean = false;
-  let probe: (() => boolean) | undefined;
   const cancelled: () => boolean = (): boolean => {
     cancellationCallback = true;
-    const requested: boolean | undefined = probe?.();
-    if (probe !== undefined && typeof requested !== "boolean")
-      throw new Error(
-        "Cancellation callback must return a boolean synchronously",
-      );
+    const requested: boolean = options.cancelled?.() === true;
     cancellationCallback = false;
-    cancellationRequested = requested === true;
+    cancellationRequested = requested;
     return cancellationRequested;
   };
   try {
-    probe = options?.cancelled;
-    if (probe !== undefined && typeof probe !== "function")
-      return {
-        operator,
-        status: "refused",
-        diagnostics: ["Cancellation callback must be a function"],
-      };
-
     if (cancelled())
       return {
         operator,
@@ -54,82 +41,12 @@ export function observeAutoMovieRecoveryImages(
         diagnostics: ["Cancelled before image admission"],
       };
 
-    const finite: (value: unknown) => value is number = (
-      value: unknown,
-    ): value is number => typeof value === "number" && Number.isFinite(value);
-    const positiveInteger: (value: unknown) => boolean = (
-      value: unknown,
-    ): boolean =>
-      typeof value === "number" && Number.isSafeInteger(value) && value > 0;
-    if (
-      !input ||
-      typeof input.objectId !== "string" ||
-      !input.objectId.trim() ||
-      typeof input.frame !== "string" ||
-      !input.frame.trim() ||
-      input.rigidity !== "asserted-fixed" ||
-      !["analytic", "photograph", "inconsistent-stress"].includes(
-        input.cohort,
-      ) ||
-      !input.budget ||
-      !positiveInteger(input.budget.maxPixels) ||
-      !positiveInteger(input.budget.maxViews) ||
-      !positiveInteger(input.budget.maxRows) ||
-      !Array.isArray(input.views) ||
-      input.views.length < 3 ||
-      input.views.length > input.budget.maxViews ||
-      !input.background ||
-      !Array.isArray(input.background.rgb) ||
-      input.background.rgb.length !== 3 ||
-      !finite(input.background.threshold) ||
-      input.background.threshold <= 0 ||
-      input.background.threshold > 255
-    )
-      throw new Error(
-        "invalid-capture: explicit rigid RGB capture, known charts, background and finite budgets required",
-      );
-    for (let channel: number = 0; channel < 3; channel++)
-      if (
-        !Number.isInteger(input.background.rgb[channel]) ||
-        input.background.rgb[channel] < 0 ||
-        input.background.rgb[channel] > 255
-      )
-        throw new Error(
-          "invalid-background: RGB channels must be unsigned bytes",
-        );
-    const identities: Set<string> = new Set();
+    // The caller's budget bounds the views, their pixels and the occupied
+    // rows the scan retains.
+    if (input.views.length > input.budget.maxViews)
+      throw new Error("invalid-capture: views exceed the view budget");
     let pixels: number = 0;
-    for (let index: number = 0; index < input.views.length; index++) {
-      const view: IAutoMovieRecoveryImageInput["views"][number] =
-        input.views[index];
-      const camera:
-        | IAutoMovieRecoveryImageInput["views"][number]["camera"]
-        | undefined = view?.camera;
-      if (
-        !view ||
-        typeof view.id !== "string" ||
-        !view.id.trim() ||
-        identities.has(view.id) ||
-        typeof view.sourceSha256 !== "string" ||
-        !/^[a-f0-9]{64}$/i.test(view.sourceSha256) ||
-        typeof view.pixelProvenance !== "string" ||
-        !view.pixelProvenance.trim() ||
-        !positiveInteger(view.width) ||
-        !positiveInteger(view.height) ||
-        !camera ||
-        camera.type !== "horizontal-orthographic" ||
-        camera.calibration !== "supplied" ||
-        !finite(camera.azimuthRadians) ||
-        !finite(camera.pixelPitchMm) ||
-        camera.pixelPitchMm <= 0 ||
-        !Array.isArray(camera.principalPointPx) ||
-        camera.principalPointPx.length !== 2 ||
-        !finite(camera.principalPointPx[0]) ||
-        !finite(camera.principalPointPx[1])
-      )
-        throw new Error(
-          `invalid-view: supplied camera, pixel chart and unique byte identity required at ${index}`,
-        );
+    for (const view of input.views) {
       const count: number = view.width * view.height;
       pixels += count;
       if (
@@ -140,13 +57,9 @@ export function observeAutoMovieRecoveryImages(
         throw new Error(
           "budget-exhausted: total image pixels exceed maxPixels",
         );
-      if (!(view.rgb8 instanceof Uint8Array) || view.rgb8.length !== 3 * count)
-        throw new Error(
-          `invalid-pixels: exact RGB8 population required at ${index}`,
-        );
       assertRecoveryImageChart(view);
-      identities.add(view.id);
     }
+
     const red: number = input.background.rgb[0],
       green: number = input.background.rgb[1],
       blue: number = input.background.rgb[2],

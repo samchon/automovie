@@ -6,7 +6,7 @@ A declared maximum-channel colour distance segments RGB pixels; contiguous row e
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-This synchronous owner validates capture budgets before scans and produces only observations; inverse fitting, source-free realization and byte publication remain separate operations.
+This synchronous owner checks the caller's view and pixel budgets and the pixel charts before scans and produces only observations; inverse fitting, source-free realization and byte publication remain separate operations.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ States fixed-background premises, pixel-cell and row-centre interpretation, borr
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Admission scans V view records before O(P) pixel work, where P is total admitted pixels. Output has O(R) occupied rows bounded by maxRows; no image-sized mask or depth volume is allocated.
+The budget pass reads V view records before O(P) pixel work, where P is total pixels. Output has O(R) occupied rows bounded by maxRows; no image-sized mask or depth volume is allocated.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
