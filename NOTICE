@@ -26,6 +26,7 @@ TypeScript. They are:
   ReferenceCentroidalMomentumPivotLocationsCalculator,
   ICPPlannerSegmentedTrajectoryGenerator, ICPPlannerTrajectoryGenerator,
   CapturePointTools, and the walking states and balance manager they name)
+- preparePhysicalDisturbanceSpan.ts (CapturePointTools, CoMIntegrationTools)
 - physicalOneStepCaptureRegion.ts (OneStepCaptureRegionCalculator,
   CaptureRegionMathTools)
 - physicalPlanarPolygon.ts (Euclid EuclidGeometryPolygonTools and
