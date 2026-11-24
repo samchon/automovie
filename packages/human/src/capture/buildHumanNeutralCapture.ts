@@ -32,6 +32,7 @@ import { AutoMovieHumanTrunkRows } from "../generation/AutoMovieHumanTrunkRows";
 import { AutoMovieHumanHeadLane } from "../generation/head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
 import { buildHumanSurfaceCapture } from "./buildHumanSurfaceCapture";
+import { inspectHumanNeutralArmscye } from "./inspectHumanNeutralArmscye";
 import { inspectHumanNeutralTopology } from "./inspectHumanNeutralTopology";
 
 /** Name of the synthetic neutral survey subject in the inspector. */
@@ -174,6 +175,13 @@ export namespace buildHumanNeutralCapture {
   /** Dispatch the separately invoked neutral diagnostic command. */
   export function command(args: readonly string[]): void {
     if (args.includes("--sources")) inspectNeutralSources();
+    else if (args.includes("--armscye-sources"))
+      inspectHumanNeutralArmscye({
+        useDatum: args.includes("--shoulder-datum"),
+        chordDirection: args.includes("--chord-direction"),
+        firstClearRing: args.includes("--first-clear-ring"),
+        slices: args.includes("--level-slices"),
+      });
     else if (args.includes("--head-skin")) inspectNeutralHead(true);
     else if (args.includes("--head")) inspectNeutralHead(false);
     else if (args.includes("--topology")) {

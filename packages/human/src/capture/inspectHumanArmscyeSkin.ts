@@ -1,0 +1,122 @@
+import {
+  AutoMovieSolidMesh as Mesh,
+  AutoMovieSolidVector as V,
+  measureAutoMovieMeshCrossings,
+  measureAutoMovieMeshPieces,
+} from "@automovie/engine";
+import type {
+  AutoMovieVector2Tuple as Chart,
+  IAutoMovieMesh,
+  IAutoMovieSolidSurface,
+  AutoMovieVector3Tuple as Point,
+} from "@automovie/interface";
+
+import { AutoMovieHumanTrunkRows } from "../generation/AutoMovieHumanTrunkRows";
+
+/**
+ * Retain actual source panels outside the two indexed boundaries of a meridian
+ * test.
+ */
+export function inspectHumanArmscyeSkin(input: {
+  host: IAutoMovieSolidSurface & { domain: [number, number] };
+  child: IAutoMovieSolidSurface & { domain: [number, number] };
+  hostChart: Chart[];
+  childChart: Chart[];
+  rings: Point[][];
+  reach: number;
+}) {
+  const { host, child, hostChart, rings, reach } = input;
+  const mesh = Mesh.create();
+  const count = hostChart.length;
+  const period = 2 * Math.PI;
+  const childChart: Chart[] = [];
+  for (const [station, phase] of input.childChart) {
+    const previous = childChart.at(-1)?.[1] ?? phase;
+    childChart.push([
+      station,
+      phase + period * Math.round((previous - phase) / period),
+    ]);
+  }
+  const phases = Array.from({ length: count }, (_, i) => (period * i) / count);
+  const mark = childChart[0]![0];
+  const h = Mesh.owner(mesh, host);
+  const c = Mesh.owner(mesh, child);
+  const band = mesh.owners.length;
+  mesh.owners.push({
+    name: "armscye.meridians",
+    point: (row, column) => rings[row]![column]!,
+  });
+  const ids = rings.map((points, row) =>
+    points.map((point, k) => {
+      const a = hostChart[k]!;
+      const b = childChart[k]!;
+      if (row === 0) return Mesh.vertex(mesh, point, h, ...a);
+      if (row === rings.length - 1) return Mesh.vertex(mesh, point, c, ...b);
+      return Mesh.vertex(mesh, point, band, row, k);
+    }),
+  );
+  const adjacent = V.sub(rings[0]![1]!, rings[0]![0]!);
+  const approach = V.sub(rings[1]![0]!, rings[0]![0]!);
+  const parent = host.jet(...hostChart[0]!);
+  const outward = V.scale(V.cross(parent.u, parent.v), host.orientation);
+  const sense = V.dot(V.cross(approach, adjacent), outward) > 0;
+  for (let row = 1; row < ids.length; ++row)
+    for (let k = 0; k < count; ++k) {
+      const next = (k + 1) % count;
+      const a = ids[row - 1]![k]!;
+      const b = ids[row - 1]![next]!;
+      const c = ids[row]![k]!;
+      const d = ids[row]![next]!;
+      if (sense) mesh.indices.push(a, c, b, c, d, b);
+      else mesh.indices.push(a, b, c, c, b, d);
+    }
+  const levels = hostChart.map(([u]) => u);
+  const low = Math.max(host.domain[0], Math.min(...levels) - reach);
+  const high = Math.min(host.domain[1], Math.max(...levels) + reach);
+  Mesh.face(mesh, {
+    surface: host,
+    stations: stations(low, high),
+    phases,
+    loops: [{ kind: "hole", chart: hostChart, vertices: ids[0]! }],
+  });
+  Mesh.face(mesh, {
+    surface: child,
+    stations: stations(mark, child.domain[1]),
+    phases,
+    loops: [],
+    domainLoops: [{ kind: "start", chart: childChart, vertices: ids.at(-1)! }],
+  });
+  const geometry: IAutoMovieMesh = {
+    positions: mesh.positions.map((mm) => mm / 1000),
+    indices: mesh.indices,
+    normals: null,
+    skin: null,
+    uvs: null,
+  };
+  const pieces = measureAutoMovieMeshPieces(geometry).map(
+    ({ boundaryLoops, genus, manifold, consistentlyWound }) => ({
+      boundaryLoops,
+      genus,
+      manifold,
+      consistentlyWound,
+    }),
+  );
+  const crossings = measureAutoMovieMeshCrossings(geometry, geometry);
+  return {
+    positions: geometry.positions,
+    indices: mesh.indices,
+    report: {
+      pieces,
+      crossings: crossings.length,
+      sampleCrossings: crossings.slice(0, 8),
+    },
+  };
+}
+
+function stations(low: number, high: number): number[] {
+  const intervals = Math.ceil((high - low) / AutoMovieHumanTrunkRows.MAX_GAP);
+  return Array.from(
+    { length: intervals + 1 },
+    (_, i) => low + ((high - low) * i) / intervals,
+  );
+}
