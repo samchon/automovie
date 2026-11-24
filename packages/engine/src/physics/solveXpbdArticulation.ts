@@ -56,6 +56,84 @@ export namespace solveXpbdArticulation {
     warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
   ): AutoMovieXpbdJoint[] {
     const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
+    const loops: AutoMovieXpbdJoint[] = forest(joints, nodes);
+    for (const node of nodes.values())
+      if (node.parent === undefined) {
+        const task: AutoMovieXpbdWorld.IRootTask | undefined = tasks.get(
+          node.body,
+        );
+        let start: solveXpbdSupportCascade.IWarm | undefined = warm.get(
+          node.body,
+        );
+        if (task !== undefined && start === undefined) {
+          start = { first: [], second: [] };
+          warm.set(node.body, start);
+        }
+        solveTree(node, h, contacts, task, start);
+      }
+    return loops;
+  }
+
+  /**
+   * Apply a linear impulse at a point of a body through its whole articulation:
+   * the impulse form of the articulated-body algorithm (Featherstone 2008,
+   * section 7.5; Mirtich 1996, "Impulse-based dynamic simulation of rigid body
+   * systems", chapter 4) gives every body of the body's tree the velocity
+   * change that keeps each attachment's anchors together and moves each joint
+   * only along its free axes, so a blow on the chest moves the body it is
+   * attached to at once, as the joints' impulses carry it, where an impulse on
+   * the chest alone sets it moving away from its limbs and leaves the joints'
+   * position pass to drag them after it. A body no joint attaches is its own
+   * tree, and the change is the rigid body's own.
+   *
+   * @param joints The world's joints, in creation order.
+   * @param body The struck body.
+   * @param point The world point the impulse acts at, metres.
+   * @param impulse The world linear impulse, newton seconds.
+   * @throws {Error} When the struck body's tree has a singular inertia.
+   */
+  export function impulse(
+    joints: readonly AutoMovieXpbdJoint[],
+    body: AutoMovieXpbdBody,
+    point: IAutoMovieVector3,
+    impulse: IAutoMovieVector3,
+  ): void {
+    if (!body.dynamic) return;
+    const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
+    forest(joints, nodes);
+    const tree: AutoMovieXpbdArticulation.ITree = build(
+      root(nodeOf(nodes, body)),
+    );
+    // An instant's impulse: no motor's damping acts over it.
+    const factored: AutoMovieXpbdArticulation.IFactor | null =
+      AutoMovieXpbdArticulation.factor(tree, 0);
+    if (factored === null)
+      throw new Error("A struck articulation has a singular inertia");
+    apply(
+      tree,
+      AutoMovieXpbdArticulation.propagate(tree, factored, false, {
+        state: tree.states.findIndex(
+          (state: AutoMovieXpbdArticulation.IState): boolean =>
+            state.body === body,
+        ),
+        impulse: AutoMovieXpbdArticulation.spatialImpulse(
+          Vector3.subtract(point, tree.origin),
+          impulse,
+        ),
+      }),
+    );
+  }
+
+  /**
+   * The world's forest: each joint whose child is dynamic, has no parent edge
+   * yet and lies in another tree than its parent becomes a tree edge.
+   *
+   * @returns The joints outside the forest, in creation order.
+   */
+  function forest(
+    joints: readonly AutoMovieXpbdJoint[],
+    nodes: Map<AutoMovieXpbdBody, INode>,
+  ): AutoMovieXpbdJoint[] {
     const loops: AutoMovieXpbdJoint[] = [];
     for (const joint of joints) {
       const child: INode = nodeOf(nodes, joint.child);
@@ -72,21 +150,33 @@ export namespace solveXpbdArticulation {
       child.parent = parent;
       parent.children.push(child);
     }
-    for (const node of nodes.values())
-      if (node.parent === undefined) {
-        const task: AutoMovieXpbdWorld.IRootTask | undefined = tasks.get(
-          node.body,
-        );
-        let start: solveXpbdSupportCascade.IWarm | undefined = warm.get(
-          node.body,
-        );
-        if (task !== undefined && start === undefined) {
-          start = { first: [], second: [] };
-          warm.set(node.body, start);
-        }
-        solveTree(node, h, contacts, task, start);
-      }
     return loops;
+  }
+
+  /** Add a propagation's velocity changes to every dynamic body of its tree. */
+  function apply(
+    tree: AutoMovieXpbdArticulation.ITree,
+    response: AutoMovieXpbdArticulation.IResponse,
+  ): void {
+    tree.states.forEach(
+      (state: AutoMovieXpbdArticulation.IState, i: number): void => {
+        const body: AutoMovieXpbdBody = state.body;
+        if (!body.dynamic) return;
+        const change: number[] = response.change[i]!;
+        body.angularVelocity = Vector3.add(body.angularVelocity, {
+          x: change[0]!,
+          y: change[1]!,
+          z: change[2]!,
+        });
+        body.velocity = Vector3.add(
+          body.velocity,
+          AutoMovieXpbdArticulation.pointChange(
+            change,
+            Vector3.subtract(body.center, tree.origin),
+          ),
+        );
+      },
+    );
   }
 
   /** One body of the forest. */
@@ -161,27 +251,7 @@ export namespace solveXpbdArticulation {
       );
     } while (clamp(tree, factored, held.response, h));
     solveXpbdArticulationContacts.commit(held);
-    const response: AutoMovieXpbdArticulation.IResponse = held.response;
-    tree.states.forEach(
-      (state: AutoMovieXpbdArticulation.IState, i: number): void => {
-        const body: AutoMovieXpbdBody = state.body;
-        if (!body.dynamic) return;
-        const change: number[] = response.change[i]!;
-        const spin: IAutoMovieVector3 = {
-          x: change[0]!,
-          y: change[1]!,
-          z: change[2]!,
-        };
-        body.angularVelocity = Vector3.add(body.angularVelocity, spin);
-        body.velocity = Vector3.add(
-          body.velocity,
-          AutoMovieXpbdArticulation.pointChange(
-            change,
-            Vector3.subtract(body.center, tree.origin),
-          ),
-        );
-      },
-    );
+    apply(tree, held.response);
   }
 
   /**

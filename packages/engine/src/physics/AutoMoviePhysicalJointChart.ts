@@ -46,12 +46,29 @@ export namespace AutoMoviePhysicalJointChart {
   }
 
   /**
-   * A joint's angles of a rotation, of the chart's two triples that give it
-   * (`(a, b, c)` and `(a + pi, pi - b, c + pi)`, each wrapped into a turn about
-   * zero), the one nearest the joint's ranges: the least summed distance of
-   * each angle from its free axis's range, or from zero for a locked axis. A
-   * middle angle past a quarter turn, which the extraction folds back, is then
-   * read as the rig composes it.
+   * A joint's angles of a rotation in its chart.
+   *
+   * A joint whose locked axes lead its order (an elbow's adduction before its
+   * flexion and twist, a knee's two before its flexion) moves only on `R_j(b)
+   * R_k(c)`, or `R_k(c)`: its free angles are read on that family directly, the
+   * locked ones zero. The last axis's image `R e_k` is turned about `e_j` by `b
+   * = atan2(R e_k . (e_j x e_k), R e_k . e_k)`, since `R_j(b) e_k = cos b e_k +
+   * sin b (e_j x e_k)`, and `c` is the twist about `e_k` of what is left,
+   * `R_j(-b) R` (the swing-twist decomposition, Dobrowolski 2015, "Swing-twist
+   * decomposition in Clifford algebra"). On the family this is the chart's own
+   * reading; off it, it drops the locked turn the way the solver's position
+   * pass removes it. Unlike the Tait-Bryan extraction, it has no singularity at
+   * a quarter turn of the middle axis: an elbow flexed a right angle has its
+   * middle axis there, where the extraction trades the locked first angle
+   * against the twist and reads a locked turn of 120 degrees in a joint that
+   * has none.
+   *
+   * Any other joint is read by the extraction, of the chart's two triples that
+   * give the rotation (`(a, b, c)` and `(a + pi, pi - b, c + pi)`, each wrapped
+   * into a turn about zero), the one nearest the joint's ranges: the least
+   * summed distance of each angle from its free axis's range, or from zero for
+   * a locked axis. A middle angle past a quarter turn, which the extraction
+   * folds back, is then read as the rig composes it.
    *
    * @param joint The joint's chart and free axes.
    * @param rotation A unit quaternion.
@@ -65,6 +82,16 @@ export namespace AutoMoviePhysicalJointChart {
     if (joint.order === undefined)
       throw new Error("A joint without a chart has no chart angles");
     const order: readonly IAutoMoviePhysicalJointAxis["axis"][] = joint.order;
+    const free: boolean[] = order.map(
+      (axis: IAutoMoviePhysicalJointAxis["axis"]): boolean =>
+        joint.axes.some((range: IRange): boolean => range.axis === axis),
+    );
+    const leading: number = free.indexOf(true);
+    if (
+      (leading === 1 || leading === 2) &&
+      free.slice(leading).every((f: boolean): boolean => f)
+    )
+      return led(order, leading, rotation);
     const first: number[] = angles(order, rotation);
     const second: number[] = [
       wrap(first[0]! + Math.PI),
@@ -146,6 +173,49 @@ export namespace AutoMoviePhysicalJointChart {
     IAutoMoviePhysicalJointAxis,
     "axis" | "minimum" | "maximum"
   >;
+
+  /**
+   * The angles of a rotation on the family its free trailing axes span, the
+   * `locked` leading ones zero (`nearest`).
+   */
+  function led(
+    order: readonly IAutoMoviePhysicalJointAxis["axis"][],
+    locked: number,
+    rotation: IAutoMovieQuaternion,
+  ): number[] {
+    const k: IAutoMoviePhysicalJointAxis["axis"] = order[2]!;
+    const out: number[] = [0, 0, 0];
+    let rest: IAutoMovieQuaternion = rotation;
+    if (locked === 1) {
+      const j: IAutoMoviePhysicalJointAxis["axis"] = order[1]!;
+      const aimed: IAutoMovieVector3 = Quaternion.rotateVector(
+        rotation,
+        UNIT[k],
+      );
+      const side: IAutoMovieVector3 = cross(UNIT[j], UNIT[k]);
+      out[1] = Math.atan2(dot(aimed, side), dot(aimed, UNIT[k]));
+      rest = Quaternion.multiply(turn(j, -out[1]!), rotation);
+    }
+    out[2] = wrap(2 * Math.atan2(rest[k], rest.w));
+    return out;
+  }
+
+  /** The dot product of two vectors. */
+  function dot(a: IAutoMovieVector3, b: IAutoMovieVector3): number {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+  }
+
+  /** The cross product of two vectors. */
+  function cross(
+    a: IAutoMovieVector3,
+    b: IAutoMovieVector3,
+  ): IAutoMovieVector3 {
+    return {
+      x: a.y * b.z - a.z * b.y,
+      y: a.z * b.x - a.x * b.z,
+      z: a.x * b.y - a.y * b.x,
+    };
+  }
 
   /** An angle wrapped into (-pi, pi]. */
   function wrap(angle: number): number {

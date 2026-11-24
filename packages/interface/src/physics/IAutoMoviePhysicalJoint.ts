@@ -1,5 +1,7 @@
 import type { IAutoMovieRigidTransform } from "../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieJointRotationFrame } from "../pose/IAutoMovieJointRotationFrame";
+import type { IAutoMovieJointConstraint } from "../skeleton/IAutoMovieJointConstraint";
 import type { IAutoMoviePhysicalJointAxis } from "./IAutoMoviePhysicalJointAxis";
 
 /**
@@ -10,7 +12,8 @@ import type { IAutoMoviePhysicalJointAxis } from "./IAutoMoviePhysicalJointAxis"
  * metres and that joints form one connected acyclic tree with one parent per
  * nonroot segment. An empty axes list is fixed; translations and all unlisted
  * angular axes are locked. An optional swing-twist limit further bounds the
- * joint's rotation in the clinical chart.
+ * joint's rotation in the clinical chart; an anatomical gate (`range`) bounds
+ * it in place of the axes.
  */
 export interface IAutoMoviePhysicalJoint {
   /** Unique profile-local id. */
@@ -45,6 +48,16 @@ export interface IAutoMoviePhysicalJoint {
    * absent, only the axes bound it.
    */
   swingTwist?: IAutoMoviePhysicalJoint.ISwingTwist;
+
+  /**
+   * The anatomical range of a ball joint gated by swing and twist (a shoulder,
+   * a thumb's base; `IAutoMovieJointConstraint.swingTwist`): the one set the
+   * joint admits and is measured against, in place of its axes' box, read on
+   * the bone's own swing-twist frame as the range-of-motion gate reads it. Its
+   * axes then carry only its motors. Absent, the axes and the chart bound the
+   * joint.
+   */
+  range?: IAutoMoviePhysicalJoint.IGate;
 }
 
 /**
@@ -52,6 +65,22 @@ export interface IAutoMoviePhysicalJoint {
  * its angle ranges.
  */
 export namespace IAutoMoviePhysicalJoint {
+  /**
+   * A ball joint's swing-twist range, as the range-of-motion gate reads it: the
+   * bone's rest-relative rotation in its own frame is the joint frame's
+   * relative rotation carried by `basis`, `basis q_joint basis^-1`.
+   */
+  export interface IGate {
+    /** The bone's constraint, with its `swingTwist` gate. */
+    constraint: IAutoMovieJointConstraint;
+
+    /** The bone's swing-twist frame: its clinical axes and rest frame. */
+    frame: IAutoMovieJointRotationFrame;
+
+    /** The joint frame's rotation into the bone's own frame. */
+    basis: IAutoMovieRigidTransform["rotation"];
+  }
+
   /**
    * A swing-twist limit (Baerlocher and Boulic 2001, "Parametrization and range
    * of motion of the ball-and-socket joint"): the relative rotation splits into
