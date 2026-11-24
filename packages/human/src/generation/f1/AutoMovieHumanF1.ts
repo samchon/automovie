@@ -42,7 +42,6 @@ import {
   AutoMovieLoftChain,
   AutoMovieLoftViewFullSource,
   AutoMovieNaturalSpline,
-  AutoMovieSolidVector,
   AutoMovieViewLoft,
   realizeAutoMovieConstruction,
 } from "@automovie/engine";
