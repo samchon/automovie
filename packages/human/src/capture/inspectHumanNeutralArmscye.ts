@@ -18,12 +18,14 @@ import { AutoMovieHumanJoinLoop } from "../generation/conic/AutoMovieHumanJoinLo
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
 import { inspectHumanArmscyeMeridians } from "./inspectHumanArmscyeMeridians";
 import { inspectHumanArmscyeSlices } from "./inspectHumanArmscyeSlices";
+import { inspectHumanArmscyeSlopeGrid } from "./inspectHumanArmscyeSlopeGrid";
 
 type Options = {
   useDatum: boolean;
   chordDirection: boolean;
   firstClearRing: boolean;
   slices: boolean;
+  slopeGrid: boolean;
 };
 
 /**
@@ -69,7 +71,7 @@ function inspect(
     upper: number;
     neck: { suprasternale: number; side: number; cervicale: number };
   },
-  { useDatum, chordDirection, firstClearRing, slices }: Options,
+  { useDatum, chordDirection, firstClearRing, slices, slopeGrid }: Options,
 ): void {
   const { lower, upper, neck } = levels;
   const boundary = context.neckBoundary();
@@ -97,7 +99,7 @@ function inspect(
       if (arm === null) throw new Error(`No original arm.${side}`);
       const result = slices
         ? {
-            sections: sectionSight(wall, arm, limb.bones, side, lower),
+            sections: sectionSight(wall, arm, limb.bones, side, lower, upper),
             levelBounds: [lower, upper, boundary.seat.y].map((station) => ({
               station,
               anterior: wall.point(station, 0),
@@ -107,6 +109,7 @@ function inspect(
         : observe(host, wall, arm, lower, upper, side, {
             chordDirection,
             firstClearRing,
+            slopeGrid,
           });
       console.log(
         JSON.stringify({
@@ -148,6 +151,7 @@ function sectionSight(
   },
   side: "left" | "right",
   axilla: number,
+  acromion: number,
 ) {
   const shaft = AutoMovieLoftViewFullSource.create(arm);
   const mark = arm.front.positive.knots.find(
@@ -161,6 +165,7 @@ function sectionSight(
     joint: bones.shoulder,
     course: V.sub(bones.elbow, bones.shoulder),
     axilla,
+    acromion,
     reach:
       Math.abs(shaft.point(mark, 0)[0] - shaft.point(mark, Math.PI)[0]) / 2,
     count: arm.samples,
@@ -287,9 +292,10 @@ function observe(
   options: {
     chordDirection: boolean;
     firstClearRing: boolean;
+    slopeGrid: boolean;
   },
 ) {
-  const { chordDirection, firstClearRing } = options;
+  const { chordDirection, firstClearRing, slopeGrid } = options;
   const shaft = AutoMovieLoftViewFullSource.create(arm);
   const mark = arm.front.positive.knots.find(
     ({ site }) => site === "deltoid",
@@ -326,6 +332,7 @@ function observe(
     return phase;
   };
   const apertures = [shaft.point(mark, 0)[0], shaft.point(mark, Math.PI)[0]];
+  const reach = Math.abs(apertures[0]! - apertures[1]!) / 2;
   const height = (upper - lower) / 2;
   const address = (point: AutoMovieVector3Tuple) => {
     const [station, phase] = AutoMovieHumanJoinLoop.address(
@@ -362,7 +369,6 @@ function observe(
     );
     return { point: jet.p, first, second };
   };
-  const reach = Math.abs(apertures[0]! - apertures[1]!) / 2;
   const corrected = (loop: IAutoMovieSolidSharedCurve.Loop) => {
     try {
       const result = AutoMovieHumanArmscyePort.place({
@@ -427,25 +433,52 @@ function observe(
       v[0];
     return { point: [s, phase], first: [ds, dp], second: [dds, ddp] };
   };
-  const outlet = firstClearRing
-    ? clearOutlet({
-        wall,
-        shaft,
-        arm,
-        limit: mark + reach,
-        side,
-        phaseAt,
-        after: Math.max(
-          ...Array.from(
-            { length: arm.samples },
-            (_, i) =>
-              address(
-                wall.point(...physical((2 * Math.PI * i) / arm.samples).point),
-              ).station,
-          ),
+  const after = firstClearRing
+    ? Math.max(
+        ...Array.from(
+          { length: arm.samples },
+          (_, i) =>
+            address(
+              wall.point(...physical((2 * Math.PI * i) / arm.samples).point),
+            ).station,
         ),
-      })
-    : mark;
+      )
+    : null;
+  const outlet =
+    after !== null
+      ? clearOutlet({
+          wall,
+          shaft,
+          arm,
+          limit: mark + reach,
+          side,
+          phaseAt,
+          after,
+        })
+      : mark;
+  if (slopeGrid)
+    return {
+      after,
+      slope: inspectHumanArmscyeSlopeGrid({
+        host,
+        wall,
+        arm,
+        mark,
+        outlet,
+        reach,
+        side,
+        from: Math.max(wall.domain[0], lower - reach),
+        to: wall.domain[1],
+        address: (p) => {
+          try {
+            const measured = address(p);
+            return measured.station < mark ? measured : null;
+          } catch {
+            return null;
+          }
+        },
+      }),
+    };
   const elbow = arm.front.positive.knots.find(
     ({ site }) => site === "elbow",
   )?.station;
@@ -476,6 +509,7 @@ function observe(
     upper,
     mark,
     outlet,
+    after,
     physicalLoop,
     physicalPort,
     moveMilliseconds: performance.now() - began,

@@ -25,10 +25,12 @@ export function inspectHumanArmscyeSlices(input: {
   course: Point;
   side: AutoMovieHumanSide;
   axilla: number;
+  acromion: number;
   reach: number;
   count: number;
 }) {
-  const { host, child, joint, course, side, axilla, reach, count } = input;
+  const { host, child, joint, course, side, axilla, acromion, reach, count } =
+    input;
   const rotations = [0, Math.atan2(course[2], -course[1])];
   const sense = side === "left" ? 1 : -1;
   const begin = Math.max(host.domain[0], axilla - reach);
@@ -46,6 +48,33 @@ export function inspectHumanArmscyeSlices(input: {
     (_, i) => (2 * Math.PI * i) / count,
   );
   const hostRing = (level: number): Point[] => phases.map(host.pointAt(level));
+  // The acromion can lie above the independent arm's open root. Read the
+  // available original stock without completing that partial section.
+  const acromialStock = phases.flatMap((phase) => {
+    const read = (station: number): Point => child.point(station, phase);
+    const station = AutoMovieIllinois.root(
+      (s) => read(s)[1] - acromion,
+      ...child.domain,
+      0.001,
+      100,
+    );
+    return station === null ? [] : [{ station, phase, point: read(station) }];
+  });
+  const shoulder = {
+    level: acromion,
+    trunk: host.point(
+      acromion,
+      side === "left" ? Math.PI / 2 : (3 * Math.PI) / 2,
+    ),
+    armWitnesses: acromialStock.length,
+    stockOutside: acromialStock.reduce<(typeof acromialStock)[number] | null>(
+      (outer, point) =>
+        outer === null || sense * point.point[2] > sense * outer.point[2]
+          ? point
+          : outer,
+      null,
+    ),
+  };
   const sample = (level: number, angle: number, torso = hostRing(level)) => {
     const sine = Math.sin(angle);
     const cosine = Math.cos(angle);
@@ -89,7 +118,7 @@ export function inspectHumanArmscyeSlices(input: {
     first <= 0 ||
     readings[first - 1]!.observations[0]!.crossings?.length !== 0
   )
-    return { readings, guide: null };
+    return { readings, shoulder, guide: null };
   let low = readings[first - 1]!.level;
   let high = readings[first]!.level;
   const tolerance = 0.001;
@@ -98,12 +127,13 @@ export function inspectHumanArmscyeSlices(input: {
     const crossings = sample(mid, 0).crossings;
     if (crossings?.length === 0) low = mid;
     else if (crossings?.length === 2) high = mid;
-    else return { readings, guide: null };
+    else return { readings, shoulder, guide: null };
   }
   const fold = high + reach;
   const pair = sample(fold, 0).crossings;
   return {
     readings,
+    shoulder,
     guide:
       pair?.length === 2
         ? { lower: high, bracket: [low, high], fold, pair }

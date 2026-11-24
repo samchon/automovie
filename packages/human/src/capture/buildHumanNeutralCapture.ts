@@ -181,6 +181,7 @@ export namespace buildHumanNeutralCapture {
         chordDirection: args.includes("--chord-direction"),
         firstClearRing: args.includes("--first-clear-ring"),
         slices: args.includes("--level-slices"),
+        slopeGrid: args.includes("--slope-grid"),
       });
     else if (args.includes("--head-skin")) inspectNeutralHead(true);
     else if (args.includes("--head")) inspectNeutralHead(false);
