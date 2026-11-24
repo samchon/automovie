@@ -60,7 +60,7 @@ export namespace GalleryArchetype {
     };
     const rest: GalleryCatalogue.Model = producer(
       params,
-      request.seed === "" ? undefined : Number(request.seed),
+      request.seed ?? undefined,
     );
 
     // Only the articulations the archetype has are moved, so a state kept

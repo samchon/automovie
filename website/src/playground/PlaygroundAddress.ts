@@ -5,9 +5,9 @@ import type { IPlaygroundComposition } from "./structures/IPlaygroundComposition
 /**
  * The composition in the page's address, so a link reproduces a performance.
  *
- * The composition is JSON, compressed with lz-string, in the fragment under
- * the key `c`. The query is left to the inspector, which keeps its own
- * request there and refuses a key it does not know.
+ * The composition is JSON, compressed with lz-string, in the fragment under the
+ * key `c`. The query is left to the inspector, which keeps its own request
+ * there and refuses a key it does not know.
  */
 export namespace PlaygroundAddress {
   /** The newest composition format; versions 1 and 2 remain readable. */
@@ -36,7 +36,8 @@ export namespace PlaygroundAddress {
    *
    * @param hash The address's fragment, with or without its leading `#`.
    * @returns The composition, or null when the fragment carries none.
-   * @throws {Error} When the fragment's composition cannot be read, or is of another version, naming the version it needs.
+   * @throws {Error} When the fragment's composition cannot be read, or is of
+   *   another version, naming the version it needs.
    */
   export function decode(hash: string): IPlaygroundComposition | null {
     const text: string | null = new URLSearchParams(
@@ -82,7 +83,10 @@ export namespace PlaygroundAddress {
     return composition;
   }
 
-  /** Refuse lost force capabilities and malformed impulses before JSON or playback can discard them. */
+  /**
+   * Refuse lost force capabilities and malformed impulses before JSON or
+   * playback can discard them.
+   */
   function admitForces(composition: IPlaygroundComposition): void {
     if (composition.forces === undefined) return;
     if (composition.version !== 3)
@@ -110,11 +114,17 @@ export namespace PlaygroundAddress {
   ): value is Record<string, unknown> =>
     typeof value === "object" && value !== null && !Array.isArray(value);
 
-  /** Whether a subject or anatomical token names something rather than empty text. */
+  /**
+   * Whether a subject or anatomical token names something rather than empty
+   * text.
+   */
   const token: (value: unknown) => boolean = (value: unknown): boolean =>
     typeof value === "string" && value.trim().length !== 0;
 
-  /** Whether a value is a finite world vector, so damaged impulse data cannot turn into an unforced stance. */
+  /**
+   * Whether a value is a finite world vector, so damaged impulse data cannot
+   * turn into an unforced stance.
+   */
   const vector: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     ["x", "y", "z"].every(
@@ -122,7 +132,10 @@ export namespace PlaygroundAddress {
         typeof value[axis] === "number" && Number.isFinite(value[axis]),
     );
 
-  /** Check the serialized shape; the public type owns the authored region and bone vocabulary. */
+  /**
+   * Check the serialized shape; the public type owns the authored region and
+   * bone vocabulary.
+   */
   const impulse: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     value.kind === "impulse" &&
@@ -133,7 +146,10 @@ export namespace PlaygroundAddress {
       (record(value.at) && token(value.at.bone) && vector(value.at.point))) &&
     vector(value.impulse);
 
-  /** Whether a value has the members the editor reads of an action, through the actions performed over it. */
+  /**
+   * Whether a value has the members the editor reads of an action, through the
+   * actions performed over it.
+   */
   const action: (value: unknown) => boolean = (value: unknown): boolean =>
     record(value) &&
     typeof value.name === "string" &&
@@ -178,7 +194,7 @@ export namespace PlaygroundAddress {
     typeof value.subject === "string" &&
     typeof value.producer === "string" &&
     (value.kind === undefined || typeof value.kind === "string") &&
-    (value.seed === undefined || typeof value.seed === "string") &&
+    (value.seed === undefined || typeof value.seed === "number") &&
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(

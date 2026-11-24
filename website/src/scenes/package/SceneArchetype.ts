@@ -57,7 +57,7 @@ export namespace SceneArchetype {
         ...(object.params ?? {}),
         ...(object.kind === undefined ? {} : { [key]: object.kind }),
       },
-      object.seed === undefined ? undefined : Number(object.seed),
+      object.seed,
     );
   }
 }

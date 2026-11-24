@@ -2,13 +2,13 @@ import type { AutoMovieArchetypeCourse } from "@automovie/archetypes";
 import type { IAutoMovieMotionHumanImpulse } from "@automovie/interface";
 
 /**
- * A composition as the playground holds it: plain data that the editor
- * changes, the address carries and the adapter turns into a chain of
+ * A composition as the playground holds it: plain data that the editor changes,
+ * the address carries and the adapter turns into a chain of
  * `@automovie/motions`.
  *
- * It names actions, parameters and authored impulses. Bodies are named by the id of a body
- * the adapter offers, so an address stays short and never carries a
- * skeleton.
+ * It names actions, parameters and authored impulses. Bodies are named by the
+ * id of a body the adapter offers, so an address stays short and never carries
+ * a skeleton.
  */
 export interface IPlaygroundComposition {
   /**
@@ -26,13 +26,24 @@ export interface IPlaygroundComposition {
   /** Actions several people do together, each after every chain above. */
   mutuals: IPlaygroundComposition.IMutual[];
 
-  /** The archetypes placed in the scene, which actions name as props; none when absent. */
+  /**
+   * The archetypes placed in the scene, which actions name as props; none when
+   * absent.
+   */
   objects?: IPlaygroundComposition.IObject[];
 
-  /** Authored impulses in world newton seconds at film seconds, as the public performance input takes them; none when absent. Only the serializable impulse form is offered here, not a sustained force callback. */
+  /**
+   * Authored impulses in world newton seconds at film seconds, as the public
+   * performance input takes them; none when absent. Only the serializable
+   * impulse form is offered here, not a sustained force callback.
+   */
   forces?: IAutoMovieMotionHumanImpulse[];
 
-  /** Named cue tracks an action syncs to or reads, such as a trumpet's `charge`; none when absent. Each ridden animal also publishes its own gait changes as the track `<subject>:gaits`. */
+  /**
+   * Named cue tracks an action syncs to or reads, such as a trumpet's `charge`;
+   * none when absent. Each ridden animal also publishes its own gait changes as
+   * the track `<subject>:gaits`.
+   */
   cues?: Readonly<Record<string, readonly IPlaygroundComposition.ICue[]>>;
 }
 export namespace IPlaygroundComposition {
@@ -47,19 +58,32 @@ export namespace IPlaygroundComposition {
 
   /** One archetype placed on the floor. */
   export interface IObject {
-    /** The prop's subject id, unique in the composition, by which actions name it. */
+    /**
+     * The prop's subject id, unique in the composition, by which actions name
+     * it.
+     */
     subject: string;
 
-    /** The producer's export name in `@automovie/archetypes`, such as `createSeat`. */
+    /**
+     * The producer's export name in `@automovie/archetypes`, such as
+     * `createSeat`.
+     */
     producer: string;
 
     /** The producer's kind, frame or format when it has variants. */
     kind?: string;
 
-    /** The seed its free dimensions are drawn with; the middle of every band when absent. */
-    seed?: string;
+    /**
+     * The seed its free dimensions are drawn with; the middle of every band
+     * when absent.
+     */
+    seed?: number;
 
-    /** Dimensions stated outright, by the producer's own names (such as `height`), each within its band, and named read models (such as a sword's `model` or a scabbard's `blade`); drawn from the seed when absent. */
+    /**
+     * Dimensions stated outright, by the producer's own names (such as
+     * `height`), each within its band, and named read models (such as a sword's
+     * `model` or a scabbard's `blade`); drawn from the seed when absent.
+     */
     params?: Record<string, number | string>;
 
     /** Floor point, world metres: x to the left of a person facing +Z. */
@@ -68,19 +92,34 @@ export namespace IPlaygroundComposition {
     /** Floor point, world metres: z forward. */
     z: number;
 
-    /** Height of its origin above the floor, metres, for an object resting on another, such as a mug on a table; on the floor when absent. */
+    /**
+     * Height of its origin above the floor, metres, for an object resting on
+     * another, such as a mug on a table; on the floor when absent.
+     */
     y?: number;
 
     /** Heading about +Y, degrees; ignored when `rotation` is given. */
     yaw: number;
 
-    /** Its whole world rotation, a unit quaternion, for an object that does not stand upright, such as a sword lying on a table; a heading alone (`yaw`) when absent. */
+    /**
+     * Its whole world rotation, a unit quaternion, for an object that does not
+     * stand upright, such as a sword lying on a table; a heading alone (`yaw`)
+     * when absent.
+     */
     rotation?: IPlaygroundComposition.IQuaternion;
 
-    /** The person and bone it is worn on at the start, such as a sword in its scabbard at the hip, until a hand draws it; resting where it is placed when absent. */
+    /**
+     * The person and bone it is worn on at the start, such as a sword in its
+     * scabbard at the hip, until a hand draws it; resting where it is placed
+     * when absent.
+     */
     worn?: IPlaygroundComposition.IWorn;
 
-    /** Whether it is a fixture, such as a fixed ladder or a wall bar, which hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free object when absent. */
+    /**
+     * Whether it is a fixture, such as a fixed ladder or a wall bar, which
+     * hands grip and never carry (`IAutoMovieMotionHumanProp.fixed`); a free
+     * object when absent.
+     */
     fixed?: boolean;
 
     /** A native vehicle course starting at this placement. */
@@ -92,7 +131,11 @@ export namespace IPlaygroundComposition {
     /** The performer whose opening aidWalk action moves this floor aid. */
     aidWalk?: IAidWalk;
 
-    /** The carrier this blade starts seated in, such as a sword in a worn scabbard, as `HumanSheath.of` stages it; free when absent. A sheathed object takes no `worn`. */
+    /**
+     * The carrier this blade starts seated in, such as a sword in a worn
+     * scabbard, as `HumanSheath.of` stages it; free when absent. A sheathed
+     * object takes no `worn`.
+     */
     sheath?: IPlaygroundComposition.ISheath;
   }
 
@@ -111,7 +154,10 @@ export namespace IPlaygroundComposition {
     value: number;
   }
 
-  /** A blade seated in a carrier object, as `IAutoMovieMotionHumanSheath.IParams` takes it with the carrier's subject. */
+  /**
+   * A blade seated in a carrier object, as
+   * `IAutoMovieMotionHumanSheath.IParams` takes it with the carrier's subject.
+   */
   export interface ISheath {
     /** The carrier object's subject id. */
     carrier: string;
@@ -190,13 +236,22 @@ export namespace IPlaygroundComposition {
     /** A stable id other actions sync to or cut on; none when absent. */
     anchor?: string;
 
-    /** Where the action is cut, as `HumanChain.until` takes it; uncut when absent. */
+    /**
+     * Where the action is cut, as `HumanChain.until` takes it; uncut when
+     * absent.
+     */
     until?: Record<string, unknown>;
 
-    /** The instant the action is timed to, as `HumanChain.sync` takes it; untimed when absent. */
+    /**
+     * The instant the action is timed to, as `HumanChain.sync` takes it;
+     * untimed when absent.
+     */
     sync?: Record<string, unknown>;
 
-    /** Actions performed over this one on other parts of the body; none when absent. */
+    /**
+     * Actions performed over this one on other parts of the body; none when
+     * absent.
+     */
     over?: IAction[];
   }
 

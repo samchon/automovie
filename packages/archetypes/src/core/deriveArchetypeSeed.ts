@@ -5,11 +5,12 @@ import { deriveAutoMovieSeed } from "@automovie/engine";
  * its recipe, a building leaf under its occurrence, a furnishing piece under
  * its kit.
  *
- * It is the top 52 bits of the 64-bit FNV-1a hash that `deriveAutoMovieSeed`
- * takes of the parent seed's decimal text and the part's ids, read as an
- * integer. Fifty-two bits is the widest integer a double holds exactly below
- * `Number.MAX_SAFE_INTEGER` in whole hexadecimal digits, so the derived seed is
- * itself a valid archetype seed and is drawn from as any authored one is.
+ * It is the top 52 bits of the 64-bit FNV-1a (Fowler–Noll–Vo) hash that the
+ * engine's `deriveAutoMovieSeed` takes of the parent seed's decimal text and
+ * the part's ids, read as an integer. Fifty-two bits is the widest integer a
+ * double holds exactly below `Number.MAX_SAFE_INTEGER` in whole hexadecimal
+ * digits, so the derived seed is itself a valid archetype seed and is drawn
+ * from as any authored one is.
  *
  * @param seed The parent seed.
  * @param ids Stable ids of the part, outermost first; they name the part, never
