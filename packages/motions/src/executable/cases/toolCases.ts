@@ -1,8 +1,6 @@
 import {
   Quaternion,
-  Transform,
   Vector3,
-  quaternionFromAutoMovieBasis,
   resolveAutoMovieHumanoidSurfaces,
 } from "@automovie/engine";
 import type {
@@ -14,7 +12,6 @@ import type {
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanToolWork,
   IAutoMovieMotionHumanUseTool,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -22,6 +19,7 @@ import { HumanChain } from "../../HumanChain";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { toolCaseContact } from "./toolCaseContact";
 
 /** The record of `IToolCasesWorst`'s site. */
 type IToolCasesWorst = { value: number; where: string };
@@ -149,29 +147,6 @@ export function toolCases(
   return out;
 }
 
-/** A contact frame at a point whose `+Y` is `out`, its `+X` along `along`. */
-function contact(
-  id: string,
-  kind: IAutoMovieAffordance["kind"],
-  at: IAutoMovieVector3,
-  out: IAutoMovieVector3,
-  along: IAutoMovieVector3,
-  extra: Partial<IAutoMovieAffordance> = {},
-): IAutoMovieAffordance {
-  const rotation: IAutoMovieQuaternion = quaternionFromAutoMovieBasis(
-    along,
-    out,
-    Vector3.cross(along, out),
-  );
-  return {
-    id,
-    kind,
-    frame: Transform.of(at, rotation),
-    extent: null,
-    ...extra,
-  };
-}
-
 /**
  * A one-hand tool shaped as `createTool` shapes it, lying level on a bench with
  * its working end ahead: a 0.3 m handle along its `+Y`, its `grip` taken from
@@ -192,12 +167,18 @@ function held(
   const z: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
   const face: IAutoMovieAffordance =
     kind === "hammer"
-      ? contact("face", "surface", { x: 0, y: 0.285, z: 0.055 }, z, x)
+      ? toolCaseContact("face", "surface", { x: 0, y: 0.285, z: 0.055 }, z, x)
       : kind === "saw"
-        ? contact("face", "ledge", { x: 0, y: 0.2, z: 0.05 }, z, y)
+        ? toolCaseContact("face", "ledge", { x: 0, y: 0.2, z: 0.05 }, z, y)
         : kind === "screwdriver"
-          ? contact("face", "surface", { x: 0, y: 0.3, z: 0 }, y, x)
-          : contact("face", "surface", { x: 0, y: 0.27, z: 0.001 }, z, x);
+          ? toolCaseContact("face", "surface", { x: 0, y: 0.3, z: 0 }, y, x)
+          : toolCaseContact(
+              "face",
+              "surface",
+              { x: 0, y: 0.27, z: 0.001 },
+              z,
+              x,
+            );
   return {
     subject: "tool",
     frame: {
@@ -219,7 +200,7 @@ function held(
       },
     ],
     affordances: [
-      contact(
+      toolCaseContact(
         "grip",
         "handle",
         { x: 0, y: 0.06, z: 0 },
@@ -247,11 +228,11 @@ function pot(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
     frame: { position: at, rotation: Quaternion.identity() },
     points: {},
     affordances: [
-      contact("rim", "surface", { x: 0, y: 0.2, z: 0 }, up, x, {
+      toolCaseContact("rim", "surface", { x: 0, y: 0.2, z: 0 }, up, x, {
         width: 0.24,
         depth: 0.24,
       }),
-      contact("inside", "surface", { x: 0, y: 0.005, z: 0 }, up, x, {
+      toolCaseContact("inside", "surface", { x: 0, y: 0.005, z: 0 }, up, x, {
         width: 0.23,
         depth: 0.23,
       }),

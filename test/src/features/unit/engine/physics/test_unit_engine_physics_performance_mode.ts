@@ -2,7 +2,7 @@ import { resolvePhysicalPerformanceMode } from "@automovie/engine";
 import type { IAutoMoviePerformanceMode } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { throwsError } from "../../../internal/predicates";
 
 /**
  * `resolvePhysicalPerformanceMode` takes the body's mode over the scene's and

@@ -1,5 +1,6 @@
 import type * as THREE from "three";
 
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
 import { captureAutoMovieFramebufferRestore } from "./captureAutoMovieFramebufferRestore.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
@@ -12,9 +13,12 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * caller's separate target, face and mip are restored independently.
  */
 export const retireAutoMovieCubeShadowDepth: (
-  renderer: THREE.WebGLRenderer,
+  renderer: IAutoMovieFramebufferRenderer,
   handle: WebGLTexture,
-) => void = (renderer: THREE.WebGLRenderer, handle: WebGLTexture): void => {
+) => void = (
+  renderer: IAutoMovieFramebufferRenderer,
+  handle: WebGLTexture,
+): void => {
   const restore: () => void = captureAutoMovieFramebufferRestore(renderer);
   const gl: ReturnType<THREE.WebGLRenderer["getContext"]> =
     renderer.getContext();

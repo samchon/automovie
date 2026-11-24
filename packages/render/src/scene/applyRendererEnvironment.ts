@@ -27,12 +27,18 @@ import type { IAutoMovieRendererEnvironmentHandle } from "./IAutoMovieRendererEn
  * exposure at one while the beauty pass draws into its linear target.
  */
 export const applyRendererEnvironment: (
-  renderer: THREE.WebGLRenderer,
+  renderer: Pick<
+    THREE.WebGLRenderer,
+    "shadowMap" | "toneMapping" | "toneMappingExposure"
+  >,
   environment: IAutoMovieSceneEnvironment | null | undefined,
   pass: AutoMovieGuidePass,
   delivery?: IAutoMovieSceneEnvironment["toneMapping"],
 ) => IAutoMovieRendererEnvironmentHandle = (
-  renderer: THREE.WebGLRenderer,
+  renderer: Pick<
+    THREE.WebGLRenderer,
+    "shadowMap" | "toneMapping" | "toneMappingExposure"
+  >,
   environment: IAutoMovieSceneEnvironment | null | undefined,
   pass: AutoMovieGuidePass,
   delivery?: IAutoMovieSceneEnvironment["toneMapping"],

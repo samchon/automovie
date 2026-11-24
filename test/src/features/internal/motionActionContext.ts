@@ -85,7 +85,8 @@ export function motionActionContext<P extends object>(
   };
   const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
   // A held prop rides its hand: the entry hand's displayed frame composed with
-  // the prop's grip offset in that hand's frame (`carried`).
+  // the prop's grip offset in that hand's frame (`carried`), as its frame; it
+  // declares no motion of its own, which a held tool must not.
   const held = (prop: IAutoMovieMotionHumanProp): IAutoMovieMotionHumanProp => {
     for (const side of SIDES) {
       const offset: IAutoMovieRigidTransform | undefined =
@@ -100,7 +101,7 @@ export function motionActionContext<P extends object>(
         ),
         rotation: Quaternion.multiply(hand.worldRotation, offset.rotation),
       };
-      return { ...prop, frame, motion: (): IAutoMovieRigidTransform => frame };
+      return { ...prop, frame };
     }
     return prop;
   };

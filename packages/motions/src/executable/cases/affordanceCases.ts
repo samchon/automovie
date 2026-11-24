@@ -1,11 +1,5 @@
-import {
-  Quaternion,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidSocket,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanOperate,
   IAutoMovieMotionHumanOperateDrive,
   IAutoMovieMotionHumanPerformance,
@@ -19,6 +13,7 @@ import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { motionCaseSocket } from "./motionCaseSocket";
 
 /** The record of `IAffordanceCasesWorst`'s site. */
 type IAffordanceCasesWorst = { value: number; at: number };
@@ -120,7 +115,7 @@ export function affordanceCases(
               "indexTip",
               "point",
             ).point
-          : socket(who.body, performance, t, "gripRight");
+          : motionCaseSocket(who.body, performance, "a", t, "gripRight");
       // The plan moves the part on the clock's minimum-jerk progress.
       const smooth = (t: number): number => {
         const u: number = progress(t);
@@ -225,18 +220,4 @@ export function affordanceCases(
     }
   }
   return out;
-}
-
-/** A body socket's displayed world point. */
-function socket(
-  body: IAutoMovieMotionHumanBody,
-  performance: IAutoMovieMotionHumanPerformance,
-  seconds: number,
-  name: AutoMovieHumanoidSocket,
-): IAutoMovieVector3 {
-  const frame = body.surfaces.sockets[name];
-  return resolveAutoMovieHumanoidSurfaces.place(
-    frame,
-    performance.bones("a", seconds).get(frame.bone)!,
-  ).point;
 }

@@ -1,13 +1,7 @@
-import {
-  Transform,
-  Vector3,
-  resolveAutoMovieHumanoidSurfaces,
-} from "@automovie/engine";
+import { Transform, Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidSocket,
   IAutoMovieComposition,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanThrowObjectForm,
@@ -22,6 +16,7 @@ import { throwObject } from "../../throwing/throwObject";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
+import { motionCaseSocket } from "./motionCaseSocket";
 
 /**
  * Capture cases of the throw and catch family: performer `a` throws to
@@ -123,7 +118,7 @@ export function throwCases(
 
       // The displayed launch: the grip socket and its velocity at release.
       const grip = (seconds: number): IAutoMovieVector3 =>
-        socket(who.body, performance, "a", seconds, "gripRight");
+        motionCaseSocket(who.body, performance, "a", seconds, "gripRight");
       const h: number = 1 / 240;
       const from: IAutoMovieVector3 = grip(release);
       const velocity: IAutoMovieVector3 = Vector3.scale(
@@ -157,7 +152,7 @@ export function throwCases(
             Math.abs(
               Vector3.length(
                 Vector3.subtract(
-                  socket(who.body, performance, "b", seconds, name),
+                  motionCaseSocket(who.body, performance, "b", seconds, name),
                   object(seconds),
                 ),
               ) - 0.11,
@@ -214,19 +209,4 @@ export function throwCases(
     }
   }
   return out;
-}
-
-/** A body socket's displayed world point. */
-function socket(
-  body: IAutoMovieMotionHumanBody,
-  performance: IAutoMovieMotionHumanPerformance,
-  subject: string,
-  seconds: number,
-  name: AutoMovieHumanoidSocket,
-): IAutoMovieVector3 {
-  const frame = body.surfaces.sockets[name];
-  return resolveAutoMovieHumanoidSurfaces.place(
-    frame,
-    performance.bones(subject, seconds).get(frame.bone)!,
-  ).point;
 }

@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieScenePassRenderer,
   readAutoMovieShadowTextureTargets,
   renderAutoMovieScenePass,
   resetAutoMovieSceneShadowTargets,
@@ -6,6 +7,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createScenePassRendererDouble } from "../internal/createScenePassRendererDouble";
 import { observeThrownValue as caughtFailure } from "../internal/observeThrownValue";
 
 /** Observe the public mutable slots after an operation that owns their change. */
@@ -26,24 +28,25 @@ const readShadowSlots: (shadow: THREE.LightShadow) => {
 });
 
 /** Reuse the existing inline orchestration facts with an owned draw callback. */
-function rendererFacts(draw: () => void): THREE.WebGLRenderer {
-  return {
-    getRenderTarget: (): null => null,
-    toneMapping: THREE.NoToneMapping,
-    toneMappingExposure: 1,
-    shadowMap: { enabled: true, type: THREE.PCFShadowMap, needsUpdate: false },
-    render: draw,
-  } as unknown as THREE.WebGLRenderer;
+function rendererFacts(draw: () => void): IAutoMovieScenePassRenderer {
+  return createScenePassRendererDouble(draw);
 }
 
 /**
- * A filter change retires all retained per-light shadow products, including a hidden light, so renderer-global filter history cannot admit stale depth.
+ * A filter change retires all retained per-light shadow products, including a
+ * hidden light, so renderer-global filter history cannot admit stale depth.
  *
  * Scenarios:
- * 1. Empty, ordinary and non-shadow lights remain valid; hidden shadow lights release shared targets/depth exactly once and clear their public slots.
- * 2. Independent disposal failures preserve both errors after every slot is cleared and later resources have been attempted.
- * 3. A source pass changing filter retires both previous and newly produced attachments, leaving the restored renderer dirty for its next direct draw.
- * 4. Failed retirement keeps its original outcome without another disposal attempt; later scene passes, including another scene, request no draw.
+ *
+ * 1. Empty, ordinary and non-shadow lights remain valid; hidden shadow lights
+ *    release shared targets/depth exactly once and clear their public slots.
+ * 2. Independent disposal failures preserve both errors after every slot is
+ *    cleared and later resources have been attempted.
+ * 3. A source pass changing filter retires both previous and newly produced
+ *    attachments, leaving the restored renderer dirty for its next direct
+ *    draw.
+ * 4. Failed retirement keeps its original outcome without another disposal
+ *    attempt; later scene passes, including another scene, request no draw.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls production shadow retirement and scene passes with the existing inline fact producer and real Three target/depth events; checks independent attempts, withdrawn slots, original failure identity and later draw refusal.
  * @evidence contracts/development/testing.md#independent-expectations Literal shared-owner counts, original Error identities, authored filter state and separately counted draw requests define expectations; orchestration facts do not prove native allocations, GPU pixels or kernel release.

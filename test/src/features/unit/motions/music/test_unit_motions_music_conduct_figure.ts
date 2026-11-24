@@ -8,16 +8,16 @@ import { vclose } from "../../../internal/vclose";
 /**
  * `conductFigure` lays a conducting figure in the performer's frontal plane:
  * its centre a forearm and 0.6 upper arms ahead of the root's floor point, 0.1
- * m below the shoulders and half a shoulder half-width toward the baton's
- * side, each ictus at its meter's shares of the 0.18 m half size (Rudolf's
- * figures), cycling through the meter, and the top 0.18 m above the centre.
+ * m below the shoulders and half a shoulder half-width toward the baton's side,
+ * each ictus at its meter's shares of the 0.18 m half size (Rudolf's figures),
+ * cycling through the meter, and the top 0.18 m above the centre.
  *
  * The average man stands at (1, 0.9, 2) facing +Z, the left toward +X.
  *
  * Scenarios:
  *
- * 1. Three beats of 2/4 with the right hand: down, then 0.2 in toward the
- *    middle and 0.4 down, then down again; the top above the centre.
+ * 1. Three beats of 2/4 with the right hand: down, then 0.2 in toward the middle
+ *    and 0.4 down, then down again; the top above the centre.
  * 2. With the left hand the figure moves to the left side and mirrors.
  */
 export async function test_unit_motions_music_conduct_figure(): Promise<void> {

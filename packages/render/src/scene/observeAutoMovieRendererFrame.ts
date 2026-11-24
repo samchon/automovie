@@ -1,5 +1,5 @@
 import type { IAutoMovieObservedRenderResult } from "@automovie/interface";
-import type * as THREE from "three";
+import type { IAutoMovieRendererFrameCounters } from "./IAutoMovieRendererFrameCounters.js";
 
 /**
  * Draw one complete frame while measuring renderer-confirmed submissions.
@@ -16,10 +16,10 @@ import type * as THREE from "three";
  * observation.
  */
 export const observeAutoMovieRendererFrame: <Output>(
-  renderer: THREE.WebGLRenderer,
+  renderer: IAutoMovieRendererFrameCounters,
   draw: () => Output,
 ) => IAutoMovieObservedRenderResult<Output> = <Output>(
-  renderer: THREE.WebGLRenderer,
+  renderer: IAutoMovieRendererFrameCounters,
   draw: () => Output,
 ): IAutoMovieObservedRenderResult<Output> => {
   const previousAutoReset: boolean = renderer.info.autoReset;

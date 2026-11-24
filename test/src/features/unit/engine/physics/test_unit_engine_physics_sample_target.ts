@@ -2,7 +2,7 @@ import { samplePhysicalTarget } from "@automovie/engine";
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `samplePhysicalTarget` interpolates two goal poses and derives world

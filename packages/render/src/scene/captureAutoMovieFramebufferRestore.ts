@@ -1,5 +1,6 @@
 import * as THREE from "three";
 
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
 
 /**
@@ -12,8 +13,8 @@ import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeSta
  * operation.
  */
 export const captureAutoMovieFramebufferRestore: (
-  renderer: THREE.WebGLRenderer,
-) => () => void = (renderer: THREE.WebGLRenderer): (() => void) => {
+  renderer: IAutoMovieFramebufferRenderer,
+) => () => void = (renderer: IAutoMovieFramebufferRenderer): (() => void) => {
   const target: THREE.WebGLRenderTarget<
       THREE.Texture<unknown, THREE.TextureEventMap>
     > | null = renderer.getRenderTarget(),

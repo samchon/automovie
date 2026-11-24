@@ -1,8 +1,7 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanKickBall,
   IAutoMovieMotionHumanPerformance,
-  IAutoMovieMotionHumanProp,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -10,6 +9,7 @@ import { HumanChain } from "../../HumanChain";
 import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
+import { ballStrikeCaseBall } from "./ballStrikeCaseBall";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -45,7 +45,7 @@ export function ballStrikeCases(
       "ball",
       [{ subject: "a", body: who.body }],
       HumanChain.subject("a").act("kickBall", params).node,
-      [ball(centre, radius)],
+      [ballStrikeCaseBall(centre, radius)],
     );
     const contact: number = FamilyCaseKit.event(performance, "stroke");
     const instep: IAutoMovieVector3 = performance
@@ -82,33 +82,4 @@ export function ballStrikeCases(
     });
   }
   return out;
-}
-
-/**
- * A ball as a prop: its `grip` at its centre with its diameter as the aperture,
- * the contact `createBall` declares.
- *
- * @param centre The ball's centre, world metres.
- * @param radius Its radius, metres.
- * @returns The ball.
- */
-function ball(
-  centre: IAutoMovieVector3,
-  radius: number,
-): IAutoMovieMotionHumanProp {
-  return {
-    subject: "ball",
-    frame: { position: centre, rotation: { x: 0, y: 0, z: 0, w: 1 } },
-    points: {},
-    affordances: [
-      {
-        id: "grip",
-        kind: "handle",
-        frame: Transform.identity(),
-        extent: null,
-        grip: "power",
-        aperture: 2 * radius,
-      },
-    ],
-  };
 }

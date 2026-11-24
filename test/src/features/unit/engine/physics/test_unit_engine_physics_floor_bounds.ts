@@ -1,6 +1,7 @@
 import { inPhysicalFloorBounds } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalShape,
+  IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
@@ -28,7 +29,11 @@ export function test_unit_engine_physics_floor_bounds(): void {
     kind: "sphere",
     radius: 1,
   };
-  const floor = { min: { x: -2, y: -2, z: -2 }, max: { x: 2, y: 2, z: 2 } };
+  const floor: IAutoMoviePhysicalSimulationInput.IInput["floorBounds"] = {
+    min: { x: -2, z: -2 },
+    max: { x: 2, z: 2 },
+    thickness: 1,
+  };
   const at = (x: number, z: number): IAutoMovieRigidTransform => ({
     position: { x, y: 0, z },
     rotation: { x: 0, y: 0, z: 0, w: 1 },

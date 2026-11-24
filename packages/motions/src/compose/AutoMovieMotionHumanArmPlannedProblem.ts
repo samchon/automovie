@@ -6,8 +6,8 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
 import type { HumanArmTrajectory } from "../posture/HumanArmTrajectory";
-import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
 import type { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
@@ -64,7 +64,17 @@ export function AutoMovieMotionHumanArmPlannedProblem(
       ),
     );
   // The instants strictly inside a hold where its holding arms' sites need a
-  // knot: AutoKnots on every holding arm's goal point, millimetres.
+  // knot: AutoKnots on every holding arm's goal point, millimetres, to the
+  // narrowest of their sites' discs, the allowance each hand has about its
+  // site (AutoMovieMotionHumanArmObservation).
+  const disc: number =
+    1000 *
+    Math.min(
+      ...carries.map(
+        (c: IAutoMovieMotionHumanArmPlanned.IPlanned): number =>
+          c.disc ?? AutoMovieMotionHumanAuditTangle.BUILT,
+      ),
+    );
   const moving = (from: number, to: number): number[] =>
     prepareHumanAdaptiveKnots({
       from,
@@ -82,7 +92,7 @@ export function AutoMovieMotionHumanArmPlannedProblem(
         ),
       tolerance: {
         kind: "absolute",
-        absolute: HumanArmTrajectoryTerms.TOLERANCE,
+        absolute: disc,
       },
       maxKnots: Math.max(6, Math.ceil((to - from) / STEP) + 1),
     }).times.filter((t: number): boolean => t > from && t < to);

@@ -1,6 +1,7 @@
 // The everyday internals the test programme reads directly, re-exported by `../internal`.
 
 export * from "./HumanBalance";
+export * from "./typeText";
 export * from "./HumanTrunk";
 export * from "./HumanEffort";
 export * from "./HUMAN_EVERYDAY_LAWS";

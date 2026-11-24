@@ -2,6 +2,7 @@ import {
   Quaternion,
   Vector3,
   integrateAirborneRotation,
+  resolveAutoMovieCenterOfMass,
   solveAirborneTakeoff,
 } from "@automovie/engine";
 import type {
@@ -15,6 +16,15 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import {
+  AIRBORNE_CORE,
+  AIRBORNE_CORE_END_MASS,
+} from "../../../internal/AIRBORNE_CORE";
+import { airborneHumanLayout } from "../../../internal/airborneHumanLayout";
+import { airbornePlaced } from "../../../internal/airbornePlaced";
+import { airborneWinding } from "../../../internal/airborneWinding";
+import type { IHumanFixture } from "../../../internal/fixtures/IHumanFixture";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
@@ -45,14 +55,24 @@ import { throwsError } from "../../../internal/throwsError";
  * ceil(log2(2 pi/tolerance)) failed stages. Each stage has only one distinct
  * physical momentum, plus one initial linearization history read; rejected
  * step-halving trials need no fresh integration of that same zero point. This
- * is a deterministic work bound, separate from physical tolerances.
+ * is a deterministic work bound, separate from physical tolerances. 6. A tuck
+ * between laid-out ends (three masses folding from 0.6 m to 0.25 m over [0.05,
+ * 0.15] s and back over [0.51, 0.61] s of a 0.66 s flight) is solved for one
+ * somersault at the planar closed form L = 2 pi / the integral of dt / I(t)
+ * (the integral taken by the midpoint rule), with no momentum off the axis,
+ * within a hundredth of L. 7. The stored average man in a layout (arms lowered
+ * to the sides) lands one somersault with 0, 1 and 2 twists within 0.02
+ * revolution on every axis, and a flight of a third of the time under 1.5 times
+ * the plain momentum is a miss.
  */
-export function test_unit_engine_motion_solve_airborne_takeoff(): void {
+export async function test_unit_engine_motion_solve_airborne_takeoff(): Promise<void> {
   const complaints: string[] = [];
   isotropic(complaints);
   tilted(complaints);
   admissions(complaints);
   ringPair(complaints);
+  tuckBetweenEnds(complaints);
+  await layout(complaints);
   TestValidator.equals(
     "shooting preserves the physical request",
     complaints,
@@ -230,7 +250,7 @@ function tilted(complaints: string[]): void {
           ["known", known],
           ["solved", solved.flight],
         ] as const) {
-          const winding: number = turns(flight, q0);
+          const winding: number = airborneWinding(flight, q0);
           const landing: number = Quaternion.angle(q0, flight.orientation(1));
           const tolerance: number = solveAirborneTakeoff.TOLERANCE;
           if (
@@ -251,34 +271,6 @@ function tilted(complaints: string[]): void {
   } finally {
     native.clear();
   }
-}
-
-/** Unwrap the observed long-axis direction in the takeoff's YZ plane. */
-function turns(
-  flight: IAutoMovieIntegrateAirborneRotation.IFlight,
-  q0: IAutoMovieQuaternion,
-): number {
-  let winding: number = 0;
-  let previous: number = 0;
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(q0);
-  // Two reads per 60 Hz display frame keep adjacent samples well within a half turn.
-  const samples: number = 120;
-  for (let k: number = 0; k <= samples; ++k) {
-    const relative: IAutoMovieQuaternion = Quaternion.multiply(
-      inverse,
-      flight.orientation(k / samples),
-    );
-    const long: IAutoMovieVector3 = Quaternion.rotateVector(relative, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
-    const angle: number = Math.atan2(long.z, long.y);
-    const change: number = angle - previous;
-    winding += change - 2 * Math.PI * Math.round(change / (2 * Math.PI));
-    previous = angle;
-  }
-  return winding;
 }
 
 /** Refusals, and the bounded end of a request that no stage can meet. */
@@ -394,5 +386,99 @@ function ringPair(complaints: string[]): void {
   if (!(Math.abs(solution.residual.somersault - miss) <= 1e-6 / (2 * Math.PI)))
     complaints.push(
       `the residual ${solution.residual.somersault} is not the miss ${miss}`,
+    );
+}
+
+/** Scenario 6: the planar closed form of a tuck between laid-out ends. */
+function tuckBetweenEnds(complaints: string[]): void {
+  const smooth: (u: number) => number = (u: number): number => {
+    const c: number = Math.max(0, Math.min(1, u));
+    return 10 * c ** 3 - 15 * c ** 4 + 6 * c ** 5;
+  };
+  const reach: (t: number) => number = (t: number): number =>
+    0.6 - 0.35 * (smooth((t - 0.05) / 0.1) - smooth((t - 0.51) / 0.1));
+  const inertia: (t: number) => number = (t: number): number =>
+    1.2 + 2 * (0.02 + AIRBORNE_CORE_END_MASS * reach(t) ** 2);
+  let inverse: number = 0;
+  for (let index: number = 0; index < 20000; ++index)
+    inverse += 0.66 / 20000 / inertia((0.66 * (index + 0.5)) / 20000);
+  const planar: number = (2 * Math.PI) / inverse;
+  const tucked: IAutoMovieSolveAirborneTakeoff.ISolution = solveAirborneTakeoff(
+    {
+      history: integrateAirborneRotation.history(
+        AIRBORNE_CORE,
+        (
+          t: number,
+        ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+          airbornePlaced({
+            hips: { x: 0, y: 0, z: 0 },
+            head: { x: 0, y: reach(t), z: 0 },
+            leftFoot: { x: 0, y: -reach(t), z: 0 },
+          }),
+      ),
+      t0: 0,
+      t1: 0.66,
+      q0: Quaternion.identity(),
+      somersault: 1,
+      twist: 0,
+    },
+  );
+  // The somersault angle is L times the integral, linear in L, so a residual
+  // within the solver's tolerance bounds L's relative error by that many turns.
+  const within: number = solveAirborneTakeoff.TOLERANCE / (2 * Math.PI);
+  if (
+    !tucked.met ||
+    !(Math.abs(tucked.momentum.x - planar) <= within * planar) ||
+    !(Math.hypot(tucked.momentum.y, tucked.momentum.z) <= within * planar)
+  )
+    complaints.push(
+      `a tuck between laid-out ends: ${JSON.stringify(tucked.momentum)}, planar ${planar}`,
+    );
+}
+
+/** Scenario 7: one somersault with twists for the stored average man. */
+async function layout(complaints: string[]): Promise<void> {
+  const person: IHumanFixture = await humanFixture("m-average");
+  const model: IAutoMovieResolveCenterOfMass.IModel =
+    resolveAutoMovieCenterOfMass(person.skeleton, person.profile);
+  const shape: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    airborneHumanLayout(person)(0, 0);
+  const history: IAutoMovieIntegrateAirborneRotation.IHistory =
+    integrateAirborneRotation.history(model, () => shape);
+  const request: (
+    flight: number,
+    twist: number,
+    maximum?: number,
+  ) => IAutoMovieSolveAirborneTakeoff.ISolution = (
+    flight: number,
+    twist: number,
+    maximum?: number,
+  ): IAutoMovieSolveAirborneTakeoff.ISolution =>
+    solveAirborneTakeoff({
+      history,
+      t0: 0,
+      t1: flight,
+      q0: Quaternion.identity(),
+      somersault: 1,
+      twist,
+      ...(maximum === undefined ? {} : { maximum }),
+    });
+  let plain: number = 0;
+  for (const twist of [0, 1, 2]) {
+    const solved: IAutoMovieSolveAirborneTakeoff.ISolution = request(1, twist);
+    if (twist === 0) plain = Vector3.length(solved.momentum);
+    const worst: number = Math.max(
+      Math.abs(solved.residual.somersault),
+      Math.abs(solved.residual.tilt),
+      Math.abs(solved.residual.twist),
+    );
+    if (!(solved.met && worst <= 0.02))
+      complaints.push(
+        `one somersault with ${twist} twist(s): ${JSON.stringify(solved.residual)}`,
+      );
+  }
+  if (request(1 / 3, 0, 1.5 * plain).met)
+    complaints.push(
+      "a third of the flight was met under 1.5 times the momentum",
     );
 }

@@ -1,6 +1,8 @@
 import { clampPose } from "@automovie/engine";
 import {
+  IAutoMovieAngleRange,
   IAutoMovieBone,
+  IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
   type IAutoMovieJointPose,
   IAutoMoviePose,
@@ -11,6 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import { makeRng } from "../../../internal/makeRng";
 import { nclose } from "../../../internal/nclose";
+import { throwsError } from "../../../internal/throwsError";
 import { uniform } from "../../../internal/uniform";
 import { vclose } from "../../../internal/vclose";
 
@@ -64,8 +67,24 @@ const SKELETON: IAutoMovieSkeleton = {
  * 5. Property: for 200 seeded poses of angles in [-200, 200) on the override,
  *    table and unconstrained bones, clamping twice equals clamping once, and
  *    the first clamp changes each pose.
+ * 6. Duplicate bone declarations use the first constraint: three leftLowerArm
+ *    records against [-10, 20] with abduction immobile become (20, 0, null),
+ *    (-10, 0, 0) and (4, null, null) in input order; the unconstrained record
+ *    and the root keep their references, the input keeps its angles and the
+ *    result is a new pose with a new joint list.
+ * 7. A prepared pose clamp of the fixed rig answers A, then a reordered B with a
+ *    null root, then A again, each independently of the earlier answers.
+ * 8. Plain bounds mutated on the same rig are read by the next call: [-10, 20]
+ *    becomes [-4, 7] and 35, -40 become 7, -4.
+ * 9. Malformed axes on a constrained joint fail in input order (the spine first
+ *    names flexion, the chest first names abduction) and on an unconstrained
+ *    joint are not admitted; an empty pose keeps its root reference and a null
+ *    root stays null.
  */
 export function test_unit_engine_rom_clamp_pose(): void {
+  duplicates();
+  boundsRead();
+  axesOrder();
   const pose: IAutoMoviePose = {
     skeleton: "s",
     root: REST,
@@ -157,4 +176,207 @@ export function test_unit_engine_rom_clamp_pose(): void {
   }
   TestValidator.predicate("clamping is idempotent", fixed);
   TestValidator.predicate("and the first clamp acts", changed);
+}
+
+/** The angles of a joint, in the order flexion, abduction, twist. */
+const angles: (joint: IAutoMovieJointPose) => (number | null)[] = (
+  joint: IAutoMovieJointPose,
+): (number | null)[] => [joint.flexion, joint.abduction, joint.twist];
+
+/** A pose of the rig "current-rig" with the given root and joints. */
+const pose: (
+  joints: IAutoMovieJointPose[],
+  root?: IAutoMovieTransform | null,
+) => IAutoMoviePose = (
+  joints: IAutoMovieJointPose[],
+  root: IAutoMovieTransform | null = REST,
+): IAutoMoviePose => ({ skeleton: "current-rig", root, joints });
+
+/**
+ * Scenarios 6 and 7: the first duplicate wins and the prepared clamp is
+ * stateless.
+ */
+function duplicates(): void {
+  const first: IAutoMovieJointConstraint = {
+    flexion: { min: -10, max: 20 },
+    abduction: null,
+    twist: null,
+  };
+  const later: IAutoMovieJointConstraint = {
+    flexion: { min: -40, max: 50 },
+    abduction: null,
+    twist: null,
+  };
+  const skeleton: IAutoMovieSkeleton = {
+    id: "current-rig",
+    bones: [bone("leftLowerArm", first), bone("leftLowerArm", later)],
+  };
+  const untouched: IAutoMovieJointPose = {
+    bone: "hips",
+    flexion: 999,
+    abduction: 7,
+    twist: null,
+  };
+  const input: IAutoMoviePose = pose([
+    { bone: "leftLowerArm", flexion: 35, abduction: 31, twist: null },
+    untouched,
+    { bone: "leftLowerArm", flexion: -40, abduction: -3, twist: 10 },
+    { bone: "leftLowerArm", flexion: 4, abduction: null, twist: null },
+  ]);
+  const out: IAutoMoviePose = clampPose(input, skeleton);
+  TestValidator.equals(
+    "the first constraint, record by record",
+    [0, 2, 3].map((index: number): (number | null)[] =>
+      angles(out.joints[index]!),
+    ),
+    [
+      [20, 0, null],
+      [-10, 0, 0],
+      [4, null, null],
+    ],
+  );
+  TestValidator.predicate(
+    "references, root and input",
+    out !== input &&
+      out.joints !== input.joints &&
+      out.root === input.root &&
+      out.joints[1] === untouched &&
+      input.joints[0]!.flexion === 35,
+  );
+  const prepared: (value: IAutoMoviePose) => IAutoMoviePose =
+    clampPose.prepare(skeleton);
+  const a: IAutoMoviePose = prepared(input);
+  input.joints[0]!.flexion = -12;
+  input.joints[2]!.flexion = 35;
+  const b: IAutoMoviePose = prepared({
+    ...input,
+    root: null,
+    joints: [input.joints[2]!, untouched, input.joints[0]!],
+  });
+  input.joints[0]!.flexion = 35;
+  input.joints[2]!.flexion = -40;
+  const restored: IAutoMoviePose = prepared(input);
+  TestValidator.equals(
+    "A, then B, then A again",
+    [
+      angles(a.joints[0]!),
+      angles(b.joints[0]!),
+      angles(b.joints[2]!),
+      angles(restored.joints[0]!),
+      angles(a.joints[0]!),
+    ],
+    [
+      [20, 0, null],
+      [20, 0, 0],
+      [-10, 0, null],
+      [20, 0, null],
+      [20, 0, null],
+    ],
+  );
+  TestValidator.predicate(
+    "roots and independence",
+    a.root === input.root &&
+      b.root === null &&
+      restored.root === input.root &&
+      a.joints !== restored.joints &&
+      a.joints[1] === untouched &&
+      b.joints[1] === untouched,
+  );
+}
+
+/** Scenario 8: plain bounds are read at each call. */
+function boundsRead(): void {
+  const range: IAutoMovieAngleRange = { min: -10, max: 20 };
+  const skeleton: IAutoMovieSkeleton = {
+    id: "current-rig",
+    bones: [
+      bone("leftLowerArm", { flexion: range, abduction: null, twist: null }),
+    ],
+  };
+  const input: IAutoMoviePose = pose([
+    { bone: "leftLowerArm", flexion: 35, abduction: null, twist: null },
+    { bone: "leftLowerArm", flexion: -40, abduction: null, twist: null },
+  ]);
+  const read: () => (number | null)[] = (): (number | null)[] =>
+    clampPose(input, skeleton).joints.map(
+      (joint: IAutoMovieJointPose): number | null => joint.flexion,
+    );
+  const before: (number | null)[] = read();
+  range.min = -4;
+  range.max = 7;
+  TestValidator.equals(
+    "bounds mutated between calls",
+    [before, read()],
+    [
+      [20, -10],
+      [7, -4],
+    ],
+  );
+}
+
+/** Scenario 9: malformed axes and the empty pose. */
+function axesOrder(): void {
+  const valid: IAutoMovieJointAxes = {
+    flexion: { x: 1, y: 0, z: 0 },
+    abduction: { x: 0, y: 1, z: 0 },
+    twist: { x: 0, y: 0, z: 1 },
+  };
+  const gated: IAutoMovieJointConstraint = {
+    flexion: { min: -30, max: 30 },
+    abduction: { min: -30, max: 30 },
+    twist: { min: -90, max: 90 },
+    swingTwist: { twist: { min: -15, max: 15 } },
+  };
+  const withAxes: (
+    name: IAutoMovieBone["bone"],
+    constraint: IAutoMovieJointConstraint | null,
+    axes: IAutoMovieJointAxes,
+  ) => IAutoMovieBone = (
+    name: IAutoMovieBone["bone"],
+    constraint: IAutoMovieJointConstraint | null,
+    axes: IAutoMovieJointAxes,
+  ): IAutoMovieBone => ({ ...bone(name, constraint), axes });
+  const ordered: IAutoMovieSkeleton = {
+    id: "current-rig",
+    bones: [
+      withAxes("spine", gated, { ...valid, flexion: { x: 0, y: 0, z: 0 } }),
+      withAxes("chest", gated, { ...valid, abduction: { x: 0, y: 0, z: 0 } }),
+    ],
+  };
+  const spine: IAutoMovieJointPose = {
+    bone: "spine",
+    flexion: 0,
+    abduction: 0,
+    twist: 50,
+  };
+  const chest: IAutoMovieJointPose = { ...spine, bone: "chest" };
+  TestValidator.predicate(
+    "malformed axes fail in input order",
+    throwsError(
+      (): IAutoMoviePose => clampPose(pose([spine, chest]), ordered),
+      "axes.flexion",
+    ) &&
+      throwsError(
+        (): IAutoMoviePose => clampPose(pose([chest, spine]), ordered),
+        "axes.abduction",
+      ),
+  );
+  const hips: IAutoMovieJointPose = {
+    bone: "hips",
+    flexion: 5,
+    abduction: 999,
+    twist: null,
+  };
+  const empty: IAutoMoviePose = pose([]);
+  TestValidator.predicate(
+    "unconstrained, empty and null root",
+    clampPose(pose([hips]), {
+      id: "current-rig",
+      bones: [
+        withAxes("hips", null, { ...valid, flexion: { x: 0, y: 0, z: 0 } }),
+      ],
+    }).joints[0] === hips &&
+      clampPose(empty, ordered).root === empty.root &&
+      clampPose(pose([], null), ordered).root === null,
+  );
 }

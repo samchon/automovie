@@ -1,5 +1,6 @@
 import type { IAutoMovieCamera, IAutoMovieScene } from "@automovie/interface";
 import {
+  type IAutoMovieDepthPrecisionRenderer,
   assertAutoMovieViewerCameraDepthPrecision,
   buildScene,
   evaluateAutoMovieViewerCameraDepthPrecision,
@@ -48,26 +49,26 @@ const renderer: (
   bits: unknown,
   logarithmic?: boolean,
   reversed?: boolean,
-) => THREE.WebGLRenderer = (
+) => IAutoMovieDepthPrecisionRenderer = (
   bits: unknown,
   logarithmic: boolean = false,
   reversed: boolean = false,
-): THREE.WebGLRenderer => {
+): IAutoMovieDepthPrecisionRenderer => {
   const depthBits: number = 0x0d56;
   return {
     capabilities: {
       logarithmicDepthBuffer: logarithmic,
       reversedDepthBuffer: reversed,
     },
-    getContext: (): {
-      DEPTH_BITS: number;
-      getParameter: (parameter: number) => unknown;
-    } => ({
+    getContext: (): Pick<
+      WebGLRenderingContext,
+      "DEPTH_BITS" | "getParameter"
+    > => ({
       DEPTH_BITS: depthBits,
       getParameter: (parameter: number): unknown =>
         parameter === depthBits ? bits : null,
     }),
-  } as unknown as THREE.WebGLRenderer;
+  };
 };
 
 /**

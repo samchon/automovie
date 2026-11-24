@@ -1,4 +1,4 @@
-import { Transform, Vector3 } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
@@ -14,6 +14,7 @@ import { typeText } from "../../everyday/typeText";
 import { HumanHand } from "../../posture/HumanHand";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { everydayCaseKit } from "./everydayCaseKit";
+import { everydayTypeCaseBoard } from "./everydayTypeCaseBoard";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /** The record of `IEverydayTypeCasesBoxesItem`'s site. */
@@ -86,7 +87,7 @@ export function everydayTypeCases(
     const text: string = "hello world";
     const performance: IAutoMovieMotionHumanPerformance = one(
       start.typeText({ keyboard: "keyboard", text }),
-      [board(at)],
+      [everydayTypeCaseBoard(at)],
     );
     const segment = performance.segments("a").at(-1)!;
     const verdicts: IMotionCaptureCase.IVerdict[] = everydayVerdicts.standard(
@@ -161,35 +162,4 @@ export function everydayTypeCases(
     });
   }
   return out;
-}
-
-/**
- * A keyboard as a prop: a home row contact at its origin and a key field as
- * wide as the letter rows, the prop placed there and turned so its `+Z` side,
- * where a typist sits, faces the typist at the origin facing `+Z`.
- *
- * @param at The home row's middle, world metres.
- * @returns The keyboard.
- */
-function board(at: IAutoMovieVector3): IAutoMovieMotionHumanProp {
-  return {
-    subject: "keyboard",
-    frame: { position: at, rotation: { x: 0, y: 1, z: 0, w: 0 } },
-    points: {},
-    affordances: [
-      {
-        id: "homeRow",
-        kind: "surface",
-        frame: Transform.identity(),
-        extent: null,
-      },
-      {
-        id: "keys",
-        kind: "surface",
-        frame: Transform.identity(),
-        extent: null,
-        width: typeText.WIDTH,
-      },
-    ],
-  };
 }

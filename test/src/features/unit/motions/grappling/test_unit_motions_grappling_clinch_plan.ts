@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanClinch,
@@ -52,7 +53,7 @@ export async function test_unit_motions_grappling_clinch_plan(): Promise<void> {
     );
   const grips = (
     p: IAutoMovieMotionHumanActionPlan,
-  ): [string, string | undefined][] =>
+  ): [string, IAutoMovieMotionHumanContactWindow["support"]][] =>
     p.contacts
       .filter(
         (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "grip",
@@ -60,12 +61,24 @@ export async function test_unit_motions_grappling_clinch_plan(): Promise<void> {
       .map(
         (
           w: IAutoMovieMotionHumanContactWindow,
-        ): [string, string | undefined] => [
+        ): [string, IAutoMovieMotionHumanContactWindow["support"]] => [
           w.part,
-          w.support.kind === "person" ? w.support.region : undefined,
+          w.support,
         ],
       )
-      .sort();
+      .sort(
+        (
+          a: [string, IAutoMovieMotionHumanContactWindow["support"]],
+          b: [string, IAutoMovieMotionHumanContactWindow["support"]],
+        ): number => a[0].localeCompare(b[0]),
+      );
+  const on = (
+    region: AutoMovieHumanoidRegion,
+  ): IAutoMovieMotionHumanContactWindow["support"] => ({
+    kind: "person",
+    subject: "b",
+    region,
+  });
 
   // 1. The hold.
   TestValidator.predicate(
@@ -87,12 +100,12 @@ export async function test_unit_motions_grappling_clinch_plan(): Promise<void> {
     ],
     [
       [
-        ["leftHand", "nape"],
-        ["rightHand", "nape"],
+        ["leftHand", on("nape")],
+        ["rightHand", on("nape")],
       ],
       [
-        ["leftHand", "elbowRight"],
-        ["rightHand", "neckLeft"],
+        ["leftHand", on("elbowRight")],
+        ["rightHand", on("neckLeft")],
       ],
     ],
   );

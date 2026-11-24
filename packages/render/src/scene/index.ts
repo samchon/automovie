@@ -10,6 +10,10 @@ export { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 export { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 export * from "./readAutoMovieTextureSource.js";
 export * from "./AutoMovieThreeKind.js";
+export * from "./IAutoMovieDepthPrecisionRenderer.js";
+export * from "./IAutoMovieFramebufferRenderer.js";
+export * from "./IAutoMovieRendererFrameCounters.js";
+export * from "./IAutoMovieScenePassRenderer.js";
 export * from "./readAutoMovieBufferAttribute.js";
 export * from "./IAutoMovieTextureLoader.js";
 export * from "./IAutoMovieTextureResolver.js";

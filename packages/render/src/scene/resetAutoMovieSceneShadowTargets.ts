@@ -1,6 +1,8 @@
 import type * as THREE from "three";
 
 import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
+import type { IAutoMovieFramebufferRenderer } from "./IAutoMovieFramebufferRenderer.js";
+import type { IAutoMovieShadowRetirementHost } from "./IAutoMovieShadowRetirementHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 import { readAutoMovieCubeShadowDepth } from "./readAutoMovieCubeShadowDepth.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
@@ -27,8 +29,11 @@ import { retireAutoMovieCubeShadowDepth } from "./retireAutoMovieCubeShadowDepth
  */
 export const resetAutoMovieSceneShadowTargets: (
   scene: THREE.Scene,
-  renderer: THREE.WebGLRenderer,
-) => void = (scene: THREE.Scene, renderer: THREE.WebGLRenderer): void => {
+  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+) => void = (
+  scene: THREE.Scene,
+  renderer: IAutoMovieFramebufferRenderer & IAutoMovieShadowRetirementHost,
+): void => {
   guardAutoMovieSceneShadowRetirement(scene, renderer);
   const resources: Set<THREE.RenderTarget | THREE.Texture> = new Set<
     THREE.RenderTarget | THREE.Texture

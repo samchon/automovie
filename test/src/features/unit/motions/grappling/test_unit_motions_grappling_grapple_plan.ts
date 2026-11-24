@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidRegion,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
@@ -86,25 +87,23 @@ export async function test_unit_motions_grappling_grapple_plan(): Promise<void> 
     { kind: "grecoRoman", role: "initiator", partner: "b" },
     receiver,
   );
-  const grips: [string, number, number][] = lifting.contacts
-    .filter(
-      (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "grip",
-    )
-    .map(
-      (w: IAutoMovieMotionHumanContactWindow): [string, number, number] => [
-        `${w.part}:${w.support.kind === "person" ? w.support.region : ""}`,
-        w.from,
-        w.to,
-      ],
-    );
-  TestValidator.equals(
-    "the shoulders gripped over the window",
-    grips,
-    [
-        ["leftHand:shoulderRight", 0.17, 0.37],
-        ["rightHand:shoulderLeft", 0.17, 0.37],
-    ],
+  const grips: IAutoMovieMotionHumanContactWindow[] = lifting.contacts.filter(
+    (w: IAutoMovieMotionHumanContactWindow): boolean => w.kind === "grip",
   );
+  const grip = (
+    side: "left" | "right",
+    region: AutoMovieHumanoidRegion,
+  ): IAutoMovieMotionHumanContactWindow => ({
+    part: `${side}Hand`,
+    kind: "grip",
+    from: 0.17,
+    to: 0.37,
+    support: { kind: "person", subject: "b", region },
+  });
+  TestValidator.equals("the shoulders gripped over the window", grips, [
+    grip("left", "shoulderRight"),
+    grip("right", "shoulderLeft"),
+  ]);
   TestValidator.predicate(
     "the initiator's clock",
     nclose(lifting.duration, grappleStances.seconds("grecoRoman"), 1e-9),

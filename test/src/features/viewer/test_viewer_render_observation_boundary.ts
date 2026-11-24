@@ -40,9 +40,7 @@ export function test_viewer_render_observation_boundary(): void {
       render.triangles = 0;
     },
   };
-  const renderer: THREE.WebGLRenderer = {
-    info,
-  } as unknown as THREE.WebGLRenderer;
+  const renderer: IAutoMovieRendererFrameCounters = { info };
   const frame: { output: string; observed: IAutoMovieRenderObservation } =
     observeAutoMovieRendererFrame(renderer, (): string => {
       render.calls += 2;

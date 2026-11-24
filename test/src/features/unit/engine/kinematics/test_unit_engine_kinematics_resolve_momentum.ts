@@ -1,17 +1,22 @@
 import {
   Quaternion,
   Vector3,
+  integrateAirborneRotation,
   resolveAutoMovieMomentum,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieBodyMomentum,
+  IAutoMovieIntegrateAirborneRotation,
   IAutoMovieQuaternion,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { AIRBORNE_CORE } from "../../../internal/AIRBORNE_CORE";
+import { airbornePlaced } from "../../../internal/airbornePlaced";
 import { throwsError } from "../../../internal/throwsError";
 
 /** Rounding of a few unit-mass sums and one finite difference. */
@@ -74,6 +79,11 @@ const bones: (
  * 2. The composite tensor is 4 I: the intrinsic (2, 1, 1) plus the parallel-axis
  *    terms (0, 2, 2) of masses 1 at distance 1.
  * 3. An interval of zero seconds is refused.
+ * 4. Read-back: for the three-mass body whose head and foot oscillate along z (0.3
+ *    sin 2 pi t, the foot opposite) over a one second flight of momentum (35,
+ *    6, -4), the angular momentum read from the displayed bones (the shape
+ *    turned by the integrated orientation) equals the take-off momentum within
+ *    1e-3 relative at 20 instants.
  */
 export function test_unit_engine_kinematics_resolve_momentum(): void {
   const before: resolveAutoMovieMomentum.IPosed = resolveAutoMovieMomentum.pose(
@@ -112,10 +122,72 @@ export function test_unit_engine_kinematics_resolve_momentum(): void {
       ),
     ),
   );
+  TestValidator.predicate("read-back of a moving shape", readBack());
   TestValidator.predicate(
     "zero seconds",
     throwsError((): void => {
       resolveAutoMovieMomentum.between(MODEL, before, after, 0);
     }),
   );
+}
+
+/** Scenario 4: the momentum read from the posed bones is the flight's. */
+function readBack(): boolean {
+  const shape: (
+    t: number,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+    t: number,
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+    airbornePlaced({
+      hips: { x: 0, y: 0, z: 0 },
+      head: { x: 0, y: 0.6, z: 0.3 * Math.sin(2 * Math.PI * t) },
+      leftFoot: { x: 0, y: -0.6, z: -0.3 * Math.sin(2 * Math.PI * t) },
+    });
+  const turned: (
+    t: number,
+    q: IAutoMovieQuaternion,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = (
+    t: number,
+    q: IAutoMovieQuaternion,
+  ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+    new Map(
+      [...shape(t)].map(
+        ([bone, resolved]: [AutoMovieHumanoidBone, IAutoMovieResolvedBone]): [
+          AutoMovieHumanoidBone,
+          IAutoMovieResolvedBone,
+        ] => [
+          bone,
+          {
+            ...resolved,
+            worldPosition: Quaternion.rotateVector(q, resolved.worldPosition),
+            worldRotation: Quaternion.multiply(q, resolved.worldRotation),
+          },
+        ],
+      ),
+    );
+  const momentum: { x: number; y: number; z: number } = { x: 35, y: 6, z: -4 };
+  const flight: IAutoMovieIntegrateAirborneRotation.IFlight =
+    integrateAirborneRotation({
+      history: integrateAirborneRotation.history(AIRBORNE_CORE, shape),
+      t0: 0,
+      t1: 1,
+      q0: IDENTITY,
+      momentum,
+    });
+  const step: number = 1e-3;
+  let holds: boolean = true;
+  for (let index: number = 1; index <= 20; ++index) {
+    const t: number = index / 21;
+    const read: IAutoMovieVector3 = resolveAutoMovieMomentum(
+      AIRBORNE_CORE,
+      turned(t - step, flight.orientation(t - step)),
+      turned(t + step, flight.orientation(t + step)),
+      2 * step,
+    ).angular;
+    holds &&=
+      Vector3.length(Vector3.subtract(read, momentum)) /
+        Vector3.length(momentum) <=
+      1e-3;
+  }
+  return holds;
 }

@@ -2,7 +2,7 @@ import { physicalSupportPoint } from "@automovie/engine";
 import type { IAutoMovieRigidTransform } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError } from "../../../internal/predicates";
+import { nclose } from "../../../internal/predicates";
 
 /**
  * `physicalSupportPoint` places an authored local support point by a bone pose.

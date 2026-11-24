@@ -1,6 +1,7 @@
 import type { IAutoMovieCamera } from "@automovie/interface";
 import type * as THREE from "three";
 
+import type { IAutoMovieDepthPrecisionRenderer } from "./IAutoMovieDepthPrecisionRenderer.js";
 import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieViewerCameraDepthPrecisionReport.js";
 
 /**
@@ -18,12 +19,12 @@ import type { IAutoMovieViewerCameraDepthPrecisionReport } from "./IAutoMovieVie
  * use.
  */
 export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
-  renderer: THREE.WebGLRenderer;
+  renderer: IAutoMovieDepthPrecisionRenderer;
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   realized: THREE.PerspectiveCamera;
 }) => IAutoMovieViewerCameraDepthPrecisionReport = (props: {
   /** Viewer renderer whose currently bound draw framebuffer receives the shot. */
-  renderer: THREE.WebGLRenderer;
+  renderer: IAutoMovieDepthPrecisionRenderer;
   /** Portable resolved camera declaration. */
   source: Pick<IAutoMovieCamera, "id" | "near" | "far" | "depthPrecision">;
   /** Three camera built from that declaration. */
@@ -40,7 +41,7 @@ export const evaluateAutoMovieViewerCameraDepthPrecision: (props: {
       : reversed
         ? "reversed"
         : "standard";
-  const context: WebGLRenderingContext | WebGL2RenderingContext =
+  const context: Pick<WebGLRenderingContext, "DEPTH_BITS" | "getParameter"> =
     props.renderer.getContext();
   // WebGL reports DEPTH_BITS as a number.
   const observedDepthBits: number | null = context.getParameter(

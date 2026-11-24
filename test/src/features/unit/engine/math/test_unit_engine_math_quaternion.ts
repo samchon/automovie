@@ -6,6 +6,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose, qclose, qunit } from "../../../internal/predicates";
+import { makeRng, randomUnitQuaternion } from "../../../internal/random";
 
 /**
  * `Quaternion` composes, inverts, interpolates and applies rotations; each case
@@ -23,6 +24,10 @@ import { nclose, qclose, qunit } from "../../../internal/predicates";
  * 6. `angle` between the identity and the quarter turn is pi / 2 either way, and
  *    `angleAfterNormalize` agrees for unit inputs.
  * 7. `normalize` scales (0, 0, 0, 2) to the identity.
+ * 8. Over 256 random unit quaternions from a fixed seed: the product and the slerp
+ *    stay unit, slerp at 0 and 1 give its ends (up to sign), normalizing a unit
+ *    quaternion changes nothing, and multiplication associates, all within
+ *    tolerance.
  */
 export function test_unit_engine_math_quaternion(): void {
   const q = (
@@ -302,4 +307,40 @@ export function test_unit_engine_math_quaternion(): void {
     "output edits do not poison replay",
     qclose(poisoned(0.25), turnZ(30), 1e-12),
   );
+  // 13. Seeded invariants over 256 random unit quaternions (replayable).
+  const rng: () => number = makeRng(0x51ed7a17);
+  for (let i: number = 0; i < 256; ++i) {
+    const a: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const b: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const c: IAutoMovieQuaternion = randomUnitQuaternion(rng);
+    const share: number = rng();
+    TestValidator.predicate(
+      `multiply stays unit #${i}`,
+      qunit(Quaternion.multiply(a, b)),
+    );
+    TestValidator.predicate(
+      `slerp stays unit #${i}`,
+      qunit(Quaternion.slerp(a, b, share)),
+    );
+    TestValidator.predicate(
+      `slerp at 0 is a #${i}`,
+      qclose(Quaternion.slerp(a, b, 0), a),
+    );
+    TestValidator.predicate(
+      `slerp at 1 is b #${i}`,
+      qclose(Quaternion.slerp(a, b, 1), b),
+    );
+    const unit: IAutoMovieQuaternion = Quaternion.normalize(a);
+    TestValidator.predicate(
+      `normalize is idempotent #${i}`,
+      qclose(Quaternion.normalize(unit), unit),
+    );
+    TestValidator.predicate(
+      `multiply is associative #${i}`,
+      qclose(
+        Quaternion.multiply(Quaternion.multiply(a, b), c),
+        Quaternion.multiply(a, Quaternion.multiply(b, c)),
+      ),
+    );
+  }
 }

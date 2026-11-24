@@ -13,6 +13,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { AIRBORNE_CORE } from "../../../internal/AIRBORNE_CORE";
+import { airbornePlaced } from "../../../internal/airbornePlaced";
 import { nclose } from "../../../internal/nclose";
 import { qunit } from "../../../internal/qunit";
 
@@ -107,9 +109,15 @@ const values: (
  *    momentum (1, 0, 0) (2 x 2 x 0.25).
  * 4. After the history is cleared, a read at the same time recomputes the same ten
  *    numbers exactly, as a new record.
+ * 5. Given the span, a head moving only before take-off or only after touchdown
+ *    reads no relative momentum at that end, a non-zero one across it without;
+ *    a head moving as sin t reads one-sided as central within DELTA^2 relative
+ *    (its momentum is a cosine, |L''| = |L|, and each read errs by under L''
+ *    DELTA^2 / 4).
  */
 export function test_unit_engine_motion_integrate_airborne_rotation_history(): void {
   rings();
+  TestValidator.predicate("the span of the flight", span());
   const history: integrateAirborneRotation.ICachedHistory =
     integrateAirborneRotation.history(MODEL, bones, SPAN);
   const delta: number = integrateAirborneRotation.DELTA;
@@ -215,4 +223,54 @@ function rings(): void {
   } finally {
     history.clear();
   }
+}
+
+/** Scenario 5: the flight's span bounds the differencing of the shape. */
+function span(): boolean {
+  const nodding: (
+    z: (t: number) => number,
+  ) => (
+    t: number,
+  ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+    (
+      z: (t: number) => number,
+    ): ((
+      t: number,
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>) =>
+    (t: number): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      airbornePlaced({
+        hips: ORIGIN,
+        head: { x: 0, y: 0.6, z: z(t) },
+        leftFoot: { x: 0, y: -0.6, z: 0 },
+      });
+  const sides: { from: number; to: number } = { from: 0.5, to: 1 };
+  const lag: (
+    shape: (
+      t: number,
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    at: number,
+    within?: { from: number; to: number },
+  ) => IAutoMovieVector3 = (
+    shape: (
+      t: number,
+    ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+    at: number,
+    within?: { from: number; to: number },
+  ): IAutoMovieVector3 =>
+    integrateAirborneRotation.history(AIRBORNE_CORE, shape, within)(at)
+      .relative;
+  const pushed = nodding((t: number): number => 0.3 * Math.min(0, t - 0.5));
+  const landed = nodding((t: number): number => 0.3 * Math.max(0, t - 1));
+  let holds: boolean =
+    Vector3.length(lag(pushed, 0.5)) > 0.1 &&
+    Vector3.length(lag(pushed, 0.5, sides)) === 0 &&
+    Vector3.length(lag(landed, 1, sides)) === 0;
+  const smooth = nodding((t: number): number => 0.3 * Math.sin(t));
+  for (const at of [0.5, 1]) {
+    const central: IAutoMovieVector3 = lag(smooth, at);
+    holds &&=
+      Vector3.length(Vector3.subtract(lag(smooth, at, sides), central)) <=
+      integrateAirborneRotation.DELTA ** 2 * Vector3.length(central);
+  }
+  return holds;
 }

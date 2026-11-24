@@ -30,9 +30,9 @@ import { conductFigure } from "./conductFigure";
 import { conductTip } from "./conductTip";
 
 /**
- * The rebound's height between ictuses, as a share of `conductFigure.HALF`: provisional,
- * above the largest rise between ictuses times 1/π so each ictus is a lowest
- * point.
+ * The rebound's height between ictuses, as a share of `conductFigure.HALF`:
+ * provisional, above the largest rise between ictuses times 1/π so each ictus
+ * is a lowest point.
  */
 const REBOUND: number = 0.6;
 

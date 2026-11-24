@@ -1,4 +1,5 @@
 import {
+  type IAutoMovieScenePassRenderer,
   assertAutoMovieSceneShadowProfile,
   readAutoMovieShadowLightSource,
   renderAutoMovieScenePass,
@@ -6,15 +7,20 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { createScenePassRendererDouble } from "../internal/createScenePassRendererDouble";
 import { nclose } from "../internal/predicates";
 
 /**
- * Scene-pass admission reaches the same point/VSM refusal as an authored scene before policy writes or the supplied draw callback is requested.
+ * Scene-pass admission reaches the same point/VSM refusal as an authored scene
+ * before policy writes or the supplied draw callback is requested.
  *
  * Scenarios:
- * 1. Casting point VSM refuses, including hidden lights, while adjacent PCF, disabled VSM and noncasting point VSM remain supported.
+ *
+ * 1. Casting point VSM refuses, including hidden lights, while adjacent PCF,
+ *    disabled VSM and noncasting point VSM remain supported.
  * 2. Directional, spot and non-shadow light populations retain supported VSM.
- * 3. Scene-owned and inherited host VSM refuse before changing host state; structural guides bypass shadows and restore the original policy.
+ * 3. Scene-owned and inherited host VSM refuse before changing host state;
+ *    structural guides bypass shadows and restore the original policy.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs scene shadow admission and the actual scene-pass coordinator with existing native light objects and the supplied policy port; catches point/VSM refusal occurring after policy mutation or a draw request.
  * @evidence contracts/development/testing.md#independent-expectations The supported point/VSM restriction defines refusal, original renderer fields define preflight preservation, and structural guides disable shadows then restore policy. Recorded draw requests are not native shadow allocations or rendered pixels.
@@ -71,15 +77,11 @@ export function test_viewer_scene_shadow_admission(): void {
   point.name = "";
   point.castShadow = true;
   let draws: number = 0;
-  const renderer: THREE.WebGLRenderer = {
-    getRenderTarget: (): null => null,
-    toneMapping: THREE.NoToneMapping,
-    toneMappingExposure: 1,
-    shadowMap: { enabled: true, type: THREE.PCFShadowMap, needsUpdate: false },
-    render: (): void => {
+  const renderer: IAutoMovieScenePassRenderer = createScenePassRendererDouble(
+    (): void => {
       draws++;
     },
-  } as unknown as THREE.WebGLRenderer;
+  );
   const environment: {
     image: null;
     background: null;
