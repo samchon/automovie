@@ -37,13 +37,13 @@ import type {
  *    121.38 mm.
  * 3. The footprint's extremes stand at those reaches: up at clock 0, `+v` at a
  *    quarter turn.
- * 4. Every sampled loop point lies on the tube (radius 150 within 1e-6 mm), at its
- *    footprint point's height and on the tube's radius through it, and the
- *    loop's first clock derivative matches its central difference.
+ * 4. Off-grid loop points on the tube keep their exact footprint height and
+ *    radial direction. Both clock derivatives match central differences, and
+ *    the projected chart's 2-jet is continuous at all four uneven reaches.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMovieHumanMammaryJoin.footprint`, `at` and `loop` on a made person and a made host.
  * @evidence contracts/development/testing.md#independent-expectations Each reach is hand arithmetic from the made points; a point dropped on a tube about `Y` along its radius keeps its height and its direction from the axis.
- * @evidence contracts/development/testing.md#distinguishing-cases A reach read along the wrong axis or sign, a footprint that is not the quarter ellipses, or a loop not on the host fails a scenario.
+ * @evidence contracts/development/testing.md#distinguishing-cases A reach read along the wrong axis or sign, an interpolated off-grid host address, or a jump at an asymmetric quarter end fails a scenario.
  * @evidence contracts/development/testing.md#execution-ownership Made points and one made tube.
  * @evidence contracts/development/common.md#meaningful-documentation Names every made point and the arithmetic behind each expectation.
  */
@@ -149,7 +149,7 @@ export function test_human_mammary_footprint(): void {
     f,
   );
   for (let k: number = 0; k < 240; k += 7) {
-    const clock: number = (2 * Math.PI * k) / 240,
+    const clock: number = (2 * Math.PI * (k + 0.37)) / 240,
       p = loop.at(clock).point,
       line = AutoMovieHumanMammaryJoin.at(f, clock);
     if (!(Math.abs(Math.hypot(p[0], p[2]) - 150) <= 1e-6))
@@ -168,19 +168,46 @@ export function test_human_mammary_footprint(): void {
       failures.push(
         `loop point ${k} at ${p.join(", ")} is not its footprint point ${line.join(", ")} dropped along the radius`,
       );
-    const h: number = 1e-5,
-      a = loop.at(clock - h).point,
-      b = loop.at(clock + h).point,
-      d = loop.at(clock).first;
+    const h: number = 1e-5;
+    const a = loop.at(clock - h);
+    const b = loop.at(clock + h);
+    const { first, second } = loop.at(clock);
     const gap: number = Math.hypot(
-      (b[0] - a[0]) / (2 * h) - d[0],
-      (b[1] - a[1]) / (2 * h) - d[1],
-      (b[2] - a[2]) / (2 * h) - d[2],
+      ...first.map((value, i) =>
+        (b.point[i]! - a.point[i]!) / (2 * h) - value,
+      ),
     );
-    if (!(gap <= 1e-3 * Math.max(1, Math.hypot(...d))))
+    if (!(gap <= 1e-3 * Math.max(1, Math.hypot(...first))))
       failures.push(
         `loop point ${k}'s first derivative differs from its central difference by ${gap}`,
       );
+    const accelerationGap: number = Math.hypot(
+      ...second.map((value, i) =>
+        (b.first[i]! - a.first[i]!) / (2 * h) - value,
+      ),
+    );
+    if (!(accelerationGap <= 1e-3 * Math.max(1, Math.hypot(...second))))
+      failures.push(
+        `loop point ${k}'s second derivative differs from its central difference by ${accelerationGap}`,
+      );
+  }
+  for (let k: number = 0; k < 4; ++k) {
+    const clock: number = (Math.PI * k) / 2;
+    const junction = loop.hostAt(clock);
+    for (const step of [-1e-7, 1e-7]) {
+      const near = loop.hostAt(clock + step);
+      const far = loop.hostAt(clock + 2 * step);
+      for (const key of ["point", "first", "second"] as const) {
+        // Extrapolate each limit to the junction. Samples at a nonzero
+        // distance differ naturally even on a smooth curve.
+        const gap: number = Math.hypot(
+          2 * near[key][0] - far[key][0] - junction[key][0],
+          2 * near[key][1] - far[key][1] - junction[key][1],
+        );
+        if (!(gap <= 1e-7 * Math.max(1, Math.hypot(...junction[key]))))
+          failures.push(`quarter ${k} has a sided host ${key} jump of ${gap}`);
+      }
+    }
   }
   if (failures.length > 0)
     throw new Error("mammary footprint:\n" + failures.join("\n"));
