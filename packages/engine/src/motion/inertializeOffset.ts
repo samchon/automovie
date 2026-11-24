@@ -19,8 +19,7 @@ import type { IAutoMovieInertializeOffset } from "@automovie/interface";
  *
  * Unlike a critically damped spring, which only approaches zero, the quintic
  * ends at exactly zero at `t1`, so a transition has a finite, known end; it is
- * closed-form in the elapsed time, so any frame can be evaluated alone, and it
- * is the method of Unreal's Inertialization node.
+ * closed-form in the elapsed time, so any frame can be evaluated alone.
  *
  * The clamp buys its guarantee with acceleration: the quintic starts at `-(8 v0
  * t1 + 20 x0) / t1^2`, which at the clamped time is `4 v0^2 / (5 x0)`, without

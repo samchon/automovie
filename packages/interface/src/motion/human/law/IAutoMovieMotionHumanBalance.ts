@@ -12,10 +12,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * kinematic one; a law's studied compensation lives in its key poses. Given,
  * the law computes a correction for the chosen part on its eligible support
  * phase. A constrained contact can require a numerical fit. The prepared weight
- * scales the correction between the two instants. Animation tools keep such
- * terms off a posed character until asked, Houdini's full-body IK taking its
- * centre-of-mass target only as an optional record with its weight inside it
- * (`hou.ik.solvePhysFBIK`), and a simulation pays every step, substep and
+ * scales the correction between the two instants. Such terms stay off a posed
+ * character until asked, and a simulation pays every step, substep and
  * solver iteration of its interval where a posed instant pays one read. Its
  * bounds are events, not shares of the action (laws/declaration.md: other work
  * addresses an action through its named events, because a fraction breaks when

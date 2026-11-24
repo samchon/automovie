@@ -17,8 +17,7 @@ import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHuman
  * affect display. A layer never starts, cuts or ends an action; it takes the
  * active action's posture at a film second and returns it with its own
  * contribution added, the way layered animation adds an additive pose on top of
- * a base locomotion (Unreal's layered blend per bone, Unity's additive animator
- * layers).
+ * a base locomotion.
  *
  * A layer must keep every planted or gripping limb goal unchanged, because
  * contacts are re-solved from those goals and must not slide; it should change

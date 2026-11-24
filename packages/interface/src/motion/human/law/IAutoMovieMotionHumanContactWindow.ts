@@ -15,8 +15,8 @@ import type { IAutoMovieMotionHumanFoot } from "../posture/IAutoMovieMotionHuman
  * transition offset, so the contact never slides (planted effectors are never
  * inertialized in world space). Every window names the frame it bears on: the
  * ground, a prop or another person. A moving support carries its contacts, as
- * Unreal's based movement and Unity's parent constraint carry a character on a
- * platform, so slip and penetration are measured in that frame.
+ * a platform carries a character standing on it, so slip and penetration are
+ * measured in that frame.
  */
 export interface IAutoMovieMotionHumanContactWindow {
   /**

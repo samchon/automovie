@@ -9,9 +9,8 @@ import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
  * Only goals are computed here: the end joint's point and the middle joint's
  * position become an `IAutoMovieMotionHumanPosture` limb goal (`point` and a
  * `bend` hint beside the middle joint), and the engine's `fitChainToTarget`
- * solves the joint angles within the range of motion, as Unreal's two-bone IK
- * with a pole target and Final IK's limb solver take an effector goal and a
- * bend goal. The placement is the triangle of the two segment lengths and the
+ * solves the joint angles within the range of motion from an effector goal and
+ * a bend goal, the swivel of Tolani, Goswami and Badler (2000). The placement is the triangle of the two segment lengths and the
  * root-to-point distance (law of cosines), in the plane through the root and
  * the point that contains the preferred bend direction.
  *

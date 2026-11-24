@@ -23,9 +23,8 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * which fixes the hand's rotation, and then sets the palm on the grasped part's
  * near surface, half the grasped width back from the affordance point on the
  * part's axis, so a thick part is not entered by a palm placed for the socket's
- * nominal 50 mm handle; the arm is then solved by inverse kinematics, the Final
- * IK InteractionObject and Unreal hand-socket practice of an effector frame
- * laid on an object's authored grip marker.
+ * nominal 50 mm handle; the arm is then solved by inverse kinematics for an
+ * effector frame laid on the object's authored grip marker.
  *
  * The grasped width is the affordance's `aperture`, or else the extent along
  * the approach axis of the prop's collider nearest the grip point (the span the

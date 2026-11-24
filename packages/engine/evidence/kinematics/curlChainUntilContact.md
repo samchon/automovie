@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-GraspIt!'s auto-grasp stopping rule (Miller and Allen 2004) evaluated proximal to distal, with exact segment distances and a bracketed root search on forward kinematics of the engine's own resolver: the Illinois false position of `bracketedRoot` (Dowell and Jarratt 1971) on the continuous gap, whose readings move the bracket end of their own sign exactly as a bisection's do, completed by bisection to the stated width.
+The auto-grasp stopping rule of Miller and Allen (2004) evaluated proximal to distal, with exact segment distances and a bracketed root search on forward kinematics of the engine's own resolver: the Illinois false position of `bracketedRoot` (Dowell and Jarratt 1971) on the continuous gap, whose readings move the bracket end of their own sign exactly as a bisection's do, completed by bisection to the stated width.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

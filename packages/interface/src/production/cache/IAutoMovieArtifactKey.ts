@@ -4,8 +4,8 @@
  *
  * A stage is any deterministic step whose output is worth keeping between runs:
  * a prepared figure, a resolved schedule, a physics bake, one captured frame.
- * Its key must name every input that can change the output (Bazel's and Unity's
- * documented failure is a key that omits the toolchain, so a hit returns bytes
+ * Its key must name every input that can change the output (Bazel's documented
+ * failure is a key that omits the toolchain, so a hit returns bytes
  * made for another environment). The record therefore separates three kinds:
  * the stage's own implementation identity, the tools it runs on and the data it
  * reads. Everything else, such as wall-clock time or an undeclared environment

@@ -66,9 +66,7 @@ import { swingTwistRange } from "./swingTwistRange";
  * better of two starts for a target the continued fit reaches, an argmin that
  * would switch basins between neighbouring targets. A caller's `rate` softens
  * the target near full extension, where the exact inverse has an unbounded
- * derivative: the exponential soft IK of Andy Nicholas (2006), demonstrated in
- * Jeremie Passerin's "Control Rig: 5.3: Soft IK" (2024,
- * https://dev.epicgames.com/community/learning/tutorials/y4Ll/unreal-engine-control-rig-5-3-soft-ik).
+ * derivative: an exponential soft IK.
  * Below the soft band the target is unchanged; within it, some reach is traded
  * for a bounded radial extension rate. The band's width comes from the chain's
  * lengths and the requested rate, not the seed's posture. This controls the

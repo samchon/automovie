@@ -8,8 +8,7 @@ import { subdivisionEdgeSmoothness } from "./subdivisionEdgeSmoothness";
 
 /**
  * Apply one Catmull-Clark step to face-varying UVs with every UV boundary
- * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES` and Blender's "Keep
- * Boundaries".
+ * pinned, OpenSubdiv's `FVAR_LINEAR_BOUNDARIES`.
  *
  * An edge is UV-continuous when it has two faces that name the same UV values
  * at both ends; a mesh boundary edge or a seam is a UV boundary. A UV value at

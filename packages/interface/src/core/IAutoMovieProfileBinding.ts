@@ -18,8 +18,8 @@ export interface IAutoMovieProfileBinding {
 
   /**
    * Profile semantic key to concrete node id, before the placement prefix. For
-   * a humanoid it plays the role of VRM or HumanIK characterization (`"hips"`
-   * to `"mixamorig:Hips"`); for a prop it maps a key such as `"hinge"` to a
+   * a humanoid it plays the role of a VRM humanoid bone map (`"hips"` to a
+   * rig's own hip node); for a prop it maps a key such as `"hinge"` to a
    * door pivot node. Entries for keys the profile never cites are ignored by
    * `bindProfile`.
    */

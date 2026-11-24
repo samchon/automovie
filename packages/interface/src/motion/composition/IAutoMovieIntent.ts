@@ -34,7 +34,7 @@ export interface IAutoMovieIntent {
 
   /**
    * Cut the action short, as an interrupt (a cancel window in fighting-game
-   * terms, an interruption source in Unity's animator):
+   * terms):
    *
    * - `{ share }`: at a share of its duration in [0, 1];
    * - `{ event }`: at one of its own named events

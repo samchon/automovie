@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents the constructive-trace key of one stage: stage name and implementation version (Unreal DDC version GUID, Unity importer version), toolchain identities and declared input digests, all as strings so the key text is exact. Records are unordered, so two callers listing the same pairs in another order compose the same key; empty strings and duplicate meaning across records remain the caller's responsibility.
+Represents the constructive-trace key of one stage: stage name and implementation version, toolchain identities and declared input digests, all as strings so the key text is exact. Records are unordered, so two callers listing the same pairs in another order compose the same key; empty strings and duplicate meaning across records remain the caller's responsibility.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Contact semantics distinguish a supporting face from point and line contacts under one frame convention (`+Y` out of the contact, a line along `+X`), the convention game-engine interaction markers use (Unreal sockets, Final IK InteractionObject targets); affordance validation requires an extent only for stack-top, and prop relation validation selects stack-top, socket or hook according to the relation kind.
+Contact semantics distinguish a supporting face from point and line contacts under one frame convention (`+Y` out of the contact, a line along `+X`), the convention game-engine interaction markers use; affordance validation requires an extent only for stack-top, and prop relation validation selects stack-top, socket or hook according to the relation kind.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

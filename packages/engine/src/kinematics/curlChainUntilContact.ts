@@ -25,12 +25,11 @@ import { resolvePose } from "./resolvePose";
  * object's colliders or its flexion reaches the rig's range of motion, and the
  * next joint then continues from there.
  *
- * This is the closing rule of kinematic grasp execution in grasp planners and
- * game engines: GraspIt!'s auto-grasp closes every joint of a hand at a set
- * rate and stops the joints proximal to a link once that link touches the
- * object, while the distal ones keep closing (Miller and Allen 2004, IEEE
- * Robot. Autom. Mag. 11(4):110); Unity and Unreal hand interaction systems
- * rotate each finger bone until a sweep against the held object hits. Here the
+ * This is the closing rule of kinematic grasp execution in grasp planners: the
+ * auto-grasp of Miller and Allen closes every joint of a hand at a set rate and
+ * stops the joints proximal to a link once that link touches the object, while
+ * the distal ones keep closing (Miller and Allen 2004, IEEE Robot. Autom. Mag.
+ * 11(4):110). Here the
  * joints of a chain close one at a time, proximal to distal, which is the same
  * stopping rule evaluated sequentially: joint `k` turns its phalanx and every
  * phalanx after it as a rigid unit, so it stops at the first contact of any of

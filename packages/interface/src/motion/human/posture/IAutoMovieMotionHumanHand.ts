@@ -11,9 +11,8 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  *
  * This is how procedural animation authors a hand contact: the effector is a
  * socket on the hand, the goal is a point and an orientation in the world, and
- * inverse kinematics solves the arm (Unreal's hand sockets with Control Rig and
- * Full Body IK; Final IK's effector offsets; Rosen, GDC 2014, "Animation
- * Bootcamp: An Indie Approach to Procedural Animation"). The arm solver places
+ * inverse kinematics solves the arm (Rosen, GDC 2014, "Animation Bootcamp: An
+ * Indie Approach to Procedural Animation"). The arm solver places
  * the wrist joint, so the wrist goal is the target point less the surface's
  * offset from the wrist turned by the hand's rotation, the same rigid relation
  * `HumanFoot.pivot` uses for the sole.

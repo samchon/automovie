@@ -18,8 +18,8 @@ import type { AutoMovieHumanSide } from "../../../human/AutoMovieHumanSide";
  * other's forearm and which both arms reach best at the clasp and at the pump's
  * top and bottom alike (`HumanClasp.choose`), so each hand's fingers close
  * round the other's hand rather than lie along its wrist. Inverse kinematics
- * solves each arm (`HumanHand.place`, the Final IK and Unreal Control Rig
- * practice of an effector socket on a world target), and through the clasp and
+ * solves each arm (`HumanHand.place`, an effector socket on a world target),
+ * and through the clasp and
  * the pump the arm keeps the configuration it clasped in
  * (`IAutoMovieHumanLimbGoal.reference`); the feet stay planted as the stand law
  * places them. Both partners read the point from one meeting record

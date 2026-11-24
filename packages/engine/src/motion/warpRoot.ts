@@ -14,9 +14,7 @@ let yawRotation: ReturnType<typeof Quaternion.prepareAxisAngle> | undefined;
  * named instant, leaving the motion's own shape intact.
  *
  * Motion warping (Witkin and Popović, SIGGRAPH 1995) adds a smooth displacement
- * map to a clip so it meets new keyframe constraints; Unreal's Motion Warping
- * applies the same idea to the root over a warping window ending at a notify.
- * Here the displacement (`translation`, metres, and `yaw`, degrees about +Y) is
+ * map to a clip so it meets new keyframe constraints. Here the displacement (`translation`, metres, and `yaw`, degrees about +Y) is
  * spread over `[start, end]` seconds by the minimum-jerk profile, so the warp
  * adds no velocity or acceleration discontinuity at either end of the window;
  * before the window the root is the source's, after it the full displacement

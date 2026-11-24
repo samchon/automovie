@@ -5,8 +5,8 @@ import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHu
  * phalanges as the body's own colliders, and the finger angles at contact,
  * solved, never authored.
  *
- * Closure is the engine's `curlChainUntilContact` (GraspIt!'s auto-grasp
- * stopping rule): the digits named by the grip kind close proximal to distal
+ * Closure is the engine's `curlChainUntilContact` (the auto-grasp stopping
+ * rule of Miller and Allen 2004): the digits named by the grip kind close proximal to distal
  * until each phalanx first touches the object, the four fingers before the
  * thumb so the thumb closes over them as in a power grip (Napier 1956; the
  * Cutkosky and Feix oppositions the grip kinds name):

@@ -17,8 +17,8 @@ import type { IAutoMovieMotionHumanInterruptRow } from "./IAutoMovieMotionHumanI
  * `interrupts` is the action's closed cancel table, keyed by the action it may
  * cut into: only a cut that falls inside a listed window is legal, and an
  * undeclared cut is refused when the performance is built, with the legal
- * windows in the message, the way fighting-game cancel tables and Unity's
- * interruption sources fire only declared transitions.
+ * windows in the message, the way fighting-game cancel tables fire only
+ * declared transitions.
  */
 export interface IAutoMovieMotionHumanActionLaw<P = object> {
   /**

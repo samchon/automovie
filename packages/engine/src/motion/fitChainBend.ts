@@ -187,9 +187,9 @@ export const fitChainBend: (
     consider(hinged.candidate);
   }
 
-  // A bend hint picks the bend plane the way a pole vector does in game-engine
-  // two-bone IK (Unreal's Two Bone IK joint target, Unity's
-  // TwoBoneIKConstraint hint): the mid joint is displaced toward the hint's
+  // A bend hint picks the bend plane as a pole vector does in two-bone IK, the
+  // swivel about the root-to-target axis (Tolani, Goswami and Badler 2000,
+  // Graphical Models 62(5):353): the mid joint is displaced toward the hint's
   // component across the root-to-target axis. Without a hint, the analytic
   // default bends toward world-down and the search below takes over.
   const pole: NonNullable<ReturnType<typeof solve>> = solve(

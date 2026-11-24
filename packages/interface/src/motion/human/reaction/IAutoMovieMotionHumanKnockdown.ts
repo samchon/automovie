@@ -22,9 +22,7 @@ import type { IAutoMovieMotionTarget } from "../../IAutoMovieMotionTarget";
  * goes down away from the blow (the `from` target), turned so its back falls
  * toward that direction.
  *
- * The trunk's recline and the hip's fold at the seat are provisional readings;
- * detailed falls derived from the Euphoria behaviours belong to tier 2 of the
- * kickboxing research.
+ * The trunk's recline and the hip's fold at the seat are provisional readings.
  */
 export namespace IAutoMovieMotionHumanKnockdown {
   /** Parameters. */
