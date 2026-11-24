@@ -28,7 +28,7 @@ Light from the set and story day's sources. Keep direction and color continuous 
 
 Place the sun of an exterior, or of window light, at the story's site, date and hour. Solve its position with `solveAutoMovieSunPosition` from `@automovie/engine`, and turn it into a world direction with `autoMovieSunDirection` from the set's north and up. Stage the sun as a directional light from that direction as its JSDoc sets, and use the same direction for any daylight instant the scene declares for that hour. A sun below the horizon lights nothing directly.
 
-For a direct 3D film, give a hazy, smoky or dusty set the stage's `medium` rather than `fog`, so each lamp and window casts a visible beam. A medium draws only through the film's `optics`, which a motion hint lacks, so a hint leaves the haze to the look in the [video prompts](../video/diffusion/prompts.md#shared-description).
+For a direct 3D film, give a hazy, smoky or dusty set the stage's `medium` rather than `fog`, so each lamp and window casts a visible beam. A medium is refused without the film's `optics`, which a motion hint lacks, so a hint stages no medium and leaves the haze to the look in the [video prompts](../video/diffusion/prompts.md#shared-description).
 
 Inspect every shot at the delivered aspect and scale through the whole action, in the camera's frames rather than in subject bounds:
 

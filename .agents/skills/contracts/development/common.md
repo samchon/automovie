@@ -1,6 +1,6 @@
 # Common
 
-The contracts router names the declarations that answer this item beside their design, implementation or testing items, and where each answers.
+The router that links this page names the declarations that answer this item beside their design, implementation or testing items, and where each answers.
 
 ## Meaningful documentation
 

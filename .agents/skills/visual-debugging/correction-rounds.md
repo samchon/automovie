@@ -22,6 +22,6 @@ Repeat the round and check defects and regressions across parts, views, times, i
 
 When a fix is tried over several rounds, keep a round only if nothing got worse than in the best earlier round, and record every remaining failure with its numbers.
 
-The inspection findings a capture records are the defects its checks report on the drawn stills. Capture the round with `compare` set to the best earlier round, and read whether they got worse from the comparison's finding outcome, as `IAutoMovieCaptureFindingDiff` defines it. Judge by eye the defects that only the stills show.
+The inspection findings a capture records are the defects its checks report on the drawn stills. Capture the round with `compare` set to the best earlier round, and read whether they got worse from the comparison's finding outcome, as `IAutoMovieCaptureFindingDiff` defines it. Judge defects that only the stills show by eye under [comparison](comparison.md).
 
 Open the current capture before accepting it.

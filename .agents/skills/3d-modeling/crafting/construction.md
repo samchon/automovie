@@ -47,7 +47,7 @@ Plan each part in one of three form tiers, together with the closest distance a 
 | Tier | Parts |
 | --- | --- |
 | Primary | Masses that set the overall size and proportions, such as a chair's seat, back and legs |
-| Secondary | Parts that change one mass's local shape, such as a handle or a knob, and every part a person touches |
+| Secondary | Smaller parts that change one mass's local shape, such as a handle, and any surface feature a person touches |
 | Tertiary | Relief within a surface that changes no part's shape, such as a seam, a groove or a panel line |
 
 Build a tier only where its smallest feature, together with the gap that separates it from its neighbor, spans at least two pixels at that distance. A feature and its gap make one period of the pattern, and a period sampled fewer than two times cannot be resolved ([Shannon 1949](https://doi.org/10.1109/JRPROC.1949.232969)).
@@ -56,11 +56,9 @@ At distance `d` meters, with vertical field of view `θ` and an image `H` pixels
 
 ### Segment budget
 
-Give a crafted or lofted curved section of radius `r` the fewest segments `n` whose chords stray from the arc by at most one pixel footprint, `e = 1 / p` meters. A chord spanning the angle `2π / n` strays from the arc by its sagitta `r (1 - cos(π / n))`. The budget is therefore `n = ceil(π / acos(1 - e / r))`. It falls roughly as one over the square root of the distance.
+Give a crafted or lofted curved section of radius `r` the fewest segments `n` whose chords stray from the arc by at most one pixel footprint, `e = 1 / p` meters. A chord spanning the angle `2π / n` strays from the arc by its sagitta `r (1 - cos(π / n))`. The budget is therefore `n = ceil(π / acos(1 - e / r))`. It falls roughly as one over the square root of the distance. Hold the chords along a profile to the same tolerance `e`.
 
 Compute `p`, `e` and `n` with `planAutoMovieSegmentBudget` from `@automovie/engine`. It keeps at least 3 segments, also where `e` reaches the diameter `2r` and the formula has no value. For example, with `H` 1080, `θ` 50 degrees and `r` 0.25 m, it gives 17 segments at 5 m and 9 at 20 m.
-
-Hold the chords along a profile to the same tolerance `e`.
 
 This budget is the default before any cost is measured. Reduce further only by measured cost, as [conditioning](../conditioning.md#reduction) sets.
 

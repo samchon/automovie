@@ -17,11 +17,11 @@ Every section, beat and scene file is realized. An `OMITTED` one is covered by a
 
 ## Screenplay realization
 
-Does each scene realize every cited beat as written, and does the film play every scene, with its spoken lines, in screenplay order at the recorded delivery profile?
+Does each scene realize every cited beat as written, and does the film play every scene in screenplay order at the recorded delivery profile and any adopted look, with each spoken line in any sound list it declares?
 
 ### Scene
 
-Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. Where the film declares a sound list, carry each line and cue the beat sounds into it. For commissioned generation, carry reactions beyond the representation in the prompt.
+Open the scene comment with its screenplay citation, action and relevant staging choices. Bind staged instances to the subjects in the standing state. Follow the same instances through movement, handovers, cuts and time out of view. Realize changes in camera. Where the film declares a sound list, carry the beat's spoken lines and sound cues into it. For commissioned generation, carry reactions beyond the representation in the prompt.
 
 If staging a passage requires inventing an exchange, response or pause, return that decision to its [written owner](../../story/correction/repair.md#concretization). Changes to a fixed screenplay go to the user.
 
@@ -29,9 +29,9 @@ If staging a passage requires inventing an exchange, response or pause, return t
 
 Play the numbered scenes with their transitions, titles and subtitles. Use the [delivery profile](../../production/project-context.md) for raster, frame rate and running time. Take the grade from the screenplay and profile.
 
-A direct 3D film's sound list carries each line its scenes speak, with the screenplay's text and a start frame within its beat, and binds each speaker to the staged actor who plays them. Check `sound.lines` and `sound.speakers` against the cited scene files and the subjects their scenes bind.
+Where a direct 3D film declares a sound list, the list carries each line its scenes speak, with the screenplay's text and a start frame within its beat, and binds each speaker to the staged actor who plays them. Check `sound.lines` and `sound.speakers` against the cited scene files and the subjects their scenes bind.
 
-The same film's loudness record takes the delivery profile's targets, and its camera response the adopted [look](../../production/project-context.md#overview-and-look). Each exposure change it marks with `change` in its exposure continuity check cites the screenplay decision behind it. Check `delivery.loudness` and `optics` against the profile and the look.
+A direct 3D film's loudness record takes the delivery profile's targets, and its camera response the adopted [look](../../production/project-context.md#overview-and-look). Each exposure change it marks with `change` in its exposure continuity check cites the screenplay decision behind it. Check `delivery.loudness` and `optics` against the profile and the look.
 
 For a catalog case, name the fact it exhibits and use the case parameters. For skilled practice, cite the observed exchange it reproduces. The catalog film lists every case used by the screenplay.
 

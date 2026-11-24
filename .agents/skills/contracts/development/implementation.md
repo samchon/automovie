@@ -1,6 +1,6 @@
 # Implementation
 
-The contracts router names the functions and methods that answer this checklist, whether they also answer [common](common.md), and where each answers. Use evidence from its body, callees and callers. Its input and result types answer [design](design.md).
+The router that links this page names the functions and methods that answer this checklist, whether they also answer [common](common.md), and where each answers. Use evidence from its body, callees and callers. Its input and result types answer [design](design.md).
 
 ## Principled implementation
 
