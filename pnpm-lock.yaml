@@ -183,9 +183,6 @@ catalogs:
     h264-mp4-encoder:
       specifier: ^1.0.12
       version: 1.0.12
-    libopus-wasm:
-      specifier: ^0.2.0
-      version: 0.2.0
     mp4box:
       specifier: ^2.4.1
       version: 2.4.1
@@ -939,9 +936,6 @@ importers:
       h264-mp4-encoder:
         specifier: catalog:media
         version: 1.0.12
-      libopus-wasm:
-        specifier: catalog:media
-        version: 0.2.0
       onnxruntime-node:
         specifier: catalog:media
         version: 1.21.0
@@ -3571,10 +3565,6 @@ packages:
 
   layout-base@2.0.1:
     resolution: {integrity: sha512-dp3s92+uNI1hWIpPGH3jK2kxE2lMjdXdr+DH8ynZHpd6PUlH6x6cbuXnoMmiNumznqaNO31xu9e79F0uuZ0JFg==}
-
-  libopus-wasm@0.2.0:
-    resolution: {integrity: sha512-x/2Gu1/C6L3IICY09zyfp984AWiOYjn53u4WfdY3yh+3KTzMN8Xkm77q3lenWMVIk5SnSzjGEkQT+VQMFHLBHQ==}
-    engines: {node: '>=20'}
 
   linkify-it@5.0.2:
     resolution: {integrity: sha512-ONTm2jCMAVZjgQa/Fy1kScXsuOoF5NPTsoFBdE1KVIZ2vAh/r9+Bqo+0jINCBYnavTPQZz38QzFTme79ENoN3Q==}
@@ -7284,8 +7274,6 @@ snapshots:
   layout-base@1.0.2: {}
 
   layout-base@2.0.1: {}
-
-  libopus-wasm@0.2.0: {}
 
   linkify-it@5.0.2:
     dependencies:

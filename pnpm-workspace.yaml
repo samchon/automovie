@@ -41,7 +41,6 @@ catalogs:
     "@huggingface/transformers": ^3.8.1
     gifenc: ^1.0.3
     h264-mp4-encoder: ^1.0.12
-    libopus-wasm: ^0.2.0
     mp4box: ^2.4.1
     onnxruntime-node: 1.21.0
     playwright: ^1.60.0
