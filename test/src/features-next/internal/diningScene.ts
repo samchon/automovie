@@ -3,7 +3,6 @@ import {
   createChopsticks,
   createFoodPortion,
   createFork,
-  createSpoon,
   createTableKnife,
 } from "@automovie/archetypes";
 import type {
@@ -20,11 +19,12 @@ import { diningTable } from "../../features/internal/diningTable";
 import { everydayTake } from "../../features/internal/everydayTake";
 
 /**
- * The three seated dining scenes of `test_motion_dining_utensils_*`, staged as
- * those specs stage them, so each action of a scene can be entered and checked
- * on its own: the props at the originals' places for a diner of a dominant
- * hand, each prop's model by its subject, and the take without the whole-take
- * verdict, which stays the original's.
+ * The chopsticks and the knife-and-fork scenes of
+ * `test_motion_dining_utensils_*`, staged as those specs stage them, so the
+ * pickUp and eatWith action units enter their actions at the same table: the
+ * props at the originals' places for a diner of a dominant hand, each prop's
+ * model by its subject, and the take without the whole-take verdict, which
+ * stays the originals'.
  */
 export namespace diningScene {
   /** A diner's hands. */
@@ -73,15 +73,6 @@ export namespace diningScene {
 
     /** The cut line's across offset on the steak's top, metres. */
     edge: number;
-  }
-
-  /** The serving scene of `test_motion_dining_utensils_serve`. */
-  export interface IServe extends IScene {
-    /** The platter's place on the table top. */
-    platter: IAutoMovieVector3;
-
-    /** The neighbour's plate's place on the table top. */
-    plate: IAutoMovieVector3;
   }
 
   /** The chopsticks scene for a dominant hand. */
@@ -160,41 +151,6 @@ export namespace diningScene {
           "fork",
           models.fork!,
           diningTable.on(stage, -sign * 0.18, 0.07),
-        ),
-      ],
-    };
-  }
-
-  /** The serving scene for a dominant hand. */
-  export function serve(side: AutoMovieHumanSide): IServe {
-    const stage: diningTable.IStage = diningTable.stage();
-    const sign: number = side === "right" ? -1 : 1;
-    const platter: IAutoMovieVector3 = diningTable.on(stage, sign * 0.04, 0.1);
-    const plate: IAutoMovieVector3 = diningTable.on(stage, sign * 0.16, 0.06);
-    const models: Record<string, everydayTake.IPosable> = {
-      platter: createFoodPortion({ id: "platter", kind: "steak" }),
-      plate: createFoodPortion({ id: "plate", kind: "steak" }),
-      serving: createFoodPortion({ id: "serving", kind: "morsel" }),
-      spoon: createSpoon({ id: "spoon" }),
-    };
-    return {
-      ...hands(side),
-      stage,
-      platter,
-      plate,
-      models,
-      props: [
-        ...stage.props,
-        everydayTake.prop("platter", models.platter!, platter, undefined, true),
-        everydayTake.prop("plate", models.plate!, plate, undefined, true),
-        everydayTake.prop("serving", models.serving!, {
-          ...platter,
-          y: platter.y + 0.02,
-        }),
-        everydayTake.prop(
-          "spoon",
-          models.spoon!,
-          diningTable.on(stage, sign * 0.15, 0.04),
         ),
       ],
     };

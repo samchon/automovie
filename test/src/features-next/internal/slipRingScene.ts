@@ -2,30 +2,21 @@ import {
   type AutoMovieArchetype,
   createFingerRing,
 } from "@automovie/archetypes";
-import { Quaternion, Vector3 } from "@automovie/engine";
+import { Quaternion } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanChain,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
-  IAutoMovieVector3,
 } from "@automovie/interface";
-import {
-  AutoMovieMotionHumanGetDressed,
-  HumanChain,
-  HumanObject,
-  HumanPerformance,
-} from "@automovie/motions";
+import { AutoMovieMotionHumanGetDressed, HumanChain } from "@automovie/motions";
 
 import type { motionHumanBody } from "../../features/internal/motionHumanBody";
 
 /**
- * The ring exchange of `test_motion_get_dressed_slip_ring`, staged as that spec
- * stages it: the partner `b` presents a hand, the dresser `a` takes the ring up
- * and slips it on, with switches for the parts a unit leaves out, so the
- * presenting, the pickUp, the slip and the self refusal are units of their
- * own.
+ * The ring exchange's staging from `test_motion_get_dressed_slip_ring`, as that
+ * spec stages it: its two exchanges, the ring's stand and the partner's
+ * presentation, so `test_motion_action_pick_up` takes the ring up from the same
+ * stand and `test_motion_action_present_hand` presents the same hands.
  */
 export namespace slipRingScene {
   /** A ring model. */
@@ -79,79 +70,6 @@ export namespace slipRingScene {
     return HumanChain.subject("b").registered(
       AutoMovieMotionHumanGetDressed.presentHand.name,
       { side: hand, hold: 8 },
-    );
-  }
-
-  /**
-   * `b` presents a hand; `a` takes the ring up and slips it on `partner`'s
-   * finger.
-   */
-  export function exchange(
-    a: IAutoMovieMotionHumanBody,
-    b: IAutoMovieMotionHumanBody,
-    c: ICase,
-    partner: string,
-  ): HumanPerformance {
-    const ring: Ring = createFingerRing({ id: "ring" });
-    return new HumanPerformance({
-      seed: "slip-ring",
-      laws: [
-        AutoMovieMotionHumanGetDressed.slipRing,
-        AutoMovieMotionHumanGetDressed.presentHand,
-      ],
-      performers: [
-        {
-          subject: "a",
-          body: a,
-          at: { x: 0, y: 0, z: 0 },
-          yaw: 0,
-          proficiency: { level: "trained" },
-        },
-        {
-          subject: "b",
-          body: b,
-          at: { x: 0, y: 0, z: APART },
-          yaw: 180,
-          proficiency: { level: "trained" },
-        },
-      ],
-      props: [HumanObject.prop("ring", ring, stand(c.side))],
-
-      // The partner presents first, so the dresser reads where the hand is.
-      composition: present(c.hand).with(
-        HumanChain.subject("a")
-          .pickUp({ prop: "ring", handle: "hold", hand: c.side, lift: 0.05 })
-          .registered(AutoMovieMotionHumanGetDressed.slipRing.name, {
-            prop: "ring",
-            partner,
-            hand: c.hand,
-            side: c.side,
-          }),
-      ).node,
-    });
-  }
-
-  /** A point's distance from the line through two points. */
-  export function toAxis(
-    p: IAutoMovieVector3,
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-  ): number {
-    const axis: IAutoMovieVector3 = Vector3.normalize(Vector3.subtract(b, a));
-    const d: IAutoMovieVector3 = Vector3.subtract(p, a);
-    return Vector3.length(
-      Vector3.subtract(d, Vector3.scale(axis, Vector3.dot(d, axis))),
-    );
-  }
-
-  /** A prop's position in a displayed bone's frame. */
-  export function local(
-    prop: IAutoMovieRigidTransform,
-    bone: IAutoMovieResolvedBone,
-  ): IAutoMovieVector3 {
-    return Quaternion.rotateVector(
-      Quaternion.inverse(bone.worldRotation),
-      Vector3.subtract(prop.position, bone.worldPosition),
     );
   }
 }

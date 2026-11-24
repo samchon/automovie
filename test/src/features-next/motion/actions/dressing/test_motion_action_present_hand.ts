@@ -14,17 +14,18 @@ import {
 } from "@automovie/motions";
 import { HumanHand } from "@automovie/motions/internal";
 
-import { motionComplaints } from "../../../features/internal/motionComplaints";
-import { motionHumanBody } from "../../../features/internal/motionHumanBody";
-import { motionActionUnit } from "../../internal/motionActionUnit";
-import { slipRingScene } from "../../internal/slipRingScene";
+import { motionComplaints } from "../../../../features/internal/motionComplaints";
+import { motionHumanBody } from "../../../../features/internal/motionHumanBody";
+import { motionActionUnit } from "../../../internal/motionActionUnit";
+import { slipRingScene } from "../../../internal/slipRingScene";
 
 /**
- * A partner presents a hand for a ring, on its own: the presentHand step of
- * `test_motion_get_dressed_slip_ring`, the small woman's left hand and the
- * average man's right as the original's two exchanges present them, entered
- * standing alone at the partner's place facing the dresser's (the presenting is
- * the partner's first action).
+ * The presentHand action's own goal, the one owner of it: no other spec reads
+ * where the presented hand lies. The cases are the ring exchange's two
+ * presentations (`test_motion_get_dressed_slip_ring`), the small woman's left
+ * hand and the average man's right, entered standing alone at the partner's
+ * place facing the dresser's; `test_motion_get_dressed_dress_partner` presents
+ * the same left hand for a garment and is not repeated.
  *
  * Scenarios, read at the presentation's `ready` on the displayed arm against
  * the body's own measures, as the presentHand contract places the palm: "the
@@ -48,15 +49,16 @@ import { slipRingScene } from "../../internal/slipRingScene";
  * 5. The palm stays there from `ready` to `relax`, within 10 mm.
  * 6. The presentation keeps the shipped bounds over its own span.
  *
- * The original reads no goal of this step.
+ * Neither scenario reads this goal; each reads only what follows the
+ * presentation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the original and step it decomposes, the entry, the bodies, the hands and every bound.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the presentation alone and reads the displayed shoulder, elbow, hips and palm at its events and the verdict report over its span; an upper arm raised or swung, a forearm tilted, a palm short or far out, drifting while held or a finding in the presentation fails.
  * @evidence contracts/development/testing.md#independent-expectations The arm's place is the presentHand contract's, read from the body's measured upper arm, forearm and shoulder half width (`IAutoMovieBodyMeasure`) and its own palm socket on its rest frame (`body.surfaces.sockets`) against the displayed joints; the bound is the touch contract's 10 mm; the inward share is the law's own, so only its band from the midline to the shoulder is asserted.
- * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite stature presenting opposite hands; the ring's slip onto the presented hand is `test_motion_get_dressed_slip_ring_slip`'s.
- * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain, entered through `test_motion_get_dressed_slip_ring_present_hand`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two bodies of opposite stature presenting opposite hands; the ring's slip onto the presented hand is `test_motion_get_dressed_slip_ring`'s.
+ * @evidence contracts/development/testing.md#execution-ownership In-memory performances through the public chain, entered through `test_motion_action_present_hand`.
  */
-export function test_motion_get_dressed_slip_ring_present_hand(): void {
+export function test_motion_action_present_hand(): void {
   const checks: motionComplaints.IGatherer = motionComplaints();
   for (const c of slipRingScene.CASES) {
     const label: string = `${c.partner} presents the ${c.hand} hand`;
