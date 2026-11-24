@@ -6,6 +6,7 @@
 // integrateCoMPositionOverPolynomial l.355-370. See NOTICE.
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
+import { physicalFootstepAdjustor } from "./physicalFootstepAdjustor";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalIcpPlannerCmps as Cmps } from "./physicalIcpPlannerCmps";
@@ -142,19 +143,32 @@ export function preparePhysicalDisturbanceSpan(
     };
   };
 
-  // The swinging limb: the planted limb farthest from the capture point, the
-  // last of equals, as the push recovery keeps the closest one, the first of
-  // equals, and swings the other (`physicalPushRecovery.doubleSupport`
-  // l.169-182), for any number.
-  const farthest = (feet: readonly Foot[]): string => {
-    let best: { bone: string; distance: number } | undefined;
-    for (const foot of feet) {
-      const at: Tools.IFloor = toWorld(Polygon.centroid(supportOf([foot])));
-      const distance: number = Math.hypot(state.xi.x - at.x, state.xi.z - at.z);
-      if (!best || distance >= best.distance)
-        best = { bone: foot.bone, distance };
-    }
-    return best!.bone;
+  // The swinging limb: of the planted limbs, from the farthest from the
+  // capture point to the nearest, the last of equals first, the first whose
+  // step can capture, as the push recovery keeps the closest limb and swings
+  // the other (`physicalPushRecovery.doubleSupport` l.169-182); the farthest
+  // when none can.
+  const choose = (feet: readonly Foot[]): string => {
+    const ranked: { foot: Foot; distance: number }[] = feet
+      .map((foot: Foot, index: number) => {
+        const at: Tools.IFloor = toWorld(Polygon.centroid(supportOf([foot])));
+        return {
+          foot,
+          index,
+          distance: Math.hypot(state.xi.x - at.x, state.xi.z - at.z),
+        };
+      })
+      .sort((a, b): number => b.distance - a.distance || b.index - a.index);
+    for (const { foot } of ranked)
+      if (
+        preferred(
+          feet.filter((other: Foot): boolean => other !== foot),
+          foot,
+          ZULU.swingTime,
+        ) > 0
+      )
+        return foot.bone;
+    return ranked[0]!.foot.bone;
   };
 
   // The two sides a plan rides on: the stance, its planted limbs merged into
@@ -237,13 +251,61 @@ export function preparePhysicalDisturbanceSpan(
       return;
     }
     outside ??= t;
-    trigger = { at: Math.max(t, outside + reaction), swing: farthest(feet) };
+    trigger = { at: Math.max(t, outside + reaction), swing: choose(feet) };
   };
 
-  // The footstep in the support foot's one-step capture region with a swing
-  // time left (`physicalPushRecovery.checkAndUpdate`).
+  // The region a swinging limb can step into with a swing time left: the
+  // remaining support's one-step capture region cut by the discs it can
+  // reach, the maximum endpoint travel about its lift-off place
+  // (`IAutoMoviePhysicalBalance.maximumStep`) and, with its leg known, the
+  // leg's reach about its hip carried by the centre of mass
+  // (`physicalSupportSpanContacts.captureRegion`).
+  const reachable = (
+    stance: readonly Foot[],
+    swing: Foot,
+    remaining: number,
+  ): Polygon.IPoint[] => {
+    const reach: Contacts.IReach[] = [
+      { center: toLocal(swing.frame.origin), radius: input.maximumStep },
+    ];
+    if (swing.leg && swing.leg.length > swing.leg.height)
+      reach.push({
+        center: toLocal(add(state.c, swing.leg.hip)),
+        radius: Math.sqrt(
+          swing.leg.length * swing.leg.length -
+            swing.leg.height * swing.leg.height,
+        ),
+      });
+    return Contacts.captureRegion({
+      polygon: supportOf(stance),
+      capture: toLocal(state.xi),
+      omega,
+      remaining,
+      reach,
+    });
+  };
+
+  // The swing time a recovery prefers: the time left, reduced by tenths of
+  // it while the region is empty (`physicalPushRecovery.preferredSwingTime`,
+  // `computePreferredSwingTimeForRecovering` l.197-220).
+  const preferred = (
+    stance: readonly Foot[],
+    swing: Foot,
+    remaining: number,
+  ): number => {
+    if (remaining <= ZULU.controlDt) return remaining;
+    let time: number = remaining;
+    for (; time >= 0; time -= remaining / 10)
+      if (Polygon.area(reachable(stance, swing, time)) > 0) break;
+    return time;
+  };
+
+  // The footstep projected into the region once per recovery, not while the
+  // capture point's error is small nor within `MINIMUM_TIME_TO_REPLAN` of
+  // touchdown (`physicalPushRecovery.checkAndUpdate` l.231-281,
+  // `physicalFootstepAdjustor`).
   const place = (
-    support: Foot,
+    stance: readonly Foot[],
     swing: Foot,
     from: Tools.IFloor,
     remaining: number,
@@ -253,46 +315,43 @@ export function preparePhysicalDisturbanceSpan(
     adjusted: boolean;
     preferred: number;
   } => {
-    const frame: Polygon.IFrame = support.frame;
-    const ys: number[] = support.polygon.map(
-      (p: Polygon.IPoint): number => p.y,
-    );
-    const swinging: Polygon.IPoint = Polygon.local(frame, swing.frame.origin);
-    const region: Recovery.IRegion = {
-      support: swinging.y > 0 ? "right" : "left",
-      capture: Polygon.local(frame, state.xi),
-      omega,
-      foot: Polygon.hull(support.polygon),
-      footWidth: Math.max(...ys) - Math.min(...ys),
-      range: input.maximumStep,
+    const time: number = preferred(stance, swing, remaining);
+    const region: Polygon.IPoint[] =
+      time > 0 ? reachable(stance, swing, time) : [];
+    const kept = {
+      target: from,
+      viable: region.length > 0,
+      adjusted: false,
+      preferred: time,
     };
-    const checked: ReturnType<typeof Recovery.checkAndUpdate> =
-      Recovery.checkAndUpdate({
-        state: recovery,
-        remaining,
-        dt: ZULU.controlDt,
-        period: ZULU.controlDt,
-        region,
-        position: Polygon.local(frame, from),
+    if (
+      region.length === 0 ||
+      !recovery.large ||
+      recovery.recovering ||
+      remaining < Recovery.MINIMUM_TIME_TO_REPLAN
+    )
+      return kept;
+    const adjusted: physicalFootstepAdjustor.IResult = physicalFootstepAdjustor(
+      {
+        position: toLocal(from),
         outline: Polygon.hull(
           outline({ ...swing, frame: { ...swing.frame, origin: from } }).map(
-            (p: Tools.IFloor): Polygon.IPoint => Polygon.local(frame, p),
+            toLocal,
           ),
         ),
-      });
-    recovery = checked.state;
-    return {
-      target: Polygon.world(frame, checked.position),
-      viable: checked.region.length > 0,
-      adjusted: checked.adjusted,
-      preferred: Recovery.preferredSwingTime({
-        remaining,
-        dt: ZULU.controlDt,
+        support: Polygon.centroid(supportOf(stance)),
         region,
-      }),
+      },
+    );
+    if (!adjusted.adjusted) return kept;
+    recovery = { ...recovery, recovering: true };
+    return {
+      target: toWorld(adjusted.position),
+      viable: true,
+      adjusted: true,
+      preferred: time,
     };
   };
-
   // The single-support plan from a time to a footstep.
   const plan = (
     support: Foot,
@@ -356,7 +415,7 @@ export function preparePhysicalDisturbanceSpan(
         desired: toLocal(evaluate(reference, t, omega).position),
       });
       const from: Tools.IState = swingAt(swings, s.swing.bone, t);
-      const moved = place(s.support, s.swing, from.position, s.touchdown - t);
+      const moved = place(s.stance, s.swing, from.position, s.touchdown - t);
       if (!moved.viable) {
         branches.push({ kind: "fall", seconds: t, bone: s.swing.bone });
         fallen = t;
@@ -386,12 +445,7 @@ export function preparePhysicalDisturbanceSpan(
       );
       const support: Foot = merge(stance, swing);
       recovery = Recovery.fall(recovery);
-      const placedAt = place(
-        support,
-        swing,
-        swing.frame.origin,
-        ZULU.swingTime,
-      );
+      const placedAt = place(stance, swing, swing.frame.origin, ZULU.swingTime);
 
       // No capturable step: the response ends in a fall, which the physics
       // takes from here with the fall's contacts.
@@ -667,6 +721,14 @@ export namespace preparePhysicalDisturbanceSpan {
 
     /** Its contact outline in the sole frame. */
     polygon: { x: number; y: number }[];
+
+    /**
+     * Its leg's reach, when known: the hip anchor's horizontal offset from the
+     * centre of mass, world x and z, its height over the floor, and the leg's
+     * chain length, metres. A footstep stays within sqrt(L^2 - h^2) of the hip
+     * where it stands at touchdown, carried by the centre of mass.
+     */
+    leg?: { hip: { x: number; z: number }; height: number; length: number };
   }
 
   /** A branch point of the span. */
