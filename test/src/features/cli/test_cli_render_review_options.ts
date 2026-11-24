@@ -249,6 +249,14 @@ export function test_cli_render_review_options(): void {
       ["note", "The hands miss"],
     ],
     [
+      ["file", "film.mp4"],
+      ["at", "0.12"],
+      ["note", "The hands meet"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "still"],
+    ],
+    [
       ["mark", "old/review.json"],
       ["file", "film.mp4"],
       ["from", "0.1"],
@@ -256,6 +264,15 @@ export function test_cli_render_review_options(): void {
       ["reviewer", "Director"],
       ["decision", "accepted"],
       ["viewed", "playback"],
+    ],
+    [
+      ["file", "film.mp4"],
+      ["from", "0.1"],
+      ["to", "0.2"],
+      ["note", "The footsteps line up"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "listening"],
     ],
   ];
   const admitted: string[] = [
@@ -302,6 +319,18 @@ export function test_cli_render_review_options(): void {
         ["viewed", "listening"],
       ],
       "need --from and --to",
+    ],
+    [
+      [
+        ["file", "film.mp4"],
+        ["from", "0"],
+        ["to", "1"],
+        ["note", "Review"],
+        ["reviewer", "Director"],
+        ["decision", "accepted"],
+        ["viewed", "still"],
+      ],
+      "Still review needs --at",
     ],
     [
       [

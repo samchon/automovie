@@ -34,8 +34,8 @@ interface IAutoMovieFileReviewOptions {
  * `--from` and exclusive `--to`, in film seconds. New marks need `--note`.
  * `--mark` opens an existing receipt or, beside a file and selected time,
  * explicitly rebinds it. A rebind can reuse the note text. `--reviewer`,
- * `--decision` and `--viewed` belong together on a mark or rebind. A still can
- * name a point, while playback and listening require an interval. `--out`
+ * `--decision` and `--viewed` belong together on a mark or rebind. Still review
+ * needs `--at`. Playback and listening need `--from` and `--to`. `--out`
  * selects the output folder.
  */
 export function readAutoMovieReviewOptions(
@@ -142,6 +142,8 @@ function fileOptions(
     throw new Error(
       "Add a note or decision at an explicit position with --file",
     );
+  if (viewed === "still" && at === null)
+    throw new Error("Still review needs --at to select one frame");
   if (
     (requested === null || requested.to === null) &&
     (viewed === "playback" || viewed === "listening")

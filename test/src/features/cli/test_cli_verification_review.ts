@@ -19,11 +19,13 @@ import * as path from "node:path";
  * 2. A named acceptance over the correct repeated shot occurrence passes. Another
  *    occurrence, a changed required interval and replacement bytes cannot
  *    inherit that verdict.
+ * 3. A single-frame still decision certifies its frame. A saved multi-frame still
+ *    decision supplies no proof even for one frame inside the interval.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the media, interval, file identity and approval requirements demonstrated.
  * @evidence contracts/development/testing.md#behavioral-verification Consumes actual current bytes and an admitted observation through the named review verification path.
  * @evidence contracts/development/testing.md#independent-expectations A known two-frames-per-second clock establishes the declared frame times and Node independently computes the candidate hash.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts scoped approval with locator, wrong media, wrong occurrence, fractional interval loss and changed bytes.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts scoped approval with locator, wrong media, wrong occurrence, fractional interval loss, still scope wider than one frame and changed bytes.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit writes and removes isolated files and launches no browser or decoder.
  */
 export async function test_cli_verification_review(): Promise<void> {
@@ -91,9 +93,28 @@ export async function test_cli_verification_review(): Promise<void> {
       }),
       "awaiting-review",
     );
+    const still = {
+      ...accepted,
+      viewed: "still",
+      requested: { from: 0.75, to: null },
+      observed: {
+        ...observed,
+        firstFrame: 1,
+        start: { ticks: 1, timeBase: [1, 2] },
+      },
+    };
+    assert.equal(await verify(still), "awaiting-review");
+    const stillCheck: IAutoMovieVerification.IReview = {
+      ...check,
+      title: "Inspect the still of the hold",
+      scope: "second occurrence, frame 1",
+      viewed: "still",
+      frames: [1, 2],
+    };
+    assert.equal(await verify(still, stillCheck), "passed");
     assert.equal(
-      await verify({ ...accepted, viewed: "still" }),
-      "awaiting-review",
+      await verify({ ...accepted, viewed: "still" }, stillCheck),
+      "unobserved",
     );
     assert.equal(
       await verify({ ...accepted, requested: { from: 0.1, to: 0.9 } }),

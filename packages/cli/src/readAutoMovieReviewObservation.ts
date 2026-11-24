@@ -2,12 +2,22 @@ import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
 
 import type { IAutoMovieReviewObservation } from "./IAutoMovieReviewObservation";
 
-/** Admits one stored review receipt, including its requested and observed scope. */
+/**
+ * Admits one stored review receipt with matching requested and observed scope.
+ * A still decision covers a single decoded frame when timing is established.
+ */
 export function readAutoMovieReviewObservation(
   value: unknown,
 ): IAutoMovieReviewObservation {
   if (!record(value) || !admitted(value))
     throw new Error("Invalid file review receipt");
+  if (
+    value.viewed === "still" &&
+    (value.observed === null
+      ? value.requested.to !== null
+      : value.observed.endFrame - value.observed.firstFrame !== 1)
+  )
+    throw new Error("Invalid file review receipt: a still selects one frame");
   return value;
 }
 

@@ -20,7 +20,7 @@ Disabling a definition does not change independently chosen stage membership.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the measured unit, inclusive bounds, declared source files and evaluation ownership.
+States the measured unit, inclusive bounds, evaluation ownership and declared source files, including named shared files in the owning Git checkout.
 
 ## @evidence contracts/development/design.md#principled-representation
 
@@ -68,7 +68,7 @@ The signature holds no resource. The production-owned measurement manages its ow
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the capture record, subject, diagnostic, view and pass identities and the exact sample or interval.
+States the capture record, subject, diagnostic, view and pass identities and the exact sample or interval. A nested production establishes input identity by explicitly refreshing the capture with its named inputs.
 
 ## @evidence contracts/development/design.md#principled-representation
 

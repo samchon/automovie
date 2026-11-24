@@ -75,7 +75,8 @@ Options:
   --at            review: point in film seconds, or select --from and --to.
   --mark          review: reopen exact source bytes or rebind with --file and a new time.
   --reviewer      review: with --decision accepted|needs-repair and --viewed still|playback|listening,
-                  explicitly record the named reviewer's scoped decision.
+                  explicitly record the named reviewer's decision. Use --at for a still,
+                  or --from and --to for playback or listening.
   <request>       capture, inspect: --subject, --at, --from, --to, --rate, --events,
                   --views, --passes, --marks, --label, --round, --compare and
                   every other key of the capture request grammar; render takes

@@ -22,7 +22,10 @@ export interface IAutoMovieReviewObservation {
    * mark.
    */
   decision: "accepted" | "needs-repair" | null;
-  /** What the reviewer explicitly inspected, or null for a navigation mark. */
+  /**
+   * What the reviewer explicitly inspected, or null for a navigation mark. A
+   * still decision is scoped to a single decoded frame.
+   */
   viewed: "still" | "playback" | "listening" | null;
   /**
    * The selected film time in seconds, or half-open interval when to is

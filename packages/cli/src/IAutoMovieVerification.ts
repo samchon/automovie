@@ -43,7 +43,8 @@ export namespace IAutoMovieVerification {
     /**
      * Project-relative files the computation depends on, including its
      * implementation or data imports and the actual model or motion inputs. Use
-     * the smallest complete set for this check.
+     * the smallest complete set for this check. A nested production can name
+     * paths to shared files within its Git checkout.
      */
     readonly inputs: readonly string[];
 
@@ -84,6 +85,8 @@ export namespace IAutoMovieVerification {
     /**
      * Project-relative scope inputs whose bytes an explicit refresh seals.
      * Include the module and relevant configuration, assets and dependencies.
+     * In a nested production, include shared inputs within the Git checkout and
+     * refresh the capture to establish its input identity.
      */
     readonly inputs?: readonly string[];
 

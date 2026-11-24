@@ -112,6 +112,8 @@ Declare useful checks beside the model, motion case or film they serve and expor
 
 Run `pnpm run verify --subject <id>` to read current observations. Repeat `--subject` for an intentional multi-target read. Use `--run --only <check>` to repeat one bounded measurement or declared capture. A measurement names the input files, unit and accepted range. A capture names its record, view, pass, diagnostic and sample or frame range. Delivery checks compare the actual movie bytes with the render report and required controls. Review checks read a named observation of the actual movie and required frame range.
 
+In a nested Git production, declare the files each measurement or capture depends on. Use paths relative to the production for shared inputs inside its Git checkout, such as `../../shared/model.ts`. Refresh a declared capture with `--run` to bind its record to the exact input bytes.
+
 Status distinguishes passed, failed, not run, disabled, stale, unobserved and awaiting review. It names what to reopen or rerun. `--json` writes the same result as data. Use `--require <stage>` at an adopted handoff to exit nonzero when its required checks remain open, even when `--only` selects one check to run. `enabled: false` keeps an optional check visible during investigation. Remove the temporary definition when its investigation ends. Keep any capture, review and acceptance records that support completed work. Local measurement and refresh receipts live under `.cache/automovie/verify/`. A `.first-failure.json` beside the latest receipt preserves the first failure through retries.
 
 ## Commands

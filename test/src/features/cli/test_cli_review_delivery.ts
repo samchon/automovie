@@ -26,7 +26,8 @@ import path from "node:path";
  *    unproven timing keeps the mark visible with no observed frame, and
  *    incomplete cut data leaves verified native timing usable.
  * 5. The receipt reader rejects a whole-film Boolean verdict, an invalid clock and
- *    a mark whose observed clock excludes the selected time.
+ *    a mark whose observed clock excludes the selected time. A still decision
+ *    covers only one verified frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs the review file command's implementation with ordinary files and producer-shaped reports, checks receipts and refusals, and exercises the same parser the CLI uses. The installed delivery fixture owns actual browser, encoder and file capture.
  * @evidence contracts/development/testing.md#independent-expectations Uses a 24000/1001 presentation and its integral 1001 native ticks per frame. Authored occurrence bounds, changed bytes and explicit retake times decide the expected result.
@@ -131,6 +132,24 @@ export async function test_cli_review_delivery(): Promise<void> {
     const saved: string = await fs.readFile(
       path.join(root, "before", "review.json"),
       "utf8",
+    );
+    const still = await request([
+      ...before.filter(([key]): boolean => key !== "out"),
+      ["out", "still"],
+      ["reviewer", "Director"],
+      ["decision", "accepted"],
+      ["viewed", "still"],
+    ]);
+    TestValidator.equals(
+      "a still decision addresses the single decoded frame at the selected point",
+      [still.viewed, still.requested, still.observed],
+      ["still", first.requested, first.observed],
+    );
+    const legacyStill = { ...still, requested: { from: 0.18, to: 0.19 } };
+    TestValidator.equals(
+      "an earlier still interval is admissible when it proves exactly one frame",
+      readAutoMovieReviewObservation(legacyStill),
+      legacyStill,
     );
 
     // A changed replacement cannot masquerade as the original receipt.

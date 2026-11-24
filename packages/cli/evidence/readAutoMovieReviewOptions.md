@@ -14,7 +14,7 @@ Admits known option names and delegates to one of two mode readers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Refuses mixing the modes, guessing a new position for a rebind, and treating an unnamed flag as a scoped decision.
+Refuses mixing the modes, guessing a new position for a rebind, and treating an unnamed flag as a scoped decision. A still review selects one frame with `--at`. Playback and listening select intervals.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

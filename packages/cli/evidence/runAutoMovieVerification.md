@@ -22,8 +22,8 @@ Walks the selected targets and their check and required lists. Each evaluated lo
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A retained measurement is recomputed against its criterion only when the definition, scoped input bytes and measurement binding (`signature`) agree. A refreshed capture additionally binds its record digest; legacy capture currentness needs a matching clean revision.
+A retained measurement is recomputed against its criterion only when the definition, scoped input bytes and measurement binding (`signature`) agree. A refreshed capture additionally binds the record digest. Legacy capture currentness needs a matching clean revision at the checkout root. A nested production can name shared files by project-relative paths within the same checkout.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Each selected check retains its latest receipt and first witnessed failure under the owning production cache. The first complete failure is linked exclusively before latest is replaced, so concurrent retries preserve it. Temporary receipt writes are atomically published and their staging paths are released. One report is returned for the requested scopes.
+Each selected check retains its latest receipt and first witnessed failure under the owning production cache. The first complete failure is linked from separate staged bytes before latest is replaced. An explicit refresh rebuilds latest from current observations independently of its prior contents. Temporary receipt writes are atomically published and their staging paths are released.

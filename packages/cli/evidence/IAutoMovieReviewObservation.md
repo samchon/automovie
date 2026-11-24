@@ -6,7 +6,7 @@ Documents the reviewer's wording and decision, native tick clock, frame bounds, 
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The requested point or exclusive interval is in film seconds. The verified window holds native rational timestamps and a half-open frame range. The cut discriminant makes a known entry and a reason alternatives. The stored JSON reader enforces the cross-field bounds and that a named decision includes an observed activity.
+The requested point or exclusive interval is in film seconds. The verified window holds native rational timestamps and a half-open frame range. The cut discriminant makes a known entry and a reason alternatives. The reader enforces the cross-field bounds, requires an observed activity for a named decision, and limits still decisions to one decoded frame.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

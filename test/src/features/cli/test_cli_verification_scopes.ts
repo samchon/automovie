@@ -16,8 +16,8 @@ import * as path from "node:path";
  * 1. Two targets use the same local check ID. A scoped run evaluates only its
  *    chosen check and a status read runs none.
  * 2. Below-bound and valid measurements derive their verdicts from file contents.
- *    An input or bound change invalidates a previously good result, and the
- *    first observed failure remains in its own receipt after a correction.
+ *    An input or bound change invalidates an earlier result. An explicit run
+ *    repairs damaged latest JSON and preserves the first observed failure.
  * 3. An optional disabled and removed check has no gate effect. A removed or
  *    disabled required check blocks the stage even with another check
  *    selected.
@@ -30,7 +30,7 @@ import * as path from "node:path";
  * @evidence contracts/development/common.md#meaningful-documentation Describes the scope, criterion, evidence and required-stage distinctions exercised.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the shared installed command evaluator, observes selected execution and reads its scoped output and receipts.
  * @evidence contracts/development/testing.md#independent-expectations The fixture writes literal lengths and bounds, with expected outcomes derived from those values and declared required IDs.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, successful and blocked stages and isolated and multi-target selection.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers missing, failing, passing, stale, disabled and removed criteria, a damaged receipt and its recreated replacement, successful and blocked stages, and isolated and multi-target selection.
  * @evidence contracts/development/testing.md#execution-ownership This portable CLI unit owns an isolated temporary directory and spawns no process or browser.
  */
 export async function test_cli_verification_scopes(): Promise<void> {
@@ -99,6 +99,15 @@ export async function test_cli_verification_scopes(): Promise<void> {
 
     await fs.writeFile(path.join(root, "chair.json"), "3");
     assert.equal((await run([chair], false)).items[0]?.state, "stale");
+    const receipt: string = path.resolve(root, failed.items[0]!.evidence!);
+    const witness: string = receipt.replace(/\.json$/u, ".first-failure.json");
+    const firstFailure: string = await fs.readFile(witness, "utf8");
+    assert.match(
+      firstFailure,
+      /"outcome":\{"state":"failed".+"measurement":1/u,
+    );
+    await fs.writeFile(receipt, "{broken receipt");
+    assert.equal((await run([chair], false)).items[0]?.state, "unobserved");
     const passed: IAutoMovieVerification.IReport = await run(
       [chair],
       true,
@@ -114,15 +123,8 @@ export async function test_cli_verification_scopes(): Promise<void> {
         ["motion", "gap", "passed"],
       ],
     );
-    const receipt: string = path.resolve(root, passed.items[0]!.evidence!);
     const saved: string = await fs.readFile(receipt, "utf8");
-    assert.match(
-      await fs.readFile(
-        receipt.replace(/\.json$/u, ".first-failure.json"),
-        "utf8",
-      ),
-      /"outcome":\{"state":"failed".+"measurement":1/u,
-    );
+    assert.equal(await fs.readFile(witness, "utf8"), firstFailure);
     await fs.writeFile(
       receipt,
       saved.replace('"measurement":3', '"measurement":1'),

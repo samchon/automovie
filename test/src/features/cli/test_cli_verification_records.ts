@@ -19,7 +19,10 @@ import * as path from "node:path";
  *    supply a different pass, mixed view audit or a two-frame interval.
  * 2. A real adjacent frame and bounded diagnostic coverage complete the interval.
  *    An unmatched error still calls for comparable observations.
- * 3. The report retains the staging path and identifies the promoted movie and
+ * 3. A legacy capture from a nested production cannot prove the sibling model it
+ *    used, even after that sibling is cleaned. Exact named sibling inputs are
+ *    sealed inside the owning checkout. Unrelated paths refuse before use.
+ * 4. The report retains the staging path and identifies the promoted movie and
  *    required controls by digest. A malformed output path or audit digest
  *    leaves the result unobserved. Replaced bytes or old controls are stale and
  *    a newer blocked attempt leaves the previous output available for repair.
@@ -27,14 +30,16 @@ import * as path from "node:path";
  * @evidence contracts/development/common.md#meaningful-documentation Names the selected scope, artifact identity and preserved blocked-attempt behavior.
  * @evidence contracts/development/testing.md#behavioral-verification Reads retained capture and delivery inputs through the shared evaluator used by the CLI.
  * @evidence contracts/development/testing.md#independent-expectations The fixture supplies individual checked frames, unmatched observations and independently hashed literal publication bytes.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts one sample with two, a matched versus mixed view and pass, current versus stale video or controls and a later blocked attempt.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts root and nested legacy captures, sealed shared and external files, one sample and two, matched and mixed views or passes, and current, stale and blocked delivery.
  * @evidence contracts/development/testing.md#execution-ownership The CLI test owns a temporary Git fixture and launches no graphics, encoding or browser process.
  */
 export async function test_cli_verification_records(): Promise<void> {
-  const root: string = await fs.mkdtemp(
+  const scratch: string = await fs.mkdtemp(
     path.join(os.tmpdir(), "automovie-verify-records-"),
   );
+  const root: string = path.join(scratch, "checkout");
   try {
+    await fs.mkdir(root);
     const git = (...args: string[]): string =>
       execFileSync("git", ["-C", root, ...args], {
         encoding: "utf8",
@@ -54,19 +59,28 @@ export async function test_cli_verification_records(): Promise<void> {
     git("update-ref", "HEAD", revision);
     const info: string = path.join(root, ".git", "info");
     await fs.mkdir(info, { recursive: true });
-    await fs.writeFile(path.join(info, "exclude"), "/*.png\n/record.json\n");
+    await fs.writeFile(
+      path.join(info, "exclude"),
+      "/*.png\n/record.json\n/movies/episode/*.png\n/movies/episode/record.json\n",
+    );
 
+    const assess = async (
+      project: string,
+      check: IAutoMovieVerification.Check,
+      run: boolean = false,
+    ): Promise<IAutoMovieVerification.IReport> =>
+      runAutoMovieVerification({
+        root: project,
+        env: {},
+        targets: [
+          { id: "walk", checks: [check], required: { handoff: [check.id] } },
+        ],
+        options: { subjects: ["walk"], only: [], require: "handoff", run },
+      });
     const verify = async (
       check: IAutoMovieVerification.Check,
     ): Promise<IAutoMovieVerification.IResult> =>
-      (
-        await runAutoMovieVerification({
-          root,
-          env: {},
-          targets: [{ id: "walk", checks: [check] }],
-          options: { subjects: ["walk"], only: [], require: null, run: false },
-        })
-      ).items[0]!;
+      (await assess(root, check)).items[0]!;
     const verifyCapture = async (
       check: IAutoMovieVerification.ICapture,
       record: unknown,
@@ -173,6 +187,66 @@ export async function test_cli_verification_records(): Promise<void> {
       "unobserved",
     );
 
+    const nested: string = path.join(root, "movies", "episode");
+    await fs.mkdir(nested, { recursive: true });
+    await fs.writeFile(path.join(nested, "one.png"), "retained");
+    const shared: string = path.join(root, "shared", "model.txt");
+    await fs.mkdir(path.dirname(shared));
+    await fs.writeFile(shared, "3");
+    await fs.writeFile(path.join(nested, still.record), JSON.stringify(single));
+    assert.equal(git("status", "--porcelain", "--", "movies/episode"), "");
+    assert.match(git("status", "--porcelain"), /\?\? shared\//u);
+    const dirtySibling: IAutoMovieVerification.IReport = await assess(
+      nested,
+      still,
+    );
+    assert.equal(dirtySibling.blocked, true);
+    assert.equal(dirtySibling.items[0]?.state, "unobserved");
+    await fs.unlink(shared);
+    assert.equal(git("status", "--porcelain"), "");
+    assert.equal((await assess(nested, still)).blocked, true);
+
+    await fs.writeFile(shared, "3");
+    const sharedInput: string = "../../shared/model.txt";
+    const measurement: IAutoMovieVerification.IMeasurement = {
+      id: "shared-model",
+      kind: "measure",
+      title: "The model clears its support",
+      scope: "shared model clearance",
+      inputs: [sharedInput],
+      unit: "m",
+      minimum: 2,
+      measure: async (project: string): Promise<number> =>
+        Number(await fs.readFile(path.resolve(project, sharedInput), "utf8")),
+    };
+    assert.equal((await assess(nested, measurement, true)).blocked, false);
+    assert.equal((await assess(nested, measurement)).items[0]?.state, "passed");
+    await fs.writeFile(shared, "1");
+    assert.equal((await assess(nested, measurement)).items[0]?.state, "stale");
+
+    await fs.writeFile(path.join(scratch, "outside.txt"), "3");
+    const nonGit: string = path.join(scratch, "standalone");
+    await fs.mkdir(nonGit);
+    for (const [project, input] of [
+      [nested, "../../../outside.txt"],
+      [nonGit, "../outside.txt"],
+    ] as const) {
+      const external: IAutoMovieVerification.IReport = await assess(
+        project,
+        {
+          ...measurement,
+          inputs: [input],
+          measure: (): number => 3,
+        },
+        true,
+      );
+      assert.equal(external.items[0]?.state, "unobserved");
+      assert.match(
+        external.items[0]!.message,
+        /outside the project and its Git checkout/u,
+      );
+    }
+
     const delivery: IAutoMovieVerification.IDelivery = {
       id: "delivery",
       title: "The delivery's file and depth guide match",
@@ -245,6 +319,6 @@ export async function test_cli_verification_records(): Promise<void> {
     assert.equal(blocked.state, "failed");
     assert.match(blocked.message, /Previous output: film\.mp4/u);
   } finally {
-    await fs.rm(root, { recursive: true, force: false });
+    await fs.rm(scratch, { recursive: true, force: false });
   }
 }

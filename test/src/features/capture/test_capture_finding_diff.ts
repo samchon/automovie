@@ -69,10 +69,14 @@ type ISample = Pick<IAutoMovieInspectionDiagnostics, "findings" | "coverage">;
  * 16. A rebuilt round that covers both moments still needs the earlier round to
  *     have observed the rebuilt finding's interval.
  * 17. Equal ranks at the same checked sample leave the finding unchanged.
+ * 18. A slower capture checks the same time bounds as a faster one but omits its
+ *     failing sample. Carried, fixed and new classifications all need that
+ *     sample, while a shared exact second and a same-grid interior sample
+ *     remain comparable.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs real rounds through the public planner, folder and run against in-memory storage with drawn cells that supply diagnostics packets, and reads the diff from the completed comparison. It observes comparison of recorded witnesses instead of calculating the result in the test harness.
- * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. At 10 fps, 1 s and 2 s fall on frames 10 and 20, which are distinct episodes. A checked sample at 1 s cannot prove a reduction of an error last measured at 2 s.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing with checked observations, comparable with disjoint, partially checked and changed occurrences, and one genuine improvement with and without an unmatched error. It also covers confidence order, missing rank, warnings and an absent audit. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
+ * @evidence contracts/development/testing.md#independent-expectations Every finding, rank and coverage row is chosen here, so each state follows from the severity order and which seconds each round actually checks. A 2 fps capture of 0 s to 1 s observes 0 s, 0.5 s and 1 s. It cannot decide an error at 0.1 s on the 10 fps grid.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts missing with checked observations, comparable with disjoint, partially checked and changed occurrences, and missed frames inside matching time bounds with points and spans actually checked on the matching grid. It also covers confidence order, missing rank, warnings and an absent audit. Pixel pairing is owned by `test_capture_round_comparison` and episode grouping by `test_inspection_diagnostic_episodes`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_capture_finding_diff`; it draws in memory.
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario, its input and the state or outcome it pins.
  */
@@ -85,14 +89,16 @@ export async function test_capture_finding_diff(): Promise<void> {
     text: string,
     sample: ((seconds: number) => ISample) | null,
     scope?: string,
+    fps?: number,
   ) => Promise<IAutoMovieCaptureFindingDiff | undefined> = async (
     text: string,
     sample: ((seconds: number) => ISample) | null,
     scope: string = "shot",
+    fps: number = SUBJECT.fps,
   ): Promise<IAutoMovieCaptureFindingDiff | undefined> => {
     const plan: IAutoMovieCapturePlan = planAutoMovieCapture({
       request: parseAutoMovieCapturePlanRequest(new URLSearchParams(text)),
-      subject: SUBJECT,
+      subject: { ...SUBJECT, fps },
       cuts: [],
     });
     const record: Extract<IAutoMovieCaptureRecord, { state: "complete" }> =
@@ -430,5 +436,58 @@ export async function test_capture_finding_diff(): Promise<void> {
       ),
     ),
     ["same", ["a:carried:same"]],
+  );
+
+  // 18. Equal elapsed bounds can enclose different sampled frames.
+  const dense: string = "at=0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1";
+  const sparse: string = "at=0,0.5,1";
+  const atTenth: (seconds: number) => ISample = (seconds: number): ISample => ({
+    findings: seconds === 0.1 ? [finding("a", 9)] : [],
+    coverage: [row("a")],
+  });
+  await capture(`${dense}&round=g1`, atTenth);
+  const carriedAcrossGrids: IAutoMovieCaptureFindingDiff | undefined =
+    await capture(
+      `${sparse}&round=g2&compare=g1`,
+      (seconds: number): ISample => ({
+        findings: seconds === 0.5 ? [finding("a", 1)] : [],
+        coverage: [row("a")],
+      }),
+      "shot",
+      2,
+    );
+  const fixedAcrossGrids: IAutoMovieCaptureFindingDiff | undefined =
+    await capture(
+      `${sparse}&round=g3&compare=g1`,
+      fixed([], [row("a")]),
+      "shot",
+      2,
+    );
+  const newAcrossGrids: IAutoMovieCaptureFindingDiff | undefined =
+    await capture(`${dense}&round=g4&compare=g3`, atTenth);
+  TestValidator.equals(
+    "a slower capture cannot classify a finding at a frame it missed",
+    [carriedAcrossGrids, fixedAcrossGrids, newAcrossGrids].map(states),
+    Array.from({ length: 3 }, () => ["same", ["a:unmatched:not-sampled"]]),
+  );
+  TestValidator.equals(
+    "the same cadence covers an interior finding sample",
+    states(
+      await capture(`${dense}&round=g5&compare=g1`, fixed([], [row("a")])),
+    ),
+    ["better", ["a:fixed"]],
+  );
+  await capture("at=0.5&round=g6", fixed([finding("a", 2)], [row("a")]));
+  TestValidator.equals(
+    "an exactly observed second can match across output indices",
+    states(
+      await capture(
+        "at=0.5&round=g7&compare=g6",
+        fixed([], [row("a")]),
+        "shot",
+        2,
+      ),
+    ),
+    ["better", ["a:fixed"]],
   );
 }

@@ -14,7 +14,7 @@ Domain checks admit the occurrence, interval and decision separately. The result
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Rejects a point-only playback judgment and receipts whose declared native range cannot support the requested time. No file bytes or authority are inferred from parsed fields.
+Rejects a point-only playback judgment, a still decision across frames, and receipts whose declared native range cannot support the requested time. An earlier still decision using an interval needs evidence of exactly one frame. No file bytes or authority are inferred from parsed fields.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

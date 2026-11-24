@@ -4,6 +4,7 @@ import * as path from "node:path";
 
 import type { IAutoMovieVerification } from "./IAutoMovieVerification";
 import { captureAutoMovie } from "./captureAutoMovie";
+import { createAutoMovieVerificationInputScope } from "./createAutoMovieVerificationInputScope";
 import { hashAutoMovieFile } from "./hashAutoMovieFile";
 import { inspectAutoMovieVerificationCapture } from "./inspectAutoMovieVerificationCapture";
 import { inspectAutoMovieVerificationDelivery } from "./inspectAutoMovieVerificationDelivery";
@@ -31,6 +32,11 @@ interface IReceipt {
   readonly measurement?: number;
   readonly recordSha256?: string;
 }
+
+/** Lazily resolved boundaries for explicitly named production inputs. */
+type AutoMovieVerificationInputScope = ReturnType<
+  typeof createAutoMovieVerificationInputScope
+>;
 
 /**
  * Evaluate selected targets in declaration order. A status read uses available
@@ -128,6 +134,8 @@ export async function runAutoMovieVerification(props: {
 
   const items: IAutoMovieVerification.IResult[] = [];
   let revision: string | undefined;
+  const inputScope: AutoMovieVerificationInputScope =
+    createAutoMovieVerificationInputScope(root);
   for (const { target, requirements } of plans) {
     const remaining: Set<string> = new Set(requirements);
     for (const check of target.checks) {
@@ -149,6 +157,7 @@ export async function runAutoMovieVerification(props: {
                 target: target.id,
                 check,
                 execute,
+                inputScope,
                 readRevision: (): string =>
                   (revision ??= readAutoMovieRevision(root)),
               });
@@ -197,6 +206,7 @@ async function evaluate(props: {
   readonly target: string;
   readonly check: IAutoMovieVerification.Check;
   readonly execute: boolean;
+  readonly inputScope: AutoMovieVerificationInputScope;
   readonly readRevision: () => string;
 }): Promise<IOutcome> {
   const { root, check }: typeof props = props;
@@ -214,11 +224,13 @@ async function evaluate(props: {
     "verify",
     `${digest([props.target, check.id])}.json`,
   );
-  const retained: IReceipt | undefined = (await readJson(file)) as
-    | IReceipt
-    | undefined;
+  const refresh: boolean =
+    props.execute && (check.kind === "measure" || check.capture !== undefined);
+  const retained: IReceipt | undefined = refresh
+    ? undefined
+    : ((await readJson(file)) as IReceipt | undefined);
   if (check.kind === "measure") {
-    const signature: string = await identify(root, check);
+    const signature: string = await identify(props.inputScope, check);
     if (!props.execute) {
       if (retained === undefined)
         return {
@@ -260,7 +272,7 @@ async function evaluate(props: {
         message: error instanceof Error ? error.message : String(error),
       };
     }
-    if ((await identify(root, check)) !== signature)
+    if ((await identify(props.inputScope, check)) !== signature)
       return {
         state: "stale",
         message: "Inputs changed while the measurement ran. Run it again.",
@@ -276,7 +288,7 @@ async function evaluate(props: {
   }
   const recordPath: string = path.resolve(root, check.record);
   if (props.execute && check.capture !== undefined) {
-    const signature: string = await identify(root, check);
+    const signature: string = await identify(props.inputScope, check);
     let recorded: string | undefined;
     try {
       await captureAutoMovie({
@@ -299,7 +311,7 @@ async function evaluate(props: {
         state: "failed",
         message: `The configured capture wrote ${recorded ?? "no record"}, not ${check.record}.`,
       };
-    if ((await identify(root, check)) !== signature)
+    if ((await identify(props.inputScope, check)) !== signature)
       return {
         state: "stale",
         message: "Inputs changed during capture. Run it again.",
@@ -332,7 +344,7 @@ async function evaluate(props: {
   const record: unknown = JSON.parse(recordBytes.toString("utf8")) as unknown;
   if (retained?.recordSha256 !== undefined) {
     if (
-      retained.signature !== (await identify(root, check)) ||
+      retained.signature !== (await identify(props.inputScope, check)) ||
       retained.recordSha256 !==
         createHash("sha256").update(recordBytes).digest("hex")
     )
@@ -343,11 +355,15 @@ async function evaluate(props: {
         evidence: check.record,
       };
   } else {
-    const current: string = props.readRevision();
+    const recordedRevision: unknown = (record as { revision?: unknown } | null)
+      ?.revision;
     if (
       check.inputs !== undefined ||
-      !/^(?:[a-f\d]{40}|[a-f\d]{64})$/u.test(current) ||
-      (record as { revision?: string } | null)?.revision !== current
+      typeof recordedRevision !== "string" ||
+      !/^(?:[a-f\d]{40}|[a-f\d]{64})$/u.test(recordedRevision) ||
+      (await props.inputScope.checkout()) !==
+        (await props.inputScope.project()) ||
+      recordedRevision !== props.readRevision()
     )
       return {
         state: "unobserved",
@@ -391,7 +407,7 @@ function measured(
  * project.
  */
 async function identify(
-  root: string,
+  scope: AutoMovieVerificationInputScope,
   check: IAutoMovieVerification.IMeasurement | IAutoMovieVerification.ICapture,
 ): Promise<string> {
   const names: readonly string[] = check.inputs ?? [];
@@ -401,15 +417,8 @@ async function identify(
     );
   const inputs: [string, string][] = [];
   for (const name of new Set(names)) {
-    const file: string = path.resolve(root, name);
-    const relative: string = path.relative(root, file);
-    if (
-      path.isAbsolute(name) ||
-      relative === ".." ||
-      relative.startsWith(`..${path.sep}`)
-    )
-      throw new Error(`Verification input must be project-relative: ${name}.`);
-    inputs.push([relative, await hashAutoMovieFile(file)]);
+    const [relative, actual] = await scope.resolve(name);
+    inputs.push([relative, await hashAutoMovieFile(actual)]);
   }
   return digest([
     { ...check, enabled: undefined },
@@ -433,22 +442,35 @@ async function readJson(file: string): Promise<unknown> {
   }
 }
 
-/** Publish one complete receipt and preserve the first failure across runs. */
+/** Publish the latest receipt and retain independent first-failure bytes. */
 async function writeReceipt(file: string, latest: IReceipt): Promise<void> {
-  const temporary: string = `${file}.${randomUUID()}.tmp`;
+  const contents: string = `${JSON.stringify(latest)}\n`;
   await fs.mkdir(path.dirname(file), { recursive: true });
+  if (latest.outcome.state === "failed")
+    await publishReceipt(
+      file.replace(/\.json$/u, ".first-failure.json"),
+      contents,
+      true,
+    );
+  await publishReceipt(file, contents, false);
+}
+
+/** Stage complete receipt bytes before exclusive creation or replacement. */
+async function publishReceipt(
+  file: string,
+  contents: string,
+  exclusive: boolean,
+): Promise<void> {
+  const temporary: string = `${file}.${randomUUID()}.tmp`;
   try {
-    await fs.writeFile(temporary, `${JSON.stringify(latest)}\n`, {
-      flag: "wx",
-    });
-    if (latest.outcome.state === "failed") {
-      const witness: string = file.replace(/\.json$/u, ".first-failure.json");
+    await fs.writeFile(temporary, contents, { flag: "wx" });
+    if (exclusive) {
       // The link installs a complete witness and leaves any prior one intact.
-      await fs.link(temporary, witness).catch((error: unknown): void => {
+      await fs.link(temporary, file).catch((error: unknown): void => {
         if (readAutoMovieErrorCode(error) !== "EEXIST") throw error;
       });
-    }
-    await fs.rename(temporary, file);
+      await fs.unlink(temporary);
+    } else await fs.rename(temporary, file);
   } catch (error) {
     try {
       await fs.unlink(temporary);
