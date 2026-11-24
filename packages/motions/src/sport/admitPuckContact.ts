@@ -77,7 +77,7 @@ export function admitPuckContact(
     hand: HumanPropHold.frame(body, impact, { side }),
     offset:
       context.entry.holds[side] === context.params.stick
-        ? AutoMovieMotionHumanHeld.of(context, side, context.params.stick).frame
+        ? AutoMovieMotionHumanHeld(context, side, context.params.stick).frame
         : HumanPropFrame.relative(
             HumanPropHold.frame(body, entry, { side }),
             initial,

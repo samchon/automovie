@@ -89,7 +89,7 @@ export function test_motion_mount_rider_attachment(): void {
       .over((part) => part.handToFace({ kind: "phone" })),
   );
   const segment = carFilm.segments("a")[1]!,
-    reader = HumanSignature.of(carFilm, "a", driver, 0);
+    reader = HumanSignature(carFilm, "a", driver, 0);
   const offset = (t: number) =>
     Vector3.distance(
       HumanSignature.region(reader, "seat", t),
@@ -198,7 +198,7 @@ export function test_motion_mount_rider_attachment(): void {
     findings.push("Rising requires stirrups.");
   const ride = mount(saddle),
     span = ride.segments("a")[1]!,
-    sample = HumanSignature.of(ride, "a", body, 0);
+    sample = HumanSignature(ride, "a", body, 0);
   const inside = cues.filter(
     (c) => c.seconds >= span.entryTime + 0.3 && c.seconds <= span.end - 0.3,
   );
@@ -363,7 +363,7 @@ function checkGripAndLanding(findings: string[]): void {
         .registered("ride", { ...params, hands: m.holds })
         .rise({ to: "left" }),
     );
-    const reader = HumanSignature.of(held, "a", body, 0),
+    const reader = HumanSignature(held, "a", body, 0),
       span = held.segments("a")[1]!;
     // With the hands on the handlebars the torso reaches forward. Measure
     // passive carriage on the unoccupied upper body and grip geometry on the held ride.
@@ -371,7 +371,7 @@ function checkGripAndLanding(findings: string[]): void {
       0.6,
       sit.registered("ride", params).rise({ to: "left" }),
     );
-    const seatedReader = HumanSignature.of(passive, "a", body, 0);
+    const seatedReader = HumanSignature(passive, "a", body, 0);
     const saddleAt = (t: number) => {
       if (!m.ride.seat) return place(t);
       const f = part(m.ride.seat, t);

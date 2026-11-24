@@ -115,7 +115,7 @@ export namespace chiSau {
     const cycles: number = p.count ?? 4;
     const duration: number = p.duration ?? cycles * CYCLE;
     const blend: number = Math.min(BLEND, duration / 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "joined", seconds: blend },
       { name: "parted", seconds: duration - blend },
     ]);

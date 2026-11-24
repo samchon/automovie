@@ -38,7 +38,7 @@ export function jumpGroundPosture(
     phase === "landing"
       ? posture
       : rangeSteppingFoot(body, posture, phase, read);
-  return HumanArmSwing.of(body, lowered, ARMS, read);
+  return HumanArmSwing(body, lowered, ARMS, read);
 }
 /** The alternatives of `JumpGroundPostureSamplePhase`'s site. */
 type JumpGroundPostureSamplePhase = "left" | "right" | "landing";
@@ -72,7 +72,7 @@ export namespace jumpGroundPosture {
       resolveHumanPostureSource.assemble(body, lowered, undefined, projection);
     const seeded: deriveHumanPosture.ISolved["seeded"] =
       resolveHumanPostureSource.fit(body, assembled, undefined, {}, read);
-    const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing.of(
+    const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing(
       body,
       lowered,
       ARMS,

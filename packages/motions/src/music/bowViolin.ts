@@ -88,7 +88,7 @@ function planStroke(
     0,
     "s",
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     "right",
     params.bow,
@@ -172,19 +172,6 @@ function planStroke(
     { normal: hair, forward: frog.direction },
     { normal: hairAxis, forward: Vector3.scale(outward, -1) },
   );
-  if (
-    params.direction !== undefined &&
-    params.direction !== "up" &&
-    params.direction !== "down"
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "direction",
-      value: params.direction,
-      feasible: { kind: "alternatives", values: ["up", "down"] },
-      reason: "the bow direction must be up or down",
-      fix: "choose down for frog-to-tip or up for tip-to-frog",
-    });
   const from: number = params.direction === "up" ? 0.42 : 0.18;
   const to: number = params.direction === "up" ? 0.18 : 0.42;
   const grip = (share: number, lift: number): IAutoMovieVector3 =>

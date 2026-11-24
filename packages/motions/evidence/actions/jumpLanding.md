@@ -16,7 +16,7 @@ Four members, all read by the jump.
 
 The heights include the surface's.
 
-# src/actions/jumpLanding.ts#jumpLanding.of
+# src/actions/jumpLanding.ts#jumpLanding
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -41,7 +41,7 @@ export function prepareBearingTrunkBalance(
         points: (frames, share) =>
           bearing.flatMap((contact) =>
             contact.from <= share && share <= contact.to
-              ? HumanSupportPatch.of(body, frames, contact)
+              ? HumanSupportPatch(body, frames, contact)
               : [],
           ),
       });

@@ -12,11 +12,15 @@ import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A small performer's elbow angle and wrist position agree with the prescribed two-link marker geometry.
+ * A small performer's elbow angle and wrist position agree with the prescribed
+ * two-link marker geometry.
  *
  * Scenarios:
- * 1. Place one marker in front of each shoulder at the distance of a 30-degree elbow bend.
- * 2. Observe the independently resolved wrist and recompute the clinical elbow angle from the displayed links.
+ *
+ * 1. Place one marker in front of each shoulder at the distance of a 30-degree
+ *    elbow bend.
+ * 2. Observe the independently resolved wrist and recompute the clinical elbow
+ *    angle from the displayed links.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A small performer's elbow angle and wrist position agree with the prescribed two-link marker geometry.
  * @evidence contracts/development/testing.md#independent-expectations The law of cosines fixes the required wrist radius and the dot product of the displayed upper and lower arm vectors gives the bend.

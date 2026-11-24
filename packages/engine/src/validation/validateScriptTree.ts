@@ -73,8 +73,6 @@ export function validateScriptTree(
   const byId: Map<string, IIndexedNode> = new Map();
   tree.forEach((node: IAutoMovieScriptNode, i: number): void => {
     const np: string = `${path}[${i}]`;
-    if (node.id.trim().length === 0)
-      out.push("type", `${np}.id`, "node id must be non-empty", node.id);
     const existing: IIndexedNode | undefined = byId.get(node.id);
     if (existing !== undefined) {
       out.push(

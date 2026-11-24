@@ -26,6 +26,85 @@ import { poseBones } from "../posture/poseBones";
 type OfContext = "body" | "entry" | "prop";
 
 /**
+ * Read the prop a hand holds at an action's entry.
+ *
+ * @param context The action's context.
+ * @param side The holding hand.
+ * @param prop The prop's subject id.
+ * @returns The prop in the hand's grip frame.
+ * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold
+ *   that prop at the entry, naming what it holds; a `participant` refusal on
+ *   `side` when the body has no bone for that hand, naming the hands it has.
+ */
+export function AutoMovieMotionHumanHeld(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  side: AutoMovieHumanSide,
+  prop: string,
+): IAutoMovieMotionHumanHeld.IHeld {
+  const held: string | undefined = context.entry.holds[side];
+  if (held !== prop)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "prop",
+      value: prop,
+      feasible: {
+        kind: "alternatives",
+        values: held === undefined ? [] : [held],
+      },
+      reason: `the ${side} hand ${held === undefined ? "holds nothing" : `holds ${held}`}, not ${prop}`,
+      fix: `pick ${prop} up with the ${side} hand first, or perform the action with the hand that holds it`,
+    });
+  // A body without that hand's bone has no frame to hold anything in.
+  const handless = (): IAutoMovieMotionHumanRefusal =>
+    new HumanRefusal({
+      kind: "participant",
+      axis: "side",
+      value: side,
+      feasible: {
+        kind: "alternatives",
+        values: (["left", "right"] as const).filter(
+          (other: AutoMovieHumanSide): boolean =>
+            readHumanBone(context.body, `${other}Hand`) !== undefined,
+        ),
+      },
+      reason: `the body has no ${side}Hand bone to hold ${prop} in`,
+      fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
+    });
+  if (readHumanBone(context.body, `${side}Hand`) === undefined)
+    throw handless();
+  const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
+  const world: IAutoMovieRigidTransform = read.frame(context.entry.seconds);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    context.body,
+    context.entry.pose,
+    undefined,
+    HumanHand.frameBones(context.body, side, "grip"),
+  );
+  const rotation: IAutoMovieQuaternion | undefined = bones.get(
+    `${side}Hand`,
+  )?.worldRotation;
+  if (rotation === undefined) throw handless();
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
+  return {
+    prop,
+    side,
+    frame: {
+      position: Quaternion.rotateVector(
+        inverse,
+        Vector3.subtract(
+          world.position,
+          HumanHand.frame(context.body, bones, side, "grip").point,
+        ),
+      ),
+      rotation: Quaternion.normalize(
+        Quaternion.multiply(inverse, world.rotation),
+      ),
+    },
+    affordances: read.prop.affordances ?? [],
+  };
+}
+
+/**
  * The prop a hand holds as an action enters, in that hand's own frame: the one
  * reading every action that works with a held thing starts from, whether it
  * brings a glass's lip to the mouth or a blade's point to a target.
@@ -42,85 +121,6 @@ type OfContext = "body" | "entry" | "prop";
  * (`IHumanEntryState.holds`), never a judgment from how near it lies.
  */
 export namespace AutoMovieMotionHumanHeld {
-  /**
-   * Read the prop a hand holds at an action's entry.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @param prop The prop's subject id.
-   * @returns The prop in the hand's grip frame.
-   * @throws {HumanRefusal} An `affordance` refusal when that hand does not hold
-   *   that prop at the entry, naming what it holds; a `participant` refusal on
-   *   `side` when the body has no bone for that hand, naming the hands it has.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    side: AutoMovieHumanSide,
-    prop: string,
-  ): IAutoMovieMotionHumanHeld.IHeld {
-    const held: string | undefined = context.entry.holds[side];
-    if (held !== prop)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "prop",
-        value: prop,
-        feasible: {
-          kind: "alternatives",
-          values: held === undefined ? [] : [held],
-        },
-        reason: `the ${side} hand ${held === undefined ? "holds nothing" : `holds ${held}`}, not ${prop}`,
-        fix: `pick ${prop} up with the ${side} hand first, or perform the action with the hand that holds it`,
-      });
-    // A body without that hand's bone has no frame to hold anything in.
-    const handless = (): IAutoMovieMotionHumanRefusal =>
-      new HumanRefusal({
-        kind: "participant",
-        axis: "side",
-        value: side,
-        feasible: {
-          kind: "alternatives",
-          values: (["left", "right"] as const).filter(
-            (other: AutoMovieHumanSide): boolean =>
-              readHumanBone(context.body, `${other}Hand`) !== undefined,
-          ),
-        },
-        reason: `the body has no ${side}Hand bone to hold ${prop} in`,
-        fix: "perform the action with a hand the body has, or with a body whose skeleton has that hand",
-      });
-    if (readHumanBone(context.body, `${side}Hand`) === undefined)
-      throw handless();
-    const read: IAutoMovieMotionHumanPropReader = context.prop(prop);
-    const world: IAutoMovieRigidTransform = read.frame(context.entry.seconds);
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      context.body,
-      context.entry.pose,
-      undefined,
-      HumanHand.frameBones(context.body, side, "grip"),
-    );
-    const rotation: IAutoMovieQuaternion | undefined = bones.get(
-      `${side}Hand`,
-    )?.worldRotation;
-    if (rotation === undefined) throw handless();
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
-    return {
-      prop,
-      side,
-      frame: {
-        position: Quaternion.rotateVector(
-          inverse,
-          Vector3.subtract(
-            world.position,
-            HumanHand.frame(context.body, bones, side, "grip").point,
-          ),
-        ),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(inverse, world.rotation),
-        ),
-      },
-      affordances: read.prop.affordances ?? [],
-    };
-  }
-
   /**
    * A prop in the grip frame of a hand that has not taken it yet: a grasp's
    * candidate wrist, the prop where it lies, the offset the grip would keep

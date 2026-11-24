@@ -70,9 +70,7 @@ export const beatFlames: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/**
- * Admit the cloth and the region, then beat.
- */
+/** Admit the cloth and the region, then beat. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IBeatFlames>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -94,7 +92,7 @@ function plan(
     });
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

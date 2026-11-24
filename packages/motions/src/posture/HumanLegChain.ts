@@ -1,11 +1,7 @@
 import {
-  DEFAULT_JOINT_AXES,
-  HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
   hingedArmSwivel,
-  prepareChainPlant,
-  preparePoseResolution,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
@@ -14,17 +10,12 @@ import type {
   IAutoMovieHingedChainGeometry,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanLegChain,
-  IAutoMoviePose,
-  IAutoMoviePreparedChainPlant,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieSwivelNear,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBoneGroups } from "./HumanBoneGroups";
-import { HumanLimbFit } from "./HumanLimbFit";
-import { poseBones } from "./poseBones";
 import { prepareHumanLegSeededFit } from "./prepareHumanLegSeededFit";
 
 /** The alternatives of `PlacedChain`'s site. */
@@ -272,15 +263,16 @@ export namespace HumanLegChain {
     pelvis: IAutoMovieQuaternion,
     hip: IAutoMovieVector3,
   ): Omit<IAutoMovieHingedChainGeometry, SourceOfResult> {
-    const rest: IRest = restOf(body, side);
+    const rest: NonNullable<IAutoMovieMotionHumanBody["chains"]["leftLeg"]> =
+      restOf(body, side);
     return {
       upper: {
         worldPosition: hip,
-        worldRotation: Quaternion.multiply(pelvis, rest.upper),
+        worldRotation: Quaternion.multiply(pelvis, rest.upperRotation),
       },
-      midOffset: rest.prepared.lowerOffset,
-      midRest: rest.prepared.lowerRotation,
-      endOffset: rest.prepared.effectorOffset,
+      midOffset: rest.lowerOffset,
+      midRest: rest.lowerRotation,
+      endOffset: rest.effectorOffset,
       hinge: rest.hinge,
     };
   }
@@ -314,73 +306,18 @@ export namespace HumanLegChain {
   }
 
   /**
-   * A leg's chain at rest: its preparation, the hip bone's frame under the hips
-   * and the knee's hinge in its own frame.
-   */
-  interface IRest {
-    prepared: IAutoMoviePreparedChainPlant;
-    upper: IAutoMovieQuaternion;
-    hinge: IAutoMovieVector3;
-  }
-
-  /**
-   * Read actual rest geometry once per immutable body/side. The body's static
-   * axes/neutral FK serve chain and hips under one local operation key; that
-   * reader ends here and only the original geometric record enters RESTS.
+   * A leg's chain at rest, from the body's prepared chain constants
+   * (`IAutoMovieMotionHumanBody.chains`): the hip bone's rest frame under the
+   * hips, the knee and ankle's rest places and turns, and the knee's hinge.
    */
   function restOf(
     body: IAutoMovieMotionHumanBody,
     side: AutoMovieHumanSide,
-  ): IRest {
-    let sides: Map<string, IRest> | undefined = RESTS.get(body);
-    if (sides === undefined) {
-      sides = new Map();
-      RESTS.set(body, sides);
-    }
-    const known: IRest | undefined = sides.get(side);
-    if (known !== undefined) return known;
-    const axes: IAutoMovieMotionHumanBody["poseResolution"]["jointAxes"] =
-      body.poseResolution.jointAxes;
-    const resolution: ReturnType<typeof preparePoseResolution> =
-      preparePoseResolution();
-    const pose: IAutoMoviePose = {
-      skeleton: body.skeleton.id,
-      root: null,
-      joints: [],
-    };
-    const prepared: IAutoMoviePreparedChainPlant = prepareChainPlant(
-      {
-        skeleton: body.skeleton,
-        pose,
-        chain: HumanLimbFit.chain(side === "left" ? "leftLeg" : "rightLeg"),
-        topology: body.topology,
-        jointAxes: axes,
-        restFrames: HUMANOID_REST_FRAME,
-      },
-      resolution,
-      body.poseResolution,
-    )!;
-    const hips: IAutoMovieQuaternion = poseBones(
-      body,
-      pose,
-      resolution,
-      HumanBoneGroups.HIPS,
-    ).get("hips")!.worldRotation;
-    const out: IRest = {
-      prepared,
-      upper: Quaternion.multiply(
-        Quaternion.inverse(hips),
-        prepared.upper.worldRotation,
-      ),
-      hinge: (axes[`${side}LowerLeg`] ?? DEFAULT_JOINT_AXES).flexion,
-    };
-    sides.set(side, out);
-    return out;
+  ): NonNullable<IAutoMovieMotionHumanBody["chains"]["leftLeg"]> {
+    const constants: IAutoMovieMotionHumanBody["chains"]["leftLeg"] =
+      body.chains[side === "left" ? "leftLeg" : "rightLeg"];
+    if (constants === undefined)
+      throw new Error(`The rig has no ${side} leg chain`);
+    return constants;
   }
-
-  /** Each body's legs at rest (`restOf`). */
-  const RESTS: WeakMap<
-    IAutoMovieMotionHumanBody,
-    Map<string, IRest>
-  > = new WeakMap();
 }

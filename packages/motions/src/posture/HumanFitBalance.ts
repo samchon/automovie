@@ -56,6 +56,62 @@ type IReadingNormalsItem = { x: number; z: number };
 type IReadingAnchorsItem = { x: number; z: number };
 
 /**
+ * The balance of a posed body.
+ *
+ * @param body The body.
+ * @param bones Its resolved bones.
+ * @param points The points that bear, world metres, whose convex hull on the
+ *   floor is the base; the feet's bearing outline (`HumanFoot.base`) when
+ *   absent.
+ * @param com Optional already computed centre for this unchanged body and
+ *   bones, borrowed without mutation; computed here when absent.
+ * @param owners The bone each of `points` rides, in their order: the base's
+ *   corners then move with the posture (`IReading.riders`); absent, the base is
+ *   read as fixed in the world.
+ * @returns The reading.
+ */
+export function HumanFitBalance(
+  body: IAutoMovieMotionHumanBody,
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
+  com: IAutoMovieVector3 = HumanFitBalance.centre(body, bones),
+  owners?: readonly AutoMovieHumanoidBone[],
+): HumanFitBalance.IReading {
+  // Each corner of the hull keeps the index of the bearing point it
+  // projects, so it is known as the point that rides its bone.
+  const planes: ReturnType<typeof HumanFitBalanceBase> =
+    HumanFitBalanceBase(points);
+  const corners: HumanFitBalanceBase.ICorner[] = planes.corners;
+  return {
+    com,
+    anchors: planes.anchors,
+    normals: planes.normals,
+    inside: planes.anchors.map((_: IOf, k: number): number =>
+      HumanFitBalance.distance(planes.anchors, k, com, planes.normals[k]!),
+    ),
+    ...(owners === undefined
+      ? {}
+      : {
+          riders: corners.map(
+            (c: HumanFitBalanceBase.ICorner): HumanFitBalance.IRider => {
+              const b: IAutoMovieResolvedBone = bones.get(owners[c.i]!)!;
+              const world: IAutoMovieVector3 = points[c.i]!;
+              return {
+                bone: owners[c.i]!,
+                local: Quaternion.rotateVector(
+                  Quaternion.inverse(b.worldRotation),
+                  Vector3.subtract(world, b.worldPosition),
+                ),
+                world,
+              };
+            },
+          ),
+          through: planes.through,
+        }),
+  };
+}
+
+/**
  * A posed body's static balance as rows of a whole-body fit (`HumanBodyFit`):
  * its centre of mass over the floor kept inside the outline of the feet where
  * they bear (`HumanFoot.base`), the base of support (Winter, Biomechanics and
@@ -135,60 +191,6 @@ export namespace HumanFitBalance {
 
   /** Which corners a half-plane passes through (`HumanFitBalanceBase.IThrough`). */
   export type IThrough = HumanFitBalanceBase.IThrough;
-
-  /**
-   * The balance of a posed body.
-   *
-   * @param body The body.
-   * @param bones Its resolved bones.
-   * @param points The points that bear, world metres, whose convex hull on the
-   *   floor is the base; the feet's bearing outline (`HumanFoot.base`) when
-   *   absent.
-   * @param com Optional already computed centre for this unchanged body and
-   *   bones, borrowed without mutation; computed here when absent.
-   * @param owners The bone each of `points` rides, in their order: the base's
-   *   corners then move with the posture (`IReading.riders`); absent, the base
-   *   is read as fixed in the world.
-   * @returns The reading.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    points: readonly IAutoMovieVector3[] = HumanFoot.base(body, bones),
-    com: IAutoMovieVector3 = centre(body, bones),
-    owners?: readonly AutoMovieHumanoidBone[],
-  ): IReading {
-    // Each corner of the hull keeps the index of the bearing point it
-    // projects, so it is known as the point that rides its bone.
-    const planes: ReturnType<typeof HumanFitBalanceBase.of> =
-      HumanFitBalanceBase.of(points);
-    const corners: HumanFitBalanceBase.ICorner[] = planes.corners;
-    return {
-      com,
-      anchors: planes.anchors,
-      normals: planes.normals,
-      inside: planes.anchors.map((_: IOf, k: number): number =>
-        distance(planes.anchors, k, com, planes.normals[k]!),
-      ),
-      ...(owners === undefined
-        ? {}
-        : {
-            riders: corners.map((c: HumanFitBalanceBase.ICorner): IRider => {
-              const b: IAutoMovieResolvedBone = bones.get(owners[c.i]!)!;
-              const world: IAutoMovieVector3 = points[c.i]!;
-              return {
-                bone: owners[c.i]!,
-                local: Quaternion.rotateVector(
-                  Quaternion.inverse(b.worldRotation),
-                  Vector3.subtract(world, b.worldPosition),
-                ),
-                world,
-              };
-            }),
-            through: planes.through,
-          }),
-    };
-  }
 
   /**
    * A half-plane's signed distance of a centre at another posture, its base's
@@ -345,7 +347,7 @@ export namespace HumanFitBalance {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieVector3 {
-    return resolveAutoMovieCenterOfMass.place(model(body), bones);
+    return resolveAutoMovieCenterOfMass.place(body.massModel, bones);
   }
 
   /**
@@ -361,7 +363,7 @@ export namespace HumanFitBalance {
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     motions: readonly IAutoMovieMotionHumanJacobian.IMotion[],
   ): IAutoMovieVector3[] {
-    const m: IAutoMovieResolveCenterOfMass.IModel = model(body);
+    const m: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     if (motions.length === 0) return [];
 
     // Laziness preserves the first variable's original prepare/velocity
@@ -413,23 +415,5 @@ export namespace HumanFitBalance {
     const length: number = Math.hypot(q.x - p.x, q.z - p.z);
     return { x: (q.x - p.x) / length, z: (q.z - p.z) / length };
   }
-
-  /** The mass models made, by body. */
-  const MODELS: WeakMap<
-    IAutoMovieMotionHumanBody,
-    IAutoMovieResolveCenterOfMass.IModel
-  > = new WeakMap();
-
-  /** A body's mass model, made once. */
-  function model(
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieResolveCenterOfMass.IModel {
-    let out: IAutoMovieResolveCenterOfMass.IModel | undefined =
-      MODELS.get(body);
-    if (out === undefined) {
-      out = resolveAutoMovieCenterOfMass(body.skeleton, body.profile);
-      MODELS.set(body, out);
-    }
-    return out;
-  }
 }
+

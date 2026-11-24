@@ -39,17 +39,18 @@ import { vclose } from "../../internal/vclose";
  * analytically with sine and cosine.
  *
  * Scenarios:
+ *
  * 1. Two different bodies grip the same prop at different points between film
- *    seconds 2 and 3.5. The prop translates 70 mm forward and yaws 2 degrees.
- *    A registered action for each carrier displays the prepared motion in one
+ *    seconds 2 and 3.5. The prop translates 70 mm forward and yaws 2 degrees. A
+ *    registered action for each carrier displays the prepared motion in one
  *    performance. The grip centres stay within 15 mm of their own sites at both
- *    ends and at mid-carry, read out of chronological order. The shared
- *    prop frame also follows the authored path during the carry.
- * 2. The performance sees the one prop at its authored frame before the carry
- *    and at its terminal frame after the carry. Exact and adjacent reads
- *    agree with the prepared sampler. Both hands are observed at the seams.
- * 3. A duplicate grip, a minute-long planning interval and a posture read
- *    after the prepared carry are refused.
+ *    ends and at mid-carry, read out of chronological order. The shared prop
+ *    frame also follows the authored path during the carry.
+ * 2. The performance sees the one prop at its authored frame before the carry and
+ *    at its terminal frame after the carry. Exact and adjacent reads agree with
+ *    the prepared sampler. Both hands are observed at the seams.
+ * 3. A duplicate grip, a minute-long planning interval and a posture read after
+ *    the prepared carry are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the authored interval, the two distinct grips, the shared rigid motion and the checking bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads both carriers' displayed bones and the common prop frame from HumanPerformance, including exact and adjacent boundaries. Cross-reads the prepared motion and limbs on the same film seconds. An aliased grip must throw.

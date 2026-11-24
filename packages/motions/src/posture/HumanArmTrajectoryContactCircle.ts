@@ -272,7 +272,7 @@ export function HumanArmTrajectoryContactCircle(
       if (pair.short - T.SKIN > M.TOLERANCE) return undefined;
     // One frame step, read as its chord, as the frame grid reads it.
     if (start !== undefined && end !== undefined)
-      for (const sweep of HumanArmTrajectorySweep.of(c, a, interval, start, {
+      for (const sweep of HumanArmTrajectorySweep(c, a, interval, start, {
         at: interval + 1,
         placed: end,
         path: [{ at: interval + 1, placed: end }],

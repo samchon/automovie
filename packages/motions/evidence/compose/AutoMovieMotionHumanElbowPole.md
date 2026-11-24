@@ -1,4 +1,4 @@
-# src/compose/AutoMovieMotionHumanElbowPole.ts#AutoMovieMotionHumanElbowPole.of
+# src/compose/AutoMovieMotionHumanElbowPole.ts#AutoMovieMotionHumanElbowPole
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

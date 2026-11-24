@@ -16,7 +16,7 @@ Read by `HumanMountOn` only.
 
 The height is the support's own, so a plant cannot disagree with what bears it.
 
-# src/lexicon/HumanMountPlace.ts#HumanMountPlace.of
+# src/lexicon/HumanMountPlace.ts#HumanMountPlace
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

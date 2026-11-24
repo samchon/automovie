@@ -97,7 +97,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       fix: `take the engage in at most ${HumanSabreForm.STRIDE} s`,
     });
   const support = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.frame ?? "seat",
@@ -108,7 +108,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     origin,
     HumanMountedFrame.LOCAL,
   );
-  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
     context,
     "right",
     params.prop,

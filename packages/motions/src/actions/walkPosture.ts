@@ -87,7 +87,7 @@ export function walkPosture(
     // The inclination grows and fades with the gait, leaving and joining
     // upright standing while its pelvis share turns about the fixed hips.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      (upright ??= standUpright.of(body)).joints,
+      (upright ??= standUpright(body)).joints,
       gait.lean * amount,
     );
     const swinging: boolean =

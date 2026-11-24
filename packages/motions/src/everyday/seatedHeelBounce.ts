@@ -82,14 +82,6 @@ export namespace seatedHeelBounce {
     const { body, entry, params } = context;
     const { side, count: beats, cadence, amplitude } = params;
     const duration: number = beats / cadence;
-    if (side !== "left" && side !== "right")
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "side",
-        value: side,
-        reason: "one foot rocks while the other holds its plant",
-        fix: "specify left or right",
-      });
     if (!Number.isSafeInteger(beats) || beats < 1)
       throw new HumanRefusal({
         kind: "parameter",

@@ -16,7 +16,7 @@ Kept so this owner's readers name the record by its owner, as master keeps such 
 
 No copy of the record: one declaration, in `@automovie/interface`.
 
-# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement.of
+# src/posture/HumanColliderPlacement.ts#HumanColliderPlacement
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

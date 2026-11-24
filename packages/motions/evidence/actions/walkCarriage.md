@@ -1,4 +1,4 @@
-# src/actions/walkCarriage.ts#walkCarriage.of
+# src/actions/walkCarriage.ts#walkCarriage
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

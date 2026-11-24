@@ -1,4 +1,4 @@
-# src/posture/HumanHandShape.ts#HumanHandShape.of
+# src/posture/HumanHandShape.ts#HumanHandShape
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -177,16 +177,6 @@ function admitFollows(
     return;
   }
   if (
-    follows.reversible !== undefined &&
-    typeof follows.reversible !== "boolean"
-  )
-    collector.push(
-      "type",
-      `${fp}.reversible`,
-      "reversible must be a boolean",
-      follows.reversible,
-    );
-  if (
     follows.reversible === true &&
     affordanceLeadingTravel(follows, follows.table?.[0]?.[1] ?? 0) === null
   )

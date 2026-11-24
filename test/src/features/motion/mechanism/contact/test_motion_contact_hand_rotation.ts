@@ -33,17 +33,18 @@ const at = (
 /**
  * Digit goals on the posture (#3445).
  *
- * The average man stands with his right arm forward, the hand held by an
- * arm goal; digit goals are given on top.
+ * The average man stands with his right arm forward, the hand held by an arm
+ * goal; digit goals are given on top.
  *
  * Scenarios:
  *
- * 1. A forefinger goal at a reachable point (the tip under a known pinch) is
- *    met within 0.5 mm in the resolved pose, the issue's bound, on both sides.
- * 2. A goal on a bone rides it: the thumb's tip on the forefinger's pad
- *    (`on` its distal phalanx) is met within 0.5 mm.
- * 3. A posture with no digit goals resolves exactly as before: the same
- *    pose, to the bit, as one whose `digits` is empty.
+ * 1. A forefinger goal at a reachable point (the tip under a known pinch) is met
+ *    within 0.5 mm in the resolved pose, the issue's bound, on both sides.
+ * 2. A goal on a bone rides it: the thumb's tip on the forefinger's pad (`on` its
+ *    distal phalanx) is met within 0.5 mm.
+ * 3. A posture with no digit goals resolves exactly as before: the same pose, to
+ *    the bit, as one whose `digits` is empty.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves postures with digit goals on a generated body and reads the actual tip and pad on the resolved pose.
  * @evidence contracts/development/testing.md#independent-expectations Goals are surface points of in-range poses, so reachable; the bound is the issue's.
  * @evidence contracts/development/testing.md#distinguishing-cases Both sides, a world and a bone goal, empty and absent goals.

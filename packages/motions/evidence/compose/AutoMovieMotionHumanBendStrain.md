@@ -1,4 +1,4 @@
-# src/compose/AutoMovieMotionHumanBendStrain.ts#AutoMovieMotionHumanBendStrain.of
+# src/compose/AutoMovieMotionHumanBendStrain.ts#AutoMovieMotionHumanBendStrain
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -26,10 +26,12 @@ import { motionHumanLaw } from "../../internal/motionHumanLaw";
  * A staged grapple keeps its partner contact and displays the chosen outcome.
  *
  * Scenarios:
- * 1. Complete a planted judo entry under collar-and-sleeve contact, clear
- *    the partner on approach and withdrawal, and roll from seat to back
- *    without lifting the receiver's pelvis and trunk away from the mat.
- * 2. Interrupt a freestyle single-leg entry with leg-level contact, check clearance and recover upright.
+ *
+ * 1. Complete a planted judo entry under collar-and-sleeve contact, clear the
+ *    partner on approach and withdrawal, and roll from seat to back without
+ *    lifting the receiver's pelvis and trunk away from the mat.
+ * 2. Interrupt a freestyle single-leg entry with leg-level contact, check
+ *    clearance and recover upright.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the two authored outcomes and the observed pairing, supports and final orientation.
  * @evidence contracts/development/testing.md#behavioral-verification The public mutual record supplies displayed goal, joint, sole and floor collider readings. A missing grip, interrupted bearing, clearance breach, false descent or unwanted fall fails on a displayed frame or contact event.
@@ -106,10 +108,18 @@ export function test_motion_grapple_grapple(): void {
         Math.abs(a.start - b.start) < 1e-9 && Math.abs(a.end - b.end) < 1e-9,
       );
 
-      const initiator: IAutoMovieMotionHumanSignature.IReader =
-        HumanSignature.of(film.performance, "a", body, initiatorYaw);
-      const receiver: IAutoMovieMotionHumanSignature.IReader =
-        HumanSignature.of(film.performance, "b", body, receiverYaw);
+      const initiator: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
+        film.performance,
+        "a",
+        body,
+        initiatorYaw,
+      );
+      const receiver: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
+        film.performance,
+        "b",
+        body,
+        receiverYaw,
+      );
       const grips: IAutoMovieMotionHumanContactWindow[] =
         a.plan.contacts.filter(
           (contact: IAutoMovieMotionHumanContactWindow): boolean =>

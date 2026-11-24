@@ -11,6 +11,74 @@ import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
+ * An arm's parts at a placement with its collider probes.
+ *
+ * @param c The context.
+ * @param a The arm.
+ * @param k The waypoint.
+ * @param placed The arm placed there, with its collider probes.
+ * @returns The parts, in the order their probes first appear.
+ */
+export function HumanArmTrajectoryLinks(
+  c: M.IContext,
+  a: number,
+  k: number,
+  placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
+): HumanArmTrajectoryLinks.ILink[] {
+  const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+  const model: AutoMovieMotionHumanAuditTangleModel.IModel =
+    AutoMovieMotionHumanAuditTangleModel.model(c.setups[a]!.body);
+  const solids: Map<number, physicalShapeGjk.ISolid[]> =
+    HumanArmTrajectoryLinks.shapes(frame, placed);
+  const links: Map<number, HumanArmTrajectoryLinks.ILink> = new Map();
+  for (let probe: number = G.SURFACE; probe < placed.probes.length; ++probe) {
+    const part: number = frame.segments[probe - G.SURFACE]!;
+    let link: HumanArmTrajectoryLinks.ILink | undefined = links.get(part);
+    if (link === undefined) {
+      link = {
+        part,
+        owner: frame.owners[probe - G.SURFACE]!,
+        probes: [],
+        centre: { x: 0, y: 0, z: 0 },
+        radius: 0,
+        reach: 0,
+        offset: model.parts[part]!.offset,
+        solids: solids.get(part) ?? [],
+      };
+      links.set(part, link);
+    }
+    link.probes.push(probe);
+  }
+  for (const link of links.values()) {
+    let x: number = 0;
+    let y: number = 0;
+    let z: number = 0;
+    for (const probe of link.probes) {
+      const p: IAutoMovieVector3 = placed.probes[probe]![0];
+      x += p.x;
+      y += p.y;
+      z += p.z;
+    }
+    const count: number = link.probes.length;
+    link.centre = { x: x / count, y: y / count, z: z / count };
+    const origin: IAutoMovieVector3 =
+      HumanArmTrajectoryLinks.origins(placed)[link.owner];
+    for (const probe of link.probes) {
+      const p: IAutoMovieVector3 = placed.probes[probe]![0];
+      link.radius = Math.max(link.radius, Vector3.distance(p, link.centre));
+      link.reach = Math.max(link.reach, Vector3.distance(p, origin));
+    }
+    for (const solid of link.solids)
+      for (const p of solid.points)
+        link.reach = Math.max(
+          link.reach,
+          Vector3.distance(p, origin) + solid.radius,
+        );
+  }
+  return [...links.values()];
+}
+
+/**
  * An arm's audit parts as link pairs read them (`HumanAuditModel.certify`):
  * each part's probes, the sphere about them, its own collider shapes as convex
  * solids, how far its probes lie outside them, and how far any point of it lies
@@ -55,75 +123,6 @@ export namespace HumanArmTrajectoryLinks {
 
     /** Its own collider shapes placed, as convex solids. */
     solids: physicalShapeGjk.ISolid[];
-  }
-
-  /**
-   * An arm's parts at a placement with its collider probes.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The waypoint.
-   * @param placed The arm placed there, with its collider probes.
-   * @returns The parts, in the order their probes first appear.
-   */
-  export function of(
-    c: M.IContext,
-    a: number,
-    k: number,
-    placed: IAutoMovieMotionHumanArmGeometry.IPlaced,
-  ): ILink[] {
-    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-    const model: AutoMovieMotionHumanAuditTangleModel.IModel =
-      AutoMovieMotionHumanAuditTangleModel.model(c.setups[a]!.body);
-    const solids: Map<number, physicalShapeGjk.ISolid[]> = shapes(
-      frame,
-      placed,
-    );
-    const links: Map<number, ILink> = new Map();
-    for (let probe: number = G.SURFACE; probe < placed.probes.length; ++probe) {
-      const part: number = frame.segments[probe - G.SURFACE]!;
-      let link: ILink | undefined = links.get(part);
-      if (link === undefined) {
-        link = {
-          part,
-          owner: frame.owners[probe - G.SURFACE]!,
-          probes: [],
-          centre: { x: 0, y: 0, z: 0 },
-          radius: 0,
-          reach: 0,
-          offset: model.parts[part]!.offset,
-          solids: solids.get(part) ?? [],
-        };
-        links.set(part, link);
-      }
-      link.probes.push(probe);
-    }
-    for (const link of links.values()) {
-      let x: number = 0;
-      let y: number = 0;
-      let z: number = 0;
-      for (const probe of link.probes) {
-        const p: IAutoMovieVector3 = placed.probes[probe]![0];
-        x += p.x;
-        y += p.y;
-        z += p.z;
-      }
-      const count: number = link.probes.length;
-      link.centre = { x: x / count, y: y / count, z: z / count };
-      const origin: IAutoMovieVector3 = origins(placed)[link.owner];
-      for (const probe of link.probes) {
-        const p: IAutoMovieVector3 = placed.probes[probe]![0];
-        link.radius = Math.max(link.radius, Vector3.distance(p, link.centre));
-        link.reach = Math.max(link.reach, Vector3.distance(p, origin));
-      }
-      for (const solid of link.solids)
-        for (const p of solid.points)
-          link.reach = Math.max(
-            link.reach,
-            Vector3.distance(p, origin) + solid.radius,
-          );
-    }
-    return [...links.values()];
   }
 
   /**

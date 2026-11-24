@@ -73,7 +73,7 @@ export function drawFromCarrierPulling(
   };
 }
 
-/** `drawFromCarrierPulling.of` and its records. */
+/** `drawFromCarrierPulling` and its records. */
 export namespace drawFromCarrierPulling {
   /** The other hand's pull on a worn carrier, read from the entry. */
   export interface IPulled {

@@ -46,7 +46,7 @@ Nothing is shared but the scope given.
 
 The scope is current only during `read`.
 
-# src/posture/HumanLimbIncumbent.ts#HumanLimbIncumbent.of
+# src/posture/HumanLimbIncumbent.ts#HumanLimbIncumbent
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

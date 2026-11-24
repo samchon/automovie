@@ -12,6 +12,7 @@ import { walkFoot } from "../actions/walkFoot";
 import { walkReach } from "../actions/walkReach";
 import { walkReachHeld } from "../actions/walkReachHeld";
 import { HumanFrame } from "../posture/HumanFrame";
+import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 import { staggerDorsal } from "./staggerDorsal";
@@ -194,23 +195,32 @@ export class StaggerFeet {
   public settle(
     seconds: number,
     feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>,
-    resolution?: Parameters<typeof walkReach.ground>[7],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     at: ReturnType<StaggerFeet["lean"]> = this.lean(seconds),
     shift?: IAutoMovieVector3,
   ): walkReach.IGround {
     const entry: IAutoMovieMotionHumanPosture = this.posture;
     const body: IAutoMovieMotionHumanActionContext["body"] = this.body;
-    return walkReach.ground(
-      body,
+    const root: IAutoMovieVector3 =
       shift === undefined
         ? at.root
-        : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z },
-      entry.yaw,
-      entry.joints.hips ?? [0, 0, 0],
+        : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z };
+    return walkReach.ground(
+      body,
+      root,
+      walkReach.pelvis(
+        body,
+        root,
+        entry.yaw,
+        entry.joints.hips ?? [0, 0, 0],
+        feet,
+        resolution === undefined
+          ? undefined
+          : prepareHumanPoseResolution.read(resolution),
+      ),
       feet,
       {},
       undefined,
-      resolution,
       (
         root: IAutoMovieVector3,
         yaw: number,
@@ -269,7 +279,7 @@ export class StaggerFeet {
    */
   public solve(
     seconds: number,
-    resolution?: Parameters<typeof walkReach.ground>[7],
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     shift?: IAutoMovieVector3,
   ): ISolveResult {
     const feet: Record<

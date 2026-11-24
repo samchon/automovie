@@ -360,7 +360,7 @@ export namespace HumanSegmentEntry {
     const read: (t: number) => IAutoMoviePose = (t: number): IAutoMoviePose => {
       let pose: IAutoMoviePose | undefined = poses.get(t);
       if (pose === undefined) {
-        pose = HumanSegmentPose.of(person, previous, t, prepared);
+        pose = HumanSegmentPose(person, previous, t, prepared);
         poses.set(t, pose);
       }
       return pose;

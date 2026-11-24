@@ -23,6 +23,35 @@ import { StrikingHeldGoal } from "./StrikingHeldGoal";
 type OfContext = "body" | "entry" | "prop" | "subject";
 
 /**
+ * Read what a hand holds at an action's entry.
+ *
+ * @param context The action's context.
+ * @param side The holding hand.
+ * @param prop The held prop's subject id; absent for the bare hand.
+ * @param points The working point, optional working-line origin and edge; a
+ *   blade's `point` and `edge` when absent.
+ * @returns The tool in the hand's frame.
+ * @throws {HumanRefusal} When a named affordance is absent, listing the ones it
+ *   has, or named working-line endpoints coincide.
+ */
+export function StrikingHeld(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  side: AutoMovieHumanSide,
+  prop?: string,
+  points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
+    tip: "point",
+    edge: "edge",
+  },
+): IAutoMovieMotionHumanStrikingHeld.ITool {
+  if (prop === undefined) return StrikingHeld.bare(context.body, side);
+  // The prop as the hand holds it, read by the one owner of that frame.
+  return StrikingHeld.read(
+    AutoMovieMotionHumanHeld(context, side, prop),
+    points,
+  );
+}
+
+/**
  * A thing held in the hand as the effector of an action: a blade whose point
  * and edge are aimed, a firearm whose muzzle is aimed.
  *
@@ -63,32 +92,6 @@ export namespace StrikingHeld {
       },
     ],
   });
-
-  /**
-   * Read what a hand holds at an action's entry.
-   *
-   * @param context The action's context.
-   * @param side The holding hand.
-   * @param prop The held prop's subject id; absent for the bare hand.
-   * @param points The working point, optional working-line origin and edge; a
-   *   blade's `point` and `edge` when absent.
-   * @returns The tool in the hand's frame.
-   * @throws {HumanRefusal} When a named affordance is absent, listing the ones
-   *   it has, or named working-line endpoints coincide.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    side: AutoMovieHumanSide,
-    prop?: string,
-    points: IAutoMovieMotionHumanStrikingHeld.IPoints = {
-      tip: "point",
-      edge: "edge",
-    },
-  ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    if (prop === undefined) return bare(context.body, side);
-    // The prop as the hand holds it, read by the one owner of that frame.
-    return read(AutoMovieMotionHumanHeld.of(context, side, prop), points);
-  }
 
   /**
    * A bare hand as the tool: its grip socket, wrist-to-knuckle axis and

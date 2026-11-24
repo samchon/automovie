@@ -253,9 +253,9 @@ export function supportTransfer(
     );
     const time: number = start + share * duration;
     const sourceCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(from.frame, start, time);
+      HumanSupportCarry(from.frame, start, time);
     const deckCarry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(to.frame, start, time);
+      HumanSupportCarry(to.frame, start, time);
     const staged: IAutoMovieMotionHumanPosture = {
       ...entry.posture,
       root: stagedRoot,
@@ -356,7 +356,7 @@ export function supportTransfer(
       );
       if (time <= dockEnd) return posture;
       return HumanSupportCarry.posture(
-        HumanSupportCarry.of(to.frame, start + dockEnd, start + time),
+        HumanSupportCarry(to.frame, start + dockEnd, start + time),
         posture,
       );
     },

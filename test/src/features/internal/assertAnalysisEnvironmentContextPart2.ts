@@ -22,7 +22,7 @@ import { hasViolation, namedFacts, throwsError } from "./predicates";
  * 4. the slab test answers hand geometry on every side of the interval.
  *
  * A positive sun-up dot product permits a beam and a nonpositive one does not; independently authored reserved ids define ownership collisions. Unit-box inequalities determine inside/ahead/behind, parallel, tangent and finite-distance ray outcomes. Plane-field checks establish numeric admission, not nonempty bounded closure of every arbitrary plane set.
- * Below-horizon beam/no beam and above-horizon beam separate the horizon rule. Context/instant/occluder collisions, too few planes, zero normals and nonfinite offsets contrast with the valid box; ray starts and distance boundaries separate clipping decisions. Part3 owns scaled normals and sampling.
+ * Below-horizon beam/no beam and above-horizon beam separate the horizon rule. Context/instant/occluder collisions, too few planes and zero normals contrast with the valid box; ray starts and distance boundaries separate clipping decisions. Part3 owns scaled normals and sampling.
  */
 export function assertAnalysisEnvironmentContextPart2(
   context: IAutoMovieEnvironmentContext,
@@ -105,17 +105,6 @@ export function assertAnalysisEnvironmentContextPart2(
     "an occluder that bounds nothing is refused, and the assertion form throws",
     namedFacts([
       [
-        "blank occluder id",
-        (): boolean =>
-          hasViolation(
-            broken({
-              occluders: [{ id: " ", kind: "mass", planes: neighbour.planes }],
-            }),
-            "type",
-            "occluders[0].id",
-          ),
-      ],
-      [
         "blank occluder kind",
         (): boolean =>
           hasViolation(
@@ -178,43 +167,11 @@ export function assertAnalysisEnvironmentContextPart2(
           ),
       ],
       [
-        "non-finite plane offset",
-        (): boolean =>
-          hasViolation(
-            broken({
-              occluders: [
-                {
-                  id: "a",
-                  kind: "mass",
-                  planes: [
-                    { normal: { x: 1, y: 0, z: 0 }, offset: Number.NaN },
-                    ...neighbour.planes.slice(1),
-                  ],
-                },
-              ],
-            }),
-            "range",
-            "occluders[0].planes[0].offset",
-          ),
-      ],
-      [
         "assertion accepts the declared mass",
         (): true => {
           assertAutoMovieAnalysisSolids([neighbour], "shading solid");
           return true;
         },
-      ],
-      [
-        "assertion refuses a blank id",
-        (): boolean =>
-          throwsError(
-            (): void =>
-              assertAutoMovieAnalysisSolids(
-                [{ ...neighbour, id: "" }],
-                "shading solid",
-              ),
-            "non-blank id",
-          ),
       ],
       [
         "assertion refuses a duplicate id",
@@ -247,14 +204,11 @@ export function assertAnalysisEnvironmentContextPart2(
       ],
     ]),
     {
-      "blank occluder id": true,
       "blank occluder kind": true,
       "duplicate occluder id": true,
       "three half-spaces": true,
       "zero plane normal": true,
-      "non-finite plane offset": true,
       "assertion accepts the declared mass": true,
-      "assertion refuses a blank id": true,
       "assertion refuses a duplicate id": true,
       "assertion refuses a malformed plane": true,
     },

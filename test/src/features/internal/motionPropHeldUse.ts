@@ -23,32 +23,31 @@ import { motionPropHeldDrift } from "./motionPropHeldDrift";
 
 /**
  * The tasks with held objects on one body, which the
- * `test_human_motion_prop_held_use_*` specs read: a person picks a phone up
- * and holds its screen to the ear, and a held glass is refused what it
- * cannot be asked (#3358, #3346). The objects are archetypes, read through
- * `HumanObject.prop`, each standing at waist height before the right
- * shoulder, 0.6 of the arm's length ahead.
+ * `test_human_motion_prop_held_use_*` specs read: a person picks a phone up and
+ * holds its screen to the ear, and a held glass is refused what it cannot be
+ * asked (#3358, #3346). The objects are archetypes, read through
+ * `HumanObject.prop`, each standing at waist height before the right shoulder,
+ * 0.6 of the arm's length ahead.
  *
  * The drink from a held glass, its rim at the mouth and its grip, is read on
- * every body by the `test_human_motion_prop_held_attitude_*` specs, off the
- * one film of that drink that also gives its attitude: the two readers
- * performed the same pick-up and drink apart, each a pick-up for a use that
- * costs seconds to plan.
+ * every body by the `test_human_motion_prop_held_attitude_*` specs, off the one
+ * film of that drink that also gives its attitude: the two readers performed
+ * the same pick-up and drink apart, each a pick-up for a use that costs seconds
+ * to plan.
  *
- * Scenarios, on the body (a flat device and a refusal show on one body, and
- * a second stature adds nothing to a refusal):
- * 1. A held phone at the ear: the screen's centre lies within 15 mm of the
- *    right ear region at `atEar`.
- * 2. From the grip's closing to the end of a stand that follows the call,
- *    the phone stays where it was in the hand's own frame within 1 mm (the
+ * Scenarios, on the body (a flat device and a refusal show on one body, and a
+ * second stature adds nothing to a refusal):
+ *
+ * 1. A held phone at the ear: the screen's centre lies within 15 mm of the right
+ *    ear region at `atEar`.
+ * 2. From the grip's closing to the end of a stand that follows the call, the
+ *    phone stays where it was in the hand's own frame within 1 mm (the
  *    campaign's bound for a grip, `motionPropHeldDrift`).
- * 3. Refused, each naming its axis: the drink with a glass that still
- *    stands on the table (`prop`: the hand does not hold it), and a held
- *    glass asked for a point it does not have (`point`, listing the glass's
- *    points).
+ * 3. Refused, each naming its axis: the drink with a glass that still stands on
+ *    the table (`prop`: the hand does not hold it), and a held glass asked for
+ *    a point it does not have (`point`, listing the glass's points).
  *
  * @param name The body.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the placement, where the glass's drink is read and why, and the 3 scenarios with their bounds and sources.
  * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame, hand and ear region and the thrown refusals.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure One performance and reading for the phone, then the refusals, gathered as complaints and asserted once.
@@ -122,7 +121,7 @@ export function motionPropHeldUse(name: motionHumanBody.Name): void {
           ),
         ),
         HumanSignature.region(
-          HumanSignature.of(performance, "a", body, 0),
+          HumanSignature(performance, "a", body, 0),
           "earRight",
           seconds,
         ),

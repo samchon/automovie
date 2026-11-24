@@ -26,17 +26,17 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * An unsuited performer, already next to the aft rail, pushes off and
- * catches the forward rail along a 2.4 m cabin route. NASA-STD-3001 Volume 2
- * section 8.5 describes handholds for changing speed in microgravity.
+ * An unsuited performer, already next to the aft rail, pushes off and catches
+ * the forward rail along a 2.4 m cabin route. NASA-STD-3001 Volume 2 section
+ * 8.5 describes handholds for changing speed in microgravity.
  *
  * Scenarios:
  *
- * 1. The hand socket stays within 10 mm of each rail for its contact
- *    phase at its endpoints and midpoint. Halfway through the coast the
- *    hand passes 80 mm inboard of the rail line.
- * 2. The displayed root coasts at 0.8 m/s on a straight, level line,
- *    starts and ends at rest, and covers the 2.4 m between the rails.
+ * 1. The hand socket stays within 10 mm of each rail for its contact phase at its
+ *    endpoints and midpoint. Halfway through the coast the hand passes 80 mm
+ *    inboard of the rail line.
+ * 2. The displayed root coasts at 0.8 m/s on a straight, level line, starts and
+ *    ends at rest, and covers the 2.4 m between the rails.
  * 3. A door-mounted handle, zero coast and invalid clearances are refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the scene, source and bounded push, coast and catch observations.

@@ -23,6 +23,125 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
+ * Fit the set and refuse it when a row is not met.
+ *
+ * @param props The fit's rows and seed.
+ * @returns The feasible fit.
+ * @throws {HumanRefusal} When any contact, angle or centre row is not met, with
+ *   every residual.
+ */
+export function sprintStartSetFit(
+  props: sprintStartSetFit.IProps,
+): IAutoMovieMotionHumanBodyFitTypes.IResult {
+  const rear: AutoMovieHumanSide = props.front === "left" ? "right" : "left";
+  const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [];
+  for (const side of ["left", "right"] as const) {
+    targets.push({
+      bone: `${side}Foot`,
+      goal: props.feet[side].ankle,
+      ...(props.placed ? {} : { axes: ["x", "z"] }),
+      rotation: props.feet[side].rotation,
+    });
+    targets.push(...props.bridges[side]);
+  }
+  const solved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
+    body: props.body,
+    // The law carries sagittal trunk flexion and planted legs; unused
+    // neck, head, roll and frontal hip axes cannot decide a key that its
+    // movements would subsequently discard. Arms retain their freedoms.
+    variables: HumanFitVariables.BODY.filter(
+      (variable: (typeof HumanFitVariables.BODY)[number]): boolean => {
+        if (variable.kind === "place") return true;
+        if (variable.kind === "heading") return variable.axis === "pitch";
+        if (/^(neck|head)$/.test(variable.bone)) return false;
+        if (/^(spine|chest)$/.test(variable.bone)) return variable.axis === 0;
+        if (/(UpperLeg|LowerLeg)$/.test(variable.bone))
+          return variable.axis === 0;
+        return true;
+      },
+    ),
+    posture: {
+      ...props.posture,
+      // Match the placed-arm consumer's bridge hand before reading the floor;
+      // the body fit does not optimize fixed digit-shape coordinates.
+      joints: {
+        ...Object.fromEntries(
+          props.seed.joints.map(
+            (
+              joint: IAutoMovieJointPose,
+            ): [AutoMovieHumanoidBone, readonly [number, number, number]] => [
+              joint.bone,
+              [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
+            ],
+          ),
+        ),
+        ...HumanHand.shape("left", "bridge"),
+        ...HumanHand.shape("right", "bridge"),
+      },
+    },
+    targets,
+    angles: [
+      {
+        points: [
+          [{ bone: `${props.front}UpperLeg` }],
+          [{ bone: `${props.front}LowerLeg` }],
+          [{ bone: `${props.front}Foot` }],
+        ],
+        degrees: props.knee,
+      },
+      {
+        points: [
+          [{ bone: `${rear}UpperLeg` }],
+          [{ bone: `${rear}LowerLeg` }],
+          [{ bone: `${rear}Foot` }],
+        ],
+        degrees: props.rear,
+      },
+      {
+        points: [
+          [{ bone: `${props.front}LowerLeg` }],
+          [{ bone: `${props.front}UpperLeg` }],
+          [{ bone: "leftUpperArm" }, { bone: "rightUpperArm" }],
+        ],
+        degrees: props.hip,
+      },
+    ],
+    ...(props.centre === undefined ? {} : { centre: props.centre }),
+    bearing: [
+      // Body-scaled blocks leave the toes bearing on the track. The
+      // placed plates supply both feet's full world targets themselves.
+      ...(props.placed ? [] : [/^left(Foot|Toes)$/, /^right(Foot|Toes)$/]),
+      // Each digit of the bridge bears on its own.
+      /^leftThumbDistal$/,
+      /^leftIndexDistal$/,
+      /^rightThumbDistal$/,
+      /^rightIndexDistal$/,
+    ],
+  });
+
+  // The set needs a posture satisfying all the contact and measurement
+  // rows. Further improvement of the preference within that feasible set
+  // is a separate optimisation question (Wright and Tenny 2004, SIAM J.
+  // Optim. 14(4), sec. 1, https://pages.cs.wisc.edu/~swright/papers/WriT04a.pdf).
+  if (!solved.feasible)
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "set",
+      value: Math.max(
+        solved.centre,
+        ...solved.residuals.map(
+          (
+            r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number],
+          ): number => r.point,
+        ),
+      ),
+      reason: `the sprint set did not meet its contacts, measured angles and centre: contacts ${solved.residuals.map((r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,
+      fix: "use a stance whose contacts and measured set constraints are jointly reachable",
+    });
+  return solved;
+}
+
+/**
  * The sprint set's one whole-body fit: both feet on their blocks, each hand's
  * thumb and index bridge at the line, the measured knee and hip angles and, on
  * the anthropometric setting, the measured centre of mass behind the line
@@ -69,123 +188,6 @@ export namespace sprintStartSetFit {
 
     /** The centre of mass row, absent on placed plates. */
     centre: IAutoMovieMotionHumanFitGoals.ICentre | undefined;
-  }
-
-  /**
-   * Fit the set and refuse it when a row is not met.
-   *
-   * @param props The fit's rows and seed.
-   * @returns The feasible fit.
-   * @throws {HumanRefusal} When any contact, angle or centre row is not met,
-   *   with every residual.
-   */
-  export function of(props: IProps): IAutoMovieMotionHumanBodyFitTypes.IResult {
-    const rear: AutoMovieHumanSide = props.front === "left" ? "right" : "left";
-    const targets: IAutoMovieMotionHumanBodyFitTypes.ITarget[] = [];
-    for (const side of ["left", "right"] as const) {
-      targets.push({
-        bone: `${side}Foot`,
-        goal: props.feet[side].ankle,
-        ...(props.placed ? {} : { axes: ["x", "z"] }),
-        rotation: props.feet[side].rotation,
-      });
-      targets.push(...props.bridges[side]);
-    }
-    const solved: IAutoMovieMotionHumanBodyFitTypes.IResult = HumanBodyFit.fit({
-      body: props.body,
-      // The law carries sagittal trunk flexion and planted legs; unused
-      // neck, head, roll and frontal hip axes cannot decide a key that its
-      // movements would subsequently discard. Arms retain their freedoms.
-      variables: HumanFitVariables.BODY.filter(
-        (variable: (typeof HumanFitVariables.BODY)[number]): boolean => {
-          if (variable.kind === "place") return true;
-          if (variable.kind === "heading") return variable.axis === "pitch";
-          if (/^(neck|head)$/.test(variable.bone)) return false;
-          if (/^(spine|chest)$/.test(variable.bone)) return variable.axis === 0;
-          if (/(UpperLeg|LowerLeg)$/.test(variable.bone))
-            return variable.axis === 0;
-          return true;
-        },
-      ),
-      posture: {
-        ...props.posture,
-        // Match the placed-arm consumer's bridge hand before reading the floor;
-        // the body fit does not optimize fixed digit-shape coordinates.
-        joints: {
-          ...Object.fromEntries(
-            props.seed.joints.map(
-              (
-                joint: IAutoMovieJointPose,
-              ): [AutoMovieHumanoidBone, readonly [number, number, number]] => [
-                joint.bone,
-                [joint.flexion ?? 0, joint.abduction ?? 0, joint.twist ?? 0],
-              ],
-            ),
-          ),
-          ...HumanHand.shape("left", "bridge"),
-          ...HumanHand.shape("right", "bridge"),
-        },
-      },
-      targets,
-      angles: [
-        {
-          points: [
-            [{ bone: `${props.front}UpperLeg` }],
-            [{ bone: `${props.front}LowerLeg` }],
-            [{ bone: `${props.front}Foot` }],
-          ],
-          degrees: props.knee,
-        },
-        {
-          points: [
-            [{ bone: `${rear}UpperLeg` }],
-            [{ bone: `${rear}LowerLeg` }],
-            [{ bone: `${rear}Foot` }],
-          ],
-          degrees: props.rear,
-        },
-        {
-          points: [
-            [{ bone: `${props.front}LowerLeg` }],
-            [{ bone: `${props.front}UpperLeg` }],
-            [{ bone: "leftUpperArm" }, { bone: "rightUpperArm" }],
-          ],
-          degrees: props.hip,
-        },
-      ],
-      ...(props.centre === undefined ? {} : { centre: props.centre }),
-      bearing: [
-        // Body-scaled blocks leave the toes bearing on the track. The
-        // placed plates supply both feet's full world targets themselves.
-        ...(props.placed ? [] : [/^left(Foot|Toes)$/, /^right(Foot|Toes)$/]),
-        // Each digit of the bridge bears on its own.
-        /^leftThumbDistal$/,
-        /^leftIndexDistal$/,
-        /^rightThumbDistal$/,
-        /^rightIndexDistal$/,
-      ],
-    });
-
-    // The set needs a posture satisfying all the contact and measurement
-    // rows. Further improvement of the preference within that feasible set
-    // is a separate optimisation question (Wright and Tenny 2004, SIAM J.
-    // Optim. 14(4), sec. 1, https://pages.cs.wisc.edu/~swright/papers/WriT04a.pdf).
-    if (!solved.feasible)
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "set",
-        value: Math.max(
-          solved.centre,
-          ...solved.residuals.map(
-            (
-              r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number],
-            ): number => r.point,
-          ),
-        ),
-        reason: `the sprint set did not meet its contacts, measured angles and centre: contacts ${solved.residuals.map((r: IAutoMovieMotionHumanBodyFitTypes.IResult["residuals"][number]): string => r.point.toFixed(2)).join(", ")} mm; angles ${solved.angles.map((angle: number): string => angle.toFixed(2)).join(", ")} degrees; centre ${solved.centre.toFixed(2)} mm (${solved.reason})`,
-        fix: "use a stance whose contacts and measured set constraints are jointly reachable",
-      });
-    return solved;
   }
 
   /** One palm's frame where the bridge leaves it, raised off the track. */

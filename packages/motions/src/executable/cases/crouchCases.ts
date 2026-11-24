@@ -46,7 +46,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "crouch",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crouch", params),
+          HumanChain.subject("a").act("crouch", params).node,
         );
       const lowest: number = FamilyCaseKit.event(performance, "lowest");
       const knee: number = Math.max(
@@ -93,7 +93,7 @@ export function crouchCases(
         FamilyCaseKit.perform(
           "kneel",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("kneel", params),
+          HumanChain.subject("a").act("kneel", params).node,
         );
       const contact: number = FamilyCaseKit.event(performance, "kneeContact");
       const settled: number = FamilyCaseKit.event(performance, "settled");

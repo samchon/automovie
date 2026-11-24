@@ -34,6 +34,27 @@ type BoardContext = "entry" | "prop" | "performer" | "start";
 type OfContext = "entry" | "carrier";
 
 /**
+ * The support the action is entered on: the first bearing contact on a prop or
+ * a person, else the ground.
+ *
+ * @param context The action's context.
+ * @returns The support.
+ */
+export function HumanSupportFrame(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+): IAutoMovieMotionHumanContactWindow.Support {
+  // An overlay rides what its carrier stands on, even where its entry
+  // still stood on the ground before the carrier began.
+  if (context.carrier?.support !== undefined) return context.carrier.support;
+  const bearing: IAutoMovieMotionHumanEntryState.ISupport | undefined =
+    context.entry.supports.find(
+      (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
+        s.kind !== "grip" && s.support.kind !== "ground",
+    );
+  return bearing?.support ?? { kind: "ground" };
+}
+
+/**
  * The one reader of the frame a body's base rests on: the ground, a prop it
  * sits or stands on (a saddle, a cart's bed, a deck), or a performer's region
  * it is borne on, with that frame's velocity and acceleration at a second.
@@ -51,27 +72,6 @@ type OfContext = "entry" | "carrier";
  * over the same step.
  */
 export namespace HumanSupportFrame {
-  /**
-   * The support the action is entered on: the first bearing contact on a prop
-   * or a person, else the ground.
-   *
-   * @param context The action's context.
-   * @returns The support.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-  ): IAutoMovieMotionHumanContactWindow.Support {
-    // An overlay rides what its carrier stands on, even where its entry
-    // still stood on the ground before the carrier began.
-    if (context.carrier?.support !== undefined) return context.carrier.support;
-    const bearing: IAutoMovieMotionHumanEntryState.ISupport | undefined =
-      context.entry.supports.find(
-        (s: IAutoMovieMotionHumanEntryState.ISupport): boolean =>
-          s.kind !== "grip" && s.support.kind !== "ground",
-      );
-    return bearing?.support ?? { kind: "ground" };
-  }
-
   /**
    * The frame an entry part already bears on. Continuing a plant keeps that
    * frame; a part with no declared contact starts on the ground.
@@ -146,7 +146,8 @@ export namespace HumanSupportFrame {
     prop: string,
     speed: number,
   ): void {
-    const current: IAutoMovieMotionHumanContactWindow.Support = of(context);
+    const current: IAutoMovieMotionHumanContactWindow.Support =
+      HumanSupportFrame(context);
     if (current.kind === "prop" && current.subject === prop) return;
     const moving: number = Vector3.length(
       at(context, context.start, { kind: "prop", subject: prop }).velocity,
@@ -177,7 +178,7 @@ export namespace HumanSupportFrame {
     named?: IAutoMovieMotionHumanContactWindow.Support,
   ): IAutoMovieMotionHumanSupportFrame.IFrame {
     const support: IAutoMovieMotionHumanContactWindow.Support =
-      named ?? of(context);
+      named ?? HumanSupportFrame(context);
     if (support.kind === "ground")
       return {
         support,

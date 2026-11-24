@@ -52,7 +52,7 @@ Three members, all read by the ride.
 
 The grip is read again at each second, so a moving part is followed.
 
-# src/lexicon/HumanRideHands.ts#HumanRideHands.of
+# src/lexicon/HumanRideHands.ts#HumanRideHands
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

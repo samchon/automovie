@@ -43,7 +43,6 @@ import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
-import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
@@ -260,7 +259,7 @@ export class HumanPerformanceState {
 
   /**
    * Each performer's solved soft parts, by subject, kept once the performance
-   * is placed (`HumanPerformanceSoft.of`).
+   * is placed (`HumanPerformanceSoft`).
    */
   public readonly soft: Map<
     string,
@@ -592,30 +591,5 @@ export class HumanPerformanceState {
         HumanPreparedPlayback.prepare(overlay.plan);
     }
     HumanBendRead.resolved.add(this);
-  }
-}
-/** Companion types of {@link HumanPerformanceState}. */
-export namespace HumanPerformanceState {
-  /**
-   * The resolved performance of an input, resolved afresh on every call: a
-   * resolution is a pure function of its input, so it owns its plans, schedule
-   * and contacts and shares nothing with another performance's. A refusal is
-   * thrown each time the input is resolved.
-   *
-   * @param input The chain seed, the performers, the props and the composition.
-   * @param observation An explicit native diagnostic request, which planning
-   *   records into; absent, nothing is observed.
-   * @returns The resolved performance.
-   * @throws {HumanRefusal} When the input does not resolve.
-   */
-  export function of(
-    input: IAutoMovieMotionHumanPerformance.IInput,
-    observation?: ReturnType<typeof integrateAirborneRotation.observe>,
-  ): IAutoMovieMotionHumanPerformanceState {
-    return new HumanPerformanceState(
-      input,
-      HumanPerformanceFlightMode.of(input),
-      observation,
-    );
   }
 }

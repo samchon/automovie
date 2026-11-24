@@ -15,24 +15,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { AutoMovieMotionHumanChannel as HumanChannels } from "./AutoMovieMotionHumanChannel";
 
-/** The alternatives of `SoDependency`'s site. */
-type SoDependency = number | ((seconds: number) => number);
-
-/**
- * The alternatives of `ComposeAutoMovieMotionHumanActionDependenciesResult`'s
- * site.
- */
-type ComposeAutoMovieMotionHumanActionDependenciesResult =
-  | number
-  | ((seconds: number) => number);
-
-/**
- * The alternatives of `ComposeAutoMovieMotionHumanActionDependenciesItem`'s
- * site.
- */
-type ComposeAutoMovieMotionHumanActionDependenciesItem =
-  | number
-  | ((seconds: number) => number);
+/** The channel mask a primitive reads at a second of its window. */
+type SoDependency = (seconds: number) => number;
 
 /**
  * An action composed of part primitives over a base.
@@ -197,19 +181,16 @@ export function composeAutoMovieMotionHumanAction(
     (p: IAutoMovieMotionHumanPrimitive): Merger =>
       HumanChannels.prepareMerge(written(p)),
   );
-  const dependencies: ComposeAutoMovieMotionHumanActionDependenciesItem[] =
-    primitives.map(
-      (
-        p: IAutoMovieMotionHumanPrimitive,
-      ): ComposeAutoMovieMotionHumanActionDependenciesResult => {
-        const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
-        return reads === undefined
-          ? all
-          : typeof reads === "function"
-            ? (seconds: number): number => mask(reads(seconds))
-            : mask(reads);
-      },
-    );
+  const dependencies: SoDependency[] = primitives.map(
+    (p: IAutoMovieMotionHumanPrimitive): SoDependency => {
+      const reads: IAutoMovieMotionHumanPrimitive["reads"] = p.reads;
+      if (reads === undefined) return (): number => all;
+      if (typeof reads === "function")
+        return (seconds: number): number => mask(reads(seconds));
+      const fixed: number = mask(reads);
+      return (): number => fixed;
+    },
+  );
 
   // A retained reader selects its scope when called: a follower may keep
   // it after the evaluation in which it first received it has ended.
@@ -437,9 +418,7 @@ export function composeAutoMovieMotionHumanAction(
     const dependency: SoDependency = dependencies[previous]!;
     const needed: number = contributes
       ? (demand & ~masks[previous]!) |
-        (typeof dependency === "function"
-          ? dependency(Math.min(p.to, Math.max(p.from, t)))
-          : dependency)
+        dependency(Math.min(p.to, Math.max(p.from, t)))
       : demand;
     let posture: IAutoMovieMotionHumanPosture = so(
       previous,

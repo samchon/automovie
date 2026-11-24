@@ -73,7 +73,7 @@ export function householdCases(
         FamilyCaseKit.perform(
           "household",
           [{ subject: "a", body: who.body }],
-          chain,
+          chain.node,
         );
       const segment = performance.segments("a").at(-1)!;
       const at = (name: string): number =>

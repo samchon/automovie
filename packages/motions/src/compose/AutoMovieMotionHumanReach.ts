@@ -294,7 +294,7 @@ function checkOn(
         posture.root,
         humanPostureHeading(posture),
         posture.joints.hips,
-        typeof resolution === "function" ? resolution() : resolution,
+        prepareHumanPoseResolution.read(resolution),
       )[side],
       body.measure.thigh + body.measure.shank,
       point,

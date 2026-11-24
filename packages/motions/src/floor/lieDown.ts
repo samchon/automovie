@@ -132,8 +132,10 @@ export namespace lieDown {
       context.params.kind ?? "supine";
     const hold: number = context.params.hold ?? 2;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
 
     // Entered standing, the body goes down the position's route. Entered on
     // the knees or crouched over the hands, it is already past the route's

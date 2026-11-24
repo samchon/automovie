@@ -117,14 +117,14 @@ export namespace supportKey {
     // not a retry: both candidates are measured on the same full merit rows.
     const variables: readonly IAutoMovieMotionHumanJacobian.IVariable[] =
       HumanFitVariables.BODY;
-    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit.of({
+    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit({
       body,
       posture: preferred,
       variables,
       targets,
       angles: [],
       bearing,
-      pairs: HumanFitPairs.of(body),
+      pairs: HumanFitPairs(body),
       key: HumanFitVariables.vector(variables, preferred),
       price: HumanBodyFit.PRICE,
     });

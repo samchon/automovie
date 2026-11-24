@@ -158,7 +158,7 @@ export function HumanQuadraticSolve(
   const rhs: Float64Array = memory?.work.transpose ?? new Float64Array(n);
   const xt: Float64Array = memory?.work.curvature ?? new Float64Array(n);
   const before: Float64Array = memory?.work.rows ?? new Float64Array(m);
-  const work: Workspace.IWork = memory?.work ?? Workspace.of(rhs, xt, before);
+  const work: Workspace.IWork = memory?.work ?? Workspace(rhs, xt, before);
   let status: IAutoMovieMotionHumanQuadraticProgram.IState["status"] =
     "unfinished";
   const residual: IHumanQuadraticSolveResidual = {

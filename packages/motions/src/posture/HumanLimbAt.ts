@@ -137,7 +137,7 @@ export namespace HumanLimbAt {
     // Read on the records the chain's frames depend on (`HumanLimbView`), a
     // left limb's in their mirror image; the whole pose is admitted first.
     HumanLimbView.admitted(body, pose);
-    const view: HumanLimbView.IView = HumanLimbView.of(
+    const view: HumanLimbView.IView = HumanLimbView(
       body,
       pose,
       limb,
@@ -213,13 +213,7 @@ function mirrored(
   limb: AutoMovieHumanLimb,
   goal: IAutoMovieHumanLimbGoal,
 ): IRead {
-  const view: HumanLimbView.IView = HumanLimbView.of(
-    body,
-    pose,
-    limb,
-    goal,
-    [],
-  );
+  const view: HumanLimbView.IView = HumanLimbView(body, pose, limb, goal, []);
   const left: boolean = limb.startsWith("left");
   const image: IAutoMoviePose = left
     ? HumanLimbMirror.pose(view.pose)

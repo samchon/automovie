@@ -19,10 +19,13 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * The swing extends in the entered forward direction and returns to the standing foot.
+ * The swing extends in the entered forward direction and returns to the
+ * standing foot.
  *
  * Scenarios:
- * 1. Observe the foot through posed forward kinematics on a canonical standing body.
+ *
+ * 1. Observe the foot through posed forward kinematics on a canonical standing
+ *    body.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The swing extends in the entered forward direction and returns to the standing foot.
  * @evidence contracts/development/testing.md#independent-expectations A quarter turn directs local forward along world X.
@@ -34,7 +37,7 @@ export function test_motion_contact_primitive_leg_phrase_swing(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 1, y: 0, z: 2 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "ready", seconds: 0.25 },
     { name: "strokeStart", seconds: 0.5 },
     { name: "stroke", seconds: 1 },

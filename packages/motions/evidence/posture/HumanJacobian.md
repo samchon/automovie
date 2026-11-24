@@ -1,4 +1,4 @@
-# src/posture/HumanJacobian.ts#HumanJacobian.of
+# src/posture/HumanJacobian.ts#HumanJacobian
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

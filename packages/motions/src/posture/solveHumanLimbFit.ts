@@ -143,7 +143,7 @@ function solved(
   framed: boolean,
   admission: HumanLimbView.IAdmission | undefined,
 ): IAutoMovieSeededChainFit {
-  const view: HumanLimbView.IView = HumanLimbView.of(
+  const view: HumanLimbView.IView = HumanLimbView(
     body,
     pose,
     limb,
@@ -177,7 +177,7 @@ function solved(
 
   // Solved in the root-position frame; the merge keeps the caller's root.
   const frame: IAutoMovieMotionHumanLimbFitFrame.IFrame | null = framed
-    ? HumanLimbFitFrame.of(image, asked)
+    ? HumanLimbFitFrame(image, asked)
     : null;
   const own: IAutoMoviePose =
     frame === null ? image : HumanLimbFitFrame.pose(frame, image);
@@ -200,7 +200,7 @@ function solved(
     (): void => HumanLimbView.admitted(body, pose, admission),
     // A seed held for this limb (`HumanLimbIncumbent`) starts a swept
     // fit's bounded search; a continued fit has its own seed.
-    near === undefined ? HumanLimbIncumbent.of(body, limb) : undefined,
+    near === undefined ? HumanLimbIncumbent(body, limb) : undefined,
   );
 
   // The solved records go back into the whole pose, a left limb's renamed

@@ -143,7 +143,7 @@ function planHeadRest(
       fix: "sit or stand nearer, or rest on a region within the lean's reach",
     });
   }
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     p.manner,
   );
@@ -159,7 +159,7 @@ function planHeadRest(
     }),
     modifiers,
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(timed.duration, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
     ...timed.instants,
     { name: "contact", seconds: timed.at("ready") },
     { name: "part", seconds: timed.at("relax") },

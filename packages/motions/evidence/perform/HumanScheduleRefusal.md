@@ -1,4 +1,4 @@
-# src/perform/HumanScheduleRefusal.ts#HumanScheduleRefusal.of
+# src/perform/HumanScheduleRefusal.ts#HumanScheduleRefusal
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

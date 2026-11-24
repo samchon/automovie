@@ -148,7 +148,7 @@ export namespace HumanMountOn {
         : Math.min(
             4,
             2 * (1 + 0.6 * Math.max(0, seated.ratio(body, seat, under) - 1)),
-          )) * AutoMovieMotionManner.of(context, context.params.manner).tempo;
+          )) * AutoMovieMotionManner(context, context.params.manner).tempo;
     const duration: number = climb + hold;
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
       body,
@@ -160,7 +160,7 @@ export namespace HumanMountOn {
       climb,
       astride,
     );
-    const frameAt: (t: number) => Frame = HumanMountOnFrame.of({
+    const frameAt: (t: number) => Frame = HumanMountOnFrame({
       body,
       seat,
       start,
@@ -194,7 +194,7 @@ export namespace HumanMountOn {
     // The seated pelvis's pitch, which the hip's flexion to a rest is read off.
     const seatedPitch: number = frameAt(climb).pitch;
     const place = (side: AutoMovieHumanSide): HumanMountPlace.IPlace =>
-      HumanMountPlace.of(
+      HumanMountPlace(
         body,
         side,
         seatedHips[side],
@@ -353,7 +353,7 @@ export namespace HumanMountOn {
         });
     }
     // A swinging leg's goal at an instant, before its toes turn down.
-    const flown = HumanMountFlight.of({
+    const flown = HumanMountFlight({
       body,
       flight,
       frameAt,

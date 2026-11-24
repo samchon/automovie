@@ -1,3 +1,4 @@
+import type { IAutoMovieChannel } from "../core/IAutoMovieChannel";
 import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolation";
 
 /**
@@ -5,7 +6,7 @@ import type { IAutoMovieConstraintViolation } from "./IAutoMovieConstraintViolat
  * validation.
  */
 export type IAutoMovieClipChannelGate = (
-  channel: Record<string, unknown>,
+  channel: IAutoMovieChannel,
   path: string,
   violations: IAutoMovieConstraintViolation[],
 ) => void;

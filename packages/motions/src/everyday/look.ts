@@ -221,9 +221,9 @@ export namespace look {
         );
         // A trunk turned on the look's own stand carries the hanging arms
         // across the thighs: they are let out as a swinging arm is, no
-        // nearer the body than in the quiet stance (`HumanArmSwing.of`).
+        // nearer the body than in the quiet stance (`HumanArmSwing`).
         return context.carrier === undefined && parts.trunk !== 0
-          ? HumanArmSwing.of(
+          ? HumanArmSwing(
               context.body,
               aimed,
               ["left", "right"],

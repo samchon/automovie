@@ -70,7 +70,7 @@ export namespace HumanQuadraticPreparation {
       !admitted.same ||
       !same(prepared.fixed, scaling)
     )
-      prepared = Equilibration.of(problem, admitted, lo, prepared, scaling);
+      prepared = Equilibration(problem, admitted, lo, prepared, scaling);
     const core: ICore = prepared.core;
     const hi: Float64Array = new Float64Array(core.m);
     const weight: Float64Array = new Float64Array(core.m);

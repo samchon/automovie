@@ -10,7 +10,7 @@ Delegates to the engine's measurer, surface resolver, topology index, immutable 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Preserves rest-position, measure, surface and topology derivation order. The engine's withSurfaces producer lends one call-scoped neutral-bounds owner across the two consecutive derivations and releases it in finally. Immutable FK follows; a body getter prepares mass on first read, and collider owners prepare only actual query needs.
+Preserves rest-position, measure, surface and topology derivation order. The engine's withSurfaces producer lends one call-scoped neutral-bounds owner across the two consecutive derivations and releases it in finally. Immutable FK follows; body getters prepare mass, the quiet-stance alignment (standUpright.align) and the relaxed hanging arms (standRelaxed.solve) on first read, and collider owners prepare only actual query needs.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -26,4 +26,4 @@ withSurfaces shares actual neutral bounds across the unchanged derivation. The p
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-withSurfaces releases its temporary geometry owner in finally before returning independent measure/surfaces. The body owns O(B) static FK, its O(B) name index, first-read mass data and at most two hanging-arm angle triples; its getter retains only source inputs/one successful model. FK uses weak operation keys and collider geometry uses weak body/point keys; all release with those owners.
+withSurfaces releases its temporary geometry owner in finally before returning independent measure/surfaces. The body owns O(B) static FK, its O(B) name index, first-read mass data, one alignment, one relaxed arm record and at most two hanging-arm angle triples; its getter retains only source inputs/one successful model. FK uses weak operation keys and collider geometry uses weak body/point keys; all release with those owners.

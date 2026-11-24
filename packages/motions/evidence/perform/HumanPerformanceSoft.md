@@ -118,7 +118,7 @@ Reads the solve `at` and `load` keep.
 
 Returns fresh records; the solves are kept by `of`.
 
-# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft.of
+# src/perform/HumanPerformanceSoft.ts#HumanPerformanceSoft
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

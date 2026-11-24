@@ -339,7 +339,7 @@ function solved(
     ...(rests.length === 0 ? {} : { rests }),
   };
   const sides: readonly ["right", "left"] = ["right", "left"];
-  const context: M.IContext = HumanArmTrajectoryContext.of({
+  const context: M.IContext = HumanArmTrajectoryContext({
     body,
     times: [0, 1, 2],
     bases: [base, base, base],

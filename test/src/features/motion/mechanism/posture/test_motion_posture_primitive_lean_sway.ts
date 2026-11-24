@@ -18,9 +18,11 @@ import { motionComplaints } from "../../../internal/motionComplaints";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * The given floor-frame displacement moves the hips while both planted ankles retain their world locations.
+ * The given floor-frame displacement moves the hips while both planted ankles
+ * retain their world locations.
  *
  * Scenarios:
+ *
  * 1. Observe the geometry at the prescribed angle on a measured standing actor.
  * 2. Check the independent support or pivot relation through resolved joints.
  *

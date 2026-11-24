@@ -1,3 +1,95 @@
+/** Cartesian inner product of the iteration's equal-length work vectors. */
+function dot(a: Float64Array, b: Float64Array): number {
+  let out: number = 0;
+  for (let i: number = 0; i < a.length; i++) out += a[i]! * b[i]!;
+  return out;
+}
+
+/**
+ * Solve the linear Newton equation with diagonal preconditioning, keeping only
+ * the row-local nonzero entries of the projected Hessian.
+ *
+ * @param size The Cartesian dimension.
+ * @param rows The current iterate's local scalar terms.
+ * @param background The diagonal scale of the undamped deformation, before
+ *   contact stiffness.
+ * @returns The Newton step, in metres.
+ */
+export function HumanInteractionMeshStep(
+  size: number,
+  rows: readonly HumanInteractionMeshStep.IRow[],
+  background: number,
+): Float64Array {
+  const residual: Float64Array = new Float64Array(size);
+  const diagonal: Float64Array = new Float64Array(size);
+  // Pack this iterate's row derivatives in the order of both Jacobian
+  // products. Every conjugate direction uses the same sparse structure.
+  const offsets: Uint32Array = new Uint32Array(rows.length + 1);
+  for (let r: number = 0; r < rows.length; r++)
+    offsets[r + 1] = offsets[r]! + rows[r]!.index.length;
+  const columns: Uint32Array = new Uint32Array(offsets[rows.length]!);
+  const derivatives: Float64Array = new Float64Array(columns.length);
+  const curvatures: Float64Array = new Float64Array(rows.length);
+  for (let r: number = 0; r < rows.length; r++) {
+    const row: HumanInteractionMeshStep.IRow = rows[r]!;
+    curvatures[r] = row.curvature;
+    for (let i: number = 0; i < row.index.length; i++) {
+      const column: number = row.index[i]!;
+      const derivative: number = row.coef[i]!;
+      const entry: number = offsets[r]! + i;
+      columns[entry] = column;
+      derivatives[entry] = derivative;
+      residual[column]! -= row.slope * derivative;
+      diagonal[column]! += row.curvature * derivative * derivative;
+    }
+  }
+  const result: Float64Array = new Float64Array(size);
+  const direction: Float64Array = new Float64Array(size);
+  const product: Float64Array = new Float64Array(size);
+  const accurate: number = Math.sqrt(Number.EPSILON);
+  // Only the deformation's translation null space needs a shift. A
+  // near-singular element can have an arbitrarily large local curvature
+  // without requiring any damping on vertices that do not touch it.
+  const shift: number = Math.max(Number.MIN_VALUE, background * accurate);
+  for (let i: number = 0; i < size; i++) {
+    diagonal[i]! += shift;
+    direction[i] = residual[i]! / diagonal[i]!;
+  }
+  let prior: number = dot(residual, direction);
+  const limit: number = Number.EPSILON * prior;
+  for (
+    let iteration: number = 0;
+    iteration < size && prior > limit;
+    iteration++
+  ) {
+    for (let i: number = 0; i < size; i++) product[i] = shift * direction[i]!;
+    for (let r: number = 0; r < rows.length; r++) {
+      const begin: number = offsets[r]!;
+      const end: number = offsets[r + 1]!;
+      let scalar: number = 0;
+      for (let i: number = begin; i < end; i++)
+        scalar += derivatives[i]! * direction[columns[i]!]!;
+      scalar *= curvatures[r]!;
+      for (let i: number = begin; i < end; i++)
+        product[columns[i]!]! += scalar * derivatives[i]!;
+    }
+    const projected: number = dot(direction, product);
+    if (!(projected > 0)) break;
+    const gain: number = prior / projected;
+    let present: number = 0;
+    for (let i: number = 0; i < size; i++) {
+      result[i]! += gain * direction[i]!;
+      residual[i]! -= gain * product[i]!;
+      present += residual[i]! ** 2 / diagonal[i]!;
+    }
+    const beta: number = present / prior;
+    for (let i: number = 0; i < size; i++)
+      direction[i] = residual[i]! / diagonal[i]! + beta * direction[i]!;
+    prior = present;
+  }
+  return result;
+}
+
 /**
  * Matrix-free projected Gauss–Newton step for interaction-mesh deformation.
  *
@@ -45,97 +137,5 @@ export namespace HumanInteractionMeshStep {
     }
     const squared: number = dot(barrier, barrier);
     return squared === 0 ? 0 : -dot(barrier, elastic) / squared;
-  }
-
-  /**
-   * Solve the linear Newton equation with diagonal preconditioning, keeping
-   * only the row-local nonzero entries of the projected Hessian.
-   *
-   * @param size The Cartesian dimension.
-   * @param rows The current iterate's local scalar terms.
-   * @param background The diagonal scale of the undamped deformation, before
-   *   contact stiffness.
-   * @returns The Newton step, in metres.
-   */
-  export function of(
-    size: number,
-    rows: readonly IRow[],
-    background: number,
-  ): Float64Array {
-    const residual: Float64Array = new Float64Array(size);
-    const diagonal: Float64Array = new Float64Array(size);
-    // Pack this iterate's row derivatives in the order of both Jacobian
-    // products. Every conjugate direction uses the same sparse structure.
-    const offsets: Uint32Array = new Uint32Array(rows.length + 1);
-    for (let r: number = 0; r < rows.length; r++)
-      offsets[r + 1] = offsets[r]! + rows[r]!.index.length;
-    const columns: Uint32Array = new Uint32Array(offsets[rows.length]!);
-    const derivatives: Float64Array = new Float64Array(columns.length);
-    const curvatures: Float64Array = new Float64Array(rows.length);
-    for (let r: number = 0; r < rows.length; r++) {
-      const row: IRow = rows[r]!;
-      curvatures[r] = row.curvature;
-      for (let i: number = 0; i < row.index.length; i++) {
-        const column: number = row.index[i]!;
-        const derivative: number = row.coef[i]!;
-        const entry: number = offsets[r]! + i;
-        columns[entry] = column;
-        derivatives[entry] = derivative;
-        residual[column]! -= row.slope * derivative;
-        diagonal[column]! += row.curvature * derivative * derivative;
-      }
-    }
-    const result: Float64Array = new Float64Array(size);
-    const direction: Float64Array = new Float64Array(size);
-    const product: Float64Array = new Float64Array(size);
-    const accurate: number = Math.sqrt(Number.EPSILON);
-    // Only the deformation's translation null space needs a shift. A
-    // near-singular element can have an arbitrarily large local curvature
-    // without requiring any damping on vertices that do not touch it.
-    const shift: number = Math.max(Number.MIN_VALUE, background * accurate);
-    for (let i: number = 0; i < size; i++) {
-      diagonal[i]! += shift;
-      direction[i] = residual[i]! / diagonal[i]!;
-    }
-    let prior: number = dot(residual, direction);
-    const limit: number = Number.EPSILON * prior;
-    for (
-      let iteration: number = 0;
-      iteration < size && prior > limit;
-      iteration++
-    ) {
-      for (let i: number = 0; i < size; i++) product[i] = shift * direction[i]!;
-      for (let r: number = 0; r < rows.length; r++) {
-        const begin: number = offsets[r]!;
-        const end: number = offsets[r + 1]!;
-        let scalar: number = 0;
-        for (let i: number = begin; i < end; i++)
-          scalar += derivatives[i]! * direction[columns[i]!]!;
-        scalar *= curvatures[r]!;
-        for (let i: number = begin; i < end; i++)
-          product[columns[i]!]! += scalar * derivatives[i]!;
-      }
-      const projected: number = dot(direction, product);
-      if (!(projected > 0)) break;
-      const gain: number = prior / projected;
-      let present: number = 0;
-      for (let i: number = 0; i < size; i++) {
-        result[i]! += gain * direction[i]!;
-        residual[i]! -= gain * product[i]!;
-        present += residual[i]! ** 2 / diagonal[i]!;
-      }
-      const beta: number = present / prior;
-      for (let i: number = 0; i < size; i++)
-        direction[i] = residual[i]! / diagonal[i]! + beta * direction[i]!;
-      prior = present;
-    }
-    return result;
-  }
-
-  /** Cartesian inner product of the iteration's equal-length work vectors. */
-  function dot(a: Float64Array, b: Float64Array): number {
-    let out: number = 0;
-    for (let i: number = 0; i < a.length; i++) out += a[i]! * b[i]!;
-    return out;
   }
 }

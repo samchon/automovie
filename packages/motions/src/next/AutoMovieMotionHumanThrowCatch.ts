@@ -6,6 +6,7 @@ import { ballSport as ballSportLaw } from "../sport/ballSport";
 import { fieldThrow as fieldThrowLaw } from "../sport/fieldThrow";
 import { stickBall as stickBallLaw } from "../sport/stickBall";
 import { catchObject as catchObjectLaw } from "../throwing/catchObject";
+import { readThrowObjectLaunch as readThrowObjectLaunchReader } from "../throwing/readThrowObjectLaunch";
 import { release as releaseLaw } from "../throwing/release";
 import { stageCatch as stageCatchLaw } from "../throwing/stageCatch";
 import { stageDeflect as stageDeflectLaw } from "../throwing/stageDeflect";
@@ -136,31 +137,36 @@ export namespace AutoMovieMotionHumanThrowCatch {
    */
   export import throwObject = throwObjectLaw;
 
+  /** The launch a throw's plan carries, undefined for any other plan. */
+  export const readThrowObjectLaunch: typeof readThrowObjectLaunchReader =
+    readThrowObjectLaunchReader;
+
   /**
    * Catching an object thrown by another action: the hands meet it where its
    * path enters the reach, give with it, and bring it to the chest.
    *
    * The goal is an interception. The throw's plan carries its launch
-   * (`throwObject.of`), so the path is known in closed form, drag-free. The
-   * catch point is where the path first comes within `REACH` arm lengths ahead
-   * of the catcher's root along its heading (provisional), and the contact
-   * instant the path's time there; a path that never comes so near, or a point
-   * the arms cannot reach from the shoulders, is refused. With two hands the
-   * palms take the object from both sides, each palm on its surface across the
-   * catcher's left-right axis; with one the palm takes it from behind, facing
-   * the way it comes, or with a worn glove (`glove`) the hand turned as that
-   * palm would be and moved so the glove's pocket meets it. The fingers take
-   * the turn about the palm's normal (`ROLLS`, upward first) the arm holds at
-   * the contact with the least strain (`AutoMovieMotionHumanBend.strain`), so
-   * the wrist's range decides it. The ball's size is the ball's own (`ball`,
-   * `HumanBall`). The hands travel there on minimum-jerk progress over the
-   * aimed movement time to an object of its size (McIntosh et al. 2018,
-   * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
-   * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
-   * Neurosci 9:134). After contact the hands give `GIVE` along the object's
-   * velocity over `GIVE_TIME` (the issue's 0.05 to 0.15 m, provisional), which
-   * is `secured`, then carry it to before the sternum and hold it. Events:
-   * `reach`, `prepare`, `contact`, `secured`, `held`.
+   * (`readThrowObjectLaunch`), so the path is known in closed form, drag-free.
+   * The catch point is where the path first comes within `REACH` arm lengths
+   * ahead of the catcher's root along its heading (provisional), and the
+   * contact instant the path's time there; a path that never comes so near, or
+   * a point the arms cannot reach from the shoulders, is refused. With two
+   * hands the palms take the object from both sides, each palm on its surface
+   * across the catcher's left-right axis; with one the palm takes it from
+   * behind, facing the way it comes, or with a worn glove (`glove`) the hand
+   * turned as that palm would be and moved so the glove's pocket meets it. The
+   * fingers take the turn about the palm's normal (`ROLLS`, upward first) the
+   * arm holds at the contact with the least strain
+   * (`AutoMovieMotionHumanBend.strain`), so the wrist's range decides it. The
+   * ball's size is the ball's own (`ball`, `HumanBall`). The hands travel there
+   * on minimum-jerk progress over the aimed movement time to an object of its
+   * size (McIntosh et al. 2018, `AutoMovieMotionHumanTiming.aimed`), arriving
+   * at contact; the anticipatory `prepare` instant is 100 ms before impact
+   * (Lacquaniti and Maioli 1989, J Neurosci 9:134). After contact the hands
+   * give `GIVE` along the object's velocity over `GIVE_TIME` (the issue's 0.05
+   * to 0.15 m, provisional), which is `secured`, then carry it to before the
+   * sternum and hold it. Events: `reach`, `prepare`, `contact`, `secured`,
+   * `held`.
    *
    * The catch may start any time up to that `prepare` instant: with the throw,
    * or later, as when the thrower cuts its own throw at the release to catch

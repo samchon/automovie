@@ -78,14 +78,6 @@ function plan(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params } = context;
   const side: AutoMovieHumanSide = params.hand ?? "right";
-  if (side !== "left" && side !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: side,
-      reason: "A hat tip takes one hand",
-      fix: "choose left or right",
-    });
   const held: string | undefined = entry.holds[side];
   if (held !== undefined)
     throw new HumanRefusal({

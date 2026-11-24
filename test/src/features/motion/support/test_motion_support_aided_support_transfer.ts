@@ -71,14 +71,15 @@ interface IAidCase {
  * holds until the recipient is supported by the real destination seat.
  *
  * Scenarios:
- * 1. The forearm prop exposes a handle on its visible bar and a tip on its
- *    bottom face in the maker's measured fit band.
- * 2. A cane, walker and crutch start, turn and stop. The walker leaves the
- *    floor with both feet supported. A single-grip aid moves during a step.
- *    Sample each grip, planted tip, authored rotation and terminal floor.
- * 3. Two supported body fits move from the same placed dining chair to a
- *    named bed side. Inspect actual displayed palms and seat height through
- *    contact, and refuse a destination that has no seat.
+ *
+ * 1. The forearm prop exposes a handle on its visible bar and a tip on its bottom
+ *    face in the maker's measured fit band.
+ * 2. A cane, walker and crutch start, turn and stop. The walker leaves the floor
+ *    with both feet supported. A single-grip aid moves during a step. Sample
+ *    each grip, planted tip, authored rotation and terminal floor.
+ * 3. Two supported body fits move from the same placed dining chair to a named bed
+ *    side. Inspect actual displayed palms and seat height through contact, and
+ *    refuse a destination that has no seat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the independent geometry, different support orders, two body fits and refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Runs normal named laws through HumanPerformance, reads actual bone and prop poses, and passes measured hand points and the model solids to the exact shape distance engine.
@@ -205,7 +206,10 @@ function aid(
   return { film, params, model, body, at };
 }
 
-/** Observe world prop samples and the actual foot and hand contacts during each cycle. */
+/**
+ * Observe world prop samples and the actual foot and hand contacts during each
+ * cycle.
+ */
 function verifyAid(
   checks: motionComplaints.IGatherer,
   scenario: IAidCase,
@@ -213,7 +217,7 @@ function verifyAid(
   const { film, params, model, body, at }: IAidCase = scenario;
   const segment: IAutoMovieMotionHumanSegment = film.segments("actor")[0]!;
   const walker: boolean = params.kind === "walker";
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "actor",
     body,
@@ -310,7 +314,10 @@ function verifyAid(
   );
 }
 
-/** Chair and bed transfer through the public mutual chain with actual model seats. */
+/**
+ * Chair and bed transfer through the public mutual chain with actual model
+ * seats.
+ */
 function transfer(
   size: motionHumanBody.Name,
   destination: string = "rightSide",
@@ -372,7 +379,10 @@ function transfer(
   });
 }
 
-/** Check both posed bodies, the shared clasp and the destination bearing before release. */
+/**
+ * Check both posed bodies, the shared clasp and the destination bearing before
+ * release.
+ */
 function verifyTransfer(
   checks: motionComplaints.IGatherer,
   size: motionHumanBody.Name,
@@ -382,13 +392,13 @@ function verifyTransfer(
     .segments("recipient")
     .at(-1)!;
   const helper: IAutoMovieMotionHumanSegment = film.segments("helper").at(-1)!;
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "recipient",
     motionHumanBody(size),
     -90,
   );
-  const bearer: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const bearer: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "helper",
     motionHumanBody("m-average"),

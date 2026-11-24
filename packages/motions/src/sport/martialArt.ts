@@ -100,8 +100,10 @@ export namespace martialArt {
     const hold: number = p.hold ?? 1;
     HumanBound.whole("count", count);
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     if (
       p.kind === "karateStanceTransfer" ||
       p.kind === "taiChiTransfer" ||

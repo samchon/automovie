@@ -44,14 +44,14 @@ const BOUND: number = 0.001;
 /**
  * Trace a right angle with the working point of a held stylus.
  *
- * The support's affordance turns the authored polyline a quarter turn in
- * world. Its origin is offset from the poised tip. The contact oracle is
- * the resulting world polyline, written from the translated quarter-turn.
+ * The support's affordance turns the authored polyline a quarter turn in world.
+ * Its origin is offset from the poised tip. The contact oracle is the resulting
+ * world polyline, written from the translated quarter-turn.
  *
  * Scenarios:
  *
- * 1. The tip reaches both edge midpoints and the corner in four equal
- *    time intervals after contacting the surface.
+ * 1. The tip reaches both edge midpoints and the corner in four equal time
+ *    intervals after contacting the surface.
  * 2. The tool still holds its rigid offset through the trace and return.
  * 3. The same nib is refused when its frame rides a separate mechanism.
  *

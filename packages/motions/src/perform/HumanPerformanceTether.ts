@@ -191,7 +191,7 @@ function carried(
   subject: string,
   seconds: number,
 ): boolean {
-  return HumanPerformanceGrips.of(self, subject).some(
+  return HumanPerformanceGrips(self, subject).some(
     (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
       g.mount === undefined && g.from <= seconds && seconds <= g.to,
   );

@@ -134,7 +134,7 @@ function plan(
     });
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.prop ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,
@@ -250,8 +250,10 @@ function place(
     { x: side === "left" ? at.out : -at.out, y: at.up, z: at.forward },
   );
   const bone: AutoMovieHumanoidBone = `${side}Hand`;
-  const hand: IAutoMovieResolvedBone = poseBones(context.body, context.entry.pose)
-    .get(bone)!;
+  const hand: IAutoMovieResolvedBone = poseBones(
+    context.body,
+    context.entry.pose,
+  ).get(bone)!;
   const prop: IAutoMovieRigidTransform = context
     .prop(subject)
     .frame(context.entry.seconds);
@@ -376,8 +378,10 @@ function taking(
       reason: `${subject} has no contact called ${take.point}`,
       fix: "name a contact the receiving prop declares",
     });
-  const hand: IAutoMovieResolvedBone = poseBones(context.body, context.entry.pose)
-    .get(`${side}Hand`)!;
+  const hand: IAutoMovieResolvedBone = poseBones(
+    context.body,
+    context.entry.pose,
+  ).get(`${side}Hand`)!;
   const frame: IAutoMovieRigidTransform = reader.frame(context.entry.seconds);
   const point: IAutoMovieVector3 = Vector3.add(
     frame.position,

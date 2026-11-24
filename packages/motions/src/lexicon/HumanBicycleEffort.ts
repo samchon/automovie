@@ -211,8 +211,8 @@ function planHumanBicycleEffort(
     });
 
   /**
-   * Move the pelvis relative to the bicycle while retaining the ridden grip
-   * and pedal targets.
+   * Move the pelvis relative to the bicycle while retaining the ridden grip and
+   * pedal targets.
    */
   const posture = (at: number): IAutoMovieMotionHumanPosture => {
     if (at <= seatOff || at >= seatOn) return ride.posture(at);

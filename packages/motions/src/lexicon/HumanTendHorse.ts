@@ -96,7 +96,7 @@ function planHumanTendHorse(
     context,
     seconds,
   );
-  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
+  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands(
     {
       ...context,
       params: { on, duration: seconds, hands: { [side]: point } },

@@ -55,7 +55,7 @@ export function climbCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "climb",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("climbLadder", params),
+      HumanChain.subject("a").act("climbLadder", params).node,
       [ladderProp()],
     );
     const segment = performance.segments("a")[0]!;

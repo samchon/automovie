@@ -46,7 +46,7 @@ The model bounds scratch by O(n+m), copied zero-bearing layouts by O(R0+m), and 
 
 Defines fixed snapshot and row-order premises, changing bounds/weights/keys, warm and dual inputs, original-unit output/status ownership, validation failures and bounded model lifetime.
 
-# src/posture/HumanQuadraticModel.ts#HumanQuadraticModel.of
+# src/posture/HumanQuadraticModel.ts#HumanQuadraticModel
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

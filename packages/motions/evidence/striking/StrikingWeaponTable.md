@@ -46,7 +46,7 @@ Nothing is shared.
 
 Retains nothing.
 
-# src/striking/StrikingWeaponTable.ts#StrikingWeaponTable.of
+# src/striking/StrikingWeaponTable.ts#StrikingWeaponTable
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

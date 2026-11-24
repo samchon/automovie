@@ -414,7 +414,7 @@ export namespace AquaticLiftOut {
     context: AquaticPosture.Context,
     water: number,
   ): AquaticEdge.IEdge {
-    const edge: AquaticEdge.IEdge = AquaticEdge.of(context);
+    const edge: AquaticEdge.IEdge = AquaticEdge(context);
     const freeboard: number = edge.lip.y - water;
     if (freeboard > FREEBOARD)
       throw new HumanRefusal({

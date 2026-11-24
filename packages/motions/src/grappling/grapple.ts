@@ -250,15 +250,12 @@ export namespace grapple {
 
     const regions: ReturnType<typeof grappleStances.regions> =
       grappleStances.regions(p.kind, p.side ?? "right");
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      floor.duration,
-      [
-        { name: "reach", seconds: floor.duration * timing.reach },
-        { name: "take", seconds: floor.duration * timing.take },
-        { name: "release", seconds: floor.duration * timing.release },
-        { name: "rest", seconds: floor.duration * timing.rest },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
+      { name: "reach", seconds: floor.duration * timing.reach },
+      { name: "take", seconds: floor.duration * timing.take },
+      { name: "release", seconds: floor.duration * timing.release },
+      { name: "rest", seconds: floor.duration * timing.rest },
+    ]);
     const contacts: IAutoMovieMotionHumanContactWindow[] = [...floor.contacts];
     for (const side of ["left", "right"] as const) {
       const region: AutoMovieHumanoidRegion | undefined = regions[side];

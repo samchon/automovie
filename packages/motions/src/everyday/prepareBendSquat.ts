@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -33,15 +32,13 @@ import { seatedPairDepth } from "./seatedPairDepth";
 
 type Strategy = Exclude<keyof typeof bendLower.KNEE, "stoop">;
 /**
- * A fixed wrist or one on a carried surface. A trial offers its same-pose
- * displayed bones.
+ * The wrist's place in a posture: fixed, or on a carried surface. A trial
+ * offers its same-pose displayed bones.
  */
-type Wrist =
-  | IAutoMovieVector3
-  | ((
-      posture: IAutoMovieMotionHumanPosture,
-      bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    ) => IAutoMovieVector3);
+type Wrist = (
+  posture: IAutoMovieMotionHumanPosture,
+  bones?: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+) => IAutoMovieVector3;
 type Course = (
   posture: IAutoMovieMotionHumanPosture,
   share: number,
@@ -133,7 +130,7 @@ export function prepareBendSquat(
   ];
   const local = HumanFrame.local(
     { origin: standing.root, yaw: standing.yaw },
-    typeof wrist === "function" ? wrist(nominal) : wrist,
+    wrist(nominal),
   );
   const lean: number = Math.atan2(-local.x, -local.y) / RAD;
   const turn: number =
@@ -225,13 +222,12 @@ export function prepareBendSquat(
       chest: [q[5]!, q[6]! / 2, q[7]! / 2],
     },
   });
-  const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
-    createHumanBody.owns(body) ? prepareHumanPoseResolution() : undefined;
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   /** Inspect one actual proposed posture, deriving only equivalent leg work. */
   const residual = (q: readonly number[], before?: ITrial): ITrial => {
     const coordinates: readonly number[] = q.slice(0, 4);
     const legs: IAutoMovieMotionHumanPosture =
-      resolution !== undefined &&
       before !== undefined &&
       coordinates.every((value: number, i: number): boolean =>
         Object.is(value, before.coordinates[i]),
@@ -239,33 +235,31 @@ export function prepareBendSquat(
         ? before.legs
         : lowerBody(q);
     const p: IAutoMovieMotionHumanPosture = trunk(legs, q);
-    let solved: deriveHumanPosture.ISolved | undefined;
-    let bones: ReturnType<typeof poseBones>;
-    let inherited: boolean = false;
-    if (resolution === undefined) bones = native(p);
-    else {
-      const previous: deriveHumanPosture.ISolved | undefined = before?.solved;
-      const assembled: resolveHumanPostureSource.IAssembled =
-        previous === undefined
-          ? resolveHumanPostureSource.assemble(body, p)
-          : deriveHumanPosture(body, previous.assembled, p);
-      const retained: deriveHumanPosture.ISolved["seeded"] | undefined =
-        previous === undefined
-          ? undefined
-          : deriveHumanPosture.inherited(body, assembled, previous);
-      const seeded: deriveHumanPosture.ISolved["seeded"] =
-        retained ??
-        resolveHumanPostureSource.fit(
-          body,
-          assembled,
-          undefined,
-          undefined,
-          resolution,
-        );
-      inherited = retained !== undefined;
-      solved = { assembled, seeded };
-      bones = poseBones(body, seeded.pose, resolution());
-    }
+    const previous: deriveHumanPosture.ISolved | undefined = before?.solved;
+    const assembled: resolveHumanPostureSource.IAssembled =
+      previous === undefined
+        ? resolveHumanPostureSource.assemble(body, p)
+        : deriveHumanPosture(body, previous.assembled, p);
+    const retained: deriveHumanPosture.ISolved["seeded"] | undefined =
+      previous === undefined
+        ? undefined
+        : deriveHumanPosture.inherited(body, assembled, previous);
+    const seeded: deriveHumanPosture.ISolved["seeded"] =
+      retained ??
+      resolveHumanPostureSource.fit(
+        body,
+        assembled,
+        undefined,
+        undefined,
+        resolution,
+      );
+    const inherited: boolean = retained !== undefined;
+    const solved: deriveHumanPosture.ISolved = { assembled, seeded };
+    const bones: ReturnType<typeof poseBones> = poseBones(
+      body,
+      seeded.pose,
+      resolution(),
+    );
     const placed = HumanColliders.placed(body, bones);
     const site = braced(bones);
     const braceWrist = Vector3.subtract(
@@ -277,7 +271,7 @@ export function prepareBendSquat(
         0,
         Vector3.distance(
           bones.get(`${side}UpperArm`)!.worldPosition,
-          typeof wrist === "function" ? wrist(p, bones) : wrist,
+          wrist(p, bones),
         ) - span,
       ),
       Math.max(
@@ -357,7 +351,7 @@ export function prepareBendSquat(
     if (!accepted) break;
   }
   const peak: IAutoMovieMotionHumanPosture = trunk(
-    resolution === undefined ? lowerBody(q) : at.legs,
+    at.legs,
     q,
   );
   return (p, share, standing) => {

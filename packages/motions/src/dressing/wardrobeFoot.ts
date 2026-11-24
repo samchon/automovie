@@ -144,7 +144,7 @@ export function wardrobeFoot(
   );
   const picked: IAutoMovieMotionHumanHeld.IHeld | undefined = remove
     ? undefined
-    : AutoMovieMotionHumanHeld.of(context, hand, params.prop);
+    : AutoMovieMotionHumanHeld(context, hand, params.prop);
 
   // A worn foot determines the approach frame without asking the hand that will take over.
   const worn: IAutoMovieRigidTransform = remove

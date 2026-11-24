@@ -1,4 +1,4 @@
-# src/everyday/HumanBalanceExtrapolated.ts#HumanBalanceExtrapolated.of
+# src/everyday/HumanBalanceExtrapolated.ts#HumanBalanceExtrapolated
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

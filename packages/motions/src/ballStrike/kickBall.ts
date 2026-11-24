@@ -143,8 +143,10 @@ export namespace kickBall {
     const m = body.measure;
     const side: AutoMovieHumanSide = context.params.foot ?? "right";
 
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const standing: IAutoMovieMotionHumanPosture = stand
       .plan({ ...context, params: { hold: 1 } })
       .posture(0);

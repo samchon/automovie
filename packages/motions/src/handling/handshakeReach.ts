@@ -33,6 +33,12 @@ type IMiss3 = { bound: "cross"; gap: number };
 /** The record of `IMiss2`'s site. */
 type IMiss2 = { bound: "apart"; gap: number };
 
+/** A meeting tried and met. */
+type IMet = { kind: "met"; meeting: handshakeOffer.IMeeting };
+
+/** A meeting tried and missed on a bound. */
+type IMissed = { kind: "missed"; miss: handshakeReach.IMiss };
+
 /** The record of `IRefusalBand`'s site. */
 type IRefusalBand = { minimum: number; maximum: number };
 
@@ -48,9 +54,6 @@ type IRefusalBand = { minimum: number; maximum: number };
  * which the pair does meet, found by trying the pair along the same line.
  */
 export namespace handshakeReach {
-  /** The alternatives of `RefusalAttempt`'s site. */
-  type RefusalAttempt = handshakeOffer.IMeeting | IMiss;
-
   /**
    * The refusal of a missed meeting: the bound that failed with its measured
    * value, and the band of shoulder gaps at which this pair does shake hands,
@@ -78,7 +81,7 @@ export namespace handshakeReach {
       b: handshakeOffer.ISide,
       side: AutoMovieHumanSide,
       pump: number,
-    ) => RefusalAttempt,
+    ) => IAttempt,
   ): IAutoMovieMotionHumanRefusal {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const level: number = Math.hypot(span.x, span.z);
@@ -87,22 +90,19 @@ export namespace handshakeReach {
         ? { x: span.x / level, y: 0, z: span.z / level }
         : { x: 0, y: 0, z: 1 };
     const meets = (gap: number): boolean =>
-      !(
-        "bound" in
-        attempt(
-          a,
-          {
-            body: b.body,
-            shoulder: {
-              x: a.shoulder.x + along.x * gap,
-              y: b.shoulder.y,
-              z: a.shoulder.z + along.z * gap,
-            },
+      attempt(
+        a,
+        {
+          body: b.body,
+          shoulder: {
+            x: a.shoulder.x + along.x * gap,
+            y: b.shoulder.y,
+            z: a.shoulder.z + along.z * gap,
           },
-          side,
-          pump,
-        )
-      );
+        },
+        side,
+        pump,
+      ).kind === "met";
     // The runs of gaps that meet, each by its first and last centimetre.
     const runs: [number, number][] = [];
     for (let cm: number = BAND[0] * 100; cm <= BAND[1] * 100; cm++)
@@ -178,4 +178,7 @@ export namespace handshakeReach {
 
   /** A meeting missed, and by which bound. */
   export type IMiss = IMiss2 | IMiss3 | IMiss4 | IMiss5 | IMiss6;
+
+  /** A meeting tried: met, or missed on a bound. */
+  export type IAttempt = IMet | IMissed;
 }

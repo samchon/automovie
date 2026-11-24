@@ -181,7 +181,7 @@ export function test_motion_throw_catch_overlay_hold_handoff(): void {
   );
 
   // 3. The shipped verdicts over the catch's end and the carried stand.
-  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
     film,
     24,
     { from, to: carrier.end },

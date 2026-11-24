@@ -51,6 +51,9 @@ export namespace HumanLimbMirror {
    * @returns Its mirror image.
    */
   export function goal(goal: IAutoMovieHumanLimbGoal): IAutoMovieHumanLimbGoal {
+    // One reflector, so a segment the goal both clears and lies on keeps one
+    // reflected shape list (`HumanArmMirror.IReflector`).
+    const by: HumanArmMirror.IReflector = HumanArmMirror.reflector();
     return {
       ...goal,
       point: HumanArmMirror.flip(goal.point),
@@ -78,19 +81,24 @@ export namespace HumanLimbMirror {
         : { on: HumanArmMirror.opposite(goal.on) }),
       ...(goal.clear === undefined
         ? {}
-        : { clear: goal.clear.map(HumanArmMirror.reflected) }),
+        : { clear: goal.clear.map(by.reflected) }),
       ...(goal.clearExternal === undefined
         ? {}
-        : { clearExternal: goal.clearExternal.map(HumanArmMirror.framed) }),
+        : { clearExternal: goal.clearExternal.map(
+            (
+              external: NonNullable<IAutoMovieHumanLimbGoal["clearExternal"]>[number],
+            ): NonNullable<IAutoMovieHumanLimbGoal["clearExternal"]>[number] =>
+              by.framed(external),
+          ) }),
       ...(goal.rests === undefined
         ? {}
-        : { rests: goal.rests.map(HumanArmMirror.reflected) }),
+        : { rests: goal.rests.map(by.reflected) }),
       ...(goal.clearanceOn === undefined
         ? {}
         : {
             clearanceOn: {
-              clear: goal.clearanceOn.clear.map(HumanArmMirror.reflected),
-              rests: goal.clearanceOn.rests.map(HumanArmMirror.reflected),
+              clear: goal.clearanceOn.clear.map(by.reflected),
+              rests: goal.clearanceOn.rests.map(by.reflected),
             },
           }),
     };

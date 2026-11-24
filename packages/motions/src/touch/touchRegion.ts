@@ -63,8 +63,8 @@ export namespace touchRegion {
     legs: boolean,
   ) => IAutoMovieMotionHumanTouch.ITouch["region"] {
     const body: IAutoMovieMotionHumanBody = context.body;
-    const sited: ReturnType<typeof touchSite.of> | undefined =
-      site === undefined ? undefined : touchSite.of(context, site);
+    const sited: ReturnType<typeof touchSite> | undefined =
+      site === undefined ? undefined : touchSite(context, site);
     const shoulder: IAutoMovieVector3 = bones.get(
       `${side}UpperArm`,
     )!.worldPosition;

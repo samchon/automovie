@@ -1,4 +1,4 @@
-# src/throwing/throwObjectSwing.ts#throwObjectSwing.of
+# src/throwing/throwObjectSwing.ts#throwObjectSwing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -25,7 +25,10 @@ import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 
-/** Contact, skin and clearance allowance of the maintained grapple specs, metres. */
+/**
+ * Contact, skin and clearance allowance of the maintained grapple specs,
+ * metres.
+ */
 const SKIN: number = 0.01;
 
 /** Display continuity allowance of the planted support checks, metres. */
@@ -50,7 +53,10 @@ const FACING: IAutoMovieVector3 = {
   z: Math.cos((ACTOR_YAW * Math.PI) / 180),
 };
 
-/** The receiver's mark, metres: ahead of the initiator's along its facing by a spacing. */
+/**
+ * The receiver's mark, metres: ahead of the initiator's along its facing by a
+ * spacing.
+ */
 const receiverMark = (along: number): IAutoMovieVector3 =>
   Vector3.add(ACTOR_MARK, Vector3.scale(FACING, along));
 
@@ -63,15 +69,15 @@ const TRUNK: ReadonlySet<string> = new Set([
 ]);
 
 /**
- * The least spacing of the marks at which the two fighters' heads and
- * trunks never meet over a played scene, metres. The receiver's whole motion
- * is its own on its mark, the stances read nothing of the initiator, so
- * moving its mark by s along the facing moves every collider of it by s; the
- * two face each other along that line, so a pair of colliders `d` apart
- * (negative overlapping, `physicalShapePairDistance`, exact for the convex
- * shapes) clears by `skin` once moved `skin - d` farther. The spacing is the
- * played one plus the greatest such move over the scene's instants: the
- * closest approach of the two bodies' solved stances.
+ * The least spacing of the marks at which the two fighters' heads and trunks
+ * never meet over a played scene, metres. The receiver's whole motion is its
+ * own on its mark, the stances read nothing of the initiator, so moving its
+ * mark by s along the facing moves every collider of it by s; the two face each
+ * other along that line, so a pair of colliders `d` apart (negative
+ * overlapping, `physicalShapePairDistance`, exact for the convex shapes) clears
+ * by `skin` once moved `skin - d` farther. The spacing is the played one plus
+ * the greatest such move over the scene's instants: the closest approach of the
+ * two bodies' solved stances.
  */
 const spacing = (
   film: HumanPerformance,
@@ -110,15 +116,16 @@ const MAT: IAutoMovieMotionHumanKickboxingRing.IRing = {
 };
 
 /**
- * An MMA clinch on the mat: the fighters tie up at the shoulders, the
- * referee's break comes at the release, they separate standing and the
- * next beat follows on the shared clock.
+ * An MMA clinch on the mat: the fighters tie up at the shoulders, the referee's
+ * break comes at the release, they separate standing and the next beat follows
+ * on the shared clock.
  *
  * Scenarios:
- * 1. The completed clinch grips both shoulders over a named window that
- *    closes at the release, the referee's break cue, and ends `separated`.
- * 2. At the break and through the scene both fighters stay inside the mat
- *    and clear of each other, and both stand upright at its end.
+ *
+ * 1. The completed clinch grips both shoulders over a named window that closes at
+ *    the release, the referee's break cue, and ends `separated`.
+ * 2. At the break and through the scene both fighters stay inside the mat and
+ *    clear of each other, and both stand upright at its end.
  * 3. A following beat joins each fighter's displayed joints continuously.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the clinch, the referee's break, the mat bound, the separation and the join.
@@ -207,13 +214,13 @@ function scene(
     film.schedule.entries.find((row): boolean => row.intent.anchor === anchor)!;
   const lead: IAutoMovieScheduleEntry = entry("clinch.initiator");
   const next: IAutoMovieScheduleEntry = entry("nextA");
-  const one: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const one: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     ACTOR_YAW,
   );
-  const other: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const other: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,

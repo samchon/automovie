@@ -44,7 +44,7 @@ export function ballStrikeCases(
     const performance: IAutoMovieMotionHumanPerformance = FamilyCaseKit.perform(
       "ball",
       [{ subject: "a", body: who.body }],
-      HumanChain.subject("a").act("kickBall", params),
+      HumanChain.subject("a").act("kickBall", params).node,
       [ball(centre, radius)],
     );
     const contact: number = FamilyCaseKit.event(performance, "stroke");

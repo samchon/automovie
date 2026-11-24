@@ -1,4 +1,4 @@
-# src/exercise/WorkoutLoad.ts#WorkoutLoad.of
+# src/exercise/WorkoutLoad.ts#WorkoutLoad
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

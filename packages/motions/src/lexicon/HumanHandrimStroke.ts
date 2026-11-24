@@ -285,8 +285,8 @@ function planHumanHandrimStroke(
     const radius: number = geometry.radius!;
 
     /**
-     * Read the point supplied by the rotating part and its tangent in
-     * world metres.
+     * Read the point supplied by the rotating part and its tangent in world
+     * metres.
      */
     const gripAt = (at: number, frame: IAutoMovieRigidTransform): Grip => {
       const hit: ReturnType<NonNullable<typeof chair.prop.point>> =

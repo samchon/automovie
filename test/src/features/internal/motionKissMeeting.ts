@@ -30,7 +30,9 @@ import type { motionHumanLawSweep } from "./motionHumanLawSweep";
 import { nclose } from "./nclose";
 
 /**
- * Reads the extreme-pair kiss on an articulated hand back, or checks both sides of the planted forehead reach boundary. The left uses a mutual join, and the right follows the presenter's held touch.
+ * Reads the extreme-pair kiss on an articulated hand back, or checks both sides
+ * of the planted forehead reach boundary. The left uses a mutual join, and the
+ * right follows the presenter's held touch.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Checks three instants within the contact, event agreement for the mutual hand presentation and penetration across the performance.
  * @evidence contracts/development/implementation.md#principled-implementation The displayed bones carry the two anatomical region frames. The forehead case derives an impossible height from rigid links and constructs a feasible target from independently posed skin frames.
@@ -267,7 +269,10 @@ function leastForeheadSeparation(scene: motionHumanLawSweep.IScene): number {
   }
 }
 
-/** Place one anatomical site on the specified standing pose at the authored support level. */
+/**
+ * Place one anatomical site on the specified standing pose at the authored
+ * support level.
+ */
 function standingSite(
   person: motionHumanLawSweep.IPerson,
   region: StandingRegion,

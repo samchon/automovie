@@ -29,19 +29,21 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Passive immersion and one keyed stroke through the typed chain and displayed pose route.
+ * Passive immersion and one keyed stroke through the typed chain and displayed
+ * pose route.
  *
  * Scenarios:
- * 1. A medium whose half-volume weighs the performer carries the supine body
- *    in place with half the profile's equivalent sphere volume submerged.
- * 2. A head-first coast at yaw 90 follows the closed-form distance in world
- *    -X at two film seconds. Reading those seconds backwards gives the same
- *    positions and there is no vertical or cross-track drift.
- * 3. A medium whose whole displacement weighs only half the performer refuses
- *    the immersed support, identifying the water density.
- * 4. A single breaststroke drives its displayed hip target along its heading
- *    from rest, with nonzero travel that replays at the same stroke phase
- *    under an authored duration change.
+ *
+ * 1. A medium whose half-volume weighs the performer carries the supine body in
+ *    place with half the profile's equivalent sphere volume submerged.
+ * 2. A head-first coast at yaw 90 follows the closed-form distance in world -X at
+ *    two film seconds. Reading those seconds backwards gives the same positions
+ *    and there is no vertical or cross-track drift.
+ * 3. A medium whose whole displacement weighs only half the performer refuses the
+ *    immersed support, identifying the water density.
+ * 4. A single breaststroke drives its displayed hip target along its heading from
+ *    rest, with nonzero travel that replays at the same stroke phase under an
+ *    authored duration change.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the public route, the fixture's two density relations, the travel frame and the read order.
  * @evidence contracts/development/testing.md#behavioral-verification Observes the displayed bones, pose root and located refusal through HumanPerformance, so a disconnected registered law or a staged constant-speed path fails.

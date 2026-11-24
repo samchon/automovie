@@ -34,23 +34,15 @@ export const sideDrumStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
  *
  * @param context The stroke's body, entry state and scene prop readers.
  * @returns The held-tool plan with its `contact1` decisive instant.
- * @throws {HumanRefusal} When the hand, stick or drum is absent, or the drum
- *   head is missing, moving or tilted.
+ * @throws {HumanRefusal} When the stick or drum is empty, or the drum head is
+ *   missing, moving or tilted.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSideDrumStrike>,
 ): IAutoMovieMotionHumanUseTool.IPlan {
   const { hand, stick, drum }: IAutoMovieMotionHumanSideDrumStrike =
     context.params;
-  if (hand !== "left" && hand !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: hand,
-      reason: "the stroke requires the hand already holding the stick",
-      fix: 'name the holding hand, "left" or "right"',
-    });
-  if (typeof stick !== "string" || stick.length === 0)
+  if (stick.length === 0)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "stick",
@@ -58,7 +50,7 @@ function plan(
       reason: "the stroke requires a drumstick subject",
       fix: "name the held drumstick",
     });
-  if (typeof drum !== "string" || drum.length === 0)
+  if (drum.length === 0)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "drum",

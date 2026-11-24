@@ -1,4 +1,4 @@
-# src/climbing/HumanLadder.ts#HumanLadder.of
+# src/climbing/HumanLadder.ts#HumanLadder
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

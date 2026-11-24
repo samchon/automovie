@@ -196,7 +196,7 @@ export namespace thrown {
       : 0;
     const impact: number = takeoff + flown;
     const land: number = impact + slide;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(land + lie, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(land + lie, [
       { name: "takeoff", seconds: takeoff },
       ...(struck ? [{ name: "impact", seconds: impact }] : []),
       { name: "land", seconds: land },

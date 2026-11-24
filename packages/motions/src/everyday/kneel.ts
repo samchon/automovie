@@ -176,8 +176,10 @@ export namespace kneel {
     const hold: number = context.params.hold ?? 1.5;
     const rise: boolean = context.params.rise ?? true;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const probe: IAutoMovieMotionHumanActionPlan = stand.plan(
       { ...context, params: { hold: 1 } },
       k,
@@ -264,7 +266,7 @@ export namespace kneel {
     const clock: IAutoMovieMotionClock =
       stationary === 0
         ? display
-        : AutoMovieMotionClock.of(
+        : AutoMovieMotionClock(
             duration,
             phases.map(
               (phase: IPhase): IAutoMovieMotionClockInstant => ({

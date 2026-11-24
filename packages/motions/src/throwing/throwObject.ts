@@ -16,7 +16,6 @@ import type {
   IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanThrowObject,
   IAutoMovieMotionHumanThrowObjectForm,
-  IAutoMovieMotionHumanThrowObjectLaunch,
   IAutoMovieMotionHumanThrowObjectParams,
   IAutoMovieMotionManner,
   IAutoMovieProjectile,
@@ -143,18 +142,6 @@ export namespace throwObject {
   export const path = throwObjectLaunch.path;
 
   /**
-   * The launch a throw's plan carries.
-   *
-   * @param plan A plan.
-   * @returns Its launch, or undefined when it is not a throw's.
-   */
-  export function of(
-    plan: IAutoMovieMotionHumanActionPlan,
-  ): IAutoMovieMotionHumanThrowObjectLaunch.ILaunch | undefined {
-    return (plan as Partial<IAutoMovieMotionHumanThrowObject.IPlan>).launch;
-  }
-
-  /**
    * Plan a throw.
    *
    * @param context The action's context.
@@ -171,8 +158,10 @@ export namespace throwObject {
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
     const outward: number = side === "left" ? 1 : -1;
     const arm: number = m.upperArm + m.forearm;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const {
       frame,
       chamber,
@@ -267,11 +256,7 @@ export namespace throwObject {
         origin.rotation,
       ),
     });
-    const swing: throwObjectSwing.ISwing = throwObjectSwing.of(
-      body,
-      side,
-      style,
-    );
+    const swing: throwObjectSwing.ISwing = throwObjectSwing(body, side, style);
     const grip: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
@@ -345,7 +330,7 @@ export namespace throwObject {
       return placeHumanHandSurface(gripOffset, g.point, g.rotation);
     }
     const elbow: AutoMovieMotionHumanBendTrack.ITrack =
-      AutoMovieMotionHumanBendTrack.of({
+      AutoMovieMotionHumanBendTrack({
         body,
         side,
         from: 0,
@@ -449,7 +434,7 @@ export namespace throwObject {
         base,
         clock,
         contact: "release",
-        primitives: [trunk, throwing, ...throwObjectBalance.of(context, clock)],
+        primitives: [trunk, throwing, ...throwObjectBalance(context, clock)],
       });
     return {
       ...composed,

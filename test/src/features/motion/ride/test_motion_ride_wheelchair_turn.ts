@@ -28,16 +28,17 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * A unilateral push keeps the free arm available while the wheelchair
- * turns its rear wheels at different rates.
+ * A unilateral push keeps the free arm available while the wheelchair turns its
+ * rear wheels at different rates.
  *
  * Scenarios:
- * 1. A left arc produces the independently computed inner and outer
- *    wheel travel around the axle midpoint.
- * 2. The left wrist follows its material point within the palm's span
- *    and only the left hand owns a grip during catch through release.
- *    The left wrist returns within 10 mm of its seated rest after release.
- *    The right wrist stays within the same bound throughout.
+ *
+ * 1. A left arc produces the independently computed inner and outer wheel travel
+ *    around the axle midpoint.
+ * 2. The left wrist follows its material point within the palm's span and only the
+ *    left hand owns a grip during catch through release. The left wrist returns
+ *    within 10 mm of its seated rest after release. The right wrist stays
+ *    within the same bound throughout.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the actual turn, active side, free arm, and visible metrics.
  * @evidence contracts/development/testing.md#behavioral-verification Reads archetype wheel articulation and displayed wrists before the push, during the turn and after release.
@@ -172,13 +173,13 @@ function take(key: BodyKey, failures: string[]): void {
   const catchAt: number = stroke.entryTime + approach;
   const during: number = catchAt + push / 2;
   const recovering: number = catchAt + push + recovery / 2;
-  const display: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const display: ReturnType<typeof HumanSignature> = HumanSignature(
     performance,
     "player",
     body,
     seat.yaw,
   );
-  const restDisplay: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const restDisplay: ReturnType<typeof HumanSignature> = HumanSignature(
     rest,
     "player",
     body,

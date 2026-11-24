@@ -98,7 +98,7 @@ export namespace HumanGait {
    */
   export const stroll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["stroll"]
-  > = HumanActionRow.of("stroll", walk, HUMAN_GAIT_STROLL);
+  > = HumanActionRow("stroll", walk, HUMAN_GAIT_STROLL);
 
   /**
    * The hurry: the walk with the hurry preset's pace, step and arm swing fixed
@@ -106,7 +106,7 @@ export namespace HumanGait {
    */
   export const hurry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["hurry"]
-  > = HumanActionRow.of("hurry", walk, HUMAN_GAIT_HURRY);
+  > = HumanActionRow("hurry", walk, HUMAN_GAIT_HURRY);
 
   /**
    * The weary trudge: the walk with the trudge preset's pace, step and arm
@@ -114,7 +114,7 @@ export namespace HumanGait {
    */
   export const trudge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["trudge"]
-  > = HumanActionRow.of("trudge", walk, HUMAN_GAIT_TRUDGE);
+  > = HumanActionRow("trudge", walk, HUMAN_GAIT_TRUDGE);
 
   /**
    * The swagger: the walk with the swagger preset's pace, arm swing and elbows
@@ -122,7 +122,7 @@ export namespace HumanGait {
    */
   export const swagger: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["swagger"]
-  > = HumanActionRow.of("swagger", walk, HUMAN_GAIT_SWAGGER);
+  > = HumanActionRow("swagger", walk, HUMAN_GAIT_SWAGGER);
 
   /**
    * A jog: the `jog` run (about 2.3 m/s, about 165 steps a minute); exercise,
@@ -131,7 +131,7 @@ export namespace HumanGait {
    */
   export const jog: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["jog"]
-  > = HumanActionRow.of("jog", run, { pace: "jog" });
+  > = HumanActionRow("jog", run, { pace: "jog" });
 
   /**
    * A sprint: the `sprint` run (about 6.8 m/s, about 234 steps a minute); a
@@ -140,7 +140,7 @@ export namespace HumanGait {
    */
   export const sprint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["gait"]["sprint"]
-  > = HumanActionRow.of("sprint", run, { pace: "sprint" });
+  > = HumanActionRow("sprint", run, { pace: "sprint" });
 
   /**
    * The march: steps a minute, the step in metres (the regulation's 30 inches,
@@ -507,7 +507,7 @@ function mood(
   name: MoodName,
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanGait.IParams>,
 ): IAutoMovieMotionHumanWalkGait {
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     AutoMovieMotionManner.PRESETS[name],
   );

@@ -52,7 +52,7 @@ export namespace HumanSegmentStop {
       const arm: boolean = weapon.limb.endsWith("Arm");
       let pose: IAutoMoviePose | undefined = poses?.get(seconds);
       if (pose === undefined) {
-        pose = HumanSegmentPose.of(person, segment, seconds, source);
+        pose = HumanSegmentPose(person, segment, seconds, source);
         if (shared) (poses ??= new Map()).set(seconds, pose);
       }
       const map: ReturnType<typeof poseBones> = poseBones(

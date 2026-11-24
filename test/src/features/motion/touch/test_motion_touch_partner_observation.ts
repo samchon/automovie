@@ -11,11 +11,14 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanLaw } from "../../internal/motionHumanLaw";
 
 /**
- * Two differently proportioned performers observe the same moving handshake through contact and release.
+ * Two differently proportioned performers observe the same moving handshake
+ * through contact and release.
  *
  * Scenarios:
+ *
  * 1. Align the shoulders of an unequal pair at the original 0.729 m separation.
- * 2. Check the right-hand grip at clasp, during both strongest pumps, and at release, including reverse-order seeks. Confirm the hands part again.
+ * 2. Check the right-hand grip at clasp, during both strongest pumps, and at
+ *    release, including reverse-order seeks. Confirm the hands part again.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Two differently proportioned performers observe the same moving handshake through contact and release.
  * @evidence contracts/development/testing.md#independent-expectations Each grip uses its own skeleton, bone transform and hand socket. Agreement is measured in world metres, without using the planner's intended meeting point.

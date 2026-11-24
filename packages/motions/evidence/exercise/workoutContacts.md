@@ -16,7 +16,7 @@ The values `workout.plan` already holds.
 
 The prop is absent when nothing but the ground bears.
 
-# src/exercise/workoutContacts.ts#workoutContacts.of
+# src/exercise/workoutContacts.ts#workoutContacts
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

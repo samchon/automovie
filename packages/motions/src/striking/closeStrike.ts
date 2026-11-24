@@ -156,7 +156,7 @@ export namespace closeStrike {
         ? StrikingSkill.HAND_RECOVERY * StrikingSkill.recovery(context.skill)
         : shown;
     const duration: number = shown + recoil;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: p.feint === undefined ? "impact" : "shown", seconds: shown },
       { name: "recovered", seconds: duration },

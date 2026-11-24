@@ -19,11 +19,15 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { motionHumanLaw } from "../../../internal/motionHumanLaw";
 
 /**
- * A one-handed carry preserves its hand attachment across a gait support change while the planted foot stays put.
+ * A one-handed carry preserves its hand attachment across a gait support change
+ * while the planted foot stays put.
  *
  * Scenarios:
- * 1. Observe the original left-sided weary carry's published skate verdict on the average body.
- * 2. Pick up a mug before the same carry and inspect its wrist-relative transform on both sides of a support change.
+ *
+ * 1. Observe the original left-sided weary carry's published skate verdict on the
+ *    average body.
+ * 2. Pick up a mug before the same carry and inspect its wrist-relative transform
+ *    on both sides of a support change.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A one-handed carry preserves its hand attachment across a gait support change while the planted foot stays put.
  * @evidence contracts/development/testing.md#independent-expectations A planted toe may move at most the original 50 mm skate allowance; a rigid hand attachment preserves its local translation to 1 mm.
@@ -47,7 +51,7 @@ export function test_motion_contact_hold_on_step(): void {
     actor.carry(params),
   );
   const all: motionComplaints.IGatherer = motionComplaints();
-  const verdict: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+  const verdict: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
     plain.performance,
   );
   all.check(HumanVerdicts.describe(verdict), verdict.clean);

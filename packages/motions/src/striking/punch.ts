@@ -312,7 +312,7 @@ export namespace punch {
     // The punch's aim skill is the manner's consistency for this spread only.
     const manner: IAutoMovieMotionHumanPunch.IManner | undefined = p.manner;
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation.of(
+      AutoMovieMotionHumanVariation(
         context,
         manner === undefined
           ? undefined

@@ -808,11 +808,9 @@ export namespace HumanPropSweep {
    * inside it, the diameter of the largest ball about that point within the
    * hull, which no width of the hull is less than. A flat hull, whose centroid
    * lies on its surface, is not counted, as a finger is not. Read once per
-   * shape.
+   * sweep (`thinnest`).
    */
   function width(shape: IAutoMoviePhysicalShape): number {
-    const known: number | undefined = WIDTHS.get(shape);
-    if (known !== undefined) return known;
     let found: number = Infinity;
     if (shape.kind === "hull" && shape.points.length !== 0) {
       let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
@@ -828,12 +826,8 @@ export namespace HumanPropSweep {
         .distance;
       if (depth > 0) found = 2 * depth;
     }
-    WIDTHS.set(shape, found);
     return found;
   }
-
-  /** Each hull's least width bound, read once per shape. */
-  const WIDTHS: WeakMap<IAutoMoviePhysicalShape, number> = new WeakMap();
 
   /** The world frame, a shape's parent placed at the origin unturned. */
   const ORIGIN: IAutoMovieRigidTransform = {

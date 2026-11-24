@@ -28,7 +28,7 @@ Shared by `HumanSword`, `HumanSwordGuard`, `HumanSwordThrust`, `HumanSwordParry`
 
 Retains nothing.
 
-# src/striking/StrikingHeld.ts#StrikingHeld.of
+# src/striking/StrikingHeld.ts#StrikingHeld
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

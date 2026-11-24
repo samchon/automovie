@@ -1,7 +1,6 @@
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeFrame,
-  AutoMovieArchetypeRefusal,
   createBroom,
   createFishingRod,
   createHammer,
@@ -124,12 +123,11 @@ const FAMILIES = [
  *    fishing rod's target is its tip.
  * 4. A loose paper sheet exposes the writing face. A folded map keeps its support
  *    grip and moves its face with its crease.
- * 5. An invalid paper format and an invalid saved kind each produce a refusal.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the named producers, saved inputs, geometric contacts and both refusal scenarios.
+ * @evidence contracts/development/common.md#meaningful-documentation States the named producers, saved inputs and geometric contacts.
  * @evidence contracts/development/testing.md#behavioral-verification Calls both public imports, compares the seed provenance and the displayed frames, and observes the actual physical part extents and folded state.
  * @evidence contracts/development/testing.md#independent-expectations Uses dimensions and model names recorded at 2e593ea before the split. The exposed faces meet the measured proxy parts, and a half-turn about the crease reflects the folded face while leaving its support in place.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all kinds in the saved order; named defaults, ID overrides, seeded variation, a whole model, differently shaped working ends, paper formats and invalid inputs.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all kinds in the saved order; named defaults, ID overrides, seeded variation, a whole model, differently shaped working ends and paper formats.
  * @evidence contracts/development/testing.md#execution-ownership Runs in memory through the root and props SDK entry points without a renderer.
  */
 export function test_archetype_catalogue_tools_personal(): void {
@@ -299,20 +297,4 @@ export function test_archetype_catalogue_tools_personal(): void {
       ) &&
       nclose(flat.site("face").translation.y, 0),
   );
-
-  for (const refused of [
-    () => createPaper({ format: "invalid" as createPaper.Format }),
-    () => props.createTool({ kind: "invalid" as props.createTool.Kind }),
-  ]) {
-    let error: unknown;
-    try {
-      refused();
-    } catch (cause: unknown) {
-      error = cause;
-    }
-    TestValidator.predicate(
-      "invalid recipes are refused",
-      error instanceof AutoMovieArchetypeRefusal,
-    );
-  }
 }

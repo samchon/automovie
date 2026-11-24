@@ -24,9 +24,7 @@ type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanClasp>;
 /** Seconds a hand takes to reach its hold (provisional). */
 const REACH: number = 0.3;
 
-/**
- * Admit the holds, then sample.
- */
+/** Admit the holds, then sample. */
 function planHumanClasp(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
@@ -89,7 +87,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const carrier: HumanMountedFrame.Reader | undefined =
     params.on === undefined
       ? undefined
-      : HumanMountedFrame.of(context.prop(params.on), params.on, params.frame!);
+      : HumanMountedFrame(context.prop(params.on), params.on, params.frame!);
   const origin: IAutoMovieRigidTransform | undefined = carrier?.(context.start);
   const point = (side: AutoMovieHumanSide, film: number): IAutoMovieVector3 => {
     const hold: IAutoMovieMotionHumanClasp.IHold = params[side]!;

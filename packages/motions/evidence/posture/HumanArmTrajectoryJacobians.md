@@ -64,7 +64,7 @@ The declaration creates no cache; its producer owns what it shares between calls
 
 The callable type acquires nothing; its producer owns what it retains and releases.
 
-# src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians.of
+# src/posture/HumanArmTrajectoryJacobians.ts#HumanArmTrajectoryJacobians
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -53,68 +53,68 @@ export namespace HumanBlade {
    */
   export const enGarde: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["enGarde"]
-  > = HumanActionRow.of("enGarde", HumanSwordGuard.guard, {
+  > = HumanActionRow("enGarde", HumanSwordGuard.guard, {
     guard: "middle",
   });
 
   /** Vom Tag: the hilt at the shoulder, the blade upright. */
   export const vomTag: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["vomTag"]
-  > = HumanActionRow.of("vomTag", HumanSwordGuard.guard, {
+  > = HumanActionRow("vomTag", HumanSwordGuard.guard, {
     guard: "shoulder",
   });
 
   /** Ochs: the hilt beside the head, the point at the opponent's face. */
   export const ochs: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["ochs"]
-  > = HumanActionRow.of("ochs", HumanSwordGuard.guard, {
+  > = HumanActionRow("ochs", HumanSwordGuard.guard, {
     guard: "ox",
   });
 
   /** Pflug: the hilt at the hip, the point at the opponent's face. */
   export const pflug: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["pflug"]
-  > = HumanActionRow.of("pflug", HumanSwordGuard.guard, {
+  > = HumanActionRow("pflug", HumanSwordGuard.guard, {
     guard: "middle",
   });
 
   /** Alber: the hilt low, the point at the ground ahead. */
   export const alber: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["alber"]
-  > = HumanActionRow.of("alber", HumanSwordGuard.guard, {
+  > = HumanActionRow("alber", HumanSwordGuard.guard, {
     guard: "low",
   });
 
   /** A descending cut from above. */
   export const cut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["cut"]
-  > = HumanActionRow.of("cut", HumanSword.cut, {
+  > = HumanActionRow("cut", HumanSword.cut, {
     from: "above",
   });
 
   /** A horizontal slash from the blade hand's side. */
   export const slash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["slash"]
-  > = HumanActionRow.of("slash", HumanSword.cut, {
+  > = HumanActionRow("slash", HumanSword.cut, {
     from: "forehand",
   });
 
   /** A rising cut from the off side, as a blade leaves its scabbard into a cut. */
   export const draw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["draw"]
-  > = HumanActionRow.of("draw", HumanSword.cut, {
+  > = HumanActionRow("draw", HumanSword.cut, {
     from: "belowBackhand",
   });
 
   /** A thrust, with the least advance that reaches its target. */
   export const thrust: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["thrust"]
-  > = HumanActionRow.of("thrust", HumanSwordThrust.thrust, {});
+  > = HumanActionRow("thrust", HumanSwordThrust.thrust, {});
 
   /** A lunge: a thrust carried by the leading foot's long step, then recovered. */
   export const lunge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["lunge"]
-  > = HumanActionRow.of("lunge", HumanSwordThrust.thrust, {
+  > = HumanActionRow("lunge", HumanSwordThrust.thrust, {
     advance: "lunge",
   });
 
@@ -124,34 +124,34 @@ export namespace HumanBlade {
    */
   export const stab: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["stab"]
-  > = HumanActionRow.of("stab", HumanSwordThrust.thrust, {});
+  > = HumanActionRow("stab", HumanSwordThrust.thrust, {});
 
   /** A backhand slash, the return of a forehand one. */
   export const backslash: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["backslash"]
-  > = HumanActionRow.of("backslash", HumanSword.cut, {
+  > = HumanActionRow("backslash", HumanSword.cut, {
     from: "backhand",
   });
 
   /** Fencing footwork, an advance: one step forward, the stance kept. */
   export const advance: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["advance"]
-  > = HumanActionRow.of("advance", step, HUMAN_BLADE_ADVANCE);
+  > = HumanActionRow("advance", step, HUMAN_BLADE_ADVANCE);
 
   /** Fencing footwork, a retreat: one step back, the stance kept. */
   export const retreat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["retreat"]
-  > = HumanActionRow.of("retreat", step, HUMAN_BLADE_RETREAT);
+  > = HumanActionRow("retreat", step, HUMAN_BLADE_RETREAT);
 
   /** Fencing footwork, a traverse: one step to the left off the line. */
   export const traverse: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["traverse"]
-  > = HumanActionRow.of("traverse", step, HUMAN_BLADE_TRAVERSE);
+  > = HumanActionRow("traverse", step, HUMAN_BLADE_TRAVERSE);
 
   /** A parry of the attack named by `against`, or of a line as a drill. */
   export const parry: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["parry"]
-  > = HumanActionRow.of("parry", HumanSwordParry.parry, {});
+  > = HumanActionRow("parry", HumanSwordParry.parry, {});
 
   /**
    * A beat: the blade struck against the attacker's and taken off it at once
@@ -159,7 +159,7 @@ export namespace HumanBlade {
    */
   export const beat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["beat"]
-  > = HumanActionRow.of("beat", HumanSwordParry.parry, HUMAN_BLADE_BEAT);
+  > = HumanActionRow("beat", HumanSwordParry.parry, HUMAN_BLADE_BEAT);
 
   /**
    * A bind: the parry kept on the attacker's blade for a second (provisional),
@@ -167,7 +167,7 @@ export namespace HumanBlade {
    */
   export const bind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["bind"]
-  > = HumanActionRow.of("bind", HumanSwordParry.parry, HUMAN_BLADE_BIND);
+  > = HumanActionRow("bind", HumanSwordParry.parry, HUMAN_BLADE_BIND);
 
   /**
    * A wind: out of a bind, the point turned in and thrust at the target without
@@ -175,7 +175,7 @@ export namespace HumanBlade {
    */
   export const wind: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["wind"]
-  > = HumanActionRow.of("wind", HumanSwordThrust.thrust, {});
+  > = HumanActionRow("wind", HumanSwordThrust.thrust, {});
 
   /**
    * A disengage: out of a bind or past a parry, the thrust renewed at another
@@ -184,22 +184,22 @@ export namespace HumanBlade {
    */
   export const disengage: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["disengage"]
-  > = HumanActionRow.of("disengage", HumanSwordThrust.thrust, {});
+  > = HumanActionRow("disengage", HumanSwordThrust.thrust, {});
 
   /** A feint: a cut shown to half its path and withdrawn (provisional share). */
   export const feint: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["feint"]
-  > = HumanActionRow.of("feint", HumanSword.cut, HUMAN_BLADE_FEINT);
+  > = HumanActionRow("feint", HumanSword.cut, HUMAN_BLADE_FEINT);
 
   /** A void: one step back out of the blade's reach, the stance kept. */
   export const voidStep: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["voidStep"]
-  > = HumanActionRow.of("voidStep", step, HUMAN_BLADE_VOID_STEP);
+  > = HumanActionRow("voidStep", step, HUMAN_BLADE_VOID_STEP);
 
   /** A riposte: the thrust that answers out of a parry. */
   export const riposte: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["riposte"]
-  > = HumanActionRow.of("riposte", HumanSwordThrust.thrust, {});
+  > = HumanActionRow("riposte", HumanSwordThrust.thrust, {});
 
   /**
    * A taken blade: the attacker's blade kept on the parry that took it while it
@@ -207,5 +207,5 @@ export namespace HumanBlade {
    */
   export const taken: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["blade"]["taken"]
-  > = HumanActionRow.of("taken", HumanSwordTaken.taken, {});
+  > = HumanActionRow("taken", HumanSwordTaken.taken, {});
 }

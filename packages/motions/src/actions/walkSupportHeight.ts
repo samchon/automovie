@@ -70,7 +70,6 @@ export function walkSupportHeight(
       body,
       raw,
       frame,
-      hips,
       feet,
       {},
       walkLeg.ROCKER * plan.amount(seconds),

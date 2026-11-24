@@ -32,6 +32,233 @@ import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 type OfPlaceResult = "act" | "instance";
 
 /**
+ * Read every bound on a performance, or on one span of its film.
+ *
+ * A span lets a long film be read in parts, each by its own caller: the bounds
+ * are read over the span as a film of its own, starting at its `from`, and
+ * every finding is placed at its film second. A bound that reads a step between
+ * frames reads it only where both frames lie in the span, so parts that are to
+ * cover a film whole overlap by two frames of the grid. The timing faults
+ * belong to the schedule, not to a span, and are read whatever the span.
+ *
+ * @param performance The performance.
+ * @param rate Grid samples per second for the bounds read on a grid; 24 when
+ *   absent.
+ * @param span The film seconds the bounds are read over; the whole film when
+ *   absent.
+ * @returns The report.
+ * @throws {HumanRefusal} When the span does not lie within the film or ends
+ *   before it starts.
+ */
+export function HumanVerdicts(
+  performance: IAutoMovieMotionHumanPerformance,
+  rate: number = 24,
+  span?: IAutoMovieMotionHumanVerdicts.IOfSpan,
+): IAutoMovieMotionHumanVerdicts.IReport {
+  const from: number = span?.from ?? 0;
+  const to: number = span?.to ?? performance.duration;
+  HumanBound.within("span.from", from, 0, performance.duration, "s");
+  HumanBound.within("span.to", to, from, performance.duration, "s");
+  const remembered: IAutoMovieMotionHumanAuditMotion = remember(performance);
+  const motion: IAutoMovieMotionHumanAuditMotion = shifted(
+    remembered,
+    from,
+    to,
+  );
+  // Range and unloaded read the canonical pose; each instant is resolved
+  // once and shared by both, on the same rounded key as the bones.
+  const poses: Map<
+    string,
+    ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
+  > = new Map();
+  const posed: IAutoMovieMotionHumanAuditRange.IPosed = {
+    duration: to - from,
+    pose: (
+      subject: string,
+      seconds: number,
+    ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> => {
+      const key: string = instant(subject, from + seconds);
+      let pose:
+        | ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
+        | undefined = poses.get(key);
+      if (pose === undefined) {
+        pose = performance.pose(subject, from + seconds);
+        poses.set(key, pose);
+      }
+      return pose;
+    },
+  };
+  const people: readonly IAutoMovieMotionHumanPerformer[] =
+    performance.performers;
+  const findings: IAutoMovieMotionHumanVerdicts.IFinding[] = [];
+  const place = (
+    subject: string,
+    seconds: number,
+  ): Pick<IAutoMovieMotionHumanVerdicts.IFinding, OfPlaceResult> => {
+    const spans = performance.segments(subject);
+    const span = [...spans]
+      .reverse()
+      .find((s): boolean => s.entryTime <= seconds + 1e-9);
+    if (span === undefined) return { act: "", instance: 0 };
+    return {
+      act: span.name,
+      instance: spans.filter(
+        (s): boolean => s.id === span.id && s.index <= span.index,
+      ).length,
+    };
+  };
+  const measured = (
+    subject: string,
+    owner: string,
+    check: string,
+    measure: IAutoMovieMotionHumanAuditMeasure,
+    limit: number,
+  ): void => {
+    if (measure.value > limit + 1e-9)
+      findings.push({
+        check,
+        subject,
+        ...place(owner, from + measure.seconds),
+        value: measure.value,
+        limit,
+        seconds: from + measure.seconds,
+        where: measure.where,
+      });
+  };
+
+  for (const person of people) {
+    const who: string = person.subject;
+    const spans = performance.segments(who);
+    const airborne: boolean = isAirborne(spans);
+    for (const fault of AutoMovieMotionHumanAuditTiming.faults(spans))
+      findings.push({
+        check: "timing",
+        subject: who,
+        act: "",
+        instance: 0,
+        value: 0,
+        limit: 0,
+        seconds: 0,
+        where: fault,
+      });
+    const report: IAutoMovieMotionHumanAudit.IReport =
+      AutoMovieMotionHumanAudit.run(motion, who, person.body, {
+        rate,
+        limits: airborne
+          ? { floor: null, slip: null, lift: null, balance: null }
+          : {},
+      });
+    for (const finding of report.findings)
+      measured(who, who, finding.check, finding, finding.limit);
+    if (!airborne) {
+      // A foot the solver owns is judged by the solver's contacts: the
+      // plant, skate and unloaded readings run outside those spans only.
+      for (const [a, b] of solvedHumanAuditSpans.unsolved(
+        performance.simulations?.() ?? [],
+        who,
+        solvedHumanAuditSpans.FEET,
+        from,
+        to,
+      )) {
+        const piece: IAutoMovieMotionHumanAuditMotion = shifted(
+          remembered,
+          a,
+          b,
+        );
+        const contact: IAutoMovieMotionHumanAuditContact.IResult =
+          AutoMovieMotionHumanAuditContact.measure(piece, who, person.body);
+        const pose: IAutoMovieMotionHumanAuditRange.IPosed["pose"] = (
+          subject: string,
+          seconds: number,
+        ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
+          posed.pose(subject, a - from + seconds);
+        for (const [check, reading, limit] of [
+          ["skate", contact.skate, AutoMovieMotionHumanAuditContact.SPEED],
+          ["loose", contact.loose, AutoMovieMotionHumanAuditContact.SPEED],
+          ["afloat", contact.afloat, AutoMovieMotionHumanAuditContact.HEIGHT],
+          [
+            "unloaded",
+            AutoMovieMotionHumanAuditRange.unloaded(
+              piece,
+              { duration: b - a, pose },
+              who,
+              rate,
+            ).overshoot,
+            ROM_TOLERANCE,
+          ],
+        ] as const)
+          measured(
+            who,
+            who,
+            check,
+            { ...reading, seconds: a - from + reading.seconds },
+            limit,
+          );
+      }
+      measured(
+        who,
+        who,
+        "statics",
+        AutoMovieMotionHumanAuditStatics.measure(
+          motion,
+          who,
+          person.body,
+          rate,
+        ),
+        AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
+      );
+    }
+    measured(
+      who,
+      who,
+      "range",
+      AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
+      ROM_TOLERANCE,
+    );
+    measured(
+      who,
+      who,
+      "turn",
+      AutoMovieMotionHumanAuditSpin.measure(motion, who).turn,
+      AutoMovieMotionHumanAuditSpin.SNAP,
+    );
+  }
+  for (let i: number = 0; i < people.length; i++)
+    for (let j: number = i + 1; j < people.length; j++)
+      measured(
+        `${people[i]!.subject}+${people[j]!.subject}`,
+        people[i]!.subject,
+        "partner",
+        AutoMovieMotionHumanAuditPartner.measure(
+          motion,
+          people[i]!,
+          people[j]!,
+          rate,
+        ).worst,
+        HumanVerdicts.SKIN,
+      );
+
+  // Every launched prop's flights, those still airborne at the end apart.
+  const launched: Set<string> = new Set();
+  for (const person of people)
+    for (const s of performance.segments(person.subject))
+      for (const l of s.plan.launches ?? []) launched.add(l.prop);
+  const unended: string[] = [];
+  for (const prop of launched)
+    for (const f of performance.flights(prop)) {
+      const last: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
+        f.legs?.at(-1);
+      if (
+        f.supersededAt === undefined &&
+        (f.end === Infinity ||
+          (last?.segment.kind === "flight" && last.end === Infinity))
+      )
+        unended.push(`${prop}@${f.launch.toFixed(3)}`);
+    }
+  return { clean: findings.length === 0, findings, unended };
+}
+
+/**
  * The verdict report of a performance: every physical bound that holds for any
  * human motion whatever it means to do, read on the film a composition gives,
  * with each finding placed on the performer and the action it happens in.
@@ -43,7 +270,7 @@ type OfPlaceResult = "act" | "instance";
  * (`HumanSignature`) and the stills show no flaw.
  *
  * ```ts
- * const report = HumanVerdicts.of(performance);
+ * const report = HumanVerdicts(performance);
  * if (!report.clean) throw new Error(HumanVerdicts.describe(report));
  * ```
  *
@@ -112,234 +339,6 @@ export namespace HumanVerdicts {
     subject: string,
   ): boolean {
     return isAirborne(performance.segments(subject));
-  }
-
-  /**
-   * Read every bound on a performance, or on one span of its film.
-   *
-   * A span lets a long film be read in parts, each by its own caller: the
-   * bounds are read over the span as a film of its own, starting at its `from`,
-   * and every finding is placed at its film second. A bound that reads a step
-   * between frames reads it only where both frames lie in the span, so parts
-   * that are to cover a film whole overlap by two frames of the grid. The
-   * timing faults belong to the schedule, not to a span, and are read whatever
-   * the span.
-   *
-   * @param performance The performance.
-   * @param rate Grid samples per second for the bounds read on a grid; 24 when
-   *   absent.
-   * @param span The film seconds the bounds are read over; the whole film when
-   *   absent.
-   * @returns The report.
-   * @throws {HumanRefusal} When the span does not lie within the film or ends
-   *   before it starts.
-   */
-  export function of(
-    performance: IAutoMovieMotionHumanPerformance,
-    rate: number = 24,
-    span?: IAutoMovieMotionHumanVerdicts.IOfSpan,
-  ): IAutoMovieMotionHumanVerdicts.IReport {
-    const from: number = span?.from ?? 0;
-    const to: number = span?.to ?? performance.duration;
-    HumanBound.within("span.from", from, 0, performance.duration, "s");
-    HumanBound.within("span.to", to, from, performance.duration, "s");
-    const remembered: IAutoMovieMotionHumanAuditMotion = remember(performance);
-    const motion: IAutoMovieMotionHumanAuditMotion = shifted(
-      remembered,
-      from,
-      to,
-    );
-    // Range and unloaded read the canonical pose; each instant is resolved
-    // once and shared by both, on the same rounded key as the bones.
-    const poses: Map<
-      string,
-      ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
-    > = new Map();
-    const posed: IAutoMovieMotionHumanAuditRange.IPosed = {
-      duration: to - from,
-      pose: (
-        subject: string,
-        seconds: number,
-      ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> => {
-        const key: string = instant(subject, from + seconds);
-        let pose:
-          | ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]>
-          | undefined = poses.get(key);
-        if (pose === undefined) {
-          pose = performance.pose(subject, from + seconds);
-          poses.set(key, pose);
-        }
-        return pose;
-      },
-    };
-    const people: readonly IAutoMovieMotionHumanPerformer[] =
-      performance.performers;
-    const findings: IAutoMovieMotionHumanVerdicts.IFinding[] = [];
-    const place = (
-      subject: string,
-      seconds: number,
-    ): Pick<IAutoMovieMotionHumanVerdicts.IFinding, OfPlaceResult> => {
-      const spans = performance.segments(subject);
-      const span = [...spans]
-        .reverse()
-        .find((s): boolean => s.entryTime <= seconds + 1e-9);
-      if (span === undefined) return { act: "", instance: 0 };
-      return {
-        act: span.name,
-        instance: spans.filter(
-          (s): boolean => s.id === span.id && s.index <= span.index,
-        ).length,
-      };
-    };
-    const measured = (
-      subject: string,
-      owner: string,
-      check: string,
-      measure: IAutoMovieMotionHumanAuditMeasure,
-      limit: number,
-    ): void => {
-      if (measure.value > limit + 1e-9)
-        findings.push({
-          check,
-          subject,
-          ...place(owner, from + measure.seconds),
-          value: measure.value,
-          limit,
-          seconds: from + measure.seconds,
-          where: measure.where,
-        });
-    };
-
-    for (const person of people) {
-      const who: string = person.subject;
-      const spans = performance.segments(who);
-      const airborne: boolean = isAirborne(spans);
-      for (const fault of AutoMovieMotionHumanAuditTiming.faults(spans))
-        findings.push({
-          check: "timing",
-          subject: who,
-          act: "",
-          instance: 0,
-          value: 0,
-          limit: 0,
-          seconds: 0,
-          where: fault,
-        });
-      const report: IAutoMovieMotionHumanAudit.IReport =
-        AutoMovieMotionHumanAudit.run(motion, who, person.body, {
-          rate,
-          limits: airborne
-            ? { floor: null, slip: null, lift: null, balance: null }
-            : {},
-        });
-      for (const finding of report.findings)
-        measured(who, who, finding.check, finding, finding.limit);
-      if (!airborne) {
-        // A foot the solver owns is judged by the solver's contacts: the
-        // plant, skate and unloaded readings run outside those spans only.
-        for (const [a, b] of solvedHumanAuditSpans.unsolved(
-          performance.simulations?.() ?? [],
-          who,
-          solvedHumanAuditSpans.FEET,
-          from,
-          to,
-        )) {
-          const piece: IAutoMovieMotionHumanAuditMotion = shifted(
-            remembered,
-            a,
-            b,
-          );
-          const contact: IAutoMovieMotionHumanAuditContact.IResult =
-            AutoMovieMotionHumanAuditContact.measure(piece, who, person.body);
-          const pose: IAutoMovieMotionHumanAuditRange.IPosed["pose"] = (
-            subject: string,
-            seconds: number,
-          ): ReturnType<IAutoMovieMotionHumanAuditRange.IPosed["pose"]> =>
-            posed.pose(subject, a - from + seconds);
-          for (const [check, reading, limit] of [
-            ["skate", contact.skate, AutoMovieMotionHumanAuditContact.SPEED],
-            ["loose", contact.loose, AutoMovieMotionHumanAuditContact.SPEED],
-            ["afloat", contact.afloat, AutoMovieMotionHumanAuditContact.HEIGHT],
-            [
-              "unloaded",
-              AutoMovieMotionHumanAuditRange.unloaded(
-                piece,
-                { duration: b - a, pose },
-                who,
-                rate,
-              ).overshoot,
-              ROM_TOLERANCE,
-            ],
-          ] as const)
-            measured(
-              who,
-              who,
-              check,
-              { ...reading, seconds: a - from + reading.seconds },
-              limit,
-            );
-        }
-        measured(
-          who,
-          who,
-          "statics",
-          AutoMovieMotionHumanAuditStatics.measure(
-            motion,
-            who,
-            person.body,
-            rate,
-          ),
-          AutoMovieMotionHumanAuditStatics.SHARE * person.body.measure.stature,
-        );
-      }
-      measured(
-        who,
-        who,
-        "range",
-        AutoMovieMotionHumanAuditRange.measure(posed, who, rate).overshoot,
-        ROM_TOLERANCE,
-      );
-      measured(
-        who,
-        who,
-        "turn",
-        AutoMovieMotionHumanAuditSpin.measure(motion, who).turn,
-        AutoMovieMotionHumanAuditSpin.SNAP,
-      );
-    }
-    for (let i: number = 0; i < people.length; i++)
-      for (let j: number = i + 1; j < people.length; j++)
-        measured(
-          `${people[i]!.subject}+${people[j]!.subject}`,
-          people[i]!.subject,
-          "partner",
-          AutoMovieMotionHumanAuditPartner.measure(
-            motion,
-            people[i]!,
-            people[j]!,
-            rate,
-          ).worst,
-          SKIN,
-        );
-
-    // Every launched prop's flights, those still airborne at the end apart.
-    const launched: Set<string> = new Set();
-    for (const person of people)
-      for (const s of performance.segments(person.subject))
-        for (const l of s.plan.launches ?? []) launched.add(l.prop);
-    const unended: string[] = [];
-    for (const prop of launched)
-      for (const f of performance.flights(prop)) {
-        const last: IAutoMovieMotionHumanPropOutcome.ILeg | undefined =
-          f.legs?.at(-1);
-        if (
-          f.supersededAt === undefined &&
-          (f.end === Infinity ||
-            (last?.segment.kind === "flight" && last.end === Infinity))
-        )
-          unended.push(`${prop}@${f.launch.toFixed(3)}`);
-      }
-    return { clean: findings.length === 0, findings, unended };
   }
 
   /**

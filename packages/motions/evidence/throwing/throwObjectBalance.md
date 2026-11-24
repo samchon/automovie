@@ -1,4 +1,4 @@
-# src/throwing/throwObjectBalance.ts#throwObjectBalance.of
+# src/throwing/throwObjectBalance.ts#throwObjectBalance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

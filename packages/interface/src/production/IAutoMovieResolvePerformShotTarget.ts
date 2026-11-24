@@ -1,4 +1,6 @@
-/** Untrusted positional-target input and the context for its diagnostic paths. */
+import type { IAutoMovieActionTarget } from "../harness/IAutoMovieActionTarget";
+
+/** Positional-target input and the context for its diagnostic paths. */
 export namespace IAutoMovieResolvePerformShotTarget {
   /**
    * Gate one positional target of a performance and resolve it to a world
@@ -15,11 +17,10 @@ export namespace IAutoMovieResolvePerformShotTarget {
    * 1. Unless `formationsFramed` is true, a group naming any formation is refused
    *    first, because only a lens frames a mass and every other target asks one
    *    body for one point; checking membership first would hide that.
-   * 2. The target must be a record; a `bone` target's actor must be a staged node
-   *    with an actor context and a rig carrying that bone; a `group` must list
-   *    its nodes as an array with every member staged, and each formation it
-   *    names must be one this shot compiled. Every id must be a non-blank
-   *    string.
+   * 2. A `bone` target's actor must be a staged node with an actor context and a
+   *    rig carrying that bone; a `group` must have every member staged, and each
+   *    formation it names must be one this shot compiled. Every id must be
+   *    non-blank.
    * 3. Missing nodes, malformed point vectors, empty groups and non-positional
    *    kinds are refused before invoking the live resolver.
    * 4. The point comes from the live resolver at `seconds` when it answers, and
@@ -28,11 +29,11 @@ export namespace IAutoMovieResolvePerformShotTarget {
    */
   export type IProps = {
     /**
-     * Authored value before shape admission. Invalid records, unresolved
-     * membership or nonfinite resolved coordinates append a violation and
-     * return null; the successful point can alias a callback or staged vector.
+     * Authored target. Unresolved membership or nonfinite resolved coordinates
+     * append a violation and return null; the successful point can alias a
+     * callback or staged vector.
      */
-    target: unknown;
+    target: IAutoMovieActionTarget;
     /**
      * Diagnostic path for this target, such as an action's at field. Child id
      * checks append member/index suffixes to this path.

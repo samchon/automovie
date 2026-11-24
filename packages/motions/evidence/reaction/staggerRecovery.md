@@ -1,4 +1,4 @@
-# src/reaction/staggerRecovery.ts#staggerRecovery.of
+# src/reaction/staggerRecovery.ts#staggerRecovery
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -21,6 +21,254 @@ import { putDownAperture } from "./putDownAperture";
 type Point = IAutoMovieMotionHumanProp["points"][string];
 
 /**
+ * The seat on the mouth, turned half about its `X` so a blade's `+Y` runs into
+ * the carrier; the entry the withdrawal out along the mouth's `+Y`; the slider
+ * from the seat toward the entry, its `+X` along that line; and the slide
+ * socket at the slider's travel.
+ */
+function sockets(
+  mouth: IAutoMovieAffordance,
+  withdrawal: number,
+  travel: number,
+): IAutoMovieAffordance[] {
+  const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      mouth.frame.rotation,
+      Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
+    ),
+  );
+  const out: IAutoMovieVector3 = Quaternion.rotateVector(mouth.frame.rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const at: (distance: number) => IAutoMovieVector3 = (
+    distance: number,
+  ): IAutoMovieVector3 =>
+    Vector3.add(mouth.frame.translation, Vector3.scale(out, distance));
+  return [
+    {
+      id: HumanSheath.SEAT,
+      kind: "socket",
+      frame: {
+        translation: mouth.frame.translation,
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+    {
+      id: HumanSheath.ENTRY,
+      kind: "socket",
+      frame: {
+        translation: at(withdrawal),
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+    {
+      id: HumanSheath.SLIDER,
+      kind: "slider",
+      frame: {
+        translation: mouth.frame.translation,
+        rotation: Quaternion.normalize(
+          Quaternion.multiply(
+            mouth.frame.rotation,
+            Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
+          ),
+        ),
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+      travel: withdrawal,
+    },
+    {
+      id: HumanSheath.SLIDE,
+      kind: "socket",
+      frame: {
+        translation: at(travel),
+        rotation,
+        scale: mouth.frame.scale,
+      },
+      extent: null,
+    },
+  ];
+}
+
+/** The named affordance of a prop, or a refusal naming the ones it has. */
+function find(
+  prop: IAutoMovieMotionHumanProp,
+  id: string,
+  axis: string,
+): IAutoMovieAffordance {
+  const found: IAutoMovieAffordance | undefined = prop.affordances?.find(
+    (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
+  );
+  if (found === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis,
+      value: id,
+      feasible: {
+        kind: "alternatives",
+        values: (prop.affordances ?? []).map(
+          (affordance: IAutoMovieAffordance): string => affordance.id,
+        ),
+      },
+      reason: `${prop.subject} declares no affordance ${id}`,
+      fix: `name one of ${prop.subject}'s affordances`,
+    });
+  return found;
+}
+
+/**
+ * Seat a blade in a carrier and derive the draw line.
+ *
+ * @param carrier The carrier prop, worn or placed, declaring the mouth.
+ * @param blade The blade prop, declaring the tip and the handle; neither worn
+ *   nor mounted.
+ * @param params The affordance ids and the drawn clearance.
+ * @returns The carrier with the seat, entry, slider and slide, the blade
+ *   mounted on the seat and the staged record.
+ * @throws {HumanRefusal} On `mouth`, `tip` or `handle` when the model lacks it,
+ *   on `tip` when it is off the blade's `+Y`, on `clearance` when it is not
+ *   positive and finite, and on `blade` when the blade already rides
+ *   something.
+ */
+export function HumanSheath(
+  carrier: IAutoMovieMotionHumanProp,
+  blade: IAutoMovieMotionHumanProp,
+  params: IAutoMovieMotionHumanSheath.IParams,
+): IAutoMovieMotionHumanSheath.IStaging {
+  const mouth: IAutoMovieAffordance = find(carrier, params.mouth, "mouth");
+  const tip: IAutoMovieAffordance = find(blade, params.tip, "tip");
+  find(blade, params.handle, "handle");
+  if (!(params.clearance > 0) || !Number.isFinite(params.clearance))
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "clearance",
+      value: params.clearance,
+      feasible: {
+        kind: "range",
+        unit: "m",
+        minimum: 0,
+        maximum: Number.MAX_VALUE,
+      },
+      reason: "the drawn tip must clear the mouth by a positive distance",
+      fix: "give a positive clearance in metres",
+    });
+  if (
+    blade.worn !== undefined ||
+    blade.mounted !== undefined ||
+    blade.motion !== undefined ||
+    blade.fixed === true
+  )
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "blade",
+      value: blade.subject,
+      feasible: { kind: "alternatives", values: ["a free rigid prop"] },
+      reason: "a sheathed blade rides its carrier from the start",
+      fix: "stage the blade without worn, mounted, motion or fixed",
+    });
+
+  // The tip must lie on the blade's own +Y for the seat's turn to aim it.
+  const reach: number = Vector3.length(tip.frame.translation);
+  const along: IAutoMovieVector3 = Vector3.scale(
+    tip.frame.translation,
+    1 / reach,
+  );
+  if (!(reach > 0) || Math.acos(Math.min(1, along.y)) > HumanSheath.AXIS)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "tip",
+      value: params.tip,
+      feasible: { kind: "alternatives", values: ["a tip on the blade's +Y"] },
+      reason:
+        "the blade slides along the mouth's axis only when its tip lies on its own +Y",
+      fix: "stage a blade modelled along +Y from its shoulder",
+    });
+
+  const withdrawal: number = reach + params.clearance;
+  const rest: IAutoMovieAffordance[] = sockets(mouth, withdrawal, 0);
+  const down: IAutoMovieVector3 = Quaternion.rotateVector(
+    mouth.frame.rotation,
+    { x: 0, y: -1, z: 0 },
+  );
+
+  // The slide socket rides the slider's travel, and a carrier whose own
+  // parts move is read posed, so the derived sockets are derived again
+  // from each pose of its mouth.
+  const posed: (
+    state: Readonly<Record<string, number>>,
+  ) => IAutoMovieMotionHumanProp.IPosed = (
+    state: Readonly<Record<string, number>>,
+  ): IAutoMovieMotionHumanProp.IPosed => {
+    // The carrier's own model poses only its own articulations.
+    const own: Record<string, number> = { ...state };
+    delete own[HumanSheath.SLIDER];
+    const shown: IAutoMovieMotionHumanProp.IPosed =
+      carrier.articulate === undefined
+        ? { affordances: carrier.affordances ?? [] }
+        : carrier.articulate(own);
+    const opening: IAutoMovieAffordance =
+      shown.affordances.find(
+        (affordance: IAutoMovieAffordance): boolean =>
+          affordance.id === params.mouth,
+      ) ?? mouth;
+    const travel: number = Math.min(
+      withdrawal,
+      Math.max(0, state[HumanSheath.SLIDER] ?? 0),
+    );
+    return {
+      ...shown,
+      affordances: [
+        ...shown.affordances,
+        ...sockets(opening, withdrawal, travel),
+      ],
+    };
+  };
+  return {
+    carrier: {
+      ...carrier,
+      points: {
+        ...carrier.points,
+        ...Object.fromEntries(
+          rest.map((affordance: IAutoMovieAffordance): [string, Point] => [
+            affordance.id,
+            { point: affordance.frame.translation, normal: down },
+          ]),
+        ),
+      },
+      affordances: [...(carrier.affordances ?? []), ...rest],
+      hasArticulations: true,
+      articulate: posed,
+    },
+    blade: {
+      ...blade,
+      mounted: {
+        prop: carrier.subject,
+        point: HumanSheath.SEAT,
+        offset: {
+          position: { x: 0, y: 0, z: 0 },
+          rotation: Quaternion.identity(),
+        },
+      },
+    },
+    sheath: {
+      blade: blade.subject,
+      carrier: carrier.subject,
+      handle: params.handle,
+      seat: HumanSheath.SEAT,
+      entry: HumanSheath.ENTRY,
+      slider: HumanSheath.SLIDER,
+      slide: HumanSheath.SLIDE,
+    },
+  };
+}
+
+/**
  * Stage a blade seated in its carrier, draw it out on screen and return it.
  *
  * `of` derives, on the carrier's mouth axis, the seat where the blade's frame
@@ -63,152 +311,6 @@ export namespace HumanSheath {
    * mouth's axis.
    */
   export const AXIS: number = 1e-6;
-
-  /**
-   * Seat a blade in a carrier and derive the draw line.
-   *
-   * @param carrier The carrier prop, worn or placed, declaring the mouth.
-   * @param blade The blade prop, declaring the tip and the handle; neither worn
-   *   nor mounted.
-   * @param params The affordance ids and the drawn clearance.
-   * @returns The carrier with the seat, entry, slider and slide, the blade
-   *   mounted on the seat and the staged record.
-   * @throws {HumanRefusal} On `mouth`, `tip` or `handle` when the model lacks
-   *   it, on `tip` when it is off the blade's `+Y`, on `clearance` when it is
-   *   not positive and finite, and on `blade` when the blade already rides
-   *   something.
-   */
-  export function of(
-    carrier: IAutoMovieMotionHumanProp,
-    blade: IAutoMovieMotionHumanProp,
-    params: IAutoMovieMotionHumanSheath.IParams,
-  ): IAutoMovieMotionHumanSheath.IStaging {
-    const mouth: IAutoMovieAffordance = find(carrier, params.mouth, "mouth");
-    const tip: IAutoMovieAffordance = find(blade, params.tip, "tip");
-    find(blade, params.handle, "handle");
-    if (!(params.clearance > 0) || !Number.isFinite(params.clearance))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "clearance",
-        value: params.clearance,
-        feasible: {
-          kind: "range",
-          unit: "m",
-          minimum: 0,
-          maximum: Number.MAX_VALUE,
-        },
-        reason: "the drawn tip must clear the mouth by a positive distance",
-        fix: "give a positive clearance in metres",
-      });
-    if (
-      blade.worn !== undefined ||
-      blade.mounted !== undefined ||
-      blade.motion !== undefined ||
-      blade.fixed === true
-    )
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "blade",
-        value: blade.subject,
-        feasible: { kind: "alternatives", values: ["a free rigid prop"] },
-        reason: "a sheathed blade rides its carrier from the start",
-        fix: "stage the blade without worn, mounted, motion or fixed",
-      });
-
-    // The tip must lie on the blade's own +Y for the seat's turn to aim it.
-    const reach: number = Vector3.length(tip.frame.translation);
-    const along: IAutoMovieVector3 = Vector3.scale(
-      tip.frame.translation,
-      1 / reach,
-    );
-    if (!(reach > 0) || Math.acos(Math.min(1, along.y)) > AXIS)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "tip",
-        value: params.tip,
-        feasible: { kind: "alternatives", values: ["a tip on the blade's +Y"] },
-        reason:
-          "the blade slides along the mouth's axis only when its tip lies on its own +Y",
-        fix: "stage a blade modelled along +Y from its shoulder",
-      });
-
-    const withdrawal: number = reach + params.clearance;
-    const rest: IAutoMovieAffordance[] = sockets(mouth, withdrawal, 0);
-    const down: IAutoMovieVector3 = Quaternion.rotateVector(
-      mouth.frame.rotation,
-      { x: 0, y: -1, z: 0 },
-    );
-
-    // The slide socket rides the slider's travel, and a carrier whose own
-    // parts move is read posed, so the derived sockets are derived again
-    // from each pose of its mouth.
-    const posed: (
-      state: Readonly<Record<string, number>>,
-    ) => IAutoMovieMotionHumanProp.IPosed = (
-      state: Readonly<Record<string, number>>,
-    ): IAutoMovieMotionHumanProp.IPosed => {
-      // The carrier's own model poses only its own articulations.
-      const own: Record<string, number> = { ...state };
-      delete own[SLIDER];
-      const shown: IAutoMovieMotionHumanProp.IPosed =
-        carrier.articulate === undefined
-          ? { affordances: carrier.affordances ?? [] }
-          : carrier.articulate(own);
-      const opening: IAutoMovieAffordance =
-        shown.affordances.find(
-          (affordance: IAutoMovieAffordance): boolean =>
-            affordance.id === params.mouth,
-        ) ?? mouth;
-      const travel: number = Math.min(
-        withdrawal,
-        Math.max(0, state[SLIDER] ?? 0),
-      );
-      return {
-        ...shown,
-        affordances: [
-          ...shown.affordances,
-          ...sockets(opening, withdrawal, travel),
-        ],
-      };
-    };
-    return {
-      carrier: {
-        ...carrier,
-        points: {
-          ...carrier.points,
-          ...Object.fromEntries(
-            rest.map((affordance: IAutoMovieAffordance): [string, Point] => [
-              affordance.id,
-              { point: affordance.frame.translation, normal: down },
-            ]),
-          ),
-        },
-        affordances: [...(carrier.affordances ?? []), ...rest],
-        hasArticulations: true,
-        articulate: posed,
-      },
-      blade: {
-        ...blade,
-        mounted: {
-          prop: carrier.subject,
-          point: SEAT,
-          offset: {
-            position: { x: 0, y: 0, z: 0 },
-            rotation: Quaternion.identity(),
-          },
-        },
-      },
-      sheath: {
-        blade: blade.subject,
-        carrier: carrier.subject,
-        handle: params.handle,
-        seat: SEAT,
-        entry: ENTRY,
-        slider: SLIDER,
-        slide: SLIDE,
-      },
-    };
-  }
 
   /**
    * Grip the seated blade's handle, then draw it out of the carrier.
@@ -309,106 +411,5 @@ export namespace HumanSheath {
       ...(hand === undefined ? {} : { hand }),
     };
     return chain.registered(putDownAperture.name, params, anchor);
-  }
-
-  /**
-   * The seat on the mouth, turned half about its `X` so a blade's `+Y` runs
-   * into the carrier; the entry the withdrawal out along the mouth's `+Y`; the
-   * slider from the seat toward the entry, its `+X` along that line; and the
-   * slide socket at the slider's travel.
-   */
-  function sockets(
-    mouth: IAutoMovieAffordance,
-    withdrawal: number,
-    travel: number,
-  ): IAutoMovieAffordance[] {
-    const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-      Quaternion.multiply(
-        mouth.frame.rotation,
-        Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 180),
-      ),
-    );
-    const out: IAutoMovieVector3 = Quaternion.rotateVector(
-      mouth.frame.rotation,
-      { x: 0, y: 1, z: 0 },
-    );
-    const at: (distance: number) => IAutoMovieVector3 = (
-      distance: number,
-    ): IAutoMovieVector3 =>
-      Vector3.add(mouth.frame.translation, Vector3.scale(out, distance));
-    return [
-      {
-        id: SEAT,
-        kind: "socket",
-        frame: {
-          translation: mouth.frame.translation,
-          rotation,
-          scale: mouth.frame.scale,
-        },
-        extent: null,
-      },
-      {
-        id: ENTRY,
-        kind: "socket",
-        frame: {
-          translation: at(withdrawal),
-          rotation,
-          scale: mouth.frame.scale,
-        },
-        extent: null,
-      },
-      {
-        id: SLIDER,
-        kind: "slider",
-        frame: {
-          translation: mouth.frame.translation,
-          rotation: Quaternion.normalize(
-            Quaternion.multiply(
-              mouth.frame.rotation,
-              Quaternion.fromAxisAngle({ x: 0, y: 0, z: 1 }, 90),
-            ),
-          ),
-          scale: mouth.frame.scale,
-        },
-        extent: null,
-        travel: withdrawal,
-      },
-      {
-        id: SLIDE,
-        kind: "socket",
-        frame: {
-          translation: at(travel),
-          rotation,
-          scale: mouth.frame.scale,
-        },
-        extent: null,
-      },
-    ];
-  }
-
-  /** The named affordance of a prop, or a refusal naming the ones it has. */
-  function find(
-    prop: IAutoMovieMotionHumanProp,
-    id: string,
-    axis: string,
-  ): IAutoMovieAffordance {
-    const found: IAutoMovieAffordance | undefined = prop.affordances?.find(
-      (affordance: IAutoMovieAffordance): boolean => affordance.id === id,
-    );
-    if (found === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis,
-        value: id,
-        feasible: {
-          kind: "alternatives",
-          values: (prop.affordances ?? []).map(
-            (affordance: IAutoMovieAffordance): string => affordance.id,
-          ),
-        },
-        reason: `${prop.subject} declares no affordance ${id}`,
-        fix: `name one of ${prop.subject}'s affordances`,
-      });
-    return found;
   }
 }

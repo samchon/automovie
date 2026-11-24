@@ -5,7 +5,6 @@ import type {
   IAutoMovieMotionHumanStretch,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 
 /** A captured data record and the direct fields its native reader can observe. */
 interface IRecord {
@@ -35,8 +34,7 @@ export function stretchHoldInputs(
   if (
     body === undefined ||
     entry === undefined ||
-    params === undefined ||
-    !createHumanBody.owns(body)
+    params === undefined
   )
     return undefined;
 
@@ -101,7 +99,6 @@ export function stretchHoldInputs(
   return (): boolean =>
     Object.getOwnPropertyDescriptor(context, "body")?.value === body &&
     Object.getOwnPropertyDescriptor(context, "entry")?.value === entry &&
-    createHumanBody.owns(body) &&
     roots.every((field: IField): boolean => matches(entry, field)) &&
     records.every(
       (record: IRecord): boolean =>

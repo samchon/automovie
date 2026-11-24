@@ -15,7 +15,9 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * A sports pitch transfers a held ball to flight at release.
  *
  * Scenarios:
- * 1. Cocked elbow flexion precedes extension and a planted forward lean at release.
+ *
+ * 1. Cocked elbow flexion precedes extension and a planted forward lean at
+ *    release.
  * 2. The released ball departs the hand independently.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the displayed joints, support and ball position.
@@ -51,7 +53,7 @@ export function test_motion_throw_catch_pitch_release(): void {
         prop: "ball",
       }).node,
   });
-  const reader = HumanSignature.of(performance, "pitcher", body, 0),
+  const reader = HumanSignature(performance, "pitcher", body, 0),
     segment = performance.segments("pitcher")[1]!;
   const event = (name: string): number =>
     segment.start +

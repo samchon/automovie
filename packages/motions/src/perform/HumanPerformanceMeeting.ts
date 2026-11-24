@@ -71,7 +71,7 @@ export namespace HumanPerformanceMeeting {
       const others: readonly IAutoMovieMotionHumanActionContext.IPartner[] =
         partner === undefined ? [] : "subject" in partner ? [partner] : partner;
       if (others.length === 0)
-        return AutoMovieMotionMeeting.of(kind, [own], context, window);
+        return AutoMovieMotionMeeting(kind, [own], context, window);
 
       // The role planned first computes the meeting; every other reads
       // that record while it still lies ahead of its own start. The key
@@ -92,7 +92,7 @@ export namespace HumanPerformanceMeeting {
         kept.meeting.instants.relax > start
       )
         return kept.meeting;
-      const meeting: IAutoMovieMotionMeeting = AutoMovieMotionMeeting.of(
+      const meeting: IAutoMovieMotionMeeting = AutoMovieMotionMeeting(
         kind,
         [
           own,

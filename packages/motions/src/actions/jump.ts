@@ -35,7 +35,6 @@ import { fitJumpAbsorption } from "./fitJumpAbsorption";
 import { jumpAirborne } from "./jumpAirborne";
 import { jumpEndpoints } from "./jumpEndpoints";
 import { jumpFlight } from "./jumpFlight";
-import { jumpGroundMemo } from "./jumpGroundMemo";
 import { jumpGroundPosture } from "./jumpGroundPosture";
 import { jumpJoints } from "./jumpJoints";
 import { jumpLanding } from "./jumpLanding";
@@ -274,7 +273,7 @@ export namespace jump {
         : support;
     const ball: IAutoMovieVector3 = HumanFoot.point(body, takeoff, "mtp", flat);
     const upright: IAutoMovieMotionHumanStandUpright.IAlignment =
-      standUpright.of(body);
+      standUpright(body);
     const model: IAutoMovieResolveCenterOfMass.IModel = body.massModel;
     // Take-off and touchdown roots. The take-off foot rises about its toes'
     // joint, which carries its ankle toward the toes, so the root leads the
@@ -292,7 +291,7 @@ export namespace jump {
     });
     const landingHeading: number = jumpLandingHeading(context.params, heading);
     const headingChange: number = landingHeading - heading;
-    const landed: jumpLanding.ILanding = jumpLanding.of(
+    const landed: jumpLanding.ILanding = jumpLanding(
       body,
       to,
       landingHeading,
@@ -351,7 +350,7 @@ export namespace jump {
       tuck,
       knee,
     };
-    const ends: jumpEndpoints.IEnds = jumpEndpoints.of(
+    const ends: jumpEndpoints.IEnds = jumpEndpoints(
       endProps,
       rootT,
       rootL,
@@ -406,7 +405,7 @@ export namespace jump {
       (comL.x - comT.x) * Math.sin((landingHeading * Math.PI) / 180) +
         (comL.z - comT.z) * Math.cos((landingHeading * Math.PI) / 180),
     );
-    const caught: jumpLanding.ILanding = jumpLanding.of(
+    const caught: jumpLanding.ILanding = jumpLanding(
       body,
       to,
       landingHeading,
@@ -415,7 +414,7 @@ export namespace jump {
       headingChange !== 0,
       ahead / (flight.T + 1 / omega) / omega,
     );
-    const caughtEnds: jumpEndpoints.IEnds = jumpEndpoints.of(
+    const caughtEnds: jumpEndpoints.IEnds = jumpEndpoints(
       endProps,
       rootT,
       caught.touched,
@@ -436,7 +435,7 @@ export namespace jump {
     );
 
     // A manner retimes what the performer does, not the flight gravity fixes.
-    const tempo: number = AutoMovieMotionManner.of(
+    const tempo: number = AutoMovieMotionManner(
       context,
       context.params.manner,
     ).tempo;
@@ -507,7 +506,7 @@ export namespace jump {
       rootAt: pushRoot,
       knee,
     };
-    const push: jumpPush.IPush = jumpPush.of(pushProps);
+    const push: jumpPush.IPush = jumpPush(pushProps);
     const writers: NonNullable<Parameters<typeof jumpPushPosture>[4]> = {
       joints: jumpJoints.prepare(body, upright.joints),
       lower: lowerHumanPosture.prepare(body),
@@ -587,8 +586,7 @@ export namespace jump {
     ): IAutoMovieMotionHumanPosture =>
       landingAtRoot(rootAt(seconds), seconds, read);
     const ground: prepareJumpPosture.IGround = {
-      // Each second's push posture is cleared once (`jumpGroundMemo`).
-      before: jumpGroundMemo((seconds, _channels, resolution) => {
+      before: (seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -597,8 +595,8 @@ export namespace jump {
           reaching,
           read,
         );
-      }),
-      after: jumpGroundMemo((seconds, _channels, resolution) => {
+      },
+      after: (seconds, _channels, resolution) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);
         return jumpGroundPosture(
@@ -607,7 +605,7 @@ export namespace jump {
           "landing",
           read,
         );
-      }),
+      },
       sampleBefore: (seconds, _channels, resolution, projection) => {
         const read: ReturnType<typeof prepareHumanPoseResolution> =
           prepareHumanPoseResolution(resolution);

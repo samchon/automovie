@@ -1,4 +1,4 @@
-# src/perform/HumanPerformanceGrips.ts#HumanPerformanceGrips.of
+# src/perform/HumanPerformanceGrips.ts#HumanPerformanceGrips
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

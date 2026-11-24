@@ -18,4 +18,4 @@ import { HUMAN_HAND_TO_BODY_TUCK_HAIR } from "../next/presets/HUMAN_HAND_TO_BODY
  * head as the fingertip passes the ear landmark.
  */
 export const tuckHair: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ITuckHair> =
-  HumanActionRow.of("tuckHair", armPhrase, HUMAN_HAND_TO_BODY_TUCK_HAIR);
+  HumanActionRow("tuckHair", armPhrase, HUMAN_HAND_TO_BODY_TUCK_HAIR);

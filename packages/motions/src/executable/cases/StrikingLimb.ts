@@ -103,7 +103,7 @@ export namespace StrikingLimb {
     segment: IAutoMovieMotionHumanSegment,
     until: number,
   ): End {
-    const declared: End | undefined = StrikingRecord.of(segment.plan)?.limb;
+    const declared: End | undefined = StrikingRecord(segment.plan)?.limb;
     if (declared !== undefined) return declared;
     const start: Bones = performance.bones(subject, segment.entryTime);
     const mid: Bones = performance.bones(subject, until);
@@ -216,7 +216,7 @@ export namespace StrikingLimb {
       const [thigh, shank, sole]: [
         readonly [number, number],
         readonly [number, number],
-        number,
+        readonly [number, number],
       ] = StrikingWeapon.legRadii(body);
       return [
         {
@@ -240,8 +240,8 @@ export namespace StrikingLimb {
             body.surfaces.sockets[s === "left" ? "ballLeft" : "ballRight"],
             foot,
           ).point,
-          radius: sole,
-          tail: sole,
+          radius: sole[0],
+          tail: sole[1],
         },
       ];
     }
@@ -255,8 +255,11 @@ export namespace StrikingLimb {
       hand.worldPosition,
     );
     const span: number = Vector3.length(reach);
-    const [upper, r]: [readonly [number, number], number, number] =
-      StrikingWeapon.armRadii(body);
+    const [upper, [r]]: [
+      readonly [number, number],
+      readonly [number, number],
+      readonly [number, number],
+    ] = StrikingWeapon.armRadii(body);
     return [
       {
         name: "upper arm",

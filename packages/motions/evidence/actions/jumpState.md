@@ -1,4 +1,4 @@
-# src/actions/jumpState.ts#jumpState.of
+# src/actions/jumpState.ts#jumpState
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

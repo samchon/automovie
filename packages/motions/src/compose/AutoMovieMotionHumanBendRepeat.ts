@@ -8,7 +8,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanArmBendRoom } from "../posture/HumanArmBendRoom";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
@@ -94,13 +93,13 @@ class Read implements IAutoMovieMotionHumanEvaluation.IBendLoan {
     role: StartRole,
     input: IAutoMovieBendTrialInput,
   ): Trial | undefined {
-    const measure: readonly [number, number] | undefined =
-      createHumanBody.bendMeasure(input.body);
+    const measure: readonly [number, number] = [
+      input.body.measure.upperArm,
+      input.body.measure.forearmRadius,
+    ];
     const clinical: ReturnType<typeof readPreparedBendClinical> =
-      measure === undefined
-        ? undefined
-        : readPreparedBendClinical(input.clinical);
-    if (measure === undefined || clinical === undefined) return undefined;
+      readPreparedBendClinical(input.clinical);
+    if (clinical === undefined) return undefined;
 
     const { chain, side, point, rotation, neutral } = input;
     const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =

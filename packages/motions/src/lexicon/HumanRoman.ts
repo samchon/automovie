@@ -17,20 +17,18 @@ import { HumanMountedFrame } from "./HumanMountedFrame";
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRoman>;
 
-/**
- * Admit the times and the span, then sample.
- */
+/** Admit the times and the span, then sample. */
 function planHumanRoman(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanRoman = context.params;
   const step: number = params.step ?? 0.6;
   HumanBound.above("hold", params.hold, 0, "s");
   HumanBound.least("step", step, 0, "s");
-  const left: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const left: HumanMountedFrame.Reader = HumanMountedFrame(
     context.prop(params.left),
     params.left,
     params.frame,
   );
-  const right: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const right: HumanMountedFrame.Reader = HumanMountedFrame(
     context.prop(params.right),
     params.right,
     params.frame,

@@ -77,7 +77,7 @@ export function dressCases(
                 round: item === "hat",
               },
             })
-            .act("dress", { item, prop: "item", hand: "right" }),
+            .act("dress", { item, prop: "item", hand: "right" }).node,
           [wearable(item, { x: -0.2, y: who.body.measure.hipHeight, z: 0.35 })],
         );
       const act: IAutoMovieMotionHumanSegment = performance

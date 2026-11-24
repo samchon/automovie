@@ -22,7 +22,9 @@ import { vclose } from "../../../internal/vclose";
  * A planted foot holds its world coordinate as the supported body moves.
  *
  * Scenarios:
- * 1. Observe the foot through posed forward kinematics on a canonical standing body.
+ *
+ * 1. Observe the foot through posed forward kinematics on a canonical standing
+ *    body.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A planted foot holds its world coordinate as the supported body moves.
  * @evidence contracts/development/testing.md#independent-expectations Moving the pelvis vertically between the closed endpoints changes the chain configuration while the foot anchor stays fixed.
@@ -34,7 +36,7 @@ export function test_motion_dynamics_primitive_leg_plant(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 1, y: 0, z: 2 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "ready", seconds: 0.25 },
     { name: "strokeStart", seconds: 0.5 },
     { name: "stroke", seconds: 1 },

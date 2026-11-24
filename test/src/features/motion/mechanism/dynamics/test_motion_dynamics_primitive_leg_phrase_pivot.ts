@@ -25,7 +25,9 @@ import { vclose } from "../../../internal/vclose";
  * A ball pivot turns the heel while the ball of the foot stays put.
  *
  * Scenarios:
- * 1. Compare two different sole landmarks on the displayed foot at entry, pivot and return.
+ *
+ * 1. Compare two different sole landmarks on the displayed foot at entry, pivot
+ *    and return.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the world position and rotation from posed FK at each phase.
  * @evidence contracts/development/testing.md#independent-expectations Rotating about the ball holds its coordinate and carries the heel through a chord of length twice the radius times the sine of half the turn.
@@ -37,7 +39,7 @@ export function test_motion_dynamics_primitive_leg_phrase_pivot(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 1, y: 0, z: 2 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "ready", seconds: 0.25 },
     { name: "strokeStart", seconds: 0.5 },
     { name: "stroke", seconds: 1 },

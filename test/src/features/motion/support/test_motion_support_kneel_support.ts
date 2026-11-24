@@ -14,11 +14,12 @@ import { motionPostureBranches } from "../../internal/motionPostureBranches";
  * Kneeling on both knees and sitting back keep the required floor contacts.
  *
  * Scenarios:
+ *
  * 1. Upright kneeling holds both knees near right angles with upright thighs.
  * 2. Sitting back folds both knees while keeping their support on the floor.
  * 3. Omitting the rise leaves a two-knee base with both knees still bearing.
- * 4. Through every foot plant window the toe pads stay within 5 mm, a flat
- *    foot's and a tucked foot's that rolls over them alike.
+ * 4. Through every foot plant window the toe pads stay within 5 mm, a flat foot's
+ *    and a tucked foot's that rolls over them alike.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two floor supports and how their held geometry differs.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the actual law, reading the joint geometry at the hold and the unchanged audits throughout the transition.
@@ -63,7 +64,7 @@ export function test_motion_support_kneel_support(): void {
       composition: HumanChain.subject("a").kneel({ kind, hold: 1, rise }).node,
     });
     const segment = p.segments("a")[0]!,
-      reader = HumanSignature.of(p, "a", body, 0),
+      reader = HumanSignature(p, "a", body, 0),
       end = segment.end;
     const tolerance = 0.06 * body.measure.stature;
     const knees = ["left", "right"] as const;

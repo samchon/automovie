@@ -233,14 +233,11 @@ export namespace highFive {
       hold: Math.max(0, local.relax - local.ready),
       retract: p.window === undefined ? reach : Math.max(0.05, own),
     });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "meet", seconds: timed.at("ready") },
-        { name: "rebound", seconds: timed.at("relax") },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: "meet", seconds: timed.at("ready") },
+      { name: "rebound", seconds: timed.at("relax") },
+    ]);
     const effector: IAutoMovieMotionHumanTouchEffector.IEffector =
       p.prop !== undefined
         ? HumanHeld.steadiest(

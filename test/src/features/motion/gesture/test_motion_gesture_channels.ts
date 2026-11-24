@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
+  AutoMovieMotionHumanGaze,
   AutoMovieMotionHumanGesture,
   HumanChain,
-  AutoMovieMotionHumanGaze,
 } from "@automovie/motions";
 import { resolveHumanPosture } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -37,14 +37,15 @@ const { gestureSignal, gestureStroke } = AutoMovieMotionHumanGesture;
  * target before solving actual eye directions in that resulting head frame.
  *
  * Scenarios:
+ *
  * 1. Authored neck/head abduction10/-6 is blended toward zero by head
- *    weight0,1/2,1, giving10/-6,5/-3,0/0. These literals do not assume that
- *    the body's zero-head pitch correction is zero or redefine recruitment.
- * 2. Alternating/repeated reachable world targets retain those cervical
- *    values while each actually displayed eye forward reaches its current
- *    target. A supplied genuine FK operation and an ordinary call both work.
- * 3. Earlier issued joint-tuple edits cannot alter the source or replay;
- *    every new cervical tuple is independent of the previous issue.
+ *    weight0,1/2,1, giving10/-6,5/-3,0/0. These literals do not assume that the
+ *    body's zero-head pitch correction is zero or redefine recruitment.
+ * 2. Alternating/repeated reachable world targets retain those cervical values
+ *    while each actually displayed eye forward reaches its current target. A
+ *    supplied genuine FK operation and an ordinary call both work.
+ * 3. Earlier issued joint-tuple edits cannot alter the source or replay; every new
+ *    cervical tuple is independent of the previous issue.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines original eyes-only recruitment versus weighted cervical application, clinical-degree literals, current displayed world-direction oracle, same-body loan scope and fresh tuple/input ownership in three scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Calls real public HumanGaze.aim on a canonical Human with nonzero authored cervical joints and weights0/0.5/1 in changing order, with/without a genuine FK reader. Literal neck/head abduction catches an omitted cervical path in eyes mode; full raw displayed FK and independent forward/direction arithmetic require actual current eye solving. Previous-output poison and source equality expose leaked tuple storage.
@@ -96,14 +97,15 @@ export function test_motion_gesture_channels(): void {
         y: origin.y,
         z: origin.z + 3,
       };
-      const actual: IAutoMovieMotionHumanPosture = AutoMovieMotionHumanGaze.HumanGaze.aim(
-        body,
-        posture,
-        target,
-        "eyes",
-        { eyes: 1, head: weight, trunk: 0 },
-        borrowed ? operation : undefined,
-      );
+      const actual: IAutoMovieMotionHumanPosture =
+        AutoMovieMotionHumanGaze.HumanGaze.aim(
+          body,
+          posture,
+          target,
+          "eyes",
+          { eyes: 1, head: weight, trunk: 0 },
+          borrowed ? operation : undefined,
+        );
       TestValidator.predicate(
         `eyes-only cervical blend preserves literal abduction at headweight${weight}, loan=${borrowed}`,
         nclose(actual.joints.neck![1], 10 * (1 - weight), 1e-12) &&
@@ -157,7 +159,10 @@ export function test_motion_gesture_channels(): void {
     }
 }
 
-/** Resolve the actual displayed full hierarchy independently of the demanded trunk adapter. */
+/**
+ * Resolve the actual displayed full hierarchy independently of the demanded
+ * trunk adapter.
+ */
 function displayed(
   body: IAutoMovieMotionHumanBody,
   posture: IAutoMovieMotionHumanPosture,
@@ -229,8 +234,10 @@ function checkChannelSignals(): void {
   );
   TestValidator.predicate(
     "head turns lengthen with amplitude",
-    AutoMovieMotionHumanGaze.HumanGaze.turn(60) > AutoMovieMotionHumanGaze.HumanGaze.turn(20) &&
-      AutoMovieMotionHumanGaze.HumanGaze.turn(20) > AutoMovieMotionHumanGaze.HumanGaze.turn(0),
+    AutoMovieMotionHumanGaze.HumanGaze.turn(60) >
+      AutoMovieMotionHumanGaze.HumanGaze.turn(20) &&
+      AutoMovieMotionHumanGaze.HumanGaze.turn(20) >
+        AutoMovieMotionHumanGaze.HumanGaze.turn(0),
   );
 
   TestValidator.predicate(
@@ -352,7 +359,10 @@ function checkAuthoredChannels(): void {
         0.01,
   );
 }
-/** Heading acts on the displayed gesture. Cues translate both gaze events together. */
+/**
+ * Heading acts on the displayed gesture. Cues translate both gaze events
+ * together.
+ */
 function checkGestureFrame(): void {
   const body = motionHumanBody("m-average"),
     actor = HumanChain.subject("a");

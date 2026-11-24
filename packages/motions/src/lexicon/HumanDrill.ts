@@ -29,22 +29,22 @@ export namespace HumanDrill {
   /** A lead hook. */
   export const hook: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["hook"]
-  > = HumanActionRow.of("hook", punch, HUMAN_MILITARY_DRILL_HOOK);
+  > = HumanActionRow("hook", punch, HUMAN_MILITARY_DRILL_HOOK);
 
   /** A rear uppercut. */
   export const uppercut: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["uppercut"]
-  > = HumanActionRow.of("uppercut", punch, HUMAN_MILITARY_DRILL_UPPERCUT);
+  > = HumanActionRow("uppercut", punch, HUMAN_MILITARY_DRILL_UPPERCUT);
 
   /** A front push kick with the lead leg, as a teep or a door kick. */
   export const frontKick: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["frontKick"]
-  > = HumanActionRow.of("frontKick", kick, HUMAN_MILITARY_DRILL_FRONT_KICK);
+  > = HumanActionRow("frontKick", kick, HUMAN_MILITARY_DRILL_FRONT_KICK);
 
   /** A southpaw guard. */
   export const southpaw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["southpaw"]
-  > = HumanActionRow.of("southpaw", guard, {
+  > = HumanActionRow("southpaw", guard, {
     stance: "southpaw",
   });
 
@@ -54,24 +54,24 @@ export namespace HumanDrill {
    */
   export const aim: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["aim"]
-  > = HumanActionRow.of("aim", gesture, HUMAN_MILITARY_DRILL_AIM);
+  > = HumanActionRow("aim", gesture, HUMAN_MILITARY_DRILL_AIM);
 
   /** Squats. */
   export const squats: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["squats"]
-  > = HumanActionRow.of("squats", exercise, {
+  > = HumanActionRow("squats", exercise, {
     kind: "squat",
   });
 
   /** Jumping jacks. */
   export const jumpingJacks: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["jumpingJacks"]
-  > = HumanActionRow.of("jumpingJacks", exercise, {
+  > = HumanActionRow("jumpingJacks", exercise, {
     kind: "jumpingJack",
   });
 
   /** A sway to music. */
   export const sway: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["drill"]["sway"]
-  > = HumanActionRow.of("sway", dance, { kind: "sway" });
+  > = HumanActionRow("sway", dance, { kind: "sway" });
 }

@@ -1,4 +1,4 @@
-# src/sport/GymnasticsPalmRise.ts#GymnasticsPalmRise.of
+# src/sport/GymnasticsPalmRise.ts#GymnasticsPalmRise
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

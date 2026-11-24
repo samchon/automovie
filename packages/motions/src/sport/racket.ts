@@ -103,8 +103,10 @@ export namespace racket {
       body.measure;
     const hold: number = p.hold ?? 0.6;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const side: AutoMovieHumanSide = p.hand ?? "right";
     const other: AutoMovieHumanSide = side === "right" ? "left" : "right";
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
@@ -194,7 +196,7 @@ export namespace racket {
       );
       contacts = stance.contacts;
       if (p.implement !== undefined)
-        held = AutoMovieMotionHumanHeld.of(context, side, p.implement);
+        held = AutoMovieMotionHumanHeld(context, side, p.implement);
       primitives.push(
         ...stance.primitives,
         ...grip(

@@ -70,7 +70,7 @@ export function gestureAdmit(
   return { cycles, hold, depth, sides };
 }
 
-/** `gestureAdmit.of` and its records. */
+/** The records of `gestureAdmit`. */
 export namespace gestureAdmit {
   /** A gesture's admitted counts and the hands it moves. */
   export interface IAdmitted {

@@ -32,6 +32,8 @@ import { StrikingBody } from "./StrikingBody";
 import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingTarget } from "./StrikingTarget";
+import { footStrikeChamber } from "./footStrikeChamber";
+import { footStrikeContacts } from "./footStrikeContacts";
 
 /**
  * The foot strikes (`IAutoMovieMotionHumanFootStrike`): the kicking ankle from
@@ -140,7 +142,7 @@ export namespace footStrike {
     const duration: number = shown + recoil;
     const chamber: number =
       spinTime * strike + 0.5 * (shown - spinTime * strike);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "launch", seconds: 0 },
       { name: "chamber", seconds: chamber },
       { name: "impact", seconds: shown },
@@ -272,7 +274,7 @@ export namespace footStrike {
       // the body away from it through the support hip, at most
       // `KickForm.LEAN_MOST` (`FootStrikeTilt`); the contact is placed again
       // from the tilted hip below.
-      const tilt: CloseStrikeLegs.ITilt | undefined = FootStrikeTilt.of(
+      const tilt: CloseStrikeLegs.ITilt | undefined = FootStrikeTilt(
         side,
         dropped.write(entry, shown).yaw,
         low,
@@ -367,52 +369,15 @@ export namespace footStrike {
         );
       }
 
-      // The chamber: the knee folded before the hip, above it for an axe, on
-      // the far side of the travel for a sweep across the target. The front
-      // chamber's ankle lies `fold` from the hip; a sweep's is folded as far
-      // toward its far side, so its knee is bent as much and the extension is
-      // the knee's opening, not a straight leg swung from out of reach.
-      const across: boolean =
-        p.technique === "hook" || p.technique === "crescent";
-      const fold: number =
-        Vector3.length(
-          Vector3.add(
-            Vector3.scale(FootStrikeForms.DOWN, 0.45),
-            Vector3.scale(line, 0.25),
-          ),
-        ) * reach;
-      const authored: IAutoMovieVector3 =
-        p.technique === "axe"
-          ? Vector3.add(
-              hip,
-              Vector3.add(
-                Vector3.scale(FootStrikeForms.UP, 0.6 * reach),
-                Vector3.scale(line, 0.3 * reach),
-              ),
-            )
-          : across
-            ? Vector3.add(
-                hip,
-                Vector3.scale(
-                  Vector3.normalize(
-                    Vector3.subtract(
-                      Vector3.subtract(
-                        ankle,
-                        Vector3.scale(travel, 0.5 * reach),
-                      ),
-                      hip,
-                    ),
-                  ),
-                  fold,
-                ),
-              )
-            : Vector3.add(
-                hip,
-                Vector3.add(
-                  Vector3.scale(FootStrikeForms.DOWN, 0.45 * reach),
-                  Vector3.scale(line, 0.25 * reach),
-                ),
-              );
+      // The chamber: the knee folded before the hip (`footStrikeChamber`).
+      const authored: IAutoMovieVector3 = footStrikeChamber({
+        technique: p.technique,
+        hip,
+        ankle,
+        line,
+        travel,
+        reach,
+      });
       // The chamber's thigh within the hip's range, the body tilted there by
       // its share of the contact's tilt (`FootStrikeTilt.chambered`).
       const folded: IAutoMovieVector3 = FootStrikeTilt.chambered(
@@ -475,36 +440,15 @@ export namespace footStrike {
         chamber / duration,
         (shown + 0.5 * JUMP[0]) / duration,
       ];
-      const contacts: IAutoMovieMotionHumanContactWindow[] = [
+      const contacts: IAutoMovieMotionHumanContactWindow[] = footStrikeContacts(
         {
-          part: `${side}Foot`,
-          kind: "plant",
-          from: 0,
-          to: release / duration,
-          support: { kind: "ground" },
+          side,
+          support,
+          release,
+          duration,
+          jump: p.jump === true,
+          flight,
         },
-      ];
-      contacts.push(
-        ...(p.jump === true
-          ? [
-              [0, flight[0]],
-              [flight[1], 1],
-            ]
-          : [[0, 1]]
-        ).map(
-          ([
-            from,
-            to,
-          ]: readonly number[]): IAutoMovieMotionHumanContactWindow => ({
-            part: `${support}Foot`,
-            // The support stands on its ball, risen with the strike, and a
-            // spin or a back kick turns it there.
-            kind: "pivot",
-            from: from!,
-            to: to!,
-            support: { kind: "ground" },
-          }),
-        ),
       );
       return composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),

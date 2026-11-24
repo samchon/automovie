@@ -33,17 +33,36 @@ const CONTACT: number = 0.01;
 const WAIT: number = 6;
 
 /**
- * Two people on or around one ridden horse (#3951): a swing-up onto the pillion of a double saddle and the passenger's waist hold, a limp body carried across the saddle, ponying a second horse by its lead, and a leg-up.
+ * Two people on or around one ridden horse (#3951): a swing-up onto the pillion
+ * of a double saddle and the passenger's waist hold, a limp body carried across
+ * the saddle, ponying a second horse by its lead, and a leg-up.
  *
  * Scenarios:
- * 1. Swing-up at a walk: the passenger takes the rider's waist standing, then the right hand grips the rider's left thigh from the take-off, and the left hand takes the rider's left thigh before the right lets go as the passenger comes behind the rider, until the landing, and the pillion seat window opens at the landing, so the support passes from the ground through the rider (by either hand) to the horse with no gap; after the landing the passenger's seat region lies within 10 mm of the pillion's surface.
- * 2. Pillion hold: both of the passenger's wrists stay within 0.7 hand lengths of the rider's hip joints, and the passenger's chest stays behind the rider's along the saddle by more than the rider's chest depth.
- * 3. Limp carry: the body's hips rest within a chest depth above the saddle and its head hangs below the seat on the authored side.
- * 4. Ponying: the rider's right wrist stays within 0.7 hand lengths of the led horse's lead while both horses go, the led horse on its own slower clock.
- * 5. Leg-up: the helper's hands stay within 0.7 hand lengths of the rider's left lower leg while the rider gets on.
- * 6. A swing-up at a trot, closing too fast against the pillion, is refused on `speed`.
- * 7. Rodeo pickup: off a bucking horse the rider boards the standing pickup horse's pillion holding the pickup man's waist, sits within 10 mm of the pillion, then steps clear onto the feet, the hips at their standing height within 30 mm.
- * 8. A boarding that brings the carrier past its declared load is refused on `load`.
+ *
+ * 1. Swing-up at a walk: the passenger takes the rider's waist standing, then the
+ *    right hand grips the rider's left thigh from the take-off, and the left
+ *    hand takes the rider's left thigh before the right lets go as the
+ *    passenger comes behind the rider, until the landing, and the pillion seat
+ *    window opens at the landing, so the support passes from the ground through
+ *    the rider (by either hand) to the horse with no gap; after the landing the
+ *    passenger's seat region lies within 10 mm of the pillion's surface.
+ * 2. Pillion hold: both of the passenger's wrists stay within 0.7 hand lengths of
+ *    the rider's hip joints, and the passenger's chest stays behind the rider's
+ *    along the saddle by more than the rider's chest depth.
+ * 3. Limp carry: the body's hips rest within a chest depth above the saddle and
+ *    its head hangs below the seat on the authored side.
+ * 4. Ponying: the rider's right wrist stays within 0.7 hand lengths of the led
+ *    horse's lead while both horses go, the led horse on its own slower clock.
+ * 5. Leg-up: the helper's hands stay within 0.7 hand lengths of the rider's left
+ *    lower leg while the rider gets on.
+ * 6. A swing-up at a trot, closing too fast against the pillion, is refused on
+ *    `speed`.
+ * 7. Rodeo pickup: off a bucking horse the rider boards the standing pickup
+ *    horse's pillion holding the pickup man's waist, sits within 10 mm of the
+ *    pillion, then steps clear onto the feet, the hips at their standing height
+ *    within 30 mm.
+ * 8. A boarding that brings the carrier past its declared load is refused on
+ *    `load`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each exchange, its bounds and their sources.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the board, clasp and drape laws with two polygon men around actual horses and reads hands, seats, chests and heads against the moving pillion, saddle, lead and each other; a gap in support, a hand off its hold, a body through the other or a wrong side fails.
@@ -170,7 +189,7 @@ export function test_motion_mount_equestrian_double(): void {
       `swing-up: the holds ${JSON.stringify(grips)} and the seat ${JSON.stringify(sat)} leave a gap in support`,
     );
   const landed: number = board.start + (sat?.from ?? 1) * span;
-  const passenger = HumanSignature.of(swung.film, "passenger", body, 0);
+  const passenger = HumanSignature(swung.film, "passenger", body, 0);
   for (const at of [landed + 0.3, landed + 1.5]) {
     const local: IAutoMovieVector3 = mountedHorseScene.local(
       swung.part("pillion", at),

@@ -234,7 +234,7 @@ function planLieOnSurface(
   ];
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
     AutoMovieMotionClock.sequence(phases),
-    AutoMovieMotionManner.of(context, p.manner),
+    AutoMovieMotionManner(context, p.manner),
     { holds: ["settled"] },
   );
   const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] = keys

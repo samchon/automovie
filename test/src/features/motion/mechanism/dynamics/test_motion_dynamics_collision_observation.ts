@@ -16,6 +16,7 @@ import { vclose } from "../../../internal/vclose";
  * Two crossing capsule axes determine clearance by subtracting their radii.
  *
  * Scenarios:
+ *
  * 1. Evaluate the operation at the interior and the limiting case.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Two crossing capsule axes determine clearance by subtracting their radii.

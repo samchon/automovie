@@ -20,7 +20,7 @@ A meeting with no partner is this role's alone and is never kept.
 
 One meeting per cast and window; each partner's posture and bones read once.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieMotionMeeting.of`, `HumanPerformanceRead` and `poseBones`.
+## @evidence contracts/development/implementation.md#reuse-equivalent-work `AutoMovieMotionMeeting`, `HumanPerformanceRead` and `poseBones`.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

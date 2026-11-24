@@ -25,19 +25,22 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * Mounted props follow their receiving sockets, including when an action
- * reads them on the performer's supplied body instead of the display pose.
+ * Mounted props follow their receiving sockets, including when an action reads
+ * them on the performer's supplied body instead of the display pose.
  *
- * Scenarios, on the average man, with a translating and rotating fixture
- * and with a carrier worn on the hips:
- * 1. A mounted part and a part mounted on it follow the composed socket
- *    frames at three film seconds, within 1 micrometre of rigid composition.
+ * Scenarios, on the average man, with a translating and rotating fixture and
+ * with a carrier worn on the hips:
+ *
+ * 1. A mounted part and a part mounted on it follow the composed socket frames at
+ *    three film seconds, within 1 micrometre of rigid composition.
  * 2. Aiming at either part gives that same physical point. Moving only the
  *    supplied body translates the worn hierarchy by that displacement and
  *    leaves the fixture's hierarchy unchanged.
  *
  * Scenarios:
- * 1. Move a mounted prop with its socket, then resolve a nested attachment and inspect its owner.
+ *
+ * 1. Move a mounted prop with its socket, then resolve a nested attachment and
+ *    inspect its owner.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the hierarchy, both parent modes, the supplied-body difference and the numerical bound.
  * @evidence contracts/development/testing.md#behavioral-verification Builds mounted spans through a registered law and reads the public prop and aiming seams; a socket mistaken for the mounting performer's hand, or a lost supplied-body frame, fails.

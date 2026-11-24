@@ -1,4 +1,4 @@
-# src/exercise/lineWalkPole.ts#lineWalkPole.of
+# src/exercise/lineWalkPole.ts#lineWalkPole
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

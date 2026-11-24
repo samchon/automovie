@@ -159,7 +159,7 @@ export namespace fieldThrow {
         fix: "pick the implement up before the throw",
       });
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       p.implement,
@@ -195,7 +195,7 @@ export namespace fieldThrow {
     const leg: number = body.measure.thigh + body.measure.shank;
     const approach: AthleticsRunUp.IApproach | undefined =
       p.event === "javelin"
-        ? AthleticsRunUp.of(context, 0, "approach", other)
+        ? AthleticsRunUp(context, 0, "approach", other)
         : undefined;
     if (p.event === "javelin" && approach === undefined)
       throw new HumanRefusal({
@@ -277,12 +277,12 @@ export namespace fieldThrow {
     // The clock and the posture.
     const release: number = spec.seconds + DELIVER;
     const duration: number = release + RECOVER;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "windup", seconds: 0 },
       { name: "release", seconds: release },
       { name: "recover", seconds: duration },
     ]);
-    const keys: fieldThrowKeys.IKeys = fieldThrowKeys.of(body, p.event, side);
+    const keys: fieldThrowKeys.IKeys = fieldThrowKeys(body, p.event, side);
     const heading: (t: number) => number = (t: number): number =>
       spec.seconds <= 0
         ? yaw

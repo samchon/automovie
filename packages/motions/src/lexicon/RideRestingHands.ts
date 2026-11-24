@@ -15,6 +15,51 @@ import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 
 /**
+ * Read the resting hands where the ride is entered.
+ *
+ * @param body The body.
+ * @param seated The seated posture the ride is entered with.
+ * @param entry The pose displayed at the entry.
+ * @param sides The hands that take no grip of the ride.
+ * @returns Each such hand's wrist and elbow in the seated root frame; none for
+ *   no side.
+ */
+export function RideRestingHands(
+  body: IAutoMovieMotionHumanBody,
+  seated: IAutoMovieMotionHumanPosture,
+  entry: IAutoMoviePose,
+  sides: readonly AutoMovieHumanSide[],
+): RideRestingHands.Rests {
+  if (sides.length === 0) return {};
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    entry,
+    undefined,
+    new Set<AutoMovieHumanoidBone>(
+      sides.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
+        `${side}LowerArm`,
+        `${side}Hand`,
+      ]),
+    ),
+  );
+  const back: IAutoMovieQuaternion = Quaternion.inverse(
+    humanPostureHeading(seated),
+  );
+  const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+    Quaternion.rotateVector(back, Vector3.subtract(point, seated.root));
+  const rests: RideRestingHands.Rests = {};
+  for (const side of sides) {
+    const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
+    rests[side] = {
+      offset: local(hand.worldPosition),
+      turn: Quaternion.multiply(back, hand.worldRotation),
+      elbow: local(bones.get(`${side}LowerArm`)!.worldPosition),
+    };
+  }
+  return rests;
+}
+
+/**
  * A ride's hands that take none of its grips (`HumanRide`): an arm its seated
  * entry poses by its joints, which the trunk carries, and an arm that keeps a
  * held prop where the entry displays it (`HeldRideArms`), which the support
@@ -46,51 +91,6 @@ export namespace RideRestingHands {
 
   /** Each resting hand's wrist, by side. */
   export type Rests = Partial<Record<AutoMovieHumanSide, IRest>>;
-
-  /**
-   * Read the resting hands where the ride is entered.
-   *
-   * @param body The body.
-   * @param seated The seated posture the ride is entered with.
-   * @param entry The pose displayed at the entry.
-   * @param sides The hands that take no grip of the ride.
-   * @returns Each such hand's wrist and elbow in the seated root frame; none
-   *   for no side.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    seated: IAutoMovieMotionHumanPosture,
-    entry: IAutoMoviePose,
-    sides: readonly AutoMovieHumanSide[],
-  ): Rests {
-    if (sides.length === 0) return {};
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      entry,
-      undefined,
-      new Set<AutoMovieHumanoidBone>(
-        sides.flatMap((side: AutoMovieHumanSide): AutoMovieHumanoidBone[] => [
-          `${side}LowerArm`,
-          `${side}Hand`,
-        ]),
-      ),
-    );
-    const back: IAutoMovieQuaternion = Quaternion.inverse(
-      humanPostureHeading(seated),
-    );
-    const local = (point: IAutoMovieVector3): IAutoMovieVector3 =>
-      Quaternion.rotateVector(back, Vector3.subtract(point, seated.root));
-    const rests: Rests = {};
-    for (const side of sides) {
-      const hand: IAutoMovieResolvedBone = bones.get(`${side}Hand`)!;
-      rests[side] = {
-        offset: local(hand.worldPosition),
-        turn: Quaternion.multiply(back, hand.worldRotation),
-        elbow: local(bones.get(`${side}LowerArm`)!.worldPosition),
-      };
-    }
-    return rests;
-  }
 
   /**
    * A resting hand's arm goal on a posture: its wrist, its turn and its elbow

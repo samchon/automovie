@@ -136,7 +136,7 @@ export namespace knockdown {
     const lie: number = context.params.hold ?? 1;
     if (!(lie >= 0)) throw new Error("A knockdown lies a non-negative time");
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(DOWN + lie, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(DOWN + lie, [
       { name: "rolling", seconds: ROLLING * SEATED },
       { name: "seated", seconds: SEATED },
       { name: "stroke", seconds: SEATED },

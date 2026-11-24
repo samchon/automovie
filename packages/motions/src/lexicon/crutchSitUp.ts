@@ -253,7 +253,7 @@ export function crutchSitUp(
             kind: "plant" as const,
             from: 0,
             to: share(off),
-            support: HumanSupportFrame.of(context),
+            support: HumanSupportFrame(context),
           },
         ]),
     {

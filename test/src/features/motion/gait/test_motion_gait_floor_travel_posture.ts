@@ -20,19 +20,19 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A heading is an angle, so a body facing 270 degrees is the body facing
- * -90: getting down onto the hands and knees from either shows the same
- * motion, the feet rolling onto their toes where they stood without turning
- * about. A roll that blends the foot's heading the long way round spins the
- * foot almost a whole turn on the way down when the yaw is written past 180.
+ * A heading is an angle, so a body facing 270 degrees is the body facing -90:
+ * getting down onto the hands and knees from either shows the same motion, the
+ * feet rolling onto their toes where they stood without turning about. A roll
+ * that blends the foot's heading the long way round spins the foot almost a
+ * whole turn on the way down when the yaw is written past 180.
  *
- * Scenarios:
- * Knees and bear entry constrain the floor, planted pairs and knee clearance.
- * Inchworm hands progress before the plank and feet before the fold; at most one limb is free.
- * on the average man, crawling one cycle from standing, read at
- * 24 frames a second from the start to `down`:
- * 1. Facing 270 and facing -90 the left and right toe and foot joints stand
- *    within a millimetre of each other at every frame.
+ * Scenarios: Knees and bear entry constrain the floor, planted pairs and knee
+ * clearance. Inchworm hands progress before the plank and feet before the fold;
+ * at most one limb is free. on the average man, crawling one cycle from
+ * standing, read at 24 frames a second from the start to `down`:
+ *
+ * 1. Facing 270 and facing -90 the left and right toe and foot joints stand within
+ *    a millimetre of each other at every frame.
  * 2. Facing 90 and facing -270, the same.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the crawl through the public chain at two writings of each heading and compares the displayed toe and foot joints over the way down; a foot whose roll turns by the written yaw rather than the angle it names fails with the joint, the distance and the second.
@@ -131,7 +131,7 @@ function checkFloorPhases(findings: string[]): void {
       composition: HumanChain.subject("a").crawl({ kind, count: 1 }).node,
     });
     const segment = p.segments("a")[0]!;
-    const reader = HumanSignature.of(p, "a", body, 0);
+    const reader = HumanSignature(p, "a", body, 0);
     const time = (share: number): number =>
       segment.start + share * segment.plan.duration;
     const event = (name: string): number =>
@@ -142,8 +142,7 @@ function checkFloorPhases(findings: string[]): void {
     };
     const limbs = ["leftHand", "rightHand", "leftFoot", "rightFoot"] as const;
     if (kind !== "inchworm") {
-      for (const fault of HumanVerdicts.of(p, 24, { from: 0, to: down })
-        .findings)
+      for (const fault of HumanVerdicts(p, 24, { from: 0, to: down }).findings)
         if (fault.check !== "floor")
           findings.push(
             kind +

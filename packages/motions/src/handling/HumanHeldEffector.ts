@@ -34,7 +34,7 @@ type HumanHeldEffectorContext = "body" | "entry" | "prop";
  * @returns The effector at a degree turn round an upright vessel's rim; a prop
  *   not upright gives the same effector at every turn.
  * @throws {HumanRefusal} When the hand does not hold the prop at the entry
- *   (`AutoMovieMotionHumanHeld.of`), no point is named, or the prop lacks the
+ *   (`AutoMovieMotionHumanHeld`), no point is named, or the prop lacks the
  *   contact.
  */
 export function HumanHeldEffector(
@@ -45,7 +45,7 @@ export function HumanHeldEffector(
   point?: string,
   namedRim: boolean = false,
 ): (turn?: number) => IAutoMovieMotionHumanTouchEffector.IEffector {
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     subject,

@@ -8,11 +8,15 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * A regular beat fixes step cadence while movement and hold intervals can be retimed independently.
+ * A regular beat fixes step cadence while movement and hold intervals can be
+ * retimed independently.
  *
  * Scenarios:
- * 1. A ninety-beat-per-minute score starts at its supplied second and has a two-thirds-second step period.
- * 2. Apply different tempo and hold factors to a movement, a pause and a fixed recovery.
+ *
+ * 1. A ninety-beat-per-minute score starts at its supplied second and has a
+ *    two-thirds-second step period.
+ * 2. Apply different tempo and hold factors to a movement, a pause and a fixed
+ *    recovery.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies the seconds-per-beat conversion and each span's owner.
  * @evidence contracts/development/testing.md#behavioral-verification Reads real cue times, the public cadence estimator and the manner-adjusted clock.
@@ -35,7 +39,7 @@ export function test_motion_gait_gait_manner_clock(): void {
     "step period",
     nclose(AutoMovieMotionHumanGait.walkCadence.period(beats), 60 / bpm, 1e-12),
   );
-  const base = AutoMovieMotionClock.of(6, [
+  const base = AutoMovieMotionClock(6, [
     { name: "move", seconds: 0 },
     { name: "hold", seconds: 2 },
     { name: "recover", seconds: 4 },

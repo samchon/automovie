@@ -20,6 +20,106 @@ import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 
+/** Keep the source's placement independent of every returned chain's mutation. */
+function copyShapes(
+  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+): IAutoMovieMotionHumanColliders.IPlaced[] {
+  return shapes.map(copyShape);
+}
+
+/**
+ * One fresh outward collider frame; only the original immutable shape geometry
+ * is shared.
+ */
+function copyShape(
+  shape: IAutoMovieMotionHumanColliders.IPlaced,
+): IAutoMovieMotionHumanColliders.IPlaced {
+  return {
+    bone: shape.bone,
+    pose: {
+      position: { ...shape.pose.position },
+      rotation: { ...shape.pose.rotation },
+    },
+    shapes: shape.shapes,
+  };
+}
+
+/**
+ * An arm chain on a posture's trunk, or null when the rig has no such chain.
+ *
+ * @param body The body.
+ * @param posture The root and the heading; an absent pitch or roll is 0.
+ * @param side The arm.
+ * @param source The bilateral source prepare made for this body and posture,
+ *   when both arms are prepared together.
+ * @returns The chain with the trunk's shapes posed.
+ */
+export function AutoMovieMotionHumanBendChain(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanBend.ISolve["posture"],
+  side: AutoMovieHumanSide,
+  source?: AutoMovieMotionHumanBendChain.IPrepared,
+): AutoMovieMotionHumanBendChain.IChain | null {
+  const shared: AutoMovieMotionHumanBendChain.IPrepared | undefined = source;
+  const axes: ReturnType<typeof skeletonJointAxes> =
+    body.poseResolution.jointAxes;
+  const pose: IAutoMoviePose = shared?.pose ?? {
+    skeleton: body.skeleton.id,
+    root: Transform.of(
+      posture.root,
+      humanPostureHeading({
+        yaw: posture.yaw,
+        pitch: posture.pitch ?? 0,
+        roll: posture.roll ?? 0,
+      }),
+    ),
+    joints: [],
+  };
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    shared?.resolution ?? prepareHumanPoseResolution();
+  if (shared !== undefined) shared.resolution = resolution;
+  try {
+    const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant(
+      {
+        skeleton: body.skeleton,
+        pose,
+        chain: {
+          upper: `${side}UpperArm`,
+          lower: `${side}LowerArm`,
+          effector: `${side}Hand`,
+        },
+        topology: body.topology,
+        jointAxes: axes,
+        restFrames: HUMANOID_REST_FRAME,
+      },
+      resolution(),
+      body.poseResolution,
+    );
+    if (prepared === null) return null;
+    const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
+      shared?.shapes ??
+      HumanArmClearance.trunk(
+        body,
+        poseBones(body, pose, resolution(), HumanArmObstacleBones.TRUNK),
+      );
+    if (shared !== undefined) shared.shapes = shapes;
+    return {
+      prepared,
+      shoulder: prepared.upper.worldPosition,
+      span:
+        Vector3.length(prepared.lowerOffset) +
+        Vector3.length(prepared.effectorOffset),
+      axes,
+      shapes: shared === undefined ? shapes : copyShapes(shapes),
+    };
+  } finally {
+    if (shared !== undefined) {
+      shared.sides.add(side);
+      if (shared.sides.size === 2) shared.resolution = undefined;
+    }
+  }
+}
+
 /**
  * An arm chain prepared on a posture's trunk for the elbow search of
  * `AutoMovieMotionHumanBend`: the engine's two-bone preparation, the shoulder,
@@ -68,82 +168,6 @@ export namespace AutoMovieMotionHumanBendChain {
   }
 
   /**
-   * An arm chain on a posture's trunk, or null when the rig has no such chain.
-   *
-   * @param body The body.
-   * @param posture The root and the heading; an absent pitch or roll is 0.
-   * @param side The arm.
-   * @param source The bilateral source prepare made for this body and posture,
-   *   when both arms are prepared together.
-   * @returns The chain with the trunk's shapes posed.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanBend.ISolve["posture"],
-    side: AutoMovieHumanSide,
-    source?: IPrepared,
-  ): IChain | null {
-    const shared: IPrepared | undefined = source;
-    const axes: ReturnType<typeof skeletonJointAxes> =
-      body.poseResolution.jointAxes;
-    const pose: IAutoMoviePose = shared?.pose ?? {
-      skeleton: body.skeleton.id,
-      root: Transform.of(
-        posture.root,
-        humanPostureHeading({
-          yaw: posture.yaw,
-          pitch: posture.pitch ?? 0,
-          roll: posture.roll ?? 0,
-        }),
-      ),
-      joints: [],
-    };
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      shared?.resolution ?? prepareHumanPoseResolution();
-    if (shared !== undefined) shared.resolution = resolution;
-    try {
-      const prepared: ReturnType<typeof prepareChainPlant> = prepareChainPlant(
-        {
-          skeleton: body.skeleton,
-          pose,
-          chain: {
-            upper: `${side}UpperArm`,
-            lower: `${side}LowerArm`,
-            effector: `${side}Hand`,
-          },
-          topology: body.topology,
-          jointAxes: axes,
-          restFrames: HUMANOID_REST_FRAME,
-        },
-        resolution(),
-        body.poseResolution,
-      );
-      if (prepared === null) return null;
-      const shapes: IAutoMovieMotionHumanColliders.IPlaced[] =
-        shared?.shapes ??
-        HumanArmClearance.trunk(
-          body,
-          poseBones(body, pose, resolution(), HumanArmObstacleBones.TRUNK),
-        );
-      if (shared !== undefined) shared.shapes = shapes;
-      return {
-        prepared,
-        shoulder: prepared.upper.worldPosition,
-        span:
-          Vector3.length(prepared.lowerOffset) +
-          Vector3.length(prepared.effectorOffset),
-        axes,
-        shapes: shared === undefined ? shapes : copyShapes(shapes),
-      };
-    } finally {
-      if (shared !== undefined) {
-        shared.sides.add(side);
-        if (shared.sides.size === 2) shared.resolution = undefined;
-      }
-    }
-  }
-
-  /**
    * The source both arms of one trunk are prepared on: the posture's root and
    * heading as a pose with no joint, and a workspace for its forward
    * kinematics. The caller passes it to `of` for each side, on the same body
@@ -169,30 +193,6 @@ export namespace AutoMovieMotionHumanBendChain {
       },
       resolution: prepareHumanPoseResolution(resolution),
       sides: new Set(),
-    };
-  }
-
-  /** Keep the source's placement independent of every returned chain's mutation. */
-  function copyShapes(
-    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-  ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    return shapes.map(copyShape);
-  }
-
-  /**
-   * One fresh outward collider frame; only the original immutable shape
-   * geometry is shared.
-   */
-  function copyShape(
-    shape: IAutoMovieMotionHumanColliders.IPlaced,
-  ): IAutoMovieMotionHumanColliders.IPlaced {
-    return {
-      bone: shape.bone,
-      pose: {
-        position: { ...shape.pose.position },
-        rotation: { ...shape.pose.rotation },
-      },
-      shapes: shape.shapes,
     };
   }
 }

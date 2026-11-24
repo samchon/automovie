@@ -71,7 +71,7 @@ export function grappleArms(
   const release: number = clock.at("release");
   const rest: number = clock.at("rest");
   // The hold's clock in the touch's names, for the partner's colliders.
-  const held: IAutoMovieMotionClock = AutoMovieMotionClock.of(floor.duration, [
+  const held: IAutoMovieMotionClock = AutoMovieMotionClock(floor.duration, [
     { name: "ready", seconds: take },
     { name: "relax", seconds: release },
   ]);

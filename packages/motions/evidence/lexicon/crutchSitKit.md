@@ -34,7 +34,7 @@ What the law courses and returns.
 
 The plan's own members.
 
-# src/lexicon/crutchSitKit.ts#crutchSitKit.of
+# src/lexicon/crutchSitKit.ts#crutchSitKit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -40,6 +40,33 @@ import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
 type ContinuedSide = "before" | "after";
 
 /**
+ * One action's displayed pose at a film second, whether or not it is the active
+ * one: its posture, entering offset, range-of-motion clamps and final planted
+ * contacts.
+ *
+ * @param person The person.
+ * @param segment The action.
+ * @param seconds Film seconds.
+ * @returns The pose.
+ */
+export function HumanSegmentPose(
+  person: IAutoMovieMotionHumanSegment.IPerson,
+  segment: IAutoMovieMotionHumanSegment,
+  seconds: number,
+  prepared?: prepareHumanSegmentPose.IPrepared,
+  requested?: ReadonlySet<AutoMovieHumanoidBone>,
+): IAutoMoviePose {
+  return HumanSegmentPose.seeded(
+    person,
+    segment,
+    seconds,
+    undefined,
+    prepared,
+    requested,
+  ).pose;
+}
+
+/**
  * A person's displayed pose: the layered action, carried holds, overlays,
  * stopped weapons and entering transition offset. Range-of-motion clamps
  * precede the final planted refits, so no later operation moves a plant.
@@ -60,32 +87,11 @@ export namespace HumanSegmentPose {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     prepared?: prepareHumanSegmentPose.IPrepared,
   ): IAutoMoviePose {
-    return HumanSegmentShown.of(person, seconds, requested, prepared).pose;
+    return HumanSegmentShown(person, seconds, requested, prepared).pose;
   }
 
   /** The difference interval of every rate read of a shown pose, seconds. */
   export const STEP: number = 1e-3;
-
-  /**
-   * One action's displayed pose at a film second, whether or not it is the
-   * active one: its posture, entering offset, range-of-motion clamps and final
-   * planted contacts.
-   *
-   * @param person The person.
-   * @param segment The action.
-   * @param seconds Film seconds.
-   * @returns The pose.
-   */
-  export function of(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    segment: IAutoMovieMotionHumanSegment,
-    seconds: number,
-    prepared?: prepareHumanSegmentPose.IPrepared,
-    requested?: ReadonlySet<AutoMovieHumanoidBone>,
-  ): IAutoMoviePose {
-    return seeded(person, segment, seconds, undefined, prepared, requested)
-      .pose;
-  }
 
   /**
    * {@link of} with every limb fit's seed. Names distinguish the chain, overlay

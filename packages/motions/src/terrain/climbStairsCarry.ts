@@ -68,11 +68,7 @@ export function climbStairsCarry(
     at: number,
     down: number,
   ): IAutoMovieMotionHumanSupportCarry.ICarry =>
-    HumanSupportCarry.of(
-      frame,
-      context.start,
-      context.start + Math.max(at, down),
-    );
+    HumanSupportCarry(frame, context.start, context.start + Math.max(at, down));
   const borne: (
     w: IAutoMovieMotionHumanContactWindow,
     at: number,

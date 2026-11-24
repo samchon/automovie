@@ -46,7 +46,7 @@ Three members, read by the touch law.
 
 The bones are resolved from the goal, never a second pose.
 
-# src/touch/touchPresented.ts#touchPresented.of
+# src/touch/touchPresented.ts#touchPresented
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

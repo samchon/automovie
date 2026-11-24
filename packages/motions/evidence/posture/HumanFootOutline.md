@@ -1,4 +1,4 @@
-# src/posture/HumanFootOutline.ts#HumanFootOutline.of
+# src/posture/HumanFootOutline.ts#HumanFootOutline
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

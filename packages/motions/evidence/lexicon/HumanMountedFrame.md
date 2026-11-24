@@ -1,4 +1,4 @@
-# src/lexicon/HumanMountedFrame.ts#HumanMountedFrame.of
+# src/lexicon/HumanMountedFrame.ts#HumanMountedFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

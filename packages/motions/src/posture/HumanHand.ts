@@ -190,7 +190,7 @@ export namespace HumanHand {
     side: AutoMovieHumanSide,
     form: IAutoMovieMotionHumanHand.Shape,
   ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    return HumanHandShape.of(side, form);
+    return HumanHandShape(side, form);
   }
 
   /**
@@ -329,7 +329,7 @@ export namespace HumanHand {
     yaw: number,
     direction: IAutoMovieMotionHumanHand.Direction,
   ): IAutoMovieVector3 {
-    return HumanHandDirection.of(side, yaw, direction);
+    return HumanHandDirection(side, yaw, direction);
   }
 
   /**

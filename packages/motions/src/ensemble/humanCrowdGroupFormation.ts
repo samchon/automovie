@@ -146,5 +146,5 @@ export function humanCrowdGroupFormation(
       },
     }),
   );
-  return HumanFormation.of({ frame, blocks });
+  return HumanFormation({ frame, blocks });
 }

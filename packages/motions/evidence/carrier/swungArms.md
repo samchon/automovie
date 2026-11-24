@@ -20,7 +20,7 @@ Nothing beyond the clearance owner's rule.
 
 One clearance read per posture, forwarding the caller's FK source and range projector.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanArmSwing.of`, the one owner of a hanging arm's clearance.
+## @evidence contracts/development/implementation.md#reuse-equivalent-work `HumanArmSwing`, the one owner of a hanging arm's clearance.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

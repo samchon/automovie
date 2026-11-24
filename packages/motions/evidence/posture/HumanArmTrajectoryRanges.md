@@ -1,4 +1,4 @@
-# src/posture/HumanArmTrajectoryRanges.ts#HumanArmTrajectoryRanges.of
+# src/posture/HumanArmTrajectoryRanges.ts#HumanArmTrajectoryRanges
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

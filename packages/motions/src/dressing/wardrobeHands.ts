@@ -305,7 +305,7 @@ export namespace wardrobeHands {
   ): number {
     return Math.max(
       0.23,
-      AutoMovieMotionHumanTiming.of(Vector3.distance(a.position, b.position), {
+      AutoMovieMotionHumanTiming(Vector3.distance(a.position, b.position), {
         solid: false,
       }),
     );

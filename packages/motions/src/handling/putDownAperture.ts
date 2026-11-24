@@ -8,6 +8,7 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanPutDownAperture,
+  IAutoMoviePose,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -87,16 +88,16 @@ function plan(
       fix: "name a receptacle and both of its affordances",
     });
 
-  const seat: IAutoMovieRigidTransform = putDownTarget.of(
+  const seat: IAutoMovieRigidTransform = putDownTarget(
     context,
-    context.entry.pose,
+    (): IAutoMoviePose => context.entry.pose,
   )!;
   const through: (point: string) => IAutoMovieRigidTransform = (
     point: string,
   ): IAutoMovieRigidTransform =>
-    putDownTarget.of(
+    putDownTarget(
       { ...context, params: { prop, onto: { ...onto, point } } },
-      context.entry.pose,
+      (): IAutoMoviePose => context.entry.pose,
     )!;
   const mouth: IAutoMovieRigidTransform = through(onto.aperture);
   const offset: IAutoMovieVector3 = Vector3.subtract(

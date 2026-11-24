@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPutDown,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -112,9 +113,9 @@ export function putDownWrist(
   const on: IAutoMovieMotionHumanPutDown.IParams["on"] = context.params.on;
   const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
     context.params.onto;
-  const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
+  const wearing: IAutoMovieRigidTransform | undefined = putDownTarget(
     context,
-    context.entry.pose,
+    (): IAutoMoviePose => context.entry.pose,
   );
   if (wearing === undefined && context.params.to === undefined)
     throw new HumanRefusal({

@@ -23,7 +23,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
@@ -214,8 +213,10 @@ export namespace operate {
     const mechanism: IAutoMovieMotionHumanOperate.Mechanism =
       context.params.kind;
     const side: AutoMovieHumanSide = context.params.hand ?? "right";
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const at: IAutoMovieMotionTarget =
       mechanism.kind === "insert" ? mechanism.into : mechanism.at;
     const place: ReturnType<typeof context.aim> = context.aim(
@@ -451,8 +452,7 @@ export namespace operate {
       grounded &&
       window === null &&
       mechanism.kind === "button" &&
-      part !== undefined &&
-      createHumanBody.owns(body);
+      part !== undefined;
     const plan: IAutoMovieMotionHumanActionPlan = {
       ...compose(
         contextual
@@ -468,11 +468,7 @@ export namespace operate {
         ? {}
         : { drives: [operateDrive.drive(part, clock)] }),
     };
-    if (
-      grounded &&
-      (part === undefined || mechanism.kind === "hinge") &&
-      createHumanBody.owns(body)
-    ) {
+    if (grounded && (part === undefined || mechanism.kind === "hinge")) {
       // A bearing stroke discards its onset elbow. A hinged part still
       // observes zero progress at the current film second, and an insertion
       // still validates its starting roll against the current trunk.
@@ -488,10 +484,7 @@ export namespace operate {
       );
       const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (
         ...args
-      ) =>
-        createHumanBody.owns(body)
-          ? { posture: prepared.posture(...args) }
-          : undefined;
+      ) => ({ posture: prepared.posture(...args) });
       HumanPreparedPlayback.attach(plan, body, {
         mode: "posture",
         phases: [

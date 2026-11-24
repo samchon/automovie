@@ -75,9 +75,7 @@ export const extinguish: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFir
     plan,
   };
 
-/**
- * Admit the extinguisher, then aim, squeeze and sweep it.
- */
+/** Admit the extinguisher, then aim, squeeze and sweep it. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IExtinguish>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -96,7 +94,7 @@ function plan(
     });
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

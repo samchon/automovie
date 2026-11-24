@@ -11,6 +11,7 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * The first lifted foot returns to bearing at its named heel strike.
  *
  * Scenarios:
+ *
  * 1. Read one gait cycle of a straight walk.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The first lifted foot returns to bearing at its named heel strike.
@@ -44,7 +45,7 @@ export function test_motion_support_support_gait_events(): void {
   const toe = event("leftToeOff1"),
     heel = event("leftHeelStrike1"),
     next = event("leftToeOff2");
-  const reader = HumanSignature.of(film, "a", body, 0);
+  const reader = HumanSignature(film, "a", body, 0);
   const actual = HumanSignature.gait(reader, 0, next, 120).strikes.filter(
     (s) => s.side === "left",
   );

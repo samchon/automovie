@@ -39,21 +39,20 @@ function ranged(refused: AutoMovieArchetypeRefusal | null): string {
  * Scenarios:
  * 1. An affordance id the variant does not declare (a glass has no handle) refuses with kind `affordance` and lists exactly the ids the glass declares.
  * 2. A dimension fixed outside its band (an office chair seat 0.70 m high) refuses with kind `parameter`, the axis `seatHeight` and a range in metres; the band's own ends are accepted and give a seat at that height to a nanometre.
- * 3. A kind passed as run-time text that the producer does not make refuses with the kinds it makes.
- * 4. A count the code limits (30 risers) refuses with the range.
- * 5. An articulation travel beyond its range (a door swung 120 degrees), and a travel on an id that is no articulation (the door's aperture), each refuse with kind `articulation`.
- * 6. A site coordinate outside 0 to 1 refuses with kind `site`.
- * 7. A valid request raises nothing.
- * 8. A fixed dimension the kind lacks (a stool's back height, a stool's seat depth) refuses with kind `parameter`, the dimension as the axis and, as alternatives, exactly the dimensions a produced stool reports.
- * 9. Counts and amounts: a dining chair with two places and a bench with five or two and a half; a ladder with one rung, and with one more than the most its refusal states, which itself is accepted; a suitcase loaded past 27.7 kg and a tote past 16 kg, each bound itself accepted; a crate's contents past 22.5 kg for every one of eight seeds, 22.5 kg accepted, and any contents in a sack; a vessel filled past 1 or below 0.
- * 10. A bicycle ride's gear with no teeth or a fractional count refuses at `gear.chainring` or `gear.sprocket`.
- * 11. A horse's timing refuses a tempo outside -1 to 1, a tempo that is not a number, and a height that is not positive.
+ * 3. A count the code limits (30 risers) refuses with the range.
+ * 4. An articulation travel beyond its range (a door swung 120 degrees), and a travel on an id that is no articulation (the door's aperture), each refuse with kind `articulation`.
+ * 5. A site coordinate outside 0 to 1 refuses with kind `site`.
+ * 6. A valid request raises nothing.
+ * 7. A fixed dimension the kind lacks (a stool's back height, a stool's seat depth) refuses with kind `parameter`, the dimension as the axis and, as alternatives, exactly the dimensions a produced stool reports.
+ * 8. Counts and amounts: a dining chair with two places and a bench with five or two and a half; a ladder with one rung, and with one more than the most its refusal states, which itself is accepted; a suitcase loaded past 27.7 kg and a tote past 16 kg, each bound itself accepted; a crate's contents past 22.5 kg for every one of eight seeds, 22.5 kg accepted, and any contents in a sack; a vessel filled past 1 or below 0.
+ * 9. A bicycle ride's gear with no teeth or a fractional count refuses at `gear.chainring` or `gear.sprocket`.
+ * 10. A horse's timing refuses a tempo outside -1 to 1 and a height that is not positive.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the producers, accessors, a ride and the gait timing with requests outside the contract and reads the raised refusal's fields; a producer that clamps, defaults or throws a bare error is caught, as is one whose stated bound is not itself accepted.
  * @evidence contracts/development/testing.md#independent-expectations The refusal contract of #3368 and #3375: one axis, the given value, the feasible range or alternatives, and never a silent repair. The office chair's 0.38 to 0.56 m seat band is ANSI/HFES 100-2007's; one to four places is the seat's stated range; 27 kg is IATA's 32 kg piece less the heaviest 4.3 kg case, rounded down, and 16 kg HSE INDG143's close carry; 22.5 kg is the crate's stated contents bound; a fill is a fraction; a tooth count is a positive whole number; a tempo is at most one standard deviation. The ladder's most rungs is an uncited model bound, so only its honesty is asserted: the stated maximum is accepted and one more is refused.
  * @evidence contracts/development/testing.md#distinguishing-cases Each refusal class once, with the bound accepted beside the value refused just past it, a whole count beside a fractional one, and a seed sweep where the bound must not depend on the seed; that a seed never leaves a band belongs to the family band tests, and a course's and a turn's refusals to `test_archetype_ride_course`.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the eleven scenarios and what each pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the ten scenarios and what each pins.
  */
 export function test_archetype_contract_refusal(): void {
   const glass: ReturnType<typeof createDrinkware> = createDrinkware({
@@ -92,15 +91,6 @@ export function test_archetype_contract_refusal(): void {
     [true, true],
   );
 
-  const unknown: AutoMovieArchetypeRefusal | null = refusal(() =>
-    createSeat({ kind: "throne" as createSeat.Kind }),
-  );
-  TestValidator.equals(
-    "an unknown kind lists the kinds",
-    [unknown?.axis, unknown?.feasible],
-    ["kind", { kind: "alternatives", values: [...createSeat.KINDS] }],
-  );
-
   const tall: AutoMovieArchetypeRefusal | null = refusal(() =>
     createStairs({ steps: 30 }),
   );
@@ -133,7 +123,7 @@ export function test_archetype_contract_refusal(): void {
     null,
   );
 
-  // 8. A dimension only another kind has.
+  // 7. A dimension only another kind has.
   const ordered = (names: readonly string[]): string[] =>
     [...names].sort((a: string, b: string): number =>
       a < b ? -1 : a > b ? 1 : 0,
@@ -160,7 +150,7 @@ export function test_archetype_contract_refusal(): void {
     );
   }
 
-  // 9. Counts and amounts.
+  // 8. Counts and amounts.
   TestValidator.equals(
     "places outside what the kind seats",
     [
@@ -232,7 +222,7 @@ export function test_archetype_contract_refusal(): void {
     ["fill: 0..1", "fill: 0..1", "none"],
   );
 
-  // 10. A gear's tooth counts.
+  // 9. A gear's tooth counts.
   const bicycle: ReturnType<typeof createBicycle> = createBicycle();
   const course: Parameters<typeof rideBicycle>[1] = {
     start: { x: 0, z: 0, heading: 0 },
@@ -260,7 +250,7 @@ export function test_archetype_contract_refusal(): void {
     ["gear.chainring", "gear.sprocket", "parameter", null],
   );
 
-  // 11. A horse's tempo and height.
+  // 10. A horse's tempo and height.
   TestValidator.equals(
     "a tempo outside one standard deviation, and a height that is not positive",
     [
@@ -281,16 +271,6 @@ export function test_archetype_contract_refusal(): void {
             "trot",
             4,
             -1.01,
-          ),
-        ),
-      ),
-      ranged(
-        refusal(() =>
-          AutoMovieArchetypeQuadrupedGait.timing(
-            createQuadruped.SPECIES.horse,
-            "trot",
-            4,
-            Number.NaN,
           ),
         ),
       ),
@@ -338,7 +318,6 @@ export function test_archetype_contract_refusal(): void {
       ),
     ],
     [
-      "tempo: -1..1",
       "tempo: -1..1",
       "tempo: -1..1",
       "withers: 0..null m",

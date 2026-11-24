@@ -58,7 +58,7 @@ export function stairsCases(
         FamilyCaseKit.perform(
           "stairs",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("climbStairs", params),
+          HumanChain.subject("a").act("climbStairs", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const flight: IAutoMovieMotionHumanClimbStairsFlight.IFlight =

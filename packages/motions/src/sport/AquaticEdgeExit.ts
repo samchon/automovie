@@ -63,7 +63,7 @@ export namespace AquaticEdgeExit {
     water: number,
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry } = context;
-    const edge: AquaticEdge.IEdge = AquaticEdge.of(context);
+    const edge: AquaticEdge.IEdge = AquaticEdge(context);
     const { id, lip, out } = edge;
     const freeboard: number = lip.y - water;
     if (freeboard > FREEBOARD)

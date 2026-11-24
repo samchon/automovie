@@ -82,7 +82,7 @@ Uses the owning body, Jacobian and target types; matching index/unit/motion leng
 
 States model inputs, units, penalty and the reading-specific contact selection.
 
-# src/posture/HumanBodyFitRows.ts#HumanBodyFitRows.of
+# src/posture/HumanBodyFitRows.ts#HumanBodyFitRows
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

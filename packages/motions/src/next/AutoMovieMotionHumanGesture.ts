@@ -388,7 +388,7 @@ export namespace AutoMovieMotionHumanGesture {
    * its hold the named `hold` pause (a beat when absent); a stroke takes one
    * travel of its path's length; an oscillation takes `cycles` beats. The
    * manner's tempo scales every phase and its extent and curvature reach the
-   * phrase (`AutoMovieMotionManner.of`). Events: the phrase's instants.
+   * phrase (`AutoMovieMotionManner`). Events: the phrase's instants.
    */
   export import armPhrase = armPhraseLaw;
 

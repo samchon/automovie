@@ -18,7 +18,6 @@ import type {
 import { HumanFoot } from "../posture/HumanFoot";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareWalkReachSwing } from "./prepareWalkReachSwing";
 import type { walkFoot } from "./walkFoot";
 import { walkHipTwist } from "./walkHipTwist";
@@ -115,9 +114,6 @@ export namespace walkReach {
     /** The hip joints, world metres. */
     hips: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
-
-  /** A requested heading, or the pelvis already evaluated at the same stance. */
-  type PlannedPelvis = number | IPelvis;
 
   /** The pelvis settled against the stances. */
   export interface IGround {
@@ -286,9 +282,7 @@ export namespace walkReach {
    *
    * @param body The body.
    * @param root The unconstrained root, world metres.
-   * @param planned The unconstrained heading in degrees or the pelvis already
-   *   evaluated at this stance.
-   * @param hips The pelvis joint's clinical angles, degrees.
+   * @param planned The pelvis turned toward this stance (`pelvis`).
    * @param feet Each foot as scheduled.
    * @param claims The lowering a foot claims in place of its faded stance's,
    *   metres.
@@ -296,8 +290,6 @@ export namespace walkReach {
    *   `walkLeg.ROCKER` when absent. A gait gives less while it starts and
    *   stops: a foot that is not stepping keeps its heel down until its ankle
    *   can bend no further.
-   * @param resolution Optional exact FK loan from this synchronous person
-   *   observation; only the actual hip read borrows it.
    * @param tilt The pelvis's tilt from upright under its settled heading, given
    *   the unlowered root, that heading and the upright hip joints
    *   (`walkReachHeld.tilt`): its world rotation and the hip joints it carries.
@@ -314,14 +306,12 @@ export namespace walkReach {
   export function ground(
     body: IAutoMovieMotionHumanBody,
     root: IAutoMovieVector3,
-    planned: PlannedPelvis,
-    hips: readonly [number, number, number],
+    planned: IPelvis,
     feet: Readonly<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanWalkFoot.IScheduled>
     >,
     claims: Readonly<Partial<Record<AutoMovieHumanSide, number>>> = {},
     rocker: number = walkLeg.ROCKER,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     tilt?: (
       root: IAutoMovieVector3,
       yaw: number,
@@ -334,18 +324,7 @@ export namespace walkReach {
       yaw,
       pivots,
       hips: upright,
-    }: IPelvis = typeof planned === "number"
-      ? pelvis(
-          body,
-          root,
-          planned,
-          hips,
-          feet,
-          resolution === undefined
-            ? undefined
-            : prepareHumanPoseResolution.read(resolution),
-        )
-      : planned;
+    }: IPelvis = planned;
 
     // The tilted hip joints translate uniformly with the lowering.
     const tilted: ReturnType<NonNullable<typeof tilt>> | undefined = tilt?.(

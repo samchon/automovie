@@ -237,7 +237,7 @@ const validateBufferLength: (
 };
 
 /**
- * Require a known blend method, four references/weights per vertex, declared
+ * Require four references/weights per vertex, declared
  * unique joints, dense bounded weights/references and finite weight sums
  * within1e-6 of one.
  *
@@ -271,17 +271,6 @@ const validateMeshSkin: (
   boneNames: ReadonlySet<string>,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (
-    skin.method !== undefined &&
-    skin.method !== "linear" &&
-    skin.method !== "dual-quaternion"
-  )
-    collector.push(
-      "type",
-      `${path}.method`,
-      `skinning method must be "linear" or "dual-quaternion", but was ${JSON.stringify(skin.method)}`,
-      skin.method,
-    );
   const expectedInfluences: number = vertexCount * 4;
   validateBufferLength(
     skin.boneIndices,
@@ -360,9 +349,9 @@ const validateMeshSkin: (
 };
 
 /**
- * Require each morph target to carry a nonempty unique name, one finite delta
- * triple per vertex for positions and for non-null normals, and, when driven, a
- * skeleton bone, a clinical axis, a nonempty finite strictly increasing curve
+ * Require each morph target to carry a unique name, one finite delta triple per
+ * vertex for positions and for non-null normals, and, when driven, a skeleton
+ * bone, a nonempty finite strictly increasing curve
  * and a name no expression writes.
  *
  * Expressions write preset and ARKit names after the pose, matching ignoring
@@ -395,14 +384,7 @@ const validateMeshTargets: (
   );
   targets.forEach((target: IAutoMovieMeshMorphTarget, i: number): void => {
     const tp: string = `${path}[${i}]`;
-    if (typeof target.name !== "string" || target.name.length === 0)
-      collector.push(
-        "type",
-        `${tp}.name`,
-        "morph target name must be a nonempty string",
-        target.name,
-      );
-    else if (names.has(target.name))
+    if (names.has(target.name))
       collector.push(
         "type",
         `${tp}.name`,
@@ -430,10 +412,7 @@ const validateMeshTargets: (
     }
     const driver: IAutoMovieMorphTargetDriver | null = target.driver ?? null;
     if (driver === null) return;
-    if (
-      typeof target.name === "string" &&
-      expressionNames.has(target.name.toLowerCase())
-    )
+    if (expressionNames.has(target.name.toLowerCase()))
       collector.push(
         "type",
         `${tp}.name`,
@@ -446,17 +425,6 @@ const validateMeshTargets: (
         `${tp}.driver.bone`,
         `driver bone "${driver.bone}" is not a bone of this model's skeleton`,
         driver.bone,
-      );
-    if (
-      driver.axis !== "flexion" &&
-      driver.axis !== "abduction" &&
-      driver.axis !== "twist"
-    )
-      collector.push(
-        "type",
-        `${tp}.driver.axis`,
-        `driver axis must be "flexion", "abduction" or "twist", but was ${JSON.stringify(driver.axis)}`,
-        driver.axis,
       );
     const points: IAutoMovieDrivenCurvePoint[] = driver.curve.points;
     if (points.length === 0)

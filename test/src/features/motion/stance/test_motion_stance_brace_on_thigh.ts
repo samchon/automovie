@@ -16,10 +16,13 @@ import { TestValidator } from "@nestia/e2e";
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
 
 /**
- * The right palm braces on the posed right thigh and releases to its entering wrist position.
+ * The right palm braces on the posed right thigh and releases to its entering
+ * wrist position.
  *
  * Scenarios:
- * 1. Prepare a forward-leaning body and observe the outer hand against the actual thigh capsule in the held phase.
+ *
+ * 1. Prepare a forward-leaning body and observe the outer hand against the actual
+ *    thigh capsule in the held phase.
  * 2. Compare the released wrist to its independent starting frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The right palm braces on the posed right thigh and releases to its entering wrist position.

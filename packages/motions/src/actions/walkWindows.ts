@@ -16,6 +16,56 @@ type OfPushKind = "plant" | "pivot";
 type OfPart = "leftFoot" | "rightFoot";
 
 /**
+ * The events and contact windows of a gait's footstep plan.
+ *
+ * @param steps The gait's footstep plan.
+ * @returns The plan's named instants and its stances' windows, in the stances'
+ *   order, as shares of the plan's duration.
+ */
+export function walkWindows(
+  steps: IAutoMovieMotionHumanWalkSteps.IPlan,
+): IWindows {
+  const duration: number = steps.duration;
+  const events: IAutoMovieMotionEvent[] = [];
+  for (const event of steps.events)
+    events.push({ name: event.name, share: event.seconds / duration });
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+  for (const stance of steps.stances) {
+    const part: OfPart = stance.side === "left" ? "leftFoot" : "rightFoot";
+    const push: (kind: OfPushKind, from: number, to: number) => void = (
+      kind: OfPushKind2,
+      from: number,
+      to: number,
+    ): void => {
+      contacts.push({
+        part,
+        kind,
+        from: from / duration,
+        to: to / duration,
+        support: { kind: "ground" },
+      });
+    };
+    let start: number = stance.from;
+    const spins: (t: number) => boolean = (t: number): boolean =>
+      walkReach.footPivot(steps.yaw(t), steps.foot(stance.side, t)) !== 0;
+    let spinning: boolean = spins(stance.from);
+    for (
+      let t: number = stance.from + walkWindows.STEP;
+      t < stance.to - 1e-9;
+      t += walkWindows.STEP
+    ) {
+      const now: boolean = spins(t);
+      if (now === spinning) continue;
+      push(spinning ? "pivot" : "plant", start, t);
+      start = t;
+      spinning = now;
+    }
+    push(spinning ? "pivot" : "plant", start, stance.to);
+  }
+  return { events, contacts };
+}
+
+/**
  * What a stepping gait declares of its footstep plan, as shares of its length:
  * each named instant, and the floor contacts, each foot's stance a `plant` but
  * for the spans in which the foot spins on its ball, which are a `pivot` on its
@@ -33,54 +83,6 @@ export namespace walkWindows {
    * at 60 frames a second.
    */
   export const STEP: number = 1 / 120;
-
-  /**
-   * The events and contact windows of a gait's footstep plan.
-   *
-   * @param steps The gait's footstep plan.
-   * @returns The plan's named instants and its stances' windows, in the
-   *   stances' order, as shares of the plan's duration.
-   */
-  export function of(steps: IAutoMovieMotionHumanWalkSteps.IPlan): IWindows {
-    const duration: number = steps.duration;
-    const events: IAutoMovieMotionEvent[] = [];
-    for (const event of steps.events)
-      events.push({ name: event.name, share: event.seconds / duration });
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (const stance of steps.stances) {
-      const part: OfPart = stance.side === "left" ? "leftFoot" : "rightFoot";
-      const push: (kind: OfPushKind, from: number, to: number) => void = (
-        kind: OfPushKind2,
-        from: number,
-        to: number,
-      ): void => {
-        contacts.push({
-          part,
-          kind,
-          from: from / duration,
-          to: to / duration,
-          support: { kind: "ground" },
-        });
-      };
-      let start: number = stance.from;
-      const spins: (t: number) => boolean = (t: number): boolean =>
-        walkReach.footPivot(steps.yaw(t), steps.foot(stance.side, t)) !== 0;
-      let spinning: boolean = spins(stance.from);
-      for (
-        let t: number = stance.from + STEP;
-        t < stance.to - 1e-9;
-        t += STEP
-      ) {
-        const now: boolean = spins(t);
-        if (now === spinning) continue;
-        push(spinning ? "pivot" : "plant", start, t);
-        start = t;
-        spinning = now;
-      }
-      push(spinning ? "pivot" : "plant", start, stance.to);
-    }
-    return { events, contacts };
-  }
 }
 
 /** The distinct events and contact windows on a gait's clock. */

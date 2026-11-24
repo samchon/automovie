@@ -1,4 +1,4 @@
-# src/sport/kickboxing/KickboxingRing.ts#KickboxingRing.of
+# src/sport/kickboxing/KickboxingRing.ts#KickboxingRing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

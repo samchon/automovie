@@ -16,7 +16,7 @@ Eleven members, all read by the convex model; the merit reads `clear` and `lower
 
 Indices into the placed arm's probes and the frame's shapes, not copies; `near` is the reading itself, which the convex model would otherwise make again.
 
-# src/posture/HumanArmTrajectorySweep.ts#HumanArmTrajectorySweep.of
+# src/posture/HumanArmTrajectorySweep.ts#HumanArmTrajectorySweep
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/exercise/WorkoutPlace.ts#WorkoutPlace.of
+# src/exercise/WorkoutPlace.ts#WorkoutPlace
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

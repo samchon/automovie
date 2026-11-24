@@ -130,7 +130,7 @@ The declaration retains no verdict; of evaluates the supplied misses anew withou
 
 The declaration allocates nothing; of supplies a boolean operation without retained misses.
 
-# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit.of
+# src/posture/HumanBodyFitMerit.ts#HumanBodyFitMerit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

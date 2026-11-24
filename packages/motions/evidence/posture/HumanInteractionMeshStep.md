@@ -46,7 +46,7 @@ Uses the same local energy and barrier rows as the deformation step.
 
 Both gradient arrays are released on return.
 
-# src/posture/HumanInteractionMeshStep.ts#HumanInteractionMeshStep.of
+# src/posture/HumanInteractionMeshStep.ts#HumanInteractionMeshStep
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -18,10 +18,13 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Both displayed eye axes follow an offset world target at the requested gaze weight.
+ * Both displayed eye axes follow an offset world target at the requested gaze
+ * weight.
  *
  * Scenarios:
- * 1. Place landmarks to either side of a neutral actor, within comfortable ocular range.
+ *
+ * 1. Place landmarks to either side of a neutral actor, within comfortable ocular
+ *    range.
  * 2. Check both visual rays against the line from each eye to that landmark.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the eye origin and the world target used to compute the expected direction.

@@ -34,7 +34,7 @@ The members the geometry composes and the two a later launch is compared by.
 
 The contact's solver is the launch's own closure, so a correction is solved on the same line and travel.
 
-# src/striking/KickLaunch.ts#KickLaunch.of
+# src/striking/KickLaunch.ts#KickLaunch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

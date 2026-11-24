@@ -221,10 +221,7 @@ function planHumanSittingVolley(
     y: 0,
   };
 
-  /**
-   * Keep the seat socket on its original floor height while the trunk
-   * inclines.
-   */
+  /** Keep the seat socket on its original floor height while the trunk inclines. */
   const posture = (at: number): IAutoMovieMotionHumanPosture => {
     const share: number = Math.min(1, Math.max(0, at / seconds));
     if (share === 0) return low;

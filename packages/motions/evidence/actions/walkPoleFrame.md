@@ -1,4 +1,4 @@
-# src/actions/walkPoleFrame.ts#walkPoleFrame.of
+# src/actions/walkPoleFrame.ts#walkPoleFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

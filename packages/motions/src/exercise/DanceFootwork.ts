@@ -178,7 +178,7 @@ export namespace DanceFootwork {
         // own placement, the foot turned as the law turns it.
         gesture(t)
           ? placed(t)
-          : AutoMovieMotionHumanFootRelax.of(
+          : AutoMovieMotionHumanFootRelax(
               body,
               posture,
               side,
@@ -326,7 +326,7 @@ export namespace DanceFootwork {
           }),
         ),
       ]),
-      clock: AutoMovieMotionClock.of(course.duration, course.instants),
+      clock: AutoMovieMotionClock(course.duration, course.instants),
       primitives: [
         carry(
           body,

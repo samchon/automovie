@@ -17,14 +17,15 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A planned arm keeps clear of a collider no human body carries (a prop's,
- * an animal's), and a refusal names it by its subject and part.
+ * A planned arm keeps clear of a collider no human body carries (a prop's, an
+ * animal's), and a refusal names it by its subject and part.
  *
  * Scenarios:
- * 1. The average man's right hand reaches from the quiet stance onto a place
- *    ahead at waist height, and a prop's box (subject `horse`, part `neck`)
- *    encloses that place: the planned course is refused, and the refusal
- *    names `horse:neck`.
+ *
+ * 1. The average man's right hand reaches from the quiet stance onto a place ahead
+ *    at waist height, and a prop's box (subject `horse`, part `neck`) encloses
+ *    that place: the planned course is refused, and the refusal names
+ *    `horse:neck`.
  * 2. The same reach with the box beside the place, out of the arm's way, is
  *    planned.
  *

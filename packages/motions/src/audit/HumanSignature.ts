@@ -17,6 +17,24 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 
 /**
+ * A reader of one performer.
+ *
+ * @param motion The performance, or any motion that displays bones.
+ * @param subject The performer.
+ * @param body Their body.
+ * @param yaw The heading their forward is read along, degrees.
+ * @returns The reader.
+ */
+export function HumanSignature(
+  motion: IAutoMovieMotionHumanSignature.IMotion,
+  subject: string,
+  body: IAutoMovieMotionHumanBody,
+  yaw: number,
+): IAutoMovieMotionHumanSignature.IReader {
+  return { motion, subject, body, yaw };
+}
+
+/**
  * The kinematic readings of an act's signature: what human-movement studies
  * measure on a performer, read off the displayed bones of a performance.
  *
@@ -29,7 +47,7 @@ import { HumanFoot } from "../posture/HumanFoot";
  * the bounds and their sources belong to the test.
  *
  * ```ts
- * const reader = HumanSignature.of(performance, "a", body, 0);
+ * const reader = HumanSignature(performance, "a", body, 0);
  * const lean =
  *   HumanSignature.trunk(reader, seconds) -
  *   HumanSignature.trunk(reader, 0);
@@ -70,24 +88,6 @@ export namespace HumanSignature {
    * frames. Swing clearances and contact events keep their own finer rates.
    */
   export const HELD: number = 10;
-
-  /**
-   * A reader of one performer.
-   *
-   * @param motion The performance, or any motion that displays bones.
-   * @param subject The performer.
-   * @param body Their body.
-   * @param yaw The heading their forward is read along, degrees.
-   * @returns The reader.
-   */
-  export function of(
-    motion: IAutoMovieMotionHumanSignature.IMotion,
-    subject: string,
-    body: IAutoMovieMotionHumanBody,
-    yaw: number,
-  ): IAutoMovieMotionHumanSignature.IReader {
-    return { motion, subject, body, yaw };
-  }
 
   /** The performer's bones at a second. */
   export function bones(

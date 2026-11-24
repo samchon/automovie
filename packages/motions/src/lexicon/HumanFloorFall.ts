@@ -21,7 +21,7 @@ export namespace HumanFloorFall {
    */
   export const goalkeeperDiveLeft: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveLeft"]
-  > = HumanActionRow.of("goalkeeperDiveLeft", dive, {
+  > = HumanActionRow("goalkeeperDiveLeft", dive, {
     kind: "dive",
     ...HUMAN_FALL_GOALKEEPER_DIVE_LEFT,
   });
@@ -33,7 +33,7 @@ export namespace HumanFloorFall {
    */
   export const goalkeeperDiveRight: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["goalkeeperDiveRight"]
-  > = HumanActionRow.of("goalkeeperDiveRight", dive, {
+  > = HumanActionRow("goalkeeperDiveRight", dive, {
     kind: "dive",
     ...HUMAN_FALL_GOALKEEPER_DIVE_RIGHT,
   });
@@ -46,7 +46,7 @@ export namespace HumanFloorFall {
    */
   export const slidingTackle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorFall"]["slidingTackle"]
-  > = HumanActionRow.of("slidingTackle", dive, {
+  > = HumanActionRow("slidingTackle", dive, {
     kind: "slide",
   });
 }

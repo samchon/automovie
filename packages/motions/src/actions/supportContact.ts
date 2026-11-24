@@ -136,8 +136,9 @@ export namespace supportContact {
   ): boolean {
     return id(a) === id(b);
   }
-  /** The alternatives of `IdC`'s site. */
-  type IdC = IAutoMovieMotionHumanSupport.IContact | IPlaced;
+  /** A contact, with the stance it was set down in once it is placed. */
+  type IdC = IAutoMovieMotionHumanSupport.IContact &
+    Partial<Pick<IPlaced, "placed">>;
 
   /**
    * A contact's identity: its part, how it touches, its target, its inset and
@@ -148,7 +149,7 @@ export namespace supportContact {
    * @returns The identity string.
    */
   export function id(c: IdC): string {
-    const placed: IdPlaced = "placed" in c ? c.placed : "";
+    const placed: IdPlaced = c.placed ?? "";
     return `${c.part}|${c.kind}|${JSON.stringify(c.target)}|${c.inset ?? 0}|${placed}`;
   }
 

@@ -34,7 +34,7 @@ One member, written by `solveHumanLimbFit` and made by `refitHumanPosture` and `
 
 The premise that every pose passed with one flag differs only by solved limb records is its owner's; the flag does not check it.
 
-# src/posture/HumanLimbView.ts#HumanLimbView.of
+# src/posture/HumanLimbView.ts#HumanLimbView
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -27,13 +27,16 @@ import { vclose } from "../../internal/vclose";
 const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
- * Exercise field actions lead from supported movement and tool or hand
- * contact to the named ball's displayed trajectory.
+ * Exercise field actions lead from supported movement and tool or hand contact
+ * to the named ball's displayed trajectory.
  *
  * Scenarios:
+ *
  * 1. A standing football kick makes instep contact and launches the ball.
- * 2. A side-on player pushes a real puck from a low base. A square stance that cannot fit the blade refuses the same puck release.
- * 3. A rugby lateral and the two gridiron deliveries release across distinct lanes and heights.
+ * 2. A side-on player pushes a real puck from a low base. A square stance that
+ *    cannot fit the blade refuses the same puck release.
+ * 3. A rugby lateral and the two gridiron deliveries release across distinct lanes
+ *    and heights.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each authored fixture and the inspected contact or release.
  * @evidence contracts/development/testing.md#behavioral-verification Samples FK, displayed prop frames and published flights from three registered action families.
@@ -268,7 +271,10 @@ function hockey(body: IAutoMovieMotionHumanBody): void {
   );
 }
 
-/** Check side, forward and rear deliveries and their different body support geometry. */
+/**
+ * Check side, forward and rear deliveries and their different body support
+ * geometry.
+ */
 function deliveries(body: IAutoMovieMotionHumanBody): void {
   const cases = [
     {
@@ -330,7 +336,7 @@ function deliveries(body: IAutoMovieMotionHumanBody): void {
     const toward: IAutoMovieVector3 = Vector3.subtract(sample.target, shown);
     const lateral: boolean = sample.name === "rugbyPass";
     const backsnap: boolean = sample.name === "gridironSnap";
-    const reader = HumanSignature.of(performance, "player", body, 0);
+    const reader = HumanSignature(performance, "player", body, 0);
     TestValidator.equals(
       `${sample.name} publishes one actual ball flight`,
       performance.flights("ball").length,

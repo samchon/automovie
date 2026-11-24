@@ -23,6 +23,110 @@ import { poseBones } from "../posture/poseBones";
 type OfContext = "body" | "entry" | "prop";
 
 /**
+ * The prop the entry holds in one hand or both, with an end.
+ *
+ * @param context The action's context.
+ * @param prop The prop's subject id.
+ * @param end The end's affordance id.
+ * @returns The pole; undefined when no hand holds it or it declares no such
+ *   end.
+ */
+export function walkPoleFrame(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  prop: string,
+  end: string,
+): walkPoleFrame.IPole | undefined {
+  const hands: walkPoleFrame.IHand[] = [];
+  let at: IAutoMovieVector3 | undefined;
+  for (const side of ["right", "left"] as const) {
+    if (context.entry.holds[side] !== prop) continue;
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+      context,
+      side,
+      prop,
+    );
+    const found: IAutoMovieAffordance | undefined = held.affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === end,
+    );
+    if (found === undefined) return undefined;
+    at = found.frame.translation;
+    // The grip socket in the hand, holding the prop as it entered.
+    const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      poseBones(
+        context.body,
+        context.entry.pose,
+        undefined,
+        HumanHand.frameBones(context.body, side, "grip"),
+      );
+    const bone: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
+    // The forearm's way in the hand at the wrist's neutral: the arm at
+    // clinical zero.
+    const hung: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      HumanTrunk.resolve(
+        context.body,
+        context.entry.posture,
+        {
+          ...context.entry.posture.joints,
+          [`${side}UpperArm`]: [0, 0, 0],
+          [`${side}LowerArm`]: [0, 0, 0],
+          [`${side}Hand`]: [0, 0, 0],
+        },
+        undefined,
+        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
+      );
+    const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
+    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+      held.frame.rotation,
+    );
+    hands.push({
+      side,
+      held: held.frame,
+      socket: Quaternion.rotateVector(
+        Quaternion.inverse(bone.worldRotation),
+        Vector3.subtract(
+          HumanHand.frame(context.body, entered, side, "grip").point,
+          bone.worldPosition,
+        ),
+      ),
+      proximal: Vector3.normalize(
+        Quaternion.rotateVector(
+          Quaternion.inverse(hand.worldRotation),
+          Vector3.subtract(
+            hung.get(`${side}LowerArm`)!.worldPosition,
+            hand.worldPosition,
+          ),
+        ),
+      ),
+      grip: Quaternion.rotateVector(
+        inverse,
+        Vector3.scale(held.frame.position, -1),
+      ),
+    });
+  }
+  if (hands.length === 0 || at === undefined) return undefined;
+  const tip: IAutoMovieVector3 = at;
+  hands.sort(
+    (a: walkPoleFrame.IHand, b: walkPoleFrame.IHand): number =>
+      Vector3.distance(b.grip, tip) - Vector3.distance(a.grip, tip),
+  );
+  const carrying: walkPoleFrame.IHand = hands[0]!;
+  const axis: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(tip, carrying.grip),
+  );
+  return {
+    prop,
+    hands,
+    end: tip,
+    axis,
+    length: Vector3.distance(tip, carrying.grip),
+    fulcrum:
+      hands.length > 1
+        ? Vector3.dot(Vector3.subtract(hands[1]!.grip, carrying.grip), axis)
+        : 0,
+  };
+}
+
+/**
  * A long prop held in one hand or two, placed by its line: the carrying hand's
  * grip, the prop's axis from that grip to its end, and its roll about that
  * axis. Each hand holds the prop rigidly as it took it
@@ -103,110 +207,6 @@ export namespace walkPoleFrame {
 
     /** The grip, world metres. */
     grip: IAutoMovieVector3;
-  }
-
-  /**
-   * The prop the entry holds in one hand or both, with an end.
-   *
-   * @param context The action's context.
-   * @param prop The prop's subject id.
-   * @param end The end's affordance id.
-   * @returns The pole; undefined when no hand holds it or it declares no such
-   *   end.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    prop: string,
-    end: string,
-  ): IPole | undefined {
-    const hands: IHand[] = [];
-    let at: IAutoMovieVector3 | undefined;
-    for (const side of ["right", "left"] as const) {
-      if (context.entry.holds[side] !== prop) continue;
-      const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-        context,
-        side,
-        prop,
-      );
-      const found: IAutoMovieAffordance | undefined = held.affordances.find(
-        (a: IAutoMovieAffordance): boolean => a.id === end,
-      );
-      if (found === undefined) return undefined;
-      at = found.frame.translation;
-      // The grip socket in the hand, holding the prop as it entered.
-      const entered: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
-          context.body,
-          context.entry.pose,
-          undefined,
-          HumanHand.frameBones(context.body, side, "grip"),
-        );
-      const bone: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
-      // The forearm's way in the hand at the wrist's neutral: the arm at
-      // clinical zero.
-      const hung: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        HumanTrunk.resolve(
-          context.body,
-          context.entry.posture,
-          {
-            ...context.entry.posture.joints,
-            [`${side}UpperArm`]: [0, 0, 0],
-            [`${side}LowerArm`]: [0, 0, 0],
-            [`${side}Hand`]: [0, 0, 0],
-          },
-          undefined,
-          new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]),
-        );
-      const hand: IAutoMovieResolvedBone = hung.get(`${side}Hand`)!;
-      const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-        held.frame.rotation,
-      );
-      hands.push({
-        side,
-        held: held.frame,
-        socket: Quaternion.rotateVector(
-          Quaternion.inverse(bone.worldRotation),
-          Vector3.subtract(
-            HumanHand.frame(context.body, entered, side, "grip").point,
-            bone.worldPosition,
-          ),
-        ),
-        proximal: Vector3.normalize(
-          Quaternion.rotateVector(
-            Quaternion.inverse(hand.worldRotation),
-            Vector3.subtract(
-              hung.get(`${side}LowerArm`)!.worldPosition,
-              hand.worldPosition,
-            ),
-          ),
-        ),
-        grip: Quaternion.rotateVector(
-          inverse,
-          Vector3.scale(held.frame.position, -1),
-        ),
-      });
-    }
-    if (hands.length === 0 || at === undefined) return undefined;
-    const tip: IAutoMovieVector3 = at;
-    hands.sort(
-      (a: IHand, b: IHand): number =>
-        Vector3.distance(b.grip, tip) - Vector3.distance(a.grip, tip),
-    );
-    const carrying: IHand = hands[0]!;
-    const axis: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(tip, carrying.grip),
-    );
-    return {
-      prop,
-      hands,
-      end: tip,
-      axis,
-      length: Vector3.distance(tip, carrying.grip),
-      fulcrum:
-        hands.length > 1
-          ? Vector3.dot(Vector3.subtract(hands[1]!.grip, carrying.grip), axis)
-          : 0,
-    };
   }
 
   /**

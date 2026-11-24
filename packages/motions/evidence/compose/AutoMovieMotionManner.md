@@ -28,7 +28,7 @@ Constant work with no algorithm to choose.
 
 A pure function that retains nothing.
 
-# src/compose/AutoMovieMotionManner.ts#AutoMovieMotionManner.of
+# src/compose/AutoMovieMotionManner.ts#AutoMovieMotionManner
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

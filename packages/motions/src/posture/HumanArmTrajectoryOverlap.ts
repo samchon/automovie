@@ -12,8 +12,10 @@ import type {
 import { AutoMovieMotionHumanAuditTangleModel } from "../audit/AutoMovieMotionHumanAuditTangleModel";
 import { HumanArmShapeBox } from "./HumanArmShapeBox";
 import { HumanArmShapes as S } from "./HumanArmShapes";
+import { HumanArmTrajectoryClusters } from "./HumanArmTrajectoryClusters";
 import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryShapeOwners } from "./HumanArmTrajectoryShapeOwners";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
 
@@ -112,7 +114,7 @@ export namespace HumanArmTrajectoryOverlap {
         c.frames[1 - a]![k]!,
         placed[1 - a]!,
       );
-      const owners: readonly Owner[] = shapeOwners(
+      const owners: readonly Owner[] = HumanArmTrajectoryShapeOwners(
         c.frames[1 - a]![k]!.colliders,
       );
       const solids: (physicalShapeGjk.ISolid | undefined)[] = [];
@@ -147,7 +149,7 @@ export namespace HumanArmTrajectoryOverlap {
         lower: near("lower"),
         hand: near("hand"),
       };
-      for (const link of HumanArmTrajectoryLinks.of(c, a, k, own)) {
+      for (const link of HumanArmTrajectoryLinks(c, a, k, own)) {
         const mine: boolean[] = screened[link.owner];
         const segment: M.Segment = S.segment(frame, link.probes[0]!);
         theirs.forEach(
@@ -287,7 +289,7 @@ export namespace HumanArmTrajectoryOverlap {
       frame,
       placed,
     );
-    const owners: readonly Owner[] = shapeOwners(frame.colliders);
+    const owners: readonly Owner[] = HumanArmTrajectoryShapeOwners(frame.colliders);
     const model: AutoMovieMotionHumanAuditTangleModel.IModel =
       AutoMovieMotionHumanAuditTangleModel.model(c.setups[a]!.body);
     const floor: number = cut / 1000;
@@ -460,11 +462,11 @@ export namespace HumanArmTrajectoryOverlap {
     // corners are not read one by one: the bounding-volume hierarchy's
     // first level. The clusters run over the corners in their order, so the
     // corners read and the pairs found are those of a reading of each.
-    for (const cluster of clusters(frame.body)) {
+    for (const cluster of HumanArmTrajectoryClusters(frame.body)) {
       if (
-        !reaches(cluster, centres.upper, frame.bounds.upper.radius) &&
-        !reaches(cluster, centres.lower, frame.bounds.lower.radius) &&
-        !reaches(cluster, centres.hand, frame.bounds.hand.radius)
+        !HumanArmTrajectoryClusters.reaches(cluster, centres.upper, frame.bounds.upper.radius) &&
+        !HumanArmTrajectoryClusters.reaches(cluster, centres.lower, frame.bounds.lower.radius) &&
+        !HumanArmTrajectoryClusters.reaches(cluster, centres.hand, frame.bounds.hand.radius)
       )
         continue;
       for (let i: number = cluster.start; i < cluster.end; ++i) {
@@ -481,114 +483,4 @@ export namespace HumanArmTrajectoryOverlap {
 }
 
 /** The segment of the arm a collider shape rides on. */
-type Owner =
-  IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number]["owner"];
-
-/**
- * A run of consecutive body corners of one part
- * (`HumanArmGeometry.IFrame.body`) and the sphere about them.
- */
-interface ICluster {
-  /** The run's first corner's index. */
-  start: number;
-
-  /** One past the run's last corner's index. */
-  end: number;
-
-  /** The corners' mean, world metres. */
-  centre: IAutoMovieVector3;
-
-  /** The farthest corner's distance from the centre, metres. */
-  radius: number;
-}
-
-/**
- * The runs of a frame's body corners that share a part, each with the sphere
- * about its corners: fixed with the frame, built once per corner list and kept
- * while the list is held.
- */
-function clusters(
-  body: IAutoMovieMotionHumanArmGeometry.IFrame["body"],
-): readonly ICluster[] {
-  const known: readonly ICluster[] | undefined = CLUSTERS.get(body);
-  if (known !== undefined) return known;
-  const out: ICluster[] = [];
-  for (let start: number = 0; start < body.length; ) {
-    let end: number = start + 1;
-    while (end < body.length && body[end]!.part === body[start]!.part) ++end;
-    const scale: number = 1 / (end - start);
-    let x: number = 0;
-    let y: number = 0;
-    let z: number = 0;
-    for (let i: number = start; i < end; ++i) {
-      x += body[i]!.point.x * scale;
-      y += body[i]!.point.y * scale;
-      z += body[i]!.point.z * scale;
-    }
-    const centre: IAutoMovieVector3 = { x, y, z };
-    let radius: number = 0;
-    for (let i: number = start; i < end; ++i)
-      radius = Math.max(radius, Vector3.distance(body[i]!.point, centre));
-    out.push({ start, end, centre, radius });
-    start = end;
-  }
-  CLUSTERS.set(body, out);
-  return out;
-}
-
-/**
- * Whether any corner of a cluster can lie within the reach of a segment's
- * sphere (`embedded`'s per-corner screen), with a slack far above the rounding
- * of the distances.
- */
-function reaches(
-  cluster: ICluster,
-  centre: IAutoMovieVector3,
-  radius: number,
-): boolean {
-  return (
-    Vector3.distance(cluster.centre, centre) - cluster.radius - radius <
-    T.REACH + MARGIN
-  );
-}
-
-/**
- * Each collider shape's segment, in the order `HumanArmShapes.colliders` places
- * the shapes: fixed with the frame, built once per collider list.
- */
-function shapeOwners(
-  colliders: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"],
-): readonly Owner[] {
-  let known: Owner[] | undefined = OWNERS.get(colliders);
-  if (known === undefined) {
-    known = [];
-    for (const col of colliders)
-      for (let s: number = 0; s < col.shapes.length; ++s) known.push(col.owner);
-    OWNERS.set(colliders, known);
-  }
-  return known;
-}
-
-/**
- * The clusters of each frame's body corners, kept while the corner list is
- * held.
- */
-const CLUSTERS: WeakMap<
-  IAutoMovieMotionHumanArmGeometry.IFrame["body"],
-  readonly ICluster[]
-> = new WeakMap();
-
-/**
- * The shapes' segments of each frame's collider list, kept while the list is
- * held.
- */
-const OWNERS: WeakMap<
-  IAutoMovieMotionHumanArmGeometry.IFrame["colliders"],
-  Owner[]
-> = new WeakMap();
-
-/**
- * The slack of a cluster's screen over its corners', metres: far below the
- * pairs' reach, far above the rounding of a distance in metres.
- */
-const MARGIN: number = 1e-9;
+type Owner = HumanArmTrajectoryShapeOwners.Owner;

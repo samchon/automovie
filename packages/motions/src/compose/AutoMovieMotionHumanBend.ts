@@ -13,7 +13,6 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import { AutoMovieMotionHumanBendMemo } from "./AutoMovieMotionHumanBendMemo";
 import { AutoMovieMotionHumanBendPreparation } from "./AutoMovieMotionHumanBendPreparation";
 import { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendTurn } from "./AutoMovieMotionHumanBendTurn";
@@ -210,7 +209,7 @@ export namespace AutoMovieMotionHumanBend {
   export function prepare(
     fixed: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareFixed>,
   ): AutoMovieMotionHumanBendPreparation.IPrepared {
-    return AutoMovieMotionHumanBendPreparation.of(fixed);
+    return AutoMovieMotionHumanBendPreparation(fixed);
   }
 
   /**
@@ -251,10 +250,7 @@ export namespace AutoMovieMotionHumanBend {
   export function solve(
     props: IAutoMovieMotionHumanBend.ISolve,
   ): IAutoMovieVector3 {
-    return AutoMovieMotionHumanBendMemo.solve(
-      props,
-      (): IAutoMovieVector3 => prepare(props).solve(props),
-    );
+    return prepare(props).solve(props);
   }
 
   /**

@@ -293,7 +293,7 @@ export namespace HumanArmSeed {
     // to the end, with itself after it: a still configuration reads neither
     // end's time nor its arm.
     const around: number[] = [k - 1, k, Math.min(k + 1, context.n - 1)];
-    const point: M.IContext = HumanArmTrajectoryContext.of({
+    const point: M.IContext = HumanArmTrajectoryContext({
       body: problem.body,
       times: around.map((j: number): number => problem.times[j]!),
       bases: around.map(

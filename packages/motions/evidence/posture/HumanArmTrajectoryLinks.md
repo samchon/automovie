@@ -52,7 +52,7 @@ What a cast reads at each frame on the way.
 
 None.
 
-# src/posture/HumanArmTrajectoryLinks.ts#HumanArmTrajectoryLinks.of
+# src/posture/HumanArmTrajectoryLinks.ts#HumanArmTrajectoryLinks
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

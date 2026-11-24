@@ -14,6 +14,62 @@ import { HumanHand } from "../posture/HumanHand";
 type IFrameFeetEntry = { ankle: IAutoMovieVector3 };
 
 /**
+ * A hand's bridge at the line.
+ *
+ * @param body The body.
+ * @param frame The set's frame, its origin the entry's root on the floor; the
+ *   line lies a foot's length ahead.
+ * @param side The hand.
+ * @returns Its two pad targets and the seed's wrist.
+ */
+export function sprintStartSetHands(
+  body: IAutoMovieMotionHumanBody,
+  frame: IAutoMovieMotionHumanFrame,
+  side: AutoMovieHumanSide,
+): sprintStartSetHands.IBridge {
+  const index: IAutoMovieVector3 = HumanHand.offset(
+    body,
+    side,
+    "indexPad",
+    "bridge",
+  ).point;
+  const thumb: IAutoMovieVector3 = HumanHand.offset(
+    body,
+    side,
+    "thumbPad",
+    "bridge",
+  ).point;
+  const spread: number = Vector3.distance(index, thumb);
+  const out: number = side === "left" ? 1 : -1;
+  const at: (lateral: number) => IAutoMovieVector3 = (
+    lateral: number,
+  ): IAutoMovieVector3 =>
+    HumanFrame.point(frame, {
+      x: out * (body.measure.shoulderHalfWidth + lateral),
+      y: 0,
+      z: body.measure.footLength,
+    });
+  const reach: number = Vector3.length(Vector3.lerp(index, thumb, 0.5));
+  return {
+    targets: [
+      {
+        bone: `${side}Hand`,
+        point: index,
+        goal: at(spread / 2),
+        axes: ["x", "z"],
+      },
+      {
+        bone: `${side}Hand`,
+        point: thumb,
+        goal: at(-spread / 2),
+        axes: ["x", "z"],
+      },
+    ],
+    wrist: { ...at(0), y: reach },
+  };
+}
+
+/**
  * The set's hands on the bridge of the thumb and index finger: in the set a
  * sprinter supports the hands on the fingertips, the forefinger and thumb
  * against the start line, the palm raised off the track (Davidson 2013,
@@ -77,61 +133,5 @@ export namespace sprintStartSetHands {
      * wrist, world metres.
      */
     wrist: IAutoMovieVector3;
-  }
-
-  /**
-   * A hand's bridge at the line.
-   *
-   * @param body The body.
-   * @param frame The set's frame, its origin the entry's root on the floor; the
-   *   line lies a foot's length ahead.
-   * @param side The hand.
-   * @returns Its two pad targets and the seed's wrist.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    frame: IAutoMovieMotionHumanFrame,
-    side: AutoMovieHumanSide,
-  ): IBridge {
-    const index: IAutoMovieVector3 = HumanHand.offset(
-      body,
-      side,
-      "indexPad",
-      "bridge",
-    ).point;
-    const thumb: IAutoMovieVector3 = HumanHand.offset(
-      body,
-      side,
-      "thumbPad",
-      "bridge",
-    ).point;
-    const spread: number = Vector3.distance(index, thumb);
-    const out: number = side === "left" ? 1 : -1;
-    const at: (lateral: number) => IAutoMovieVector3 = (
-      lateral: number,
-    ): IAutoMovieVector3 =>
-      HumanFrame.point(frame, {
-        x: out * (body.measure.shoulderHalfWidth + lateral),
-        y: 0,
-        z: body.measure.footLength,
-      });
-    const reach: number = Vector3.length(Vector3.lerp(index, thumb, 0.5));
-    return {
-      targets: [
-        {
-          bone: `${side}Hand`,
-          point: index,
-          goal: at(spread / 2),
-          axes: ["x", "z"],
-        },
-        {
-          bone: `${side}Hand`,
-          point: thumb,
-          goal: at(-spread / 2),
-          axes: ["x", "z"],
-        },
-      ],
-      wrist: { ...at(0), y: reach },
-    };
   }
 }

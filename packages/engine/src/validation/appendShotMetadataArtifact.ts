@@ -29,8 +29,7 @@ export const appendShotMetadataArtifact: (
   sceneCameras: ReadonlySet<string> | null,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  const duration: number =
-    typeof shot.duration === "number" ? shot.duration : Infinity;
+  const duration: number = shot.duration;
   if (shot.events !== undefined)
     appendShotEventsArtifact(
       shot.events,

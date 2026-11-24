@@ -55,15 +55,6 @@ function planSwipeTouchscreen(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params, start } = context;
   const side: AutoMovieHumanSide = params.hand ?? "right";
-  if (side !== "left" && side !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: side,
-      feasible: { kind: "alternatives", values: ["left", "right"] },
-      reason: "a single-finger swipe uses one hand",
-      fix: "choose left or right",
-    });
   const held: string | undefined = entry.holds[side];
   if (
     held !== undefined ||

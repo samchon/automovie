@@ -380,7 +380,7 @@ export namespace AutoMovieMotionHumanArmCarry {
         // hanging arm is (`HumanArmSwing.of`), the same arm a planned span
         // leaves and regains (`hung`).
         if (!onPlan && !(weight > 0))
-          out = HumanArmSwing.of(
+          out = HumanArmSwing(
             props.body,
             out,
             [props.side],
@@ -596,7 +596,7 @@ function hanging(
   handed: HumanArmSwing.Entered,
 ): IAutoMovieMotionHumanArmAngles.IAngles {
   const side: AutoMovieHumanSide = member.side;
-  const upper: readonly [number, number, number] | undefined = HumanArmSwing.of(
+  const upper: readonly [number, number, number] | undefined = HumanArmSwing(
     member.body,
     rested(member, posture),
     [side],

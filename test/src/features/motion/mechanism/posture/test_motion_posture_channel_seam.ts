@@ -17,9 +17,10 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * channels until an allowed interruption or the end of the stroke.
  *
  * Scenarios:
+ *
  * 1. A walk cut from standing starts and ends with quiet joints and trunk.
- * 2. A reflex may interrupt a wave midway. A voluntary return to standing
- *    must wait for the stroke, and a newly started reflex owns its channels.
+ * 2. A reflex may interrupt a wave midway. A voluntary return to standing must
+ *    wait for the stroke, and a newly started reflex owns its channels.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Checks actual segment placement, joint displacement and refusal identity.
  * @evidence contracts/development/testing.md#independent-expectations The standing reference supplies the neutral incline and immobile joints.
@@ -54,7 +55,7 @@ export function test_motion_posture_channel_seam(): void {
       .stand(),
   );
   const [, step, rest] = walking.segments("performer");
-  const reader = HumanSignature.of(walking, "performer", body, 0);
+  const reader = HumanSignature(walking, "performer", body, 0);
   const neutral = HumanSignature.trunk(reader, 0);
   const millisecond = 1e-3;
   const millimetre = 1e-3;

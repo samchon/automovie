@@ -16,7 +16,7 @@ Both members are read by `place`.
 
 None.
 
-# src/lexicon/RideRestingHands.ts#RideRestingHands.of
+# src/lexicon/RideRestingHands.ts#RideRestingHands
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

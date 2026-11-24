@@ -25,36 +25,36 @@ export namespace HumanFirearm {
   /** Reach for a holster at the right hip. */
   export const reachHolster: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["reachHolster"]
-  > = HumanActionRow.of("reachHolster", touch, HUMAN_FIREARM_REACH_HOLSTER);
+  > = HumanActionRow("reachHolster", touch, HUMAN_FIREARM_REACH_HOLSTER);
 
   /** Level the weapon at the target and hold the aim. */
   export const takeAim: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["takeAim"]
-  > = HumanActionRow.of("takeAim", HumanWeaponFirearm.present, {
+  > = HumanActionRow("takeAim", HumanWeaponFirearm.present, {
     carriage: "aim",
   });
 
   /** Low ready: the weapon before the body, the muzzle down ahead. */
   export const lowReady: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["lowReady"]
-  > = HumanActionRow.of("lowReady", HumanWeaponFirearm.present, {
+  > = HumanActionRow("lowReady", HumanWeaponFirearm.present, {
     carriage: "lowReady",
   });
 
   /** High ready: the weapon before the chest, the muzzle up. */
   export const highReady: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["highReady"]
-  > = HumanActionRow.of("highReady", HumanWeaponFirearm.present, {
+  > = HumanActionRow("highReady", HumanWeaponFirearm.present, {
     carriage: "highReady",
   });
 
   /** One shot: the trigger's press, the muzzle's rise and its return. */
   export const recoil: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["recoil"]
-  > = HumanActionRow.of("recoil", HumanWeaponFirearm.fire, {});
+  > = HumanActionRow("recoil", HumanWeaponFirearm.fire, {});
 
   /** Hands up at gunpoint. */
   export const surrender: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["firearm"]["surrender"]
-  > = HumanActionRow.of("surrender", gesture, HUMAN_FIREARM_SURRENDER);
+  > = HumanActionRow("surrender", gesture, HUMAN_FIREARM_SURRENDER);
 }

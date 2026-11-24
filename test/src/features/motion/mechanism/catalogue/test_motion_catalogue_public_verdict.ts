@@ -14,18 +14,18 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * The verdict report is clean on a sound scene and places a physical fault
- * on the performers and the action it happens in.
+ * The verdict report is clean on a sound scene and places a physical fault on
+ * the performers and the action it happens in.
  *
- * A production accepts a scene only on a clean report, so the report must
- * not cry wolf on plain standing, and must name where a fault
- * lies when a scene has one. The fault here is one an author can make: two
- * people staged on the same floor point, whose bodies then occupy the same
- * space for the whole film.
+ * A production accepts a scene only on a clean report, so the report must not
+ * cry wolf on plain standing, and must name where a fault lies when a scene has
+ * one. The fault here is one an author can make: two people staged on the same
+ * floor point, whose bodies then occupy the same space for the whole film.
  *
  * Scenarios:
- * 1. `a` stands 2 s while `b` stands 3 m away: the report is
- *    clean, has no finding, and describes itself as `clean`.
+ *
+ * 1. `a` stands 2 s while `b` stands 3 m away: the report is clean, has no
+ *    finding, and describes itself as `clean`.
  * 2. Both stand on the origin: the report is not clean and holds a `partner`
  *    finding on `a+b`, deeper than the 10 mm skin limit, placed in `a`'s
  *    `stand`, occurrence 1, and its description names that place and bound.
@@ -70,7 +70,7 @@ export function test_motion_catalogue_public_verdict(): void {
     3,
     HumanChain.subject("a").stand({ hold: 2 }),
   );
-  const clean: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(sound);
+  const clean: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(sound);
   TestValidator.predicate(
     `standing apart is clean, got ${HumanVerdicts.describe(clean)}`,
     clean.clean && clean.findings.length === 0,
@@ -82,7 +82,7 @@ export function test_motion_catalogue_public_verdict(): void {
   );
 
   // 2. Two bodies on one floor point.
-  const merged: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+  const merged: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
     perform(0, HumanChain.subject("a").stand({ hold: 1 })),
   );
   const partner: IAutoMovieMotionHumanVerdicts.IFinding | undefined =

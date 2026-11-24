@@ -183,7 +183,7 @@ export namespace AutoMovieMotionHumanAuditStatics {
    * @param contact The window.
    * @returns World metres.
    */
-  export const patch: typeof HumanSupportPatch.of = HumanSupportPatch.of;
+  export const patch: typeof HumanSupportPatch = HumanSupportPatch;
 
   /**
    * The load-weighted Minkowski sum of the open windows' patches, the shares

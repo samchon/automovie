@@ -29,8 +29,11 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * The second hand meets a bar's other grip when a held bar is levelled.
  *
  * Scenarios:
- * 1. Align the bar with the held right hand and apply the two-hand load to one posture.
- * 2. The projected hand separation follows the physical handle spacing. A one-hand load leaves the unoccupied arm untouched.
+ *
+ * 1. Align the bar with the held right hand and apply the two-hand load to one
+ *    posture.
+ * 2. The projected hand separation follows the physical handle spacing. A one-hand
+ *    load leaves the unoccupied arm untouched.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the grasp, the two independent handle landmarks and the one-hand control.
  * @evidence contracts/development/testing.md#behavioral-verification Supplies the physical bar and its measured holding grip at entry, applies the public load writer and measures the resolved hand positions.

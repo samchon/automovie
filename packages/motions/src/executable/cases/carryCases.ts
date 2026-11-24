@@ -53,7 +53,7 @@ export function carryCases(
         FamilyCaseKit.perform(
           "carry",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("carry", params),
+          HumanChain.subject("a").act("carry", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const verdicts: IMotionCaptureCase.IVerdict[] = [

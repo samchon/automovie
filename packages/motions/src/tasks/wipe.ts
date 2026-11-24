@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPhrase } from "../compose/AutoMovieMotionHumanArmPhrase";
@@ -169,8 +168,10 @@ export namespace wipe {
     // (`IAutoMovieMotionHumanWipe.IParams.cycles`).
     const cycles: number = context.params.count ?? 3;
     HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const centre: IAutoMovieVector3 = context.aim(
       context.params.on,
       context.start,
@@ -324,7 +325,7 @@ export namespace wipe {
       ...compose(AutoMovieMotionHumanArm.stroke(stroke)),
       ...HumanPhysics.declared(context.params, window),
     };
-    if (context.carrier === undefined && createHumanBody.owns(body)) {
+    if (context.carrier === undefined) {
       // The palm is planted. Its fixed circular onset cannot scale the
       // current target, whose bend, lean and balance still use this instant.
       const prepared: IAutoMovieMotionHumanActionPlan = compose(
@@ -332,10 +333,7 @@ export namespace wipe {
       );
       const sample: IAutoMovieMotionHumanPlayback.IPhase["sample"] = (
         ...args
-      ) =>
-        createHumanBody.owns(body)
-          ? { posture: prepared.posture(...args) }
-          : undefined;
+      ) => ({ posture: prepared.posture(...args) });
       HumanPreparedPlayback.attach(plan, body, {
         mode: "posture",
         phases: [

@@ -1,4 +1,4 @@
-# src/striking/StrikingRecord.ts#StrikingRecord.of
+# src/striking/StrikingRecord.ts#StrikingRecord
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

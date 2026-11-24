@@ -134,7 +134,7 @@ export namespace HumanUnseatDrag {
     const slide: HumanUnseatFlight.IFlight | undefined =
       freed === undefined
         ? undefined
-        : HumanUnseatFlight.of(
+        : HumanUnseatFlight(
             dragged(context.start + freed).root,
             Vector3.scale(
               Vector3.subtract(

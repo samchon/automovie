@@ -24,6 +24,35 @@ type WaypointFramesEntry = "upper" | "lower" | "hand";
 type SegmentsEntryItem = "upper" | "lower" | "hand";
 
 /**
+ * The Jacobians of every probe, the contact and the hand's rotation of every
+ * arm at every inner waypoint; an outer waypoint's are empty.
+ *
+ * @param c The context.
+ * @param x Each arm's coordinates at each waypoint.
+ * @param at The iterate's evaluation.
+ * @returns Per arm and waypoint, its Jacobians.
+ */
+export function HumanArmTrajectoryJacobians(
+  c: M.IContext,
+  x: readonly (readonly number[])[][],
+  at: M.IEvaluation,
+): HumanArmTrajectoryJacobians.IJacobian[][] {
+  return x.map(
+    (
+      arm: readonly (readonly number[])[],
+      a: number,
+    ): HumanArmTrajectoryJacobians.IJacobian[] =>
+      arm.map(
+        (
+          _: readonly number[],
+          k: number,
+        ): HumanArmTrajectoryJacobians.IJacobian =>
+          HumanArmTrajectoryJacobians.waypoint(c, x, at, a, k),
+      ),
+  );
+}
+
+/**
  * The Jacobians an arms' trajectory's convex subproblem
  * (`HumanArmTrajectoryConvex`) linearises its constraints on, about an iterate:
  * each coordinate's segment twists (`HumanArmJacobian`), every point moving
@@ -76,29 +105,6 @@ export namespace HumanArmTrajectoryJacobians {
 
     /** Each segment's motion. */
     segments: Record<SegmentsEntryItem, IMotion>[];
-  }
-
-  /**
-   * The Jacobians of every probe, the contact and the hand's rotation of every
-   * arm at every inner waypoint; an outer waypoint's are empty.
-   *
-   * @param c The context.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param at The iterate's evaluation.
-   * @returns Per arm and waypoint, its Jacobians.
-   */
-  export function of(
-    c: M.IContext,
-    x: readonly (readonly number[])[][],
-    at: M.IEvaluation,
-  ): IJacobian[][] {
-    return x.map(
-      (arm: readonly (readonly number[])[], a: number): IJacobian[] =>
-        arm.map(
-          (_: readonly number[], k: number): IJacobian =>
-            waypoint(c, x, at, a, k),
-        ),
-    );
   }
 
   /**
@@ -181,7 +187,14 @@ export namespace HumanArmTrajectoryJacobians {
           entry.hand.push(
             turned(
               (target ??=
-                P.located(c, at.placed, a, k, site).rotation ?? site.rotation),
+                P.located(
+                  c,
+                  (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+                    at.placed[arm]![k]!,
+                  a,
+                  k,
+                  site,
+                ).rotation ?? site.rotation),
               here.hand,
               column.hand.angular,
             ),

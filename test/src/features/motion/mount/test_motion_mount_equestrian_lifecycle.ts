@@ -25,7 +25,10 @@ import { assertTakeClean } from "../../internal/assertTakeClean";
 import { equineLeadOut } from "../../internal/equineLeadOut";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
-/** The gaits these takes ride, each with its speed: walk, trot and canter; the gallop is not ridden here. */
+/**
+ * The gaits these takes ride, each with its speed: walk, trot and canter; the
+ * gallop is not ridden here.
+ */
 type Ridden = Exclude<IAutoMovieMotionHumanRide.EquestrianGait, "gallop">;
 
 /** The horse producer's model. */
@@ -44,12 +47,19 @@ const MOUNT_WAIT: number = 6;
 const CONTACT: number = 0.01;
 
 /**
- * The full body sweep uses actual staged mount, ridden motion, dismount and lead.
+ * The full body sweep uses actual staged mount, ridden motion, dismount and
+ * lead.
  *
  * Scenarios:
  *
- * 1. Every sweep body mounts a standing horse, rides it from a standing start to a halt, the bodies taking walk, trot and canter in turn so every gait is ridden, dismounts to the left and walks to the horse's head.
- * 2. The handler, standing at the horse's throat with the right shoulder 0.13 m outside the rope and the rope three quarters of an arm from the shoulder, then leads the horse 6 m on foot, the right hand on its lead rope; the horse's course is laid after the walk so that its progress follows the handler's rehearsed hips, as a led horse follows its handler.
+ * 1. Every sweep body mounts a standing horse, rides it from a standing start to a
+ *    halt, the bodies taking walk, trot and canter in turn so every gait is
+ *    ridden, dismounts to the left and walks to the horse's head.
+ * 2. The handler, standing at the horse's throat with the right shoulder 0.13 m
+ *    outside the rope and the rope three quarters of an arm from the shoulder,
+ *    then leads the horse 6 m on foot, the right hand on its lead rope; the
+ *    horse's course is laid after the walk so that its progress follows the
+ *    handler's rehearsed hips, as a led horse follows its handler.
  * 3. A handler staged 0.88 m beside the rope refuses with `leadReach`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the fourteen established bodies, all three gaits, independently published tack points, geometric ground recovery, the led course matched to the walker and on-foot grip.
@@ -108,7 +118,10 @@ interface Take {
   part: (id: string, at: number) => IAutoMovieTransform;
 }
 
-/** The led walking ride, laid after the handler's walk is rehearsed, and the film second it starts. */
+/**
+ * The led walking ride, laid after the handler's walk is rehearsed, and the
+ * film second it starts.
+ */
 interface ILed {
   /** The led ride; absent until the rehearsal has timed it. */
   ride?: Ride;
@@ -117,7 +130,10 @@ interface ILed {
   start: number;
 }
 
-/** Which recorded ride currently carries the horse, and the second on that ride's own clock. */
+/**
+ * Which recorded ride currently carries the horse, and the second on that
+ * ride's own clock.
+ */
 interface ICarrierTrack {
   /** The ride sampled. */
   ride: Ride;
@@ -126,7 +142,10 @@ interface ICarrierTrack {
   local: number;
 }
 
-/** Rehearse the handler's walk, then lay the led horse's course so its progress follows the walker's. */
+/**
+ * Rehearse the handler's walk, then lay the led horse's course so its progress
+ * follows the walker's.
+ */
 function build(
   body: IAutoMovieMotionHumanBody,
   gait: Ridden,
@@ -168,7 +187,10 @@ function build(
   };
   const led: ILed = { start: Infinity };
 
-  /** The shot keeps the actual parked mount until the separate led walking track begins. */
+  /**
+   * The shot keeps the actual parked mount until the separate led walking track
+   * begins.
+   */
   function carrierAt(at: number): ICarrierTrack {
     return led.ride !== undefined && at >= led.start
       ? { ride: led.ride, local: Math.min(led.ride.duration, at - led.start) }
@@ -277,7 +299,7 @@ function build(
 function verify(take: Take): void {
   const { body, film, horse, mounted, part } = take;
   assertTakeClean("the equestrian lifecycle take", film);
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "rider",
     body,

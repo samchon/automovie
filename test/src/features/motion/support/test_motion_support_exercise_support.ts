@@ -35,51 +35,51 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * The expectations are the exercises' descriptions (NSCA's Essentials of
  * Strength Training, 4th ed.: a push-up lowers the chest to the floor over
  * fixed hands and toes; a pull-up ends with the chin over the bar; a glute
- * bridge raises the hips over planted feet with the shoulders on the floor;
- * a side plank bears on one forearm and the feet with the body off the
- * floor; a deadlift's hands pass below the knees over flat feet) and the
- * campaign's bounds (a planted support slips at most 5 mm, a held contact
- * 10 mm). Nothing is compared with a value read from the law.
+ * bridge raises the hips over planted feet with the shoulders on the floor; a
+ * side plank bears on one forearm and the feet with the body off the floor; a
+ * deadlift's hands pass below the knees over flat feet) and the campaign's
+ * bounds (a planted support slips at most 5 mm, a held contact 10 mm). Nothing
+ * is compared with a value read from the law.
  *
  * One film per body keeps the test under a minute: every row is done once
- * (`reps: 1`, `hold: 1`), and each reading is one posture at a named event.
- * Two bodies of opposite build suffice because every checked quantity is a
- * share of the body's own lengths.
+ * (`reps: 1`, `hold: 1`), and each reading is one posture at a named event. Two
+ * bodies of opposite build suffice because every checked quantity is a share of
+ * the body's own lengths.
  *
- * Scenarios:
- * for each of the two bodies:
- * 1. Push-up: between `top1` and `bottom1` the toes' joints stay within
- *    5 mm and the wrists within 10 mm, and the shoulders come down by at
- *    least half the upper arm.
- * 2. Glute bridge: at `down1` the chest faces up; at `bridge1` the ankles
- *    are within 5 mm of where they were, the hips are above the shoulders
- *    and the shoulders are within a tenth of the stature of the floor.
- * 3. Side plank: at `reachEnd1` the left shoulder is below the right by at
- *    least a shoulder's half width, the left elbow is within 8 % of the
- *    stature of the floor and the hips are above a tenth of the stature.
- * 4. Triangle: at `reachEnd1` both ankles are within 15 mm of their
- *    standing height and the head is carried a tenth of the stature to one
- *    side of the hips.
- * 5. Deadlift: at `bottom1` the ankles are within 5 mm of where they stood
- *    and the wrists are below the knees.
- * 6. Pull-up, on a pull-up bar (`createPullUpBar`) 0.3 m ahead: between
- *    `hang1` and `top1` the fists' middle (the grip sockets) stays within
- *    5 mm, the feet are off the floor at `hang1`, and at `top1` the head's
- *    joint is no lower than 2 % of the stature under the wrists.
- * 7. Turn: at `half1` the hips face the way opposite to the entry's, and
- *    the left toes' joint stays within 5 mm through the turn.
- * 8. Forward salto: a quarter into the flight the head is ahead of the
- *    hips, at its middle below them, three quarters in behind them, and at
- *    `settled` above them.
- * 9. Under the physical flight policy (`flight: "physical"`; the staged
- *    default turns authored counts kinematically and claims no momentum),
- *    the original 0.15 m apex and three-turn requests are judged by the
- *    body's conserved-momentum flight, which replaced the provisional
- *    constant-rate bound. Each is either refused on `turns` without an
- *    invented scalar feasible range, or its displayed root completes the
- *    requested turns and lands upright within 0.02 revolution (the existing
- *    airborne-signature bound). Twenty turns exceed the take-off and are
- *    refused, as the independent core-flight case also requires.
+ * Scenarios: for each of the two bodies:
+ *
+ * 1. Push-up: between `top1` and `bottom1` the toes' joints stay within 5 mm and
+ *    the wrists within 10 mm, and the shoulders come down by at least half the
+ *    upper arm.
+ * 2. Glute bridge: at `down1` the chest faces up; at `bridge1` the ankles are
+ *    within 5 mm of where they were, the hips are above the shoulders and the
+ *    shoulders are within a tenth of the stature of the floor.
+ * 3. Side plank: at `reachEnd1` the left shoulder is below the right by at least a
+ *    shoulder's half width, the left elbow is within 8 % of the stature of the
+ *    floor and the hips are above a tenth of the stature.
+ * 4. Triangle: at `reachEnd1` both ankles are within 15 mm of their standing
+ *    height and the head is carried a tenth of the stature to one side of the
+ *    hips.
+ * 5. Deadlift: at `bottom1` the ankles are within 5 mm of where they stood and the
+ *    wrists are below the knees.
+ * 6. Pull-up, on a pull-up bar (`createPullUpBar`) 0.3 m ahead: between `hang1`
+ *    and `top1` the fists' middle (the grip sockets) stays within 5 mm, the
+ *    feet are off the floor at `hang1`, and at `top1` the head's joint is no
+ *    lower than 2 % of the stature under the wrists.
+ * 7. Turn: at `half1` the hips face the way opposite to the entry's, and the left
+ *    toes' joint stays within 5 mm through the turn.
+ * 8. Forward salto: a quarter into the flight the head is ahead of the hips, at
+ *    its middle below them, three quarters in behind them, and at `settled`
+ *    above them.
+ * 9. Under the physical flight policy (`flight: "physical"`; the staged default
+ *    turns authored counts kinematically and claims no momentum), the original
+ *    0.15 m apex and three-turn requests are judged by the body's
+ *    conserved-momentum flight, which replaced the provisional constant-rate
+ *    bound. Each is either refused on `turns` without an invented scalar
+ *    feasible range, or its displayed root completes the requested turns and
+ *    lands upright within 0.02 revolution (the existing airborne-signature
+ *    bound). Twenty turns exceed the take-off and are refused, as the
+ *    independent core-flight case also requires.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a performance through the public input on real bodies and reads displayed bones at named events; each failure names the row, the body and the measured millimetres.
  * @evidence contracts/development/testing.md#independent-expectations Expected values are the cited descriptions and the campaign's bounds; none is read from the law.
@@ -135,7 +135,7 @@ export function test_motion_support_exercise_support(): void {
       );
       continue;
     }
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "a",
       body,

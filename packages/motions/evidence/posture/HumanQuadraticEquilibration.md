@@ -1,4 +1,4 @@
-# src/posture/HumanQuadraticEquilibration.ts#HumanQuadraticEquilibration.of
+# src/posture/HumanQuadraticEquilibration.ts#HumanQuadraticEquilibration
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

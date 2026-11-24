@@ -58,7 +58,7 @@ Only the windows' seconds, constants of the clock, are shared.
 
 The reader retains the clock, four names and at most two intervals until release.
 
-# src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock.of
+# src/compose/AutoMovieMotionClock.ts#AutoMovieMotionClock
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

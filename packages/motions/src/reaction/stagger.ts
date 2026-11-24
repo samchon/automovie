@@ -195,7 +195,7 @@ export namespace stagger {
     // The push and the recovery it asks for (`staggerRecovery`); a push no
     // `STEPS` steps catch is a fall, refused with the fastest push this body
     // catches that way.
-    const admitted: staggerRecovery.IAdmitted = staggerRecovery.of(context);
+    const admitted: staggerRecovery.IAdmitted = staggerRecovery(context);
     if (admitted.recovery === null)
       throw staggerRecovery.refusal(context, admitted);
     return recovered(context, admitted.recovery, admitted.fixed);
@@ -220,7 +220,7 @@ export namespace stagger {
 
     // The first step's landing, the instant the clock names the catch by.
     const swing: number = recovery.steps[0]!.land;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       recovery.settled,
       [
         { name: "tipped", seconds: 0.5 * swing },

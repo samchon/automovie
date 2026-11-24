@@ -39,6 +39,60 @@ type DigitAtSegment = "Proximal" | "Distal";
 type DigitName = "Thumb" | "Index";
 
 /**
+ * The finger joints of a hand shape, clinical degrees.
+ *
+ * @param side The hand.
+ * @param form The shape.
+ * @returns Angles for every finger and thumb segment of that hand.
+ */
+export function HumanHandShape(
+  side: AutoMovieHumanSide,
+  form: IAutoMovieMotionHumanHand.Shape,
+): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
+  const out: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  > = {};
+  const set: (bone: string, flexion: number) => void = (
+    bone: string,
+    flexion: number,
+  ): void => {
+    out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
+  };
+  for (const digit of ["Index", "Middle", "Ring", "Little"]) {
+    const curled: boolean =
+      form === "fist" || (form === "point" && digit !== "Index");
+    for (const segment of ["Proximal", "Intermediate", "Distal"]) {
+      if (curled)
+        set(
+          `${digit}${segment}`,
+          segment === "Proximal" ? 85 : segment === "Intermediate" ? 95 : 90,
+        );
+      else if (form !== "relaxed") set(`${digit}${segment}`, 0);
+      // The position of rest on a finger whose zero is straight: the
+      // body's rest pose no longer carries a curl of its own.
+      else
+        set(
+          `${digit}${segment}`,
+          segment === "Proximal" ? 35 : segment === "Intermediate" ? 30 : 20,
+        );
+    }
+  }
+  const folded: boolean = form === "fist" || form === "point";
+  // A flat hand lays the thumb in the palm's plane beside the forefinger:
+  // the rig's rest thumb stands palmar of the knuckles' plane (its neutral
+  // stops where its skin clears the hand's), and carrying it back by
+  // `FLAT_THUMB` degrees of retroposition brings its tip to within 3 mm of
+  // that plane on the small woman and the average man, so a palm laid flat
+  // on a floor or a face does not sink its thumb. A bridge keeps the thumb
+  // at that neutral, palmar of the knuckles and spread from the
+  // forefinger, so it reaches the line beside the forefinger's tip.
+  set("ThumbMetacarpal", form === "flat" ? FLAT_THUMB : 0);
+  set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
+  set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
+  return out;
+}
+
+/**
  * The finger joints of a named hand shape: the angles `HumanHand.Shape` stands
  * for on every finger and thumb segment of one hand.
  *
@@ -47,60 +101,6 @@ type DigitName = "Thumb" | "Index";
  * under them.
  */
 export namespace HumanHandShape {
-  /**
-   * The finger joints of a hand shape, clinical degrees.
-   *
-   * @param side The hand.
-   * @param form The shape.
-   * @returns Angles for every finger and thumb segment of that hand.
-   */
-  export function of(
-    side: AutoMovieHumanSide,
-    form: IAutoMovieMotionHumanHand.Shape,
-  ): Partial<Record<AutoMovieHumanoidBone, readonly [number, number, number]>> {
-    const out: Partial<
-      Record<AutoMovieHumanoidBone, readonly [number, number, number]>
-    > = {};
-    const set: (bone: string, flexion: number) => void = (
-      bone: string,
-      flexion: number,
-    ): void => {
-      out[`${side}${bone}` as AutoMovieHumanoidBone] = [flexion, 0, 0];
-    };
-    for (const digit of ["Index", "Middle", "Ring", "Little"]) {
-      const curled: boolean =
-        form === "fist" || (form === "point" && digit !== "Index");
-      for (const segment of ["Proximal", "Intermediate", "Distal"]) {
-        if (curled)
-          set(
-            `${digit}${segment}`,
-            segment === "Proximal" ? 85 : segment === "Intermediate" ? 95 : 90,
-          );
-        else if (form !== "relaxed") set(`${digit}${segment}`, 0);
-        // The position of rest on a finger whose zero is straight: the
-        // body's rest pose no longer carries a curl of its own.
-        else
-          set(
-            `${digit}${segment}`,
-            segment === "Proximal" ? 35 : segment === "Intermediate" ? 30 : 20,
-          );
-      }
-    }
-    const folded: boolean = form === "fist" || form === "point";
-    // A flat hand lays the thumb in the palm's plane beside the forefinger:
-    // the rig's rest thumb stands palmar of the knuckles' plane (its neutral
-    // stops where its skin clears the hand's), and carrying it back by
-    // `FLAT_THUMB` degrees of retroposition brings its tip to within 3 mm of
-    // that plane on the small woman and the average man, so a palm laid flat
-    // on a floor or a face does not sink its thumb. A bridge keeps the thumb
-    // at that neutral, palmar of the knuckles and spread from the
-    // forefinger, so it reaches the line beside the forefinger's tip.
-    set("ThumbMetacarpal", form === "flat" ? FLAT_THUMB : 0);
-    set("ThumbProximal", folded ? 40 : form === "relaxed" ? 25 : 0);
-    set("ThumbDistal", folded ? 50 : form === "relaxed" ? 25 : 0);
-    return out;
-  }
-
   /** The emblem shapes of {@link Emblem}, as data. */
   export const EMBLEMS = [
     "thumbUp",
@@ -324,16 +324,9 @@ export namespace HumanHandShape {
     curl: number,
     surface: IAutoMovieMotionHumanHand.DigitSurface = "indexTip",
   ): IAutoMovieMotionHumanHand.IFrame {
-    const key: string = `${side}:${surface}:${form}:${curl}`;
-    let memo: Map<string, IAutoMovieMotionHumanHand.IFrame> | undefined =
-      TIPS.get(body);
-    if (memo === undefined) {
-      memo = new Map();
-      TIPS.set(body, memo);
-    }
-    const known: IAutoMovieMotionHumanHand.IFrame | undefined = memo.get(key);
-    if (known !== undefined) return known;
-    const joints: IAutoMovieJointPose[] = Object.entries(of(side, form)).map(
+    const joints: IAutoMovieJointPose[] = Object.entries(
+      HumanHandShape(side, form),
+    ).map(
       ([bone, a]): IAutoMovieJointPose => ({
         bone: bone as AutoMovieHumanoidBone,
         flexion: a![0] + (bone.includes("Thumb") ? 0 : curl),
@@ -364,7 +357,7 @@ export namespace HumanHandShape {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       hand.worldRotation,
     );
-    const out: IAutoMovieMotionHumanHand.IFrame = {
+    return {
       point: Quaternion.rotateVector(
         inverse,
         Vector3.subtract(point, hand.worldPosition),
@@ -373,8 +366,6 @@ export namespace HumanHandShape {
       forward:
         body.surfaces.sockets[`palm${Side}` as AutoMovieHumanoidSocket].normal,
     };
-    memo.set(key, out);
-    return out;
   }
 }
 
@@ -430,9 +421,3 @@ function padOf(
  * the joint's admitted -25 (`DEFAULT_HUMANOID_ROM`).
  */
 const FLAT_THUMB: number = -25;
-
-/** Digit tip and pad frames by body, keyed by side, surface, shape and curl. */
-const TIPS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Map<string, IAutoMovieMotionHumanHand.IFrame>
-> = new WeakMap();

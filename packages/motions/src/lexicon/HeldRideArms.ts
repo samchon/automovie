@@ -16,6 +16,59 @@ import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
 import { poseBones } from "../posture/poseBones";
 
 /**
+ * Keep each hand that holds a prop and takes none of the ride's grips.
+ *
+ * @param context The ride's context.
+ * @returns The posture and the records that keep the props held.
+ */
+export function HeldRideArms(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
+): HeldRideArms.IKept {
+  const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
+  let joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints;
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+  const holds: IAutoMovieMotionPropHold[] = [];
+  for (const side of [
+    "left",
+    "right",
+  ] as const satisfies readonly AutoMovieHumanSide[]) {
+    const prop: string | undefined = context.entry.holds[side];
+    if (prop === undefined || context.params.hands?.[side] !== undefined)
+      continue;
+    const chain: ReadonlySet<AutoMovieHumanoidBone> =
+      new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]);
+    const shown: ReturnType<typeof poseBones> = poseBones(
+      context.body,
+      context.entry.pose,
+      undefined,
+      chain,
+    );
+    const wrist: IAutoMovieResolvedBone = shown.get(`${side}Hand`)!;
+    limbs[`${side}Arm`] = {
+      point: wrist.worldPosition,
+      rotation: wrist.worldRotation,
+      bend: shown.get(`${side}LowerArm`)!.worldPosition,
+    };
+    const angles: IAutoMovieMotionHumanArmAngles.IAngles =
+      AutoMovieMotionHumanArm.angles(context.entry.pose, side);
+    joints = { ...joints, ...angles.fingers };
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+      context,
+      side,
+      prop,
+    );
+    contacts.push(AutoMovieMotionHumanHeld.grip(held));
+    holds.push(AutoMovieMotionHumanHeld.hold(context, held));
+  }
+  return {
+    posture: holds.length === 0 ? posture : { ...posture, limbs, joints },
+    contacts,
+    holds,
+  };
+}
+
+/**
  * The hands a ride keeps holding what they brought into it (`HumanRide`).
  *
  * A hand that holds a prop and takes none of the ride's grips would otherwise
@@ -43,58 +96,5 @@ export namespace HeldRideArms {
 
     /** The hold each held prop is left in. */
     holds: IAutoMovieMotionPropHold[];
-  }
-
-  /**
-   * Keep each hand that holds a prop and takes none of the ride's grips.
-   *
-   * @param context The ride's context.
-   * @returns The posture and the records that keep the props held.
-   */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanRide.IParams>,
-  ): IKept {
-    const posture: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    let joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints;
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    const holds: IAutoMovieMotionPropHold[] = [];
-    for (const side of [
-      "left",
-      "right",
-    ] as const satisfies readonly AutoMovieHumanSide[]) {
-      const prop: string | undefined = context.entry.holds[side];
-      if (prop === undefined || context.params.hands?.[side] !== undefined)
-        continue;
-      const chain: ReadonlySet<AutoMovieHumanoidBone> =
-        new Set<AutoMovieHumanoidBone>([`${side}LowerArm`, `${side}Hand`]);
-      const shown: ReturnType<typeof poseBones> = poseBones(
-        context.body,
-        context.entry.pose,
-        undefined,
-        chain,
-      );
-      const wrist: IAutoMovieResolvedBone = shown.get(`${side}Hand`)!;
-      limbs[`${side}Arm`] = {
-        point: wrist.worldPosition,
-        rotation: wrist.worldRotation,
-        bend: shown.get(`${side}LowerArm`)!.worldPosition,
-      };
-      const angles: IAutoMovieMotionHumanArmAngles.IAngles =
-        AutoMovieMotionHumanArm.angles(context.entry.pose, side);
-      joints = { ...joints, ...angles.fingers };
-      const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
-        context,
-        side,
-        prop,
-      );
-      contacts.push(AutoMovieMotionHumanHeld.grip(held));
-      holds.push(AutoMovieMotionHumanHeld.hold(context, held));
-    }
-    return {
-      posture: holds.length === 0 ? posture : { ...posture, limbs, joints },
-      contacts,
-      holds,
-    };
   }
 }

@@ -12,6 +12,58 @@ import { readHumanBone } from "../body/readHumanBone";
 import { poseBones } from "./poseBones";
 
 /**
+ * The records a limb's fit reads of a pose: those of its chain, of the bone its
+ * goal rides, of the bones whose colliders an arm keeps clear of and of a leg's
+ * toes, with every ancestor of each.
+ *
+ * @param body The performer's body.
+ * @param pose The pose before the fit.
+ * @param limb The limb.
+ * @param goal Its goal, attached or not.
+ * @param placed The arms already placed, whose colliders an arm's fit reads.
+ * @returns The reduced pose and where its records lie in the whole one.
+ */
+export function HumanLimbView(
+  body: IAutoMovieMotionHumanBody,
+  pose: IAutoMoviePose,
+  limb: AutoMovieHumanLimb,
+  goal: IAutoMovieHumanLimbGoal,
+  placed: readonly AutoMovieHumanSide[],
+): HumanLimbView.IView {
+  const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
+  const arm: boolean = limb.endsWith("Arm");
+
+  // The bones whose frames or records the fit reads, closed under the
+  // rig's parents: the obstacles of the other arm where it is placed and
+  // the limb's own bones are the body's (`IHumanBody.reads`); a goal on a
+  // bone adds it and the parents the body's set does not already hold,
+  // climbed until one it holds.
+  const others: boolean =
+    arm && placed.some((other: AutoMovieHumanSide): boolean => other !== side);
+  const kept: ReadonlySet<AutoMovieHumanoidBone> =
+    body.reads[limb][others ? 1 : 0].bones;
+  let read: ReadonlySet<AutoMovieHumanoidBone> = kept;
+  if (goal.on !== undefined && !kept.has(goal.on)) {
+    const grown: Set<AutoMovieHumanoidBone> = new Set(kept);
+    for (
+      let bone: AutoMovieHumanoidBone | null | undefined = goal.on;
+      bone !== null && bone !== undefined && !grown.has(bone);
+      bone = readHumanBone(body, bone)?.parent
+    )
+      grown.add(bone);
+    read = grown;
+  }
+  const joints: IAutoMovieJointPose[] = [];
+  const at: number[] = [];
+  pose.joints.forEach((joint: IAutoMovieJointPose, index: number): void => {
+    if (!read.has(joint.bone)) return;
+    joints.push(joint);
+    at.push(index);
+  });
+  return { pose: { ...pose, joints }, at };
+}
+
+/**
  * What one limb's fit reads of a pose, and the fit's result written back.
  *
  * A limb fit reads the frames of a few bones (its chain, the bone its goal
@@ -47,59 +99,6 @@ export namespace HumanLimbView {
   export interface IAdmission {
     /** Whether the whole pose was admitted. */
     admitted: boolean;
-  }
-
-  /**
-   * The records a limb's fit reads of a pose: those of its chain, of the bone
-   * its goal rides, of the bones whose colliders an arm keeps clear of and of a
-   * leg's toes, with every ancestor of each.
-   *
-   * @param body The performer's body.
-   * @param pose The pose before the fit.
-   * @param limb The limb.
-   * @param goal Its goal, attached or not.
-   * @param placed The arms already placed, whose colliders an arm's fit reads.
-   * @returns The reduced pose and where its records lie in the whole one.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-    goal: IAutoMovieHumanLimbGoal,
-    placed: readonly AutoMovieHumanSide[],
-  ): IView {
-    const side: AutoMovieHumanSide = limb.startsWith("left") ? "left" : "right";
-    const arm: boolean = limb.endsWith("Arm");
-
-    // The bones whose frames or records the fit reads, closed under the
-    // rig's parents: the obstacles of the other arm where it is placed and
-    // the limb's own bones are the body's (`IHumanBody.reads`); a goal on a
-    // bone adds it and the parents the body's set does not already hold,
-    // climbed until one it holds.
-    const others: boolean =
-      arm &&
-      placed.some((other: AutoMovieHumanSide): boolean => other !== side);
-    const kept: ReadonlySet<AutoMovieHumanoidBone> =
-      body.reads[limb][others ? 1 : 0].bones;
-    let read: ReadonlySet<AutoMovieHumanoidBone> = kept;
-    if (goal.on !== undefined && !kept.has(goal.on)) {
-      const grown: Set<AutoMovieHumanoidBone> = new Set(kept);
-      for (
-        let bone: AutoMovieHumanoidBone | null | undefined = goal.on;
-        bone !== null && bone !== undefined && !grown.has(bone);
-        bone = readHumanBone(body, bone)?.parent
-      )
-        grown.add(bone);
-      read = grown;
-    }
-    const joints: IAutoMovieJointPose[] = [];
-    const at: number[] = [];
-    pose.joints.forEach((joint: IAutoMovieJointPose, index: number): void => {
-      if (!read.has(joint.bone)) return;
-      joints.push(joint);
-      at.push(index);
-    });
-    return { pose: { ...pose, joints }, at };
   }
 
   /**

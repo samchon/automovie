@@ -15,59 +15,59 @@ import { HumanArmOvershootRoom } from "./HumanArmOvershootRoom";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
 /**
+ * How far a forearm lies inside the room it needs, as degrees of upper arm
+ * turn, the unit a range of motion overshoot has.
+ *
+ * @param body The body, for the forearm's radius and the upper arm's length.
+ * @param shapes The trunk's placed colliders (`trunk`).
+ * @param elbow The elbow, world metres.
+ * @param wrist The wrist, world metres.
+ * @param side The arm.
+ * @param others Placed colliders the wrist has no goal on (another body's);
+ *   none when absent.
+ * @param goal Whether the wrist is where a goal put it, which excuses its own
+ *   depth in `shapes`; a carried arm between its ends has none.
+ * @param rival The world point the other arm's goal will put its wrist at,
+ *   while that arm is still to be fitted: the plane keeps that arm's room only
+ *   when it lies on this arm's side; absent, the room is kept unless the other
+ *   arm's colliders are among `shapes`.
+ * @param hint The world point the goal hints the elbow toward, which the elbow
+ *   may follow across the median plane by up to the forearm's radius beyond it;
+ *   none when absent.
+ * @param rests Placed colliders of another body the goal lays the hand on (the
+ *   partner's segment a palm rests on); none when absent.
+ * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps
+ *   its side.
+ */
+export function HumanArmOvershoot(
+  body: IAutoMovieMotionHumanBody,
+  shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
+  elbow: IAutoMovieVector3,
+  wrist: IAutoMovieVector3,
+  side: AutoMovieHumanSide,
+  others: readonly IAutoMovieMotionHumanColliders.IFramed[] = [],
+  goal: boolean = true,
+  rival?: IAutoMovieVector3,
+  hint?: IAutoMovieVector3,
+  rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
+): number {
+  return evaluate(
+    body,
+    HumanArmOvershootRoom(shapes, others, rests, side),
+    elbow,
+    wrist,
+    goal,
+    rival,
+    hint,
+  );
+}
+
+/**
  * How far a forearm lies inside the room it needs, the reading
  * `HumanArmClearance.overshoot` gives: the chest's median plane for the elbow's
  * side, and the forearm's tapering capsule against placed colliders.
  */
 export namespace HumanArmOvershoot {
-  /**
-   * How far a forearm lies inside the room it needs, as degrees of upper arm
-   * turn, the unit a range of motion overshoot has.
-   *
-   * @param body The body, for the forearm's radius and the upper arm's length.
-   * @param shapes The trunk's placed colliders (`trunk`).
-   * @param elbow The elbow, world metres.
-   * @param wrist The wrist, world metres.
-   * @param side The arm.
-   * @param others Placed colliders the wrist has no goal on (another body's);
-   *   none when absent.
-   * @param goal Whether the wrist is where a goal put it, which excuses its own
-   *   depth in `shapes`; a carried arm between its ends has none.
-   * @param rival The world point the other arm's goal will put its wrist at,
-   *   while that arm is still to be fitted: the plane keeps that arm's room
-   *   only when it lies on this arm's side; absent, the room is kept unless the
-   *   other arm's colliders are among `shapes`.
-   * @param hint The world point the goal hints the elbow toward, which the
-   *   elbow may follow across the median plane by up to the forearm's radius
-   *   beyond it; none when absent.
-   * @param rests Placed colliders of another body the goal lays the hand on
-   *   (the partner's segment a palm rests on); none when absent.
-   * @returns Degrees; 0 when the forearm clears every shape and the elbow keeps
-   *   its side.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    shapes: readonly IAutoMovieMotionHumanColliders.IPlaced[],
-    elbow: IAutoMovieVector3,
-    wrist: IAutoMovieVector3,
-    side: AutoMovieHumanSide,
-    others: readonly IAutoMovieMotionHumanColliders.IFramed[] = [],
-    goal: boolean = true,
-    rival?: IAutoMovieVector3,
-    hint?: IAutoMovieVector3,
-    rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
-  ): number {
-    return evaluate(
-      body,
-      HumanArmOvershootRoom.of(shapes, others, rests, side),
-      elbow,
-      wrist,
-      goal,
-      rival,
-      hint,
-    );
-  }
-
   /**
    * Read varying elbow/wrist candidates against one unchanged room during a
    * synchronous fit. The lists, their placed geometry, body measurements and
@@ -85,7 +85,7 @@ export namespace HumanArmOvershoot {
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
     trial?: HumanArmBendRoom,
   ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
-    const room: IRoom = HumanArmOvershootRoom.of(shapes, others, rests, side);
+    const room: IRoom = HumanArmOvershootRoom(shapes, others, rests, side);
     const shared: IQueries = trial === undefined ? {} : { trial };
     return (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
       evaluate(body, room, elbow, wrist, goal, rival, hint, shared);

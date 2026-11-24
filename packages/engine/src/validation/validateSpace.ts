@@ -17,11 +17,6 @@ import { ViolationCollector } from "./ViolationCollector";
 import { validateColor } from "./validateColor";
 import { validateSurfaceHeightRule } from "./validateSurfaceHeightRule";
 
-const SURFACE_KINDS: readonly ["floor", "platform", "ramp"] = [
-  "floor",
-  "platform",
-  "ramp",
-] as const;
 const MIN_RAMP_AXIS: number = 1e-9;
 
 /**
@@ -31,8 +26,9 @@ const MIN_RAMP_AXIS: number = 1e-9;
 const MIN_RING_DOUBLE_AREA: number = 1e-9;
 
 /**
- * Admit ids and kinds, finite XZ footprint rings with strictly interior
- * disjoint holes, one ground rule and optional opaque color.
+ * Admit unique surface ids and resolving walkable ids, finite XZ footprint
+ * rings with strictly interior disjoint holes, one ground rule and optional
+ * opaque color.
  */
 export const validateSpace: (
   props: IAutoMovieValidateSpace.IProps,
@@ -43,24 +39,9 @@ export const validateSpace: (
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const { space }: { space: IAutoMovieSpace } = props;
 
-  if (space.id.trim().length === 0)
-    collector.push(
-      "type",
-      `${path}.id`,
-      "space id must be non-empty",
-      space.id,
-    );
-
   const ids: Set<string> = new Set<string>();
   space.surfaces.forEach((surface: IAutoMovieSurface, i: number): void => {
     const sp: string = `${path}.surfaces[${i}]`;
-    if (surface.id.trim().length === 0)
-      collector.push(
-        "type",
-        `${sp}.id`,
-        "surface id must be non-empty",
-        surface.id,
-      );
     if (ids.has(surface.id))
       collector.push(
         "type",
@@ -91,16 +72,14 @@ export const validateSpace: (
 };
 
 /**
- * Check the closed surface kind then delegate footprint and ground admission.
+ * Delegate footprint and ground admission, then check color and availability.
  *
- * Kind, footprint and height responsibilities are separated by the existing
- * surface schema.
+ * Footprint and height responsibilities are separated by the existing surface
+ * schema.
  *
- * Unknown kinds append an error without repairing the surface.
+ * Caller-relative footprint/ground paths remain stable.
  *
- * Caller-relative kind/footprint/ground paths remain stable.
- *
- * Polygon/lattice sizes drive delegated costs; kind lookup is fixed-size.
+ * Polygon/lattice sizes drive delegated costs.
  *
  * Surface helpers share the same collector and canonical polygon/height owners.
  *
@@ -115,20 +94,12 @@ const validateSurface: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  if (!SURFACE_KINDS.includes(surface.kind))
-    collector.push(
-      "type",
-      `${path}.kind`,
-      `unknown surface kind "${String(surface.kind)}"`,
-      surface.kind,
-    );
-
   validateSurfaceFootprint(surface, path, collector);
   validateSurfaceGround(surface, path, collector);
   if (surface.color !== undefined) {
     validateColor(surface.color, `${path}.color`, collector);
-    const alpha: number | null | undefined = surface.color?.a;
-    if (typeof alpha === "number" && alpha !== 1)
+    const alpha: number | null = surface.color.a;
+    if (alpha !== null && alpha !== 1)
       collector.push(
         "range",
         `${path}.color.a`,

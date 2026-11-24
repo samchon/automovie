@@ -24,6 +24,87 @@ import { HumanHand } from "../posture/HumanHand";
 import { crutchSitPath } from "./crutchSitPath";
 
 /**
+ * Read the kit.
+ *
+ * @param context The crutch sit's context.
+ * @returns The kit.
+ * @throws {HumanRefusal} When a crutch declares no grip or no tip.
+ */
+export function crutchSitKit(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
+): crutchSitKit.IKit {
+  const p: IAutoMovieMotionHumanCrutchSit = context.params;
+  const body: IAutoMovieMotionHumanBody = context.body;
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const injured: AutoMovieHumanSide = p.injured ?? "left";
+  const subject = (side: AutoMovieHumanSide): string =>
+    side === "left" ? p.left : p.right;
+  const affordances = (
+    side: AutoMovieHumanSide,
+  ): readonly IAutoMovieAffordance[] =>
+    context.prop(subject(side)).prop.affordances ?? [];
+  return {
+    body,
+    entry,
+    injured,
+    sound: injured === "left" ? "right" : "left",
+    crutch: {
+      left: crutchSitPath.crutch(p.left, affordances("left")),
+      right: crutchSitPath.crutch(p.right, affordances("right")),
+    },
+    subject,
+    affordances,
+    start: (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
+      context.prop(subject(side)).frame(context.start),
+    goal: (
+      hand: AutoMovieHumanSide,
+      held: IAutoMovieMotionHumanHeld.IHeld,
+      frame: IAutoMovieRigidTransform,
+    ): IAutoMovieHumanLimbGoal => {
+      const rotation: IAutoMovieQuaternion = Quaternion.normalize(
+        Quaternion.multiply(
+          frame.rotation,
+          Quaternion.inverse(held.frame.rotation),
+        ),
+      );
+      const at: IAutoMovieVector3 = Vector3.subtract(
+        frame.position,
+        Quaternion.rotateVector(rotation, held.frame.position),
+      );
+      return {
+        ...HumanHand.place(body, hand, "grip", at, rotation),
+        bend: AutoMovieMotionHumanBend.hang(body, entry, hand, 0.2),
+      };
+    },
+    write: (
+      posture: IAutoMovieMotionHumanPosture,
+      arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
+      leg: IAutoMovieHumanLimbReference,
+    ): IAutoMovieMotionHumanPosture => {
+      const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
+        ...posture.limbs,
+        leftArm: arms.left,
+        rightArm: arms.right,
+      };
+      delete limbs[`${injured}Leg`];
+      return {
+        ...posture,
+        limbs,
+        joints: {
+          ...posture.joints,
+          [`${injured}UpperLeg`]: [...leg.upper],
+          [`${injured}LowerLeg`]: [...leg.lower],
+        },
+      };
+    },
+    at: (plan: IAutoMovieMotionHumanActionPlan, name: string): number =>
+      plan.duration *
+      (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === name)
+        ?.share ?? 1),
+  };
+}
+
+/**
  * What the crutch sit's two orders share: the sides, the crutches and their
  * staged frames, the hand goal that holds a crutch on a frame, the writing of
  * the arms and the injured leg over the body's posture, and the order's result
@@ -105,88 +186,6 @@ export namespace crutchSitKit {
 
     /** The base the act leaves. */
     base: IAutoMovieMotionHumanActionPlan["base"];
-  }
-
-  /**
-   * Read the kit.
-   *
-   * @param context The crutch sit's context.
-   * @returns The kit.
-   * @throws {HumanRefusal} When a crutch declares no grip or no tip.
-   */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
-  ): IKit {
-    const p: IAutoMovieMotionHumanCrutchSit = context.params;
-    const body: IAutoMovieMotionHumanBody = context.body;
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const injured: AutoMovieHumanSide = p.injured ?? "left";
-    const subject = (side: AutoMovieHumanSide): string =>
-      side === "left" ? p.left : p.right;
-    const affordances = (
-      side: AutoMovieHumanSide,
-    ): readonly IAutoMovieAffordance[] =>
-      context.prop(subject(side)).prop.affordances ?? [];
-    return {
-      body,
-      entry,
-      injured,
-      sound: injured === "left" ? "right" : "left",
-      crutch: {
-        left: crutchSitPath.crutch(p.left, affordances("left")),
-        right: crutchSitPath.crutch(p.right, affordances("right")),
-      },
-      subject,
-      affordances,
-      start: (side: AutoMovieHumanSide): IAutoMovieRigidTransform =>
-        context.prop(subject(side)).frame(context.start),
-      goal: (
-        hand: AutoMovieHumanSide,
-        held: IAutoMovieMotionHumanHeld.IHeld,
-        frame: IAutoMovieRigidTransform,
-      ): IAutoMovieHumanLimbGoal => {
-        const rotation: IAutoMovieQuaternion = Quaternion.normalize(
-          Quaternion.multiply(
-            frame.rotation,
-            Quaternion.inverse(held.frame.rotation),
-          ),
-        );
-        const at: IAutoMovieVector3 = Vector3.subtract(
-          frame.position,
-          Quaternion.rotateVector(rotation, held.frame.position),
-        );
-        return {
-          ...HumanHand.place(body, hand, "grip", at, rotation),
-          bend: AutoMovieMotionHumanBend.hang(body, entry, hand, 0.2),
-        };
-      },
-      write: (
-        posture: IAutoMovieMotionHumanPosture,
-        arms: Record<AutoMovieHumanSide, IAutoMovieHumanLimbGoal>,
-        leg: IAutoMovieHumanLimbReference,
-      ): IAutoMovieMotionHumanPosture => {
-        const limbs: IAutoMovieMotionHumanPosture["limbs"] = {
-          ...posture.limbs,
-          leftArm: arms.left,
-          rightArm: arms.right,
-        };
-        delete limbs[`${injured}Leg`];
-        return {
-          ...posture,
-          limbs,
-          joints: {
-            ...posture.joints,
-            [`${injured}UpperLeg`]: [...leg.upper],
-            [`${injured}LowerLeg`]: [...leg.lower],
-          },
-        };
-      },
-      at: (plan: IAutoMovieMotionHumanActionPlan, name: string): number =>
-        plan.duration *
-        (plan.events.find(
-          (e: IAutoMovieMotionEvent): boolean => e.name === name,
-        )?.share ?? 1),
-    };
   }
 
   /**

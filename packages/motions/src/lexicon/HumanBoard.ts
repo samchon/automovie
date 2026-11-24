@@ -88,7 +88,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   HumanBound.above("duration", flight, 0, "s");
   HumanBound.least("height", height, 0, "m");
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.seat,

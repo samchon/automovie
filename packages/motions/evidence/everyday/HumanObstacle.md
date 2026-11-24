@@ -1,4 +1,4 @@
-# src/everyday/HumanObstacle.ts#HumanObstacle.of
+# src/everyday/HumanObstacle.ts#HumanObstacle
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

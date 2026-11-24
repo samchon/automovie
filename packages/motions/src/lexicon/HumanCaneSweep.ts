@@ -106,8 +106,6 @@ interface ITouch {
  * waypoint of the arm's course (`courseArmGoal.knotted`). Events: `touch<n>`. A
  * cane too short to reach the floor ahead, or a walk with no landing in the
  * span, is refused.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the hand's place, how steps are read, the touch rule, the crossing, the cane's frame, the course with its touch waypoints, the hold's grip the driven hand keeps, the events and the refusals.
  */
 function planHumanCaneSweep(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCaneSweep>,
@@ -126,7 +124,7 @@ function planHumanCaneSweep(
       reason: "a cane is swept over a walk",
       fix: "perform the sweep over a walk",
     });
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

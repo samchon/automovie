@@ -16,6 +16,36 @@ type Tilt = Pick<IAutoMovieMotionHumanPosture, Tilt2>;
 type TURNSEntryItem = "supine" | "lateralLeft" | "prone" | "lateralRight";
 
 /**
+ * The heading and turn a lying posture shows.
+ *
+ * @param posture The lying posture's tilt.
+ * @returns Its supine heading and its turn in (-180, 180].
+ */
+export function lyingTurn(posture: Tilt): lyingTurn.ITurn {
+  const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
+  const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 1,
+    z: 0,
+  });
+  const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  const yaw: number = (Math.atan2(-head.x, -head.z) * 180) / Math.PI;
+  const left: IAutoMovieVector3 = {
+    x: Math.cos((yaw * Math.PI) / 180),
+    y: 0,
+    z: -Math.sin((yaw * Math.PI) / 180),
+  };
+  return {
+    yaw,
+    turn: (Math.atan2(Vector3.dot(chest, left), chest.y) * 180) / Math.PI,
+  };
+}
+
+/**
  * A lying body's turn about its own long axis. A lying body is the supine one,
  * `Ry(yaw) Rx(-90)` (the head toward the heading's back, the chest up), turned
  * by `turn` degrees about its long axis, the root's `+Y`: `Ry(yaw) Rx(-90)
@@ -43,36 +73,6 @@ export namespace lyingTurn {
     prone: 180,
     lateralRight: -90,
   };
-
-  /**
-   * The heading and turn a lying posture shows.
-   *
-   * @param posture The lying posture's tilt.
-   * @returns Its supine heading and its turn in (-180, 180].
-   */
-  export function of(posture: Tilt): ITurn {
-    const rotation: IAutoMovieQuaternion = humanPostureHeading(posture);
-    const head: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: 1,
-      z: 0,
-    });
-    const chest: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-      x: 0,
-      y: 0,
-      z: 1,
-    });
-    const yaw: number = (Math.atan2(-head.x, -head.z) * 180) / Math.PI;
-    const left: IAutoMovieVector3 = {
-      x: Math.cos((yaw * Math.PI) / 180),
-      y: 0,
-      z: -Math.sin((yaw * Math.PI) / 180),
-    };
-    return {
-      yaw,
-      turn: (Math.atan2(Vector3.dot(chest, left), chest.y) * 180) / Math.PI,
-    };
-  }
 
   /**
    * The tilt of a heading and turn.

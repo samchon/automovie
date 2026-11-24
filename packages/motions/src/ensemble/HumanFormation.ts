@@ -14,6 +14,70 @@ import { HumanFormationPath } from "./HumanFormationPath";
 import { formationCourseFrame } from "./formationCourseFrame";
 
 /**
+ * A formation checked: every block's count within its layout's capacity, every
+ * size finite and positive.
+ *
+ * @param formation The formation.
+ * @returns The same formation.
+ * @throws {HumanRefusal} A `parameter` refusal naming the block and the value
+ *   at fault.
+ */
+export function HumanFormation(
+  formation: IAutoMovieMotionHumanFormation,
+): IAutoMovieMotionHumanFormation {
+  if (formation.blocks.length === 0)
+    throw new HumanRefusal({
+      kind: "parameter",
+      axis: "blocks",
+      value: 0,
+      reason: "a formation has no block",
+      fix: "give the formation at least one block",
+    });
+  formation.blocks.forEach(
+    (block: IAutoMovieMotionHumanFormation.IBlock, b: number): void => {
+      const capacity: number = HumanFormation.capacity(block.layout);
+      if (
+        !(
+          Number.isInteger(block.count) &&
+          block.count > 0 &&
+          block.count <= capacity
+        )
+      )
+        throw new HumanRefusal({
+          kind: "parameter",
+          axis: `blocks[${b}].count`,
+          value: block.count,
+          feasible: {
+            kind: "range",
+            minimum: 1,
+            maximum: Number.isFinite(capacity) ? capacity : null,
+            unit: "",
+          },
+          reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
+          fix: "give the block a whole number of members its layout holds",
+        });
+      for (const value of [
+        block.offset?.lateral ?? 0,
+        block.offset?.depth ?? 0,
+        block.facing ?? 0,
+      ])
+        if (!Number.isFinite(value))
+          throw new HumanRefusal({
+            kind: "parameter",
+            axis: `blocks[${b}]`,
+            value,
+            reason: `block ${b}'s offset or facing is not finite`,
+            fix: "give finite offsets and facings",
+          });
+    },
+  );
+
+  // A path frame that cannot be laid is refused here, as the formation is checked.
+  if (formation.frame.kind === "path") HumanFormation.prepare(formation);
+  return formation;
+}
+
+/**
  * Formations: validating one, and reading where each member's slot stands at a
  * film second, the way it travels between two seconds, and which member takes
  * which slot.
@@ -46,70 +110,6 @@ export namespace HumanFormation {
    * (provisional: a few samples a step, as `walkFollowed.STEP`).
    */
   export const SAMPLE: number = 0.25;
-
-  /**
-   * A formation checked: every block's count within its layout's capacity,
-   * every size finite and positive.
-   *
-   * @param formation The formation.
-   * @returns The same formation.
-   * @throws {HumanRefusal} A `parameter` refusal naming the block and the value
-   *   at fault.
-   */
-  export function of(
-    formation: IAutoMovieMotionHumanFormation,
-  ): IAutoMovieMotionHumanFormation {
-    if (formation.blocks.length === 0)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "blocks",
-        value: 0,
-        reason: "a formation has no block",
-        fix: "give the formation at least one block",
-      });
-    formation.blocks.forEach(
-      (block: IAutoMovieMotionHumanFormation.IBlock, b: number): void => {
-        const capacity: number = HumanFormation.capacity(block.layout);
-        if (
-          !(
-            Number.isInteger(block.count) &&
-            block.count > 0 &&
-            block.count <= capacity
-          )
-        )
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: `blocks[${b}].count`,
-            value: block.count,
-            feasible: {
-              kind: "range",
-              minimum: 1,
-              maximum: Number.isFinite(capacity) ? capacity : null,
-              unit: "",
-            },
-            reason: `block ${b} holds ${block.count} members, which its ${block.layout.kind} layout cannot place`,
-            fix: "give the block a whole number of members its layout holds",
-          });
-        for (const value of [
-          block.offset?.lateral ?? 0,
-          block.offset?.depth ?? 0,
-          block.facing ?? 0,
-        ])
-          if (!Number.isFinite(value))
-            throw new HumanRefusal({
-              kind: "parameter",
-              axis: `blocks[${b}]`,
-              value,
-              reason: `block ${b}'s offset or facing is not finite`,
-              fix: "give finite offsets and facings",
-            });
-      },
-    );
-
-    // A path frame that cannot be laid is refused here, as the formation is checked.
-    if (formation.frame.kind === "path") prepare(formation);
-    return formation;
-  }
 
   /**
    * How many members a layout places: its ranks times files, the square of a

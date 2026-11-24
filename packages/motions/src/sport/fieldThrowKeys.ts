@@ -10,6 +10,74 @@ import type {
 import { ExerciseKey } from "../exercise/ExerciseKey";
 
 /**
+ * Build an event's keys on a body.
+ *
+ * @param body The body.
+ * @param event The throw.
+ * @param side The throwing hand.
+ * @returns The keys.
+ */
+export function fieldThrowKeys(
+  body: IAutoMovieMotionHumanBody,
+  event: IAutoMovieMotionHumanFieldThrow.Event,
+  side: AutoMovieHumanSide,
+): fieldThrowKeys.IKeys {
+  const arm = (
+    throwing: IAutoMovieMotionHumanExerciseKey.ILimb,
+    free: IAutoMovieMotionHumanExerciseKey.ILimb,
+  ): [
+    IAutoMovieMotionHumanExerciseKey.ILimb,
+    IAutoMovieMotionHumanExerciseKey.ILimb,
+  ] => (side === "left" ? [throwing, free] : [free, throwing]);
+  const wind: IAutoMovieMotionHumanExerciseKey.IKey =
+    event === "shot"
+      ? ExerciseKey.from(
+          body,
+          { pitch: 20 },
+          { knee: 35, hip: 40, ankle: 15 },
+          ...arm(
+            { shoulder: 40, raise: 70, elbow: 140 },
+            { shoulder: 90, raise: 20, elbow: 20 },
+          ),
+        )
+      : event === "javelin"
+        ? ExerciseKey.from(
+            body,
+            { pitch: -5 },
+            { knee: 15, hip: 15, ankle: 5 },
+            ...arm(
+              { shoulder: -30, raise: 60, elbow: 10 },
+              { shoulder: 90, raise: 10, elbow: 20 },
+            ),
+          )
+        : ExerciseKey.from(
+            body,
+            { pitch: 10 },
+            { knee: 25, hip: 25, ankle: 10 },
+            ...arm(
+              event === "hammer"
+                ? { shoulder: 60, raise: 20, elbow: 5 }
+                : { shoulder: 0, raise: 90, elbow: 5 },
+              event === "hammer"
+                ? { shoulder: 60, raise: 20, elbow: 5 }
+                : { shoulder: 0, raise: 90, elbow: 10 },
+            ),
+          );
+  const release: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.from(
+    body,
+    { pitch: 10 },
+    { knee: 10, hip: 10, ankle: 0 },
+    ...arm(
+      event === "hammer"
+        ? { shoulder: 120, raise: 20, elbow: 5 }
+        : { shoulder: 120, raise: 30, elbow: 5 },
+      { shoulder: 20, raise: 30, elbow: 30 },
+    ),
+  );
+  return { wind, release, stand: ExerciseKey.standing(body) };
+}
+
+/**
  * The keyed postures of a field throw (`fieldThrow`): the wind the body turns
  * in, the release and standing. Angles are provisional, read from the events'
  * descriptions (the shot held at the neck, the discus and the hammer swung at
@@ -26,74 +94,6 @@ export namespace fieldThrowKeys {
 
     /** Relaxed standing. */
     stand: IAutoMovieMotionHumanExerciseKey.IKey;
-  }
-
-  /**
-   * Build an event's keys on a body.
-   *
-   * @param body The body.
-   * @param event The throw.
-   * @param side The throwing hand.
-   * @returns The keys.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    event: IAutoMovieMotionHumanFieldThrow.Event,
-    side: AutoMovieHumanSide,
-  ): IKeys {
-    const arm = (
-      throwing: IAutoMovieMotionHumanExerciseKey.ILimb,
-      free: IAutoMovieMotionHumanExerciseKey.ILimb,
-    ): [
-      IAutoMovieMotionHumanExerciseKey.ILimb,
-      IAutoMovieMotionHumanExerciseKey.ILimb,
-    ] => (side === "left" ? [throwing, free] : [free, throwing]);
-    const wind: IAutoMovieMotionHumanExerciseKey.IKey =
-      event === "shot"
-        ? ExerciseKey.from(
-            body,
-            { pitch: 20 },
-            { knee: 35, hip: 40, ankle: 15 },
-            ...arm(
-              { shoulder: 40, raise: 70, elbow: 140 },
-              { shoulder: 90, raise: 20, elbow: 20 },
-            ),
-          )
-        : event === "javelin"
-          ? ExerciseKey.from(
-              body,
-              { pitch: -5 },
-              { knee: 15, hip: 15, ankle: 5 },
-              ...arm(
-                { shoulder: -30, raise: 60, elbow: 10 },
-                { shoulder: 90, raise: 10, elbow: 20 },
-              ),
-            )
-          : ExerciseKey.from(
-              body,
-              { pitch: 10 },
-              { knee: 25, hip: 25, ankle: 10 },
-              ...arm(
-                event === "hammer"
-                  ? { shoulder: 60, raise: 20, elbow: 5 }
-                  : { shoulder: 0, raise: 90, elbow: 5 },
-                event === "hammer"
-                  ? { shoulder: 60, raise: 20, elbow: 5 }
-                  : { shoulder: 0, raise: 90, elbow: 10 },
-              ),
-            );
-    const release: IAutoMovieMotionHumanExerciseKey.IKey = ExerciseKey.from(
-      body,
-      { pitch: 10 },
-      { knee: 10, hip: 10, ankle: 0 },
-      ...arm(
-        event === "hammer"
-          ? { shoulder: 120, raise: 20, elbow: 5 }
-          : { shoulder: 120, raise: 30, elbow: 5 },
-        { shoulder: 20, raise: 30, elbow: 30 },
-      ),
-    );
-    return { wind, release, stand: ExerciseKey.standing(body) };
   }
 
   /**

@@ -105,7 +105,7 @@ export namespace walkClock {
     for (;;) {
       const clock: walkTempo.IClock | null = entrainment(context, {
         duration: plan.duration,
-        events: walkWindows.of(plan).events,
+        events: walkWindows(plan).events,
       });
       if (clock === null) return { plan, clock };
 

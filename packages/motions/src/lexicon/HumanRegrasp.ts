@@ -19,7 +19,7 @@ export namespace HumanRegrasp {
    */
   export const twist: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["twist"]
-  > = HumanActionRow.of("twist", regrasp, { kind: "twist" });
+  > = HumanActionRow("twist", regrasp, { kind: "twist" });
 
   /**
    * The object shifted in the still hand to another of its grips. A grip change
@@ -27,7 +27,7 @@ export namespace HumanRegrasp {
    */
   export const regrip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["regrip"]
-  > = HumanActionRow.of("regrip", regrasp, {
+  > = HumanActionRow("regrip", regrasp, {
     kind: "regrip",
   });
 
@@ -37,5 +37,5 @@ export namespace HumanRegrasp {
    */
   export const roll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["regrasp"]["roll"]
-  > = HumanActionRow.of("roll", regrasp, { kind: "roll" });
+  > = HumanActionRow("roll", regrasp, { kind: "roll" });
 }

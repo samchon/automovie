@@ -22,11 +22,15 @@ import { motionContactArmFixture as fixture } from "../../../internal/motionCont
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * Both palms in the public two-arm stage motion must follow their own shoulder-relative targets.
+ * Both palms in the public two-arm stage motion must follow their own
+ * shoulder-relative targets.
  *
  * Scenarios:
- * 1. Resolve the same public standing entry and the same named exercise on the small, average and large bodies.
- * 2. Measure each palm at the near and far phases and compare against the body's chest level and bilateral reach grid.
+ *
+ * 1. Resolve the same public standing entry and the same named exercise on the
+ *    small, average and large bodies.
+ * 2. Measure each palm at the near and far phases and compare against the body's
+ *    chest level and bilateral reach grid.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Both palms in the public two-arm stage motion must follow their own shoulder-relative targets.
  * @evidence contracts/development/testing.md#independent-expectations The physical sites are the authored chest-height grid locations at a quarter and four-fifths of the arm length. The 10 mm site disk and 1 mm FK allowance apply separately to each palm.

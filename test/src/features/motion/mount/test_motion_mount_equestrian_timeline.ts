@@ -65,9 +65,13 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  *
  * Scenarios:
  *
- * 1. One ride walks, trots, canters through a 25 degree turn and trots again; each gait's own hoof track drives a measurable pelvis and relative chest response while seat and stirrups hold.
- * 2. An over-shoulder look during the trot turns the head past the side and returns, with the pelvis kept forward.
- * 3. A flying change from the left to the right canter lead banks the pelvis to opposite sides, and seat and stirrups hold across the change.
+ * 1. One ride walks, trots, canters through a 25 degree turn and trots again; each
+ *    gait's own hoof track drives a measurable pelvis and relative chest
+ *    response while seat and stirrups hold.
+ * 2. An over-shoulder look during the trot turns the head past the side and
+ *    returns, with the pelvis kept forward.
+ * 3. A flying change from the left to the right canter lead banks the pelvis to
+ *    opposite sides, and seat and stirrups hold across the change.
  * 4. Two touchdown tracks that overlap in time refuse with `equestrian.stride`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies actual course, hoof-event clocks, grounded saddle and stirrup observations, pelvis and lumbar response, lead mirror and over-shoulder recovery.
@@ -140,7 +144,7 @@ export function test_motion_mount_equestrian_timeline(): void {
     },
   ];
   const take: ITake = stage(horse, course, gaitWindows, true);
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     take.film,
     "rider",
     take.body,
@@ -199,7 +203,7 @@ export function test_motion_mount_equestrian_timeline(): void {
   assertTakeClean("the gait timeline take", take.film);
   const moving: ITake = stage(horse, leads, leadWindows, false);
   assertTakeClean("the lead-change timeline take", moving.film);
-  const both: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const both: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     moving.film,
     "rider",
     moving.body,
@@ -342,7 +346,10 @@ function stage(
   return { film, body, part, times: timelines, look: lookTime };
 }
 
-/** Observe one actual rig bone against the saddle independently of the motion law. */
+/**
+ * Observe one actual rig bone against the saddle independently of the motion
+ * law.
+ */
 function axis(
   run: ITake,
   bone: AutoMovieHumanoidBone,

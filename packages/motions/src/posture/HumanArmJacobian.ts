@@ -192,7 +192,7 @@ export namespace HumanArmJacobian {
       body,
       side,
     );
-    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame.of(
+    const at: IAutoMovieMotionHumanArmGeometry.IFrame = HumanArmFrame(
       setup,
       { pose, others: [] },
       true,

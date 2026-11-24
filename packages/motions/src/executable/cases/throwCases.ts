@@ -17,6 +17,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { catchObject } from "../../throwing/catchObject";
+import { readThrowObjectLaunch } from "../../throwing/readThrowObjectLaunch";
 import { throwObject } from "../../throwing/throwObject";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
@@ -115,7 +116,7 @@ export function throwCases(
       const thrown = performance.segments("a")[0]!;
       const caught = performance.segments("b")[0]!;
       const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-        throwObject.of(thrown.plan)!;
+        readThrowObjectLaunch(thrown.plan)!;
       const release: number = FamilyCaseKit.event(performance, "release", "a");
       const contact: number = FamilyCaseKit.event(performance, "contact", "b");
       const held: number = FamilyCaseKit.event(performance, "held", "b");

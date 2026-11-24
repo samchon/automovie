@@ -118,7 +118,7 @@ export namespace HumanSwordGuard {
               hold: seconds - set,
               retract: 0,
             }),
-            AutoMovieMotionManner.of(context, context.params.manner),
+            AutoMovieMotionManner(context, context.params.manner),
           ),
           path: (): IAutoMovieMotionHumanStrikingHeld.IHandFrame => pose,
           back: s.tool.length,

@@ -22,7 +22,9 @@ import { vclose } from "../../../internal/vclose";
  * A tapping foot touches its target between its outward and return arcs.
  *
  * Scenarios:
- * 1. Observe the foot through posed forward kinematics on a canonical standing body.
+ *
+ * 1. Observe the foot through posed forward kinematics on a canonical standing
+ *    body.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A tapping foot touches its target between its outward and return arcs.
  * @evidence contracts/development/testing.md#independent-expectations The target sits on the stance plane and both swings clear it.
@@ -34,7 +36,7 @@ export function test_motion_dynamics_primitive_leg_phrase_tap(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 1, y: 0, z: 2 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "ready", seconds: 0.25 },
     { name: "strokeStart", seconds: 0.5 },
     { name: "stroke", seconds: 1 },

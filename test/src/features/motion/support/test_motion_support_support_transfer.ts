@@ -22,10 +22,13 @@ import { throwsError } from "../../internal/throwsError";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Heel-off transfers the foot’s pivot to its forefoot while that contact stays fixed.
+ * Heel-off transfers the foot’s pivot to its forefoot while that contact stays
+ * fixed.
  *
  * Scenarios:
- * 1. Rotate a foot in pitch around the ball of the sole and compare the heel and support point with a flat pose.
+ *
+ * 1. Rotate a foot in pitch around the ball of the sole and compare the heel and
+ *    support point with a flat pose.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Heel-off transfers the foot’s pivot to its forefoot while that contact stays fixed.
  * @evidence contracts/development/testing.md#independent-expectations A rigid rotation about the front support moves the heel along a circular arc.

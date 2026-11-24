@@ -113,7 +113,7 @@ export namespace climbLadderBeats {
         },
       );
     const duration: number = beat * (2 + count * 4);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       instants,
     );

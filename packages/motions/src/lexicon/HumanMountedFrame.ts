@@ -24,6 +24,71 @@ import { humanPostureHeading } from "../posture/humanPostureHeading";
 /** The alternatives of `MoveAttitude`'s site. */
 type MoveAttitude = "yaw" | "pitch" | "roll";
 
+/** A point given in a frame, in the world. */
+function carryHumanPoint(
+  frame: IAutoMovieRigidTransform,
+  point: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  const turned: IAutoMovieVector3 = Quaternion.rotateVector(
+    frame.rotation,
+    point,
+  );
+  return {
+    x: frame.position.x + turned.x,
+    y: frame.position.y + turned.y,
+    z: frame.position.z + turned.z,
+  };
+}
+
+/**
+ * The model-aligned frame of a carrier's contact at each film second.
+ *
+ * @param support The carrier.
+ * @param on The carrier's subject id, for refusals.
+ * @param id The contact's id.
+ * @returns The reader.
+ * @throws {HumanRefusal} When the carrier declares no such contact.
+ */
+export function HumanMountedFrame(
+  support: IAutoMovieMotionHumanPropReader,
+  on: string,
+  id: string,
+): HumanMountedFrame.Reader {
+  const contact: IAutoMovieAffordance | undefined =
+    support.prop.affordances?.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    );
+  if (contact === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "frame",
+      value: id,
+      feasible: {
+        kind: "alternatives",
+        values: (support.prop.affordances ?? []).map(
+          (a: IAutoMovieAffordance): string => a.id,
+        ),
+      },
+      reason: `${on} declares no contact ${id} to plan the mounted figures in`,
+      fix: "name the carrier's seat or pad",
+    });
+  const back: IAutoMovieQuaternion = Quaternion.inverse(contact.frame.rotation);
+  return (film: number): IAutoMovieRigidTransform => {
+    const read: ReturnType<NonNullable<typeof support.prop.point>> =
+      support.prop.point?.(id, film);
+    if (read?.rotation !== undefined)
+      return {
+        position: read.point,
+        rotation: Quaternion.multiply(read.rotation, back),
+      };
+    const frame: IAutoMovieRigidTransform = support.frame(film);
+    return {
+      position: carryHumanPoint(frame, contact.frame.translation),
+      rotation: frame.rotation,
+    };
+  };
+}
+
 /**
  * The moving frame a mounted performance is planned in: one of the carrier's
  * own contacts, read where the carrier has it at each film second, with its
@@ -35,57 +100,6 @@ type MoveAttitude = "yaw" | "pitch" | "roll";
 export namespace HumanMountedFrame {
   /** A carrier frame at a film second. */
   export type Reader = (film: number) => IAutoMovieRigidTransform;
-
-  /**
-   * The model-aligned frame of a carrier's contact at each film second.
-   *
-   * @param support The carrier.
-   * @param on The carrier's subject id, for refusals.
-   * @param id The contact's id.
-   * @returns The reader.
-   * @throws {HumanRefusal} When the carrier declares no such contact.
-   */
-  export function of(
-    support: IAutoMovieMotionHumanPropReader,
-    on: string,
-    id: string,
-  ): Reader {
-    const contact: IAutoMovieAffordance | undefined =
-      support.prop.affordances?.find(
-        (a: IAutoMovieAffordance): boolean => a.id === id,
-      );
-    if (contact === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "frame",
-        value: id,
-        feasible: {
-          kind: "alternatives",
-          values: (support.prop.affordances ?? []).map(
-            (a: IAutoMovieAffordance): string => a.id,
-          ),
-        },
-        reason: `${on} declares no contact ${id} to plan the mounted figures in`,
-        fix: "name the carrier's seat or pad",
-      });
-    const back: IAutoMovieQuaternion = Quaternion.inverse(
-      contact.frame.rotation,
-    );
-    return (film: number): IAutoMovieRigidTransform => {
-      const read: ReturnType<NonNullable<typeof support.prop.point>> =
-        support.prop.point?.(id, film);
-      if (read?.rotation !== undefined)
-        return {
-          position: read.point,
-          rotation: Quaternion.multiply(read.rotation, back),
-        };
-      const frame: IAutoMovieRigidTransform = support.frame(film);
-      return {
-        position: carryHumanPoint(frame, contact.frame.translation),
-        rotation: frame.rotation,
-      };
-    };
-  }
 
   /**
    * A carrier contact's world point at a film second: the carrier's own moving
@@ -228,22 +242,6 @@ export namespace HumanMountedFrame {
       yaw: attitude.yaw + 360 * Math.round((carried.yaw - attitude.yaw) / 360),
       pitch: attitude.pitch,
       roll: attitude.roll,
-    };
-  }
-
-  /** A point given in a frame, in the world. */
-  function carryHumanPoint(
-    frame: IAutoMovieRigidTransform,
-    point: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    const turned: IAutoMovieVector3 = Quaternion.rotateVector(
-      frame.rotation,
-      point,
-    );
-    return {
-      x: frame.position.x + turned.x,
-      y: frame.position.y + turned.y,
-      z: frame.position.z + turned.z,
     };
   }
 

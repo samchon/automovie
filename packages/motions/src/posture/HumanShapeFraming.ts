@@ -12,6 +12,71 @@ import { HumanColliderBound } from "./HumanColliderBound";
 type ISphereResult = { centre: IAutoMovieVector3; radius: number };
 
 /**
+ * A hull's face planes packed four numbers each, the normal then the offset, in
+ * the hull's own frame: the same for every posed frame of the same hull, so
+ * packed once per hull's points and shared by every framing of it (a fit frames
+ * a fresh pose's colliders, the planes do not move with it).
+ */
+function planes(points: readonly IAutoMovieVector3[]): Float64Array {
+  const known: Float64Array | undefined = PLANES.get(points);
+  if (known !== undefined) return known;
+  const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
+    physicalHullFaces(points).faces;
+  const ArrayType: Float64ArrayConstructor = Float64Array;
+  const packed: Float64Array = new ArrayType(4 * faces.length);
+  faces.forEach(
+    (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
+      packed[4 * index] = face.normal.x;
+      packed[4 * index + 1] = face.normal.y;
+      packed[4 * index + 2] = face.normal.z;
+      packed[4 * index + 3] = face.offset;
+    },
+  );
+  PLANES.set(points, packed);
+  if (ArrayType === DOUBLE) NATIVE_PLANES.add(packed);
+  return packed;
+}
+
+/**
+ * A placed shape's bounding sphere (`sphere`) and, for a hull, its face planes,
+ * the world point its frame is centred on and the rotation into that frame. A
+ * sweep frames its colliders once, when it prepares its room
+ * (`HumanArmOvershootRoom.of`), and reads them at every candidate.
+ */
+export function HumanShapeFraming(
+  pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
+  shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
+): HumanShapeFraming.IFramed {
+  const found: HumanShapeFraming.IFramed = {
+    ...HumanShapeFraming.sphere(pose, shape),
+    lead: 0,
+    ...(shape.kind === "hull"
+      ? {
+          faces: planes(shape.points),
+          origin: Vector3.add(
+            pose.position,
+            Quaternion.rotateVector(pose.rotation, shape.transform.position),
+          ),
+          inverse: Quaternion.inverse(
+            Quaternion.multiply(pose.rotation, shape.transform.rotation),
+          ),
+        }
+      : {}),
+  };
+  if (
+    found.faces !== undefined &&
+    found.origin !== undefined &&
+    found.inverse !== undefined
+  )
+    BEND_FRAMES.set(found, {
+      centre: found.centre,
+      origin: found.origin,
+      inverse: found.inverse,
+    });
+  return found;
+}
+
+/**
  * A placed collider shape's bounding sphere and, for a hull, its face planes in
  * its own frame: the bounds a clearance reading tests a point against before it
  * asks the exact distance (`HumanArmOvershoot`), and the sphere a trajectory's
@@ -47,45 +112,6 @@ export namespace HumanShapeFraming {
      * tried first: a sweep's next point mostly lies beyond the same face.
      */
     lead: number;
-  }
-
-  /**
-   * A placed shape's bounding sphere (`sphere`) and, for a hull, its face
-   * planes, the world point its frame is centred on and the rotation into that
-   * frame. A sweep frames its colliders once, when it prepares its room
-   * (`HumanArmOvershootRoom.of`), and reads them at every candidate.
-   */
-  export function of(
-    pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
-    shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
-  ): IFramed {
-    const found: IFramed = {
-      ...sphere(pose, shape),
-      lead: 0,
-      ...(shape.kind === "hull"
-        ? {
-            faces: planes(shape.points),
-            origin: Vector3.add(
-              pose.position,
-              Quaternion.rotateVector(pose.rotation, shape.transform.position),
-            ),
-            inverse: Quaternion.inverse(
-              Quaternion.multiply(pose.rotation, shape.transform.rotation),
-            ),
-          }
-        : {}),
-    };
-    if (
-      found.faces !== undefined &&
-      found.origin !== undefined &&
-      found.inverse !== undefined
-    )
-      BEND_FRAMES.set(found, {
-        centre: found.centre,
-        origin: found.origin,
-        inverse: found.inverse,
-      });
-    return found;
   }
 
   /**
@@ -128,31 +154,6 @@ export namespace HumanShapeFraming {
       Object.getOwnPropertyDescriptor(TYPED, "length")?.get === LENGTH
       ? array
       : undefined;
-  }
-  /**
-   * A hull's face planes packed four numbers each, the normal then the offset,
-   * in the hull's own frame: the same for every posed frame of the same hull,
-   * so packed once per hull's points and shared by every framing of it (a fit
-   * frames a fresh pose's colliders, the planes do not move with it).
-   */
-  function planes(points: readonly IAutoMovieVector3[]): Float64Array {
-    const known: Float64Array | undefined = PLANES.get(points);
-    if (known !== undefined) return known;
-    const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
-      physicalHullFaces(points).faces;
-    const ArrayType: Float64ArrayConstructor = Float64Array;
-    const packed: Float64Array = new ArrayType(4 * faces.length);
-    faces.forEach(
-      (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
-        packed[4 * index] = face.normal.x;
-        packed[4 * index + 1] = face.normal.y;
-        packed[4 * index + 2] = face.normal.z;
-        packed[4 * index + 3] = face.offset;
-      },
-    );
-    PLANES.set(points, packed);
-    if (ArrayType === DOUBLE) NATIVE_PLANES.add(packed);
-    return packed;
   }
 
   /**

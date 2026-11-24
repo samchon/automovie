@@ -51,14 +51,6 @@ function planSwimImmersed(
   );
   const speed: number = HumanBound.least("speed", params.speed ?? 0, 0, "m/s");
   const water: IAutoMovieMotionHumanWater = params.water;
-  if (!Number.isFinite(water?.surface))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "water.surface",
-      value: water?.surface,
-      reason: "the surface must give a finite world height",
-      fix: "set water.surface in metres",
-    });
   const density: number = HumanBound.above(
     "water.density",
     water.density ?? resolveHydrodynamicForce.WATER,
@@ -67,14 +59,6 @@ function planSwimImmersed(
   );
 
   const stroke: "breaststroke" | undefined = params.stroke;
-  if (stroke !== undefined && stroke !== "breaststroke")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "stroke",
-      value: stroke,
-      reason: "the immersed stroke draft supplies one breaststroke",
-      fix: "use breaststroke or omit stroke for passive immersion",
-    });
   if (stroke !== undefined && speed !== 0)
     throw new HumanRefusal({
       kind: "parameter",

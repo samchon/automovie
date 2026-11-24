@@ -15,17 +15,18 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * An on-the-spot quarter turn changes displayed heading at the given
- * position. Reversing the requested yaw reflects the first stepping side.
+ * An on-the-spot quarter turn changes displayed heading at the given position.
+ * Reversing the requested yaw reflects the first stepping side.
  *
  * Scenarios:
- * 1. The original positive quarter turn and its negative reflection each
- *    complete with a clean displayed contact and range report.
- * 2. Each end's horizontal heading is along the requested signed world X
- *    axis. The root finishes at its starting horizontal position within
- *    the shared contact bound.
- * 3. Each turn names a first heel strike on the opposite foot from its
- *    reflection, so a fixed preferred side cannot implement both.
+ *
+ * 1. The original positive quarter turn and its negative reflection each complete
+ *    with a clean displayed contact and range report.
+ * 2. Each end's horizontal heading is along the requested signed world X axis. The
+ *    root finishes at its starting horizontal position within the shared
+ *    contact bound.
+ * 3. Each turn names a first heel strike on the opposite foot from its reflection,
+ *    so a fixed preferred side cannot implement both.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Uses the public chain and performance, the displayed root, declared heel strikes and the unchanged verdicts. Wrong signed heading, final location, first-foot reflection or contact fails.
  * @evidence contracts/development/testing.md#independent-expectations A quarter turn about world Y takes +Z to signed X, and reflecting the world across the sagittal plane exchanges feet while negating yaw. Final drift uses the same centimetre bound as the shipped contact audit.
@@ -73,7 +74,7 @@ export function test_motion_posture_turn_in_place(): void {
     );
     checks.equals(
       "turn remains physically sound",
-      HumanVerdicts.describe(HumanVerdicts.of(performance)),
+      HumanVerdicts.describe(HumanVerdicts(performance)),
       "clean",
     );
     return performance
@@ -89,7 +90,10 @@ export function test_motion_posture_turn_in_place(): void {
   );
   checks.assert("turn in place");
 }
-/** A rigidly placed walk has the same clock and transforms each displayed joint rigidly. */
+/**
+ * A rigidly placed walk has the same clock and transforms each displayed joint
+ * rigidly.
+ */
 function checkWalkPlacement(body: IAutoMovieMotionHumanBody): void {
   const walk = (
     at: IAutoMovieVector3,

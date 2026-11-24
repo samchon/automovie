@@ -28,7 +28,7 @@ Reads the audit's limit and the body's measure.
 
 Retains nothing.
 
-# src/posture/HumanArmSwing.ts#HumanArmSwing.of
+# src/posture/HumanArmSwing.ts#HumanArmSwing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

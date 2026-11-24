@@ -61,7 +61,7 @@ export namespace KickRedirect {
     before: KickLaunch.ILaunch | undefined,
   ): KickLaunch.ILaunch {
     const old: IAutoMovieMotionHumanKickGeometry = source.geometry();
-    return KickLaunch.of(
+    return KickLaunch(
       redirected(context, source),
       source.timing,
       source.start,

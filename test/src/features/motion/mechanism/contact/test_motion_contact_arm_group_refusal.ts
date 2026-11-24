@@ -21,9 +21,13 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * later read of any member solves the group again.
  *
  * Scenarios:
- * 1. Two arms join one group; the right arm's goal refuses the first time it is read, so preparing the right arm throws.
- * 2. Preparing the right arm again throws the very same refusal, and no goal is read again.
- * 3. Preparing the left arm of the same group, and writing either arm at an instant of the plan, each throw that same refusal without reading a goal.
+ *
+ * 1. Two arms join one group; the right arm's goal refuses the first time it is
+ *    read, so preparing the right arm throws.
+ * 2. Preparing the right arm again throws the very same refusal, and no goal is
+ *    read again.
+ * 3. Preparing the left arm of the same group, and writing either arm at an
+ *    instant of the plan, each throw that same refusal without reading a goal.
  * 4. A group made outside any action's plan takes no handover and no ordinal.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A refused group solve is kept (`ITogether.refused`) and thrown again at every later read of any member, never solved again.

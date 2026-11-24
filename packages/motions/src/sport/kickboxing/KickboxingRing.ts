@@ -13,6 +13,81 @@ import { HumanRefusal } from "../../law/HumanRefusal";
 type OfProp = "subject" | "frame" | "affordances";
 
 /**
+ * The ring a placed prop is.
+ *
+ * @param prop The ring's prop.
+ * @returns Its centre on the canvas, its size between the ropes and its
+ *   heading.
+ * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a
+ *   corner post, its ropes stand no square apart, or a post stands off its
+ *   corner.
+ */
+export function KickboxingRing(
+  prop: Pick<IAutoMovieMotionHumanProp, OfProp>,
+): IAutoMovieMotionHumanKickboxingRing.IRing {
+  const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
+  const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (
+    reason: string,
+  ): IAutoMovieMotionHumanRefusal =>
+    new HumanRefusal({
+      kind: "affordance",
+      axis: "ring",
+      value: prop.subject,
+      feasible: {
+        kind: "alternatives",
+        values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+      },
+      reason,
+      fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
+    });
+  const at: (id: string) => IAutoMovieVector3 = (
+    id: string,
+  ): IAutoMovieVector3 => {
+    const found: IAutoMovieAffordance | undefined = affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    );
+    if (found === undefined) throw refuse(`${prop.subject} declares no ${id}`);
+    return Vector3.add(
+      prop.frame.position,
+      Quaternion.rotateVector(prop.frame.rotation, found.frame.translation),
+    );
+  };
+  const canvas: IAutoMovieVector3 = at("canvas");
+  const across: (a: string, b: string) => number = (
+    a: string,
+    b: string,
+  ): number => {
+    const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
+    return Math.hypot(d.x, d.z);
+  };
+  const size: number = across("northRope", "southRope");
+  if (!(Math.abs(across("eastRope", "westRope") - size) <= 1e-3))
+    throw refuse(
+      `${prop.subject}'s ropes stand ${size.toFixed(3)} m apart one way and ${across("eastRope", "westRope").toFixed(3)} m the other, no square`,
+    );
+  const forward: IAutoMovieVector3 = Quaternion.rotateVector(
+    prop.frame.rotation,
+    { x: 0, y: 0, z: 1 },
+  );
+  const ring: IAutoMovieMotionHumanKickboxingRing.IRing = {
+    centre: canvas,
+    size,
+    yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
+  };
+  for (const name of Object.keys(
+    KickboxingRing.POSTS,
+  ) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
+    const post: IAutoMovieVector3 = at(KickboxingRing.POSTS[name]);
+    const foot: IAutoMovieVector3 = KickboxingRing.corner(ring, name);
+    if (!(Math.hypot(post.x - foot.x, post.z - foot.z) <= 1e-3))
+      throw refuse(
+        `${prop.subject}'s ${KickboxingRing.POSTS[name]} stands off the ${name} corner its ropes put it at`,
+      );
+  }
+  return ring;
+}
+
+/**
  * A bounded fighting area: a square ring on the floor, centred on a point and
  * turned by a heading, inside its ropes. Footwork and staging read it to keep
  * the fighters' stances inside the ropes and to find its corners.
@@ -39,82 +114,6 @@ export namespace KickboxingRing {
     red: "corner3",
     neutralA: "corner4",
   };
-
-  /**
-   * The ring a placed prop is.
-   *
-   * @param prop The ring's prop.
-   * @returns Its centre on the canvas, its size between the ropes and its
-   *   heading.
-   * @throws {HumanRefusal} When the prop declares no canvas, a top rope or a
-   *   corner post, its ropes stand no square apart, or a post stands off its
-   *   corner.
-   */
-  export function of(
-    prop: Pick<IAutoMovieMotionHumanProp, OfProp>,
-  ): IAutoMovieMotionHumanKickboxingRing.IRing {
-    const affordances: readonly IAutoMovieAffordance[] = prop.affordances ?? [];
-    const refuse: (reason: string) => IAutoMovieMotionHumanRefusal = (
-      reason: string,
-    ): IAutoMovieMotionHumanRefusal =>
-      new HumanRefusal({
-        kind: "affordance",
-        axis: "ring",
-        value: prop.subject,
-        feasible: {
-          kind: "alternatives",
-          values: affordances.map((a: IAutoMovieAffordance): string => a.id),
-        },
-        reason,
-        fix: "name a ring whose canvas, top ropes and corner posts its contacts declare, as createRing does",
-      });
-    const at: (id: string) => IAutoMovieVector3 = (
-      id: string,
-    ): IAutoMovieVector3 => {
-      const found: IAutoMovieAffordance | undefined = affordances.find(
-        (a: IAutoMovieAffordance): boolean => a.id === id,
-      );
-      if (found === undefined)
-        throw refuse(`${prop.subject} declares no ${id}`);
-      return Vector3.add(
-        prop.frame.position,
-        Quaternion.rotateVector(prop.frame.rotation, found.frame.translation),
-      );
-    };
-    const canvas: IAutoMovieVector3 = at("canvas");
-    const across: (a: string, b: string) => number = (
-      a: string,
-      b: string,
-    ): number => {
-      const d: IAutoMovieVector3 = Vector3.subtract(at(a), at(b));
-      return Math.hypot(d.x, d.z);
-    };
-    const size: number = across("northRope", "southRope");
-    if (!(Math.abs(across("eastRope", "westRope") - size) <= 1e-3))
-      throw refuse(
-        `${prop.subject}'s ropes stand ${size.toFixed(3)} m apart one way and ${across("eastRope", "westRope").toFixed(3)} m the other, no square`,
-      );
-    const forward: IAutoMovieVector3 = Quaternion.rotateVector(
-      prop.frame.rotation,
-      { x: 0, y: 0, z: 1 },
-    );
-    const ring: IAutoMovieMotionHumanKickboxingRing.IRing = {
-      centre: canvas,
-      size,
-      yaw: (Math.atan2(forward.x, forward.z) * 180) / Math.PI,
-    };
-    for (const name of Object.keys(
-      POSTS,
-    ) as IAutoMovieMotionHumanKickboxingRing.Corner[]) {
-      const post: IAutoMovieVector3 = at(POSTS[name]);
-      const foot: IAutoMovieVector3 = corner(ring, name);
-      if (!(Math.hypot(post.x - foot.x, post.z - foot.z) <= 1e-3))
-        throw refuse(
-          `${prop.subject}'s ${POSTS[name]} stands off the ${name} corner its ropes put it at`,
-        );
-    }
-    return ring;
-  }
 
   /**
    * A corner's floor point, a margin inside the ropes along both sides.

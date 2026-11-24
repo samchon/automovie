@@ -20,7 +20,7 @@ export function workoutTurn(
   seconds: number,
   arms: IAutoMovieMotionHumanExerciseKey.ILimb,
 ): IAutoMovieMotionHumanWorkoutKind {
-  return WorkoutStance.of(
+  return WorkoutStance(
     ["leftToes"],
     [{ part: "leftFoot", kind: "pivot" }],
     0,

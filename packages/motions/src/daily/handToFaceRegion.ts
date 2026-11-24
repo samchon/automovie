@@ -60,7 +60,7 @@ export function handToFaceRegion(
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
     ): Pick<IAutoMovieMotionHumanTarget.IPlace, HandToFaceRegionResult2> => {
-      if (name === null) return handToFaceSheet.of(context, posture, side);
+      if (name === null) return handToFaceSheet(context, posture, side);
       const place: Pick<
         IAutoMovieMotionHumanTarget.IPlace,
         HandToFaceRegionPlace

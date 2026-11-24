@@ -55,24 +55,28 @@ type Part = (id: string, seconds: number) => IAutoMovieTransform;
 type Surface = "Hand" | "Thumb" | "Index" | "Middle" | "Ring" | "Little";
 
 /**
- * A fixed-seat rider must hold the requested moving oars or receive a reach refusal.
+ * A fixed-seat rider must hold the requested moving oars or receive a reach
+ * refusal.
  *
  * Scenarios:
+ *
  * 1. The original average man on the full seed-2 stroke reaches the named handles
  *    at the first catch, mid-stroke and 9.5 s to within 0.7 hand lengths and
- *    leans forward by at least a tenth of his trunk length from the seated entry.
+ *    leans forward by at least a tenth of his trunk length from the seated
+ *    entry.
  * 2. On the same boat the small woman's arms cannot simultaneously reach those
- *    crossed handles. On still water and a swell her ride must report a bilateral
- *    hand-reach refusal with the arm length as its upper bound.
- * 3. On the narrower Thames skiff the aft-facing woman takes the starboard oar
- *    in her left hand and port in her right. The 45-degree catch and finish are
+ *    crossed handles. On still water and a swell her ride must report a
+ *    bilateral hand-reach refusal with the arm length as its upper bound.
+ * 3. On the narrower Thames skiff the aft-facing woman takes the starboard oar in
+ *    her left hand and port in her right. The 45-degree catch and finish are
  *    those taught for a solo fixed-seat rowboat in California's Boating the
  *    Right Way, chapter 4, Rowing Technique, steps 1 and 4
- *    (https://files.eric.ed.gov/fulltext/ED256727.pdf). Test the displayed palm,
- *    thumb and fingers against the swept handles, and both soles and seat against
- *    their own boat surfaces, at the same three instants on still water and a swell.
- *    Agius et al. (2023), Bioengineering 10:774, establish the forward thorax
- *    inclination at the catch; the tenth-trunk minimum remains provisional.
+ *    (https://files.eric.ed.gov/fulltext/ED256727.pdf). Test the displayed
+ *    palm, thumb and fingers against the swept handles, and both soles and seat
+ *    against their own boat surfaces, at the same three instants on still water
+ *    and a swell. Agius et al. (2023), Bioengineering 10:774, establish the
+ *    forward thorax inclination at the catch; the tenth-trunk minimum remains
+ *    provisional.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Observes displayed wrist distance and trunk excursion, a typed refusal for the crossed goals, and the skiff's material grip, planted feet and seat contact.
  * @evidence contracts/development/testing.md#independent-expectations The boat supplies the shaft and bearing surfaces. The grip uses the hand profile's displayed colliders and the contact audit's 10 mm pressed-skin limit. The fixed-seat training manual supplies the oar angles independently of the rider's fit.
@@ -269,8 +273,12 @@ export function test_motion_ride_oar_handle_tracking(): void {
           continue;
         }
         try {
-          const reader: IAutoMovieMotionHumanSignature.IReader =
-            HumanSignature.of(performance, "a", body, 0);
+          const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
+            performance,
+            "a",
+            body,
+            0,
+          );
 
           const neckAhead = (
             frame: ReturnType<typeof HumanSignature.bones>,

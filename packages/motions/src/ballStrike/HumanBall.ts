@@ -10,6 +10,31 @@ import type {
 import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
+ * The ball a prop is, at a second.
+ *
+ * @param context The action's context.
+ * @param subject The ball's prop subject.
+ * @param seconds The film second it is read at.
+ * @param axis The parameter the ball was named by, for a refusal.
+ * @returns Its centre and radius.
+ * @throws {HumanRefusal} When the prop declares no `grip` or that grip no
+ *   aperture.
+ */
+export function HumanBall(
+  context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
+  subject: string,
+  seconds: number,
+  axis: string,
+): HumanBall.IBall {
+  const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  return HumanBall.placed(
+    read.prop,
+    (): IAutoMovieRigidTransform => read.frame(seconds),
+    axis,
+  );
+}
+
+/**
  * A ball as a law that meets it reads it: its centre and its radius, from the
  * ball's own `grip` contact, which `createBall` declares at the ball's centre
  * with the ball's diameter as its aperture.
@@ -22,31 +47,6 @@ export namespace HumanBall {
 
     /** Its radius, metres. */
     radius: number;
-  }
-
-  /**
-   * The ball a prop is, at a second.
-   *
-   * @param context The action's context.
-   * @param subject The ball's prop subject.
-   * @param seconds The film second it is read at.
-   * @param axis The parameter the ball was named by, for a refusal.
-   * @returns Its centre and radius.
-   * @throws {HumanRefusal} When the prop declares no `grip` or that grip no
-   *   aperture.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, "prop">,
-    subject: string,
-    seconds: number,
-    axis: string,
-  ): IBall {
-    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-    return placed(
-      read.prop,
-      (): IAutoMovieRigidTransform => read.frame(seconds),
-      axis,
-    );
   }
 
   /**

@@ -12,9 +12,11 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Observe one complete oscillation with half-height quarter-cycle ramps from an asymmetric held posture.
+ * Observe one complete oscillation with half-height quarter-cycle ramps from an
+ * asymmetric held posture.
  *
  * Scenarios:
+ *
  * 1. Sample signed excursion and the neutral endpoints on the authored clock.
  * 2. Check the other two axes and the supporting root at each sample.
  *
@@ -25,7 +27,7 @@ import { nclose } from "../../internal/nclose";
  * @evidence contracts/development/testing.md#execution-ownership Evaluates one primitive in memory at the named fractions of a second.
  */
 export function test_motion_gaze_primitive_head_oscillate(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
     { name: "apex", seconds: 0.25 },
     { name: "release", seconds: 0.75 },
   ]);

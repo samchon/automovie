@@ -64,7 +64,7 @@ planLadderAccess reads it to seat each named grip.
 
 It reads the published window and cannot change it.
 
-# src/actions/supportWindows.ts#supportWindows.of
+# src/actions/supportWindows.ts#supportWindows
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

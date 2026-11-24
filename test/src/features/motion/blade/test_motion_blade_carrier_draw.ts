@@ -47,7 +47,10 @@ const { putDownAperture } = AutoMovieMotionHumanPrehension;
 const RIGID: number = 0.001;
 /** Rigid attachment attitude allowance, radians. */
 const TURN: number = 0.001;
-/** Lateral slack of the blade in its carrier, metres: half of Wulflund's 2 cm width allowance over the blade. */
+/**
+ * Lateral slack of the blade in its carrier, metres: half of Wulflund's 2 cm
+ * width allowance over the blade.
+ */
 const SLACK: number = 0.01;
 /** Aperture placement's seat tolerance, metres. */
 const PLACE: number = 0.015;
@@ -72,7 +75,10 @@ interface ICast {
   /** The carrier's archetype parameters. */
   carrier: createHolster.IParams;
 
-  /** How far the worn carrier's mouth tilts forward from plumb, degrees: the scene's authored hang. */
+  /**
+   * How far the worn carrier's mouth tilts forward from plumb, degrees: the
+   * scene's authored hang.
+   */
   cant: number;
 }
 
@@ -94,7 +100,10 @@ interface IStage {
 /** The chain the two custody laws extend. */
 type Chain = IAutoMovieMotionHumanChain;
 
-/** The two casts: a man with an arming sword in a scabbard and a smaller woman with a knife in a sheath. */
+/**
+ * The two casts: a man with an arming sword in a scabbard and a smaller woman
+ * with a knife in a sheath.
+ */
 const CASTS: readonly ICast[] = [
   {
     name: "arming sword",
@@ -113,30 +122,31 @@ const CASTS: readonly ICast[] = [
 ];
 
 /**
- * A blade drawn on screen from the carrier worn at the hip, held, returned
- * and carried away seated, with the same prop through every custody.
+ * A blade drawn on screen from the carrier worn at the hip, held, returned and
+ * carried away seated, with the same prop through every custody.
  *
  * Scenarios:
- * 1. Seated until grip closure, the palm closes on the hilt, the blade leaves
- *    on the carrier's guide inside its lateral slack and its tip clears the
- *    mouth; the hand takes it there and keeps it rigidly through the held
- *    beat.
- * 2. The return meets the entry, rides the guide inside the slack to the
- *    seat and releases, the blade stays seated while the wearer walks, the prop never jumps at a custody event
- *    and forward, reverse and repeated seeks agree.
- * 3. A wide shot trimmed in the held beat cuts to a close-up of the same
- *    prop node, and the edit's prop check passes at the real trim boundary.
+ *
+ * 1. Seated until grip closure, the palm closes on the hilt, the blade leaves on
+ *    the carrier's guide inside its lateral slack and its tip clears the mouth;
+ *    the hand takes it there and keeps it rigidly through the held beat.
+ * 2. The return meets the entry, rides the guide inside the slack to the seat and
+ *    releases, the blade stays seated while the wearer walks, the prop never
+ *    jumps at a custody event and forward, reverse and repeated seeks agree.
+ * 3. A wide shot trimmed in the held beat cuts to a close-up of the same prop
+ *    node, and the edit's prop check passes at the real trim boundary.
  * 4. A cut before grip closure leaves the blade seated; a cut during the
  *    withdrawal keeps the grip with no jump.
- * 6. A longsword, longer than the arm draws alone, leaves its left-hip
- *    scabbard as the left hand turns the scabbard at its throat toward the
- *    right shoulder and the trunk turns: the blade stays on the line, the tip clears the mouth, the
- *    left hand keeps the throat through the draw and the scabbard hangs from
- *    the hips again after it, and the take passes the verdict report.
- * 5. A missing carrier, an unknown mouth and an off-axis tip are refused at
- *    their located axes, a plumb arming sword whose drawing hand cannot
- *    follow its guide is refused on the opening, and one canted far forward
- *    is refused for the arm's reach.
+ * 5. A longsword, longer than the arm draws alone, leaves its left-hip scabbard as
+ *    the left hand turns the scabbard at its throat toward the right shoulder
+ *    and the trunk turns: the blade stays on the line, the tip clears the
+ *    mouth, the left hand keeps the throat through the draw and the scabbard
+ *    hangs from the hips again after it, and the take passes the verdict
+ *    report.
+ * 6. A missing carrier, an unknown mouth and an off-axis tip are refused at their
+ *    located axes, a plumb arming sword whose drawing hand cannot follow its
+ *    guide is refused on the opening, and one canted far forward is refused for
+ *    the arm's reach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged custody sequence, the displayed reads, the edit and the refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Composes HumanSheath's draw and return through HumanPerformance and reads displayed hand, blade and carrier frames, then runs the public edit check over clips sampled from the same take.
@@ -542,16 +552,28 @@ export function test_motion_blade_carrier_draw(): void {
   TestValidator.equals("blade carrier findings", failures, []);
 }
 
-/** The longsword's scabbard tilts forward from plumb by this, degrees: steep enough that the drawn hilt rises toward the drawing shoulder, authored. */
+/**
+ * The longsword's scabbard tilts forward from plumb by this, degrees: steep
+ * enough that the drawn hilt rises toward the drawing shoulder, authored.
+ */
 const CANT: number = 20;
-/** The longsword's mouth from the body's midline, metres on a 1.75 m body: worn forward of the hip for the cross draw, authored. */
+/**
+ * The longsword's mouth from the body's midline, metres on a 1.75 m body: worn
+ * forward of the hip for the cross draw, authored.
+ */
 const LATERAL: number = 0.1;
 /** The longsword's mouth ahead of the hips, metres: authored. */
 const AHEAD: number = 0.24;
-/** How far the trunk turns away from the drawing side in the long draw, degrees: authored. */
+/**
+ * How far the trunk turns away from the drawing side in the long draw, degrees:
+ * authored.
+ */
 const OPEN: number = 45;
 
-/** A longsword drawn from the left hip, the scabbard turned toward the drawing shoulder. */
+/**
+ * A longsword drawn from the left hip, the scabbard turned toward the drawing
+ * shoulder.
+ */
 function longsword(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const staged: IStage = stage(
@@ -678,13 +700,19 @@ function longsword(): void {
   assertTakeClean("longsword draw", film);
 }
 
-/** The closed hand's surfaces that wrap a handle farthest from its axis: the thumb's tip and the longest finger's. */
+/**
+ * The closed hand's surfaces that wrap a handle farthest from its axis: the
+ * thumb's tip and the longest finger's.
+ */
 const WRAPPING: readonly IAutoMovieMotionHumanHand.Surface[] = [
   "thumbTip",
   "middleTip",
 ];
 
-/** Wear the carrier at a hip, its mouth tilted forward by the cant, and seat the blade in it. */
+/**
+ * Wear the carrier at a hip, its mouth tilted forward by the cant, and seat the
+ * blade in it.
+ */
 function stage(
   body: IAutoMovieMotionHumanBody,
   bladeParams: createSword.IParams,
@@ -813,7 +841,10 @@ function hand(
   );
 }
 
-/** Check that the blade's shoulder and the part of the blade below the mouth stay on the carrier's line. */
+/**
+ * Check that the blade's shoulder and the part of the blade below the mouth
+ * stay on the carrier's line.
+ */
 function inside(
   frame: IAutoMovieRigidTransform,
   stage: IStage,
@@ -844,7 +875,10 @@ function inside(
   );
 }
 
-/** Sample a prop's displayed frame as one node's translation and rotation tracks. */
+/**
+ * Sample a prop's displayed frame as one node's translation and rotation
+ * tracks.
+ */
 function sample(
   film: HumanPerformance,
   node: string,

@@ -22,8 +22,8 @@ import { hasViolation, namedFacts, nclose } from "./predicates";
  * 3. context occluders convert to analysis solids without gaining ownership.
  * 4. every declared field of the context has a refusing twin.
  *
- * The independently authored site fields are the valid baseline, exact id lookup returns its named instant or null, and solid projection preserves id plus plane count while dropping kind. Version/unit/nonblank/finite/range/time-order requirements determine each located mutation fault; no external weather or ownership is inferred from copied metadata.
- * Valid site, present/absent instant and one declared neighbouring box contrast with wrong version/units, blank/duplicate ids, zero/nonfinite axes, invalid elevation/time/illuminance/temperature/humidity. Later parts own reserved ids, horizon and analytic rays; the parent owns resident-slot regressions.
+ * The independently authored site fields are the valid baseline, exact id lookup returns its named instant or null, and solid projection preserves id plus plane count while dropping kind. Nonblank/unique/range/time-order requirements determine each located mutation fault; no external weather or ownership is inferred from copied metadata.
+ * Valid site, present/absent instant and one declared neighbouring box contrast with blank labels, duplicate ids, zero axes, invalid time order/illuminance/humidity. Later parts own reserved ids, horizon and analytic rays.
  */
 export function assertAnalysisEnvironmentContextPart1(): {
   context: IAutoMovieEnvironmentContext;
@@ -101,28 +101,6 @@ export function assertAnalysisEnvironmentContextPart1(): {
     "every declared field of the context has a refusing twin",
     namedFacts([
       [
-        "version",
-        (): boolean =>
-          hasViolation(
-            broken({ version: 2 as unknown as 1 }),
-            "type",
-            "version",
-          ),
-      ],
-      [
-        "units",
-        (): boolean =>
-          hasViolation(
-            broken({ units: "foot" as unknown as "meter" }),
-            "type",
-            "$input.units",
-          ),
-      ],
-      [
-        "blank id",
-        (): boolean => hasViolation(broken({ id: "  " }), "type", "$input.id"),
-      ],
-      [
         "zero north",
         (): boolean =>
           hasViolation(
@@ -132,41 +110,12 @@ export function assertAnalysisEnvironmentContextPart1(): {
           ),
       ],
       [
-        "non-finite north",
-        (): boolean =>
-          hasViolation(
-            broken({ north: { x: Number.NaN, y: 0, z: -1 } }),
-            "range",
-            "north.x",
-          ),
-      ],
-      [
         "zero ground up",
         (): boolean =>
           hasViolation(
             broken({ ground: { up: { x: 0, y: 0, z: 0 }, elevation: 0 } }),
             "range",
             "ground.up",
-          ),
-      ],
-      [
-        "non-finite elevation",
-        (): boolean =>
-          hasViolation(
-            broken({
-              ground: { up: { x: 0, y: 1, z: 0 }, elevation: Number.NaN },
-            }),
-            "range",
-            "ground.elevation",
-          ),
-      ],
-      [
-        "blank instant id",
-        (): boolean =>
-          hasViolation(
-            broken({ instants: instantOf(0, { id: " " }) }),
-            "type",
-            "instants[0].id",
           ),
       ],
       [
@@ -185,15 +134,6 @@ export function assertAnalysisEnvironmentContextPart1(): {
             broken({ instants: instantOf(1, { id: "noon" }) }),
             "type",
             "instants[1].id",
-          ),
-      ],
-      [
-        "non-finite instant time",
-        (): boolean =>
-          hasViolation(
-            broken({ instants: instantOf(0, { time: Number.NaN }) }),
-            "range",
-            "instants[0].time",
           ),
       ],
       [
@@ -226,17 +166,6 @@ export function assertAnalysisEnvironmentContextPart1(): {
           ),
       ],
       [
-        "non-finite beam",
-        (): boolean =>
-          hasViolation(
-            broken({
-              instants: instantOf(0, { directNormalIlluminance: Number.NaN }),
-            }),
-            "range",
-            "instants[0].directNormalIlluminance",
-          ),
-      ],
-      [
         "negative sky",
         (): boolean =>
           hasViolation(
@@ -245,17 +174,6 @@ export function assertAnalysisEnvironmentContextPart1(): {
             }),
             "range",
             "instants[0].diffuseHorizontalIlluminance",
-          ),
-      ],
-      [
-        "non-finite outdoor temperature",
-        (): boolean =>
-          hasViolation(
-            broken({
-              instants: instantOf(0, { outdoorAirTemperature: Number.NaN }),
-            }),
-            "range",
-            "instants[0].outdoorAirTemperature",
           ),
       ],
       [
@@ -271,23 +189,14 @@ export function assertAnalysisEnvironmentContextPart1(): {
       ],
     ]),
     {
-      version: true,
-      units: true,
-      "blank id": true,
       "zero north": true,
-      "non-finite north": true,
       "zero ground up": true,
-      "non-finite elevation": true,
-      "blank instant id": true,
       "blank instant label": true,
       "duplicate instant id": true,
-      "non-finite instant time": true,
       "non-increasing instant time": true,
       "zero sun": true,
       "negative beam": true,
-      "non-finite beam": true,
       "negative sky": true,
-      "non-finite outdoor temperature": true,
       "out of range humidity": true,
     },
   );

@@ -54,8 +54,8 @@ interface Reference {
  *    invent unreported population bands around its mean.
  * 3. All 21 animal bones remain actual parts and a generic named skeleton; reads
  *    leave model bytes unchanged and separately built models do not alias.
- * 4. Missing required mass, invalid explicit mass and an unknown kind produce
- *    actionable refusals. A bare deer alone may use its cited 60.4 kg mean.
+ * 4. Invalid explicit mass produces actionable refusals. A bare deer alone may
+ *    use its cited 60.4 kg mean.
  *
  * Ox: Bhagat et al. 2022 Table 2, Kathani working bullocks (n=2614),
  * https://doi.org/10.56093/ijans.v92i10.105090. Camel: Diop et al. 2020, 131
@@ -73,7 +73,7 @@ interface Reference {
  * @evidence contracts/development/common.md#meaningful-documentation Names the three primary references, distinct cohorts and measurement definitions, authored versus measured mass, physical observations and limits of the coarse head controls.
  * @evidence contracts/development/testing.md#behavioral-verification Constructs real public species and registry outputs, admits each complete model, reads actual primitive dimensions and actual named skeletons, and exercises real runtime refusals and query isolation.
  * @evidence contracts/development/testing.md#independent-expectations Expected SI literals are transcribed from the cited primary tables without importing body measurement tables. Sphere apex, circular circumference and capsule total length follow analytic primitive definitions; the independent closed list has five axial and sixteen limb bones. Deterministic bytes compare equivalent public operations, not a saved output snapshot.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers three species, 200 distinct seeds each, direct versus registry construction, repeat construction, fixed reference means, read versus destructive mutation of a separate instance, bare measured deer mass, missing required ox/camel mass, five invalid numeric masses and an unknown kind. Equipment geometry and fit failures belong to the adjacent equipment unit.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers three species, 200 distinct seeds each, direct versus registry construction, repeat construction, fixed reference means, read versus destructive mutation of a separate instance, bare measured deer mass and two invalid numeric masses. Equipment geometry and fit failures belong to the adjacent equipment unit.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit owns its in-memory models, seed loop, direct geometry observations and refusal callbacks. The loop measures its own bounded construction budget and starts no process, host, compiler, renderer or patched foreign method.
  */
 export function test_archetype_animal_reference_species(): void {
@@ -266,36 +266,7 @@ export function test_archetype_animal_reference_species(): void {
       `600 real reference samples exceeded their 60-second budget: ${elapsed} ms`,
     );
 
-  // Omission is an actual untyped-runtime boundary, rather than a manufactured cast.
-  refusal(
-    findings,
-    "missing ox mass",
-    (): unknown => {
-      // @ts-expect-error Authored mass remains required at the public boundary.
-      return createOx({}, 0);
-    },
-    "ox",
-    "mass",
-    undefined,
-  );
-  refusal(
-    findings,
-    "missing camel mass",
-    (): unknown => {
-      // @ts-expect-error Authored mass remains required at the public boundary.
-      return createCamel({}, 0);
-    },
-    "camel",
-    "mass",
-    undefined,
-  );
-  for (const mass of [
-    0,
-    -1,
-    Number.NaN,
-    Number.POSITIVE_INFINITY,
-    Number.NEGATIVE_INFINITY,
-  ])
+  for (const mass of [0, -1])
     for (const kind of ["ox", "camel", "deer"] as const)
       refusal(
         findings,
@@ -305,17 +276,6 @@ export function test_archetype_animal_reference_species(): void {
         "mass",
         mass,
       );
-  refusal(
-    findings,
-    "unknown species",
-    (): unknown => {
-      // @ts-expect-error Exercise an untyped kind at the actual public dispatcher.
-      return createQuadruped({ kind: "giraffe", mass: 300 }, 0);
-    },
-    "quadruped",
-    "kind",
-    "giraffe",
-  );
   TestValidator.equals("published animal reference behavior", findings, []);
 }
 

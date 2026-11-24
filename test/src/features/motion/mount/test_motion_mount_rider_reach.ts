@@ -26,27 +26,26 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A cyclist's feet go round with the pedals: each foot stays on its pedal
- * while the crank turns it, the seat stays on the saddle, and a foot told
- * to stay on a point the bicycle does not have is refused.
+ * A cyclist's feet go round with the pedals: each foot stays on its pedal while
+ * the crank turns it, the seat stays on the saddle, and a foot told to stay on
+ * a point the bicycle does not have is refused.
  *
- * Scenarios:
- * the average man on a bicycle that goes 10 m straight at 4 m/s
- * after standing 6 s while he mounts, the ride given the pedals as the
- * points the feet stay on:
+ * Scenarios: the average man on a bicycle that goes 10 m straight at 4 m/s
+ * after standing 6 s while he mounts, the ride given the pedals as the points
+ * the feet stay on:
+ *
  * 1. Mounting and the ride plan.
- * 2. Over one turn of the crank, from one top dead centre of the left arm
- *    to the next as the bicycle's own ride publishes them, read at nine
- *    instants, the ball of each foot stays within 10 mm of where it rested
- *    against its pedal where the pedal is then, in the bicycle's own axes
- *    (the campaign's bound for a held contact).
- * 3. Over that turn the left ankle's height above the bicycle's root varies
- *    by at least 0.25 m: a pedal travels a circle of twice the crank's
- *    length, 0.33 to 0.35 m for the 165 to 175 mm cranks road bicycles
- *    carry, and the floor leaves room for nine instants missing its top and
- *    bottom (provisional).
- * 4. At those instants the seat region stays within 10 mm of where it sat
- *    in the bicycle's own frame.
+ * 2. Over one turn of the crank, from one top dead centre of the left arm to the
+ *    next as the bicycle's own ride publishes them, read at nine instants, the
+ *    ball of each foot stays within 10 mm of where it rested against its pedal
+ *    where the pedal is then, in the bicycle's own axes (the campaign's bound
+ *    for a held contact).
+ * 3. Over that turn the left ankle's height above the bicycle's root varies by at
+ *    least 0.25 m: a pedal travels a circle of twice the crank's length, 0.33
+ *    to 0.35 m for the 165 to 175 mm cranks road bicycles carry, and the floor
+ *    leaves room for nine instants missing its top and bottom (provisional).
+ * 4. At those instants the seat region stays within 10 mm of where it sat in the
+ *    bicycle's own frame.
  * 5. A ride whose left foot is to stay on `leftStirrup` is refused as an
  *    `affordance` refusal on `feet` that lists the bicycle's points.
  *
@@ -151,7 +150,7 @@ export function test_motion_mount_rider_reach(): void {
   }
   if (performance !== null) {
     const ride: IAutoMovieMotionHumanSegment = performance.segments("a")[1]!;
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "a",
       body,

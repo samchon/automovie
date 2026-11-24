@@ -244,11 +244,16 @@ export namespace roundOff {
       duration,
       carried,
     );
-    const lay: ReturnType<typeof GymnasticsWheelPlants.of> =
-      GymnasticsWheelPlants.of(body, borne, duration, carried, {
+    const lay: ReturnType<typeof GymnasticsWheelPlants> = GymnasticsWheelPlants(
+      body,
+      borne,
+      duration,
+      carried,
+      {
         first: HumanFrame.point(frame, { x: -sign, y: 0, z: 0 }),
         second: HumanFrame.point(frame, { x: 0, y: 0, z: 1 }),
-      });
+      },
+    );
     const goals: IAutoMovieMotionHumanActionPlan = {
       duration,
       events,

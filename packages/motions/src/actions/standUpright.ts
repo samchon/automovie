@@ -22,6 +22,19 @@ import { walkRoot } from "./walkRoot";
 type IBisectClosed = { low: number; high: number };
 
 /**
+ * The alignment of a body, the body's own quiet-stance property
+ * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
+ *
+ * @param body The body.
+ * @returns Its alignment.
+ */
+export function standUpright(
+  body: IAutoMovieMotionHumanBody,
+): IAutoMovieMotionHumanStandUpright.IAlignment {
+  return body.upright;
+}
+
+/**
  * The upright alignment of a body's quiet stance, solved from the body's own
  * joints by forward kinematics, once per body.
  *
@@ -43,19 +56,6 @@ type IBisectClosed = { low: number; high: number };
  * preserve the posture's proportions across rigs.
  */
 export namespace standUpright {
-  /**
-   * The alignment of a body, the body's own quiet-stance property
-   * (`IAutoMovieMotionHumanBody.upright`), solved once by its record.
-   *
-   * @param body The body.
-   * @returns Its alignment.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-  ): IAutoMovieMotionHumanStandUpright.IAlignment {
-    return body.upright;
-  }
-
   /**
    * Solve a body's alignment: the plumb-line trunk and neck, the level head,
    * then the lean. The body's record reads it once, on its first use

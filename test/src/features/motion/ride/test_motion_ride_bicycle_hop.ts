@@ -37,16 +37,17 @@ import { nclose } from "../../internal/nclose";
  * keeping both pedal and bar contacts through the landing and recovery.
  *
  * Scenarios:
- * 1. The separately posed tires touch the road up to the takeoff mark,
- *    cross the strip clear of it, and touch down beyond the landing mark.
- * 2. The displayed feet stay on the pedals and hands hold the bar. The
- *    pelvis stays lifted in flight and lowers back to its seated height
- *    after touchdown without a positional jump at either support boundary.
- * 3. Separate hops leave a grounded interval. A flight that starts, ends
- *    or encloses an earlier one, also on a copy of the hopped ride, is
- *    refused, as is a stationary, turning, climbing or elevated approach.
- * 4. The small woman, whose inseam lies below the saddle band, is refused
- *    the fitted bicycle at its saddle height.
+ *
+ * 1. The separately posed tires touch the road up to the takeoff mark, cross the
+ *    strip clear of it, and touch down beyond the landing mark.
+ * 2. The displayed feet stay on the pedals and hands hold the bar. The pelvis
+ *    stays lifted in flight and lowers back to its seated height after
+ *    touchdown without a positional jump at either support boundary.
+ * 3. Separate hops leave a grounded interval. A flight that starts, ends or
+ *    encloses an earlier one, also on a copy of the hopped ride, is refused, as
+ *    is a stationary, turning, climbing or elevated approach.
+ * 4. The small woman, whose inseam lies below the saddle band, is refused the
+ *    fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the floor, marks, riding supports and adjacent invalid approaches.
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual wheel parts, displayed body pose, pedal and grip frames around the two support events and through the flight.
@@ -60,7 +61,10 @@ export function test_motion_ride_bicycle_hop(): void {
   );
 }
 
-/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+/**
+ * The riding body; the small woman is refused the bicycle, pinned by
+ * `bicycleRiders`.
+ */
 type BodyKey = "m-average";
 
 /**
@@ -157,7 +161,7 @@ function take(key: BodyKey, failures: string[]): void {
   });
   collectTakeClean(`${key} bicycle hop film`, film, failures);
   const segment: IAutoMovieMotionHumanSegment = film.segments("cyclist")[1]!;
-  const rider: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const rider: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "cyclist",
     body,

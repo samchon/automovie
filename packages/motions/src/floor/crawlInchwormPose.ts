@@ -17,6 +17,44 @@ import type { crawlChain } from "./crawlChain";
 import { crawlFrame } from "./crawlFrame";
 
 /**
+ * The posture at a placement.
+ *
+ * @param body The body.
+ * @param chain The chain built for the body's standing.
+ * @param frame The floor frame of the heading.
+ * @param feet Each foot's ball along the heading, metres in the frame.
+ * @param wrists Each wrist along the heading, metres in the frame.
+ * @param laid Fixed palm geometry from this unchanged body/frame, or the same
+ *   native preparation when omitted; current FK is borrowed only during this
+ *   placement.
+ * @param source Optional exact FK source belonging only to this synchronous
+ *   preference construction.
+ * @param projector Optional genuine ROM metadata from that same construction;
+ *   every current joint remains projected.
+ * @returns The whole body's tilt and its joint angles.
+ */
+export function crawlInchwormPose(
+  body: IAutoMovieMotionHumanBody,
+  chain: crawlChain.IChain,
+  frame: IAutoMovieMotionHumanFrame,
+  feet: Record<AutoMovieHumanSide, number>,
+  wrists: Record<AutoMovieHumanSide, number>,
+  laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
+    body,
+    HumanFrame.forward(frame.yaw),
+  ),
+  source?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projector?: ReturnType<typeof prepareHumanPostureProjection>,
+): IAutoMovieMotionHumanLieDown.IPose {
+  return crawlInchwormPose.prepare(body, chain, frame, laid)(
+    feet,
+    wrists,
+    source,
+    projector,
+  );
+}
+
+/**
  * The inchworm's posture at a placement of its hands and feet, by its
  * middle-plane chain (`crawlChain`): the stated posture each stance of the walk
  * is solved from and kept nearest (`HumanSupport.IStance.prefer`), so the
@@ -36,39 +74,6 @@ export namespace crawlInchwormPose {
    * share of the shank (provisional).
    */
   export const KNEE: number = 0.25;
-
-  /**
-   * The posture at a placement.
-   *
-   * @param body The body.
-   * @param chain The chain built for the body's standing.
-   * @param frame The floor frame of the heading.
-   * @param feet Each foot's ball along the heading, metres in the frame.
-   * @param wrists Each wrist along the heading, metres in the frame.
-   * @param laid Fixed palm geometry from this unchanged body/frame, or the same
-   *   native preparation when omitted; current FK is borrowed only during this
-   *   placement.
-   * @param source Optional exact FK source belonging only to this synchronous
-   *   preference construction.
-   * @param projector Optional genuine ROM metadata from that same construction;
-   *   every current joint remains projected.
-   * @returns The whole body's tilt and its joint angles.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    chain: crawlChain.IChain,
-    frame: IAutoMovieMotionHumanFrame,
-    feet: Record<AutoMovieHumanSide, number>,
-    wrists: Record<AutoMovieHumanSide, number>,
-    laid: ReturnType<typeof crawlFrame.prepareLaid> = crawlFrame.prepareLaid(
-      body,
-      HumanFrame.forward(frame.yaw),
-    ),
-    source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projector?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanLieDown.IPose {
-    return prepare(body, chain, frame, laid)(feet, wrists, source, projector);
-  }
 
   /**
    * Prepare unchanged body/chain/floor geometry for the inchworm's stance

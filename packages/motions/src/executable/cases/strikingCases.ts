@@ -175,7 +175,7 @@ function build(
       if (g.name !== "punch" && g.name !== "kick" && g.name !== "knee")
         continue;
       const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
-        StrikingRecord.of(g.plan);
+        StrikingRecord(g.plan);
       const stop: number | undefined = record?.stop(g.end);
       const contact: number = stop ?? StrikingVerdicts.peak(g);
       const limb: StrikingLimb.End = StrikingLimb.end(
@@ -238,7 +238,7 @@ function build(
         };
       }
       verdicts.push(
-        ...StrikingVerdicts.of({
+        ...StrikingVerdicts({
           performance,
           id: p.id,
           body: p.body,

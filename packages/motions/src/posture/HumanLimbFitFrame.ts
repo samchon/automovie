@@ -7,6 +7,40 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * The frame a fit of a pose and a goal is solved in, or null when it stays in
+ * the world.
+ *
+ * @param pose The pose before the fit.
+ * @param goal The limb's goal.
+ * @returns The frame, or null.
+ */
+export function HumanLimbFitFrame(
+  pose: IAutoMoviePose,
+  goal: IAutoMovieHumanLimbGoal,
+): IAutoMovieMotionHumanLimbFitFrame.IFrame | null {
+  if (
+    pose.root === null ||
+    goal.on !== undefined ||
+    goal.clear !== undefined ||
+    goal.clearExternal !== undefined ||
+    goal.rests !== undefined
+  )
+    return null;
+  const ahead: IAutoMovieVector3 = Quaternion.rotateVector(pose.root.rotation, {
+    x: 0,
+    y: 0,
+    z: 1,
+  });
+  const heading: number = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
+  return {
+    x: pose.root.translation.x,
+    y: pose.root.translation.y,
+    z: pose.root.translation.z,
+    into: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
+  };
+}
+
+/**
  * The frame a limb fit is solved in (`solveHumanLimbFit`): the root's world
  * position and heading, so two people of one body doing the same thing in
  * different places, or one body facing another way, solve the same numbers.
@@ -31,39 +65,6 @@ import type {
  * moves vertically, because its relative target Y changes.
  */
 export namespace HumanLimbFitFrame {
-  /**
-   * The frame a fit of a pose and a goal is solved in, or null when it stays in
-   * the world.
-   *
-   * @param pose The pose before the fit.
-   * @param goal The limb's goal.
-   * @returns The frame, or null.
-   */
-  export function of(
-    pose: IAutoMoviePose,
-    goal: IAutoMovieHumanLimbGoal,
-  ): IAutoMovieMotionHumanLimbFitFrame.IFrame | null {
-    if (
-      pose.root === null ||
-      goal.on !== undefined ||
-      goal.clear !== undefined ||
-      goal.clearExternal !== undefined ||
-      goal.rests !== undefined
-    )
-      return null;
-    const ahead: IAutoMovieVector3 = Quaternion.rotateVector(
-      pose.root.rotation,
-      { x: 0, y: 0, z: 1 },
-    );
-    const heading: number = (Math.atan2(ahead.x, ahead.z) * 180) / Math.PI;
-    return {
-      x: pose.root.translation.x,
-      y: pose.root.translation.y,
-      z: pose.root.translation.z,
-      into: Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, -heading),
-    };
-  }
-
   /**
    * A world point in the frame.
    *

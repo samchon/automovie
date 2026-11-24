@@ -25,6 +25,111 @@ type OwnersItemResult = "upper" | "lower" | "hand";
 type NormalsOwnersItem = "upper" | "lower" | "hand";
 
 /**
+ * A waypoint's record, built: the arm resting there placed (`resting`) and its
+ * colliders, and each site's touched collider and outward normal, the collider
+ * nearest the site's point when the point lies on it, among the riding arm's
+ * own segment's for a site that rides an arm.
+ *
+ * @param problem The trajectory's problem.
+ * @param setups Each arm's setup.
+ * @param resting Each arm resting at the waypoint, coordinates: the rest arm,
+ *   or at a fixed last waypoint the arm the action leaves to.
+ * @param frames Each arm's frame there.
+ * @param sites Each arm's site there, on the hold.
+ * @returns The record.
+ */
+export function HumanArmTrajectoryWaypoint(
+  problem: HumanArmTrajectoryContext.IProblem,
+  setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],
+  resting: readonly (readonly number[])[],
+  frames: IAutoMovieMotionHumanArmGeometry.IFrame[],
+  sites: (M.ISite | undefined)[],
+): HumanArmTrajectoryWaypoint.IWaypoint {
+  const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = setups.map(
+    (
+      setup: IAutoMovieMotionHumanArmGeometry.ISetup,
+      a: number,
+    ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      G.placed(setup, frames[a]!, resting[a]!),
+  );
+  const colliders: IAutoMovieMotionHumanArmGeometry.IShape[][] = frames.map(
+    (
+      frame: IAutoMovieMotionHumanArmGeometry.IFrame,
+      a: number,
+    ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
+      S.colliders(frame, placed[a]!),
+  );
+  const touched: number[] = sites.map((): number => -1);
+  const normals: (IAutoMovieVector3 | undefined)[] = sites.map(
+    (site: M.ISite | undefined, a: number): IAutoMovieVector3 | undefined => {
+      // A grip on a held object touches no surface of the body: it is held to
+      // its point on every axis, so it has no touched collider.
+      if (site === undefined || problem.arms[a]!.grasp !== undefined)
+        return undefined;
+      const on: M.ISite["on"] = site.on;
+      const candidates: IAutoMovieMotionHumanArmGeometry.IShape[] =
+        on === undefined ? frames[a]!.shapes : colliders[on.arm]!;
+      const owners: NormalsOwnersItem[] =
+        on === undefined
+          ? []
+          : frames[on.arm]!.colliders.flatMap(
+              (
+                col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number],
+              ): OwnersItemResult[] =>
+                col.shapes.map((): NormalsOwnersResult => col.owner),
+            );
+      let best: number = -1;
+      let least: number = Infinity;
+      candidates.forEach(
+        (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
+          if (on !== undefined && owners[i] !== on.owner) return;
+          const d: number = physicalShapeSegmentDistance(
+            shape.pose,
+            shape.shape,
+            site.point,
+            site.point,
+          );
+          if (d < least) {
+            least = d;
+            best = i;
+          }
+        },
+      );
+
+      // A site touches the collider its point lies on, within the depth a
+      // pressed skin gives (`AutoMovieMotionHumanAuditSkin.BUILT`); a site
+      // in free space, however near a collider, touches none.
+      if (best < 0 || least > AutoMovieMotionHumanAuditSkin.BUILT)
+        return undefined;
+      touched[a] = best;
+      const s: IAutoMovieMotionHumanArmGeometry.IShape = candidates[best]!;
+      return physicalShapeNormal(
+        s.pose,
+        s.shape,
+        site.point,
+        Vector3.normalize(Vector3.subtract(site.point, s.centre)),
+      );
+    },
+  );
+  return {
+    frames,
+    sites,
+    placed,
+    colliders,
+    touched,
+    normals,
+    allowed: sites.map((): undefined => undefined),
+    between: sites.map((): undefined => undefined),
+    inside: sites.map((): Map<number, number> => new Map()),
+    flat: sites.map((): undefined => undefined),
+    reachable: frames.map(
+      (frame: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): number[] =>
+        S.reachable(frame, placed[a]!, T.REACH),
+    ),
+  };
+}
+
+/**
  * What an arms' trajectory reads at one waypoint, built once per waypoint and
  * kept by every later reading of the same arms
  * (`HumanArmTrajectoryContext.of`).
@@ -98,110 +203,5 @@ export namespace HumanArmTrajectoryWaypoint {
     return new Float64Array((G.SURFACE + frame.segments.length) * shapes).fill(
       NaN,
     );
-  }
-
-  /**
-   * A waypoint's record, built: the arm resting there placed (`resting`) and
-   * its colliders, and each site's touched collider and outward normal, the
-   * collider nearest the site's point when the point lies on it, among the
-   * riding arm's own segment's for a site that rides an arm.
-   *
-   * @param problem The trajectory's problem.
-   * @param setups Each arm's setup.
-   * @param resting Each arm resting at the waypoint, coordinates: the rest arm,
-   *   or at a fixed last waypoint the arm the action leaves to.
-   * @param frames Each arm's frame there.
-   * @param sites Each arm's site there, on the hold.
-   * @returns The record.
-   */
-  export function of(
-    problem: HumanArmTrajectoryContext.IProblem,
-    setups: readonly IAutoMovieMotionHumanArmGeometry.ISetup[],
-    resting: readonly (readonly number[])[],
-    frames: IAutoMovieMotionHumanArmGeometry.IFrame[],
-    sites: (M.ISite | undefined)[],
-  ): IWaypoint {
-    const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = setups.map(
-      (
-        setup: IAutoMovieMotionHumanArmGeometry.ISetup,
-        a: number,
-      ): IAutoMovieMotionHumanArmGeometry.IPlaced =>
-        G.placed(setup, frames[a]!, resting[a]!),
-    );
-    const colliders: IAutoMovieMotionHumanArmGeometry.IShape[][] = frames.map(
-      (
-        frame: IAutoMovieMotionHumanArmGeometry.IFrame,
-        a: number,
-      ): IAutoMovieMotionHumanArmGeometry.IShape[] =>
-        S.colliders(frame, placed[a]!),
-    );
-    const touched: number[] = sites.map((): number => -1);
-    const normals: (IAutoMovieVector3 | undefined)[] = sites.map(
-      (site: M.ISite | undefined, a: number): IAutoMovieVector3 | undefined => {
-        // A grip on a held object touches no surface of the body: it is held to
-        // its point on every axis, so it has no touched collider.
-        if (site === undefined || problem.arms[a]!.grasp !== undefined)
-          return undefined;
-        const on: M.ISite["on"] = site.on;
-        const candidates: IAutoMovieMotionHumanArmGeometry.IShape[] =
-          on === undefined ? frames[a]!.shapes : colliders[on.arm]!;
-        const owners: NormalsOwnersItem[] =
-          on === undefined
-            ? []
-            : frames[on.arm]!.colliders.flatMap(
-                (
-                  col: IAutoMovieMotionHumanArmGeometry.IFrame["colliders"][number],
-                ): OwnersItemResult[] =>
-                  col.shapes.map((): NormalsOwnersResult => col.owner),
-              );
-        let best: number = -1;
-        let least: number = Infinity;
-        candidates.forEach(
-          (shape: IAutoMovieMotionHumanArmGeometry.IShape, i: number): void => {
-            if (on !== undefined && owners[i] !== on.owner) return;
-            const d: number = physicalShapeSegmentDistance(
-              shape.pose,
-              shape.shape,
-              site.point,
-              site.point,
-            );
-            if (d < least) {
-              least = d;
-              best = i;
-            }
-          },
-        );
-
-        // A site touches the collider its point lies on, within the depth a
-        // pressed skin gives (`AutoMovieMotionHumanAuditSkin.BUILT`); a site
-        // in free space, however near a collider, touches none.
-        if (best < 0 || least > AutoMovieMotionHumanAuditSkin.BUILT)
-          return undefined;
-        touched[a] = best;
-        const s: IAutoMovieMotionHumanArmGeometry.IShape = candidates[best]!;
-        return physicalShapeNormal(
-          s.pose,
-          s.shape,
-          site.point,
-          Vector3.normalize(Vector3.subtract(site.point, s.centre)),
-        );
-      },
-    );
-    return {
-      frames,
-      sites,
-      placed,
-      colliders,
-      touched,
-      normals,
-      allowed: sites.map((): undefined => undefined),
-      between: sites.map((): undefined => undefined),
-      inside: sites.map((): Map<number, number> => new Map()),
-      flat: sites.map((): undefined => undefined),
-      reachable: frames.map(
-        (frame: IAutoMovieMotionHumanArmGeometry.IFrame, a: number): number[] =>
-          S.reachable(frame, placed[a]!, T.REACH),
-      ),
-    };
   }
 }

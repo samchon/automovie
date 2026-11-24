@@ -37,10 +37,11 @@ import { throwsError } from "../internal/throwsError";
  * Two performers carry the archetype's single rigid panel by its two poles.
  *
  * Scenarios:
- * 1. Stage an already-held, 1.8 m wide panel with the two grips 0.45 m above
- *    its base. A shared carry moves this prop 35 mm forward in one second.
- * 2. Read the displayed hand bones at the start, midpoint and end. Each
- *    grip center stays within 15 mm of its own authored moving pole axis.
+ *
+ * 1. Stage an already-held, 1.8 m wide panel with the two grips 0.45 m above its
+ *    base. A shared carry moves this prop 35 mm forward in one second.
+ * 2. Read the displayed hand bones at the start, midpoint and end. Each grip
+ *    center stays within 15 mm of its own authored moving pole axis.
  * 3. A prop with actual internal articulation still refuses steady rigid carry.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the panel geometry, translation, sampling and grip bound.

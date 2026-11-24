@@ -75,14 +75,14 @@ export namespace HumanArchery {
   /** Take an arrow by its shaft. */
   export const takeArrow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["takeArrow"]
-  > = HumanActionRow.of("takeArrow", pickUp, {
+  > = HumanActionRow("takeArrow", pickUp, {
     handle: "nockGrip",
   });
 
   /** The nocking as a plain put-down row, before the arrow's own nock is named. */
   const nockRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["nockArrow"]
-  > = HumanActionRow.of("nockArrow", putDown, {});
+  > = HumanActionRow("nockArrow", putDown, {});
 
   /**
    * Set the arrow's nock on the bow's string: the arrow's own `nock` socket is
@@ -112,7 +112,7 @@ export namespace HumanArchery {
   /** Hold the bow out in one hand on the line from the face to the target. */
   export const presentBow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentBow"]
-  > = HumanActionRow.of(
+  > = HumanActionRow(
     "presentBow",
     HumanWeaponPresent.present,
     HUMAN_ARCHERY_PRESENT_BOW,
@@ -121,7 +121,7 @@ export namespace HumanArchery {
   /** The draw as a plain operation row, before the bow is read off the bow arm. */
   const drawRow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["drawBow"]
-  > = HumanActionRow.of("drawBow", operate, {});
+  > = HumanActionRow("drawBow", operate, {});
 
   /**
    * Draw the string back to the anchor, over `presentBow`: the string is read
@@ -146,7 +146,7 @@ export namespace HumanArchery {
   export const loose: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
   > = {
-    ...HumanActionRow.of("loose", release, {}),
+    ...HumanActionRow("loose", release, {}),
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["loose"]
@@ -169,13 +169,13 @@ export namespace HumanArchery {
   /** Span a crossbow by its string or its crank. */
   export const spanCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["spanCrossbow"]
-  > = HumanActionRow.of("spanCrossbow", operate, {});
+  > = HumanActionRow("spanCrossbow", operate, {});
 
   /** Present the crossbow at the cheek with the prop's fixed rail mark. */
   export const presentCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["presentCrossbow"]
   > = {
-    ...HumanActionRow.of("presentCrossbow", HumanWeaponPresent.present, {
+    ...HumanActionRow("presentCrossbow", HumanWeaponPresent.present, {
       anchor: "cheek",
     }),
     plan: (
@@ -201,7 +201,7 @@ export namespace HumanArchery {
   export const shootCrossbow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
   > = {
-    ...HumanActionRow.of("shootCrossbow", HumanWeaponPresent.fire, {}),
+    ...HumanActionRow("shootCrossbow", HumanWeaponPresent.fire, {}),
     plan: (
       context: IAutoMovieMotionHumanActionContext<
         IAutoMovieMotionHumanLexiconParams["archery"]["shootCrossbow"]
@@ -333,7 +333,7 @@ function byNock(
 /**
  * The draw's context with the bow read off the bow arm, never off the bow's
  * displayed frame. The bow is rigid in the other hand's grip frame
- * (`AutoMovieMotionHumanHeld.of`, read at the entry), so the string the drawing
+ * (`AutoMovieMotionHumanHeld`, read at the entry), so the string the drawing
  * hand takes rides that grip. Over a carrier (the draw over `presentBow`), the
  * grip is the one the carrier's own bow-arm goal asks at the same instant, so
  * the string is where the raised arm puts the bow. On its own, the draw holds
@@ -360,7 +360,7 @@ function onBowArm(
     (context.params.hand ?? "right") === "left" ? "right" : "left";
   if (context.entry.holds[side] !== bow) return context;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(bow);
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     bow,

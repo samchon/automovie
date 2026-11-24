@@ -21,10 +21,13 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Both displayed eye axes follow an offset world target at the requested gaze weight.
+ * Both displayed eye axes follow an offset world target at the requested gaze
+ * weight.
  *
  * Scenarios:
- * 1. Place landmarks to either side of a neutral actor, within comfortable ocular range.
+ *
+ * 1. Place landmarks to either side of a neutral actor, within comfortable ocular
+ *    range.
  * 2. Check both visual rays against the line from each eye to that landmark.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the eye origin and the world target used to compute the expected direction.
@@ -52,7 +55,7 @@ export function test_motion_gaze_primitive_gaze_glance(): void {
     const primitive: IAutoMovieMotionHumanPrimitive =
       AutoMovieMotionHumanGaze.glance(
         body,
-        AutoMovieMotionClock.of(1, [
+        AutoMovieMotionClock(1, [
           { name: "on", seconds: 0.25 },
           { name: "off", seconds: 0.75 },
         ]),

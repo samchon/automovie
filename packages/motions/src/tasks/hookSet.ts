@@ -44,8 +44,8 @@ function planHookSet(
   HumanBound.least("duration", params.duration, 1e-3, "s");
   const hand: AutoMovieHumanSide =
     params.hand ?? (entry.holds.right === params.rod ? "right" : "left");
-  const held: ReturnType<typeof AutoMovieMotionHumanHeld.of> =
-    AutoMovieMotionHumanHeld.of(context, hand, params.rod);
+  const held: ReturnType<typeof AutoMovieMotionHumanHeld> =
+    AutoMovieMotionHumanHeld(context, hand, params.rod);
   const rod: IAutoMovieRigidTransform = context
     .prop(params.rod)
     .frame(context.start);

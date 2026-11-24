@@ -13,6 +13,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanPerformanceCustody } from "./HumanPerformanceCustody";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropFlight } from "./HumanPropFlight";
@@ -79,11 +80,12 @@ export namespace HumanPerformanceHold {
     seconds: number,
   ): Pick<IAutoMovieMotionHumanProp.IMounted, MountResult> | undefined {
     if (self.props.get(subject)?.motion !== undefined) return undefined;
-    const { active, since }: ICustody = custody(
-      HumanPerformanceRead.grips(self, subject),
-      seconds,
-      false,
-    );
+    const { active, since }: HumanPerformanceCustody.ICustody =
+      HumanPerformanceCustody(
+        HumanPerformanceRead.grips(self, subject),
+        seconds,
+        false,
+      );
     return active?.mount !== undefined &&
       HumanPropFlight.active(self, subject, seconds, since) === undefined
       ? active.mount
@@ -106,79 +108,18 @@ export namespace HumanPerformanceHold {
     seconds: number,
   ): IAutoMovieMotionHumanPropReader.IHolder | undefined {
     if (self.props.get(subject)?.motion !== undefined) return undefined;
-    const { active, since }: ICustody = custody(
-      HumanPerformanceRead.grips(self, subject),
-      seconds,
-      false,
-    );
+    const { active, since }: HumanPerformanceCustody.ICustody =
+      HumanPerformanceCustody(
+        HumanPerformanceRead.grips(self, subject),
+        seconds,
+        false,
+      );
     return active === undefined ||
       active.bone !== undefined ||
       active.mount !== undefined ||
       HumanPropFlight.active(self, subject, seconds, since) !== undefined
       ? undefined
       : { subject: active.subject, side: active.side };
-  }
-
-  /** The carriers picked by the frame's usual grip and flight precedence. */
-  interface ICustody {
-    /** The latest carrier that still holds the prop. */
-    active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /** The other hand when it steadies the active carrier's grip. */
-    steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /** The last carrier to let go, whose final frame supplies unlaunched rest. */
-    released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    /**
-     * Film second of the last closure before the query, which overrides older
-     * flights.
-     */
-    since: number;
-  }
-
-  /**
-   * Select displayed grip, second hand, rest and the flight cutoff once from
-   * the sorted spans.
-   */
-  function custody(
-    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
-    seconds: number,
-    takeSocket: boolean,
-  ): ICustody {
-    // The latest grip still holding carries it; with none holding, the one released last left it.
-    let active: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let steady: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let released: IAutoMovieMotionHumanPerformanceState.IGrip | undefined;
-    let since: number = -Infinity;
-    for (const g of grips) {
-      // At closure the world frame comes from the previous carrier. A supplied
-      // pose used for aiming can take the authored socket chain at that instant.
-      const from: number = g.from;
-      if (
-        from > seconds ||
-        (from === seconds &&
-          g.bone === undefined &&
-          (g.mount === undefined || !takeSocket))
-      )
-        continue;
-      if (from < seconds) since = Math.max(since, from);
-      if (seconds <= g.to) {
-        // A performer's other hand on a prop that performer already holds
-        // steadies it and does not take it over: a camera's far end held
-        // with the right hand on the grip.
-        const steadies: boolean =
-          active !== undefined &&
-          active.bone === undefined &&
-          active.mount === undefined &&
-          g.bone === undefined &&
-          g.mount === undefined &&
-          active.subject === g.subject &&
-          active.side !== g.side;
-        if (!steadies) {
-          active = g;
-          steady = undefined;
-        } else steady = g;
-      } else if (released === undefined || g.to >= released.to) released = g;
-    }
-    return { active, steady, released, since };
   }
 
   /** Resolve a frame while keeping the current chain of socket samples. */
@@ -206,7 +147,12 @@ export namespace HumanPerformanceHold {
     if (prop.motion !== undefined) return prop.motion(seconds);
     const grips: IAutoMovieMotionHumanPerformanceState.IGrip[] =
       HumanPerformanceRead.grips(self, subject);
-    const { active, steady, released, since }: ICustody = custody(
+    const {
+      active,
+      steady,
+      released,
+      since,
+    }: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
       grips,
       seconds,
       own !== undefined,
@@ -296,7 +242,7 @@ export namespace HumanPerformanceHold {
       // frames at closure, never by an earlier grasp's offset, so the prop
       // does not step at the handover.
       const handed: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
-        custody(grips, w.from - 1e-6, false).active;
+        HumanPerformanceCustody(grips, w.from - 1e-6, false).active;
       const taken: boolean =
         handed !== undefined &&
         handed !== w &&
@@ -448,7 +394,11 @@ export namespace HumanPerformanceHold {
       window.bone === undefined &&
       window.mount === undefined
     ) {
-      const ending: ICustody = custody(grips, at, false);
+      const ending: HumanPerformanceCustody.ICustody = HumanPerformanceCustody(
+        grips,
+        at,
+        false,
+      );
       if (
         ending.active?.to === at &&
         ending.steady?.to === at &&

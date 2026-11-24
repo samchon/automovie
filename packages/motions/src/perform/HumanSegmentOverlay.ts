@@ -421,8 +421,8 @@ export namespace HumanSegmentOverlay {
         ] = joints.get(bone)!;
         const from: readonly [number, number, number] = angles(pair[0]);
         const to: readonly [number, number, number] = angles(pair[1]);
-        const channel: ReturnType<typeof AutoMovieMotionHumanChannel.of> =
-          AutoMovieMotionHumanChannel.of(bone);
+        const channel: ReturnType<typeof AutoMovieMotionHumanChannel> =
+          AutoMovieMotionHumanChannel(bone);
         const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
           ? "left"
           : bone.startsWith("right")

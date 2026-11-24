@@ -118,7 +118,7 @@ A pure reader.
 
 Retains nothing.
 
-# src/handling/putDownTarget.ts#putDownTarget.of
+# src/handling/putDownTarget.ts#putDownTarget
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

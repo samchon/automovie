@@ -34,7 +34,7 @@ Quiet standing consumes both fields in one posture evaluation; the course retain
 
 Uses existing posture and support-carry types and preserves the original rocker geometry.
 
-# src/actions/standFeet.ts#standFeet.of
+# src/actions/standFeet.ts#standFeet
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

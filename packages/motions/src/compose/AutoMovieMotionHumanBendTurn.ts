@@ -24,7 +24,7 @@ export function AutoMovieMotionHumanBendTurn(
   degrees: number,
 ): IAutoMovieVector3 {
   const chain: AutoMovieMotionHumanBendChain.IChain | null =
-    AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+    AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
   if (chain === null) return elbow;
   const axis: IAutoMovieVector3 = Vector3.subtract(props.point, chain.shoulder);
   if (!(Vector3.length(axis) > 1e-9)) return elbow;

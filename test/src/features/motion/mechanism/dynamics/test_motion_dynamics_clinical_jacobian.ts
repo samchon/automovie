@@ -81,7 +81,7 @@ export function test_motion_dynamics_clinical_jacobian(): void {
       value.worldPosition,
       Quaternion.rotateVector(value.worldRotation, local),
     );
-  const motions = HumanJacobian.of(
+  const motions = HumanJacobian(
     body,
     current,
     shown,

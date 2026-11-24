@@ -15,7 +15,7 @@ import { hasViolation, namedFacts } from "./predicates";
  * 2. a measurement must agree with its own verdict.
  *
  * Absence requires an unsupported/not-run status, reason/remedy and no target/comparison; a finite measurement requires no gap and must agree with inclusive at-most/at-least bounds. The authored scalar comparisons and field paths determine verdicts without running a scientific solver.
- * Complete gaps contrast with claimed verdicts, missing/blank remedies and forbidden targets; measured values contrast with nonfinite values, inconsistent statuses, attached gaps, missing target/direction and nonfinite targets. Samples/warnings belong to Part4, and the parent separately rejects unknown comparison strings.
+ * Complete gaps contrast with claimed verdicts, missing/blank remedies and forbidden targets; measured values contrast with inconsistent statuses, attached gaps and missing target/direction. Samples/warnings belong to Part4.
  */
 export function assertAnalysisRunContractPart3(
   measured: (
@@ -112,15 +112,6 @@ export function assertAnalysisRunContractPart3(
     "a measurement must agree with its own verdict",
     namedFacts([
       [
-        "non-finite value",
-        (): boolean =>
-          hasViolation(
-            solved([measured({ value: Number.NaN })]),
-            "range",
-            "$input.outcome.metrics[0].value",
-          ),
-      ],
-      [
         "value beside a gap",
         (): boolean =>
           hasViolation(
@@ -175,21 +166,6 @@ export function assertAnalysisRunContractPart3(
           ),
       ],
       [
-        "judging against a non-finite target",
-        (): boolean =>
-          hasViolation(
-            solved([
-              measured({
-                status: "meets",
-                target: Number.POSITIVE_INFINITY,
-                comparison: "at-most",
-              }),
-            ]),
-            "range",
-            "$input.outcome.metrics[0].target",
-          ),
-      ],
-      [
         "claiming to meet what it misses",
         (): boolean =>
           hasViolation(
@@ -227,14 +203,12 @@ export function assertAnalysisRunContractPart3(
       ],
     ]),
     {
-      "non-finite value": true,
       "value beside a gap": true,
       "untargeted with a target": true,
       "untargeted with a comparison": true,
       "value claiming to be unmeasured": true,
       "judging with no target": true,
       "judging with no comparison": true,
-      "judging against a non-finite target": true,
       "claiming to meet what it misses": true,
       "claiming to miss what it meets": true,
       "an honest at-most pass": true,

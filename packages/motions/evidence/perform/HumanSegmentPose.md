@@ -28,7 +28,7 @@ Exact film-second queries share completed poses only after placement is settled;
 
 The person owns the FIFO-bounded 4096-entry map and releases it on forget; returned cached pose references retain their existing borrowed ownership, with no copy or new process-wide cache.
 
-# src/perform/HumanSegmentPose.ts#HumanSegmentPose.of
+# src/perform/HumanSegmentPose.ts#HumanSegmentPose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

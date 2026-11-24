@@ -36,8 +36,8 @@ export function walkLevelSupport(
     given: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanWalkParams>,
   ) => IAutoMovieMotionHumanActionPlan,
 ): IAutoMovieMotionHumanActionPlan {
-  const support: ReturnType<typeof HumanSupportFrame.of> =
-    HumanSupportFrame.of(context);
+  const support: ReturnType<typeof HumanSupportFrame> =
+    HumanSupportFrame(context);
   if (support.kind !== "prop" || support.subject !== subject)
     return plan(context);
   const read: IAutoMovieMotionHumanPropReader = context.prop(subject);

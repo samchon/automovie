@@ -219,7 +219,7 @@ export namespace KickChain {
           Vector3.subtract(props.planned, ball(props)),
           Vector3.scale(
             props.direction,
-            StrikingWeapon.legRadii(props.body)[2],
+            StrikingWeapon.legRadii(props.body)[2][0],
           ),
         );
     return StrikingReach.chain({

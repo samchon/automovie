@@ -14,6 +14,59 @@ import { HumanJacobian } from "./HumanJacobian";
 type RowStep = "at" | "motions" | "units" | "index" | "price";
 
 /**
+ * The pairs a body's deep fold brings together.
+ *
+ * @param body The body.
+ * @returns The pairs.
+ */
+export function HumanFitPairs(
+  body: IAutoMovieMotionHumanBody,
+): HumanFitPairs.IPair[] {
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const sides: readonly ["left", "right"] = ["left", "right"];
+  const capsule: (
+    bone: AutoMovieHumanoidBone,
+    end: AutoMovieHumanoidBone,
+    radius: number,
+  ) => HumanFitPairs.ICapsule = (
+    bone: AutoMovieHumanoidBone,
+    end: AutoMovieHumanoidBone,
+    radius: number,
+  ): HumanFitPairs.ICapsule => ({ bone, end, radius });
+  const out: HumanFitPairs.IPair[] = [];
+  for (const s of sides)
+    for (const o of sides) {
+      const thigh: HumanFitPairs.ICapsule = capsule(
+        `${o}UpperLeg`,
+        `${o}LowerLeg`,
+        m.thighRadius,
+      );
+      const forearm: HumanFitPairs.ICapsule = capsule(
+        `${s}LowerArm`,
+        `${s}Hand`,
+        m.forearmRadius,
+      );
+      out.push(
+        {
+          a: capsule(`${s}UpperArm`, `${s}LowerArm`, m.upperArmRadius),
+          b: thigh,
+        },
+        { a: forearm, b: thigh },
+        { a: forearm, b: capsule(`${o}LowerLeg`, `${o}Foot`, m.shankRadius) },
+      );
+    }
+
+  // The chest is read as a capsule from its joint to the neck's, as deep as
+  // half the chest's depth, against each thigh.
+  for (const o of sides)
+    out.push({
+      a: capsule("chest", "neck", m.chestDepth / 2),
+      b: capsule(`${o}UpperLeg`, `${o}LowerLeg`, m.thighRadius),
+    });
+  return out;
+}
+
+/**
  * The pairs of body segments a deep fold brings together in a whole-body fit
  * (`HumanBodyFit`), each kept apart by a gap row: an arm's upper arm and
  * forearm against each thigh, its forearm against each shank, and the chest
@@ -65,57 +118,6 @@ export namespace HumanFitPairs {
 
     /** The closest point on the second capsule's axis, world metres. */
     b: IAutoMovieVector3;
-  }
-
-  /**
-   * The pairs a body's deep fold brings together.
-   *
-   * @param body The body.
-   * @returns The pairs.
-   */
-  export function of(body: IAutoMovieMotionHumanBody): IPair[] {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const sides: readonly ["left", "right"] = ["left", "right"];
-    const capsule: (
-      bone: AutoMovieHumanoidBone,
-      end: AutoMovieHumanoidBone,
-      radius: number,
-    ) => ICapsule = (
-      bone: AutoMovieHumanoidBone,
-      end: AutoMovieHumanoidBone,
-      radius: number,
-    ): ICapsule => ({ bone, end, radius });
-    const out: IPair[] = [];
-    for (const s of sides)
-      for (const o of sides) {
-        const thigh: ICapsule = capsule(
-          `${o}UpperLeg`,
-          `${o}LowerLeg`,
-          m.thighRadius,
-        );
-        const forearm: ICapsule = capsule(
-          `${s}LowerArm`,
-          `${s}Hand`,
-          m.forearmRadius,
-        );
-        out.push(
-          {
-            a: capsule(`${s}UpperArm`, `${s}LowerArm`, m.upperArmRadius),
-            b: thigh,
-          },
-          { a: forearm, b: thigh },
-          { a: forearm, b: capsule(`${o}LowerLeg`, `${o}Foot`, m.shankRadius) },
-        );
-      }
-
-    // The chest is read as a capsule from its joint to the neck's, as deep as
-    // half the chest's depth, against each thigh.
-    for (const o of sides)
-      out.push({
-        a: capsule("chest", "neck", m.chestDepth / 2),
-        b: capsule(`${o}UpperLeg`, `${o}LowerLeg`, m.thighRadius),
-      });
-    return out;
   }
 
   /**

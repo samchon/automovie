@@ -96,7 +96,7 @@ function planSlipRing(
       reason: "a ring is slipped onto another performer's finger",
       fix: "name another performer as the partner",
     });
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

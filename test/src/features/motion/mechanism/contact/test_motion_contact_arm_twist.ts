@@ -18,22 +18,25 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
- * The forearm's twist reading: with the arm hanging at the side and the
- * elbow flexed 90 degrees, twist 0 holds the thumb up (the forearm's
- * mid-position), -90 turns the palm up (full supination) and +90 the palm
- * down (full pronation), so the rig's `[-90, 90]` is the clinical 90/90 span
- * about the neutral forearm. The T-pose's palm-down hand is that neutral
- * forearm on an abducted arm: from the anatomical position (palm forward,
- * fully supinated) the arm abducted 90 degrees keeps its palm forward, and
- * turning it down is 90 degrees of pronation from full supination.
+ * The forearm's twist reading: with the arm hanging at the side and the elbow
+ * flexed 90 degrees, twist 0 holds the thumb up (the forearm's mid-position),
+ * -90 turns the palm up (full supination) and +90 the palm down (full
+ * pronation), so the rig's `[-90, 90]` is the clinical 90/90 span about the
+ * neutral forearm. The T-pose's palm-down hand is that neutral forearm on an
+ * abducted arm: from the anatomical position (palm forward, fully supinated)
+ * the arm abducted 90 degrees keeps its palm forward, and turning it down is 90
+ * degrees of pronation from full supination.
  *
  * Scenarios, on both arms of the average man:
+ *
  * 1. At twist 0 the thumb's axis points within 15 degrees of the world's up.
  * 2. At twist -90 the palm faces within 15 degrees of the world's up.
  * 3. At twist +90 the palm faces within 15 degrees of the world's down.
  *
  * Scenarios:
- * 1. Resolve a neutral forearm and positive and negative rolls, then compare its displayed hand axes.
+ *
+ * 1. Resolve a neutral forearm and positive and negative rolls, then compare its
+ *    displayed hand axes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Resolves real postures and reads the displayed hand's axes; a twist reading turned by a quarter turn or mirrored on one side fails with the angles.
  * @evidence contracts/development/testing.md#independent-expectations The expectations are the clinical forearm positions (mid-position thumb up with the elbow at 90, supination palm up, pronation palm down), not the rig's numbers.

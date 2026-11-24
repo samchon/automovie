@@ -436,7 +436,7 @@ async function fall(
   }
 
   // 6. The solved window's report holds no superseded check.
-  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+  const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
     solved,
     24,
     {

@@ -6,7 +6,6 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 
 type Body = IAutoMovieMotionHumanBody;
@@ -192,7 +191,6 @@ function prepareBodyCheck(body: Body): Check | undefined {
  * profile.
  */
 function bodyCheck(body: Body): Check | undefined {
-  if (!createHumanBody.owns(body)) return undefined;
   const rig: Check | undefined = prepareHumanPostureRigCheck(body);
   if (rig === undefined) return undefined;
   const checks: Check[] = [];
@@ -216,7 +214,6 @@ function bodyCheck(body: Body): Check | undefined {
   ] as const)
     if (!captureField(body, key, checks, seen)) return undefined;
   return (): boolean =>
-    createHumanBody.owns(body) &&
     rig() &&
     checks.every((check: Check): boolean => check());
 }

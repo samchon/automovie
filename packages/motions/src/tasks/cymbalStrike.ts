@@ -33,23 +33,15 @@ export const cymbalStrike: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanC
  *
  * @param context The action's inputs, body, entry state and prop readers.
  * @returns The held-stick plan with `contact1` as its decisive instant.
- * @throws {HumanRefusal} When the hand or either subject is invalid, the hand
- *   lacks the stick or its required contacts, or the edge fails admission.
+ * @throws {HumanRefusal} When either subject is empty, the hand lacks the stick
+ *   or its required contacts, or the edge fails admission.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCymbalStrike>,
 ): IAutoMovieMotionHumanUseTool.IPlan {
   const { hand, stick, cymbal }: IAutoMovieMotionHumanCymbalStrike =
     context.params;
-  if (hand !== "left" && hand !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: hand,
-      reason: "the strike requires the hand already holding the stick",
-      fix: 'name the holding hand, "left" or "right"',
-    });
-  if (typeof stick !== "string" || stick.length === 0)
+  if (stick.length === 0)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "stick",
@@ -57,7 +49,7 @@ function plan(
       reason: "the strike requires a drumstick subject",
       fix: "name the held drumstick",
     });
-  if (typeof cymbal !== "string" || cymbal.length === 0)
+  if (cymbal.length === 0)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "cymbal",

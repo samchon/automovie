@@ -15,7 +15,6 @@ import type {
   IAutoMovieMotionHumanTarget,
   IAutoMovieMotionManner,
   IAutoMovieMotionMeeting,
-  IAutoMovieMotionMeetingTiming,
   IAutoMovieMotionTarget,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -36,6 +35,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { kissBody } from "./kissBody";
 import { kissCanLower } from "./kissCanLower";
+import { kissClock } from "./kissClock";
 import { kissHandClearance } from "./kissHandClearance";
 import { kissHandMeeting } from "./kissHandMeeting";
 import { kissPitch } from "./kissPitch";
@@ -333,8 +333,10 @@ export namespace kiss {
         reason: "a hand kiss role presents or kisses the named back of a hand",
         fix: "name the hand the participants share",
       });
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const meeting: IAutoMovieMotionMeeting | undefined =
       p.handRole === undefined || hand === undefined
@@ -344,7 +346,9 @@ export namespace kiss {
             subject: p.partner,
           });
     const shared: IAutoMovieMotionClock | undefined =
-      meeting === undefined ? undefined : phrase(meeting, context.start);
+      meeting === undefined
+        ? undefined
+        : kissClock.meeting(meeting, context.start);
     if (
       p.handRole === "presenter" &&
       hand !== undefined &&
@@ -432,7 +436,7 @@ export namespace kiss {
         at,
       );
       const approach: number = AutoMovieMotionHumanTiming.transport(travel);
-      return contactClock(
+      return kissClock(
         AutoMovieMotionManner.time(
           AutoMovieMotionClock.phrase({
             prepare: approach,
@@ -485,32 +489,4 @@ export namespace kiss {
       contact: "contact",
     });
   }
-}
-
-/** Both roles name the same local contact and depart instants from the meeting. */
-function phrase(
-  meeting: IAutoMovieMotionMeeting,
-  start: number,
-): IAutoMovieMotionClock {
-  const local: IAutoMovieMotionMeetingTiming = AutoMovieMotionMeeting.local(
-    meeting,
-    start,
-  );
-  return contactClock(
-    AutoMovieMotionClock.phrase({
-      prepare: local.ready,
-      attack: 0,
-      hold: local.relax - local.ready,
-      retract: local.ready,
-    }),
-  );
-}
-
-/** A phrase with the kiss's two contact events. */
-function contactClock(timed: IAutoMovieMotionClock): IAutoMovieMotionClock {
-  return AutoMovieMotionClock.of(timed.duration, [
-    ...timed.instants,
-    { name: "contact", seconds: timed.at("ready") },
-    { name: "part", seconds: timed.at("relax") },
-  ]);
 }

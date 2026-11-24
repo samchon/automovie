@@ -16,7 +16,7 @@ The centre, the axis and the span the flight's crossing test and the approach ru
 
 The span is absent when the affordance declares none, rather than guessed.
 
-# src/sport/highJumpBar.ts#highJumpBar.of
+# src/sport/highJumpBar.ts#highJumpBar
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

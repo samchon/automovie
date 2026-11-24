@@ -36,6 +36,12 @@ import { qclose } from "../../internal/predicates";
 /**
  * A seated passenger exits a stationary sedan through its rear side aperture.
  * Shippen (2012) asked subjects to use the door nearest the seating place.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two mirrored cases, the real opening and the crossing checks.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages the occupied seat with native planted-leg fitting and the car's seat and floor contacts, then drives the public exit chain and reads displayed bones at the endpoints, phase markers and either side of the rise handoff.
+ * @evidence contracts/development/testing.md#independent-expectations Door plane, headroom and jambs come from the articulated car's opening. Shippen establishes the adjacent rear door. The test fixture supplies the turn duration and stagger.
+ * @evidence contracts/development/testing.md#distinguishing-cases The two doors reverse the leading foot and exercise the clearance on each side. One narrow opening exercises the shared width check.
+ * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory test. One human and car fixture serve two open-door passages and one narrow-door refusal.
  * @see https://pureportal.coventry.ac.uk/en/publications/biomechanical-analysis-of-entry-egress-and-loading-of-a-passenger-2/
  *
  * Scenarios:
@@ -46,12 +52,6 @@ import { qclose } from "../../internal/predicates";
  *    their landing orientation at the transfer to the rise.
  * 3. The crown clears the header at the sampled phases near the opening.
  * 4. A 0.2 m left opening refuses passage.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two mirrored cases, the real opening and the crossing checks.
- * @evidence contracts/development/testing.md#behavioral-verification Stages the occupied seat with native planted-leg fitting and the car's seat and floor contacts, then drives the public exit chain and reads displayed bones at the endpoints, phase markers and either side of the rise handoff.
- * @evidence contracts/development/testing.md#independent-expectations Door plane, headroom and jambs come from the articulated car's opening. Shippen establishes the adjacent rear door. The test fixture supplies the turn duration and stagger.
- * @evidence contracts/development/testing.md#distinguishing-cases The two doors reverse the leading foot and exercise the clearance on each side. One narrow opening exercises the shared width check.
- * @evidence contracts/development/testing.md#execution-ownership The motion runner discovers this in-memory test. One human and car fixture serve two open-door passages and one narrow-door refusal.
  */
 export function test_motion_ride_car_rear_exit(): void {
   const car: ReturnType<typeof createCar> = createCar({ kind: "sedan" });
@@ -190,7 +190,7 @@ export function test_motion_ride_car_rear_exit(): void {
         (segment: IAutoMovieMotionHumanSegment): boolean =>
           segment.name === "getOut",
       )!;
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "a",
       body,

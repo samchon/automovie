@@ -34,19 +34,20 @@ import { nclose } from "../../internal/nclose";
  * A fractional twist keeps its winding and supplies the floor stance's yaw.
  *
  * Scenarios:
- * 1. An average man twists +2¼ on the floor in two rigid placements. A
- *    small woman twists −2¼ in the translated, yawed scene. Unwrap the
- *    displayed yaw to count every revolution.
- * 2. Read either side of touchdown and throughout the planted phases.
- *    Check root attitude and position, anatomical range and the sole frame.
- * 3. Refuse a tipped endpoint, a raised destination without a prop, and
- *    a fractional twist onto a named fixed platform.
+ *
+ * 1. An average man twists +2¼ on the floor in two rigid placements. A small woman
+ *    twists −2¼ in the translated, yawed scene. Unwrap the displayed yaw to
+ *    count every revolution.
+ * 2. Read either side of touchdown and throughout the planted phases. Check root
+ *    attitude and position, anatomical range and the sole frame.
+ * 3. Refuse a tipped endpoint, a raised destination without a prop, and a
+ *    fractional twist onto a named fixed platform.
  *
  * The staged integration of #3601 requires #3564 and a compatible landing
- * outcome declared by the jump. Preserve the achieved endpoints, signed
- * turn clock and refusal of fractional turns without a compatible landing.
- * Explicit physical mode needs separate qualification under its existing
- * impulse and conservation bounds.
+ * outcome declared by the jump. Preserve the achieved endpoints, signed turn
+ * clock and refusal of fractional turns without a compatible landing. Explicit
+ * physical mode needs separate qualification under its existing impulse and
+ * conservation bounds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bodies, signed cases, rigid placement, displayed seam and recovery, and three refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Reads public poses and displayed bones. A yaw reset, shortened winding, unchanged targets, displaced or rotated soles, clinical overshoot or admitted unsupported landing fails an assertion.

@@ -209,7 +209,7 @@ export namespace HumanFoot {
    * A foot's outline on its sole, the corners of its colliders seen from below
    * as frames on its bones (`HumanFootOutline`).
    */
-  export const outline: typeof HumanFootOutline.of = HumanFootOutline.of;
+  export const outline: typeof HumanFootOutline = HumanFootOutline;
 
   /**
    * A placement turned on the floor about its ankle's vertical.

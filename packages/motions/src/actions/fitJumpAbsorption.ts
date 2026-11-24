@@ -91,7 +91,7 @@ export function fitJumpAbsorption(
     );
     let miss: number = 0;
     for (const t of times) {
-      const posed: jumpState.IState = jumpState.of(
+      const posed: jumpState.IState = jumpState(
         body,
         jumpGroundPosture(body, demand(path(t), t, read), "landing", read),
         legs,

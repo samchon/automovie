@@ -16,7 +16,7 @@ Four members, all read by the crawl.
 
 The landing is solved with the posture, so the two agree.
 
-# src/floor/crawlDown.ts#crawlDown.of
+# src/floor/crawlDown.ts#crawlDown
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

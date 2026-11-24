@@ -145,7 +145,7 @@ export namespace stickBall {
         ),
       );
     }
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       taken + duration,
       [
         { name: "gripped", seconds: taken },

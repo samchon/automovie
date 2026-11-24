@@ -5,11 +5,15 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * A prepared interval clamps action-local time and eases progress with the minimum-jerk polynomial.
+ * A prepared interval clamps action-local time and eases progress with the
+ * minimum-jerk polynomial.
  *
  * Scenarios:
- * 1. Query the same interval before, after and inside its window in nonchronological order.
- * 2. Check analytic progress velocity at an interior point and the constant exterior.
+ *
+ * 1. Query the same interval before, after and inside its window in
+ *    nonchronological order.
+ * 2. Check analytic progress velocity at an interior point and the constant
+ *    exterior.
  * 3. Equal endpoints switch to the closed state at their shared instant.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies time units, endpoint convention and easing.
@@ -21,7 +25,7 @@ import { nclose } from "../../../internal/nclose";
 export function test_motion_catalogue_time_law(): void {
   const open: number = 2;
   const close: number = 6;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(8, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(8, [
     { name: "open", seconds: open },
     { name: "close", seconds: close },
   ]);

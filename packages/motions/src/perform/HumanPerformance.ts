@@ -30,6 +30,7 @@ import type {
 import { poseBones } from "../posture/poseBones";
 import { HumanBallPlay } from "../sport/HumanBallPlay";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
+import { HumanPerformanceFlightMode } from "./HumanPerformanceFlightMode";
 import { HumanPerformanceHits } from "./HumanPerformanceHits";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceObject } from "./HumanPerformanceObject";
@@ -40,8 +41,8 @@ import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPerformanceState } from "./HumanPerformanceState";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropFlight } from "./HumanPropFlight";
-import { HumanPropFracture } from "./HumanPropFracture";
 import { HumanSegment } from "./HumanSegment";
+import { fractureHumanPerformanceProp } from "./fractureHumanPerformanceProp";
 
 /** The record of `IAimResult`'s site. */
 type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
@@ -63,9 +64,9 @@ type IAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
  * fixed grid whose last sample is the action's end; a distance never met leaves
  * the action uncut. Given rules, the placed schedule is checked with the
  * engine's legality check and a violation refuses the performance. Each
- * performance resolves its own input (`HumanPerformanceState.of`): the
- * resolution is a pure function of its input. Authored airborne turn counts use
- * staged rigid rotation by default, keeping the law's centre path, heading and
+ * performance resolves its own input (`HumanPerformanceState`): the resolution
+ * is a pure function of its input. Authored airborne turn counts use staged
+ * rigid rotation by default, keeping the law's centre path, heading and
  * articulation. Explicit physical mode solves their angular momentum instead; a
  * supplied momentum always uses physical integration regardless of this
  * authored-turn policy.
@@ -122,7 +123,14 @@ export class HumanPerformance {
     input: IAutoMovieMotionHumanPerformance.IInput,
     observation?: ReturnType<typeof integrateAirborneRotation.observe>,
   ) {
-    this.resolved = HumanPerformanceState.of(input, observation);
+    // Resolved afresh on every construction: a resolution is a pure function
+    // of its input, so it owns its plans, schedule and contacts and shares
+    // nothing with another performance's. A refusal is thrown each time.
+    this.resolved = new HumanPerformanceState(
+      input,
+      HumanPerformanceFlightMode(input),
+      observation,
+    );
     this.input = input;
     this.schedule = this.resolved.schedule;
     this.duration = this.resolved.duration;
@@ -380,20 +388,11 @@ export class HumanPerformance {
   public fracture<Piece extends IAutoMovieMotionHumanObject.IModel>(
     request: IAutoMovieMotionHumanPropFracture.IRequest<Piece>,
   ): IAutoMovieMotionHumanPropFracture.IPlan<Piece> | null {
-    const subject: string = request.subject;
-    if (!this.resolved.props.has(subject)) return null;
-    const hit: IAutoMovieInteractionEvent | undefined = this.hits(subject).find(
-      (event: IAutoMovieInteractionEvent): boolean =>
-        event.kind === "hit" && event.id === request.hit,
+    return fractureHumanPerformanceProp(
+      this,
+      this.resolved.props.has(request.subject),
+      request,
     );
-    return hit === undefined
-      ? null
-      : HumanPropFracture(
-          request,
-          hit,
-          (seconds: number): IAutoMovieRigidTransform =>
-            this.prop(subject, seconds),
-        );
   }
 
   /**

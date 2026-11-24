@@ -24,25 +24,22 @@ export function HumanArmShapeBox(
 ): number {
   const solid: IAutoMovieMotionHumanArmGeometry.IShape["shape"] = shape.shape;
   if (solid.kind !== "hull") return -Infinity;
-  let box: Float64Array | undefined = BOXES.get(solid.points);
-  if (box === undefined) {
-    box = new Float64Array([
-      Infinity,
-      Infinity,
-      Infinity,
-      -Infinity,
-      -Infinity,
-      -Infinity,
-    ]);
-    for (const v of solid.points) {
-      box[0] = Math.min(box[0]!, v.x);
-      box[1] = Math.min(box[1]!, v.y);
-      box[2] = Math.min(box[2]!, v.z);
-      box[3] = Math.max(box[3]!, v.x);
-      box[4] = Math.max(box[4]!, v.y);
-      box[5] = Math.max(box[5]!, v.z);
-    }
-    BOXES.set(solid.points, box);
+  // The box: least x, y, z, then greatest.
+  const box: Float64Array = new Float64Array([
+    Infinity,
+    Infinity,
+    Infinity,
+    -Infinity,
+    -Infinity,
+    -Infinity,
+  ]);
+  for (const v of solid.points) {
+    box[0] = Math.min(box[0]!, v.x);
+    box[1] = Math.min(box[1]!, v.y);
+    box[2] = Math.min(box[2]!, v.z);
+    box[3] = Math.max(box[3]!, v.x);
+    box[4] = Math.max(box[4]!, v.y);
+    box[5] = Math.max(box[5]!, v.z);
   }
   // The point in the segment's frame, then in the shape's.
   const segment: IAutoMovieVector3 = unturn(
@@ -95,9 +92,6 @@ function unturn(
   };
 }
 
-/** Each hull's box, by its point array: least x, y, z, then greatest. */
-const BOXES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
-  new WeakMap();
 
 /**
  * Metres taken off the box's distance: far more than the rounding of two

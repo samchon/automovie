@@ -95,14 +95,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   HumanBound.least("contact", contact, ahead, "s");
 
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.frame,
   );
   const origin: IAutoMovieRigidTransform = carrier(context.start);
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
     context,
     "right",
     params.mallet,
@@ -181,11 +181,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       ),
     );
   // The hand's own frame at rest, the held mallet as the grip holds it, and the head from the wrist in that frame.
-  const hand: HumanPoloHand.IHand = HumanPoloHand.of(
-    context.body,
-    "right",
-    tool,
-  );
+  const hand: HumanPoloHand.IHand = HumanPoloHand(context.body, "right", tool);
   // The wrist stands the arm's reach at the elbow's flexion from the shoulder; the swing's centre is set off the plane by the head's own offset across the hand, so the head turns in the plane through the ball.
   const reach: number = Math.sqrt(
     m.upperArm * m.upperArm +

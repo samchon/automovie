@@ -107,7 +107,7 @@ export namespace HumanBodyFit {
     const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] =
       props.angles ?? [];
     const bearing: readonly RegExp[] = props.bearing ?? [];
-    const pairs: HumanFitPairs.IPair[] = HumanFitPairs.of(body);
+    const pairs: HumanFitPairs.IPair[] = HumanFitPairs(body);
     const n: number = variables.length;
     const hasJointVariables: boolean = variables.some(
       (variable: IAutoMovieMotionHumanJacobian.IVariable): boolean =>
@@ -124,7 +124,7 @@ export namespace HumanBodyFit {
     );
 
     // The merit and the feasibility of an iterate (`HumanBodyFitMerit`).
-    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit.of({
+    const merit: HumanBodyFitMerit.IMerit = HumanBodyFitMerit({
       body,
       posture,
       ...(props.balance === undefined ? {} : { balance: props.balance }),
@@ -223,7 +223,7 @@ export namespace HumanBodyFit {
             rowed.add(c);
         });
         const rows: IAutoMovieMotionHumanQuadraticProgram.IRow[] = [
-          ...HumanBodyFitRows.of(step),
+          ...HumanBodyFitRows(step),
           ...HumanBodyFitRows.floor(step, rowed),
         ].map((r: IRead): IAutoMovieMotionHumanQuadraticProgram.IRow => r.row);
 

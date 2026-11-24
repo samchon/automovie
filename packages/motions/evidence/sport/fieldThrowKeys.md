@@ -16,7 +16,7 @@ The keys the throw's clock goes through.
 
 None.
 
-# src/sport/fieldThrowKeys.ts#fieldThrowKeys.of
+# src/sport/fieldThrowKeys.ts#fieldThrowKeys
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

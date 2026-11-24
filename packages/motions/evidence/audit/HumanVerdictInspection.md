@@ -28,7 +28,7 @@ The report and the airborne reading are HumanVerdicts' own.
 
 Holds the report for the call and returns only the packet.
 
-# src/audit/HumanVerdictInspection.ts#HumanVerdictInspection.of
+# src/audit/HumanVerdictInspection.ts#HumanVerdictInspection
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

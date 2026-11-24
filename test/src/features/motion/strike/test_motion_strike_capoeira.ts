@@ -27,13 +27,12 @@ const GRIP: number = 0.01;
 const RODA: number = 1;
 
 /**
- * Capoeira on two bodies: two gingas with alternating leads plant the back
- * foot on the same corner behind the middle of the stance, a beat apart; the
+ * Capoeira on two bodies: two gingas with alternating leads plant the back foot
+ * on the same corner behind the middle of the stance, a beat apart; the
  * meia-lua de frente and the armada sweep across the line above the hip and
- * pass the partner across the roda without contact, the armada after a
- * whole turn, the partner's esquiva taking the head below the passing foot;
- * the aú bears the body on both palms. Every take passes the shipped
- * verdicts.
+ * pass the partner across the roda without contact, the armada after a whole
+ * turn, the partner's esquiva taking the head below the passing foot; the aú
+ * bears the body on both palms. Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each case and what it reads.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the public rows and actions through HumanPerformance and reads the displayed feet, palms and crown at the laws' events.
@@ -59,7 +58,10 @@ export function test_motion_strike_capoeira(): void {
   complaints.assert("capoeira");
 }
 
-/** Two gingas, the left then the right foot back to the same corner, a beat apart. */
+/**
+ * Two gingas, the left then the right foot back to the same corner, a beat
+ * apart.
+ */
 function ginga(
   name: motionCombatPair.Name,
   body: IAutoMovieMotionHumanBody,
@@ -78,7 +80,7 @@ function ginga(
     "ginga",
   );
   assertTakeClean(`${name} ginga`, film);
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
@@ -117,7 +119,10 @@ function ginga(
   );
 }
 
-/** The meia-lua de frente and the armada across the roda, the partner's esquiva under the armada. */
+/**
+ * The meia-lua de frente and the armada across the roda, the partner's esquiva
+ * under the armada.
+ */
 function capoeiraKicks(
   name: motionCombatPair.Name,
   body: IAutoMovieMotionHumanBody,
@@ -150,13 +155,13 @@ function capoeiraKicks(
       film,
       "kick",
     );
-    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "a",
       body,
       0,
     );
-    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "b",
       body,
@@ -236,7 +241,7 @@ function au(
   );
   assertTakeClean(`${name} au`, film);
   const turn: IAutoMovieScheduleEntry = motionCombatPair.placed(film, "au");
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,

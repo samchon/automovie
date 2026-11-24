@@ -186,6 +186,13 @@ export namespace HumanContactWindow {
         sampled.map((toes: Toes): IAutoMovieVector3 => toes.rightFoot),
       ),
     };
+    // Each foot's contact labels, the source's `curr_bone_contacts`: the
+    // detected runs a declared bearing window keeps, so a foot the law holds in
+    // the air is never locked.
+    const labels: Record<Foot, boolean[]> = {
+      leftFoot: new Array<boolean>(count).fill(false),
+      rightFoot: new Array<boolean>(count).fill(false),
+    };
     const timed: IAutoMovieMotionHumanContactWindow[] = FEET.flatMap(
       (foot: Foot): IAutoMovieMotionHumanContactWindow[] => {
         const declared: IAutoMovieMotionHumanContactWindow[] =
@@ -205,15 +212,16 @@ export namespace HumanContactWindow {
                   w.from * props.duration <= to &&
                   from <= w.to * props.duration,
               );
-            return intent === undefined
-              ? []
-              : [
-                  {
-                    ...intent,
-                    from: from / props.duration,
-                    to: to / props.duration,
-                  },
-                ];
+            if (intent === undefined) return [];
+            for (let s: number = run.first; s <= run.last; ++s)
+              labels[foot][s] = true;
+            return [
+              {
+                ...intent,
+                from: from / props.duration,
+                to: to / props.duration,
+              },
+            ];
           },
         );
       },
@@ -223,14 +231,14 @@ export namespace HumanContactWindow {
       offsets: {
         leftFoot: locks(
           sampled.map((toes: Toes): IAutoMovieVector3 => toes.leftFoot),
-          states.leftFoot,
+          labels.leftFoot,
           props.floor === undefined
             ? undefined
             : (toe: IAutoMovieVector3): number => props.floor!("leftFoot", toe),
         ),
         rightFoot: locks(
           sampled.map((toes: Toes): IAutoMovieVector3 => toes.rightFoot),
-          states.rightFoot,
+          labels.rightFoot,
           props.floor === undefined
             ? undefined
             : (toe: IAutoMovieVector3): number =>

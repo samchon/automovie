@@ -28,19 +28,20 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * The same cycling take reads distinct wheel and crank phase and transfers
- * from the saddle to the moving pedal and bar supports.
+ * The same cycling take reads distinct wheel and crank phase and transfers from
+ * the saddle to the moving pedal and bar supports.
  *
  * Scenarios:
+ *
  * 1. In a freewheel interval, the crank holds while both wheels turn by the
  *    independently calculated rolling distance.
- * 2. A rider seated before the bicycle departs rises 40 mm above their
- *    seated position through the coast and returns within 10 mm while both
- *    pedal-ball distances and bar-relative wrists stay within 15 mm.
- * 3. A 25 mm error at either the seat or a sole refuses entry. Each
- *    accepted effort sample shares its seated ride's carrier frame.
- * 4. The small woman, whose inseam lies below the saddle band, is refused
- *    the fitted bicycle at its saddle height.
+ * 2. A rider seated before the bicycle departs rises 40 mm above their seated
+ *    position through the coast and returns within 10 mm while both pedal-ball
+ *    distances and bar-relative wrists stay within 15 mm.
+ * 3. A 25 mm error at either the seat or a sole refuses entry. Each accepted
+ *    effort sample shares its seated ride's carrier frame.
+ * 4. The small woman, whose inseam lies below the saddle band, is refused the
+ *    fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the freewheel interval, displacement, contacts and measured bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads wheel articulation and displayed Human seat, hands and soles at ordered and repeated film seconds.
@@ -54,7 +55,10 @@ export function test_motion_ride_bicycle_effort(): void {
   );
 }
 
-/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+/**
+ * The riding body; the small woman is refused the bicycle, pinned by
+ * `bicycleRiders`.
+ */
 type BodyKey = "m-average";
 
 /**
@@ -202,7 +206,7 @@ function take(key: BodyKey, failures: string[]): void {
         refusal.axis === axis,
     );
   }
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     effort,
     "cyclist",
     body,

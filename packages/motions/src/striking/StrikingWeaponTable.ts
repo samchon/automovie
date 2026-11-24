@@ -10,6 +10,27 @@ type IRead2 = {
 };
 
 /**
+ * Tabulate a course.
+ *
+ * @param read The course's reader.
+ * @param from The first knot's second, the weapon's first live second.
+ * @returns The capsule ends at a second.
+ */
+export function StrikingWeaponTable(
+  read: StrikingWeaponTable.IRead,
+  from: number,
+): (seconds: number) => readonly IAutoMovieVector3[] {
+  const rows: (readonly IAutoMovieVector3[])[] = [];
+  return (seconds: number): readonly IAutoMovieVector3[] => {
+    if (!(seconds >= from)) return read(seconds).ends;
+    const k: number = Math.round((seconds - from) / StrikingWeaponTable.STEP);
+    if (from + k * StrikingWeaponTable.STEP !== seconds)
+      return read(seconds).ends;
+    return (rows[k] ??= read(seconds).ends);
+  };
+}
+
+/**
  * A striking limb's free course tabulated on the contact scan's own knots: the
  * capsule ends at `from + k * STEP`, each knot fitted as the figure is fitted
  * at that second, and kept for any later read of the same knot.
@@ -76,26 +97,6 @@ export namespace StrikingWeaponTable {
         },
       );
       return { ends, seeds };
-    };
-  }
-
-  /**
-   * Tabulate a course.
-   *
-   * @param read The course's reader.
-   * @param from The first knot's second, the weapon's first live second.
-   * @returns The capsule ends at a second.
-   */
-  export function of(
-    read: IRead,
-    from: number,
-  ): (seconds: number) => readonly IAutoMovieVector3[] {
-    const rows: (readonly IAutoMovieVector3[])[] = [];
-    return (seconds: number): readonly IAutoMovieVector3[] => {
-      if (!(seconds >= from)) return read(seconds).ends;
-      const k: number = Math.round((seconds - from) / STEP);
-      if (from + k * STEP !== seconds) return read(seconds).ends;
-      return (rows[k] ??= read(seconds).ends);
     };
   }
 }

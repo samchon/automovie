@@ -1,4 +1,4 @@
-# src/reaction/staggerClose.ts#staggerClose.of
+# src/reaction/staggerClose.ts#staggerClose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

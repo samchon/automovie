@@ -19,4 +19,4 @@ import { handToFace } from "./handToFace";
  * are authored choices.
  */
 export const wipeTears: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.IWipeTears> =
-  HumanActionRow.of("wipeTears", handToFace, HUMAN_HAND_TO_BODY_WIPE_TEARS);
+  HumanActionRow("wipeTears", handToFace, HUMAN_HAND_TO_BODY_WIPE_TEARS);

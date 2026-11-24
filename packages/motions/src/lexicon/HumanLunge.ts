@@ -103,7 +103,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   };
   const hands: readonly AutoMovieHumanSide[] =
     whip === undefined ? [line] : [line, other];
-  const first: HumanRideHands.IHands = HumanRideHands.of(
+  const first: HumanRideHands.IHands = HumanRideHands(
     {
       ...context,
       params: { on, duration: seconds, hands: { [line]: point } },
@@ -120,7 +120,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   const second: HumanRideHands.IHands | undefined =
     taking === undefined
       ? undefined
-      : HumanRideHands.of(
+      : HumanRideHands(
           {
             ...context,
             start: context.start + taking,

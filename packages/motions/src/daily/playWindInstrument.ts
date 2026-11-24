@@ -65,7 +65,7 @@ export namespace playWindInstrument {
   ): IAutoMovieMotionHumanActionPlan {
     const { body, entry, params } = context;
     const side = params.hand ?? "right";
-    const tool = StrikingHeld.of(context, side, params.prop, {
+    const tool = StrikingHeld(context, side, params.prop, {
       tip: "mouthpiece",
     });
     if (
@@ -132,7 +132,7 @@ export namespace playWindInstrument {
     );
     const atMouth = delay + prepare;
     const playEnd = atMouth + seconds;
-    const clock = AutoMovieMotionClock.of(playEnd + retract, [
+    const clock = AutoMovieMotionClock(playEnd + retract, [
       { name: "lift", seconds: delay },
       { name: "atMouth", seconds: atMouth },
       { name: "playEnd", seconds: playEnd },

@@ -1,6 +1,6 @@
-import {
+import type {
   IAutoMovieChannel,
-  type IAutoMovieNodeChannel,
+  IAutoMovieNodeChannel,
 } from "@automovie/interface";
 
 type IAutoMoviePointerChannel = Extract<IAutoMovieChannel, { kind: "pointer" }>;
@@ -28,26 +28,10 @@ const CHANNEL_VALUE_WIDTHS: Partial<
   quaternion: 4,
 };
 
-/**
- * Read a channel's fixed component width, leaving weights and malformed shape
- * undefined.
- */
-export const channelValueWidth: (channel: unknown) => number | undefined = (
-  channel: unknown,
-): number | undefined => {
-  if (typeof channel !== "object" || channel === null) return undefined;
-  const record: Record<string, unknown> = channel as Record<string, unknown>;
-  if (record.kind === "node") {
-    const key: unknown = record.path;
-    return typeof key === "string" && Object.hasOwn(NODE_CHANNEL_WIDTHS, key)
-      ? NODE_CHANNEL_WIDTHS[key as IAutoMovieNodeChannel["path"]]
-      : undefined;
-  }
-  if (record.kind === "pointer") {
-    const key: unknown = record.valueType;
-    return typeof key === "string" && Object.hasOwn(CHANNEL_VALUE_WIDTHS, key)
-      ? CHANNEL_VALUE_WIDTHS[key as IAutoMoviePointerChannel["valueType"]]
-      : undefined;
-  }
-  return undefined;
-};
+/** Read a channel's fixed component width, leaving weights undefined. */
+export const channelValueWidth: (
+  channel: IAutoMovieChannel,
+) => number | undefined = (channel: IAutoMovieChannel): number | undefined =>
+  channel.kind === "node"
+    ? NODE_CHANNEL_WIDTHS[channel.path]
+    : CHANNEL_VALUE_WIDTHS[channel.valueType];

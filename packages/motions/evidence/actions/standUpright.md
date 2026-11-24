@@ -1,4 +1,4 @@
-# src/actions/standUpright.ts#standUpright.of
+# src/actions/standUpright.ts#standUpright
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -32,6 +32,88 @@ type IOfProps = {
 type OfPropsContext = "body" | "entry" | "prop" | "subject";
 
 /**
+ * Read the lever of a throw.
+ *
+ * @param props The context, the throwing hand, the standing shoulder, the
+ *   hand's grip at the release, the hand's rotation there, the target, the
+ *   release angle, the implement and the thrown prop (absent for an empty
+ *   hand).
+ * @returns The lever, or undefined when no path at that angle reaches the
+ *   target from the release point.
+ * @throws {HumanRefusal} When the implement lacks the named point
+ *   (`StrikingHeld`).
+ */
+export function throwObjectLever(
+  props: IOfProps,
+): throwObjectLever.ILever | undefined {
+  // The point that flies, in the hand's grip frame: the implement's
+  // working point, else the thrown prop's origin as the hand holds it,
+  // else the grip itself.
+  const tip: IAutoMovieVector3 =
+    props.implement !== undefined
+      ? StrikingHeld(props.context, props.side, props.implement.prop, {
+          tip: props.implement.point,
+        }).tip
+      : props.prop !== undefined &&
+          props.context.entry.holds[props.side] === props.prop
+        ? AutoMovieMotionHumanHeld(props.context, props.side, props.prop).frame
+            .position
+        : { x: 0, y: 0, z: 0 };
+
+  // The working point where the hand's grip at the release holds it.
+  const point: IAutoMovieVector3 = Vector3.add(
+    props.release,
+    Quaternion.rotateVector(props.held, tip),
+  );
+  const velocity: IAutoMovieVector3 | undefined = throwObjectLaunch.aimed(
+    point,
+    props.target,
+    props.degrees,
+  );
+  if (velocity === undefined) return undefined;
+
+  // The least turn about the shoulder that carries the velocity's part
+  // square to the lever, w = (r x v) / |r|^2; its part along the lever is
+  // the velocity every point of the lever shares.
+  const lever: IAutoMovieVector3 = Vector3.subtract(point, props.shoulder);
+  const turn: IAutoMovieVector3 = Vector3.scale(
+    Vector3.cross(lever, velocity),
+    1 / Vector3.dot(lever, lever),
+  );
+  const shared: IAutoMovieVector3 = Vector3.subtract(
+    velocity,
+    Vector3.cross(turn, lever),
+  );
+  const omega: number = Vector3.length(turn);
+  const axis: IAutoMovieVector3 = Vector3.normalize(turn);
+
+  // An unturned hand translates, so it carries the launch velocity itself;
+  // an implement's hand moves as the lever does at the grip.
+  const hand: IAutoMovieVector3 =
+    props.implement === undefined
+      ? velocity
+      : Vector3.add(
+          shared,
+          Vector3.cross(turn, Vector3.subtract(props.release, props.shoulder)),
+        );
+  return {
+    point,
+    velocity,
+    hand,
+    axis,
+    omega,
+    rotation:
+      props.implement === undefined
+        ? (): IAutoMovieQuaternion => props.held
+        : (carried: number): IAutoMovieQuaternion =>
+            Quaternion.multiply(
+              Quaternion.fromAxisAngle(axis, (omega * carried * 180) / Math.PI),
+              props.held,
+            ),
+  };
+}
+
+/**
  * The throw's lever: the arm from the shoulder to the hand, lengthened by an
  * implement the hand holds (a sling, an atlatl), turning as one rigid lever at
  * the release.
@@ -50,7 +132,7 @@ type OfPropsContext = "body" | "entry" | "prop" | "subject";
  * the launch velocity unturned, a rigid translation every point of hand and
  * prop shares, and the working point is the point that flies: the thrown prop's
  * own origin where the grip holds it (its rigid offset in the hand's grip
- * frame, `AutoMovieMotionHumanHeld.of`), the point the performance launches the
+ * frame, `AutoMovieMotionHumanHeld`), the point the performance launches the
  * prop from (`HumanPropFlight`), or the grip for an empty hand. Aiming the grip
  * while the prop's origin flies shifted every landing by that offset.
  *
@@ -86,92 +168,6 @@ export namespace throwObjectLever {
   }
 
   /**
-   * Read the lever of a throw.
-   *
-   * @param props The context, the throwing hand, the standing shoulder, the
-   *   hand's grip at the release, the hand's rotation there, the target, the
-   *   release angle, the implement and the thrown prop (absent for an empty
-   *   hand).
-   * @returns The lever, or undefined when no path at that angle reaches the
-   *   target from the release point.
-   * @throws {HumanRefusal} When the implement lacks the named point
-   *   (`StrikingHeld.of`).
-   */
-  export function of(props: IOfProps): ILever | undefined {
-    // The point that flies, in the hand's grip frame: the implement's
-    // working point, else the thrown prop's origin as the hand holds it,
-    // else the grip itself.
-    const tip: IAutoMovieVector3 =
-      props.implement !== undefined
-        ? StrikingHeld.of(props.context, props.side, props.implement.prop, {
-            tip: props.implement.point,
-          }).tip
-        : props.prop !== undefined &&
-            props.context.entry.holds[props.side] === props.prop
-          ? AutoMovieMotionHumanHeld.of(props.context, props.side, props.prop)
-              .frame.position
-          : { x: 0, y: 0, z: 0 };
-
-    // The working point where the hand's grip at the release holds it.
-    const point: IAutoMovieVector3 = Vector3.add(
-      props.release,
-      Quaternion.rotateVector(props.held, tip),
-    );
-    const velocity: IAutoMovieVector3 | undefined = throwObjectLaunch.aimed(
-      point,
-      props.target,
-      props.degrees,
-    );
-    if (velocity === undefined) return undefined;
-
-    // The least turn about the shoulder that carries the velocity's part
-    // square to the lever, w = (r x v) / |r|^2; its part along the lever is
-    // the velocity every point of the lever shares.
-    const lever: IAutoMovieVector3 = Vector3.subtract(point, props.shoulder);
-    const turn: IAutoMovieVector3 = Vector3.scale(
-      Vector3.cross(lever, velocity),
-      1 / Vector3.dot(lever, lever),
-    );
-    const shared: IAutoMovieVector3 = Vector3.subtract(
-      velocity,
-      Vector3.cross(turn, lever),
-    );
-    const omega: number = Vector3.length(turn);
-    const axis: IAutoMovieVector3 = Vector3.normalize(turn);
-
-    // An unturned hand translates, so it carries the launch velocity itself;
-    // an implement's hand moves as the lever does at the grip.
-    const hand: IAutoMovieVector3 =
-      props.implement === undefined
-        ? velocity
-        : Vector3.add(
-            shared,
-            Vector3.cross(
-              turn,
-              Vector3.subtract(props.release, props.shoulder),
-            ),
-          );
-    return {
-      point,
-      velocity,
-      hand,
-      axis,
-      omega,
-      rotation:
-        props.implement === undefined
-          ? (): IAutoMovieQuaternion => props.held
-          : (carried: number): IAutoMovieQuaternion =>
-              Quaternion.multiply(
-                Quaternion.fromAxisAngle(
-                  axis,
-                  (omega * carried * 180) / Math.PI,
-                ),
-                props.held,
-              ),
-    };
-  }
-
-  /**
    * The spin a thrown prop flies with: the lever's angular speed rounded to the
    * nearest whole number of half turns, at least one, over the drag-free
    * flight's time to the target, about the lever's axis read in the prop's own
@@ -184,7 +180,7 @@ export namespace throwObjectLever {
    * @param target The target point, world metres.
    * @returns The engine's spin attitude.
    * @throws {HumanRefusal} When that hand does not hold the prop at the entry
-   *   (`AutoMovieMotionHumanHeld.of`).
+   *   (`AutoMovieMotionHumanHeld`).
    */
   export function spin(
     context: Pick<IAutoMovieMotionHumanActionContext, SpinContext>,
@@ -202,7 +198,7 @@ export namespace throwObjectLever {
     );
     const frame: IAutoMovieQuaternion = Quaternion.multiply(
       lever.rotation(0),
-      AutoMovieMotionHumanHeld.of(context, side, prop).frame.rotation,
+      AutoMovieMotionHumanHeld(context, side, prop).frame.rotation,
     );
     return {
       kind: "spin",

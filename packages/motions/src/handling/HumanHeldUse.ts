@@ -250,7 +250,7 @@ export namespace HumanHeldUse {
     const other: AutoMovieHumanSide = props.side === "right" ? "left" : "right";
     const place: ReturnType<typeof HumanGraspHand.prepare> =
       HumanGraspHand.prepare(body, other);
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       props.side,
       props.prop,

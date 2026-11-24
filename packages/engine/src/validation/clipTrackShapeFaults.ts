@@ -1,39 +1,20 @@
-import {
-  AutoMovieInterpolation,
-  type IAutoMovieClipShapeFault,
-  type IAutoMovieClipTrackShapeFaults,
+import type {
+  IAutoMovieClipShapeFault,
+  IAutoMovieClipTrackShapeFaults,
 } from "@automovie/interface";
 
 import { channelValueWidth } from "./channelValueWidth";
-import { TRACK_INTERPOLATIONS } from "./constants/TRACK_INTERPOLATIONS";
 
-/**
- * Accumulate ordered interpolation, keyframe-clock, finite-value and stride
- * faults.
- */
+/** Accumulate ordered keyframe-clock, finite-value and stride faults. */
 export const clipTrackShapeFaults: (
   track: IAutoMovieClipTrackShapeFaults.ITrack,
-  duration: unknown,
+  duration: number,
 ) => IAutoMovieClipShapeFault[] = (
-  /**
-   * Structural rather than {@link IAutoMovieTrack}, so both callers pass their
-   * own value without a cast and without a re-check: the gate has already
-   * narrowed a stored track to a record, the sampler holds the typed one.
-   */
   track: IAutoMovieClipTrackShapeFaults.ITrack,
-  duration: unknown,
+  duration: number,
 ): IAutoMovieClipShapeFault[] => {
   const faults: IAutoMovieClipShapeFault[] = [];
   const { times, values, interpolation, channel }: typeof track = track;
-
-  if (!TRACK_INTERPOLATIONS.has(interpolation as AutoMovieInterpolation))
-    faults.push({
-      kind: "type",
-      field: "interpolation",
-      message: `interpolation "${String(interpolation)}" is not supported`,
-      value: interpolation,
-    });
-  if (!Array.isArray(times) || !Array.isArray(values)) return faults;
 
   if (times.length === 0)
     faults.push({
@@ -52,12 +33,12 @@ export const clipTrackShapeFaults: (
 
   const valueCount: number = values.length;
   for (let i: number = 0; i < valueCount; ++i) {
-    const value: unknown = values[i];
+    const value: number = values[i]!;
     if (!Number.isFinite(value))
       faults.push({
         kind: "range",
         field: `values[${i}]`,
-        message: `values[${i}] must be finite, but was ${String(value)}`,
+        message: `values[${i}] must be finite, but was ${value}`,
         value,
       });
   }
@@ -67,17 +48,15 @@ export const clipTrackShapeFaults: (
   // strictly increasing; checking every entry says which one is wrong when they
   // are not, and refuses nothing an increasing list would have passed.
   const bounded: number | null =
-    typeof duration === "number" && Number.isFinite(duration) && duration > 0
-      ? duration
-      : null;
+    Number.isFinite(duration) && duration > 0 ? duration : null;
   const timeCount: number = times.length;
   for (let i: number = 0; i < timeCount; ++i) {
-    const time: unknown = times[i];
-    if (typeof time !== "number" || !Number.isFinite(time))
+    const time: number = times[i]!;
+    if (!Number.isFinite(time))
       faults.push({
         kind: "temporal",
         field: `times[${i}]`,
-        message: `keyframe times must be finite, but times[${i}] was ${String(time)}`,
+        message: `keyframe times must be finite, but times[${i}] was ${time}`,
         value: time,
       });
     else if (time < 0)
@@ -98,8 +77,8 @@ export const clipTrackShapeFaults: (
 
   let previous: number | null = null;
   for (let i: number = 0; i < timeCount; ++i) {
-    const time: unknown = times[i];
-    if (typeof time !== "number" || !Number.isFinite(time)) continue;
+    const time: number = times[i]!;
+    if (!Number.isFinite(time)) continue;
     if (previous !== null && time <= previous)
       faults.push({
         kind: "temporal",
@@ -123,14 +102,10 @@ export const clipTrackShapeFaults: (
   const perKeyframe: (channelWidth: number) => number = (
     channelWidth: number,
   ): number => (cubic ? channelWidth * 3 : channelWidth);
-  // Every number this fault judges rides the message (#1362). It used to say
-  // only the rule ("divide evenly"), and the sibling check that names the width
-  // sits below the `return` this fault takes, so the author most lost was the
-  // one told least: four consecutive commits failed to converge on a 67-frame
-  // trajectory because nothing stated 67, 195, or the 201 that would satisfy
-  // it. The width belongs HERE rather than one check later, because the width
-  // arithmetic below is meaningless on a fractional stride, so continuing would
-  // report a computed width that is not a real one.
+  // Every number this fault judges rides the message (#1362): the width
+  // belongs HERE rather than one check later, because the width arithmetic
+  // below is meaningless on a fractional stride, so continuing would report a
+  // computed width that is not a real one.
   const stride: number = values.length / times.length;
   if (!Number.isInteger(stride)) {
     faults.push({

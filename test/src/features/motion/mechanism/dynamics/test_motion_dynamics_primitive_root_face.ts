@@ -19,6 +19,7 @@ import { vclose } from "../../../internal/vclose";
  * Turning to a diagonal heading holds the body origin stationary.
  *
  * Scenarios:
+ *
  * 1. Read the diagonal turn and a zero turn on the same clock.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Turning to a diagonal heading holds the body origin stationary.
@@ -31,7 +32,7 @@ export function test_motion_dynamics_primitive_root_face(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 2, y: 0, z: 3 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "peak", seconds: 1 },
   ]);
   const primitive: IAutoMovieMotionHumanPrimitive =

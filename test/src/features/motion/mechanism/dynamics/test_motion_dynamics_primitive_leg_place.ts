@@ -21,7 +21,9 @@ import { vclose } from "../../../internal/vclose";
  * The placed foot reaches a translated world marker from a quarter-turned body.
  *
  * Scenarios:
- * 1. Observe the foot through posed forward kinematics on a canonical standing body.
+ *
+ * 1. Observe the foot through posed forward kinematics on a canonical standing
+ *    body.
  *
  * @evidence contracts/development/testing.md#behavioral-verification The placed foot reaches a translated world marker from a quarter-turned body.
  * @evidence contracts/development/testing.md#independent-expectations A local forward displacement with a quarter turn adds world X.

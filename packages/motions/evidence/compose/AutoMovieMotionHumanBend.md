@@ -198,15 +198,15 @@ An unreachable wrist and a circle with no allowed place are refused with the rea
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances; the hand's share of a candidate's strain is read only for a comparison the shoulder's share cannot decide (`AutoMovieMotionHumanBendStrain.least`), and a request already solved for the same genuine body is read from its table (`AutoMovieMotionHumanBendMemo`).
+One forward kinematics of the rig and at most 720 candidates plus their refinements, each two decompositions and four shape distances; the hand's share of a candidate's strain is read only for a comparison the shoulder's share cannot decide (`AutoMovieMotionHumanBendStrain.least`).
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance; a repeated request with the exact same inputs on the same genuine body shares the elbow its first solve returned (`AutoMovieMotionHumanBendMemo`).
+Reuses the engine's chain preparation, swivel sweep, clinical decomposition and range overshoot, and `HumanArmClearance`, the owner of a forearm's clearance.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains, per genuine body, at most `AutoMovieMotionHumanBendMemo.CAPACITY` completed solves, released with the body; the hanging arm's angles are the body's (`IAutoMovieMotionHumanBody.hanging`).
+Retains no solve; the hanging arm's angles are the body's (`IAutoMovieMotionHumanBody.hanging`).
 
 # src/compose/AutoMovieMotionHumanBend.ts#AutoMovieMotionHumanBend.level
 

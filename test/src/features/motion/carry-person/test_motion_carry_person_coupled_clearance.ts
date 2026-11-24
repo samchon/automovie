@@ -31,11 +31,16 @@ interface ICarriedStage {
 }
 
 /**
- * Carries a moving body at its declared support and releases it back to standing.
- * Scenarios:
- * - Each carry declares its anatomical contact pair. A back carry, a side support and a low drag exercise the distinct placements.
- * - Both wrists leave free swing; the loaded trunk pitches while retaining its gait turn.
- * - An explicit lift raises both ankles and the set-down restores height and upright stance. A self-carrier is refused.
+ * Carries a moving body at its declared support and releases it back to
+ * standing. Scenarios:
+ *
+ * - Each carry declares its anatomical contact pair. A back carry, a side support
+ *   and a low drag exercise the distinct placements.
+ * - Both wrists leave free swing; the loaded trunk pitches while retaining its
+ *   gait turn.
+ * - An explicit lift raises both ankles and the set-down restores height and
+ *   upright stance. A self-carrier is refused.
+ *
  * @evidence contracts/development/testing.md#behavioral-verification Observes the independent region positions, displayed wrists, trunk orientation, ankle heights and refusal axis.
  * @evidence contracts/development/testing.md#independent-expectations The support pair must meet within 10 mm. The carried trunk pitches twenty degrees and returns both ankles within 15 mm of standing height.
  * @evidence contracts/development/testing.md#distinguishing-cases Compares loaded and free swing, lift and set-down, valid and self-carriage.
@@ -137,7 +142,7 @@ export function test_motion_carry_person_coupled_clearance(): void {
   const pair: readonly [CarryFixture, CarryFixture] = ["m-average", "f-small"];
   const held = stage(pair, "piggyback");
   const reader = (s: ICarriedStage, id: CarrySubject) =>
-    HumanSignature.of(s.film, id, s.bodies[id], 0);
+    HumanSignature(s.film, id, s.bodies[id], 0);
   const loaded = reader(held, "a");
   const steady = 1.3;
   for (const carry of ["piggyback", "supported", "ankleDrag"] as const) {

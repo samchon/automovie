@@ -21,14 +21,24 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * The high jump and its landing mat serve the Fosbury flop: the flop peaks at the crossbar the apparatus declares and lies down on the mat's `surface`.
+ * The high jump and its landing mat serve the Fosbury flop: the flop peaks at
+ * the crossbar the apparatus declares and lies down on the mat's `surface`.
  *
- * The bar is set at 1.4 m; the flop reads the crossbar's axis from the apparatus's `bar` (the high jump is the flop's `bar` prop), and it comes down on the high jump mat placed beyond.
+ * The bar is set at 1.4 m; the flop reads the crossbar's axis from the
+ * apparatus's `bar` (the high jump is the flop's `bar` prop), and it comes down
+ * on the high jump mat placed beyond.
  *
  * Scenarios, on the average man and the small woman:
- * 1. The flop over the bar onto the mat plans, and its centre of mass peaks within 50 mm of the bar's axis or above it (provisional: the law peaks the centre at the height it is given).
- * 2. At the flop's `settled` the hips lie on the mat: between its top and a fifth of the stature above it.
- * 3. From the take-off to `settled`, read at 24 frames a second, the verdict report's frame bounds hold: no joint centre jumps, reverses or moves past its speed, and no bone turns past 5 turns a second. The flop turns through its flight, never in a frame.
+ *
+ * 1. The flop over the bar onto the mat plans, and its centre of mass peaks within
+ *    50 mm of the bar's axis or above it (provisional: the law peaks the centre
+ *    at the height it is given).
+ * 2. At the flop's `settled` the hips lie on the mat: between its top and a fifth
+ *    of the stature above it.
+ * 3. From the take-off to `settled`, read at 24 frames a second, the verdict
+ *    report's frame bounds hold: no joint centre jumps, reverses or moves past
+ *    its speed, and no bone turns past 5 turns a second. The flop turns through
+ *    its flight, never in a frame.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the flop through the public chain with the real apparatus and reads the displayed joints and the centre of mass; a flop that misses the bar or lands off the mat fails with the measure.
  * @evidence contracts/development/testing.md#independent-expectations The bar's height and the mat's top are the archetypes' own affordances; the bounds are stated provisional; nothing is read from the law but its events.
@@ -90,7 +100,7 @@ export function test_motion_jump_mat_contact(): void {
             bar: "bar",
           }).node,
       });
-      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         film,
         "a",
         body,
@@ -106,7 +116,7 @@ export function test_motion_jump_mat_contact(): void {
         );
 
       // 3. No frame jumps through the flight and the landing.
-      const smooth: IAutoMovieMotionHumanVerdicts.IFinding[] = HumanVerdicts.of(
+      const smooth: IAutoMovieMotionHumanVerdicts.IFinding[] = HumanVerdicts(
         film,
         24,
         {

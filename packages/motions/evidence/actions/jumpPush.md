@@ -292,7 +292,7 @@ Contains only the six quantities consumed by actual push posture and heel/reachi
 
 No pose certification, contact result, cache identity or alternate support is represented.
 
-# src/actions/jumpPush.ts#jumpPush.of
+# src/actions/jumpPush.ts#jumpPush
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

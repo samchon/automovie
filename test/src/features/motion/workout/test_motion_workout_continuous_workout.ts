@@ -63,7 +63,7 @@ export function test_motion_workout_continuous_workout(): void {
           .registered("pushUp", { count: 1 })
           .stand({ hold: 0.25 }).node,
       });
-      const read = HumanSignature.of(film, cast.subject, body, 0);
+      const read = HumanSignature(film, cast.subject, body, 0);
       const [standing, kneel, plank, press, recover] = film.segments(
         cast.subject,
       );

@@ -24,7 +24,7 @@ export function demandedHumanChannels(
   const needed: Set<AutoMovieMotionHumanChannel> =
     new Set<AutoMovieMotionHumanChannel>(["root", "trunk"]);
   for (const bone of bones) {
-    const channel: AutoMovieMotionHumanChannel = HumanChannels.of(bone);
+    const channel: AutoMovieMotionHumanChannel = HumanChannels(bone);
     needed.add(channel);
     if (channel === "leftHand") needed.add("leftArm");
     else if (channel === "rightHand") needed.add("rightArm");

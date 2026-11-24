@@ -62,7 +62,7 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is mirrored and the identity of the mirrored records.
+States what is mirrored.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -78,12 +78,12 @@ Every member that names a side or a place is mirrored; the clinical triples read
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the waypoints; a base or site already mirrored is found by identity.
+Linear in the waypoints: each base and site is mirrored once, a material base when it is read.
 
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
-A base's and a site's mirror is one record per source record, so the frames and waypoints built on it are built once across the solve's readings.
+Each record is mirrored once per problem; nothing else is shared.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The mirrors are kept weakly by their source records and released with them.
+Retains nothing beyond the returned problem.

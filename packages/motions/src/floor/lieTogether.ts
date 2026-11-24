@@ -7,7 +7,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieHumanoidRegion,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -35,8 +34,10 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingBody } from "../striking/StrikingBody";
 import { lieTogetherCurl } from "./lieTogetherCurl";
 import { lieTogetherDrape } from "./lieTogetherDrape";
+import { lieTogetherFrame } from "./lieTogetherFrame";
 import { lieTogetherNeck } from "./lieTogetherNeck";
 import { lieTogetherReach } from "./lieTogetherReach";
+import { lieTogetherShifted } from "./lieTogetherShifted";
 
 /**
  * How far off the partner's skin the resting region lies, metres (provisional:
@@ -71,9 +72,6 @@ const PILLOW: Readonly<Record<ArmBone, readonly [number, number, number]>> = {
 
 /** How far two lying headings may differ, degrees (provisional). */
 const ALIGNED: number = 25;
-
-/** A posture's limb. */
-type Limb = keyof IAutoMovieMotionHumanPosture["limbs"];
 
 /**
  * Lie together with a partner. Both already lie on the support (`lieDown`,
@@ -241,7 +239,10 @@ function planLieTogether(
       );
     const mine: IAutoMovieMotionHumanColliders.IPlaced[] = hips(
       body,
-      poseBones(body, resolveHumanPosture(body, shifted(entry, slide))),
+      poseBones(
+        body,
+        resolveHumanPosture(body, lieTogetherShifted(entry, slide)),
+      ),
     );
     const yours: IAutoMovieMotionHumanColliders.IPlaced[] = hips(
       partner.body,
@@ -313,7 +314,7 @@ function planLieTogether(
         : shoulder;
     neck = lieTogetherNeck.lift(
       body,
-      shifted(entry, slide),
+      lieTogetherShifted(entry, slide),
       own,
       Vector3.addScaled(under.point, under.normal, REST),
     );
@@ -337,7 +338,7 @@ function planLieTogether(
     p.way === "spoon"
       ? lieTogetherCurl.solve(
           body,
-          shifted(entry, slide),
+          lieTogetherShifted(entry, slide),
           Vector3.add(
             region("upperBack").point,
             Vector3.scale(region("upperBack").normal, REST),
@@ -373,16 +374,14 @@ function planLieTogether(
   const duration: number = settle + p.hold;
   const settled: IAutoMovieMotionHumanPosture = folded(
     lieTogetherNeck.apply(
-      lieTogetherCurl.apply(shifted(entry, travel), bent, 1),
+      lieTogetherCurl.apply(lieTogetherShifted(entry, travel), bent, 1),
       neck,
       1,
     ),
     1,
   );
-  const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame = frame(
-    partner,
-    context.start,
-  );
+  const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame =
+    lieTogetherFrame(partner, context.start);
   const share = (seconds: number, from: number, to: number): number =>
     minimumJerk.share(Math.min(1, Math.max(0, (seconds - from) / (to - from))));
   // Spooning, the free arm drapes over the partner (`lieTogetherDrape`).
@@ -422,7 +421,7 @@ function planLieTogether(
           : folded(
               lieTogetherNeck.apply(
                 lieTogetherCurl.apply(
-                  shifted(entry, Vector3.scale(travel, k)),
+                  lieTogetherShifted(entry, Vector3.scale(travel, k)),
                   bent,
                   k,
                 ),
@@ -437,7 +436,7 @@ function planLieTogether(
           ? lain
           : lieTogetherDrape.write(lain, drape, share(seconds, 0, settle)),
         origin,
-        frame(
+        lieTogetherFrame(
           partner,
           context.start + Math.min(duration, Math.max(0, seconds)),
         ),
@@ -487,40 +486,3 @@ export const lieTogether: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanLi
     interrupts: {},
     plan: planLieTogether,
   };
-
-/**
- * The partner's carrying bone's frame at a film second: the sternum region's
- * bone, which breathes and turns with the trunk.
- */
-function frame(
-  partner: IAutoMovieMotionHumanPerformerReader,
-  seconds: number,
-): IAutoMovieMotionHumanCarryHumanPosture.IFrame {
-  const carrier: AutoMovieHumanoidBone =
-    partner.body.surfaces.regions.sternum.bone;
-  const bone: IAutoMovieResolvedBone = partner
-    .bones(seconds, new Set([carrier]))
-    .get(carrier)!;
-  return { position: bone.worldPosition, rotation: bone.worldRotation };
-}
-
-/** A posture slid across the support: its root and every world limb goal moved. */
-function shifted(
-  posture: IAutoMovieMotionHumanPosture,
-  by: IAutoMovieVector3,
-): IAutoMovieMotionHumanPosture {
-  const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-  for (const name of Object.keys(posture.limbs) as Limb[]) {
-    const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[name];
-    if (goal !== undefined)
-      limbs[name] =
-        goal.on !== undefined
-          ? goal
-          : {
-              ...goal,
-              point: Vector3.add(goal.point, by),
-              bend: Vector3.add(goal.bend, by),
-            };
-  }
-  return { ...posture, root: Vector3.add(posture.root, by), limbs };
-}

@@ -29,18 +29,19 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 const { putDownAperture } = AutoMovieMotionHumanPrehension;
 
 /**
- * A held solid object aligns at an opening, moves to a seat, and stays on
- * its receptacle while the empty hand leaves through the opening.
+ * A held solid object aligns at an opening, moves to a seat, and stays on its
+ * receptacle while the empty hand leaves through the opening.
  *
  * Scenarios:
+ *
  * 1. Two different polygon bodies carry through a horizontal and an oblique
- *    opening. The displayed object tracks the authored insertion line within
- *    15 mm at interior quarter phases, aligns within 15 degrees on arrival,
- *    and changes by at most 1 mm across the aperture and mounting instants.
- * 2. The seated object follows a later receptacle translation by 1 mm after
- *    the hand has withdrawn.
- * 3. A missing opening, incompatible attitude, and unreachable opening refuse.
- *    The built-in placement still has only its usual events.
+ *    opening. The displayed object tracks the authored insertion line within 15
+ *    mm at interior quarter phases, aligns within 15 degrees on arrival, and
+ *    changes by at most 1 mm across the aperture and mounting instants.
+ * 2. The seated object follows a later receptacle translation by 1 mm after the
+ *    hand has withdrawn.
+ * 3. A missing opening, incompatible attitude, and unreachable opening refuse. The
+ *    built-in placement still has only its usual events.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the actors, path, ordered events, refusal cases and measured bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Installs the typed law through the public chain and reads displayed object frames and the grip and mounting boundaries.

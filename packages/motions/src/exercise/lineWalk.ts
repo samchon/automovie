@@ -367,7 +367,7 @@ export namespace lineWalk {
             posture: IAutoMovieMotionHumanPosture,
             t: number,
           ): IAutoMovieMotionHumanFoot.IPlacement =>
-            AutoMovieMotionHumanFootRelax.of(
+            AutoMovieMotionHumanFootRelax(
               body,
               posture,
               side,
@@ -431,10 +431,10 @@ export namespace lineWalk {
     };
     // A balancing pole: each hand keeps its grip where it held it at the
     // start, in the frame that travels with the hips.
-    const pole: ReturnType<typeof lineWalkPole.of> | undefined =
+    const pole: ReturnType<typeof lineWalkPole> | undefined =
       p.pole === undefined
         ? undefined
-        : lineWalkPole.of(context, p.pole, { origin: hipsAt(0), yaw });
+        : lineWalkPole(context, p.pole, { origin: hipsAt(0), yaw });
     if (pole !== undefined) contacts.push(...pole.contacts);
     primitives.push({
       channels: ["root", "trunk", "leftArm", "rightArm"],
@@ -474,7 +474,7 @@ export namespace lineWalk {
       },
     });
     events.push({ name: "relax", share: 1 });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       events.map(
         (e: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({

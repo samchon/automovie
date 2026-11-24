@@ -179,7 +179,7 @@ function aimed(
     "variation",
   );
   return AutoMovieMotionHumanVariation.strike(
-    AutoMovieMotionHumanVariation.of(
+    AutoMovieMotionHumanVariation(
       {
         skill,
         series: (channel: string) => ({
@@ -306,7 +306,7 @@ function defended(
       .segments("a")
       .find((g: IAutoMovieMotionHumanSegment): boolean => g.name === "punch")!;
     const record: IAutoMovieMotionHumanStrikingRecord.IRecord | undefined =
-      StrikingRecord.of(punch.plan);
+      StrikingRecord(punch.plan);
     if (record === undefined || punch.plan.contact === undefined)
       throw new Error("A punch records its aim and has a contact");
     return {

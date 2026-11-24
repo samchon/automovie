@@ -225,7 +225,7 @@ export function HumanQuadraticInterior(
   )
     work = session.work.work;
   else {
-    work = Workspace.of(
+    work = Workspace(
       new Float64Array(n),
       new Float64Array(n),
       new Float64Array(m),

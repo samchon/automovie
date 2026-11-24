@@ -20,9 +20,11 @@ import { motionComposeTrunk } from "../../../internal/motionComposeTrunk";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * A bow pivots at the hips, and its optional balance correction scales with the sine of the imposed pitch.
+ * A bow pivots at the hips, and its optional balance correction scales with the
+ * sine of the imposed pitch.
  *
  * Scenarios:
+ *
  * 1. Observe the geometry at the prescribed angle on a measured standing actor.
  * 2. Check the independent support or pivot relation through resolved joints.
  *

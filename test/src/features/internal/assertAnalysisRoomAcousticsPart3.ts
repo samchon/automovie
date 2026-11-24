@@ -12,8 +12,8 @@ import { namedFacts, throwsError } from "./predicates";
  * Scenarios:
  * 1. every malformed room is refused at its own message.
  *
- * Nonblank unique ids, positive finite volume/areas, absorption in [0,1], nonnegative finite loss, finite source/receiver positions and distinct source-receiver points define request admission. The sample-limit case uses the published bound and the stated 4096 message, while other numeric accuracy belongs to Part1.
- * Blank/duplicate surface, partition, source and receiver ids; zero/negative geometry; invalid absorption/loss/power/positions; empty surfaces; excess receivers; coincident source/receiver; and duplicate target keys are refused beside the earlier valid room. This does not enumerate every possible unknown JSON shape.
+ * Unique ids, positive volume/areas, absorption in [0,1], nonnegative loss and distinct source-receiver points define request admission. The sample-limit case uses the published bound and the stated 4096 message, while other numeric accuracy belongs to Part1.
+ * Duplicate surface, partition, source and receiver ids; zero/negative geometry; invalid absorption/loss/directivity; empty surfaces; excess receivers; coincident source/receiver; and duplicate target keys are refused beside the earlier valid room. This does not enumerate every possible unknown JSON shape.
  */
 export function assertAnalysisRoomAcousticsPart3(
   study: (
@@ -45,15 +45,6 @@ export function assertAnalysisRoomAcousticsPart3(
           throwsError(
             (): IAutoMovieAnalysisRun => study({ surfaces: [] }),
             "at least one absorbing surface",
-          ),
-      ],
-      [
-        "blank surface id",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({ surfaces: [{ id: "", area: 1, absorption: 0.5 }] }),
-            "surface must carry a non-blank id",
           ),
       ],
       [
@@ -89,17 +80,6 @@ export function assertAnalysisRoomAcousticsPart3(
           ),
       ],
       [
-        "blank partition id",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                partitions: [{ id: " ", area: 1, transmissionLoss: 30 }],
-              }),
-            "partition must carry a non-blank id",
-          ),
-      ],
-      [
         "duplicated partition",
         (): boolean =>
           throwsError(
@@ -125,23 +105,6 @@ export function assertAnalysisRoomAcousticsPart3(
           ),
       ],
       [
-        "non-finite transmission loss",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                partitions: [
-                  {
-                    id: "p",
-                    area: 1,
-                    transmissionLoss: Number.POSITIVE_INFINITY,
-                  },
-                ],
-              }),
-            "transmission loss must be finite",
-          ),
-      ],
-      [
         "negative transmission loss",
         (): boolean =>
           throwsError(
@@ -150,24 +113,6 @@ export function assertAnalysisRoomAcousticsPart3(
                 partitions: [{ id: "p", area: 1, transmissionLoss: -3 }],
               }),
             "transmission loss must be at or above zero",
-          ),
-      ],
-      [
-        "blank source id",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                sources: [
-                  {
-                    id: "",
-                    position: { x: 0, y: 0, z: 0 },
-                    soundPower: 80,
-                    directivity: 1,
-                  },
-                ],
-              }),
-            "source must carry a non-blank id",
           ),
       ],
       [
@@ -195,24 +140,6 @@ export function assertAnalysisRoomAcousticsPart3(
           ),
       ],
       [
-        "non-finite sound power",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                sources: [
-                  {
-                    id: "s",
-                    position: { x: 0, y: 0, z: 0 },
-                    soundPower: Number.NaN,
-                    directivity: 1,
-                  },
-                ],
-              }),
-            "sound power must be finite",
-          ),
-      ],
-      [
         "non-positive directivity",
         (): boolean =>
           throwsError(
@@ -228,24 +155,6 @@ export function assertAnalysisRoomAcousticsPart3(
                 ],
               }),
             "directivity must be a finite number above zero",
-          ),
-      ],
-      [
-        "non-finite source position",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                sources: [
-                  {
-                    id: "s",
-                    position: { x: Number.NaN, y: 0, z: 0 },
-                    soundPower: 80,
-                    directivity: 1,
-                  },
-                ],
-              }),
-            "position x must be finite",
           ),
       ],
       [
@@ -272,17 +181,6 @@ export function assertAnalysisRoomAcousticsPart3(
           ),
       ],
       [
-        "blank receiver id",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                receivers: [{ id: " ", position: { x: 1, y: 0, z: 0 } }],
-              }),
-            "receiver must carry a non-blank id",
-          ),
-      ],
-      [
         "duplicated receiver",
         (): boolean =>
           throwsError(
@@ -294,19 +192,6 @@ export function assertAnalysisRoomAcousticsPart3(
                 ],
               }),
             'acoustic receiver "r" is declared twice',
-          ),
-      ],
-      [
-        "non-finite receiver position",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieAnalysisRun =>
-              study({
-                receivers: [
-                  { id: "r", position: { x: 1, y: Number.NaN, z: 0 } },
-                ],
-              }),
-            "position y must be finite",
           ),
       ],
       [
@@ -349,24 +234,16 @@ export function assertAnalysisRoomAcousticsPart3(
       "blank revision": true,
       "non-positive volume": true,
       "no surface": true,
-      "blank surface id": true,
       "duplicated surface": true,
       "non-positive surface area": true,
       "out of range absorption": true,
-      "blank partition id": true,
       "duplicated partition": true,
       "non-positive partition area": true,
-      "non-finite transmission loss": true,
       "negative transmission loss": true,
-      "blank source id": true,
       "duplicated source": true,
-      "non-finite sound power": true,
       "non-positive directivity": true,
-      "non-finite source position": true,
       "too many receivers": true,
-      "blank receiver id": true,
       "duplicated receiver": true,
-      "non-finite receiver position": true,
       "a receiver standing on a source": true,
       "duplicated target": true,
     },

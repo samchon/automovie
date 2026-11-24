@@ -46,7 +46,7 @@ A callable slot defines no cache.
 
 A callable slot retains nothing.
 
-# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext.of
+# src/posture/HumanArmTrajectoryContext.ts#HumanArmTrajectoryContext
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

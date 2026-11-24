@@ -23,6 +23,7 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * subsequent impact, on the film clock.
  *
  * Scenarios:
+ *
  * 1. A complete drop rebounds and then settles.
  * 2. A late drop has no contact during the film.
  * 3. A bounce still in the air at the end appears in the verdict.
@@ -30,10 +31,10 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  *
  * The fixture drops the flight point from 1 m onto a plane with a declared
  * normal speed ratio of one half. With a 0.1 m settling radius, the first
- * rebound rises 0.25 m and returns to the floor, while the second would
- * rise 0.0625 m and settles. The impact times and speeds follow from
- * constant gravity and the authored ratio. The 1 µs timing limit is the
- * documented contact sweep resolution over this scene, rounded up.
+ * rebound rises 0.25 m and returns to the floor, while the second would rise
+ * 0.0625 m and settles. The impact times and speeds follow from constant
+ * gravity and the authored ratio. The 1 µs timing limit is the documented
+ * contact sweep resolution over this scene, rounded up.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes four drops, their authored floor response, the independent timing model and the tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Publishes releases from a registered standing action and reads the public performance hit list; a missing, duplicated, misclocked or misplaced physical episode fails.
@@ -173,7 +174,7 @@ export function test_motion_contact_prop_contact_timeline(): void {
   // Flight verdicts use the whole film. Body findings are outside this spec.
   const framesPerSecond: number = 24;
   const unended: string[] =
-    HumanVerdicts.of(performance, framesPerSecond, {
+    HumanVerdicts(performance, framesPerSecond, {
       from: duration - 1 / framesPerSecond,
       to: duration,
     }).unended ?? [];

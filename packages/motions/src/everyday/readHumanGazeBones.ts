@@ -9,7 +9,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { HumanTrunk } from "./HumanTrunk";
 
 /**
- * Read actual gaze frames through one immutable body/name-demand preparation.
+ * Read actual gaze frames through the body's demand of the mode's names.
  *
  * @param body The unchanged canonical body owning its genuine FK producer.
  * @param posture The current raw authored posture, retaining whole-body root
@@ -29,30 +29,15 @@ export function readHumanGazeBones(
   joints: IAutoMovieMotionHumanPosture["joints"] = posture.joints,
   resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
 ): Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> {
-  let known:
-    | Partial<Record<Mode, ReturnType<typeof HumanTrunk.prepareResolve>>>
-    | undefined = READERS.get(body);
-  if (known === undefined) {
-    known = {};
-    READERS.set(body, known);
-  }
-  let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined =
-    known[mode];
-  if (read === undefined) {
-    read = HumanTrunk.prepareResolve(body, NAMES[mode]);
-    known[mode] = read;
-  }
-  return read(posture, resolution, joints);
+  return HumanTrunk.prepareResolve(body, NAMES[mode])(
+    posture,
+    resolution,
+    joints,
+  );
 }
 
 /** Existing gaze observations; each set names only the actual returned frames. */
 type Mode = "direction" | "head" | "eyes";
-
-/** Fixed immutable rig-demand metadata; no posed/query answer belongs here. */
-const READERS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Partial<Record<Mode, ReturnType<typeof HumanTrunk.prepareResolve>>>
-> = new WeakMap();
 
 /** Original eye-midpoint, cervical-rest and final-eye frame demands. */
 const NAMES: Readonly<Record<Mode, ReadonlySet<AutoMovieHumanoidBone>>> = {

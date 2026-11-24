@@ -169,7 +169,7 @@ export namespace deriveHumanPosture {
         solved.seeded.seeds[limb] === undefined
       )
         return undefined;
-      for (const index of HumanLimbView.of(body, assembled.pose, limb, goal, [])
+      for (const index of HumanLimbView(body, assembled.pose, limb, goal, [])
         .at)
         if (assembled.pose.joints[index] !== before.pose.joints[index])
           return undefined;

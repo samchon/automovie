@@ -23,6 +23,95 @@ type IOfWork = {
 type OfContext = "aim" | "body" | "prop" | "start";
 
 /**
+ * Where a tool works.
+ *
+ * @param context The action's context.
+ * @param work The kind, the aimed work point, the performer's forward and the
+ *   tool's reach from its grip to its face, metres.
+ * @returns The work point and a stir's circle.
+ * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the
+ *   vessel declares no `rim` or no inside width, or the spoon is too short to
+ *   reach the stirring depth from above the rim.
+ */
+export function HumanToolWork(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  work: IOfWork,
+): HumanToolWork.IWork {
+  if (work.kind !== "stir")
+    return { on: context.aim(work.on, context.start).point, radius: 0 };
+  if (work.on.kind !== "prop" || work.on.point !== "inside")
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "on",
+      value: work.on.kind,
+      reason:
+        "a stir works inside a vessel, and the work point is no vessel's inside",
+      fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
+    });
+  const subject: string = work.on.subject;
+  const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  const affordances: readonly IAutoMovieAffordance[] =
+    read.prop.affordances ?? [];
+  const declared = (id: string): IAutoMovieAffordance => {
+    const found: IAutoMovieAffordance | undefined = affordances.find(
+      (a: IAutoMovieAffordance): boolean => a.id === id,
+    );
+    if (found === undefined)
+      throw new HumanRefusal({
+        kind: "affordance",
+        axis: "on",
+        value: subject,
+        feasible: {
+          kind: "alternatives",
+          values: affordances.map((a: IAutoMovieAffordance): string => a.id),
+        },
+        reason: `${subject} declares no ${id}`,
+        fix: `stir a vessel that declares an inside and a rim, as createVessel does`,
+      });
+    return found;
+  };
+  const inside: IAutoMovieAffordance = declared("inside");
+  const rim: IAutoMovieAffordance = declared("rim");
+  if (!((inside.width ?? 0) > 0))
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "on",
+      value: subject,
+      reason: `${subject}'s inside declares no width to stir in`,
+      fix: "give the vessel's inside its width, as createVessel does",
+    });
+  const frame: IAutoMovieRigidTransform = read.frame(context.start);
+  const world = (a: IAutoMovieAffordance): IAutoMovieVector3 =>
+    Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, a.frame.translation),
+    );
+  const floor: IAutoMovieVector3 = world(inside);
+  const top: number = world(rim).y;
+  const depth: number = (top - floor.y) / 2;
+  if (!(work.length > depth))
+    throw new HumanRefusal({
+      kind: "reach",
+      axis: "prop",
+      value: work.length,
+      feasible: { kind: "range", minimum: depth, maximum: null, unit: "m" },
+      reason: `the spoon reaches ${work.length.toFixed(3)} m from its grip, short of the ${depth.toFixed(3)} m from ${subject}'s rim to the stirring depth`,
+      fix: "stir with a longer spoon, or a shallower vessel",
+    });
+  const radius: number = Math.min(
+    context.body.measure.forearm / 3,
+    inside.width! / 4,
+  );
+  return {
+    on: Vector3.subtract(
+      { x: floor.x, y: floor.y + depth, z: floor.z },
+      Vector3.scale(work.forward, radius),
+    ),
+    radius,
+  };
+}
+
+/**
  * Where a held tool works: the work point a hammer, a saw or a screwdriver is
  * brought to, and for a stir the vessel stirred.
  *
@@ -46,94 +135,5 @@ export namespace HumanToolWork {
 
     /** A stir's circle radius, metres; 0 for the other kinds. */
     radius: number;
-  }
-
-  /**
-   * Where a tool works.
-   *
-   * @param context The action's context.
-   * @param work The kind, the aimed work point, the performer's forward and the
-   *   tool's reach from its grip to its face, metres.
-   * @returns The work point and a stir's circle.
-   * @throws {HumanRefusal} When a stir's work point is no vessel's inside, the
-   *   vessel declares no `rim` or no inside width, or the spoon is too short to
-   *   reach the stirring depth from above the rim.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    work: IOfWork,
-  ): IWork {
-    if (work.kind !== "stir")
-      return { on: context.aim(work.on, context.start).point, radius: 0 };
-    if (work.on.kind !== "prop" || work.on.point !== "inside")
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "on",
-        value: work.on.kind,
-        reason:
-          "a stir works inside a vessel, and the work point is no vessel's inside",
-        fix: 'aim the stir at a vessel\'s inside, { kind: "prop", subject, point: "inside" }, as createVessel declares it',
-      });
-    const subject: string = work.on.subject;
-    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-    const affordances: readonly IAutoMovieAffordance[] =
-      read.prop.affordances ?? [];
-    const declared = (id: string): IAutoMovieAffordance => {
-      const found: IAutoMovieAffordance | undefined = affordances.find(
-        (a: IAutoMovieAffordance): boolean => a.id === id,
-      );
-      if (found === undefined)
-        throw new HumanRefusal({
-          kind: "affordance",
-          axis: "on",
-          value: subject,
-          feasible: {
-            kind: "alternatives",
-            values: affordances.map((a: IAutoMovieAffordance): string => a.id),
-          },
-          reason: `${subject} declares no ${id}`,
-          fix: `stir a vessel that declares an inside and a rim, as createVessel does`,
-        });
-      return found;
-    };
-    const inside: IAutoMovieAffordance = declared("inside");
-    const rim: IAutoMovieAffordance = declared("rim");
-    if (!((inside.width ?? 0) > 0))
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "on",
-        value: subject,
-        reason: `${subject}'s inside declares no width to stir in`,
-        fix: "give the vessel's inside its width, as createVessel does",
-      });
-    const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    const world = (a: IAutoMovieAffordance): IAutoMovieVector3 =>
-      Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, a.frame.translation),
-      );
-    const floor: IAutoMovieVector3 = world(inside);
-    const top: number = world(rim).y;
-    const depth: number = (top - floor.y) / 2;
-    if (!(work.length > depth))
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "prop",
-        value: work.length,
-        feasible: { kind: "range", minimum: depth, maximum: null, unit: "m" },
-        reason: `the spoon reaches ${work.length.toFixed(3)} m from its grip, short of the ${depth.toFixed(3)} m from ${subject}'s rim to the stirring depth`,
-        fix: "stir with a longer spoon, or a shallower vessel",
-      });
-    const radius: number = Math.min(
-      context.body.measure.forearm / 3,
-      inside.width! / 4,
-    );
-    return {
-      on: Vector3.subtract(
-        { x: floor.x, y: floor.y + depth, z: floor.z },
-        Vector3.scale(work.forward, radius),
-      ),
-      radius,
-    };
   }
 }

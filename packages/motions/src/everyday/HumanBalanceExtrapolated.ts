@@ -14,29 +14,29 @@ import { prepareHumanPostureProjection } from "../posture/prepareHumanPosturePro
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
+/**
+ * The dynamic margin at one instant of a movement given by a one-argument
+ * posture function.
+ *
+ * @param body The body whose goals and mass are solved.
+ * @param at The movement's posture at a film second, called with that second
+ *   only.
+ * @param seconds The instant to observe.
+ * @returns Signed stability margin in metres, positive inside the foot hull.
+ */
+export function HumanBalanceExtrapolated(
+  body: IAutoMovieMotionHumanBody,
+  at: (seconds: number) => IAutoMovieMotionHumanPosture,
+  seconds: number,
+): number {
+  return HumanBalanceExtrapolated.prepare(body)(
+    (t: number): IAutoMovieMotionHumanPosture => at(t),
+    seconds,
+  );
+}
+
 /** Dynamic balance observations over a movement's actual three solved postures. */
 export namespace HumanBalanceExtrapolated {
-  /**
-   * The dynamic margin at one instant of a movement given by a one-argument
-   * posture function.
-   *
-   * @param body The body whose goals and mass are solved.
-   * @param at The movement's posture at a film second, called with that second
-   *   only.
-   * @param seconds The instant to observe.
-   * @returns Signed stability margin in metres, positive inside the foot hull.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    at: (seconds: number) => IAutoMovieMotionHumanPosture,
-    seconds: number,
-  ): number {
-    return prepare(body)(
-      (t: number): IAutoMovieMotionHumanPosture => at(t),
-      seconds,
-    );
-  }
-
   /**
    * Bind fixed body/name metadata for repeated actual dynamic margin queries.
    *

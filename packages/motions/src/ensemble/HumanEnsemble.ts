@@ -30,6 +30,23 @@ type IPickA = { key: number; index: number };
 type IPickResult = { index: number; key: number };
 
 /**
+ * Resolve an ensemble's members.
+ *
+ * @param input The ensemble.
+ * @param read Reads a guide's placed root, when the formation follows a guide:
+ *   each member's start is its slot at second 0.
+ * @returns The ensemble.
+ * @throws {HumanRefusal} When the count, the pool, a distribution, a role or a
+ *   place cannot be met, naming the ensemble and the axis.
+ */
+export function HumanEnsemble(
+  input: IAutoMovieMotionHumanEnsemble.IInput,
+  read?: IAutoMovieMotionHumanFormation.Reader,
+): IAutoMovieMotionHumanEnsemble.IEnsemble {
+  return HumanEnsembleMembers.resolve(input, read);
+}
+
+/**
  * A group of people as one subject: its members resolved from the group's
  * input, handed to a performance as performers and chains, and the seeded
  * choices an author makes over them.
@@ -43,23 +60,6 @@ type IPickResult = { index: number; key: number };
  * drawn proficiency on the axes `HUMAN_ATTRIBUTE_EFFECTS` names.
  */
 export namespace HumanEnsemble {
-  /**
-   * Resolve an ensemble's members.
-   *
-   * @param input The ensemble.
-   * @param read Reads a guide's placed root, when the formation follows a
-   *   guide: each member's start is its slot at second 0.
-   * @returns The ensemble.
-   * @throws {HumanRefusal} When the count, the pool, a distribution, a role or
-   *   a place cannot be met, naming the ensemble and the axis.
-   */
-  export function of(
-    input: IAutoMovieMotionHumanEnsemble.IInput,
-    read?: IAutoMovieMotionHumanFormation.Reader,
-  ): IAutoMovieMotionHumanEnsemble.IEnsemble {
-    return HumanEnsembleMembers.resolve(input, read);
-  }
-
   /**
    * The performers to spread into `HumanPerformance.IInput.performers`: every
    * member that is performed, with its body, place, proficiency and attributes;

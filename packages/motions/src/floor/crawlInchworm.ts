@@ -145,8 +145,10 @@ export namespace crawlInchworm {
     const m = body.measure;
     const cycles: number = context.params.count ?? 3;
     HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
 
     // The reaches are measured from a stance over the entry's feet, so an
     // inchworm entered crouched or on the knees walks from where it is.
@@ -161,7 +163,7 @@ export namespace crawlInchworm {
       origin: { ...standing.root, y: 0 },
       yaw: standing.yaw,
     };
-    const chain: crawlChain.IChain = crawlChain.of(
+    const chain: crawlChain.IChain = crawlChain(
       body,
       standing,
       frame,

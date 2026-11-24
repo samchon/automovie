@@ -25,7 +25,10 @@ import { TestValidator } from "@nestia/e2e";
 import { assertTakeClean } from "../../internal/assertTakeClean";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
-/** The crossbar's world height and plane, metres: createHighJump's bar at 1.415 m standing at z = BAR_Z. */
+/**
+ * The crossbar's world height and plane, metres: createHighJump's bar at 1.415
+ * m standing at z = BAR_Z.
+ */
 const BAR_Z: number = 3.4;
 
 /** The planted-contact bound, metres (the campaign's 5 mm). */
@@ -35,18 +38,18 @@ const PLANT: number = 0.005;
  * Carry a curved run-up into a Fosbury flop's take-off, flight and landing.
  *
  * Scenarios:
- * 1. A sprint curves left over its last strides (its footfalls turn the
- *    heading by more than 25 degrees) and each of the run's last three
- *    planted feet holds within 5 mm through its stance.
- * 2. Cut at the left foot's footfall with the bar's plane on the runner's right, the
- *    flop takes off from that same left foot, which stays within 5 mm of
+ *
+ * 1. A sprint curves left over its last strides (its footfalls turn the heading by
+ *    more than 25 degrees) and each of the run's last three planted feet holds
+ *    within 5 mm through its stance.
+ * 2. Cut at the left foot's footfall with the bar's plane on the runner's right,
+ *    the flop takes off from that same left foot, which stays within 5 mm of
  *    the run's footfall until `takeoff`.
- * 3. The centre crosses the crossbar's plane between take-off and
- *    touchdown, peaks at the bar's height within 10 mm, and the back comes
- *    down on the mat.
- * 4. The same run cut at the right foot's footfall, the foot nearer the
- *    bar, is refused on `takeoffFoot`; a jog cut at its left footfall cannot
- *    bring the horizontal speed the landing asks and is refused on `to`.
+ * 3. The centre crosses the crossbar's plane between take-off and touchdown, peaks
+ *    at the bar's height within 10 mm, and the back comes down on the mat.
+ * 4. The same run cut at the right foot's footfall, the foot nearer the bar, is
+ *    refused on `takeoffFoot`; a jog cut at its left footfall cannot bring the
+ *    horizontal speed the landing asks and is refused on `to`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the run-up, take-off foot, flight, landing and refusal cases and their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes run and flop through the public chain and measures displayed ankles, centre of mass, events and contact windows.
@@ -211,7 +214,7 @@ export function test_motion_jump_high_jump_approach(): void {
   );
 
   // 3. Flight over the bar and the landing.
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
@@ -280,7 +283,10 @@ function when(segment: IAutoMovieMotionHumanSegment, name: string): number {
   return segment.start + event.share * segment.plan.duration;
 }
 
-/** One displayed metatarsophalangeal axis point at a film second: the forefoot rocker's pivot a run's stance holds. */
+/**
+ * One displayed metatarsophalangeal axis point at a film second: the forefoot
+ * rocker's pivot a run's stance holds.
+ */
 function mtp(
   film: HumanPerformance,
   body: IAutoMovieMotionHumanBody,

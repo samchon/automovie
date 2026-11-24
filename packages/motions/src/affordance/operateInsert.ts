@@ -95,7 +95,7 @@ export namespace operateInsert {
     mechanism: IAutoMovieMotionHumanOperateInsert.IMechanism,
     side: AutoMovieHumanSide,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    return StrikingHeld.of(context, side, mechanism.prop, {
+    return StrikingHeld(context, side, mechanism.prop, {
       tip: mechanism.tip ?? "tip",
     });
   }

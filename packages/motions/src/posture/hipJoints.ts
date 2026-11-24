@@ -12,15 +12,6 @@ import { HumanBoneGroups } from "./HumanBoneGroups";
 import { poseBones } from "./poseBones";
 
 /**
- * One genuine static two-hip demand per live unchanged body, without any pose
- * state.
- */
-const HIP_READERS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  ReturnType<typeof poseBones.prepare>
-> = new WeakMap();
-
-/**
  * The two hip joints under a root: they depend only on the root, its rotation
  * and the pelvis joint, so a turned or listed pelvis counts and no other joint
  * needs posing.
@@ -40,13 +31,8 @@ export function hipJoints(
   pelvis?: readonly [number, number, number],
   prepared?: ReturnType<typeof preparePoseResolution>,
 ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
-  let read: ReturnType<typeof poseBones.prepare> | undefined =
-    HIP_READERS.get(body);
-  if (read === undefined) {
-    read = poseBones.prepare(body, HumanBoneGroups.THIGHS);
-    HIP_READERS.set(body, read);
-  }
-  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = read(
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
     {
       skeleton: body.skeleton.id,
       root: Transform.of(root, rotation),
@@ -63,6 +49,7 @@ export function hipJoints(
             ],
     },
     prepared,
+    HumanBoneGroups.THIGHS,
   );
   return { left: hipOf(bones, "left"), right: hipOf(bones, "right") };
 }

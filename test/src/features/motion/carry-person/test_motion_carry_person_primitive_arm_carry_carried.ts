@@ -19,11 +19,15 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A fitted arm carries its palm to the same shoulder-relative landmark after the carrier translates and turns.
+ * A fitted arm carries its palm to the same shoulder-relative landmark after
+ * the carrier translates and turns.
  *
  * Scenarios:
- * 1. Prepare one arm in the original stance and again after a rigid quarter turn and translation.
- * 2. At the held phase independently transform the desired palm site and compare with FK.
+ *
+ * 1. Prepare one arm in the original stance and again after a rigid quarter turn
+ *    and translation.
+ * 2. At the held phase independently transform the desired palm site and compare
+ *    with FK.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A fitted arm carries its palm to the same shoulder-relative landmark after the carrier translates and turns.
  * @evidence contracts/development/testing.md#independent-expectations A positive 90-degree yaw maps (x,z) to (z,-x). The planner's 10 mm contact disk plus 1 mm FK allowance applies in either frame.

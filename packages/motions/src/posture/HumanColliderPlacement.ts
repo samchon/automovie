@@ -16,7 +16,22 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Profile placement and the existing per-body neutral mirrored metadata. Posed
+ * Place the profile in its original order, skipping absent posed bones.
+ *
+ * @param body Canonical body with unchanged rest/profile metadata.
+ * @param bones Current resolved bones, unchanged during this operation.
+ * @returns Fresh current placed frames borrowing the neutral shape records.
+ */
+export function HumanColliderPlacement(
+  body: IAutoMovieMotionHumanBody,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+): HumanColliderPlacement.IPlaced[] {
+  return place(sided(body).segments, bones);
+}
+
+/**
+ * Profile placement and the per-body neutral mirrored metadata it reads,
+ * derived from the body where read or bound once by a prepare companion. Posed
  * frames are always current values, distinct from that neutral data.
  */
 export namespace HumanColliderPlacement {
@@ -25,20 +40,6 @@ export namespace HumanColliderPlacement {
    * (`IAutoMovieMotionHumanColliders.IPlaced`).
    */
   export type IPlaced = IAutoMovieMotionHumanColliders.IPlaced;
-
-  /**
-   * Place the profile in its original order, skipping absent posed bones.
-   *
-   * @param body Canonical body with unchanged rest/profile metadata.
-   * @param bones Current resolved bones, unchanged during this operation.
-   * @returns Fresh current placed frames borrowing the neutral shape records.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-  ): IPlaced[] {
-    return place(sided(body).segments, bones);
-  }
 
   /**
    * Bind the actual neutral entries needed by repeated current-bone queries.
@@ -250,18 +251,9 @@ interface ISided {
   /** Original neutral rotation. */
   rotation: IAutoMovieRigidTransform["rotation"];
 
-  /**
-   * Original shapes, or one lazy median-reflected list on first actual geometry
-   * observation.
-   */
+  /** Original shapes, or their median-plane reflection for a mirrored side. */
   shapes: IAutoMoviePhysicalShape[];
 }
-
-/**
- * The existing neutral list cache, moved with its sole owner; no posed frame is
- * stored.
- */
-const SIDED: WeakMap<IAutoMovieMotionHumanBody, INeutral> = new WeakMap();
 
 /**
  * Existing neutral records and the exact canonical names their placement
@@ -277,8 +269,6 @@ interface INeutral {
  * scan order.
  */
 function sided(body: IAutoMovieMotionHumanBody): INeutral {
-  const known: INeutral | undefined = SIDED.get(body);
-  if (known !== undefined) return known;
   const rests: ReadonlyMap<string, IAutoMovieVector3> = body.rest;
   const own: (segment: IAutoMoviePhysicalSegment) => ISided | null = (
     segment: IAutoMoviePhysicalSegment,
@@ -326,45 +316,30 @@ function sided(body: IAutoMovieMotionHumanBody): INeutral {
     const bone: AutoMovieHumanoidBone | undefined = canonical.get(segment.bone);
     if (bone !== undefined) bones.add(bone);
   }
-  const neutral: INeutral = { segments: out, bones };
-  SIDED.set(body, neutral);
-  return neutral;
+  return { segments: out, bones };
 }
 
-/**
- * Fixed offsets turn immediately; pure shape reflection waits for actual
- * geometry demand.
- */
+/** A neutral row reflected in the median plane: its offset, turn and shapes. */
 function mirrored(segment: ISided, bone: string): ISided {
-  let shapes: IAutoMoviePhysicalShape[] | undefined;
   return {
     bone,
     offset: mirrorPoint(segment.offset),
     rotation: mirrorTurn(segment.rotation),
-
-    /**
-     * Materialize this actual left collider list once; failed preparation stays
-     * uncached.
-     */
-    get shapes(): IAutoMoviePhysicalShape[] {
-      if (shapes !== undefined) return shapes;
-      shapes = segment.shapes.map(
-        (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
-          const transform: IAutoMovieRigidTransform = {
-            position: mirrorPoint(shape.transform.position),
-            rotation: mirrorTurn(shape.transform.rotation),
-          };
-          return shape.kind === "hull"
-            ? {
-                ...shape,
-                transform,
-                points: physicalHullFaces.mirrorX(shape.points),
-              }
-            : { ...shape, transform };
-        },
-      );
-      return shapes;
-    },
+    shapes: segment.shapes.map(
+      (shape: IAutoMoviePhysicalShape): IAutoMoviePhysicalShape => {
+        const transform: IAutoMovieRigidTransform = {
+          position: mirrorPoint(shape.transform.position),
+          rotation: mirrorTurn(shape.transform.rotation),
+        };
+        return shape.kind === "hull"
+          ? {
+              ...shape,
+              transform,
+              points: physicalHullFaces.mirrorX(shape.points),
+            }
+          : { ...shape, transform };
+      },
+    ),
   };
 }
 

@@ -25,25 +25,25 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * An interceptor heads a walking person off: it arrives within arm's reach
- * of where the person is at that moment, not where they were when it set
- * off, and it does not run into them.
+ * An interceptor heads a walking person off: it arrives within arm's reach of
+ * where the person is at that moment, not where they were when it set off, and
+ * it does not run into them.
  *
- * Scenarios:
- * the average man heading off the small woman and the reverse;
- * the person walks 6 m across the runner's front, from 3 m to the left to
- * 3 m to the right at 5 m ahead, and the runner starts as they do:
- * 1. When the run ends, the runner's sternum is no further from the
- *    person's sternum, as displayed at that instant, than the two people's
- *    arms together reach (upper arm, forearm and hand of each), measured
- *    horizontally: a grab can follow.
- * 2. At that instant the two bodies overlap by no more than 10 mm (the
- *    campaign's penetration bound).
- * 3. The run ends more than 1 m, across the front, from where the person
- *    stood when it began: it went to where they are, not where they were.
- * 4. Heading off a person composed after the runner plans as well: the
- *    performance places a read person on demand, so their path is known
- *    whatever the order of composition.
+ * Scenarios: the average man heading off the small woman and the reverse; the
+ * person walks 6 m across the runner's front, from 3 m to the left to 3 m to
+ * the right at 5 m ahead, and the runner starts as they do:
+ *
+ * 1. When the run ends, the runner's sternum is no further from the person's
+ *    sternum, as displayed at that instant, than the two people's arms together
+ *    reach (upper arm, forearm and hand of each), measured horizontally: a grab
+ *    can follow.
+ * 2. At that instant the two bodies overlap by no more than 10 mm (the campaign's
+ *    penetration bound).
+ * 3. The run ends more than 1 m, across the front, from where the person stood
+ *    when it began: it went to where they are, not where they were.
+ * 4. Heading off a person composed after the runner plans as well: the performance
+ *    places a read person on demand, so their path is known whatever the order
+ *    of composition.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs an interception of a walking person through the public chain and reads both displayed bodies at the run's end; a run to the person's starting place, a run that ends out of reach or inside them, or a silent plan against an unknown path fails.
  * @evidence contracts/development/testing.md#independent-expectations Within reach at the moment of arrival is what heading someone off means; the reach is the bodies' own arm lengths and the 10 mm the campaign's bound, neither read from the law. Limitation: the bearing through the run is not read, since one straight run holds it trivially while both go straight.
@@ -119,13 +119,13 @@ export function test_motion_gait_travel_target(): void {
       continue;
     }
     const end: number = performance.segments("a")[1]!.end;
-    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "a",
       bodies[0],
       0,
     );
-    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "b",
       bodies[1],
@@ -189,7 +189,7 @@ function checkSearchStop(): void {
     stop!.end - stop!.entryTime,
     pause,
   );
-  const reader = HumanSignature.of(performance, "walker", body, 0);
+  const reader = HumanSignature(performance, "walker", body, 0);
   const middle = (stop!.entryTime + stop!.end) / 2;
   const left = HumanSignature.joint(reader, middle, "leftUpperLeg"),
     right = HumanSignature.joint(reader, middle, "rightUpperLeg");
@@ -229,7 +229,10 @@ function checkSearchStop(): void {
   TestValidator.predicate("active travel precedes the stop", walk!.end > 0);
 }
 
-/** Sampling both moving bodies detects a follower that aims at the first target position. */
+/**
+ * Sampling both moving bodies detects a follower that aims at the first target
+ * position.
+ */
 function checkMovingTarget(): void {
   const body = motionHumanBody("m-average"),
     origin = { x: 0, y: 0, z: 0 };
@@ -257,8 +260,8 @@ function checkMovingTarget(): void {
           .registered("follow", { target }),
       ).node,
   });
-  const leader = HumanSignature.of(performance, "leader", body, 0),
-    follower = HumanSignature.of(performance, "follower", body, 0);
+  const leader = HumanSignature(performance, "leader", body, 0),
+    follower = HumanSignature(performance, "follower", body, 0);
   for (const t of HumanSignature.times(0, performance.duration, 4))
     TestValidator.predicate(
       "follower stays behind throughout travel",
@@ -301,7 +304,10 @@ function checkMovingTarget(): void {
     );
 }
 
-/** The seat and aperture independently bound a car entry's final posture and clearance. */
+/**
+ * The seat and aperture independently bound a car entry's final posture and
+ * clearance.
+ */
 function checkSeatEntrance(): void {
   const car = createCar({ kind: "sedan" }),
     body = motionHumanBody("m-average");
@@ -350,7 +356,7 @@ function checkSeatEntrance(): void {
       }).node,
     });
   const performance = enter(aperture);
-  const reader = HumanSignature.of(performance, "rider", body, 0);
+  const reader = HumanSignature(performance, "rider", body, 0);
   for (const time of HumanSignature.times(0, performance.duration, 10)) {
     const crown = HumanSignature.region(reader, "crown", time);
     const outside =
@@ -398,7 +404,10 @@ function checkSeatEntrance(): void {
   }
 }
 
-/** A hand follows a moving support in the support frame or reports its reachable arc. */
+/**
+ * A hand follows a moving support in the support frame or reports its reachable
+ * arc.
+ */
 function checkMovingHandle(): void {
   const door = createDoor({ hinge: "right", hardware: "plate" }),
     body = motionHumanBody("f-small");
@@ -476,7 +485,7 @@ function checkMovingHandle(): void {
     );
   TestValidator.equals(
     "stepping preserves floor contact",
-    HumanVerdicts.of(performance).findings.filter(
+    HumanVerdicts(performance).findings.filter(
       (f) =>
         ["slip", "lift", "floor"].includes(f.check) &&
         /Foot|Toes/.test(f.where),

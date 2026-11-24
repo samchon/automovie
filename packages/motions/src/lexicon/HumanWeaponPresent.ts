@@ -198,7 +198,7 @@ export namespace HumanWeaponPresent {
           pose,
           tool,
           back,
-        }: HumanWeaponPose.IPosed = HumanWeaponPose.of(
+        }: HumanWeaponPose.IPosed = HumanWeaponPose(
           context,
           context.carrier?.posture(0) ?? context.entry.posture,
           context.start,
@@ -262,7 +262,7 @@ export namespace HumanWeaponPresent {
                   hold: seconds,
                   retract: 0,
                 }),
-                AutoMovieMotionManner.of(context, p.manner),
+                AutoMovieMotionManner(context, p.manner),
               ),
               path:
                 ready === undefined
@@ -351,7 +351,7 @@ export namespace HumanWeaponPresent {
         );
         try {
           const { bladed, pose, tool, back }: HumanWeaponPose.IPosed =
-            HumanWeaponPose.of(
+            HumanWeaponPose(
               ahead,
               grip.posture,
               ahead.start,
@@ -485,7 +485,7 @@ export namespace HumanWeaponPresent {
             attack: SHOT.rise,
             retract: SHOT.recover,
           }),
-          AutoMovieMotionManner.of(context, context.params.manner),
+          AutoMovieMotionManner(context, context.params.manner),
         );
         const shot: IAutoMovieMotionHumanActionPlan = StrikingBlade.plan(
           context,

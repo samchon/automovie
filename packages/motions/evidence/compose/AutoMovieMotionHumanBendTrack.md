@@ -142,7 +142,7 @@ A member's signature; `of`, which implements it, carries this claim.
 
 A member's signature; `of`, which implements it, carries this claim.
 
-# src/compose/AutoMovieMotionHumanBendTrack.ts#AutoMovieMotionHumanBendTrack.of
+# src/compose/AutoMovieMotionHumanBendTrack.ts#AutoMovieMotionHumanBendTrack
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

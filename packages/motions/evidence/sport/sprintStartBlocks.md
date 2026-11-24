@@ -16,7 +16,7 @@ The two values `athletics.plan` passes on to `sprintStartSet.of`.
 
 Both feet are always present; a block without both plates is refused before this record exists.
 
-# src/sport/sprintStartBlocks.ts#sprintStartBlocks.of
+# src/sport/sprintStartBlocks.ts#sprintStartBlocks
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

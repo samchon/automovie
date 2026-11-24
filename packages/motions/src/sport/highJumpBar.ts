@@ -15,6 +15,52 @@ import type { AthleticsRunUp } from "./AthleticsRunUp";
 type OfContext = "prop" | "start";
 
 /**
+ * Read the named crossbar's centre, axis and span where the prop stands at the
+ * action's start.
+ *
+ * @param context The prop reader and the action's film second.
+ * @param subject The high jump's prop subject.
+ * @returns The bar.
+ * @throws {HumanRefusal} When the prop declares no `bar`.
+ */
+export function highJumpBar(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  subject: string,
+): highJumpBar.IBar {
+  const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
+  const found: IAutoMovieAffordance | undefined = (
+    read.prop.affordances ?? []
+  ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
+  if (found === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "bar",
+      value: subject,
+      feasible: {
+        kind: "alternatives",
+        values: (read.prop.affordances ?? []).map(
+          (a: IAutoMovieAffordance): string => a.id,
+        ),
+      },
+      reason: `${subject} declares no crossbar named bar`,
+      fix: "give the high jump's crossbar the id bar, as createHighJump does",
+    });
+  const frame: IAutoMovieRigidTransform = read.frame(context.start);
+  return {
+    point: Vector3.add(
+      frame.position,
+      Quaternion.rotateVector(frame.rotation, found.frame.translation),
+    ),
+    // A bar affordance's length runs along its local +X.
+    axis: Quaternion.rotateVector(
+      Quaternion.multiply(frame.rotation, found.frame.rotation),
+      { x: 1, y: 0, z: 0 },
+    ),
+    length: found.length ?? undefined,
+  };
+}
+
+/**
  * The high jump's crossbar as the scene places it, and the approach rule it
  * sets: the side of the bar the take-off foot must be on.
  */
@@ -29,52 +75,6 @@ export namespace highJumpBar {
 
     /** The bar's length along the axis, metres, when the affordance gives it. */
     length: number | undefined;
-  }
-
-  /**
-   * Read the named crossbar's centre, axis and span where the prop stands at
-   * the action's start.
-   *
-   * @param context The prop reader and the action's film second.
-   * @param subject The high jump's prop subject.
-   * @returns The bar.
-   * @throws {HumanRefusal} When the prop declares no `bar`.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    subject: string,
-  ): IBar {
-    const read: IAutoMovieMotionHumanPropReader = context.prop(subject);
-    const found: IAutoMovieAffordance | undefined = (
-      read.prop.affordances ?? []
-    ).find((a: IAutoMovieAffordance): boolean => a.id === "bar");
-    if (found === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "bar",
-        value: subject,
-        feasible: {
-          kind: "alternatives",
-          values: (read.prop.affordances ?? []).map(
-            (a: IAutoMovieAffordance): string => a.id,
-          ),
-        },
-        reason: `${subject} declares no crossbar named bar`,
-        fix: "give the high jump's crossbar the id bar, as createHighJump does",
-      });
-    const frame: IAutoMovieRigidTransform = read.frame(context.start);
-    return {
-      point: Vector3.add(
-        frame.position,
-        Quaternion.rotateVector(frame.rotation, found.frame.translation),
-      ),
-      // A bar affordance's length runs along its local +X.
-      axis: Quaternion.rotateVector(
-        Quaternion.multiply(frame.rotation, found.frame.rotation),
-        { x: 1, y: 0, z: 0 },
-      ),
-      length: found.length ?? undefined,
-    };
   }
 
   /**

@@ -108,8 +108,8 @@ export namespace courseLimbSwivels {
    * `courseLimbSwivelKnots.rates` and `between`). The goals stay the displayed
    * ones; only the branch, swivel and twist come from the course, so no read
    * searches. The knots and the path through them are made in order when the
-   * course is made, so a read only evaluates them and the course is the same
-   * in any reading order.
+   * course is made, so a read only evaluates them and the course is the same in
+   * any reading order.
    *
    * @param props The posture reader, the limbs, the span and the knotted
    *   instants.

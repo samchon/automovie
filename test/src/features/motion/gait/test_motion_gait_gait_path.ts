@@ -19,15 +19,16 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 
 /**
- * A straight, externally paced walk places the ankle ahead of the pelvis
- * by half a step in double support and by half of contact in flight,
- * accounting for where the foot rolls between heel and ball.
+ * A straight, externally paced walk places the ankle ahead of the pelvis by
+ * half a step in double support and by half of contact in flight, accounting
+ * for where the foot rolls between heel and ball.
  *
  * Scenarios:
+ *
  * 1. Swing just below or at one period leaves the footprint half a step ahead.
  * 2. Swing just above one period centres the pressure path over midstance.
- * 3. Walking backwards and sideways preserves the fixed heading, while
- *    following a bend can face an independently specified point.
+ * 3. Walking backwards and sideways preserves the fixed heading, while following a
+ *    bend can face an independently specified point.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the contact transition and flat ankle observation, the fixed and point heading modes and their displayed endpoint and contact bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the public foot schedule and separately measures the displayed pelvis and soles in the heading branches.
@@ -170,7 +171,7 @@ function checkFacing(body: IAutoMovieMotionHumanBody): void {
     );
     TestValidator.equals(
       "ground contacts keep their original verdicts",
-      HumanVerdicts.of(film).findings.filter(
+      HumanVerdicts(film).findings.filter(
         (f) => f.check === "slip" || f.check === "lift" || f.check === "floor",
       ),
       [],

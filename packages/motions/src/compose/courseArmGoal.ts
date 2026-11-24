@@ -342,7 +342,7 @@ export function courseArmGoal(
   const composed: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock.of(
+      clock: AutoMovieMotionClock(
         plan.duration,
         plan.events.map(
           (e: IAutoMovieMotionEvent): courseArmGoal.Instant => ({
@@ -583,7 +583,7 @@ export namespace courseArmGoal {
   >[3];
 
   /** A named instant of the plan's clock. */
-  export type Instant = Parameters<typeof AutoMovieMotionClock.of>[1][number];
+  export type Instant = Parameters<typeof AutoMovieMotionClock>[1][number];
 
   /** What a coursed arm does after its span (`IProps.after`). */
   export type After = "goal" | "angles";

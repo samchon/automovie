@@ -14,10 +14,13 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * An elbow Jacobian moves its hand tangentially and leaves the elbow centre fixed.
+ * An elbow Jacobian moves its hand tangentially and leaves the elbow centre
+ * fixed.
  *
  * Scenarios:
- * 1. Read the elbow’s angular and translational derivatives and compare with a small actual positive articulation.
+ *
+ * 1. Read the elbow’s angular and translational derivatives and compare with a
+ *    small actual positive articulation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification An elbow Jacobian moves its hand tangentially and leaves the elbow centre fixed.
  * @evidence contracts/development/testing.md#independent-expectations Rigid-body differentiation gives hand velocity equal to angular velocity cross the elbow-to-hand radius, with radians per clinical degree.
@@ -42,7 +45,7 @@ export function test_motion_dynamics_limb_jacobian(): void {
   const actual = bones(30),
     elbow = actual.get("leftLowerArm")!.worldPosition,
     hand = actual.get("leftHand")!.worldPosition;
-  const derivative = HumanJacobian.of(body, posture(30), actual, [
+  const derivative = HumanJacobian(body, posture(30), actual, [
     { kind: "angle", bone: "leftLowerArm", axis: 0 },
   ])[0]!;
   const turn = HumanJacobian.twist(derivative, "leftLowerArm", elbow);

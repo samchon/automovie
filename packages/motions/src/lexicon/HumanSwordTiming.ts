@@ -75,7 +75,7 @@ export namespace HumanSwordTiming {
         hold: 0,
         retract: (recovery * UNIT * back) / speed,
       }),
-      AutoMovieMotionManner.of(context, context.params.manner),
+      AutoMovieMotionManner(context, context.params.manner),
     );
   };
 

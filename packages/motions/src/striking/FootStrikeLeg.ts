@@ -121,8 +121,10 @@ export function FootStrikeLeg(
       ankle: ankleOf(pose),
     };
   };
-  function ankleOf(of: IAutoMoviePose): readonly [number, number, number] {
-    const j: IAutoMovieJointPose | undefined = of.joints.find(
+  function ankleOf(
+    FootStrikeLeg: IAutoMoviePose,
+  ): readonly [number, number, number] {
+    const j: IAutoMovieJointPose | undefined = FootStrikeLeg.joints.find(
       (q: IAutoMovieJointPose): boolean => q.bone === `${side}Foot`,
     );
     return [j?.flexion ?? 0, j?.abduction ?? 0, j?.twist ?? 0];
@@ -231,7 +233,7 @@ export function FootStrikeLeg(
               rotation:
                 seconds <= release
                   ? key.attitude
-                  : AutoMovieMotionHumanFootRelax.of(
+                  : AutoMovieMotionHumanFootRelax(
                       body,
                       posture,
                       side,

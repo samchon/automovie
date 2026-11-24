@@ -28,9 +28,7 @@ type IRelativeResult = { point: IAutoMovieVector3; turn: IAutoMovieQuaternion };
 type ILocatedRotation = { rotation?: IAutoMovieQuaternion };
 
 /** The alternatives of `LocatedPlaced`'s site. */
-type LocatedPlaced =
-  | readonly (readonly IAutoMovieMotionHumanArmGeometry.IPlaced[])[]
-  | ((arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced);
+type LocatedPlaced = (arm: number) => IAutoMovieMotionHumanArmGeometry.IPlaced;
 
 /** The record of `ILocatedOn`'s site. */
 type ILocatedOn = {
@@ -192,7 +190,7 @@ export namespace HumanArmTrajectoryPairs {
     const floor: number = cut / 1000;
     const certifies: boolean = Number.isFinite(floor);
     const queries: ReturnType<typeof S.prepareGap>[] = [];
-    for (const link of HumanArmTrajectoryLinks.of(c, a, k, placed)) {
+    for (const link of HumanArmTrajectoryLinks(c, a, k, placed)) {
       for (const shape of c.reachable[a]![k]!) {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         if (frame.related[link.part]?.[s.part] === true) continue;
@@ -277,8 +275,7 @@ export namespace HumanArmTrajectoryPairs {
    * otherwise.
    *
    * @param c The context.
-   * @param placed Every arm placed at every waypoint, or a reader of the arms
-   *   at this one waypoint.
+   * @param placed A reader of the arms placed at this one waypoint.
    * @param a The arm whose site it is.
    * @param k The waypoint.
    * @param site The site.
@@ -320,7 +317,7 @@ export namespace HumanArmTrajectoryPairs {
     }
     const on: NonNullable<M.ISite["on"]> = site.on;
     const theirs: IAutoMovieMotionHumanArmGeometry.IPlaced =
-      typeof placed === "function" ? placed(on.arm) : placed[on.arm]![k]!;
+      placed(on.arm);
     const [origin, turn]: [IAutoMovieVector3, IAutoMovieQuaternion] =
       on.owner === "upper"
         ? [theirs.shoulder, theirs.upper]

@@ -26,7 +26,9 @@ const { HumanAffect, HumanBreath } = AutoMovieMotionHumanExpression;
  * Channel demand reads an active dependency inside its closed interval.
  *
  * Scenarios:
- * 1. Read the head-independent trunk channel at both edges and just outside; request an unrelated channel and overlap the same writer.
+ *
+ * 1. Read the head-independent trunk channel at both edges and just outside;
+ *    request an unrelated channel and overlap the same writer.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Channel demand reads an active dependency inside its closed interval.
  * @evidence contracts/development/testing.md#independent-expectations Base pitch is zero. Inside the closed window trunk pitch is twice the root writer’s X position.
@@ -48,7 +50,7 @@ export function test_motion_dynamics_channel_timing(): void {
       limbs: {},
     }),
   };
-  const clock = AutoMovieMotionClock.of(1, []);
+  const clock = AutoMovieMotionClock(1, []);
   let rootReads: number = 0,
     trunkReads: number = 0;
   const root: IAutoMovieMotionHumanPrimitive = {

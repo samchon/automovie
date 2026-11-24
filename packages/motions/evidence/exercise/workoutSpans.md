@@ -70,7 +70,7 @@ What `workout.plan` reads to make its clock, posture and contacts.
 
 The four arrays are built together and stay aligned.
 
-# src/exercise/workoutSpans.ts#workoutSpans.of
+# src/exercise/workoutSpans.ts#workoutSpans
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

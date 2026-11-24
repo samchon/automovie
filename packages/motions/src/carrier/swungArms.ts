@@ -13,7 +13,7 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 /**
  * A plan whose arms, written as joints with no hand goal, swing out by the
  * least abduction that clears the thighs as the tangle audit measures it
- * (`HumanArmSwing.of`): a gliding or riding body's hanging arms would otherwise
+ * (`HumanArmSwing`): a gliding or riding body's hanging arms would otherwise
  * lay their fingers into the thighs the legs bring under them. An arm with a
  * hand goal is the fit's to clear and is left alone.
  *
@@ -34,6 +34,6 @@ export function swungArms(
     posture: (
       ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
     ): IAutoMovieMotionHumanPosture =>
-      HumanArmSwing.of(body, plan.posture(...args), sides, args[2], args[3]),
+      HumanArmSwing(body, plan.posture(...args), sides, args[2], args[3]),
   };
 }

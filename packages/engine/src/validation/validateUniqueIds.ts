@@ -1,30 +1,23 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
-import { isRecord } from "./isRecord";
-import { validateArrayArtifact } from "./validateArrayArtifact";
 import { validateUniqueBy } from "./validateUniqueBy";
 
-/**
- * Admit an array and map shallow record ids to element paths before
- * validateUniqueBy checks string duplicates.
- */
+/** Map record ids to element paths before validateUniqueBy checks duplicates. */
 export const validateUniqueIds: (
-  items: unknown,
+  items: readonly { id: string }[],
   path: string,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ) => void = (
-  items: unknown,
+  items: readonly { id: string }[],
   path: string,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  if (!validateArrayArtifact(items, path, label, violations)) return;
   validateUniqueBy(
-    Array.from(
-      items,
-      (item: unknown, index: number): { id: unknown; path: string } => ({
-        id: isRecord(item) ? item.id : undefined,
+    items.map(
+      (item: { id: string }, index: number): { id: string; path: string } => ({
+        id: item.id,
         path: `${path}[${index}].id`,
       }),
     ),

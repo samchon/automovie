@@ -22,7 +22,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfStretch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfStretch"]
-  > = HumanActionRow.of("selfStretch", selfAction, {
+  > = HumanActionRow("selfStretch", selfAction, {
     kind: "stretch",
   });
 
@@ -33,7 +33,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfVictory: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfVictory"]
-  > = HumanActionRow.of("selfVictory", selfAction, {
+  > = HumanActionRow("selfVictory", selfAction, {
     kind: "victory",
   });
 
@@ -44,7 +44,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfFistPump: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfFistPump"]
-  > = HumanActionRow.of("selfFistPump", selfAction, {
+  > = HumanActionRow("selfFistPump", selfAction, {
     kind: "fistPump",
   });
 
@@ -55,7 +55,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfNeckRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfNeckRoll"]
-  > = HumanActionRow.of("selfNeckRoll", selfAction, {
+  > = HumanActionRow("selfNeckRoll", selfAction, {
     kind: "neckRoll",
   });
 
@@ -66,7 +66,7 @@ export namespace HumanSelfActionRows {
    */
   export const selfShoulderRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["selfShoulderRoll"]
-  > = HumanActionRow.of("selfShoulderRoll", selfAction, {
+  > = HumanActionRow("selfShoulderRoll", selfAction, {
     kind: "shoulderRoll",
   });
 }

@@ -60,7 +60,7 @@ export namespace HumanHeld {
    * The effector that lays a held prop's point on the act's region.
    *
    * @param context The action's context; the prop is read in the hand at the
-   *   action's entry (`AutoMovieMotionHumanHeld.of`).
+   *   action's entry (`AutoMovieMotionHumanHeld`).
    * @param row The act's use of the prop.
    * @param side The holding hand.
    * @param subject The prop's subject id.
@@ -283,7 +283,7 @@ export namespace HumanHeld {
     side: AutoMovieHumanSide,
     subject: string,
   ): IAutoMovieMotionHumanActionPlan {
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       subject,

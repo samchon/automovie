@@ -18,6 +18,95 @@ import { prepareGymnasticsLaunch } from "./prepareGymnasticsLaunch";
 /** The record of `IOfRead`'s site. */
 type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };
 
+/** How many times the landing place is corrected. */
+const PASSES: number = 3;
+
+/**
+ * Plan a take-off at the velocity a law asks for.
+ *
+ * @param context The action's context.
+ * @param aim The launch velocity asked, m/s, given the take-off centre, world
+ *   metres; its vertical part positive.
+ * @param foot The optional authored support foot for the push-off.
+ * @returns The take-off.
+ * @throws {HumanRefusal} When the velocity asked does not rise, or the jump
+ *   refuses its push-off.
+ */
+export function GymnasticsTakeoff(
+  context: IAutoMovieMotionHumanActionContext<object>,
+  aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
+  foot?: AutoMovieHumanSide,
+): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
+  const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
+    context.body,
+  );
+  const launch: ReturnType<typeof prepareGymnasticsLaunch> =
+    prepareGymnasticsLaunch(context.body, model);
+  const root: IAutoMovieVector3 = context.entry.posture.root;
+
+  // The first aim reads a centre over the root at the share of the stature
+  // a standing centre of mass is at (about 0.55, a first guess the passes
+  // replace with the plan's own centre).
+  const first: IAutoMovieVector3 = aim({
+    x: root.x,
+    y: root.y + 0.55 * context.body.measure.stature,
+    z: root.z,
+  });
+  const apexOf: (velocity: IAutoMovieVector3) => number = (
+    velocity: IAutoMovieVector3,
+  ): number => {
+    if (!(velocity.y > 0))
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "launch",
+        value: velocity.y,
+        reason: `a take-off rises, and the launch asked climbs at ${velocity.y.toFixed(2)} m/s`,
+        fix: "aim the flight higher",
+      });
+    return (velocity.y * velocity.y) / (2 * AutoMovieGravity.STANDARD);
+  };
+  let apex: number = apexOf(first);
+  const guess: number = (2 * first.y) / AutoMovieGravity.STANDARD;
+  let to: IAutoMovieVector3 = {
+    x: root.x + first.x * guess,
+    y: 0,
+    z: root.z + first.z * guess,
+  };
+  const at: (plan: IAutoMovieMotionHumanActionPlan, event: string) => number = (
+    plan: IAutoMovieMotionHumanActionPlan,
+    event: string,
+  ): number =>
+    (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
+      ?.share ?? 0) * plan.duration;
+
+  let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
+  for (let pass: number = 0; pass <= PASSES; pass++) {
+    const plan: IAutoMovieMotionHumanActionPlan = jump.plan(
+      {
+        ...context,
+        params: { to, apex },
+      },
+      foot,
+    );
+    const seconds: number = at(plan, "takeoff");
+    const read: IOfRead = launch(plan, seconds);
+    taken = { plan, seconds, ...read };
+    if (pass === PASSES) break;
+
+    // Correct the landing place by what the horizontal launch still
+    // misses, over the jump's own flight time.
+    const asked: IAutoMovieVector3 = aim(read.centre);
+    const flight: number = at(plan, "touchdown") - seconds;
+    to = {
+      x: to.x + (asked.x - read.velocity.x) * flight,
+      y: 0,
+      z: to.z + (asked.z - read.velocity.z) * flight,
+    };
+    apex = apexOf(asked);
+  }
+  return taken!;
+}
+
 /**
  * A take-off at a chosen launch velocity: the jump's own push-off (`jump`),
  * from the planted foot of the entry, aimed so the centre of mass leaves the
@@ -33,98 +122,6 @@ type IOfRead = { centre: IAutoMovieVector3; velocity: IAutoMovieVector3 };
  * air is the caller's.
  */
 export namespace GymnasticsTakeoff {
-  /** How many times the landing place is corrected. */
-  const PASSES: number = 3;
-
-  /**
-   * Plan a take-off at the velocity a law asks for.
-   *
-   * @param context The action's context.
-   * @param aim The launch velocity asked, m/s, given the take-off centre, world
-   *   metres; its vertical part positive.
-   * @param foot The optional authored support foot for the push-off.
-   * @returns The take-off.
-   * @throws {HumanRefusal} When the velocity asked does not rise, or the jump
-   *   refuses its push-off.
-   */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<object>,
-    aim: (centre: IAutoMovieVector3) => IAutoMovieVector3,
-    foot?: AutoMovieHumanSide,
-  ): IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff {
-    const model: IAutoMovieResolveCenterOfMass.IModel = GymnasticsFlight.model(
-      context.body,
-    );
-    const launch: ReturnType<typeof prepareGymnasticsLaunch> =
-      prepareGymnasticsLaunch(context.body, model);
-    const root: IAutoMovieVector3 = context.entry.posture.root;
-
-    // The first aim reads a centre over the root at the share of the stature
-    // a standing centre of mass is at (about 0.55, a first guess the passes
-    // replace with the plan's own centre).
-    const first: IAutoMovieVector3 = aim({
-      x: root.x,
-      y: root.y + 0.55 * context.body.measure.stature,
-      z: root.z,
-    });
-    const apexOf: (velocity: IAutoMovieVector3) => number = (
-      velocity: IAutoMovieVector3,
-    ): number => {
-      if (!(velocity.y > 0))
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: "launch",
-          value: velocity.y,
-          reason: `a take-off rises, and the launch asked climbs at ${velocity.y.toFixed(2)} m/s`,
-          fix: "aim the flight higher",
-        });
-      return (velocity.y * velocity.y) / (2 * AutoMovieGravity.STANDARD);
-    };
-    let apex: number = apexOf(first);
-    const guess: number = (2 * first.y) / AutoMovieGravity.STANDARD;
-    let to: IAutoMovieVector3 = {
-      x: root.x + first.x * guess,
-      y: 0,
-      z: root.z + first.z * guess,
-    };
-    const at: (
-      plan: IAutoMovieMotionHumanActionPlan,
-      event: string,
-    ) => number = (
-      plan: IAutoMovieMotionHumanActionPlan,
-      event: string,
-    ): number =>
-      (plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === event)
-        ?.share ?? 0) * plan.duration;
-
-    let taken: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff | undefined;
-    for (let pass: number = 0; pass <= PASSES; pass++) {
-      const plan: IAutoMovieMotionHumanActionPlan = jump.plan(
-        {
-          ...context,
-          params: { to, apex },
-        },
-        foot,
-      );
-      const seconds: number = at(plan, "takeoff");
-      const read: IOfRead = launch(plan, seconds);
-      taken = { plan, seconds, ...read };
-      if (pass === PASSES) break;
-
-      // Correct the landing place by what the horizontal launch still
-      // misses, over the jump's own flight time.
-      const asked: IAutoMovieVector3 = aim(read.centre);
-      const flight: number = at(plan, "touchdown") - seconds;
-      to = {
-        x: to.x + (asked.x - read.velocity.x) * flight,
-        y: 0,
-        z: to.z + (asked.z - read.velocity.z) * flight,
-      };
-      apex = apexOf(asked);
-    }
-    return taken!;
-  }
-
   /**
    * The push-off's contacts up to the take-off, rescaled to the action that
    * goes on from it: every window the jump declared before its take-off, cut

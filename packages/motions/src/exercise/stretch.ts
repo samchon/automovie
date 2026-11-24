@@ -121,8 +121,10 @@ export namespace stretch {
     HumanBound.least("hold", hold, 0, "s");
     const level: IAutoMovieMotionHumanRange.Level =
       INTENSITY[p.depth ?? "moderate"];
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const timed: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: ENTER,
@@ -132,26 +134,23 @@ export namespace stretch {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "enter", seconds: 0 },
-        { name: "reachEnd", seconds: timed.at("ready") },
-        { name: "release", seconds: timed.at("relax") },
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: "enter", seconds: 0 },
+      { name: "reachEnd", seconds: timed.at("ready") },
+      { name: "release", seconds: timed.at("relax") },
 
-        // A one-leg pose takes its weight onto the standing foot before the
-        // other foot leaves the floor, and sets that foot down before it
-        // takes the weight back (a support is released only after the next
-        // one bears): the hips shift over the first half of the entry and
-        // the foot lifts over the second, and the release runs the other way.
-        { name: "shifted", seconds: timed.at("ready") / 2 },
-        {
-          name: "lowered",
-          seconds: (timed.at("relax") + timed.duration) / 2,
-        },
-      ],
-    );
+      // A one-leg pose takes its weight onto the standing foot before the
+      // other foot leaves the floor, and sets that foot down before it
+      // takes the weight back (a support is released only after the next
+      // one bears): the hips shift over the first half of the entry and
+      // the foot lifts over the second, and the release runs the other way.
+      { name: "shifted", seconds: timed.at("ready") / 2 },
+      {
+        name: "lowered",
+        seconds: (timed.at("relax") + timed.duration) / 2,
+      },
+    ]);
     const build = (
       local: IAutoMovieMotionClock,
       prepared: boolean = false,

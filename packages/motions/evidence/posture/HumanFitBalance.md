@@ -52,7 +52,7 @@ Reuses `HumanFitBalanceBase.IThrough` instead of copying its members.
 
 States what the record holds and its owner.
 
-# src/posture/HumanFitBalance.ts#HumanFitBalance.of
+# src/posture/HumanFitBalance.ts#HumanFitBalance
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

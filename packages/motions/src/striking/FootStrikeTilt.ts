@@ -18,6 +18,144 @@ import { FootStrikeForms } from "./FootStrikeForms";
 import { KickForm } from "./KickForm";
 
 /**
+ * How far a leg's thigh lies past the comfortable share of the hip's reach at
+ * its azimuth, and the leg's horizontal direction and chord elevation.
+ */
+interface IExcess {
+  /** Degrees past the comfortable reach; negative inside it. */
+  degrees: number;
+  /** The hip-to-ankle line's elevation from straight down, degrees. */
+  elevation: number;
+  /** The leg's horizontal direction, a unit vector. */
+  across: IAutoMovieVector3;
+}
+
+/**
+ * The thigh's excess over the comfortable share of the hip's range for a leg
+ * from a hip to an ankle: the hip-to-ankle line's elevation from straight down
+ * plus the thigh's rise above that line, which the knee's bend over the line's
+ * length gives by the law of cosines (the knee bends up toward its hint),
+ * against `KickForm.RANGE_SHARE` of the range ellipse's reach at the leg's
+ * azimuth.
+ */
+function over(
+  side: AutoMovieHumanSide,
+  yaw: number,
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+  thigh: number,
+  shank: number,
+  share: number = KickForm.RANGE_SHARE,
+): IExcess | undefined {
+  const constraint: IAutoMovieJointConstraint | undefined =
+    DEFAULT_HUMANOID_ROM[`${side}UpperLeg`];
+  if (
+    constraint === undefined ||
+    constraint.flexion === null ||
+    constraint.abduction === null
+  )
+    throw new Error(
+      `The range-of-motion table gives ${side}UpperLeg no flexion or abduction`,
+    );
+  const chord: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
+  const d: number = Vector3.length(chord);
+  const leg: IAutoMovieVector3 = Vector3.normalize(chord);
+  const flat: IAutoMovieVector3 = { x: leg.x, y: 0, z: leg.z };
+  if (Vector3.length(flat) < 1e-9) return undefined;
+  const across: IAutoMovieVector3 = Vector3.normalize(flat);
+  const line: number =
+    (Math.acos(Math.max(-1, Math.min(1, -leg.y))) * 180) / Math.PI;
+  // The thigh's rise above the hip-to-ankle line at this chord's length.
+  const rise: number =
+    d >= thigh + shank || d <= 1e-9
+      ? 0
+      : (Math.acos(
+          Math.max(
+            -1,
+            Math.min(
+              1,
+              (thigh * thigh + d * d - shank * shank) / (2 * thigh * d),
+            ),
+          ),
+        ) *
+          180) /
+        Math.PI;
+  const elevation: number = line + rise;
+
+  // The leg's azimuth about the pelvis's heading, positive outward.
+  const forward: IAutoMovieVector3 = HumanFrame.point(
+    { origin: { x: 0, y: 0, z: 0 }, yaw },
+    { x: 0, y: 0, z: 1 },
+  );
+  const left: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.cross(FootStrikeForms.UP, forward),
+  );
+  const outward: IAutoMovieVector3 = Vector3.scale(
+    left,
+    side === "left" ? 1 : -1,
+  );
+  const azimuth: number = Math.atan2(
+    Vector3.dot(across, outward),
+    Vector3.dot(across, forward),
+  );
+
+  // The range ellipse's reach at that azimuth, its abduction ceiling the
+  // one the leg's flexion admits.
+  const F: number = constraint.flexion.max;
+  const flexed: IAutoMovieAngleRange | null = abductionRange(
+    constraint,
+    Math.max(0, elevation * Math.cos(azimuth)),
+  );
+  const A: number = azimuth >= 0 ? flexed!.max : -constraint.abduction.min;
+  const reach: number =
+    1 /
+    Math.sqrt(
+      Math.cos(azimuth) ** 2 / (F * F) + Math.sin(azimuth) ** 2 / (A * A),
+    );
+  // The leg is brought inside the range by the share a kick treats as its
+  // comfortable range (`KickForm.RANGE_SHARE`), not onto its edge, where
+  // the fit pins the hip and the knee cannot open into the contact.
+  return {
+    degrees: elevation - share * reach,
+    elevation: line,
+    across,
+  };
+}
+
+/**
+ * Read the tilt a leg from a hip to an ankle needs.
+ *
+ * @param side The kicking side.
+ * @param yaw The pelvis's heading at the contact, degrees.
+ * @param hip The kicking hip at the contact, world metres.
+ * @param ankle The ankle's contact place, world metres.
+ * @param thigh The thigh's length, metres: with the shank's, the knee's bend at
+ *   the contact raises the thigh above the hip-to-ankle line (`over`), which
+ *   the hip must lift.
+ * @param shank The shank's length, metres.
+ * @returns The tilt about a world axis through the support hip, or none when
+ *   the hip's range reaches the leg.
+ */
+export function FootStrikeTilt(
+  side: AutoMovieHumanSide,
+  yaw: number,
+  hip: IAutoMovieVector3,
+  ankle: IAutoMovieVector3,
+  thigh: number,
+  shank: number,
+): CloseStrikeLegs.ITilt | undefined {
+  const excess: IExcess | undefined = over(side, yaw, hip, ankle, thigh, shank);
+  if (excess === undefined || !(excess.degrees > 0)) return undefined;
+
+  // A positive turn about the horizontal axis across the leg carries the
+  // body's up away from the leg.
+  return {
+    axis: Vector3.normalize(Vector3.cross(excess.across, FootStrikeForms.UP)),
+    degrees: Math.min(KickForm.LEAN_MOST, excess.degrees),
+  };
+}
+
+/**
  * How far a foot strike tilts the body away from its leg so the hip can lift
  * the leg to the contact.
  *
@@ -35,46 +173,6 @@ import { KickForm } from "./KickForm";
  * Han and Kwon 2010), and the trunk leans past it.
  */
 export namespace FootStrikeTilt {
-  /**
-   * Read the tilt a leg from a hip to an ankle needs.
-   *
-   * @param side The kicking side.
-   * @param yaw The pelvis's heading at the contact, degrees.
-   * @param hip The kicking hip at the contact, world metres.
-   * @param ankle The ankle's contact place, world metres.
-   * @param thigh The thigh's length, metres: with the shank's, the knee's bend
-   *   at the contact raises the thigh above the hip-to-ankle line (`over`),
-   *   which the hip must lift.
-   * @param shank The shank's length, metres.
-   * @returns The tilt about a world axis through the support hip, or none when
-   *   the hip's range reaches the leg.
-   */
-  export function of(
-    side: AutoMovieHumanSide,
-    yaw: number,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    thigh: number,
-    shank: number,
-  ): CloseStrikeLegs.ITilt | undefined {
-    const excess: IExcess | undefined = over(
-      side,
-      yaw,
-      hip,
-      ankle,
-      thigh,
-      shank,
-    );
-    if (excess === undefined || !(excess.degrees > 0)) return undefined;
-
-    // A positive turn about the horizontal axis across the leg carries the
-    // body's up away from the leg.
-    return {
-      axis: Vector3.normalize(Vector3.cross(excess.across, FootStrikeForms.UP)),
-      degrees: Math.min(KickForm.LEAN_MOST, excess.degrees),
-    };
-  }
-
   /**
    * A chamber's ankle place brought inside the hip's range: the ankle a chamber
    * folds to sits off its hip at an elevation whose thigh, raised above the
@@ -181,111 +279,6 @@ export namespace FootStrikeTilt {
       ),
     );
     return Vector3.normalize(Vector3.subtract(ankle, knee));
-  }
-
-  /**
-   * How far a leg's thigh lies past the comfortable share of the hip's reach at
-   * its azimuth, and the leg's horizontal direction and chord elevation.
-   */
-  interface IExcess {
-    /** Degrees past the comfortable reach; negative inside it. */
-    degrees: number;
-    /** The hip-to-ankle line's elevation from straight down, degrees. */
-    elevation: number;
-    /** The leg's horizontal direction, a unit vector. */
-    across: IAutoMovieVector3;
-  }
-
-  /**
-   * The thigh's excess over the comfortable share of the hip's range for a leg
-   * from a hip to an ankle: the hip-to-ankle line's elevation from straight
-   * down plus the thigh's rise above that line, which the knee's bend over the
-   * line's length gives by the law of cosines (the knee bends up toward its
-   * hint), against `KickForm.RANGE_SHARE` of the range ellipse's reach at the
-   * leg's azimuth.
-   */
-  function over(
-    side: AutoMovieHumanSide,
-    yaw: number,
-    hip: IAutoMovieVector3,
-    ankle: IAutoMovieVector3,
-    thigh: number,
-    shank: number,
-    share: number = KickForm.RANGE_SHARE,
-  ): IExcess | undefined {
-    const constraint: IAutoMovieJointConstraint | undefined =
-      DEFAULT_HUMANOID_ROM[`${side}UpperLeg`];
-    if (
-      constraint === undefined ||
-      constraint.flexion === null ||
-      constraint.abduction === null
-    )
-      throw new Error(
-        `The range-of-motion table gives ${side}UpperLeg no flexion or abduction`,
-      );
-    const chord: IAutoMovieVector3 = Vector3.subtract(ankle, hip);
-    const d: number = Vector3.length(chord);
-    const leg: IAutoMovieVector3 = Vector3.normalize(chord);
-    const flat: IAutoMovieVector3 = { x: leg.x, y: 0, z: leg.z };
-    if (Vector3.length(flat) < 1e-9) return undefined;
-    const across: IAutoMovieVector3 = Vector3.normalize(flat);
-    const line: number =
-      (Math.acos(Math.max(-1, Math.min(1, -leg.y))) * 180) / Math.PI;
-    // The thigh's rise above the hip-to-ankle line at this chord's length.
-    const rise: number =
-      d >= thigh + shank || d <= 1e-9
-        ? 0
-        : (Math.acos(
-            Math.max(
-              -1,
-              Math.min(
-                1,
-                (thigh * thigh + d * d - shank * shank) / (2 * thigh * d),
-              ),
-            ),
-          ) *
-            180) /
-          Math.PI;
-    const elevation: number = line + rise;
-
-    // The leg's azimuth about the pelvis's heading, positive outward.
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const left: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.cross(FootStrikeForms.UP, forward),
-    );
-    const outward: IAutoMovieVector3 = Vector3.scale(
-      left,
-      side === "left" ? 1 : -1,
-    );
-    const azimuth: number = Math.atan2(
-      Vector3.dot(across, outward),
-      Vector3.dot(across, forward),
-    );
-
-    // The range ellipse's reach at that azimuth, its abduction ceiling the
-    // one the leg's flexion admits.
-    const F: number = constraint.flexion.max;
-    const flexed: IAutoMovieAngleRange | null = abductionRange(
-      constraint,
-      Math.max(0, elevation * Math.cos(azimuth)),
-    );
-    const A: number = azimuth >= 0 ? flexed!.max : -constraint.abduction.min;
-    const reach: number =
-      1 /
-      Math.sqrt(
-        Math.cos(azimuth) ** 2 / (F * F) + Math.sin(azimuth) ** 2 / (A * A),
-      );
-    // The leg is brought inside the range by the share a kick treats as its
-    // comfortable range (`KickForm.RANGE_SHARE`), not onto its edge, where
-    // the fit pins the hip and the knee cannot open into the contact.
-    return {
-      degrees: elevation - share * reach,
-      elevation: line,
-      across,
-    };
   }
 
   /**

@@ -25,7 +25,10 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 
 type Ride = ReturnType<typeof rideHorse>;
 
-/** Seconds the rider sits on the standing horse before its course starts, as the equestrian exercise does. */
+/**
+ * Seconds the rider sits on the standing horse before its course starts, as the
+ * equestrian exercise does.
+ */
 const WAIT: number = 6;
 
 /** The rider attachment campaign's contact drift bound, metres. */
@@ -44,11 +47,21 @@ interface IJumpCues {
 }
 
 /**
- * A rider follows the horse's own planned jump over a vertical: the horse's trajectory is the same unmounted and ridden, and seat, stirrups and reins hold against the actual tack.
+ * A rider follows the horse's own planned jump over a vertical: the horse's
+ * trajectory is the same unmounted and ridden, and seat, stirrups and reins
+ * hold against the actual tack.
  *
  * Scenarios:
- * 1. The horse plans a jump over a 1.0 m vertical; a second, unmounted ride with the same inputs flies the same trajectory, and the ridden prop shows that trajectory.
- * 2. The rider reads the horse's approach, takeoff, landing and recovery cues: both stirrup balls and both wrists stay within 10 mm of their places in the stirrup and rein frames from approach through recovery, the seat leaves the saddle in flight, and at the first left fore touchdown after recovery the seat is back where it sat at the last one before the approach.
+ *
+ * 1. The horse plans a jump over a 1.0 m vertical; a second, unmounted ride with
+ *    the same inputs flies the same trajectory, and the ridden prop shows that
+ *    trajectory.
+ * 2. The rider reads the horse's approach, takeoff, landing and recovery cues:
+ *    both stirrup balls and both wrists stay within 10 mm of their places in
+ *    the stirrup and rein frames from approach through recovery, the seat
+ *    leaves the saddle in flight, and at the first left fore touchdown after
+ *    recovery the seat is back where it sat at the last one before the
+ *    approach.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the obstacle, the horse events, the contacts and the bound.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed rider joints, seat region and foot sockets against the horse's published seat, stirrup and rein frames, and compares two horse rides.
@@ -188,7 +201,7 @@ export function test_motion_mount_equestrian_jump(): void {
     issues.push("the horse does not rise in flight");
 
   // 2. Contacts against the actual tack.
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "rider",
     body,

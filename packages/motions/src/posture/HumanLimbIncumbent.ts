@@ -5,6 +5,23 @@ import type {
 } from "@automovie/interface";
 
 /**
+ * The seed held for a body's limb.
+ *
+ * @param body The body of a fit.
+ * @param limb Its limb.
+ * @returns The seed, or undefined outside a scope, for another body or where
+ *   none is held.
+ */
+export function HumanLimbIncumbent(
+  body: IAutoMovieMotionHumanBody,
+  limb: AutoMovieHumanLimb,
+): IAutoMovieSwivelSeed | undefined {
+  return current !== undefined && current.body === body
+    ? (current.seeds[limb] ?? undefined)
+    : undefined;
+}
+
+/**
  * The seeds a caller holds for a body's swept limb fits while its reads run
  * (`within`): each limb's branch and swivel chosen for a nearby target, read by
  * the limb fit (`solveHumanLimbFit`) as the bounded sweep's incumbent
@@ -39,23 +56,6 @@ export namespace HumanLimbIncumbent {
     } finally {
       current = outer;
     }
-  }
-
-  /**
-   * The seed held for a body's limb.
-   *
-   * @param body The body of a fit.
-   * @param limb Its limb.
-   * @returns The seed, or undefined outside a scope, for another body or where
-   *   none is held.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    limb: AutoMovieHumanLimb,
-  ): IAutoMovieSwivelSeed | undefined {
-    return current !== undefined && current.body === body
-      ? (current.seeds[limb] ?? undefined)
-      : undefined;
   }
 }
 

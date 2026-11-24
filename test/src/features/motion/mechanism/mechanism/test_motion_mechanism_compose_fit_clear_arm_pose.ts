@@ -23,20 +23,20 @@ type Goals = Partial<
 >;
 
 /**
- * The one-instant clear-pose fit answers with the arm planner's own verdict:
- * a goal the arm reaches clear of the body is admitted with the arm's
- * coursed angles, and a goal inside the trunk is refused with the planner's
- * refusal.
+ * The one-instant clear-pose fit answers with the arm planner's own verdict: a
+ * goal the arm reaches clear of the body is admitted with the arm's coursed
+ * angles, and a goal inside the trunk is refused with the planner's refusal.
  *
  * Scenarios:
+ *
  * 1. A right wrist goal in front of the shoulder, within the arm's reach, is
  *    clear, and the answer writes the coursed right arm's angles.
- * 2. The same goal reached from the quiet stance's arm over half a second
- *    and returned over another, as an action's course lays it, is clear.
- * 3. Both wrists in front of the chest a hand's breadth apart, the two arms
- *    laid together and excused at their grasp, are clear.
- * 4. A right wrist goal at the chest's own joint, inside the trunk, is
- *    refused with a `HumanRefusal`.
+ * 2. The same goal reached from the quiet stance's arm over half a second and
+ *    returned over another, as an action's course lays it, is clear.
+ * 3. Both wrists in front of the chest a hand's breadth apart, the two arms laid
+ *    together and excused at their grasp, are clear.
+ * 4. A right wrist goal at the chest's own joint, inside the trunk, is refused
+ *    with a `HumanRefusal`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the verdict's two answers and the three goals.
  * @evidence contracts/development/testing.md#behavioral-verification Calls fitClearArmPose on a quiet stance's posture with each goal and reads the verdict and the coursed posture.

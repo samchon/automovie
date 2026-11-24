@@ -249,7 +249,7 @@ function mounted(
   return {
     film,
     ride,
-    reader: HumanSignature.of(film, "rider", body, 0),
+    reader: HumanSignature(film, "rider", body, 0),
     body,
     part,
     diagonal,

@@ -150,7 +150,7 @@ export namespace hurdleClear {
   ): IAutoMovieMotionHumanActionPlan {
     const body: IAutoMovieMotionHumanBody = context.body;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp(
       context,
       0,
       "approach",
@@ -165,7 +165,7 @@ export namespace hurdleClear {
         reason: "a hurdle is cleared out of a run",
         fix: "run, and cut the run at the take-off foot's footfall before the hurdle",
       });
-    const bar: HumanObstacle.IObstacle = HumanObstacle.of(
+    const bar: HumanObstacle.IObstacle = HumanObstacle(
       context,
       context.params.hurdle,
     );
@@ -374,7 +374,7 @@ export namespace hurdleClear {
         fix: "use a lower hurdle or take off farther from it",
       });
 
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "takeoff", seconds: off },
       { name: "clear", seconds: crossing },
       { name: "touchdown", seconds: down },

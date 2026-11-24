@@ -31,15 +31,13 @@ const HANGING: IAutoMovieMotionHumanPosture["joints"] = {
   neck: [30, 0, 0],
 };
 
-/**
- * Admit the times, lay the posture once, then sample.
- */
+/** Admit the times, lay the posture once, then sample. */
 function planHumanDrape(context: Context): IAutoMovieMotionHumanActionPlan {
   const params: IAutoMovieMotionHumanDrape = context.params;
   const lay: number = params.lay ?? 0.6;
   HumanBound.above("duration", params.duration, 0, "s");
   HumanBound.least("lay", lay, 0, "s");
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     context.prop(params.on),
     params.on,
     params.frame,

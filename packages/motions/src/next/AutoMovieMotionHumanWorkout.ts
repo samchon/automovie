@@ -541,7 +541,7 @@ export namespace AutoMovieMotionHumanWorkout {
    * holding hand's turn about the bar is the straight wrist's, whatever the
    * lift (no hook or mixed grip).
    */
-  export import WorkoutLoad = WorkoutLoadSource;
+  export const WorkoutLoad: typeof WorkoutLoadSource = WorkoutLoadSource;
 
   /**
    * The support a prop gives a workout: a bench's top under a body that lies or
@@ -609,5 +609,5 @@ export namespace AutoMovieMotionHumanWorkout {
    *   refused without one; hands that grip a bar are pinned by their grip
    *   sockets, so the bar lies in the fists.
    */
-  export import WorkoutPlace = WorkoutPlaceSource;
+  export const WorkoutPlace: typeof WorkoutPlaceSource = WorkoutPlaceSource;
 }

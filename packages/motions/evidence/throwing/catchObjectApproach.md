@@ -1,4 +1,4 @@
-# src/throwing/catchObjectApproach.ts#catchObjectApproach.of
+# src/throwing/catchObjectApproach.ts#catchObjectApproach
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

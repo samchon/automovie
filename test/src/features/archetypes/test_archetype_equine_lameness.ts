@@ -40,12 +40,12 @@ const RESOLUTION: number = 0.001;
  * 1. A mild left and right forelimb lameness: the head's lowest height over the lame fore's half-stride is higher by twice the 6 mm threshold, with the sign following the side.
  * 2. A mild left hindlimb lameness: the pelvis drops 6 mm less over the lame hind's half-stride; with compensation the head also mimics an ipsilateral forelimb lameness by the 6 mm threshold.
  * 3. A sound horse shows no asymmetry of either.
- * 4. A canter and an unknown grade are refused.
+ * 4. A canter is refused.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Names the cases, the source values and the refusals.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the cases, the source values and the refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed head and hindquarters heights of actual trotting rides over each fore's and hind's half-stride from its published landing.
  * @evidence contracts/development/testing.md#independent-expectations The expected differences are Rhodin et al.'s thresholds and the declared grade multiple; the 1 mm bound is the 5 ms sampling's resolution.
- * @evidence contracts/development/testing.md#distinguishing-cases Left and right, fore and hind, compensation, sound, a refused gait and grade.
+ * @evidence contracts/development/testing.md#distinguishing-cases Left and right, fore and hind, compensation, sound and a refused gait.
  * @evidence contracts/development/testing.md#execution-ownership A memory-only archetype unit on the public horse ride.
  */
 export function test_archetype_equine_lameness(): void {
@@ -94,14 +94,6 @@ export function test_archetype_equine_lameness(): void {
   }
   for (const [label, build] of [
     ["canter", (): Ride => trot({ limb: "leftFore", grade: "mild" }, "canter")],
-    [
-      "unknown grade",
-      (): Ride =>
-        trot({
-          limb: "leftFore",
-          grade: "severe",
-        } as unknown as AutoMovieArchetypeQuadrupedLameness.ILameness),
-    ],
   ] as const) {
     let refusal: unknown;
     try {

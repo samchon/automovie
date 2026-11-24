@@ -22,14 +22,15 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A stagehand sets a parcel onto a translating socket and opens the hand
- * while matching the carrier's speed.
+ * A stagehand sets a parcel onto a translating socket and opens the hand while
+ * matching the carrier's speed.
  *
  * Scenarios:
- * 1. After a half-second hold, the built-in placement brings the parcel's
- *    offset socket within 15 mm of the socket on a mounted receiver and
- *    preserves that placement. The displayed wrist moves with the receiver
- *    while the fingers open.
+ *
+ * 1. After a half-second hold, the built-in placement brings the parcel's offset
+ *    socket within 15 mm of the socket on a mounted receiver and preserves that
+ *    placement. The displayed wrist moves with the receiver while the fingers
+ *    open.
  * 2. Without a source socket, the kept offset puts the parcel origin on the seat.
  * 3. A turning track and a track with a zero quaternion are refused on `onto`.
  *

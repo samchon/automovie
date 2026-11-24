@@ -26,13 +26,17 @@ interface ITake {
 }
 
 /**
- * Exercise footwork distinguishes a fixed sole pivot from moving both feet
- * into a new lead. Karate and tai chi use distinct planted weight transfers.
+ * Exercise footwork distinguishes a fixed sole pivot from moving both feet into
+ * a new lead. Karate and tai chi use distinct planted weight transfers.
  *
  * Scenarios:
- * 1. A 15-degree pivot on each lead leaves its forefoot fixed while the heel traces the expected arc.
- * 2. Reversing the lead in place moves the former rear foot first and reverses the feet's order along the line.
- * 3. Karate and tai chi each travel forward and back over a planted stance. Their hip rotation and arm carriage differ.
+ *
+ * 1. A 15-degree pivot on each lead leaves its forefoot fixed while the heel
+ *    traces the expected arc.
+ * 2. Reversing the lead in place moves the former rear foot first and reverses the
+ *    feet's order along the line.
+ * 3. Karate and tai chi each travel forward and back over a planted stance. Their
+ *    hip rotation and arm carriage differ.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the take types, anchor, distinguishing movements and the contact bound.
  * @evidence contracts/development/testing.md#behavioral-verification Reads world positions of the actual evaluated heel, ball, hips and hands, including contact boundaries and samples between them. Contact checks are discrete.
@@ -160,7 +164,10 @@ function take(
   };
 }
 
-/** Observe a form's paired plant, forward and backward transfers and arm movement. */
+/**
+ * Observe a form's paired plant, forward and backward transfers and arm
+ * movement.
+ */
 function form(
   body: IAutoMovieMotionHumanBody,
   lead: "left" | "right",

@@ -88,7 +88,7 @@ Keeps mutable factorization storage separate from prepared immutable matrices an
 
 Defines row lengths, dimensions, numeric ownership and the distinction from immutable prepared factors.
 
-# src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace.of
+# src/posture/HumanQuadraticWorkspace.ts#HumanQuadraticWorkspace
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

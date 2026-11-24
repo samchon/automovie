@@ -36,11 +36,11 @@ interface IBout {
 }
 
 /**
- * The three sumo bouts. The push's hands meet the sides of the chest: an
- * oshi push is the hazu grip, the thumb and index spread in a V that pushes
- * up under the armpit (hazu-oshi, the sport's glossary), not two palms
- * beside the sternum, whose chest regions lie a palm's breadth apart (74 mm
- * on the small body) so that the two hands meet.
+ * The three sumo bouts. The push's hands meet the sides of the chest: an oshi
+ * push is the hazu grip, the thumb and index spread in a V that pushes up under
+ * the armpit (hazu-oshi, the sport's glossary), not two palms beside the
+ * sternum, whose chest regions lie a palm's breadth apart (74 mm on the small
+ * body) so that the two hands meet.
  */
 const BOUTS: readonly IBout[] = [
   { kind: "oshiDashi", grip: ["ribsRight", "ribsLeft"], finish: "out" },
@@ -51,7 +51,10 @@ const BOUTS: readonly IBout[] = [
 /** A held or landed contact lies within this, metres: the grapple specs' 1 cm. */
 const GRIP: number = 0.01;
 
-/** A flat stamp has heel and ball within this of the floor, metres: the support checks' 5 mm. */
+/**
+ * A flat stamp has heel and ball within this of the floor, metres: the support
+ * checks' 5 mm.
+ */
 const FLAT: number = 0.005;
 
 /** The ring's diameter, metres (the Japan Sumo Association's 4.55 m). */
@@ -60,15 +63,18 @@ const RING: number = 4.55;
 /** The shikiri lines' separation, metres: 70 cm. */
 const LINES: number = 0.7;
 
-/** The shiko's authored foot lift, a share of stature, as the stance phrase states it. */
+/**
+ * The shiko's authored foot lift, a share of stature, as the stance phrase
+ * states it.
+ */
 const SHIKO: number = 0.4;
 
 /**
- * Sumo on two bodies: the shiko foot rises above its authored height and
- * stamps down flat; at each bout's tachiai the initiator's hands meet the
- * sides of the receiver's chest or the belt, and the bout ends with the receiver's foot
- * outside the ring or the receiver thrown onto the clay. Every take passes
- * the shipped verdicts.
+ * Sumo on two bodies: the shiko foot rises above its authored height and stamps
+ * down flat; at each bout's tachiai the initiator's hands meet the sides of the
+ * receiver's chest or the belt, and the bout ends with the receiver's foot
+ * outside the ring or the receiver thrown onto the clay. Every take passes the
+ * shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each case and what it reads.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the shiko and the three grapple bouts through HumanPerformance and reads the displayed feet, palms and back at the laws' events.
@@ -111,7 +117,7 @@ function shiko(
   );
   assertTakeClean(`${name} shiko`, film);
   const stamp: IAutoMovieScheduleEntry = motionCombatPair.placed(film, "shiko");
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
@@ -162,13 +168,13 @@ function sumo(
       bout.kind,
     );
     assertTakeClean(cell, film);
-    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "a",
       body,
       0,
     );
-    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "b",
       body,

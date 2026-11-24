@@ -347,7 +347,7 @@ function reached(
     "variation",
   );
   const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-    AutoMovieMotionHumanVariation.of(
+    AutoMovieMotionHumanVariation(
       {
         skill,
         series: (channel: string) => ({

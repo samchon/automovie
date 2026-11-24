@@ -35,54 +35,50 @@ export namespace HumanThrownWeapon {
   /** Throw a javelin overarm, its shaft along its flight. */
   export const throwJavelin: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwJavelin"]
-  > = HumanActionRow.of(
-    "throwJavelin",
-    throwObject,
-    HUMAN_ARCHERY_THROW_JAVELIN,
-  );
+  > = HumanActionRow("throwJavelin", throwObject, HUMAN_ARCHERY_THROW_JAVELIN);
 
   /** Throw a spear overarm, its shaft along its flight. */
   export const throwSpear: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwSpear"]
-  > = HumanActionRow.of("throwSpear", throwObject, HUMAN_ARCHERY_THROW_JAVELIN);
+  > = HumanActionRow("throwSpear", throwObject, HUMAN_ARCHERY_THROW_JAVELIN);
 
   /** Throw a knife overarm, spinning whole half turns to the target. */
   export const throwKnife: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwKnife"]
-  > = HumanActionRow.of("throwKnife", throwObject, HUMAN_ARCHERY_THROW_KNIFE);
+  > = HumanActionRow("throwKnife", throwObject, HUMAN_ARCHERY_THROW_KNIFE);
 
   /** Lob a grenade overarm. */
   export const throwGrenade: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["throwGrenade"]
-  > = HumanActionRow.of("throwGrenade", throwObject, {
+  > = HumanActionRow("throwGrenade", throwObject, {
     style: "overarm",
   });
 
   /** Hurl a stone overarm. */
   export const hurlStone: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["hurlStone"]
-  > = HumanActionRow.of("hurlStone", throwObject, {
+  > = HumanActionRow("hurlStone", throwObject, {
     style: "overarm",
   });
 
   /** Hurl a bottle overarm. */
   export const hurlBottle: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["hurlBottle"]
-  > = HumanActionRow.of("hurlBottle", throwObject, {
+  > = HumanActionRow("hurlBottle", throwObject, {
     style: "overarm",
   });
 
   /** Sling a stone from the sling the composition names (`implement`). */
   export const sling: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["sling"]
-  > = HumanActionRow.of("sling", throwObject, {
+  > = HumanActionRow("sling", throwObject, {
     style: "overarm",
   });
 
   /** Cast a dart with the atlatl the composition names (`implement`). */
   export const castAtlatl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["thrownWeapon"]["castAtlatl"]
-  > = HumanActionRow.of("castAtlatl", throwObject, {
+  > = HumanActionRow("castAtlatl", throwObject, {
     style: "overarm",
   });
 }

@@ -1,12 +1,10 @@
 import {
   DEFAULT_JOINT_AXES,
-  HUMANOID_JOINT_AXES,
   HUMANOID_REST_FRAME,
   Quaternion,
   Vector3,
   clampJointToSkeleton,
   normalizeJointAxes,
-  skeletonJointAxes,
 } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
@@ -23,6 +21,24 @@ import type {
 } from "@automovie/interface";
 
 import { humanPostureHeading } from "./humanPostureHeading";
+
+/**
+ * The motions of variables on a posed body.
+ *
+ * @param body The body.
+ * @param posture The posture posed, written by its joint angles alone.
+ * @param bones Its resolved bones.
+ * @param variables The variables.
+ * @returns One motion per variable, in their order.
+ */
+export function HumanJacobian(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
+  variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
+): IAutoMovieMotionHumanJacobian.IMotion[] {
+  return HumanJacobian.read(body, posture, bones, variables).motions;
+}
 
 /**
  * The analytic Jacobian of a posed body: how each of a posture's variables (the
@@ -48,30 +64,11 @@ import { humanPostureHeading } from "./humanPostureHeading";
  *   turned by its rest rotation, and a clinical angle is the rig's angle mapped
  *   by the rest frame, so a turn per clinical degree is the axis scaled by the
  *   frame's sign. The angles are the clamped ones forward kinematics reads, so
- *   at a range limit the motion is the one the joint makes inward. The
- *   established body-indexed rig snapshot requires that body's skeleton,
- *   topology and clinical bases to remain unchanged for its lifetime; reads
- *   retain that existing policy rather than introducing another global cache.
+ *   at a range limit the motion is the one the joint makes inward. A joint's
+ *   basis, bone and carried bones are read from the body's own prepared rig
+ *   (`poseResolution.jointAxes`, `bones`, `topology`) where the read needs them.
  */
 export namespace HumanJacobian {
-  /**
-   * The motions of variables on a posed body.
-   *
-   * @param body The body.
-   * @param posture The posture posed, written by its joint angles alone.
-   * @param bones Its resolved bones.
-   * @param variables The variables.
-   * @returns One motion per variable, in their order.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieChainBone>,
-    variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
-  ): IAutoMovieMotionHumanJacobian.IMotion[] {
-    return read(body, posture, bones, variables).motions;
-  }
-
   /**
    * Read variable motions and the exact joints clamped while forming them. The
    * posture, body and resolved bones must describe the same current candidate
@@ -99,7 +96,6 @@ export namespace HumanJacobian {
     variables: readonly IAutoMovieMotionHumanJacobian.IVariable[],
     projection?: (joint: IAutoMovieJointPose) => IAutoMovieJointPose,
   ): IReading {
-    const rig: IRig = rigOf(body);
     const yawed: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
       { x: 0, y: 1, z: 0 },
       posture.yaw,
@@ -157,8 +153,11 @@ export namespace HumanJacobian {
         const bone: AutoMovieHumanoidBone = variable.bone;
         let reading: IJointReading | undefined = prepared?.get(bone);
         if (reading === undefined) {
-          const def: IAutoMovieBone = rig.bones.get(bone)!;
-          const basis: IAutoMovieJointAxes = rig.bases.get(bone)!;
+          const def: IAutoMovieBone = body.bones.get(bone)!;
+          const basis: IAutoMovieJointAxes = normalizeJointAxes(
+            body.poseResolution.jointAxes[bone] ?? DEFAULT_JOINT_AXES,
+            bone,
+          );
           const set: readonly [number, number, number] = posture.joints[
             bone
           ] ?? [0, 0, 0];
@@ -187,6 +186,7 @@ export namespace HumanJacobian {
             frame,
             order,
             prefix: [Quaternion.multiply(parent, def.rest.rotation)],
+            carried: carriedBy(body, bone),
           };
           clamped.set(bone, joint);
           prepared ??= new Map();
@@ -221,7 +221,7 @@ export namespace HumanJacobian {
             RADIAN / (reading.frame?.[name]?.sign ?? 1),
           ),
           bones.get(bone)!.worldPosition,
-          rig.carried.get(bone)!,
+          reading.carried,
         );
       },
     );
@@ -325,69 +325,25 @@ export namespace HumanJacobian {
 
     /** Parent/rest base followed by only the earlier factors actually requested. */
     prefix: IAutoMovieQuaternion[];
+
+    /** The bones the joint carries, its own included. */
+    carried: ReadonlySet<AutoMovieHumanoidBone>;
   }
 
-  /**
-   * A body's bones by name, each bone's normalised basis and the bones each
-   * carries, itself included.
-   */
-  interface IRig {
-    /** The bones. */
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieBone>;
-
-    /** Each bone's basis. */
-    bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes>;
-
-    /** The bones each bone carries, itself included. */
-    carried: Map<AutoMovieHumanoidBone, Set<AutoMovieHumanoidBone>>;
-  }
-
-  /** The rigs read, by body. */
-  const RIGS: WeakMap<IAutoMovieMotionHumanBody, IRig> = new WeakMap();
-
-  /** A body's rig, read once. */
-  function rigOf(body: IAutoMovieMotionHumanBody): IRig {
-    const known: IRig | undefined = RIGS.get(body);
-    if (known !== undefined) return known;
-    const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
-      skeletonJointAxes(body.skeleton, HUMANOID_JOINT_AXES);
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map(
-      body.skeleton.bones.map(
-        (b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieBone] => [
-          b.bone,
-          b,
-        ],
-      ),
-    );
-    const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map(
-      body.skeleton.bones.map(
-        (b: IAutoMovieBone): [AutoMovieHumanoidBone, IAutoMovieJointAxes] => [
-          b.bone,
-          normalizeJointAxes(axes[b.bone] ?? DEFAULT_JOINT_AXES, b.bone),
-        ],
-      ),
-    );
-    const carried: Map<
-      AutoMovieHumanoidBone,
-      Set<AutoMovieHumanoidBone>
-    > = new Map();
-    const carries: (
-      bone: AutoMovieHumanoidBone,
-    ) => Set<AutoMovieHumanoidBone> = (
-      bone: AutoMovieHumanoidBone,
-    ): Set<AutoMovieHumanoidBone> => {
-      const seen: Set<AutoMovieHumanoidBone> | undefined = carried.get(bone);
-      if (seen !== undefined) return seen;
-      const out: Set<AutoMovieHumanoidBone> = new Set([bone]);
-      for (const child of body.topology.childrenByParent.get(bone) ?? [])
-        for (const below of carries(child.bone)) out.add(below);
-      carried.set(bone, out);
-      return out;
-    };
-    for (const bone of bones.keys()) carries(bone);
-    const rig: IRig = { bones, bases, carried };
-    RIGS.set(body, rig);
-    return rig;
+  /** The bones a bone carries, itself included, from the body's topology. */
+  function carriedBy(
+    body: IAutoMovieMotionHumanBody,
+    bone: AutoMovieHumanoidBone,
+  ): Set<AutoMovieHumanoidBone> {
+    const out: Set<AutoMovieHumanoidBone> = new Set();
+    const stack: AutoMovieHumanoidBone[] = [bone];
+    while (stack.length !== 0) {
+      const at: AutoMovieHumanoidBone = stack.pop()!;
+      out.add(at);
+      for (const child of body.topology.childrenByParent.get(at) ?? [])
+        stack.push(child.bone);
+    }
+    return out;
   }
 
   /** Radians per degree. */

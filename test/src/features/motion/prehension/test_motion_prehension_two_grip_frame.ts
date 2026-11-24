@@ -23,7 +23,9 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * Two palms hold a moving rigid rod and leave it continuously.
  *
  * Scenarios:
- * 1. Read the held palms at the midpoint and the four neighbouring right-palm positions around the recorded 71/60 second defect.
+ *
+ * 1. Read the held palms at the midpoint and the four neighbouring right-palm
+ *    positions around the recorded 71/60 second defect.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Two palms hold a moving rigid rod and leave it continuously.
  * @evidence contracts/development/testing.md#independent-expectations The authored grips are sixty millimetres apart. A straight local path has equal successive displacements.

@@ -16,7 +16,7 @@ Two members, both read.
 
 World directions given by the law.
 
-# src/sport/GymnasticsWheelPlants.ts#GymnasticsWheelPlants.of
+# src/sport/GymnasticsWheelPlants.ts#GymnasticsWheelPlants
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -323,7 +323,7 @@ export function HumanSnowGlide(context: Context): Plan {
   });
   const composed: Plan = composeAutoMovieMotionHumanAction({
     base: kicked,
-    clock: AutoMovieMotionClock.of(
+    clock: AutoMovieMotionClock(
       duration,
       events.map(
         (event: IAutoMovieMotionEvent): IAutoMovieMotionClockInstant => ({

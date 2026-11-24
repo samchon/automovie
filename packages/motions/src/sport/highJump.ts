@@ -178,7 +178,7 @@ export namespace highJump {
     context: Pick<IAutoMovieMotionHumanActionContext, CrossbarContext>,
     subject: string,
   ): number {
-    return highJumpBar.of(context, subject).point.y;
+    return highJumpBar(context, subject).point.y;
   }
 
   /**
@@ -203,7 +203,7 @@ export namespace highJump {
       prepareGymnasticsFrame(body, model);
     const p: IAutoMovieMotionHumanHighJump.IParams = context.params;
     const surface: number = p.to.y;
-    const cross: highJumpBar.IBar = highJumpBar.of(context, p.bar);
+    const cross: highJumpBar.IBar = highJumpBar(context, p.bar);
     const bar: number = cross.point.y;
     const reserve: number = HumanBound.least(
       "apexReserve",
@@ -215,7 +215,7 @@ export namespace highJump {
 
     // A jump cut from a run (`AthleticsRunUp`) takes off from the foot
     // farther from the bar (`highJumpBar.admit`).
-    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp(
       context,
       0,
       "takeoffFoot",
@@ -286,7 +286,7 @@ export namespace highJump {
     // The take-off: the centre reaches the requested apex and comes down at the
     // landing place at its lying height.
     const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
-      GymnasticsTakeoff.of(
+      GymnasticsTakeoff(
         context,
         (centre: IAutoMovieVector3): IAutoMovieVector3 => {
           const vy: number = riseFrom(centre.y);

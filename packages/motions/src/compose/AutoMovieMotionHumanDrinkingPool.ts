@@ -10,6 +10,44 @@ import { AutoMovieMotionHumanDrinkingSwivel } from "./AutoMovieMotionHumanDrinki
 import { AutoMovieMotionHumanTouchUpright } from "./AutoMovieMotionHumanTouchUpright";
 
 /**
+ * A pool for one search.
+ *
+ * @param body The body.
+ * @param posture The posture the arm is solved on.
+ * @param side The hand.
+ * @param sides How many sides of the vessel's rim the search tries; 1 when
+ *   absent.
+ * @param span The facings' turn either way of head on, degrees;
+ *   `AutoMovieMotionHumanTouchUpright.SPAN` when absent.
+ * @returns The pool, its bound not yet prepared.
+ */
+export function AutoMovieMotionHumanDrinkingPool(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  side: AutoMovieHumanSide,
+  sides: number = 1,
+  span: number = AutoMovieMotionHumanTouchUpright.SPAN,
+): AutoMovieMotionHumanDrinkingPool.IPool {
+  let range: AutoMovieMotionHumanDrinkingSwivel.IRanged | undefined;
+  const ranged: () => AutoMovieMotionHumanDrinkingSwivel.IRanged =
+    (): AutoMovieMotionHumanDrinkingSwivel.IRanged =>
+      (range ??= AutoMovieMotionHumanDrinkingSwivel.ranged(
+        body,
+        posture,
+        side,
+      ));
+  return {
+    read: AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
+    bounds: (): ReturnType<typeof AutoMovieMotionHumanDrinkingSwivel.bounded> =>
+      ranged().hint,
+    admits: (): AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"] =>
+      ranged().admits,
+    sides,
+    span,
+  };
+}
+
+/**
  * What every candidate of one drinking search shares while the body, the hand
  * and the posture the arm is solved on stay fixed: the fitted-arm reader, the
  * drinking range's swivel bound and the nearest arm tried, so a search over
@@ -58,44 +96,5 @@ export namespace AutoMovieMotionHumanDrinkingPool {
      * (`AutoMovieMotionHumanTouchUpright.facings`).
      */
     span: number;
-  }
-
-  /**
-   * A pool for one search.
-   *
-   * @param body The body.
-   * @param posture The posture the arm is solved on.
-   * @param side The hand.
-   * @param sides How many sides of the vessel's rim the search tries; 1 when
-   *   absent.
-   * @param span The facings' turn either way of head on, degrees;
-   *   `AutoMovieMotionHumanTouchUpright.SPAN` when absent.
-   * @returns The pool, its bound not yet prepared.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    side: AutoMovieHumanSide,
-    sides: number = 1,
-    span: number = AutoMovieMotionHumanTouchUpright.SPAN,
-  ): IPool {
-    let range: AutoMovieMotionHumanDrinkingSwivel.IRanged | undefined;
-    const ranged: () => AutoMovieMotionHumanDrinkingSwivel.IRanged =
-      (): AutoMovieMotionHumanDrinkingSwivel.IRanged =>
-        (range ??= AutoMovieMotionHumanDrinkingSwivel.ranged(
-          body,
-          posture,
-          side,
-        ));
-    return {
-      read: AutoMovieMotionHumanDrinkingArm.prepareRead(body, side),
-      bounds: (): ReturnType<
-        typeof AutoMovieMotionHumanDrinkingSwivel.bounded
-      > => ranged().hint,
-      admits: (): AutoMovieMotionHumanDrinkingSwivel.IRanged["admits"] =>
-        ranged().admits,
-      sides,
-      span,
-    };
   }
 }

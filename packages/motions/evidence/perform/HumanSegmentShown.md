@@ -1,4 +1,4 @@
-# src/perform/HumanSegmentShown.ts#HumanSegmentShown.of
+# src/perform/HumanSegmentShown.ts#HumanSegmentShown
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

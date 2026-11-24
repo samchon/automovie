@@ -92,7 +92,7 @@ export function HumanLanceCouchClear(
   );
 }
 
-/** `HumanLanceCouchClear.of` and its records. */
+/** `HumanLanceCouchClear` and its records. */
 export namespace HumanLanceCouchClear {
   /**
    * The horse's body as a carriage keeps clear of it: its rest shapes, and

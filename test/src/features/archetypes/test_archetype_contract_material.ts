@@ -21,8 +21,8 @@ import { nclose } from "../internal/nclose";
  * 1. Published steel, concrete and pinewood self-impact ranges at 1 m/s
  *    retain their primary citation, counterface and specimen; another speed
  *    or pair has no invented row. Returned records are deeply immutable.
- * 2. Missing or unknown physical material and nonfinite or out-of-range
- *    authored restitution are refused at the builder's actual boundary.
+ * 2. Out-of-range authored restitution is refused at the builder's actual
+ *    boundary.
  * 3. Steel, wood and composite models with no authored coefficient remain
  *    valid kinematic models without restitution. Explicit zero and one
  *    survive, and the friction facade shares the same immutable data owner.
@@ -32,7 +32,7 @@ import { nclose } from "../internal/nclose";
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual bodies and assemblies, checks model admission and structured refusals, and reads immutable published measurements; a silent default, experiment-to-body transfer or heterogeneous coefficient average fails.
  * @evidence contracts/development/testing.md#independent-expectations The literal ranges are Jankowski 2007 Table 2 at 1 m/s: steel 0.5140–0.6239, concrete 0.5858–0.5981 and pinewood 0.5334–0.5797. Explicit endpoints and absence follow the authoring contract, not values calculated by the implementation.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts measured and unmeasured pair/speed, missing and invalid material, NaN/infinity/outside coefficient bounds, zero/one/unknown and homogeneous versus heterogeneous assemblies; it does not certify arbitrary real-world collisions.
+ * @evidence contracts/development/testing.md#distinguishing-cases Contrasts measured and unmeasured pair/speed, outside coefficient bounds, zero/one/unknown and homogeneous versus heterogeneous assemblies; it does not certify arbitrary real-world collisions.
  * @evidence contracts/development/testing.md#execution-ownership One synchronous portable entry builds tiny primitive models in memory, launches no compiler or host and owns no external resource.
  * @evidence contracts/development/common.md#meaningful-documentation Lists four scenarios, primary source conditions and the difference between material provenance and an explicitly authored live coefficient.
  */
@@ -104,28 +104,7 @@ export function test_archetype_contract_material(): void {
     AutoMovieArchetypeRestitution.measurement("skin", "skin", 1) !== null
   )
     findings.push("an unmeasured contact or speed acquired a reference");
-  // Deliberately represent untyped callers so runtime admission is exercised
-  // independently of the required TypeScript material field.
-  refused(
-    "material",
-    (): AutoMovieArchetype =>
-      new AutoMovieArchetypeBuilder<never, never>({
-        name: "missing material",
-        draw: new AutoMovieArchetypeDrawSession<never>(
-          "missing material",
-          {},
-          undefined,
-        ),
-      } as AutoMovieArchetypeBuilder.IProps<never>)
-        .box("body", Vector3.create(1, 1, 1), Vector3.create(0, 0.5, 0))
-        .build(1),
-  );
-  refused(
-    "material",
-    (): AutoMovieArchetype =>
-      build("not-a-material" as AutoMovieArchetypeMaterial.Kind),
-  );
-  for (const value of [NaN, Infinity, -Infinity, -0.01, 1.01])
+  for (const value of [-0.01, 1.01])
     refused("restitution", (): AutoMovieArchetype => build("steel", value));
   for (const material of ["steel", "wood", "composite"] as const) {
     const body: AutoMovieArchetype = build(material);

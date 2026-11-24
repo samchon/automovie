@@ -26,7 +26,7 @@ Each person keeps fixed FK prerequisites only. Props use their exact current car
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history or host. A weak map keeps one width per hull shape, released with the shape.
+Collider/shape arrays and their performance-capturing callbacks are call-local and released after the sweep or refusal; only the small meeting escapes, with no retained frame history or host.
 
 # src/perform/HumanPropSweep.ts#HumanPropSweep.IHandback
 

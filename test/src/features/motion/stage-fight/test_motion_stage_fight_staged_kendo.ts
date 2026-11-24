@@ -28,7 +28,10 @@ import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 
-/** A piece of armour, the region it is worn on and the axis of the piece that faces along that region's normal. */
+/**
+ * A piece of armour, the region it is worn on and the axis of the piece that
+ * faces along that region's normal.
+ */
 interface IWorn {
   /** The piece. */
   kind: createKendoArmour.Kind;
@@ -47,9 +50,9 @@ const ARMOUR: readonly IWorn[] = [
 ];
 
 /**
- * The performers' opening separation, metres: the shiai-jo's two starting
- * lines lie 1.4 m apart, the toes on them and each pelvis about 0.15 m
- * behind its toes.
+ * The performers' opening separation, metres: the shiai-jo's two starting lines
+ * lie 1.4 m apart, the toes on them and each pelvis about 0.15 m behind its
+ * toes.
  */
 const OPENING: number = 1.7;
 
@@ -62,7 +65,10 @@ const SECONDS: number = 1.5;
 /** The independently placed editing cue within the glides. */
 const CUE: number = 0.57;
 
-/** A strike lands within this of its struck point, metres: the blade strokes spec's bound. */
+/**
+ * A strike lands within this of its struck point, metres: the blade strokes
+ * spec's bound.
+ */
 const TOUCH: number = 0.015;
 
 /** A planted sole holds within this, metres: the stage footwork spec's bound. */
@@ -73,19 +79,20 @@ const GLIDE_HEIGHT: number = 0.006;
 
 /**
  * Two armoured performers close in kendo's sliding footwork and the first
- * strikes men: the shinai's edge lands on the struck point of the other's
- * worn men, and the result is announced at that instant. A clear distance
- * the strike cannot cross is refused.
+ * strikes men: the shinai's edge lands on the struck point of the other's worn
+ * men, and the result is announced at that instant. A clear distance the strike
+ * cannot cross is refused.
  *
  * Scenarios:
- * 1. Both wear the men and the do and hold a shinai; both glide toward each
- *    other, the travelling sole low and the other planted, with the editing
- *    cue apart from either settle on the same clock as the footfalls.
- * 2. The first's stepping men strike lands its edge on the other's men and
- *    the bout announces the first's point there; both stay upright and the
- *    striker recovers to its stance.
- * 3. From farther apart the same strike is refused on its target, and a
- *    strike aimed at the body instead of the armour is refused by the rule.
+ *
+ * 1. Both wear the men and the do and hold a shinai; both glide toward each other,
+ *    the travelling sole low and the other planted, with the editing cue apart
+ *    from either settle on the same clock as the footfalls.
+ * 2. The first's stepping men strike lands its edge on the other's men and the
+ *    bout announces the first's point there; both stay upright and the striker
+ *    recovers to its stance.
+ * 3. From farther apart the same strike is refused on its target, and a strike
+ *    aimed at the body instead of the armour is refused by the rule.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the worn armour, the sliding footwork, the struck point, the announced result and the two refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Places the public bout with worn archetype armour; reads the displayed soles, heads and pelvises, the shinai's displayed edge and the men's displayed struck point, and the schedule's footfall, cue and decisive instants.
@@ -318,7 +325,7 @@ function bout(
 
   // Both stay upright, and the striker recovers to its stance.
   for (const subject of ["a", "b"] as const) {
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       subject,
       body,

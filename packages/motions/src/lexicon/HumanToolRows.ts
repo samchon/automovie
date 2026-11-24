@@ -22,7 +22,7 @@ export namespace HumanToolRows {
    */
   export const toolHammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTool"]["toolHammer"]
-  > = HumanActionRow.of("toolHammer", useTool, {
+  > = HumanActionRow("toolHammer", useTool, {
     tool: "hammer",
   });
 
@@ -33,7 +33,7 @@ export namespace HumanToolRows {
    */
   export const toolSaw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTool"]["toolSaw"]
-  > = HumanActionRow.of("toolSaw", useTool, { tool: "saw" });
+  > = HumanActionRow("toolSaw", useTool, { tool: "saw" });
 
   /**
    * `useTool` working with a `stir`: a circle whose time follows from its
@@ -42,7 +42,7 @@ export namespace HumanToolRows {
    */
   export const toolStir: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTool"]["toolStir"]
-  > = HumanActionRow.of("toolStir", useTool, {
+  > = HumanActionRow("toolStir", useTool, {
     tool: "stir",
   });
 
@@ -53,7 +53,7 @@ export namespace HumanToolRows {
    */
   export const toolScrewdriver: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTool"]["toolScrewdriver"]
-  > = HumanActionRow.of("toolScrewdriver", useTool, {
+  > = HumanActionRow("toolScrewdriver", useTool, {
     tool: "screwdriver",
   });
 }

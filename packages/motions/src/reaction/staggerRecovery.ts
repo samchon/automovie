@@ -18,6 +18,56 @@ import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerRecover } from "./staggerRecover";
 
 /**
+ * Admit a stagger: read its push and lay the recovery that catches it.
+ *
+ * @param context The stagger's context.
+ * @returns The push, the entry geometry and the recovery, null when no `STEPS`
+ *   recovery steps catch the push.
+ * @throws {Error} When the speed is not positive or the manner is out of range.
+ */
+export function staggerRecovery(
+  context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
+): staggerRecovery.IAdmitted {
+  const p: IAutoMovieMotionHumanStagger.IParams = context.params;
+  if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
+  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
+  const righting: number =
+    AutoMovieMotionManner(context, p.manner).tempo *
+    AutoMovieMotionHumanTiming.seconds(staggerBounds.RIGHTING);
+
+  // The push, read where its source is as the plan begins, the causal read
+  // a reaction makes (`ReactionSource`), and the recovery it asks for.
+  const push: IAutoMovieVector3 = Vector3.normalize({
+    ...AutoMovieMotionHumanTarget.away(
+      ReactionSource.at(
+        context,
+        p.target,
+        context.start - StrikingTarget.LOOK,
+        entry,
+        AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+      ),
+      entry.root,
+      entry.yaw,
+    ),
+    y: 0,
+  });
+  const fixed: staggerRecovery.Fixed = staggerPendulumEntry.prepare(
+    context.body,
+    context.entry,
+  );
+  const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
+    context.body,
+    context.entry,
+    push,
+    p.speed,
+    righting,
+    true,
+    fixed,
+  );
+  return { push, righting, fixed, recovery };
+}
+
+/**
  * A stagger's admission: the push it reads and the recovery steps that catch
  * it, or none.
  *
@@ -47,57 +97,6 @@ export namespace staggerRecovery {
   }
 
   /**
-   * Admit a stagger: read its push and lay the recovery that catches it.
-   *
-   * @param context The stagger's context.
-   * @returns The push, the entry geometry and the recovery, null when no
-   *   `STEPS` recovery steps catch the push.
-   * @throws {Error} When the speed is not positive or the manner is out of
-   *   range.
-   */
-  export function of(
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanStagger.IParams>,
-  ): IAdmitted {
-    const p: IAutoMovieMotionHumanStagger.IParams = context.params;
-    if (!(p.speed > 0)) throw new Error("A stagger's speed is positive");
-    const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const righting: number =
-      AutoMovieMotionManner.of(context, p.manner).tempo *
-      AutoMovieMotionHumanTiming.seconds(staggerBounds.RIGHTING);
-
-    // The push, read where its source is as the plan begins, the causal read
-    // a reaction makes (`ReactionSource`), and the recovery it asks for.
-    const push: IAutoMovieVector3 = Vector3.normalize({
-      ...AutoMovieMotionHumanTarget.away(
-        ReactionSource.at(
-          context,
-          p.target,
-          context.start - StrikingTarget.LOOK,
-          entry,
-          AutoMovieMotionHumanTarget.DEFAULTS.ahead,
-        ),
-        entry.root,
-        entry.yaw,
-      ),
-      y: 0,
-    });
-    const fixed: Fixed = staggerPendulumEntry.prepare(
-      context.body,
-      context.entry,
-    );
-    const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
-      context.body,
-      context.entry,
-      push,
-      p.speed,
-      righting,
-      true,
-      fixed,
-    );
-    return { push, righting, fixed, recovery };
-  }
-
-  /**
    * The refusal of a push no `STEPS` recovery steps catch: a fall, with the
    * fastest push this body catches that way.
    *
@@ -111,7 +110,7 @@ export namespace staggerRecovery {
   ): HumanRefusal {
     const { STEPS, VERIFIED, RESOLUTION }: typeof staggerBounds = staggerBounds;
     const speed: number = context.params.speed;
-    const caught: number = staggerLimit.of(
+    const caught: number = staggerLimit(
       context.body,
       context.entry,
       admitted.push,

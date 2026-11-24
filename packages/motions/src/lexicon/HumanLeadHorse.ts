@@ -22,9 +22,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
-/**
- * Fit and verify the displayed hand against one actual moving lead.
- */
+/** Fit and verify the displayed hand against one actual moving lead. */
 function planHumanLeadHorse(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLeadHorse>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -78,7 +76,7 @@ function planHumanLeadHorse(
     seconds,
   );
   const first: IAutoMovieRigidTransform = support.frame(context.start);
-  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
+  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands(
     {
       ...context,
       params: { on, duration: seconds, hands: { [side]: point } },

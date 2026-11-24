@@ -246,7 +246,7 @@ export namespace mountedHorseScene {
       ride,
       film,
       body,
-      reader: HumanSignature.of(film, "rider", body, 0),
+      reader: HumanSignature(film, "rider", body, 0),
       seat,
       part,
       place,

@@ -171,12 +171,12 @@ export namespace HumanMountOff {
 
     const duration: number =
       Math.min(4, 2 * (1 + 0.6 * Math.max(0, r - 1))) *
-      AutoMovieMotionManner.of(context, context.params.manner).tempo;
+      AutoMovieMotionManner(context, context.params.manner).tempo;
     const seatOff: number = 0.15 * duration;
     const hop: number = sideways ? HumanMount.HOP * m.thigh : 0;
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
+      ...standUpright(body).joints,
     };
     const crossing: readonly [number, number] = sideways
       ? [0.3 * duration, 0.8 * duration]

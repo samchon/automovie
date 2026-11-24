@@ -182,7 +182,7 @@ function planBackToBack(
   }
   const pitch: number = gap(0) <= short ? 0 : hi;
 
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     p.manner,
   );

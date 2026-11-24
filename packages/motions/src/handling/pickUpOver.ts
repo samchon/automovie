@@ -93,7 +93,7 @@ export namespace pickUpOver {
         context.start,
       ),
     );
-    const { chosen, bend }: pickUpSearch.ISearched = pickUpSearch.of(
+    const { chosen, bend }: pickUpSearch.ISearched = pickUpSearch(
       context,
       side,
       lift,

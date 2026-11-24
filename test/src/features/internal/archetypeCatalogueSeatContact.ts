@@ -85,7 +85,7 @@ export function archetypeCatalogueSeatContact(
         0.2,
         kind,
       );
-      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         film,
         "a",
         body,

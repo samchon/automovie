@@ -24,7 +24,7 @@ States that every input is resolved afresh, that a refusal is thrown on each res
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A resolution is a pure function of its input, so constructing it is the whole method: the admitted flight mode (`HumanPerformanceFlightMode.of`) and the optional observer go to construction. No process-wide memo holds another performance's state.
+A resolution is a pure function of its input, so constructing it is the whole method: the admitted flight mode (`HumanPerformanceFlightMode`) and the optional observer go to construction. No process-wide memo holds another performance's state.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -1,4 +1,4 @@
-# src/posture/HumanArmFrame.ts#HumanArmFrame.of
+# src/posture/HumanArmFrame.ts#HumanArmFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

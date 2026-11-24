@@ -10,10 +10,13 @@ import { TestValidator } from "@nestia/e2e";
 import { motionContactArmFixture as fixture } from "../../internal/motionContactArmFixture";
 
 /**
- * A wrist request on either side of full extension has the appropriate reach-policy outcome.
+ * A wrist request on either side of full extension has the appropriate
+ * reach-policy outcome.
  *
  * Scenarios:
- * 1. Accept a target below full extension and clamp a farther collinear target at the sum of link lengths.
+ *
+ * 1. Accept a target below full extension and clamp a farther collinear target at
+ *    the sum of link lengths.
  * 2. Refuse that same outside point under the explicit refusal policy.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A wrist request on either side of full extension has the appropriate reach-policy outcome.

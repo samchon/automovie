@@ -76,7 +76,7 @@ export function flyPerformanceFlight(
     seconds: number,
   ): IAutoMoviePose =>
     isolated
-      ? HumanSegmentShown.of(person, seconds, requested, evaluation, false).pose
+      ? HumanSegmentShown(person, seconds, requested, evaluation, false).pose
       : HumanPerformanceRead.pose(
           self,
           subject,

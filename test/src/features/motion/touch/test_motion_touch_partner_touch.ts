@@ -24,18 +24,19 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { vclose } from "../../internal/vclose";
 
 /**
- * Sample a touch's authored goal path relative to its moving surface. The
- * face is a vertical plane moving through world space, with +Z normal and
- * +Y up. Reconstruct the hand point with the wrist transform from each goal.
+ * Sample a touch's authored goal path relative to its moving surface. The face
+ * is a vertical plane moving through world space, with +Z normal and +Y up.
+ * Reconstruct the hand point with the wrist transform from each goal.
  *
  * Scenarios:
- * 1. Two taps touch at shares 0, 1/2 and 1. Both intervening centres lift
- *    exactly one quarter of a hand along the normal.
- * 2. Two strokes remain in the surface plane. The four sine peaks travel
- *    up and down in a 1/2, -1, 1, -1/2 pattern as the half-cycle ramps fade.
- * 3. The hold moves only with the carrier and shares those contact points
- *    at the stroke's endpoints. Retaking earlier samples gives the same
- *    actual target, and no inactive time is read from the carrier callback.
+ *
+ * 1. Two taps touch at shares 0, 1/2 and 1. Both intervening centres lift exactly
+ *    one quarter of a hand along the normal.
+ * 2. Two strokes remain in the surface plane. The four sine peaks travel up and
+ *    down in a 1/2, -1, 1, -1/2 pattern as the half-cycle ramps fade.
+ * 3. The hold moves only with the carrier and shares those contact points at the
+ *    stroke's endpoints. Retaking earlier samples gives the same actual target,
+ *    and no inactive time is read from the carrier callback.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the carrier frame and exact contact and extrema of the three trajectory branches.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the ordinary touch-goal seam in arbitrary time order, placing its wrist-local skin point in world space. Losing the surface's movement, exchanging tangent and lift, or using the wrong repetition or end ramp fails.

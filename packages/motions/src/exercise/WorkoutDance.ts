@@ -39,7 +39,7 @@ export namespace WorkoutDance {
      * An arabesque: on the left foot, the right leg raised straight behind, the
      * arms out, held 3 s.
      */
-    arabesque: WorkoutStance.of(
+    arabesque: WorkoutStance(
       ["leftFoot"],
       WorkoutStance.LEFT,
       1.5,
@@ -102,7 +102,7 @@ export namespace WorkoutDance {
      * A street rock: the knees bounce and the chest and head isolate left and
      * right on alternate counts, four times.
      */
-    streetRock: WorkoutStance.of(
+    streetRock: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.5,

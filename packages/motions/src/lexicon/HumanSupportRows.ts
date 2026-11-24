@@ -37,7 +37,7 @@ export namespace HumanSupportRows {
    */
   export const scramble: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["scramble"]
-  > = HumanActionRow.of("scramble", support, HUMAN_SUPPORT_SCRAMBLE);
+  > = HumanActionRow("scramble", support, HUMAN_SUPPORT_SCRAMBLE);
 
   /**
    * Slide off a table's edge: seated upright on it with the hands beside the
@@ -47,5 +47,5 @@ export namespace HumanSupportRows {
    */
   export const slideOff: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["support"]["slideOff"]
-  > = HumanActionRow.of("slideOff", support, HUMAN_SUPPORT_SLIDE_OFF);
+  > = HumanActionRow("slideOff", support, HUMAN_SUPPORT_SLIDE_OFF);
 }

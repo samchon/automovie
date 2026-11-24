@@ -27,53 +27,55 @@ import { motionPropHeldDrift } from "./motionPropHeldDrift";
 
 const { AutoMovieMotionHumanTouchDrink } = AutoMovieMotionHumanTouch;
 
-/** How far a glass may lean away from the face and still count as upright: the sine of 1 degree. */
+/**
+ * How far a glass may lean away from the face and still count as upright: the
+ * sine of 1 degree.
+ */
 const AWAY: number = Math.sin(Math.PI / 180);
 
 /**
  * The held objects' attitude and place on one body, which the
- * `test_human_motion_prop_held_attitude_*` specs read one body each: a glass
- * is carried upright, tipped toward the lips only as much as the drinking
- * arm asked, its rim at the mouth and its grip kept (#3358, #3361), and a
- * held cigarette's end reaches the lips (#3346).
+ * `test_human_motion_prop_held_attitude_*` specs read one body each: a glass is
+ * carried upright, tipped toward the lips only as much as the drinking arm
+ * asked, its rim at the mouth and its grip kept (#3358, #3361), and a held
+ * cigarette's end reaches the lips (#3346).
  *
  * Each object stands at waist height before the right shoulder, 0.6 of the
- * arm's length ahead, and is picked up and then used. A glass is taken for
- * its use (`pickUp`'s `use`: the lip at the mouth, the vessel upright), since
- * the grip a hand takes decides what the arm can do with the object later.
- * The drink is one film, followed by a 0.5 s stand, read by every glass
- * scenario: its attitude, its rim and its grip were read off two films of
- * the same pick-up and drink, one here and one in the
- * `test_human_motion_prop_held_use_*` reader, and the stand that ends the
- * film follows the drink's `relax`, the last instant the attitude is read.
+ * arm's length ahead, and is picked up and then used. A glass is taken for its
+ * use (`pickUp`'s `use`: the lip at the mouth, the vessel upright), since the
+ * grip a hand takes decides what the arm can do with the object later. The
+ * drink is one film, followed by a 0.5 s stand, read by every glass scenario:
+ * its attitude, its rim and its grip were read off two films of the same
+ * pick-up and drink, one here and one in the
+ * `test_human_motion_prop_held_use_*` reader, and the stand that ends the film
+ * follows the drink's `relax`, the last instant the attitude is read.
  *
  * Scenarios, on the body:
- * 1. A drink from a held glass. While the glass is carried to the mouth,
- *    until the last `AutoMovieMotionHumanTouch.TIP` of the carry's progress
- *    over which it tips, its axis stands within 10 degrees of upright. From
- *    `atMouth` to `relax` its top leans only toward the face (the performer
- *    faces +Z, so the axis's Z part is not positive; a glass within 1 degree
- *    of upright leans nowhere, so its Z part may be the sine of 1 degree) and
- *    no more than the lean the law asked plus one
- *    `AutoMovieMotionHumanTouchDrink.LEAN_STEP`. The asked lean is the
- *    glass's axis carried by the hand rotation the arm was asked for at
- *    `atMouth`. This replaces "within 10 degrees of upright through the
- *    hold": held upright at the lips, the glass asked the elbow up to the
- *    shoulder's height, and a drinker tips the glass at the lips with the
- *    elbow low (Murphy et al. 2011), the arm the hand-to-face law now admits
- *    by the least lean (`AutoMovieMotionHumanTouchDrink.held`).
+ *
+ * 1. A drink from a held glass. While the glass is carried to the mouth, until the
+ *    last `AutoMovieMotionHumanTouch.TIP` of the carry's progress over which it
+ *    tips, its axis stands within 10 degrees of upright. From `atMouth` to
+ *    `relax` its top leans only toward the face (the performer faces +Z, so the
+ *    axis's Z part is not positive; a glass within 1 degree of upright leans
+ *    nowhere, so its Z part may be the sine of 1 degree) and no more than the
+ *    lean the law asked plus one `AutoMovieMotionHumanTouchDrink.LEAN_STEP`.
+ *    The asked lean is the glass's axis carried by the hand rotation the arm
+ *    was asked for at `atMouth`. This replaces "within 10 degrees of upright
+ *    through the hold": held upright at the lips, the glass asked the elbow up
+ *    to the shoulder's height, and a drinker tips the glass at the lips with
+ *    the elbow low (Murphy et al. 2011), the arm the hand-to-face law now
+ *    admits by the least lean (`AutoMovieMotionHumanTouchDrink.held`).
  * 2. Through the hold at the mouth, at `atMouth`, halfway to `relax` and at
- *    `relax`, the glass's rim passes within 15 mm of the mouth region
- *    (#3361's acceptance for the rim), read as the mouth's distance to the
- *    rim's circle.
- * 3. From the grip's closing to the end of the stand the glass stays where
- *    it was in the hand's own frame within 1 mm (the campaign's bound for a
- *    grip, `motionPropHeldDrift`).
- * 4. At `atLips` of `smoke` with a held cigarette, its mouth end lies
- *    within 15 mm of the mouth region.
+ *    `relax`, the glass's rim passes within 15 mm of the mouth region (#3361's
+ *    acceptance for the rim), read as the mouth's distance to the rim's
+ *    circle.
+ * 3. From the grip's closing to the end of the stand the glass stays where it was
+ *    in the hand's own frame within 1 mm (the campaign's bound for a grip,
+ *    `motionPropHeldDrift`).
+ * 4. At `atLips` of `smoke` with a held cigarette, its mouth end lies within 15 mm
+ *    of the mouth region.
  *
  * @param name The body.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the rule, the scene, why the glass is taken for its use, why one drink film serves every glass scenario and the 4 scenarios with their bounds, and why the first changed.
  * @evidence contracts/development/implementation.md#principled-implementation Places real archetypes, builds performances through the public chain and reads the displayed prop frame, the hand and the mouth region.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Two performances and their readings, gathered as complaints and asserted once.
@@ -203,7 +205,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
       // hand bone and the glass have each turned since the fingers closed.
       const worst: string = `at ${tilted.toFixed(2)} s of ${drink.start.toFixed(2)} to ${atMouth.toFixed(2)}, ${shown(drunk, tilted, axis(tilted))}`;
       const picked: string[] = [];
-      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         drunk,
         "a",
         body,
@@ -244,7 +246,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
     // carried by the asked hand rotation, and the shown one beside it; and
     // 2, at the hold's ends and its middle, the rim's distance from the
     // mouth.
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       drunk,
       "a",
       body,
@@ -339,7 +341,7 @@ export function motionPropHeldAttitude(name: motionHumanBody.Name): void {
           ),
         ),
         HumanSignature.region(
-          HumanSignature.of(smoked, "a", body, 0),
+          HumanSignature(smoked, "a", body, 0),
           "mouth",
           seconds,
         ),

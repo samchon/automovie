@@ -182,12 +182,6 @@ export function affectHeldHands(
   return { ...after, joints, limbs };
 }
 
-/** Each body's bone parents. */
-const PARENTS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null>
-> = new WeakMap();
-
 /**
  * The bones on the way from one bone to another, below the lowest bone both
  * hang from, each end included.
@@ -197,22 +191,6 @@ function between(
   a: AutoMovieHumanoidBone,
   b: AutoMovieHumanoidBone,
 ): AutoMovieHumanoidBone[] {
-  let parents:
-    | Map<AutoMovieHumanoidBone, AutoMovieHumanoidBone | null>
-    | undefined = PARENTS.get(body);
-  if (parents === undefined) {
-    parents = new Map(
-      body.skeleton.bones.map(
-        (
-          bone: IAutoMovieBone,
-        ): [AutoMovieHumanoidBone, AutoMovieHumanoidBone | null] => [
-          bone.bone,
-          bone.parent,
-        ],
-      ),
-    );
-    PARENTS.set(body, parents);
-  }
   const up: (bone: AutoMovieHumanoidBone) => AutoMovieHumanoidBone[] = (
     bone: AutoMovieHumanoidBone,
   ): AutoMovieHumanoidBone[] => {
@@ -220,7 +198,7 @@ function between(
     for (
       let at: AutoMovieHumanoidBone | null = bone;
       at !== null;
-      at = parents!.get(at) ?? null
+      at = body.bones.get(at)?.parent ?? null
     )
       chain.push(at);
     return chain;
@@ -279,12 +257,6 @@ const HAND: Readonly<Record<AutoMovieHumanSide, AutoMovieHumanoidBone>> = {
   right: "rightHand",
 };
 
-/** Prepared readers per body and set of demanded bones. */
-const READERS: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Map<string, ReturnType<typeof HumanTrunk.prepareResolve>>
-> = new WeakMap();
-
 /** The body's prepared reader of both hands and every touched bone. */
 function reader(
   body: IAutoMovieMotionHumanBody,
@@ -299,21 +271,5 @@ function reader(
       hold.bone === undefined ? [] : [hold.bone],
     ),
   ];
-  const key: string = [...new Set(names)]
-    .sort((a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0))
-    .join(",");
-  let known:
-    | Map<string, ReturnType<typeof HumanTrunk.prepareResolve>>
-    | undefined = READERS.get(body);
-  if (known === undefined) {
-    known = new Map();
-    READERS.set(body, known);
-  }
-  let read: ReturnType<typeof HumanTrunk.prepareResolve> | undefined =
-    known.get(key);
-  if (read === undefined) {
-    read = HumanTrunk.prepareResolve(body, new Set(names));
-    known.set(key, read);
-  }
-  return read;
+  return HumanTrunk.prepareResolve(body, new Set(names));
 }

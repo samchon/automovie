@@ -58,7 +58,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("lieDown", params),
+          HumanChain.subject("a").act("lieDown", params).node,
         );
       const settled: number = FamilyCaseKit.event(performance, "settled");
       let deepest: number = Infinity;
@@ -101,7 +101,7 @@ export function floorCases(
         FamilyCaseKit.perform(
           "floor",
           [{ subject: "a", body: who.body }],
-          HumanChain.subject("a").act("crawl", params),
+          HumanChain.subject("a").act("crawl", params).node,
         );
       const segment = performance.segments("a")[0]!;
       const at = (share: number): number =>

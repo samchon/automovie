@@ -17,12 +17,17 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * Jump clearance follows the mass centre. On landing, changing shape must keep the lowest collider on the mat.
+ * Jump clearance follows the mass centre. On landing, changing shape must keep
+ * the lowest collider on the mat.
  *
  * Scenarios:
- * 1. A high jump clears its authored bar with ballistic vertical acceleration; an unreachable bar is refused.
- * 2. Sampling a materialized mat posture out of order returns independent grounded records.
- * 3. Touching and singleton support runs preserve an exact change of supporting body part.
+ *
+ * 1. A high jump clears its authored bar with ballistic vertical acceleration; an
+ *    unreachable bar is refused.
+ * 2. Sampling a materialized mat posture out of order returns independent grounded
+ *    records.
+ * 3. Touching and singleton support runs preserve an exact change of supporting
+ *    body part.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads the actual mass centre, prepared floor and generated contact shares.
  * @evidence contracts/development/testing.md#independent-expectations The requested bar elevation, gravity and authored mat fix the answers.
@@ -81,7 +86,7 @@ export function test_motion_acrobatics_gymnastics_support(): void {
     segment.start +
     segment.plan.duration *
       segment.plan.events.find((e) => e.name === name)!.share;
-  const reader = HumanSignature.of(film, "jumper", body, 0);
+  const reader = HumanSignature(film, "jumper", body, 0);
   const apex = instant("apex"),
     takeoff = instant("takeoff"),
     h = (apex - takeoff) / 4;

@@ -52,7 +52,7 @@ Reports the existing capsule gap, including negative overlap, rather than a pred
 
 States distance sign, world-frame witness units and shared-posture scope.
 
-# src/posture/HumanFitPairs.ts#HumanFitPairs.of
+# src/posture/HumanFitPairs.ts#HumanFitPairs
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

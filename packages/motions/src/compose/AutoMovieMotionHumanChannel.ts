@@ -13,6 +13,33 @@ import type {
 import { HumanPosture } from "../posture/HumanPosture";
 
 /**
+ * The channel that owns a bone's joint.
+ *
+ * @param bone The bone.
+ * @returns Its channel.
+ */
+export function AutoMovieMotionHumanChannel(
+  bone: AutoMovieHumanoidBone,
+): AutoMovieMotionHumanChannelContract {
+  const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
+    ? "left"
+    : bone.startsWith("right")
+      ? "right"
+      : undefined;
+  if (side === undefined)
+    return bone === "neck" || bone === "head" || bone === "jaw"
+      ? "head"
+      : "trunk";
+  const part: string = bone.slice(side.length);
+  if (part === "Eye") return "head";
+  if (part === "Shoulder") return "trunk";
+  if (/^(Thumb|Index|Middle|Ring|Little)/.test(part)) return `${side}Hand`;
+  if (part === "UpperArm" || part === "LowerArm" || part === "Hand")
+    return `${side}Arm`;
+  return `${side}Leg`;
+}
+
+/**
  * Channel ordering, bone ownership and posture merging for the canonical
  * channel vocabulary. ORDER is constrained by the interface union. The readers
  * below use this order and ownership partition when composing primitives,
@@ -40,33 +67,6 @@ export namespace AutoMovieMotionHumanChannel {
     "leftArm",
     "rightArm",
   ] as const satisfies readonly NonNullable<AutoMovieMotionHumanChannelContract>[];
-
-  /**
-   * The channel that owns a bone's joint.
-   *
-   * @param bone The bone.
-   * @returns Its channel.
-   */
-  export function of(
-    bone: AutoMovieHumanoidBone,
-  ): AutoMovieMotionHumanChannelContract {
-    const side: AutoMovieHumanSide | undefined = bone.startsWith("left")
-      ? "left"
-      : bone.startsWith("right")
-        ? "right"
-        : undefined;
-    if (side === undefined)
-      return bone === "neck" || bone === "head" || bone === "jaw"
-        ? "head"
-        : "trunk";
-    const part: string = bone.slice(side.length);
-    if (part === "Eye") return "head";
-    if (part === "Shoulder") return "trunk";
-    if (/^(Thumb|Index|Middle|Ring|Little)/.test(part)) return `${side}Hand`;
-    if (part === "UpperArm" || part === "LowerArm" || part === "Hand")
-      return `${side}Arm`;
-    return `${side}Leg`;
-  }
 
   /**
    * The bones `trunkTurn` covers: the spine and the chest above the pelvis, not
@@ -128,7 +128,7 @@ export namespace AutoMovieMotionHumanChannel {
     claims: readonly AutoMovieMotionHumanChannelClaim[],
     bone: AutoMovieHumanoidBone,
   ): boolean {
-    if (claims.includes(of(bone))) return true;
+    if (claims.includes(AutoMovieMotionHumanChannel(bone))) return true;
     if (claims.includes("trunkTurn") && TURN.includes(bone)) return true;
     const own: AutoMovieHumanDigit | undefined = digit(bone);
     return own !== undefined && claims.includes(own);

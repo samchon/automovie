@@ -233,10 +233,7 @@ function plan(
       name: "propCue",
       seconds: duration * HumanBound.within("propCue", params.propCue, 0, 1),
     });
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-    duration,
-    instants,
-  );
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, instants);
   const firstPath: AutoMovieMotionInterval.IPrepared =
     AutoMovieMotionClock.prepare(clock, "firstLift", "firstSettle");
   const followingPath: AutoMovieMotionInterval.IPrepared =

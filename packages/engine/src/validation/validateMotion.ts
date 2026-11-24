@@ -1,5 +1,4 @@
 import {
-  AutoMovieEasing,
   AutoMovieHumanoidBone,
   IAutoMovieJointPose,
   IAutoMovieKeyframe,
@@ -21,8 +20,8 @@ import { validatePose } from "./validatePose";
 const MAX_ANGULAR_SPEED_DEG_PER_S: number = 900;
 
 /**
- * Admit motion identity/skeleton, positive duration, loop, ordered in-range
- * times/easing, frame pose/expression and adjacent-axis speed.
+ * Admit the motion's skeleton, positive duration, ordered in-range times,
+ * bezier controls, frame pose/expression and adjacent-axis speed.
  */
 export const validateMotion: (
   props: IAutoMovieValidateMotion.IProps,
@@ -36,13 +35,6 @@ export const validateMotion: (
     skeleton,
   }: { motion: IAutoMovieMotion; skeleton: IAutoMovieSkeleton } = props;
 
-  if (motion.id.trim().length === 0)
-    collector.push(
-      "type",
-      `${path}.id`,
-      "motion id must be a non-empty id",
-      motion.id,
-    );
   if (motion.skeleton !== skeleton.id)
     collector.push(
       "type",
@@ -56,13 +48,6 @@ export const validateMotion: (
       `${path}.duration`,
       `motion duration must be a finite number > 0 seconds, but was ${motion.duration}`,
       motion.duration,
-    );
-  if (typeof motion.loop !== "boolean")
-    collector.push(
-      "type",
-      `${path}.loop`,
-      `motion loop must be boolean, but was ${String(motion.loop)}`,
-      motion.loop,
     );
   if (motion.keyframes.length < 2)
     collector.push(
@@ -90,13 +75,6 @@ export const validateMotion: (
         `${kp}.time`,
         `keyframe times must strictly increase; ${kf.time} is not greater than the previous ${previousTime}`,
         kf.time,
-      );
-    if (!KEYFRAME_EASINGS.has(kf.easing))
-      collector.push(
-        "type",
-        `${kp}.easing`,
-        `unknown keyframe easing "${String(kf.easing)}"`,
-        kf.easing,
       );
     validateKeyframeBezier(kf, kp, collector);
 
@@ -215,7 +193,7 @@ const validateKeyframeBezier: (
     return;
   }
 
-  if (!isFiniteBezierTuple(kf.bezier)) {
+  if (kf.bezier === null || !kf.bezier.every(Number.isFinite)) {
     collector.push(
       "type",
       `${kp}.bezier`,
@@ -241,39 +219,3 @@ const validateKeyframeBezier: (
     );
 };
 
-/**
- * Admit exactly four actual finite array elements as a bezier tuple.
- *
- * The type predicate makes destructuring safe after shape/finite admission.
- *
- * Array density is required; a length-four array of holes is not four finite
- * controls.
- *
- * Boolean narrowing certifies only this tuple shape and scalar finiteness.
- *
- * Four indexed finite checks take constant work with no array copy.
- *
- * Keyframe admission reuses this guard before X-coordinate comparisons.
- *
- * The array stays borrowed and only boolean narrowing escapes.
- */
-const isFiniteBezierTuple: (
-  value: unknown,
-) => value is [number, number, number, number] = (
-  value: unknown,
-): value is [number, number, number, number] =>
-  Array.isArray(value) &&
-  value.length === 4 &&
-  Number.isFinite(value[0]) &&
-  Number.isFinite(value[1]) &&
-  Number.isFinite(value[2]) &&
-  Number.isFinite(value[3]);
-
-const KEYFRAME_EASINGS: Set<AutoMovieEasing> = new Set<AutoMovieEasing>([
-  "linear",
-  "easeIn",
-  "easeOut",
-  "easeInOut",
-  "step",
-  "cubicBezier",
-]);

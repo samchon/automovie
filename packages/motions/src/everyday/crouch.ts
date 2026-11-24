@@ -218,8 +218,10 @@ export namespace crouch {
       context.params.heels ?? (depth === "full" ? "up" : "flat");
     const hold: number = context.params.hold ?? 1;
     HumanBound.least("hold", hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
 
     // The leg's angles: the shank tilts by the crouching ankle plus the heel
     // lift, the thigh takes the rest of the knee flexion.

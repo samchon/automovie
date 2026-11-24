@@ -32,41 +32,42 @@ import { motionPostureBranches } from "../../internal/motionPostureBranches";
 const { HumanSeatedReach } = AutoMovieMotionHumanTouch;
 
 /**
- * The three sitting modes retain the geometry of a chair at the body's
- * own popliteal height, on two stature extremes. Default seating, the
- * backrest and the slump retain contacts through the full audited path.
- * The shift and rise start seated at that same support.
+ * The three sitting modes retain the geometry of a chair at the body's own
+ * popliteal height, on two stature extremes. Default seating, the backrest and
+ * the slump retain contacts through the full audited path. The shift and rise
+ * start seated at that same support.
  *
  * Bounds and sources:
+ *
  * - Seated: on a seat at popliteal height the thighs lie about level and the
  *   shanks stand about upright, the hip and the knee near a right angle
  *   (ANSI/HFES 100-2007, the seated reference posture). Bound: hip and knee
  *   flexion in [70, 110] degrees from `seated` to the end (provisional limits
  *   about the right angle).
- * - Back: sitting upright holds the trunk near vertical; leaning back
- *   reclines it. Bound: upright in [-10, 10] degrees, lean at least 5
- *   degrees behind the upright row (provisional). Slumping tilts the pelvis
- *   back and rounds the spine, which carries the head forward of the
- *   shoulders (Caneiro et al. 2010, Man Ther 15:54); the hip-to-shoulder line
- *   need not tip forward. Bound: the head joint at least 10 mm farther ahead
- *   of the shoulder joints than in the upright row (provisional).
- * - Descent: sitting down inclines the trunk forward to keep the centre of
- *   mass over the feet before the seat takes the weight, by about 30 to 45
- *   degrees (Kralj, Jaeger and Munih 1990, J Biomech 23:1123). Bound: peak
- *   inclination before `seatContact` in [15, 60] degrees (provisional
- *   limits).
+ * - Back: sitting upright holds the trunk near vertical; leaning back reclines
+ *   it. Bound: upright in [-10, 10] degrees, lean at least 5 degrees behind the
+ *   upright row (provisional). Slumping tilts the pelvis back and rounds the
+ *   spine, which carries the head forward of the shoulders (Caneiro et al.
+ *   2010, Man Ther 15:54); the hip-to-shoulder line need not tip forward.
+ *   Bound: the head joint at least 10 mm farther ahead of the shoulder joints
+ *   than in the upright row (provisional).
+ * - Descent: sitting down inclines the trunk forward to keep the centre of mass
+ *   over the feet before the seat takes the weight, by about 30 to 45 degrees
+ *   (Kralj, Jaeger and Munih 1990, J Biomech 23:1123). Bound: peak inclination
+ *   before `seatContact` in [15, 60] degrees (provisional limits).
  * - Feet: both feet stay on the floor throughout.
- * - Rise: the trunk flexes before seat-off and stands aligned on both
- *   feet, as measured in motionHumanRiseSignature.
+ * - Rise: the trunk flexes before seat-off and stands aligned on both feet, as
+ *   measured in motionHumanRiseSignature.
  *
- * The trunk is read as the line from the hip joints' midpoint to the
- * shoulder joints' midpoint, the trunk segment of the cited studies, and
- * the quiet stance must read within 3 degrees of vertical under it
- * (Kendall et al. 2005, ideal alignment; `motionHumanSignature.calibrate`).
+ * The trunk is read as the line from the hip joints' midpoint to the shoulder
+ * joints' midpoint, the trunk segment of the cited studies, and the quiet
+ * stance must read within 3 degrees of vertical under it (Kendall et al. 2005,
+ * ideal alignment; `motionHumanSignature.calibrate`).
  *
- * Scenarios:
- * A high stool supports a drink within 10 mm. Raising it raises the sitter equally.
- * Repeating the seed reproduces the entry, and infeasible seat requests describe a feasible alternative.
+ * Scenarios: A high stool supports a drink within 10 mm. Raising it raises the
+ * sitter equally. Repeating the seed reproduces the entry, and infeasible seat
+ * requests describe a feasible alternative.
+ *
  * 1. Observe the supplied action through the phases identified above.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the real sit law on real bodies and reads displayed joints and soles; a perched or sunk sit, an upright back that leans, a descent with an upright trunk or a lifted foot fails with its cell, value, bound and source.
@@ -194,7 +195,10 @@ const AUDITED: readonly motionPostureBranches.Branch[] = [
   ["rise", "default", "f-small"],
 ];
 
-/** The chair scales with the body, so the two stature limits bracket this geometry. */
+/**
+ * The chair scales with the body, so the two stature limits bracket this
+ * geometry.
+ */
 const BODIES: readonly motionHumanBody.Name[] = ["f-small", "m-large"];
 
 function checkHighSeat(complaints: string[]): void {
@@ -229,7 +233,7 @@ function checkHighSeat(complaints: string[]): void {
   const distance = (a: IAutoMovieVector3, b: IAutoMovieVector3): number =>
     Math.hypot(a.x - b.x, a.y - b.y, a.z - b.z);
   const low = perform(seatAt(0));
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     low,
     "a",
     body,
@@ -249,7 +253,7 @@ function checkHighSeat(complaints: string[]): void {
   const lift: number = 0.1;
   const raised = perform(seatAt(lift), (chain) => chain);
   const height = HumanSignature.region(
-    HumanSignature.of(raised, "a", body, 0),
+    HumanSignature(raised, "a", body, 0),
     "seat",
     raised.segments("a")[0]!.end,
   ).y;
@@ -262,7 +266,7 @@ function checkHighSeat(complaints: string[]): void {
       "The seated body did not follow the stool's 100 mm rise within 10 mm.",
     );
   const repeat = perform(seatAt(0));
-  const repeated = HumanSignature.of(repeat, "a", body, 0);
+  const repeated = HumanSignature(repeat, "a", body, 0);
   for (const share of [0, 0.25, 0.5, 0.75, 1]) {
     const t = share * end;
     if (

@@ -24,6 +24,219 @@ type OfWhole = "steps" | "loads";
 type OfSolveResult = "steps" | "loads";
 
 /**
+ * A soft prop's whole solve, made on first read and kept.
+ *
+ * @param state The performance.
+ * @param subject The soft prop.
+ * @returns The solve.
+ * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
+ *   domain's step budget.
+ */
+export function HumanPerformanceSoft(
+  state: IAutoMovieMotionHumanPerformanceState,
+  subject: string,
+): IAutoMovieMotionHumanPerformanceSoft.ISolved {
+  const known: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined =
+    state.soft.get(subject);
+  if (known !== undefined) return known;
+  const prop: IAutoMovieMotionHumanProp | undefined = state.props.get(subject);
+  const domain: IAutoMovieSoftBodyDomain | undefined = prop?.soft;
+  if (domain === undefined)
+    throw new HumanRefusal({
+      kind: "affordance",
+      axis: "prop",
+      value: subject,
+      feasible: {
+        kind: "alternatives",
+        values: [...state.props.values()]
+          .filter(
+            (p: IAutoMovieMotionHumanProp): boolean => p.soft !== undefined,
+          )
+          .map((p: IAutoMovieMotionHumanProp): string => p.subject),
+      },
+      reason: `the prop ${subject} has no soft domain`,
+      fix: "read a prop that declares `soft`",
+    });
+  const dt: number = domain.solver.fixedStepSeconds;
+  const count: number = HumanPerformanceSoftBudget(
+    subject,
+    domain,
+    state.duration,
+  );
+  const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined = prop?.softSpan;
+  const { seed, spans }: ReturnType<typeof HumanPerformanceSoftBoundary.seed> =
+    HumanPerformanceSoftBoundary.seed(state, domain, span, count);
+
+  const grips: HumanPerformanceSoftBoundary.IGripAnchor[] = [];
+  const solve = (
+    upto: number,
+    record: boolean,
+  ): Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfSolveResult> => {
+    const gripped: ReadonlySet<number> = new Set(
+      grips.map(
+        (grip: HumanPerformanceSoftBoundary.IGripAnchor): number =>
+          grip.particle,
+      ),
+    );
+    const anchored: IAutoMovieSoftBodyDomain = {
+      ...seed,
+      anchors: [
+        ...seed.anchors.filter(
+          (anchor: IAutoMovieSoftAnchor): boolean =>
+            !gripped.has(anchor.particle),
+        ),
+        ...[...gripped].map(
+          (particle: number): IAutoMovieSoftAnchor => ({
+            id: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
+            particle,
+            position: null,
+            binding: {
+              kind: "node",
+              node: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
+              offset: { x: 0, y: 0, z: 0 },
+            },
+          }),
+        ),
+      ],
+    };
+    const boundaries: IAutoMovieSoftBodyBoundarySample[] = [];
+    for (let k: number = 0; k <= upto; ++k)
+      boundaries.push(
+        HumanPerformanceSoftBoundary(
+          state,
+          anchored,
+          grips,
+          gripped,
+          bones,
+          k,
+          k * dt,
+          spans?.[k],
+        ),
+      );
+    const steps: Float64Array[] = [
+      new Float64Array(
+        HumanPerformanceSoftBoundary.rest(anchored, boundaries[0]!),
+      ),
+    ];
+    const loads: Map<string, IAutoMovieVector3>[] = [new Map()];
+    const observer: IAutoMovieSoftBodyObserver = {
+      step: (
+        index: number,
+        positions: Float64Array<ArrayBufferLike>,
+        _velocities: Float64Array<ArrayBufferLike>,
+        held: ReadonlyMap<number, IAutoMovieVector3>,
+      ): void => {
+        steps.push(new Float64Array(positions));
+        if (!record) return;
+        const hands: Map<string, IAutoMovieVector3> = new Map();
+        const seconds: number = index * dt;
+        // One hand may bear several particles: their forces add.
+        const bear = (key: string, particle: number): void => {
+          const f: IAutoMovieVector3 | undefined = held.get(particle);
+          if (f === undefined) return;
+          const was: IAutoMovieVector3 | undefined = hands.get(key);
+          hands.set(key, was === undefined ? f : Vector3.add(was, f));
+        };
+        for (const g of grips)
+          if (
+            seconds >= g.from &&
+            seconds <= g.to &&
+            HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) === g
+          )
+            bear(`${g.person}:${g.side}`, g.particle);
+        // The domain's own anchors on a hand bone: the hand holds them
+        // throughout (a grip that takes a particle over replaces its
+        // anchor in `anchored`).
+        for (const h of HumanPerformanceSoft.held(anchored))
+          bear(`${h.person}:${h.side}`, h.particle);
+        loads.push(hands);
+      },
+    };
+    if (upto > 0)
+      simulateSoftBodyWithBoundaries(
+        anchored,
+        upto,
+        boundaries,
+        null,
+        observer,
+      );
+    return { steps, loads };
+  };
+
+  // Each grip binds the particle nearest the hand's socket as it closes,
+  // read from the solve as it stands then.
+  const windows: IAutoMovieMotionHumanPerformanceState.IGrip[] =
+    HumanPerformanceRead.grips(state, subject)
+      .filter(
+        (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
+          g.bone === undefined,
+      )
+      .map(
+        (
+          g: IAutoMovieMotionHumanPerformanceState.IGrip,
+        ): IAutoMovieMotionHumanPerformanceState.IGrip => ({
+          ...g,
+          from: Math.max(0, g.from),
+          to: Math.min(state.duration, g.to),
+        }),
+      )
+      .filter(
+        (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
+          g.to >= g.from,
+      );
+
+  // The displayed bones of every person the domain or a grip names, read
+  // before the solves (`HumanPerformanceSoftBoundary.prepareBones`).
+  const bones: HumanPerformanceSoftBoundary.BoneReader =
+    HumanPerformanceSoftBoundary.prepareBones(state, seed, windows, count, dt);
+  for (const window of windows) {
+    const k: number = Math.min(count, Math.round(window.from / dt));
+    const positions: Float64Array = solve(k, false).steps[k]!;
+    const socket: IAutoMovieVector3 = HumanPerformanceSoftBoundary.gripSocket(
+      state,
+      bones,
+      window.subject,
+      window.side,
+      k,
+      k * dt,
+    );
+
+    // A double-ended model cord keeps both attachments when a hand holds it.
+    const first: number = span === undefined ? 0 : 1;
+    const end: number = positions.length / 3 - first;
+    let nearest: number = first;
+    let best: number = Infinity;
+    for (let p: number = first; p < end; ++p) {
+      const d: number = Math.hypot(
+        positions[p * 3]! - socket.x,
+        positions[p * 3 + 1]! - socket.y,
+        positions[p * 3 + 2]! - socket.z,
+      );
+      if (d < best) {
+        best = d;
+        nearest = p;
+      }
+    }
+    grips.push({
+      particle: nearest,
+      person: window.subject,
+      side: window.side,
+      from: window.from,
+      to: window.to,
+    });
+  }
+  const whole: Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfWhole> =
+    solve(count, true);
+  const out: IAutoMovieMotionHumanPerformanceSoft.ISolved = {
+    dt,
+    steps: whole.steps,
+    loads: whole.loads,
+  };
+  if (!state.resolving) state.soft.set(subject, out);
+  return out;
+}
+
+/**
  * A performance's soft props: each solved once from the displayed poses of the
  * people who hold it or whose bodies it lies on, at its domain's own fixed
  * step, and read by film seconds.
@@ -95,10 +308,8 @@ export namespace HumanPerformanceSoft {
     subject: string,
     seconds: number,
   ): number[] {
-    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = of(
-      state,
-      subject,
-    );
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
+      HumanPerformanceSoft(state, subject);
     const last: number = solved.steps.length - 1;
     const t: number = Math.max(0, Math.min(last, seconds / solved.dt));
     const k: number = Math.min(last, Math.floor(t));
@@ -130,10 +341,8 @@ export namespace HumanPerformanceSoft {
     side: AutoMovieHumanSide,
     seconds: number,
   ): IAutoMovieVector3 {
-    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved = of(
-      state,
-      subject,
-    );
+    const solved: IAutoMovieMotionHumanPerformanceSoft.ISolved =
+      HumanPerformanceSoft(state, subject);
     const k: number = Math.max(
       0,
       Math.min(solved.loads.length - 1, Math.floor(seconds / solved.dt)),
@@ -213,224 +422,6 @@ export namespace HumanPerformanceSoft {
         });
       }
     }
-    return out;
-  }
-
-  /**
-   * A soft prop's whole solve, made on first read and kept.
-   *
-   * @param state The performance.
-   * @param subject The soft prop.
-   * @returns The solve.
-   * @throws {HumanRefusal} When the prop is not soft or its span exceeds its
-   *   domain's step budget.
-   */
-  export function of(
-    state: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-  ): IAutoMovieMotionHumanPerformanceSoft.ISolved {
-    const known: IAutoMovieMotionHumanPerformanceSoft.ISolved | undefined =
-      state.soft.get(subject);
-    if (known !== undefined) return known;
-    const prop: IAutoMovieMotionHumanProp | undefined =
-      state.props.get(subject);
-    const domain: IAutoMovieSoftBodyDomain | undefined = prop?.soft;
-    if (domain === undefined)
-      throw new HumanRefusal({
-        kind: "affordance",
-        axis: "prop",
-        value: subject,
-        feasible: {
-          kind: "alternatives",
-          values: [...state.props.values()]
-            .filter(
-              (p: IAutoMovieMotionHumanProp): boolean => p.soft !== undefined,
-            )
-            .map((p: IAutoMovieMotionHumanProp): string => p.subject),
-        },
-        reason: `the prop ${subject} has no soft domain`,
-        fix: "read a prop that declares `soft`",
-      });
-    const dt: number = domain.solver.fixedStepSeconds;
-    const count: number = HumanPerformanceSoftBudget(
-      subject,
-      domain,
-      state.duration,
-    );
-    const span: IAutoMovieMotionHumanProp.ISoftSpan | undefined =
-      prop?.softSpan;
-    const {
-      seed,
-      spans,
-    }: ReturnType<typeof HumanPerformanceSoftBoundary.seed> =
-      HumanPerformanceSoftBoundary.seed(state, domain, span, count);
-
-    // The displayed bones of every person the domain or a grip names, read
-    // once per step.
-    const bones: HumanPerformanceSoftBoundary.BoneReader =
-      HumanPerformanceSoftBoundary.memoBones(state);
-    const grips: HumanPerformanceSoftBoundary.IGripAnchor[] = [];
-    const solve = (
-      upto: number,
-      record: boolean,
-    ): Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfSolveResult> => {
-      const gripped: ReadonlySet<number> = new Set(
-        grips.map(
-          (grip: HumanPerformanceSoftBoundary.IGripAnchor): number =>
-            grip.particle,
-        ),
-      );
-      const anchored: IAutoMovieSoftBodyDomain = {
-        ...seed,
-        anchors: [
-          ...seed.anchors.filter(
-            (anchor: IAutoMovieSoftAnchor): boolean =>
-              !gripped.has(anchor.particle),
-          ),
-          ...[...gripped].map(
-            (particle: number): IAutoMovieSoftAnchor => ({
-              id: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
-              particle,
-              position: null,
-              binding: {
-                kind: "node",
-                node: `${HumanPerformanceSoftBoundary.GRIP}${particle}`,
-                offset: { x: 0, y: 0, z: 0 },
-              },
-            }),
-          ),
-        ],
-      };
-      const boundaries: IAutoMovieSoftBodyBoundarySample[] = [];
-      for (let k: number = 0; k <= upto; ++k)
-        boundaries.push(
-          HumanPerformanceSoftBoundary(
-            state,
-            anchored,
-            grips,
-            gripped,
-            bones,
-            k,
-            k * dt,
-            spans?.[k],
-          ),
-        );
-      const steps: Float64Array[] = [
-        new Float64Array(
-          HumanPerformanceSoftBoundary.rest(anchored, boundaries[0]!),
-        ),
-      ];
-      const loads: Map<string, IAutoMovieVector3>[] = [new Map()];
-      const observer: IAutoMovieSoftBodyObserver = {
-        step: (
-          index: number,
-          positions: Float64Array<ArrayBufferLike>,
-          _velocities: Float64Array<ArrayBufferLike>,
-          held: ReadonlyMap<number, IAutoMovieVector3>,
-        ): void => {
-          steps.push(new Float64Array(positions));
-          if (!record) return;
-          const hands: Map<string, IAutoMovieVector3> = new Map();
-          const seconds: number = index * dt;
-          // One hand may bear several particles: their forces add.
-          const bear = (key: string, particle: number): void => {
-            const f: IAutoMovieVector3 | undefined = held.get(particle);
-            if (f === undefined) return;
-            const was: IAutoMovieVector3 | undefined = hands.get(key);
-            hands.set(key, was === undefined ? f : Vector3.add(was, f));
-          };
-          for (const g of grips)
-            if (
-              seconds >= g.from &&
-              seconds <= g.to &&
-              HumanPerformanceSoftBoundary.owner(grips, g.particle, seconds) ===
-                g
-            )
-              bear(`${g.person}:${g.side}`, g.particle);
-          // The domain's own anchors on a hand bone: the hand holds them
-          // throughout (a grip that takes a particle over replaces its
-          // anchor in `anchored`).
-          for (const h of HumanPerformanceSoft.held(anchored))
-            bear(`${h.person}:${h.side}`, h.particle);
-          loads.push(hands);
-        },
-      };
-      if (upto > 0)
-        simulateSoftBodyWithBoundaries(
-          anchored,
-          upto,
-          boundaries,
-          null,
-          observer,
-        );
-      return { steps, loads };
-    };
-
-    // Each grip binds the particle nearest the hand's socket as it closes,
-    // read from the solve as it stands then.
-    const windows: IAutoMovieMotionHumanPerformanceState.IGrip[] =
-      HumanPerformanceRead.grips(state, subject)
-        .filter(
-          (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-            g.bone === undefined,
-        )
-        .map(
-          (
-            g: IAutoMovieMotionHumanPerformanceState.IGrip,
-          ): IAutoMovieMotionHumanPerformanceState.IGrip => ({
-            ...g,
-            from: Math.max(0, g.from),
-            to: Math.min(state.duration, g.to),
-          }),
-        )
-        .filter(
-          (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-            g.to >= g.from,
-        );
-    for (const window of windows) {
-      const k: number = Math.min(count, Math.round(window.from / dt));
-      const positions: Float64Array = solve(k, false).steps[k]!;
-      const socket: IAutoMovieVector3 = HumanPerformanceSoftBoundary.gripSocket(
-        state,
-        bones,
-        window.subject,
-        window.side,
-        k,
-        k * dt,
-      );
-
-      // A double-ended model cord keeps both attachments when a hand holds it.
-      const first: number = span === undefined ? 0 : 1;
-      const end: number = positions.length / 3 - first;
-      let nearest: number = first;
-      let best: number = Infinity;
-      for (let p: number = first; p < end; ++p) {
-        const d: number = Math.hypot(
-          positions[p * 3]! - socket.x,
-          positions[p * 3 + 1]! - socket.y,
-          positions[p * 3 + 2]! - socket.z,
-        );
-        if (d < best) {
-          best = d;
-          nearest = p;
-        }
-      }
-      grips.push({
-        particle: nearest,
-        person: window.subject,
-        side: window.side,
-        from: window.from,
-        to: window.to,
-      });
-    }
-    const whole: Pick<IAutoMovieMotionHumanPerformanceSoft.ISolved, OfWhole> =
-      solve(count, true);
-    const out: IAutoMovieMotionHumanPerformanceSoft.ISolved = {
-      dt,
-      steps: whole.steps,
-      loads: whole.loads,
-    };
-    if (!state.resolving) state.soft.set(subject, out);
     return out;
   }
 }

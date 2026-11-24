@@ -218,8 +218,10 @@ export namespace touch {
     HumanBound.least("hold", hold, 0, "s");
     if (p.clear !== undefined) HumanBound.above("clear", p.clear, 0, "hand");
     const standoff: number = (p.clear ?? 0) * body.measure.hand;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     // The part of the hand that touches; the hand is the author's, or the
     // one whose arm reaches the region with the least strain (`touchSide`).
     const touching: IAutoMovieMotionHumanTouchEffector.IEffector =
@@ -227,7 +229,7 @@ export namespace touch {
         EFFECTORS[p.effector ?? "palm"],
         kind,
       );
-    const first: AutoMovieHumanSide = touchSide.of(context, touching);
+    const first: AutoMovieHumanSide = touchSide(context, touching);
     const resting = AutoMovieMotionHumanTouchContacts.sided(
       p.rests,
       first,
@@ -261,9 +263,7 @@ export namespace touch {
       p.target.kind === "self" ? p.target.region : null,
     );
     const shown: touchPresented.IPresented | null =
-      p.other === undefined
-        ? touchPresented.of(context, first, p.target)
-        : null;
+      p.other === undefined ? touchPresented(context, first, p.target) : null;
     const bones = shown?.bones ?? poseBones(body, context.entry.pose);
     const hands: [AutoMovieHumanSide, IAutoMovieMotionTarget][] = [
       [first, p.target],

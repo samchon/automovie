@@ -49,6 +49,12 @@ const LEG: Readonly<IAutoMovieMotionHumanSequentialConvex.IParameters> = {
   minTrustBoxSize: (1e-4 * 180) / Math.PI,
 };
 
+/**
+ * A knot's variables: the hip's flexion, abduction and twist, the knee's
+ * flexion and the ankle's flexion.
+ */
+const WIDTH: number = 5;
+
 /** The leg's segments the held leg's course keeps clear, by bone suffix. */
 const LEG_BONES: readonly string[] = ["UpperLeg", "LowerLeg", "Foot", "Toes"];
 
@@ -115,8 +121,6 @@ export function crutchHeldLeg(
     angles: readonly number[],
     s: number,
   ): IAutoMovieMotionHumanPosture => {
-    const tilt: number =
-      angles[3]! - from.lower[0] - (angles[0]! - from.upper[0]);
     const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...base.limbs };
     delete limbs[leg];
     return {
@@ -130,15 +134,7 @@ export function crutchHeldLeg(
           from.lower[1] * (1 - s),
           from.lower[2] * (1 - s),
         ],
-        [`${side}Foot`]: [
-          from.foot[0] +
-            Math.min(
-              Math.max(0, ANKLE_DORSIFLEXION.unloaded - from.foot[0]),
-              Math.max(0, tilt),
-            ),
-          from.foot[1],
-          from.foot[2],
-        ],
+        [`${side}Foot`]: [angles[4]!, from.foot[1], from.foot[2]],
       },
     };
   };
@@ -231,7 +227,22 @@ export function crutchHeldLeg(
       from.upper[1],
       from.upper[2],
       from.lower[0],
+      from.foot[0],
     ];
+    const footRange: IAutoMovieJointConstraint | null = getConstraint(
+      `${side}Foot`,
+      readHumanBone(body, `${side}Foot`)?.constraint ?? null,
+    );
+    // Once lifted the foot bears nothing, so its flexion keeps within a
+    // weightless ankle's dorsiflexion (`ANKLE_DORSIFLEXION.unloaded`), the
+    // bound the take's audit reads an unloaded foot by.
+    const ankle: IAutoMovieAngleRange = {
+      min: footRange?.flexion?.min ?? -Infinity,
+      max: Math.min(
+        footRange?.flexion?.max ?? Infinity,
+        ANKLE_DORSIFLEXION.unloaded,
+      ),
+    };
     const seed: number[] = knots.slice(1).flatMap((t: number): number[] => {
       const s: number = share(t);
       return [
@@ -239,12 +250,13 @@ export function crutchHeldLeg(
         from.upper[1] * (1 - s),
         from.upper[2] * (1 - s),
         from.lower[0] + (props.knee - from.lower[0]) * s,
+        Math.max(ankle.min, Math.min(ankle.max, from.foot[0])),
       ];
     });
     const angles: (x: F.Vector, j: number) => number[] = (
       x: F.Vector,
       j: number,
-    ): number[] => (j === 0 ? first : [...x.slice(4 * (j - 1), 4 * j)]);
+    ): number[] => (j === 0 ? first : [...x.slice(WIDTH * (j - 1), WIDTH * j)]);
     const at: (
       x: F.Vector,
       j: number,
@@ -267,6 +279,7 @@ export function crutchHeldLeg(
       hipRange?.abduction,
       hipRange?.twist,
       kneeRange?.flexion,
+      ankle,
     ];
     const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
       F.Vector,
@@ -280,7 +293,7 @@ export function crutchHeldLeg(
               for (let j: number = 1; j < knots.length; ++j) {
                 const p: number[] = angles(x, j - 1);
                 const q: number[] = angles(x, j);
-                for (let d: number = 0; d < 4; ++d)
+                for (let d: number = 0; d < WIDTH; ++d)
                   sum += ((q[d]! - p[d]!) * Quaternion.DEG2RAD) ** 2;
               }
               return sum;
@@ -334,17 +347,17 @@ export function crutchHeldLeg(
             },
             equality: false,
             variables: Array.from(
-              { length: i === 0 ? 4 : 8 },
+              { length: i === 0 ? WIDTH : 2 * WIDTH },
               (_: unknown, v: number): number =>
-                i === 0 ? v : 4 * (i - 1) + v,
+                i === 0 ? v : WIDTH * (i - 1) + v,
             ),
           }),
         ),
         low: seed.map(
-          (_: number, v: number): number => ranges[v % 4]?.min ?? -Infinity,
+          (_: number, v: number): number => ranges[v % WIDTH]?.min ?? -Infinity,
         ),
         high: seed.map(
-          (_: number, v: number): number => ranges[v % 4]?.max ?? Infinity,
+          (_: number, v: number): number => ranges[v % WIDTH]?.max ?? Infinity,
         ),
       }),
       seed,

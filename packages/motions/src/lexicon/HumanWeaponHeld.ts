@@ -50,7 +50,7 @@ export namespace HumanWeaponHeld {
 
   /**
    * How the hand holds the weapon at an action's start, by the points it is
-   * read at (`StrikingHeld.of`).
+   * read at (`StrikingHeld`).
    */
   export const held =
     (
@@ -64,12 +64,7 @@ export namespace HumanWeaponHeld {
     (
       points: IAutoMovieMotionHumanStrikingHeld.IPoints,
     ): IAutoMovieMotionHumanStrikingHeld.ITool =>
-      StrikingHeld.of(
-        context,
-        hand(context.params),
-        context.params.gun,
-        points,
-      );
+      StrikingHeld(context, hand(context.params), context.params.gun, points);
 
   /**
    * Read the weapon once per plan: the tool as the hand holds it, a long gun

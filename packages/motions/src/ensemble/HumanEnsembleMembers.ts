@@ -15,7 +15,7 @@ import { HumanAttribute } from "./HumanAttribute";
 import { HumanFormation } from "./HumanFormation";
 
 /**
- * How an ensemble's members are resolved from its input (`HumanEnsemble.of`):
+ * How an ensemble's members are resolved from its input (`HumanEnsemble`):
  * each member's attributes and proficiency drawn from the group's distributions
  * by its own keys, its body drawn from the pool, its place its formation slot
  * at second 0 or the place given, then the roles filled in the order given from
@@ -24,7 +24,7 @@ import { HumanFormation } from "./HumanFormation";
  */
 export namespace HumanEnsembleMembers {
   /**
-   * Resolve an ensemble's members, as `HumanEnsemble.of` documents.
+   * Resolve an ensemble's members, as `HumanEnsemble` documents.
    *
    * @param input The ensemble.
    * @param read Reads a guide's placed root, when the formation follows a
@@ -70,7 +70,7 @@ export namespace HumanEnsembleMembers {
     const formation: IAutoMovieMotionHumanFormation | undefined =
       input.formation === undefined
         ? undefined
-        : HumanFormation.of(input.formation);
+        : HumanFormation(input.formation);
     const prepared: HumanFormation.IPrepared | undefined =
       formation === undefined ? undefined : HumanFormation.prepare(formation);
     if (

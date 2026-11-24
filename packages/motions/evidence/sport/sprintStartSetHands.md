@@ -46,7 +46,7 @@ The palm carries no target: it rises where the fit leaves it.
 
 States both members.
 
-# src/sport/sprintStartSetHands.ts#sprintStartSetHands.of
+# src/sport/sprintStartSetHands.ts#sprintStartSetHands
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

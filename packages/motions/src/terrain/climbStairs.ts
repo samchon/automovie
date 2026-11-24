@@ -191,8 +191,10 @@ export namespace climbStairs {
     );
     const framed: HumanFrame.IPrepared = HumanFrame.prepare(stairs.frame);
     const sign: number = stairs.direction === "up" ? 1 : -1;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
 
     // Footprints: the settled flat sole on its tread at the standing lateral place.
     const footing: climbStairsPrints.IPrints = climbStairsPrints.prepare(
@@ -238,7 +240,7 @@ export namespace climbStairs {
     });
     instants.push({ name: "arrived", seconds: steps.length * period });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(
+      AutoMovieMotionClock(
         (steps.length + climbStairsBounds.SETTLE) * period,
         instants,
       ),
@@ -333,7 +335,7 @@ export namespace climbStairs {
       body,
       prints,
     );
-    const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis.of(
+    const rootAt: (seconds: number) => IAutoMovieVector3 = climbStairsPelvis(
       stance,
       clock,
       steps.length,
@@ -343,7 +345,7 @@ export namespace climbStairs {
     // The trunk inclines forward over the climb, more ascending than on the
     // level, and is shared by the pelvis and the spine.
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      standUpright.of(body).joints,
+      standUpright(body).joints,
       p.direction === "down" ? walk.LEAN : climbStairsBounds.ASCENT_LEAN,
     );
     const contact: Record<AutoMovieHumanSide, IAutoMovieVector3> = {

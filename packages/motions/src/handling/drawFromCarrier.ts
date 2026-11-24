@@ -13,6 +13,7 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrehension,
   IAutoMovieMotionPropHold,
+  IAutoMoviePose,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
@@ -151,9 +152,9 @@ function plan(
 
   // The object's world frame on the seat and at the opening.
   const at = (point: string): IAutoMovieRigidTransform =>
-    putDownTarget.of(
+    putDownTarget(
       { ...context, params: { prop, onto: { prop: from.prop, point } } },
-      context.entry.pose,
+      (): IAutoMoviePose => context.entry.pose,
     )!;
   const seat: IAutoMovieRigidTransform = at(from.point);
   const opening: IAutoMovieRigidTransform = at(from.aperture);

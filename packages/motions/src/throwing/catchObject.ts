@@ -44,7 +44,7 @@ import { catchObjectFingers } from "./catchObjectFingers";
  * enters the reach, give with it, and bring it to the chest.
  *
  * The goal is an interception. The throw's plan carries its launch
- * (`throwObject.of`), so the path is known in closed form, drag-free. The catch
+ * (`readThrowObjectLaunch`), so the path is known in closed form, drag-free. The catch
  * point is where the path first comes within `REACH` arm lengths ahead of the
  * catcher's root along its heading (provisional), and the contact instant the
  * path's time there; a path that never comes so near, or a point the arms
@@ -165,7 +165,7 @@ export namespace catchObject {
     const body: IAutoMovieMotionHumanBody = context.body;
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const arm: number = m.upperArm + m.forearm;
-    const radius: number = HumanBall.of(
+    const radius: number = HumanBall(
       context,
       context.params.ball,
       context.start,
@@ -180,7 +180,7 @@ export namespace catchObject {
     };
 
     const timing: IInterception =
-      interception ?? catchObjectApproach.of(context, frame, arm);
+      interception ?? catchObjectApproach(context, frame, arm);
     const contact: number = timing.contact;
     // A staged overlay may meet the ball from a carrier such as an immersed
     // body. Read its shoulders and elbow geometry at the interception.
@@ -240,7 +240,7 @@ export namespace catchObject {
       });
     const secured: number = contact + GIVE_TIME;
     const held: number = secured + 0.4;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(held + 0.6, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(held + 0.6, [
       { name: "reach", seconds: reach },
       { name: "prepare", seconds: Math.max(reach, contact - 0.1) },
       { name: "contact", seconds: contact },

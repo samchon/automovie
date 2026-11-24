@@ -16,11 +16,6 @@ import { StrikingStance } from "../striking/StrikingStance";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { staggerBounds } from "./staggerBounds";
 
-/** The alternatives of `KneePolePrepared`'s site. */
-type KneePolePrepared =
-  | ReturnType<typeof HumanFrame.preparePoint>
-  | IAutoMovieVector3;
-
 /** The record of `IBendingShiftMore2`'s site. */
 type IBendingShiftMore2 = {
   pitch: number;
@@ -121,8 +116,6 @@ export namespace staggerKnots {
    * @param yaw The pelvis's heading, degrees.
    * @param side The leg.
    * @param heading The foot's heading, degrees.
-   * @param prepared Optional fixed-yaw rest-knee reader, or its world point
-   *   already evaluated at this exact body/side/root/yaw.
    * @returns World metres.
    */
   export function kneePole(
@@ -131,16 +124,13 @@ export namespace staggerKnots {
     yaw: number,
     side: AutoMovieHumanSide,
     heading: number,
-    prepared?: KneePolePrepared,
   ): IAutoMovieVector3 {
     return HumanFrame.point(
       {
-        origin:
-          (typeof prepared === "function" ? prepared(root) : prepared) ??
-          HumanFrame.point(
-            { origin: root, yaw },
-            body.rest.get(`${side}LowerLeg`)!,
-          ),
+        origin: HumanFrame.point(
+          { origin: root, yaw },
+          body.rest.get(`${side}LowerLeg`)!,
+        ),
         yaw: heading,
       },
       { x: 0, y: 0, z: 1 },

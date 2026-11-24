@@ -49,27 +49,37 @@ const STRIKES: readonly IStrike[] = [
 /** The punch signature spec's read-back resolution of an elbow band, degrees. */
 const TOLERANCE: number = 10;
 
-/** A struck surface lies within this of the other body's colliders at contact, metres: the blade strokes spec's bound. */
+/**
+ * A struck surface lies within this of the other body's colliders at contact,
+ * metres: the blade strokes spec's bound.
+ */
 const TOUCH: number = 0.015;
 
-/** One film frame at 240 Hz, the step the arrival direction is read over, seconds. */
+/**
+ * One film frame at 240 Hz, the step the arrival direction is read over,
+ * seconds.
+ */
 const STEP: number = 1 / 240;
 
-/** The partner's distance, a share of stature: the striking captures' punching range, 1.3 arms for the average man. */
+/**
+ * The partner's distance, a share of stature: the striking captures' punching
+ * range, 1.3 arms for the average man.
+ */
 const DISTANCE: number = 0.45;
 
 /**
- * The punch law's close hand strikes land their own surface of the hand on
- * the other body: the palm heel along the line, the back of the fist swung
- * out across it, the fist's little-finger edge brought down.
+ * The punch law's close hand strikes land their own surface of the hand on the
+ * other body: the palm heel along the line, the back of the fist swung out
+ * across it, the fist's little-finger edge brought down.
  *
  * Scenarios:
- * 1. On two bodies, each strike is thrown from a guard at a partner in
- *    guard at punching range. At its impact the struck surface, read on the
- *    displayed hand, lies on the first surface of the other body it meets,
- *    the guard or the face.
- * 2. The surface arrives the way the technique travels: the palm heel
- *    forward, the backfist outward across the line, the hammerfist downward.
+ *
+ * 1. On two bodies, each strike is thrown from a guard at a partner in guard at
+ *    punching range. At its impact the struck surface, read on the displayed
+ *    hand, lies on the first surface of the other body it meets, the guard or
+ *    the face.
+ * 2. The surface arrives the way the technique travels: the palm heel forward, the
+ *    backfist outward across the line, the hammerfist downward.
  * 3. The elbow lands within the technique's band.
  * 4. Every take passes the shipped verdicts.
  *
@@ -146,13 +156,13 @@ function play(
     complaints.list.push(`${cell}: no impact`);
     return;
   }
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     0,
   );
-  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,

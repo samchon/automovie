@@ -68,9 +68,7 @@ export const curtsy: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanCurtsy>
     plan,
   };
 
-/**
- * Plan a single curtsy and reject key poses that fail the displayed foot fit.
- */
+/** Plan a single curtsy and reject key poses that fail the displayed foot fit. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCurtsy>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -90,15 +88,6 @@ function plan(
     "s",
   );
   const rear: AutoMovieHumanSide = params.side ?? "right";
-  if (rear !== "left" && rear !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "side",
-      value: rear,
-      feasible: { kind: "alternatives", values: ["left", "right"] },
-      reason: "the curtsy needs a left or right crossing foot",
-      fix: "choose left or right",
-    });
   const lead: AutoMovieHumanSide = rear === "right" ? "left" : "right";
   const front: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[lead];
   const rearEntry: IAutoMovieMotionHumanFoot.IPlacement = entry.feet[rear];
@@ -211,7 +200,7 @@ function plan(
   const transferDrop: number = reach(transfer, rearEntry);
   const landingDrop: number = reach(approach, crossed);
 
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
     { name: "stepOff", seconds: 0.18 * duration },
     { name: "crossed", seconds: 0.35 * duration },
     { name: "dip", seconds: 0.5 * duration },

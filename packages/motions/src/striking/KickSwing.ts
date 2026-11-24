@@ -21,6 +21,7 @@ import { KickChain } from "./KickChain";
 import type { KickChamber } from "./KickChamber";
 import { KickForm } from "./KickForm";
 import { KickRocker } from "./KickRocker";
+import { KickSwingTurned } from "./KickSwingTurned";
 import { KickThrust } from "./KickThrust";
 import { StrikingStroke } from "./StrikingStroke";
 
@@ -398,9 +399,9 @@ export namespace KickSwing {
     const knee: number = minimumJerk.share(
       Math.min(1, share / KickForm.KNEE_LEAD),
     );
-    const thigh: IAutoMovieVector3 = turned(from.thigh, to.thigh, hip);
+    const thigh: IAutoMovieVector3 = KickSwingTurned(from.thigh, to.thigh, hip);
     const stood: IAutoMovieVector3 = Vector3.normalize(from.thigh);
-    const folded: IAutoMovieVector3 = turned(
+    const folded: IAutoMovieVector3 = KickSwingTurned(
       from.shank,
       Quaternion.rotateVector(
         Quaternion.inverse(rotationBetween(stood, Vector3.normalize(to.thigh))),
@@ -415,53 +416,6 @@ export namespace KickSwing {
         folded,
       ),
     };
-  }
-
-  /**
-   * A segment turned from one direction to another by a share of the angle
-   * between them, on their great arc, its length going linearly: a joint's
-   * turn, not a chord. Opposite directions have no arc of their own, so they
-   * turn about a horizontal axis across the first.
-   */
-  function turned(
-    from: IAutoMovieVector3,
-    to: IAutoMovieVector3,
-    share: number,
-  ): IAutoMovieVector3 {
-    const a: number = Vector3.length(from);
-    const b: number = Vector3.length(to);
-    if (a < 1e-9 || b < 1e-9) return Vector3.lerp(from, to, share);
-    const u: IAutoMovieVector3 = Vector3.scale(from, 1 / a);
-    const v: IAutoMovieVector3 = Vector3.scale(to, 1 / b);
-    const angle: number = Math.acos(
-      Math.min(1, Math.max(-1, Vector3.dot(u, v))),
-    );
-    const sine: number = Math.sin(angle);
-    const length: number = a + (b - a) * share;
-    if (angle < 1e-6) return Vector3.scale(Vector3.lerp(u, v, share), length);
-    if (sine < 1e-6) {
-      const across: IAutoMovieVector3 = Vector3.cross(
-        u,
-        Math.abs(u.y) < 0.9 ? { x: 0, y: 1, z: 0 } : { x: 1, y: 0, z: 0 },
-      );
-      return Vector3.scale(
-        Quaternion.rotateVector(
-          Quaternion.fromAxisAngle(
-            Vector3.normalize(across),
-            (angle * share) / Quaternion.DEG2RAD,
-          ),
-          u,
-        ),
-        length,
-      );
-    }
-    return Vector3.scale(
-      Vector3.add(
-        Vector3.scale(u, Math.sin((1 - share) * angle) / sine),
-        Vector3.scale(v, Math.sin(share * angle) / sine),
-      ),
-      length,
-    );
   }
 
   /** A hinge turn: its unit axis in the pelvis's frame and its angle. */

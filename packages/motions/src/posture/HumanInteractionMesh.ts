@@ -322,7 +322,7 @@ export namespace HumanInteractionMesh {
         }
         current.energy += (stiffness - 1) * current.barrier;
       }
-      const displacement: Float64Array = Step.of(
+      const displacement: Float64Array = Step(
         x.length,
         terms,
         baseStiffness,

@@ -7,7 +7,7 @@ import type {
 
 import type { crawlFeet } from "./crawlFeet";
 
-/** What the way down onto all fours (`crawlDown.of`) is built from. */
+/** What the way down onto all fours (`crawlDown`) is built from. */
 export interface ICrawlDownProps {
   /** The body. */
   body: IAutoMovieMotionHumanBody;

@@ -126,7 +126,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   );
 
   // The figures are solved in the carrier contact's frame as it stands at the start.
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     on,
     frame,
@@ -198,7 +198,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const grips: HumanRideHands.IHands | undefined =
     holding.length === 0
       ? undefined
-      : HumanRideHands.of(
+      : HumanRideHands(
           { ...context, params: { on, duration: clock.duration, hands } },
           on,
           support,

@@ -1,4 +1,4 @@
-# src/striking/KickClear.ts#KickClear.of
+# src/striking/KickClear.ts#KickClear
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

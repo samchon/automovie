@@ -16,7 +16,7 @@ Only the start and end states are returned.
 
 Reuses jumpState rather than another pose or FK representation.
 
-# src/actions/jumpEndpoints.ts#jumpEndpoints.of
+# src/actions/jumpEndpoints.ts#jumpEndpoints
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

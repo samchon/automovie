@@ -17,11 +17,15 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { qclose, vclose } from "../../../internal/predicates";
 
 /**
- * A carriage member and its passenger retain their local frames through a straight and a turn.
+ * A carriage member and its passenger retain their local frames through a
+ * straight and a turn.
  *
  * Scenarios:
- * 1. The rail and seat world sockets compose from member placement, local socket and moving root.
- * 2. The passenger's seat landmark stays within one centimetre of its initial seat-relative position.
+ *
+ * 1. The rail and seat world sockets compose from member placement, local socket
+ *    and moving root.
+ * 2. The passenger's seat landmark stays within one centimetre of its initial
+ *    seat-relative position.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Samples the published ride and the displayed passenger.
  * @evidence contracts/development/testing.md#independent-expectations Rigid transform composition and a fixed seat-relative position give independent readings.
@@ -98,7 +102,7 @@ export function test_motion_mechanism_passenger_frame(): void {
       .sit({ seat })
       .registered("ride", { on: "coach", duration: ride.duration }).node,
   });
-  const reader = HumanSignature.of(film, "passenger", body, 0),
+  const reader = HumanSignature(film, "passenger", body, 0),
     segment = film.segments("passenger")[1]!;
   const relative = (t: number) => {
     const frame = ride.frame("bench2/seat", t);

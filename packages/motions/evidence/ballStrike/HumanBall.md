@@ -1,4 +1,4 @@
-# src/ballStrike/HumanBall.ts#HumanBall.of
+# src/ballStrike/HumanBall.ts#HumanBall
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

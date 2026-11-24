@@ -288,12 +288,10 @@ function ground(
     context.body,
     root,
     frame,
-    hips,
     feet,
     claims,
     // The forefoot rocker is a stepping foot's: it comes in with the gait and goes with it, so a walk stands flat where it starts and stops.
     walkLeg.ROCKER * amount,
-    read,
   );
 }
 

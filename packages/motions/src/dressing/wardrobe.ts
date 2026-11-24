@@ -48,20 +48,8 @@ function planWardrobe(
   context: IAutoMovieMotionHumanActionContext<Params>,
 ): IAutoMovieMotionHumanActionPlan {
   const params: Params = context.params;
-  if (typeof params.prop !== "string" || params.prop.length === 0)
-    throw wardrobeHands.refusal(
-      "prop",
-      params.prop,
-      "name a declared wearable prop",
-    );
   const side: AutoMovieHumanSide =
     params.kind === "jacketOn" ? (params.hand ?? "right") : params.side;
-  if (side !== "left" && side !== "right")
-    throw wardrobeHands.refusal(
-      "side",
-      side,
-      "choose the actual left or right limb",
-    );
   switch (params.kind) {
     case "jacketOn":
       return jacket(context, side);
@@ -74,20 +62,8 @@ function planWardrobe(
     case "footwearOn":
     case "footwearOff": {
       const hand: AutoMovieHumanSide = params.hand ?? opposite(side);
-      if (hand !== "left" && hand !== "right")
-        throw wardrobeHands.refusal(
-          "hand",
-          hand,
-          "choose the hand taking the footwear",
-        );
       return wardrobeFoot(context, side, hand, params.kind === "footwearOff");
     }
-    default:
-      throw wardrobeHands.refusal(
-        "kind",
-        params,
-        "choose a supported wardrobe action kind",
-      );
   }
 }
 
@@ -128,7 +104,7 @@ function jacket(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry, params }: typeof context = context;
   const reader: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     hand,
     params.prop,

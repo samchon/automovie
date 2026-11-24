@@ -28,8 +28,9 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * A right-hand dyad and a left-hand note overlap on the upright piano.
  *
  * Scenarios:
- * 1. The chord begins on two resting keys, depresses them together and
- *    releases while the other hand still holds its key.
+ *
+ * 1. The chord begins on two resting keys, depresses them together and releases
+ *    while the other hand still holds its key.
  * 2. The adjacent unscored key stays level throughout both hands' contacts.
  * 3. At full depression of a transferred key, only the new fingertip meets it.
  * 4. Duplicate assignments, zero-gap transfers and unreachable spans are refused.

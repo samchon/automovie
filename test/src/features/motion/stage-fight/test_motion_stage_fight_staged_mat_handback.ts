@@ -30,16 +30,17 @@ const JOIN: number = 0.005;
 const OFFSET: number = 0.0001;
 
 /**
- * The declared mat and denied releases continue to the next scheduled beat
- * with different receiver supports and continuous displayed joints.
+ * The declared mat and denied releases continue to the next scheduled beat with
+ * different receiver supports and continuous displayed joints.
  *
  * Scenarios:
- * 1. A completed take transfers its receiver support from seat to back. The
- *    next beat begins when both actors finish while the receiver remains low.
- * 2. The staged denied take also releases and hands back to the next beat.
- *    The receiver exits upright with neither seat nor back support.
- * 3. Named joint landmarks and body clearance are sampled before, at and
- *    after each handback.
+ *
+ * 1. A completed take transfers its receiver support from seat to back. The next
+ *    beat begins when both actors finish while the receiver remains low.
+ * 2. The staged denied take also releases and hands back to the next beat. The
+ *    receiver exits upright with neither seat nor back support.
+ * 3. Named joint landmarks and body clearance are sampled before, at and after
+ *    each handback.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the two declared outcomes, their distinct supports and a following stage beat.
  * @evidence contracts/development/testing.md#behavioral-verification Places the public coupled action and a real appended stand on one schedule, checks the release against the handback time, and reads both displayed poses and colliders through the join.
@@ -149,13 +150,13 @@ function handback(
           nclose(back.to, 1),
   );
 
-  const one: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const one: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     actorYaw,
   );
-  const other: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const other: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,

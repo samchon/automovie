@@ -1,4 +1,4 @@
-# src/reaction/staggerLimit.ts#staggerLimit.of
+# src/reaction/staggerLimit.ts#staggerLimit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

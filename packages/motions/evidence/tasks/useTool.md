@@ -27,3 +27,21 @@ The working pose, the turn's axis and the pose at a contact's half cycle are com
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The plan holds the tool's geometry, the clock and the kept fingers for its lifetime; nothing grows with the seconds evaluated.
+
+# src/tasks/useTool.ts#useTool.IWork
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names a shape `useTool.plan` and its parts share.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The alias `IWork` names the plan's own shape; its units and frames are those of the members it is built from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `useTool.plan` and the parts cut from it.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of existing types; it adds no shape of its own.

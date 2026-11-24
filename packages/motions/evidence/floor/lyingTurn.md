@@ -1,4 +1,4 @@
-# src/floor/lyingTurn.ts#lyingTurn.of
+# src/floor/lyingTurn.ts#lyingTurn
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

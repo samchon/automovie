@@ -29,6 +29,7 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingAdvance } from "./StrikingAdvance";
+import { StrikingBladeOnPath } from "./StrikingBladeOnPath";
 import { StrikingHeld } from "./StrikingHeld";
 import { StrikingSupport } from "./StrikingSupport";
 
@@ -164,7 +165,7 @@ export namespace StrikingBlade {
       stroke.support !== null &&
       tool.held !== undefined &&
       context.entry.holds[other] === tool.held.prop
-        ? AutoMovieMotionHumanHeld.of(context, other, tool.held.prop)
+        ? AutoMovieMotionHumanHeld(context, other, tool.held.prop)
         : undefined;
 
     // The hand as displayed at the entry, kept relative to the root so it
@@ -259,48 +260,16 @@ export namespace StrikingBlade {
 
     // The tool's frame at a progress along its path at a second, carried
     // with the advance and a followed target.
-    const onPath = (
+    const onPath: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       read: (() => ReturnType<typeof HumanTrunk.resolve>) | undefined,
       progress: number,
-    ): IAutoMovieMotionHumanStrikingHeld.IHandFrame => {
-      const laid: IAutoMovieMotionHumanStrikingHeld.IHandFrame = stroke.path(
-        stroke.stop < 1 ? Math.min(stroke.stop, progress) : progress,
-        seconds,
-      );
-
-      // A followed target moves the landing with it; the arm's reference
-      // stays planned on the path alone.
-      const sought: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        stroke.follow === undefined
-          ? laid
-          : { ...laid, point: Vector3.add(laid.point, stroke.follow(seconds)) };
-
-      // A path is laid from the shoulder as it stands to the shoulder the
-      // advance brings, as if the body advanced with the stroke's own
-      // progress. The body advances on its own time, so the hand is carried
-      // by what the shoulder is ahead of or behind that: otherwise a lunge
-      // drives the body through its own hand and folds the arm to its limit.
-      const at: IAutoMovieMotionHumanStrikingHeld.IHandFrame =
-        stroke.advance === "none" || !(stroke.stop > 0)
-          ? sought
-          : {
-              ...sought,
-              point: Vector3.add(
-                sought.point,
-                Vector3.subtract(
-                  shoulderOf(posture, read),
-                  Vector3.lerp(
-                    borne()[0],
-                    borne()[1],
-                    Math.min(1, Math.max(0, progress / stroke.stop)),
-                  ),
-                ),
-              ),
-            };
-      return at;
-    };
+    ) => IAutoMovieMotionHumanStrikingHeld.IHandFrame = StrikingBladeOnPath({
+      stroke,
+      shoulderOf,
+      borne,
+    });
 
     // The holding arm's own solution at the decisive pose, the reference of
     // every goal of the stroke, so the fit stays on one side of its choices

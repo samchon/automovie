@@ -33,7 +33,7 @@ import { crutchSitUp } from "./crutchSitUp";
 function planHumanCrutchSit(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanCrutchSit>,
 ): IAutoMovieMotionHumanActionPlan {
-  const kit: crutchSitKit.IKit = crutchSitKit.of(context);
+  const kit: crutchSitKit.IKit = crutchSitKit(context);
   const order: crutchSitKit.IOrder =
     context.params.rise === true
       ? crutchSitUp(context, kit)

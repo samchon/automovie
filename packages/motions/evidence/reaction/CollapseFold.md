@@ -16,7 +16,7 @@ Read by `collapse`'s lean, joints and floor primitives.
 
 Every member is always present.
 
-# src/reaction/CollapseFold.ts#CollapseFold.of
+# src/reaction/CollapseFold.ts#CollapseFold
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

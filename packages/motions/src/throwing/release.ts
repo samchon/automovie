@@ -175,7 +175,7 @@ export namespace release {
     // The elbow is solved once over the span, when the action is planned,
     // and continued through it (`AutoMovieMotionHumanBendTrack`).
     const elbow: AutoMovieMotionHumanBendTrack.ITrack =
-      AutoMovieMotionHumanBendTrack.of({
+      AutoMovieMotionHumanBendTrack({
         body,
         side,
         from: 0,

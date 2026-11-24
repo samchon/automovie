@@ -1,4 +1,5 @@
 import type {
+  IAutoMovieChannel,
   IAutoMovieClipChannelGate,
   IAutoMovieConstraintViolation,
   IAutoMovieLightChannelProperty,
@@ -21,7 +22,7 @@ export const lightClipChannelGate: (
     stagedLights: ReadonlyMap<string, unknown> | null,
   ): IAutoMovieClipChannelGate =>
   (
-    channel: Record<string, unknown>,
+    channel: IAutoMovieChannel,
     path: string,
     violations: IAutoMovieConstraintViolation[],
   ): void => {

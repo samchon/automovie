@@ -87,7 +87,7 @@ type IPlanAimResult = { point: IAutoMovieVector3; normal: IAutoMovieVector3 };
  * hold the named `hold` pause (a beat when absent); a stroke takes one travel
  * of its path's length; an oscillation takes `cycles` beats. The manner's tempo
  * scales every phase and its extent and curvature reach the phrase
- * (`AutoMovieMotionManner.of`). Events: the phrase's instants.
+ * (`AutoMovieMotionManner`). Events: the phrase's instants.
  */
 export namespace armPhrase {
   /** The law's name, as productions register it. */
@@ -122,7 +122,7 @@ export namespace armPhrase {
     const hold: IAutoMovieMotionHumanPosture = context.entry.posture;
     const reach: number =
       body.measure.upperArm + body.measure.forearm + body.measure.hand;
-    const mods: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+    const mods: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
       context,
       p.manner,
     );
@@ -216,7 +216,7 @@ export namespace armPhrase {
         p.point === undefined || p.held === undefined
           ? null
           : AutoMovieMotionHumanHeld.point(
-              AutoMovieMotionHumanHeld.of(context, side, p.held),
+              AutoMovieMotionHumanHeld(context, side, p.held),
               p.point,
             );
       // The elbow hangs as the entry posture hangs it, the target being read

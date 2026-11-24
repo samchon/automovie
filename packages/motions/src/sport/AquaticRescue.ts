@@ -25,51 +25,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanHand } from "../posture/HumanHand";
 import { AquaticPosture } from "./AquaticPosture";
-
-/**
- * A lifeguard's approach swim, metres per second: provisional, a sustained
- * sprint front crawl.
- */
-const SWIM: number = 1.2;
-
-/**
- * The tow, metres per second: provisional, inside the 0.4 to 1.0 m/s rescue
- * band.
- */
-const TOW: number = 0.6;
-
-/** Seconds to take the cross-chest hold once alongside: provisional. */
-const GRIP: number = 0.6;
-
-/**
- * The rescuer's pelvis behind the victim's during the tow, metres: provisional,
- * the rescuer's chest just behind the victim's back.
- */
-const BEHIND: number = 0.65;
-
-/** The victim stops this far short of the edge, metres: a reach for the deck. */
-const SHORT: number = 0.5;
-
-/** The towed victim's mouth above the surface, metres: provisional. */
-const CLEAR: number = 0.08;
-
-/**
- * How far short of the hold the crawl stops, metres: provisional, beyond a
- * struggling victim's reach.
- */
-const STANDOFF: number = 0.8;
-
-/**
- * Seconds before reaching the victim over which the crawl's strokes die away:
- * provisional, about one stroke.
- */
-const NEAR: number = 1.2;
-
-/** Seconds of one front-crawl arm cycle on the approach: provisional. */
-const STROKE: number = 1.2;
-
-/** Seconds of one scissor kick: provisional. */
-const KICK: number = 1;
+import { AquaticRescueBounds } from "./AquaticRescueBounds";
 
 /**
  * The rescue's shared geometry, read the same way by the rescuer and the
@@ -129,7 +85,7 @@ export namespace AquaticRescue {
     const tow: ITow = plan(from, edgeOf(context));
     const behind: IAutoMovieVector3 = Vector3.subtract(
       from,
-      Vector3.scale(tow.toward, BEHIND),
+      Vector3.scale(tow.toward, AquaticRescueBounds.BEHIND),
     );
     // The crawl stops `STANDOFF` short of the hold, clear of the victim's
     // flailing body, and the rescuer glides in onto its side as it takes
@@ -139,16 +95,20 @@ export namespace AquaticRescue {
       behind.z - entry.posture.root.z,
     );
     const standoff: IAutoMovieVector3 =
-      gap > STANDOFF
+      gap > AquaticRescueBounds.STANDOFF
         ? Vector3.add(behind, {
-            x: ((entry.posture.root.x - behind.x) / gap) * STANDOFF,
+            x:
+              ((entry.posture.root.x - behind.x) / gap) *
+              AquaticRescueBounds.STANDOFF,
             y: 0,
-            z: ((entry.posture.root.z - behind.z) / gap) * STANDOFF,
+            z:
+              ((entry.posture.root.z - behind.z) / gap) *
+              AquaticRescueBounds.STANDOFF,
           })
         : behind;
-    const approach: number = Math.max(0, gap - STANDOFF);
+    const approach: number = Math.max(0, gap - AquaticRescueBounds.STANDOFF);
     const limit: number = params.duration ?? Infinity;
-    if (approach / SWIM > limit)
+    if (approach / AquaticRescueBounds.SWIM > limit)
       throw new HumanRefusal({
         kind: "reach",
         axis: "partner",
@@ -156,14 +116,14 @@ export namespace AquaticRescue {
         feasible: {
           kind: "range",
           minimum: 0,
-          maximum: SWIM * limit,
+          maximum: AquaticRescueBounds.SWIM * limit,
           unit: "m",
         },
-        reason: `the victim is ${approach.toFixed(2)} m away, beyond the ${(SWIM * limit).toFixed(2)} m a rescuer swims in ${limit} s`,
+        reason: `the victim is ${approach.toFixed(2)} m away, beyond the ${(AquaticRescueBounds.SWIM * limit).toFixed(2)} m a rescuer swims in ${limit} s`,
         fix: "start the rescuer nearer, or allow more time before submersion",
       });
-    const arrive: number = approach / SWIM;
-    const hold: number = arrive + GRIP;
+    const arrive: number = approach / AquaticRescueBounds.SWIM;
+    const hold: number = arrive + AquaticRescueBounds.GRIP;
     const duration: number = hold + tow.seconds;
     // The approach is a front crawl: the arms recover over the water in turn.
     // The crawl's strokes shorten over the last `NEAR` seconds of the
@@ -174,9 +134,13 @@ export namespace AquaticRescue {
     ): IAutoMovieMotionHumanPosture => {
       const near: number = Math.max(
         0,
-        Math.min(1, (approach / SWIM - t) / NEAR),
+        Math.min(
+          1,
+          (approach / AquaticRescueBounds.SWIM - t) / AquaticRescueBounds.NEAR,
+        ),
       );
-      const stroke: number = near * Math.sin((2 * Math.PI * t) / STROKE);
+      const stroke: number =
+        near * Math.sin((2 * Math.PI * t) / AquaticRescueBounds.STROKE);
       return AquaticPosture.key(
         entry.posture,
         ExerciseKey.from(
@@ -189,7 +153,9 @@ export namespace AquaticRescue {
         ),
       );
     };
-    const swim: IAutoMovieMotionHumanPosture = swimAt(approach / SWIM);
+    const swim: IAutoMovieMotionHumanPosture = swimAt(
+      approach / AquaticRescueBounds.SWIM,
+    );
     const side: IAutoMovieMotionHumanPosture = AquaticPosture.key(
       entry.posture,
       ExerciseKey.from(
@@ -210,7 +176,7 @@ export namespace AquaticRescue {
     ): IAutoMovieMotionHumanPosture => {
       const t: number = Math.max(0, Math.min(duration, seconds));
       const shaped: IAutoMovieMotionHumanPosture =
-        t < arrive ? swimAt(t) : turn((t - arrive) / GRIP);
+        t < arrive ? swimAt(t) : turn((t - arrive) / AquaticRescueBounds.GRIP);
       const where: IAutoMovieVector3 =
         t < arrive
           ? Vector3.lerp(
@@ -222,7 +188,7 @@ export namespace AquaticRescue {
             ? Vector3.lerp(
                 { ...standoff, y: 0 },
                 { ...behind, y: 0 },
-                minimumJerk.share((t - arrive) / GRIP),
+                minimumJerk.share((t - arrive) / AquaticRescueBounds.GRIP),
               )
             : Vector3.add(
                 { ...behind, y: 0 },
@@ -241,8 +207,11 @@ export namespace AquaticRescue {
       // The legs scissor under the side-lying rescuer, the kick growing in
       // as the turn onto the side is taken, so the legs move on from the
       // crawl's without a jump.
-      const k: number = minimumJerk.share(Math.min(1, (t - arrive) / GRIP));
-      const swing: number = k * Math.sin((2 * Math.PI * (t - arrive)) / KICK);
+      const k: number = minimumJerk.share(
+        Math.min(1, (t - arrive) / AquaticRescueBounds.GRIP),
+      );
+      const swing: number =
+        k * Math.sin((2 * Math.PI * (t - arrive)) / AquaticRescueBounds.KICK);
       const kicked: (
         bone: AutoMovieHumanoidBone,
         degrees: number,
@@ -438,12 +407,15 @@ export namespace AquaticRescue {
       ],
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.max(0, Math.min(duration, seconds));
-        const shaped: IAutoMovieMotionHumanPosture = lie(t / GRIP);
+        const shaped: IAutoMovieMotionHumanPosture = lie(
+          t / AquaticRescueBounds.GRIP,
+        );
         const where: IAutoMovieVector3 = Vector3.add(
           { ...tow.from, y: 0 },
           Vector3.scale(tow.toward, along(tow, t)),
         );
-        const lift: number = water + CLEAR - mouthAt(shaped);
+        const lift: number =
+          water + AquaticRescueBounds.CLEAR - mouthAt(shaped);
         return AquaticPosture.translate(shaped, {
           x: where.x,
           y: shaped.root.y + lift,
@@ -461,13 +433,16 @@ export namespace AquaticRescue {
       z: edge.z - from.z,
     };
     const distance: number = Vector3.length(flat);
-    const length: number = Math.max(0, distance - SHORT);
+    const length: number = Math.max(0, distance - AquaticRescueBounds.SHORT);
     return {
       from,
       toward:
         distance > 0 ? Vector3.scale(flat, 1 / distance) : { x: 0, y: 0, z: 1 },
       length,
-      seconds: Math.max(GRIP, length / TOW),
+      seconds: Math.max(
+        AquaticRescueBounds.GRIP,
+        length / AquaticRescueBounds.TOW,
+      ),
     };
   }
 

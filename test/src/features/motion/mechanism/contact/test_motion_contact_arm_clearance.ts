@@ -26,6 +26,7 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * Forearm clearing preserves joint freedom and keeps obstacles outside the arm.
  *
  * Scenarios:
+ *
  * 1. An arm already within its allowance is kept.
  * 2. An obstructed arm changes only upper-arm abduction and elbow flexion. An
  *    independent feasible candidate exposes any remaining avoidable overlap.

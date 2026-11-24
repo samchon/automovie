@@ -1,4 +1,4 @@
-# src/compose/AutoMovieMotionClockNative.ts#AutoMovieMotionClockNative.of
+# src/compose/AutoMovieMotionClockNative.ts#AutoMovieMotionClockNative
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

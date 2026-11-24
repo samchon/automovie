@@ -109,6 +109,16 @@ export interface IAutoMovieMotionHumanBody {
    */
   upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
+  /**
+   * The relaxed hanging arms' and hands' clinical angles, degrees
+   * (`standRelaxed`): the least shoulder abduction that leaves the relaxed
+   * digits clear of the quiet stance, a property of the body solved on its
+   * first read, once, from the unchanged rig and profile.
+   */
+  relaxed: Partial<
+    Record<AutoMovieHumanoidBone, readonly [number, number, number]>
+  >;
+
   /** Rest joint positions, canonical metres. */
   rest: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieVector3>;
 

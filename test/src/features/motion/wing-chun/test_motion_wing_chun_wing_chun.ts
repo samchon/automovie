@@ -28,18 +28,23 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 /** A held or landed contact lies within this, metres: the grapple specs' 1 cm. */
 const GRIP: number = 0.01;
 
-/** A strike lands within this of its prop target, metres: the blade strokes spec's bound. */
+/**
+ * A strike lands within this of its prop target, metres: the blade strokes
+ * spec's bound.
+ */
 const TOUCH: number = 0.015;
 
-/** Chain punches land at least this many per second: amateur boxers' 4 to 6 (as #4014's sources summarise). */
+/**
+ * Chain punches land at least this many per second: amateur boxers' 4 to 6 (as
+ * #4014's sources summarise).
+ */
 const RATE: readonly [number, number] = [4, 13.4];
 
 /**
- * Wing chun on two bodies: chain punches alternate hands along the
- * centreline at a boxer's rate or faster; in chi sau the partners' wrists
- * keep contact through every roll while the contacts roll; strikes on the
- * wooden dummy land on its trunk, its arm and its leg. Every take passes
- * the shipped verdicts.
+ * Wing chun on two bodies: chain punches alternate hands along the centreline
+ * at a boxer's rate or faster; in chi sau the partners' wrists keep contact
+ * through every roll while the contacts roll; strikes on the wooden dummy land
+ * on its trunk, its arm and its leg. Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each case and what it reads.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the rows and the chi sau action through HumanPerformance and reads the displayed fists, wrists, palms and heels and the dummy's affordances.
@@ -95,7 +100,7 @@ function chainPunches(
     "chain",
   );
   assertTakeClean(`${name} chain punches`, film);
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
@@ -108,7 +113,7 @@ function chainPunches(
   const hands: AutoMovieHumanSide[] = impacts.map(
     (s: number): AutoMovieHumanSide => {
       const target: IAutoMovieVector3 = HumanSignature.region(
-        HumanSignature.of(film, "b", body, 180),
+        HumanSignature(film, "b", body, 180),
         "solarPlexus",
         s,
       );
@@ -164,13 +169,13 @@ function rollingHands(
   );
   assertTakeClean(`${name} chi sau`, film);
   const roll: IAutoMovieScheduleEntry = motionCombatPair.placed(film, "rollA");
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     0,
   );
-  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,
@@ -204,7 +209,10 @@ function rollingHands(
   );
 }
 
-/** The wooden dummy drill: a palm strike on the trunk, a slap on the arm and a kick on the leg. */
+/**
+ * The wooden dummy drill: a palm strike on the trunk, a slap on the arm and a
+ * kick on the leg.
+ */
 function dummy(
   name: motionCombatPair.Name,
   body: IAutoMovieMotionHumanBody,
@@ -248,7 +256,7 @@ function dummy(
       .registered("sideKick", { at: at("leg") }, "leg").node,
   });
   assertTakeClean(`${name} dummy`, film);
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,

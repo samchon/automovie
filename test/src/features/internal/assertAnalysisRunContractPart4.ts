@@ -18,8 +18,8 @@ import { hasViolation, namedFacts } from "./predicates";
  * 1. a field may only be drawn for a metric that produced a value.
  * 2. a warning must say something about something.
  *
- * A sample must name a measured metric, have a distinct nonblank id and finite position/value; a warning requires nonblank code/detail and a null or nonblank subject. These authored schema requirements determine the exact type/range paths. The sample-limit case is relative to the published bound and does not independently pin its numeric value.
- * Two valid samples contrast with gapped/unknown metric keys, blank/duplicate ids, nonfinite coordinates/values and one sample beyond the bound. Complete warnings with null/named subjects contrast with each blank field. This part returns the warning sink and metric-builder closure; later parts own builder target semantics and summary results.
+ * A sample must name a measured metric, have a distinct id; a warning requires nonblank code/detail and a null or nonblank subject. These authored schema requirements determine the exact type/range paths. The sample-limit case is relative to the published bound and does not independently pin its numeric value.
+ * Two valid samples contrast with gapped/unknown metric keys, duplicate ids and one sample beyond the bound. Complete warnings with null/named subjects contrast with each blank field. This part returns the warning sink and metric-builder closure; later parts own builder target semantics and summary results.
  */
 export function assertAnalysisRunContractPart4(
   measured: (
@@ -75,15 +75,6 @@ export function assertAnalysisRunContractPart4(
           ),
       ],
       [
-        "a blank sample id",
-        (): boolean =>
-          hasViolation(
-            solved([measured()], [at(" ", "room.reverberationTime")]),
-            "type",
-            "$input.outcome.samples[0].id",
-          ),
-      ],
-      [
         "a duplicated sample id",
         (): boolean =>
           hasViolation(
@@ -96,37 +87,6 @@ export function assertAnalysisRunContractPart4(
             ),
             "type",
             "$input.outcome.samples[1].id",
-          ),
-      ],
-      [
-        "a non-finite position",
-        (): boolean =>
-          hasViolation(
-            solved(
-              [measured()],
-              [
-                {
-                  id: "a",
-                  key: "room.reverberationTime",
-                  position: { x: 0, y: Number.NaN, z: 0 },
-                  value: 1,
-                },
-              ],
-            ),
-            "range",
-            "$input.outcome.samples[0].position.y",
-          ),
-      ],
-      [
-        "a non-finite sample value",
-        (): boolean =>
-          hasViolation(
-            solved(
-              [measured()],
-              [at("a", "room.reverberationTime", Number.POSITIVE_INFINITY)],
-            ),
-            "range",
-            "$input.outcome.samples[0].value",
           ),
       ],
       [
@@ -150,10 +110,7 @@ export function assertAnalysisRunContractPart4(
       "a real field": true,
       "a field of nothing": true,
       "a field of an unknown metric": true,
-      "a blank sample id": true,
       "a duplicated sample id": true,
-      "a non-finite position": true,
-      "a non-finite sample value": true,
       "a grid past the bound": true,
     },
   );

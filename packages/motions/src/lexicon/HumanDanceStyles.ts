@@ -21,20 +21,20 @@ export namespace HumanDanceStyles {
   /** Tap steps whose strikes sound on the beat's subdivisions. */
   export const tap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["tap"]
-  > = HumanActionRow.of("tap", tapDance, {});
+  > = HumanActionRow("tap", tapDance, {});
 
   /** A ballet position, pirouette or grand jeté. */
   export const ballet: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["ballet"]
-  > = HumanActionRow.of("ballet", balletStep, {});
+  > = HumanActionRow("ballet", balletStep, {});
 
   /** A street groove: the rock with its hits, or the moonwalk. */
   export const streetGroove: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["streetGroove"]
-  > = HumanActionRow.of("streetGroove", streetDance, {});
+  > = HumanActionRow("streetGroove", streetDance, {});
 
   /** A social group dance: a line, a circle or a conga. */
   export const socialDance: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sport"]["socialDance"]
-  > = HumanActionRow.of("socialDance", groupDance, {});
+  > = HumanActionRow("socialDance", groupDance, {});
 }

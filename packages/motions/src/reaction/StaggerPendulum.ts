@@ -225,7 +225,7 @@ export class StaggerPendulum {
    * nearest point of their outline).
    */
   public bear(sides: readonly AutoMovieHumanSide[], seconds: number): void {
-    this.advance(staggerNearest.of(this.bearing(sides), this.xi()), seconds);
+    this.advance(staggerNearest(this.bearing(sides), this.xi()), seconds);
   }
 
   /**
@@ -237,7 +237,7 @@ export class StaggerPendulum {
   public pressure(): IAutoMovieVector3 {
     const last: staggerRecover.IPhase | undefined = this.phases.at(-1);
     return last === undefined
-      ? staggerNearest.of(this.bearing(["left", "right"]), this.xi())
+      ? staggerNearest(this.bearing(["left", "right"]), this.xi())
       : (last.to ?? last.p);
   }
 
@@ -287,9 +287,9 @@ export class StaggerPendulum {
       );
       return Vector3.add(end.s, Vector3.scale(end.v, 1 / this.w));
     };
-    let p1: IAutoMovieVector3 = staggerNearest.of(outline, this.xi());
+    let p1: IAutoMovieVector3 = staggerNearest(outline, this.xi());
     for (let k: number = 0; k < StaggerPendulum.PASSES; k++) {
-      const next: IAutoMovieVector3 = staggerNearest.of(outline, lifted(p1));
+      const next: IAutoMovieVector3 = staggerNearest(outline, lifted(p1));
       const moved: number = Vector3.distance(next, p1);
       p1 = next;
       if (moved <= StaggerPendulum.FIXED) break;

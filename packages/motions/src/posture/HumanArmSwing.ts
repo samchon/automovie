@@ -23,6 +23,245 @@ import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { resolveHumanPosture } from "./resolveHumanPosture";
 
 /**
+ * The exact pose search, or a final-arm certificate in a stride-maximum
+ * reduction.
+ */
+function cleared(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  sides: readonly AutoMovieHumanSide[],
+  source?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  resolved?: IAutoMoviePose,
+  maxima?: Readonly<Record<AutoMovieHumanSide, number>>,
+  entered?: HumanArmSwing.Entered,
+): IAutoMovieMotionHumanPosture {
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution(source);
+  let pose: IAutoMoviePose =
+    resolved ??
+    resolveHumanPosture.seeded(
+      body,
+      posture,
+      undefined,
+      {},
+      resolution,
+      undefined,
+      projection,
+    ).pose;
+  const joints: IAutoMovieMotionHumanPosture["joints"] = {
+    ...posture.joints,
+  };
+  // The pose's bones and placed segments, read once and shared by the
+  // next arm's search where the arm before it was written back as it was.
+  let read: prepareHumanArmRoom.IRead | undefined;
+  let quiet: prepareHumanArmRoom.IRead | undefined;
+  const standing = (): prepareHumanArmRoom.IRead => {
+    if (quiet !== undefined) return quiet;
+    const base: IAutoMoviePose = resolveHumanPosture.seeded(
+      body,
+      stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
+      undefined,
+      {},
+      resolution,
+      undefined,
+      projection,
+    ).pose;
+    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+      body,
+      base,
+      resolution(),
+    );
+    quiet = { bones, placed: HumanColliders.placed(body, bones) };
+    return quiet;
+  };
+  for (let index: number = 0; index < sides.length; index++) {
+    const side: AutoMovieHumanSide = sides[index]!;
+    if (posture.limbs[`${side}Arm`] !== undefined) continue;
+    const arm: IAutoMovieMotionHumanArmClearance.IArm = readArm(pose, side);
+    // A later arm measures its room against the earlier arm's exact pose.
+    // Only the last arm can discard a phase that cannot raise its running maximum.
+    const maximum: number | undefined =
+      index + 1 === sides.length ? maxima?.[side] : undefined;
+    const original: number = posture.joints[`${side}UpperArm`]?.[1] ?? 0;
+    const wins: (added: number) => boolean = (added: number): boolean =>
+      maximum === undefined || arm.upper[1] + added - original > maximum;
+    if (!wins(HumanArmSwing.SPAN)) continue;
+
+    // The least added abduction that keeps the arm's room within its
+    // stance baseline, by bisection: the least moves continuously as the
+    // swing does, where a local search could jump between frames.
+    const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
+      body,
+      side,
+      standing,
+    );
+    // An arm handed on lying deeper may stay as deep as it entered.
+    const handed: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
+      entered?.[side];
+    const baseline: IAutoMovieMotionHumanArmClearance.IBaseline =
+      handed === undefined
+        ? quietRoom
+        : {
+            forearm: Math.max(quietRoom.forearm, handed.forearm),
+            segments: Math.max(quietRoom.segments, handed.segments),
+          };
+    const out: (a: number) => IAutoMovieMotionHumanArmClearance.IArm = (
+      a: number,
+    ): IAutoMovieMotionHumanArmClearance.IArm => ({
+      ...arm,
+      upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
+    });
+
+    // Every candidate turns this arm alone, so the rest of the body is
+    // posed and placed once for the search (`prepareHumanArmRoom`), which
+    // reads each candidate's room as `HumanArmClearance.room` does.
+    if (read === undefined) {
+      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+        poseBones(body, pose, resolution());
+      read = { bones, placed: HumanColliders.placed(body, bones) };
+    }
+    const room: ReturnType<typeof prepareHumanArmRoom> = prepareHumanArmRoom(
+      body,
+      pose,
+      side,
+      [],
+      baseline,
+      resolution(),
+      read,
+      HumanArmSwing.TOLERANCE,
+    );
+    const lacking: (a: number) => number = (a: number): number => {
+      const candidate: IAutoMovieMotionHumanArmClearance.IArm = out(a);
+      return room(candidate, a === 0);
+    };
+
+    // The least added abduction that clears the arm, by the engine's
+    // bisection to the body's precision: the room is not smooth (a forearm
+    // leaves one shape as it meets another), so only whether a turn clears
+    // is read, which bisection needs and an interpolating search would
+    // misread.
+    const short: (a: number) => boolean = (a: number): boolean =>
+      lacking(a) > HumanArmSwing.TOLERANCE;
+    const added: number = !short(0)
+      ? 0
+      : short(HumanArmSwing.SPAN)
+        ? HumanArmSwing.SPAN
+        : maximum === undefined || maximum === 0
+          ? bracketedBisection(
+              short,
+              0,
+              HumanArmSwing.SPAN,
+              HumanArmSwing.precision(body),
+            )
+          : winningAngle(short, wins, HumanArmSwing.precision(body));
+    const clear: IAutoMovieMotionHumanArmClearance.IArm = out(added);
+    joints[`${side}UpperArm`] = clear.upper;
+    // Written back with every record of the arm's three joints as it was,
+    // the pose's bones and segments are the ones read; otherwise the next
+    // arm reads its own.
+    if (index + 1 < sides.length) {
+      if (!prepareHumanArmRoom.matches(pose, side, clear)) read = undefined;
+      pose = HumanArmClearance.posed(pose, side, clear);
+    }
+  }
+  return { ...posture, joints };
+}
+
+/**
+ * Follow the original finite-angle bisection until its certified clear upper
+ * endpoint cannot increase the stride maximum. Every remaining candidate lies
+ * below that endpoint, including for a nonmonotone room.
+ */
+function winningAngle(
+  short: (angle: number) => boolean,
+  wins: (angle: number) => boolean,
+  precision: number,
+): number {
+  if (!(precision > 0) || !Number.isFinite(precision))
+    return bracketedBisection(short, 0, HumanArmSwing.SPAN, precision);
+  let lo: number = 0;
+  let hi: number = HumanArmSwing.SPAN;
+  while (hi - lo > precision && wins(hi)) {
+    const middle: number = (lo + hi) / 2;
+    if (!(middle > lo && middle < hi)) break;
+    if (short(middle)) lo = middle;
+    else hi = middle;
+  }
+  return hi;
+}
+
+/** Each arm's room in the body's quiet stance, degrees. */
+function stance(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  read: () => prepareHumanArmRoom.IRead,
+): IAutoMovieMotionHumanArmClearance.IBaseline {
+  const { bones, placed }: prepareHumanArmRoom.IRead = read();
+  return {
+    forearm: HumanArmClearance.overshoot(
+      body,
+      HumanArmClearance.obstacles(
+        body,
+        bones,
+        [side === "left" ? "right" : "left"],
+        placed,
+      ),
+      bones.get(`${side}LowerArm`)!.worldPosition,
+      bones.get(`${side}Hand`)!.worldPosition,
+      side,
+      [],
+      false,
+    ),
+    segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed),
+  };
+}
+
+/**
+ * A posture whose arms, written by joint angles with no hand goal (a gait's
+ * swing), are kept clear of the body: a swinging arm passing the thigh is let
+ * out at the shoulder, so each named arm takes the least added abduction, up to
+ * `SPAN`, at which each reading of its room is within that reading in the quiet
+ * stance, found by bisection to the body's precision (`precision`); an arm that
+ * swings no deeper than it hangs is left as written.
+ *
+ * @param body The body.
+ * @param posture The posture, the arms' joints set and their goals absent.
+ * @param sides The arms to keep clear.
+ * @param source Optional exact FK source borrowed only from this synchronous
+ *   same-body operation.
+ * @param projection Optional genuine same-body ROM projector for the complete
+ *   current pose and initial stance fit.
+ * @param resolved The cold resolve of this very posture, when its caller
+ *   already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly);
+ *   absent, the posture is resolved here.
+ * @param entered Each arm's room as it entered the action, where it entered
+ *   lying deeper than in the quiet stance (a hand left on a thigh by the action
+ *   before); the stance's alone when absent.
+ * @returns The posture with the arms' upper arm joints let out.
+ */
+export function HumanArmSwing(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  sides: readonly AutoMovieHumanSide[],
+  source?: Parameters<typeof prepareHumanPoseResolution>[0],
+  projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  resolved?: IAutoMoviePose,
+  entered?: HumanArmSwing.Entered,
+): IAutoMovieMotionHumanPosture {
+  return cleared(
+    body,
+    posture,
+    sides,
+    source,
+    projection,
+    resolved,
+    undefined,
+    entered,
+  );
+}
+
+/**
  * A swinging arm kept clear of the body: an arm written by joint angles with no
  * hand goal, as a gait swings it, is let out at the shoulder where it would
  * pass through the thigh.
@@ -80,217 +319,12 @@ export namespace HumanArmSwing {
     return (AutoMovieMotionHumanAudit.LIMITS.jump / lever) * (180 / Math.PI);
   }
 
-  /**
-   * A posture whose arms, written by joint angles with no hand goal (a gait's
-   * swing), are kept clear of the body: a swinging arm passing the thigh is let
-   * out at the shoulder, so each named arm takes the least added abduction, up
-   * to `SPAN`, at which each reading of its room is within that reading in the
-   * quiet stance, found by bisection to the body's precision (`precision`); an
-   * arm that swings no deeper than it hangs is left as written.
-   *
-   * @param body The body.
-   * @param posture The posture, the arms' joints set and their goals absent.
-   * @param sides The arms to keep clear.
-   * @param source Optional exact FK source borrowed only from this synchronous
-   *   same-body operation.
-   * @param projection Optional genuine same-body ROM projector for the complete
-   *   current pose and initial stance fit.
-   * @param resolved The cold resolve of this very posture, when its caller
-   *   already holds it (`resolveHumanPosture.seeded` or `fit` of its assembly);
-   *   absent, the posture is resolved here.
-   * @param entered Each arm's room as it entered the action, where it entered
-   *   lying deeper than in the quiet stance (a hand left on a thigh by the
-   *   action before); the stance's alone when absent.
-   * @returns The posture with the arms' upper arm joints let out.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    sides: readonly AutoMovieHumanSide[],
-    source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    resolved?: IAutoMoviePose,
-    entered?: HumanArmSwing.Entered,
-  ): IAutoMovieMotionHumanPosture {
-    return cleared(
-      body,
-      posture,
-      sides,
-      source,
-      projection,
-      resolved,
-      undefined,
-      entered,
-    );
-  }
-
   /** Each arm's room as it entered an action, by side (`of`'s `entered`). */
   export type Entered = Readonly<
     Partial<
       Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
     >
   >;
-
-  /**
-   * The exact pose search, or a final-arm certificate in a stride-maximum
-   * reduction.
-   */
-  function cleared(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    sides: readonly AutoMovieHumanSide[],
-    source?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    resolved?: IAutoMoviePose,
-    maxima?: Readonly<Record<AutoMovieHumanSide, number>>,
-    entered?: Entered,
-  ): IAutoMovieMotionHumanPosture {
-    const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution(source);
-    let pose: IAutoMoviePose =
-      resolved ??
-      resolveHumanPosture.seeded(
-        body,
-        posture,
-        undefined,
-        {},
-        resolution,
-        undefined,
-        projection,
-      ).pose;
-    const joints: IAutoMovieMotionHumanPosture["joints"] = {
-      ...posture.joints,
-    };
-    // The pose's bones and placed segments, read once and shared by the
-    // next arm's search where the arm before it was written back as it was.
-    let read: prepareHumanArmRoom.IRead | undefined;
-    let quiet: prepareHumanArmRoom.IRead | undefined;
-    const standing = (): prepareHumanArmRoom.IRead => {
-      if (quiet !== undefined) return quiet;
-      const base: IAutoMoviePose = resolveHumanPosture.seeded(
-        body,
-        stand.posture(body, { x: 0, y: 0, z: 0 }, 0),
-        undefined,
-        {},
-        resolution,
-        undefined,
-        projection,
-      ).pose;
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(body, base, resolution());
-      quiet = { bones, placed: HumanColliders.placed(body, bones) };
-      return quiet;
-    };
-    for (let index: number = 0; index < sides.length; index++) {
-      const side: AutoMovieHumanSide = sides[index]!;
-      if (posture.limbs[`${side}Arm`] !== undefined) continue;
-      const arm: IAutoMovieMotionHumanArmClearance.IArm = readArm(pose, side);
-      // A later arm measures its room against the earlier arm's exact pose.
-      // Only the last arm can discard a phase that cannot raise its running maximum.
-      const maximum: number | undefined =
-        index + 1 === sides.length ? maxima?.[side] : undefined;
-      const original: number = posture.joints[`${side}UpperArm`]?.[1] ?? 0;
-      const wins: (added: number) => boolean = (added: number): boolean =>
-        maximum === undefined || arm.upper[1] + added - original > maximum;
-      if (!wins(SPAN)) continue;
-
-      // The least added abduction that keeps the arm's room within its
-      // stance baseline, by bisection: the least moves continuously as the
-      // swing does, where a local search could jump between frames.
-      const quietRoom: IAutoMovieMotionHumanArmClearance.IBaseline = stance(
-        body,
-        side,
-        standing,
-      );
-      // An arm handed on lying deeper may stay as deep as it entered.
-      const handed: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
-        entered?.[side];
-      const baseline: IAutoMovieMotionHumanArmClearance.IBaseline =
-        handed === undefined
-          ? quietRoom
-          : {
-              forearm: Math.max(quietRoom.forearm, handed.forearm),
-              segments: Math.max(quietRoom.segments, handed.segments),
-            };
-      const out: (a: number) => IAutoMovieMotionHumanArmClearance.IArm = (
-        a: number,
-      ): IAutoMovieMotionHumanArmClearance.IArm => ({
-        ...arm,
-        upper: [arm.upper[0], arm.upper[1] + a, arm.upper[2]],
-      });
-
-      // Every candidate turns this arm alone, so the rest of the body is
-      // posed and placed once for the search (`prepareHumanArmRoom`), which
-      // reads each candidate's room as `HumanArmClearance.room` does.
-      if (read === undefined) {
-        const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          poseBones(body, pose, resolution());
-        read = { bones, placed: HumanColliders.placed(body, bones) };
-      }
-      const room: ReturnType<typeof prepareHumanArmRoom> = prepareHumanArmRoom(
-        body,
-        pose,
-        side,
-        [],
-        baseline,
-        resolution(),
-        read,
-        TOLERANCE,
-      );
-      const lacking: (a: number) => number = (a: number): number => {
-        const candidate: IAutoMovieMotionHumanArmClearance.IArm = out(a);
-        return room(candidate, a === 0);
-      };
-
-      // The least added abduction that clears the arm, by the engine's
-      // bisection to the body's precision: the room is not smooth (a forearm
-      // leaves one shape as it meets another), so only whether a turn clears
-      // is read, which bisection needs and an interpolating search would
-      // misread.
-      const short: (a: number) => boolean = (a: number): boolean =>
-        lacking(a) > TOLERANCE;
-      const added: number = !short(0)
-        ? 0
-        : short(SPAN)
-          ? SPAN
-          : maximum === undefined || maximum === 0
-            ? bracketedBisection(short, 0, SPAN, precision(body))
-            : winningAngle(short, wins, precision(body));
-      const clear: IAutoMovieMotionHumanArmClearance.IArm = out(added);
-      joints[`${side}UpperArm`] = clear.upper;
-      // Written back with every record of the arm's three joints as it was,
-      // the pose's bones and segments are the ones read; otherwise the next
-      // arm reads its own.
-      if (index + 1 < sides.length) {
-        if (!prepareHumanArmRoom.matches(pose, side, clear)) read = undefined;
-        pose = HumanArmClearance.posed(pose, side, clear);
-      }
-    }
-    return { ...posture, joints };
-  }
-
-  /**
-   * Follow the original finite-angle bisection until its certified clear upper
-   * endpoint cannot increase the stride maximum. Every remaining candidate lies
-   * below that endpoint, including for a nonmonotone room.
-   */
-  function winningAngle(
-    short: (angle: number) => boolean,
-    wins: (angle: number) => boolean,
-    precision: number,
-  ): number {
-    if (!(precision > 0) || !Number.isFinite(precision))
-      return bracketedBisection(short, 0, SPAN, precision);
-    let lo: number = 0;
-    let hi: number = SPAN;
-    while (hi - lo > precision && wins(hi)) {
-      const middle: number = (lo + hi) / 2;
-      if (!(middle > lo && middle < hi)) break;
-      if (short(middle)) lo = middle;
-      else hi = middle;
-    }
-    return hi;
-  }
 
   /**
    * The carriage of a gait's swinging arms: for each named arm, the one
@@ -385,48 +419,6 @@ export namespace HumanArmSwing {
     }
     return { ...posture, joints };
   }
-
-  /** Each arm's room in the body's quiet stance, degrees. */
-  function stance(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    read: () => prepareHumanArmRoom.IRead,
-  ): IAutoMovieMotionHumanArmClearance.IBaseline {
-    const known: Partial<
-      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
-    > = STANCE.get(body) ?? {};
-    const have: IAutoMovieMotionHumanArmClearance.IBaseline | undefined =
-      known[side];
-    if (have !== undefined) return have;
-    const { bones, placed }: prepareHumanArmRoom.IRead = read();
-    const value: IAutoMovieMotionHumanArmClearance.IBaseline = {
-      forearm: HumanArmClearance.overshoot(
-        body,
-        HumanArmClearance.obstacles(
-          body,
-          bones,
-          [side === "left" ? "right" : "left"],
-          placed,
-        ),
-        bones.get(`${side}LowerArm`)!.worldPosition,
-        bones.get(`${side}Hand`)!.worldPosition,
-        side,
-        [],
-        false,
-      ),
-      segments: AutoMovieMotionHumanAuditTangle.arm(body, bones, side, placed),
-    };
-    STANCE.set(body, { ...known, [side]: value });
-    return value;
-  }
-
-  /** The stance rooms already solved, per live body. */
-  const STANCE: WeakMap<
-    IAutoMovieMotionHumanBody,
-    Partial<
-      Record<AutoMovieHumanSide, IAutoMovieMotionHumanArmClearance.IBaseline>
-    >
-  > = new WeakMap();
 }
 
 /** Read the same first matching arm records, without three searches/callbacks. */

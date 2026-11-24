@@ -10,6 +10,43 @@ type IMemorySpare = { x: Float64Array; z: Float64Array; y: Float64Array };
 type IMemoryAdapted = { rho: Float64Array; thresholds: Float64Array };
 
 /**
+ * Bind the solver's existing rhs, xt and before without allocating another
+ * numeric vector. The returned object lives for that solve only.
+ *
+ * @param transpose Disposable rhs buffer, distinct from curvature and all live
+ *   inputs.
+ * @param curvature Disposable xt buffer of the same length.
+ * @param rows ADMM's m-entry before buffer, consumed only after ADMM ends for
+ *   active polishing residuals and then final row products.
+ * @param persistent Whether a fixed model owns this workspace across solves;
+ *   false for one-shot scratch.
+ * @returns A solve-owned workspace with a reusable diagnostic record.
+ */
+export function HumanQuadraticWorkspace(
+  transpose: Float64Array,
+  curvature: Float64Array,
+  rows: Float64Array,
+  persistent: boolean = false,
+): HumanQuadraticWorkspace.IWork {
+  return {
+    persistent,
+    transpose,
+    curvature,
+    rows,
+    residuals: {
+      primal: 0,
+      primalScale: 0,
+      dual: 0,
+      dualScale: 0,
+      scaledPrimal: 0,
+      scaledPrimalScale: 0,
+      scaledDual: 0,
+      scaledDualScale: 0,
+    },
+  };
+}
+
+/**
  * Disposable numeric buffers shared between the phases of one quadratic solve
  * or fixed-matrix model. ADMM finishes reading rhs and xt before a residual
  * check, and its next iteration overwrites both, so those same buffers hold Aᵀy
@@ -223,43 +260,6 @@ export namespace HumanQuadraticWorkspace {
      * imposing Int32 limits on curvature storage.
      */
     forwardStart: Float64Array;
-  }
-
-  /**
-   * Bind the solver's existing rhs, xt and before without allocating another
-   * numeric vector. The returned object lives for that solve only.
-   *
-   * @param transpose Disposable rhs buffer, distinct from curvature and all
-   *   live inputs.
-   * @param curvature Disposable xt buffer of the same length.
-   * @param rows ADMM's m-entry before buffer, consumed only after ADMM ends for
-   *   active polishing residuals and then final row products.
-   * @param persistent Whether a fixed model owns this workspace across solves;
-   *   false for one-shot scratch.
-   * @returns A solve-owned workspace with a reusable diagnostic record.
-   */
-  export function of(
-    transpose: Float64Array,
-    curvature: Float64Array,
-    rows: Float64Array,
-    persistent: boolean = false,
-  ): IWork {
-    return {
-      persistent,
-      transpose,
-      curvature,
-      rows,
-      residuals: {
-        primal: 0,
-        primalScale: 0,
-        dual: 0,
-        dualScale: 0,
-        scaledPrimal: 0,
-        scaledPrimalScale: 0,
-        scaledDual: 0,
-        scaledDualScale: 0,
-      },
-    };
   }
 
   /**

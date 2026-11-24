@@ -95,7 +95,7 @@ export namespace pour {
       });
 
     const side: AutoMovieHumanSide = params.hand ?? "right";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       params.source,
@@ -363,16 +363,15 @@ function clockOf(
 ): IAutoMovieMotionClock {
   const { timing, gap, tilt } = params;
   const phases: IClockOfPhasesItem[] = [
-    { name: "approachStart", seconds: timing?.approach },
-    { name: "tipStart", seconds: timing?.tip },
-    { name: "flowStart", seconds: timing?.flow },
-    { name: "flowEnd", seconds: timing?.right },
-    { name: "retreatStart", seconds: timing?.retreat },
+    { name: "approachStart", seconds: timing.approach },
+    { name: "tipStart", seconds: timing.tip },
+    { name: "flowStart", seconds: timing.flow },
+    { name: "flowEnd", seconds: timing.right },
+    { name: "retreatStart", seconds: timing.retreat },
   ];
   let duration: number = 0;
   for (const phase of phases)
     duration +=
-      typeof phase.seconds === "number" &&
       phase.seconds >= 0.2 &&
       phase.seconds <= 3
         ? phase.seconds

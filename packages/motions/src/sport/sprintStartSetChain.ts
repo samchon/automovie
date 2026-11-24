@@ -10,6 +10,95 @@ type IOfPlacedResult = { miss: number };
 /** The record of `IOfPlaced`'s site. */
 type IOfPlaced = { miss: number };
 /**
+ * The set on the chain.
+ *
+ * @param props The chain's ends, lengths and angles.
+ * @returns The set whose shoulders lie the arms' reach from the wrists, the hip
+ *   above the knee's line and the shoulders ahead of the hip; of several, the
+ *   one whose shoulders stand nearest over the wrists. None when no elevation
+ *   of the shank reaches.
+ */
+export function sprintStartSetChain(
+  props: sprintStartSetChain.IProps,
+): sprintStartSetChain.ISet | undefined {
+  const knee: number = (props.knee * Math.PI) / 180;
+  const hip: number = (props.hip * Math.PI) / 180;
+
+  // The chain at an elevation of the shank above the run's heading.
+  const placed: (elevation: number) => sprintStartSetChain.ISet & IOfPlaced = (
+    elevation: number,
+  ): sprintStartSetChain.ISet & IOfPlacedResult => {
+    const k: sprintStartSetChain.IPoint = {
+      u: props.ankle.u + props.shank * Math.cos(elevation),
+      v: props.ankle.v + props.shank * Math.sin(elevation),
+    };
+    // The thigh turned from the knee-to-ankle direction by the knee's
+    // angle, to the side that puts the hip above.
+    const down: sprintStartSetChain.IPoint = {
+      u: (props.ankle.u - k.u) / props.shank,
+      v: (props.ankle.v - k.v) / props.shank,
+    };
+    const h: sprintStartSetChain.IPoint = higher(
+      at(k, turned(down, knee), props.thigh),
+      at(k, turned(down, -knee), props.thigh),
+    );
+    // The trunk turned from the hip-to-knee direction by the hip's angle,
+    // to the side that puts the shoulders ahead.
+    const thigh: sprintStartSetChain.IPoint = {
+      u: (k.u - h.u) / props.thigh,
+      v: (k.v - h.v) / props.thigh,
+    };
+    const a: sprintStartSetChain.IPoint = at(
+      h,
+      turned(thigh, hip),
+      props.trunk,
+    );
+    const b: sprintStartSetChain.IPoint = at(
+      h,
+      turned(thigh, -hip),
+      props.trunk,
+    );
+    const s: sprintStartSetChain.IPoint = a.u >= b.u ? a : b;
+    return {
+      hip: h,
+      shoulders: s,
+      miss: Math.hypot(s.u - props.wrist.u, s.v - props.wrist.v) - props.arm,
+    };
+  };
+  const admitted: (set: sprintStartSetChain.ISet) => boolean = (
+    set: sprintStartSetChain.ISet,
+  ): boolean => set.shoulders.u > set.hip.u && set.shoulders.v > props.wrist.v;
+  let best: sprintStartSetChain.ISet | undefined;
+
+  // The elevations are bracketed a degree apart.
+  const STEP: number = Math.PI / 180;
+  let last: sprintStartSetChain.ISet & IOfLast = placed(STEP);
+  for (let e: number = 2 * STEP; e < Math.PI / 2; e += STEP) {
+    const next: sprintStartSetChain.ISet & IOfNext = placed(e);
+    if (Math.sign(next.miss) !== Math.sign(last.miss)) {
+      let low: number = e - STEP;
+      let high: number = e;
+      const sign: number = Math.sign(last.miss);
+      for (let i: number = 0; i < 50; ++i) {
+        const middle: number = (low + high) / 2;
+        if (Math.sign(placed(middle).miss) === sign) low = middle;
+        else high = middle;
+      }
+      const root: sprintStartSetChain.ISet = placed((low + high) / 2);
+      if (
+        admitted(root) &&
+        (best === undefined ||
+          Math.abs(root.shoulders.u - props.wrist.u) <
+            Math.abs(best.shoulders.u - props.wrist.u))
+      )
+        best = { hip: root.hip, shoulders: root.shoulders };
+    }
+    last = next;
+  }
+  return best;
+}
+
+/**
  * The set position's sagittal chain in closed form: the front shank, thigh,
  * trunk and straight arms in the run's vertical plane, from the front ankle on
  * its block to the wrists on the line, at the measured front knee and front hip
@@ -70,84 +159,6 @@ export namespace sprintStartSetChain {
 
     /** The shoulders' midpoint. */
     shoulders: IPoint;
-  }
-
-  /**
-   * The set on the chain.
-   *
-   * @param props The chain's ends, lengths and angles.
-   * @returns The set whose shoulders lie the arms' reach from the wrists, the
-   *   hip above the knee's line and the shoulders ahead of the hip; of several,
-   *   the one whose shoulders stand nearest over the wrists. None when no
-   *   elevation of the shank reaches.
-   */
-  export function of(props: IProps): ISet | undefined {
-    const knee: number = (props.knee * Math.PI) / 180;
-    const hip: number = (props.hip * Math.PI) / 180;
-
-    // The chain at an elevation of the shank above the run's heading.
-    const placed: (elevation: number) => ISet & IOfPlaced = (
-      elevation: number,
-    ): ISet & IOfPlacedResult => {
-      const k: IPoint = {
-        u: props.ankle.u + props.shank * Math.cos(elevation),
-        v: props.ankle.v + props.shank * Math.sin(elevation),
-      };
-      // The thigh turned from the knee-to-ankle direction by the knee's
-      // angle, to the side that puts the hip above.
-      const down: IPoint = {
-        u: (props.ankle.u - k.u) / props.shank,
-        v: (props.ankle.v - k.v) / props.shank,
-      };
-      const h: IPoint = higher(
-        at(k, turned(down, knee), props.thigh),
-        at(k, turned(down, -knee), props.thigh),
-      );
-      // The trunk turned from the hip-to-knee direction by the hip's angle,
-      // to the side that puts the shoulders ahead.
-      const thigh: IPoint = {
-        u: (k.u - h.u) / props.thigh,
-        v: (k.v - h.v) / props.thigh,
-      };
-      const a: IPoint = at(h, turned(thigh, hip), props.trunk);
-      const b: IPoint = at(h, turned(thigh, -hip), props.trunk);
-      const s: IPoint = a.u >= b.u ? a : b;
-      return {
-        hip: h,
-        shoulders: s,
-        miss: Math.hypot(s.u - props.wrist.u, s.v - props.wrist.v) - props.arm,
-      };
-    };
-    const admitted: (set: ISet) => boolean = (set: ISet): boolean =>
-      set.shoulders.u > set.hip.u && set.shoulders.v > props.wrist.v;
-    let best: ISet | undefined;
-
-    // The elevations are bracketed a degree apart.
-    const STEP: number = Math.PI / 180;
-    let last: ISet & IOfLast = placed(STEP);
-    for (let e: number = 2 * STEP; e < Math.PI / 2; e += STEP) {
-      const next: ISet & IOfNext = placed(e);
-      if (Math.sign(next.miss) !== Math.sign(last.miss)) {
-        let low: number = e - STEP;
-        let high: number = e;
-        const sign: number = Math.sign(last.miss);
-        for (let i: number = 0; i < 50; ++i) {
-          const middle: number = (low + high) / 2;
-          if (Math.sign(placed(middle).miss) === sign) low = middle;
-          else high = middle;
-        }
-        const root: ISet = placed((low + high) / 2);
-        if (
-          admitted(root) &&
-          (best === undefined ||
-            Math.abs(root.shoulders.u - props.wrist.u) <
-              Math.abs(best.shoulders.u - props.wrist.u))
-        )
-          best = { hip: root.hip, shoulders: root.shoulders };
-      }
-      last = next;
-    }
-    return best;
   }
 
   /**

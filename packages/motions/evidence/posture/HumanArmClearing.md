@@ -1,4 +1,4 @@
-# src/posture/HumanArmClearing.ts#HumanArmClearing.of
+# src/posture/HumanArmClearing.ts#HumanArmClearing
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

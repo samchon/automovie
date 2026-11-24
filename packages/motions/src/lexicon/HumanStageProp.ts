@@ -327,7 +327,7 @@ function heldAtStroke(
   mark: string,
   stroke: number,
 ): IAutoMovieMotionHumanHeld.IHeld {
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     hand,
     context.params.prop,

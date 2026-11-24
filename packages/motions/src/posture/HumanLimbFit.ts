@@ -23,6 +23,7 @@ import { HumanArmObstacleBones } from "./HumanArmObstacleBones";
 import { HumanArmOvershoot } from "./HumanArmOvershoot";
 import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbMirror } from "./HumanLimbMirror";
+import { HumanLimbVanishedRefusal } from "./HumanLimbVanishedRefusal";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
@@ -488,22 +489,14 @@ export namespace HumanLimbFit {
    * its seed that takes the hand's asked turn.
    */
   function vanishedRefusal(limb: AutoMovieHumanLimb): HumanRefusal {
-    const refusal: HumanRefusal = new HumanRefusal({
+    return new HumanLimbVanishedRefusal({
       kind: "reach",
       axis: "rotation",
       value: limb,
       reason: `the ${limb}'s hand turn leaves every swivel its continued elbow can reach: the arc of swivels where the wrist's range and the forearm's twist admit the turn vanished, and the next lies on another elbow path`,
       fix: "ease the hand's asked turn or move its site so one elbow path keeps it, or plan the span so the elbow changes path between frames",
     });
-    VANISHED.add(refusal);
-    return refusal;
   }
-
-  /**
-   * The refusals `vanishedRefusal` made, told apart from every other one by
-   * identity.
-   */
-  const VANISHED: WeakSet<HumanRefusal> = new WeakSet();
 
   /**
    * A plan-time query of the arc continuation: the fit `fit` gives, or null
@@ -523,7 +516,7 @@ export namespace HumanLimbFit {
     try {
       return fit(...args);
     } catch (error) {
-      if (error instanceof HumanRefusal && VANISHED.has(error)) return null;
+      if (error instanceof HumanLimbVanishedRefusal) return null;
       throw error;
     }
   }

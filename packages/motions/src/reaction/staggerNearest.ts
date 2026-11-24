@@ -2,27 +2,27 @@ import { Vector3, pointInHull } from "@automovie/engine";
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
 /**
+ * The point of an outline nearest a point.
+ *
+ * @param outline The nonempty convex floor outline, metres.
+ * @param point The point, in the same frame.
+ * @returns The point itself inside, else the nearest edge point; the first
+ *   strictly nearer edge wins a tie.
+ */
+export function staggerNearest(
+  outline: readonly IAutoMovieVector3[],
+  point: IAutoMovieVector3,
+): IAutoMovieVector3 {
+  return project(outline, point);
+}
+
+/**
  * The point of a convex support outline on the floor nearest a point, where a
  * stagger's centre of pressure is held (`StaggerPendulum`, `staggerClose`): the
  * point itself when it lies inside, else its projection onto the nearest closed
  * edge.
  */
 export namespace staggerNearest {
-  /**
-   * The point of an outline nearest a point.
-   *
-   * @param outline The nonempty convex floor outline, metres.
-   * @param point The point, in the same frame.
-   * @returns The point itself inside, else the nearest edge point; the first
-   *   strictly nearer edge wins a tie.
-   */
-  export function of(
-    outline: readonly IAutoMovieVector3[],
-    point: IAutoMovieVector3,
-  ): IAutoMovieVector3 {
-    return project(outline, point);
-  }
-
   /**
    * Prepare one fixed outline for many queries.
    *

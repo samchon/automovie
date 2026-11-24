@@ -87,9 +87,7 @@ export const hoseLine: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanFiref
     plan,
   };
 
-/**
- * Plan the member's role.
- */
+/** Plan the member's role. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFirefight.IHoseLine>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -155,7 +153,7 @@ function nozzle(
     });
   const side: AutoMovieHumanSide =
     context.entry.holds.left === p.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

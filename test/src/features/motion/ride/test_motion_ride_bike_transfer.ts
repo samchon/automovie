@@ -29,13 +29,14 @@ import { nclose } from "../../internal/nclose";
  * from the ground to a real bicycle and back to the ground.
  *
  * Scenarios:
- * 1. The stop mount and dismount publish legal same-clock line events,
- *    with a displayed full-sole ground plant on the correct side within
- *    10 mm of floor height. Between them, the seat belongs to the bicycle.
- * 2. A mount line moved ahead of the athlete refuses the same starting
- *    pose with the line as the failing axis.
- * 3. The small woman, whose inseam lies below the saddle band, is refused
- *    the fitted bicycle at its saddle height.
+ *
+ * 1. The stop mount and dismount publish legal same-clock line events, with a
+ *    displayed full-sole ground plant on the correct side within 10 mm of floor
+ *    height. Between them, the seat belongs to the bicycle.
+ * 2. A mount line moved ahead of the athlete refuses the same starting pose with
+ *    the line as the failing axis.
+ * 3. The small woman, whose inseam lies below the saddle band, is refused the
+ *    fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the event rules, displayed ground tolerance and positive and adjacent refusal cases.
  * @evidence contracts/development/testing.md#behavioral-verification Reads the whole footprint of the displayed shoe at the published ground event and part ownership at the saddle.
@@ -49,7 +50,10 @@ export function test_motion_ride_bike_transfer(): void {
   );
 }
 
-/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+/**
+ * The riding body; the small woman is refused the bicycle, pinned by
+ * `bicycleRiders`.
+ */
 type BodyKey = "m-average";
 
 /**
@@ -126,7 +130,7 @@ function take(key: BodyKey, failures: string[]): void {
   collectTakeClean(`${key} bike transfer`, film, failures);
   const [mount, off]: readonly IAutoMovieMotionHumanSegment[] =
     film.segments("athlete");
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "athlete",
     body,

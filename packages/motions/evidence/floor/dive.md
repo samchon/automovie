@@ -27,3 +27,75 @@ Crouch/solved launch joints prepare separate target differences. The same unchan
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The plan retains original entry, two fixed foot placements/goal readers, two bounded track readers, ankle/hip demands and landed geometry. Query maps/getters release on return/throw; optional FK/projector loans stay synchronous and never enter raw output or retained callbacks. No previous-query result, handle or task is retained.
+
+# src/floor/dive.ts#dive.Lift
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names a shape `dive.plan` and its parts share.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The alias `Lift` names the plan's own shape; its units and frames are those of the members it is built from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `dive.plan` and the parts cut from it.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of existing types; it adds no shape of its own.
+
+# src/floor/dive.ts#dive.Feet
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names a shape `dive.plan` and its parts share.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The alias `Feet` names the plan's own shape; its units and frames are those of the members it is built from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `dive.plan` and the parts cut from it.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of existing types; it adds no shape of its own.
+
+# src/floor/dive.ts#dive.ShapeReader
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names a shape `dive.plan` and its parts share.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The alias `ShapeReader` names the plan's own shape; its units and frames are those of the members it is built from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `dive.plan` and the parts cut from it.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of existing types; it adds no shape of its own.
+
+# src/floor/dive.ts#dive.FootRoll
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names a shape `dive.plan` and its parts share.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The alias `FootRoll` names the plan's own shape; its units and frames are those of the members it is built from.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Read by `dive.plan` and the parts cut from it.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of existing types; it adds no shape of its own.

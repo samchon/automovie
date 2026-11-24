@@ -91,7 +91,7 @@ export namespace HumanArmOptimiser {
 
     // The objective's exact quadratic terms, the same at every iterate.
     const smooth: HumanArmTrajectorySmooth.ISmooth =
-      HumanArmTrajectorySmooth.of(read);
+      HumanArmTrajectorySmooth(read);
 
     // The subproblems of one solve share one interior-point session; a model
     // at another coefficient has data of another magnitude and is

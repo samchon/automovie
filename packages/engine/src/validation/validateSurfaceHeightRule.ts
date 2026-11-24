@@ -31,18 +31,6 @@ export const validateSurfaceHeightRule: (
     finiteHeight(rule.slopeZ, `${path}.slopeZ`, "plane slopeZ", collector);
     return;
   }
-  // Runtime junk past the closed union, checked for the same reason the surface
-  // kind is: the height query would read the unknown rule as a lattice and
-  // dereference fields it has no reason to carry.
-  if (rule.kind !== "heightfield") {
-    collector.push(
-      "type",
-      `${path}.kind`,
-      `unknown surface height rule "${String((rule as { kind: unknown }).kind)}"`,
-      (rule as { kind: unknown }).kind,
-    );
-    return;
-  }
   finiteHeight(
     rule.originX,
     `${path}.originX`,

@@ -76,7 +76,7 @@ A fixed down time, period and limb phase make every numbered liftoff invariant; 
 
 The callback retains no queried time or result history; the owning course stores exactly one interval per authored limb/cycle until release.
 
-# src/floor/crawlCourse.ts#crawlCourse.of
+# src/floor/crawlCourse.ts#crawlCourse
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -16,7 +16,7 @@ Three members, each read by the plan.
 
 An entry the body never left is a null stance, not an empty one.
 
-# src/handling/pickUpStance.ts#pickUpStance.of
+# src/handling/pickUpStance.ts#pickUpStance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

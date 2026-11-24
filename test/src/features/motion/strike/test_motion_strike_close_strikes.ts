@@ -43,16 +43,22 @@ interface IRow {
 }
 
 /**
- * The two performers' separation for the close strikes, a share of
- * stature: about 0.6 m for the average man, where the two guards' heads
- * stand clear of each other.
+ * The two performers' separation for the close strikes, a share of stature:
+ * about 0.6 m for the average man, where the two guards' heads stand clear of
+ * each other.
  */
 const DISTANCE: number = 0.34;
 
-/** The clinch range of the elbows, a share of stature: about 0.56 m for the average man. */
+/**
+ * The clinch range of the elbows, a share of stature: about 0.56 m for the
+ * average man.
+ */
 const CLINCH: number = 0.32;
 
-/** The headbutt's range, a share of stature: the forehead reaches the chin by the trunk's lean. */
+/**
+ * The headbutt's range, a share of stature: the forehead reaches the chin by
+ * the trunk's lean.
+ */
 const BUTT: number = 0.4;
 
 /** The six close strikes at the head. */
@@ -65,13 +71,22 @@ const ROWS: readonly IRow[] = [
   { row: "headbutt", at: "chin", distance: BUTT },
 ];
 
-/** A landing lies within this of its target, metres: the blade strokes spec's bound. */
+/**
+ * A landing lies within this of its target, metres: the blade strokes spec's
+ * bound.
+ */
 const TOUCH: number = 0.015;
 
-/** A pivoting ball and a held hand stay within this, metres: the planted support checks' bound. */
+/**
+ * A pivoting ball and a held hand stay within this, metres: the planted support
+ * checks' bound.
+ */
 const HOLD: number = 0.005;
 
-/** A held hand stays within this of the partner's neck, metres: the grapple specs' 1 cm contact bound. */
+/**
+ * A held hand stays within this of the partner's neck, metres: the grapple
+ * specs' 1 cm contact bound.
+ */
 const GRIP: number = 0.01;
 
 /** One film frame at 240 Hz, seconds. */
@@ -81,23 +96,23 @@ const STEP: number = 1 / 240;
 const TOLERANCE: number = 10;
 
 /**
- * The close strikes land their effector on the head of a person standing
- * close: three elbows along their own paths, two spinning strikes after a
- * whole turn on the lead ball and a headbutt with both hands on the neck.
+ * The close strikes land their effector on the head of a person standing close:
+ * three elbows along their own paths, two spinning strikes after a whole turn
+ * on the lead ball and a headbutt with both hands on the neck.
  *
  * Scenarios:
- * 1. On two bodies, each strike's effector (the elbow, the back of the
- *    hand or the forehead) lies on the target region at the impact.
- * 2. The horizontal elbow arrives across the line toward the other side,
- *    the rising one upward and the descending one downward; each elbow lands
- *    folded past 120 degrees.
- * 3. A spinning strike turns the pelvis more than half a turn before the
- *    impact while the lead ball stays planted.
- * 4. The headbutt's hands hold either side of the partner's neck from the
- *    impact to the end of their declared grip.
+ *
+ * 1. On two bodies, each strike's effector (the elbow, the back of the hand or the
+ *    forehead) lies on the target region at the impact.
+ * 2. The horizontal elbow arrives across the line toward the other side, the
+ *    rising one upward and the descending one downward; each elbow lands folded
+ *    past 120 degrees.
+ * 3. A spinning strike turns the pelvis more than half a turn before the impact
+ *    while the lead ball stays planted.
+ * 4. The headbutt's hands hold either side of the partner's neck from the impact
+ *    to the end of their declared grip.
  * 5. An elbow thrown at a person at punching range is refused with its band.
- * 6. The stage-fight palm strike and headbutt are placed as feints with no
- *    impact.
+ * 6. The stage-fight palm strike and headbutt are placed as feints with no impact.
  * 7. Every take passes the shipped verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the six strikes, their effectors and paths, the spin, the hold and the refusal.
@@ -166,7 +181,7 @@ export function test_motion_strike_close_strikes(): void {
         1.3 * arm,
       );
       HumanSignature.bones(
-        HumanSignature.of(film, "a", body, 0),
+        HumanSignature(film, "a", body, 0),
         film.schedule.entries.find(
           (entry: IAutoMovieScheduleEntry): boolean =>
             entry.intent.anchor === "strike",
@@ -185,7 +200,10 @@ export function test_motion_strike_close_strikes(): void {
   complaints.assert("Close strikes");
 }
 
-/** Play a close strike from a stand at a person standing a distance ahead, both upright so their heads stand level. */
+/**
+ * Play a close strike from a stand at a person standing a distance ahead, both
+ * upright so their heads stand level.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   partner: IAutoMovieMotionHumanBody,
@@ -250,13 +268,13 @@ function play(
     complaints.list.push(`${cell}: no impact`);
     return;
   }
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     0,
   );
-  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     partner,

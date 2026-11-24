@@ -18,30 +18,31 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 const { AutoMovieMotionHumanTouchEffector } = AutoMovieMotionHumanTouch;
 
 /**
- * A walking partner dance, lead and follow (`HumanPartner`'s dance rows):
- * the leader walks, the follower walks at the leader's speed by the
- * speed-matching law of a follower and comes to his right when he stops,
- * and her left palm then holds his near shoulder. A
- * follower that matches speed lags by the change of speed over the law's
- * gain (`walkStation`), so the two are side by side only once they stand;
- * a hold kept while walking is coupled travel, #3341's.
+ * A walking partner dance, lead and follow (`HumanPartner`'s dance rows): the
+ * leader walks, the follower walks at the leader's speed by the speed-matching
+ * law of a follower and comes to his right when he stops, and her left palm
+ * then holds his near shoulder. A follower that matches speed lags by the
+ * change of speed over the law's gain (`walkStation`), so the two are side by
+ * side only once they stand; a hold kept while walking is coupled travel,
+ * #3341's.
  *
- * The average man leads 4 m toward +Z at a slow walk; the small woman
- * starts in the hold, 0.4 m to his right, and follows him
- * (`danceFollow`, the speed-matching follower of `approach`); he stands
- * 4 s after the lead, and once she has come beside him her left palm is
- * laid on his right shoulder (`danceHold`).
+ * The average man leads 4 m toward +Z at a slow walk; the small woman starts in
+ * the hold, 0.4 m to his right, and follows him (`danceFollow`, the
+ * speed-matching follower of `approach`); he stands 4 s after the lead, and
+ * once she has come beside him her left palm is laid on his right shoulder
+ * (`danceHold`).
  *
  * Scenarios:
+ *
  * 1. The lead, its hold and the follow plan.
- * 2. When her follow ends, the follower's hips joint lies within
- *    0.25 m of the place 0.4 m to the leader's right of his hips joint
- *    (provisional band about the hold's distance).
- * 3. Over the second half of the lead the follower's hips travel at least
- *    0.7 of the leader's (provisional): she keeps his pace.
+ * 2. When her follow ends, the follower's hips joint lies within 0.25 m of the
+ *    place 0.4 m to the leader's right of his hips joint (provisional band
+ *    about the hold's distance).
+ * 3. Over the second half of the lead the follower's hips travel at least 0.7 of
+ *    the leader's (provisional): she keeps his pace.
  * 4. At the middle of the hold her left palm lies within 30 mm of his right
- *    shoulder region (provisional, the touch's 15 mm
- *    doubled for a partner who may still be settling).
+ *    shoulder region (provisional, the touch's 15 mm doubled for a partner who
+ *    may still be settling).
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the two performers through the public chain and reads displayed joints and regions; a follower left behind, off his side, or a hold off her shoulder fails.
  * @evidence contracts/development/testing.md#independent-expectations The side and distance are the row's own declared hold; the bands around them are provisional and stated.
@@ -104,8 +105,8 @@ export function test_motion_dance_paired_dance(): void {
   }
   const leading: IAutoMovieMotionHumanSegment = performance.segments("a")[0]!;
   const readers = {
-    a: HumanSignature.of(performance, "a", lead, 0),
-    b: HumanSignature.of(performance, "b", follow, 0),
+    a: HumanSignature(performance, "a", lead, 0),
+    b: HumanSignature(performance, "b", follow, 0),
   };
   const hips = (
     who: keyof typeof readers,

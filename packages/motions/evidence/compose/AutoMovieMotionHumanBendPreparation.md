@@ -94,7 +94,7 @@ Unchanged body/trunk/side fixes the chain; shoulder/wrist/hint scalars remain fi
 
 The fixed selector or bounded authored support-state plan owns one geometry context until release; this method retains no wrist, hint, score, result history or handle.
 
-# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation.of
+# src/compose/AutoMovieMotionHumanBendPreparation.ts#AutoMovieMotionHumanBendPreparation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

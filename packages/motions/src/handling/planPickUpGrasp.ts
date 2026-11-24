@@ -91,7 +91,7 @@ export function planPickUpGrasp(
   // The body the grip is taken and the lift made from: the entry's, or the
   // entry lowered, turned or stepped, and how it carries the lift
   // (`pickUpStance`).
-  const { found, lowered, raise }: pickUpStance.IChosen = pickUpStance.of(
+  const { found, lowered, raise }: pickUpStance.IChosen = pickUpStance(
     context,
     side,
     lift,

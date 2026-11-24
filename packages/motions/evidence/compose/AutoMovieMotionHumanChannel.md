@@ -1,4 +1,4 @@
-# src/compose/AutoMovieMotionHumanChannel.ts#AutoMovieMotionHumanChannel.of
+# src/compose/AutoMovieMotionHumanChannel.ts#AutoMovieMotionHumanChannel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

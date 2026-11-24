@@ -16,7 +16,7 @@ The take-off foot, the speed, the heading and the planted ankle the events read.
 
 The record exists only for an admitted approach, so no member is optional.
 
-# src/sport/AthleticsRunUp.ts#AthleticsRunUp.of
+# src/sport/AthleticsRunUp.ts#AthleticsRunUp
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -178,7 +178,7 @@ export namespace stepOver {
       footAt,
       needed,
       advance,
-    }: stepOverPath.IPlan = stepOverPath.of(context);
+    }: stepOverPath.IPlan = stepOverPath(context);
     // The pelvis: from over the start to over the end, lowered where a planted leg needs it.
     const centre: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw },
@@ -230,7 +230,7 @@ export namespace stepOver {
     };
 
     const inclined: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-      standUpright.of(body).joints,
+      standUpright(body).joints,
       walk.LEAN,
     );
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = stand.relaxed(body);

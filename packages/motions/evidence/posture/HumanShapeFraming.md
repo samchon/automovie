@@ -16,7 +16,7 @@ Six members, each read by `beyond`.
 
 The planes are packed numbers in the hull's own frame, so a test reads no object.
 
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming.of
+# src/posture/HumanShapeFraming.ts#HumanShapeFraming
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

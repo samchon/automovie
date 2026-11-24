@@ -13,24 +13,25 @@ import { nclose } from "../../../internal/nclose";
 
 /**
  * Public composer callbacks share completed prefixes inside one synchronous
- * query. Each top-level preparation before-query owns a temporary scope;
- * it does not retain every sampled planning time until preparation finishes.
+ * query. Each top-level preparation before-query owns a temporary scope; it
+ * does not retain every sampled planning time until preparation finishes.
  *
  * The analytic base has root.x=t and pitch=10t. A trunk write adds one to
- * pitch, and a head write reads that prefix twice and writes 20t+2 to its
- * head flexion. Counters observe these owned callbacks without changing
- * their arithmetic. The two primitive inputs are deliberately reversed.
+ * pitch, and a head write reads that prefix twice and writes 20t+2 to its head
+ * flexion. Counters observe these owned callbacks without changing their
+ * arithmetic. The two primitive inputs are deliberately reversed.
  *
  * Scenarios:
- * 1. Four independent preparation queries at t and one at t+epsilon read
- *    their actual prefixes afresh. Nested base reads within each trunk
- *    evaluation still share work. Values remain 10t and 10t+1.
- * 2. Each public query owns fresh work. A retained prefix reader called
- *    outside evaluation opens fresh work for every call.
- * 3. A reentrant public posture at another time restores the outer scope,
- *    after both normal return and an inner owned exception.
- * 4. A failed outer write publishes no partial result to the next query.
- *    A reader retained by a throwing prepare also leaves no active scope.
+ *
+ * 1. Four independent preparation queries at t and one at t+epsilon read their
+ *    actual prefixes afresh. Nested base reads within each trunk evaluation
+ *    still share work. Values remain 10t and 10t+1.
+ * 2. Each public query owns fresh work. A retained prefix reader called outside
+ *    evaluation opens fresh work for every call.
+ * 3. A reentrant public posture at another time restores the outer scope, after
+ *    both normal return and an inner owned exception.
+ * 4. A failed outer write publishes no partial result to the next query. A reader
+ *    retained by a throwing prepare also leaves no active scope.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the declared arithmetic, separate top-level preparation queries, nested prefix sharing, observational counters and evaluation lifetime boundaries.
  * @evidence contracts/development/testing.md#behavioral-verification Calls only public composition, prepare/write callbacks and posture readers; duplicate prefixes inside a query, preparation-wide sharing, cross-call retention, lost enclosing scope or swallowed/retained failure fails counts or numeric outputs.
@@ -147,7 +148,7 @@ export function test_motion_catalogue_composition_operator(): void {
   const plan: IAutoMovieMotionHumanActionPlan =
     composeAutoMovieMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock.of(1, []),
+      clock: AutoMovieMotionClock(1, []),
       primitives: [head, trunk],
     });
   check("prepare queries own separate exact-time work", reads.get(t) === 4);
@@ -217,7 +218,7 @@ export function test_motion_catalogue_composition_operator(): void {
   try {
     composeAutoMovieMotionHumanAction({
       base,
-      clock: AutoMovieMotionClock.of(1, []),
+      clock: AutoMovieMotionClock(1, []),
       primitives: [
         {
           channels: ["head"],
@@ -247,7 +248,10 @@ export function test_motion_catalogue_composition_operator(): void {
   TestValidator.equals("composer evaluation scopes", failures, []);
 }
 
-/** A prior primitive's completed contribution at the requested action-local second. */
+/**
+ * A prior primitive's completed contribution at the requested action-local
+ * second.
+ */
 type Reader = (seconds: number) => IAutoMovieMotionHumanPosture;
 
 /** Readers retained by callbacks during preparation or a failing evaluation. */

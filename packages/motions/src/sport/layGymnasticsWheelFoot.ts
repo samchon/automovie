@@ -17,15 +17,14 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
- * The laid foot of a wheel's bearing window (`GymnasticsWheelPlants`): the
- * foot bears on its ball where it came down, pivots there as the body turns
- * over it (a round-off's quarter turn, read off the posture's heading), and
- * where its shank leans past the ankle's range its heel rises about the
- * ball and it rolls onto the edge its window declares
- * (`AutoMovieMotionHumanFootRelax`, `HumanFoot.edge`). A rolled forefoot
- * whose colliders would reach below the floor is raised by as much, so the
- * foot rests on the floor rather than in it. The plants read it once per
- * key.
+ * The laid foot of a wheel's bearing window (`GymnasticsWheelPlants`): the foot
+ * bears on its ball where it came down, pivots there as the body turns over it
+ * (a round-off's quarter turn, read off the posture's heading), and where its
+ * shank leans past the ankle's range its heel rises about the ball and it rolls
+ * onto the edge its window declares (`AutoMovieMotionHumanFootRelax`,
+ * `HumanFoot.edge`). A rolled forefoot whose colliders would reach below the
+ * floor is raised by as much, so the foot rests on the floor rather than in it.
+ * The plants read it once per key.
  *
  * @param body The body.
  * @param side The foot.
@@ -52,7 +51,7 @@ export function layGymnasticsWheelFoot(
     HumanColliders.prepareMinima(body, [bones]);
   return (posture: IAutoMovieMotionHumanPosture): IAutoMovieHumanLimbGoal => {
     const placed: IAutoMovieMotionHumanFoot.IPlacement =
-      AutoMovieMotionHumanFootRelax.of(
+      AutoMovieMotionHumanFootRelax(
         body,
         posture,
         side,

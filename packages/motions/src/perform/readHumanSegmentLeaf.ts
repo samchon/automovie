@@ -36,6 +36,21 @@ import { unplantedHumanObservation } from "./unplantedHumanObservation";
 const ARMS: readonly AutoMovieHumanLimb[] = ["leftArm", "rightArm"];
 
 /**
+ * Whether a plan second lies inside the plan's legs-still window
+ * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
+ */
+function still(
+  plan: IAutoMovieMotionHumanActionPlan,
+  seconds: number,
+): boolean {
+  return (
+    plan.legsStill !== undefined &&
+    seconds >= plan.legsStill[0] &&
+    seconds <= plan.legsStill[1]
+  );
+}
+
+/**
  * Read the action before its entering offset, including current holds and
  * overlays. A read with no fits of its own places the arms at the plan's swivel
  * course (`readHumanSegmentLeaf.swivels`) and every other arm fit at the
@@ -214,21 +229,6 @@ export function readHumanSegmentLeaf(
   };
 }
 
-/**
- * Whether a plan second lies inside the plan's legs-still window
- * (`IAutoMovieMotionHumanActionPlan.legsStill`), where the legs keep one fit.
- */
-function still(
-  plan: IAutoMovieMotionHumanActionPlan,
-  seconds: number,
-): boolean {
-  return (
-    plan.legsStill !== undefined &&
-    seconds >= plan.legsStill[0] &&
-    seconds <= plan.legsStill[1]
-  );
-}
-
 /** Records produced by one pre-transition leaf evaluation. */
 export namespace readHumanSegmentLeaf {
   /** Each plan's swivel course, made on its first read. */
@@ -317,12 +317,12 @@ export namespace readHumanSegmentLeaf {
    * position, velocity and acceleration carry across each anchor), its forearm
    * twist too where the whole run gives one, so an anchor second shows its
    * interval's limit; any other fit takes the nearer anchor's seed (the other's
-   * where only it gives the fit). The closed form
-   * places each arm at that swivel on its displayed goal and falls back to
-   * refining from it only where the placement misses the goal, leaves the range
-   * of motion or meets what the arm keeps clear of (Tolani, Goswami and Badler
-   * 2000, §3.2.4: the swivel is the one free parameter of an arm on its goal).
-   * None while an anchor is read.
+   * where only it gives the fit). The closed form places each arm at that
+   * swivel on its displayed goal and falls back to refining from it only where
+   * the placement misses the goal, leaves the range of motion or meets what the
+   * arm keeps clear of (Tolani, Goswami and Badler 2000, §3.2.4: the swivel is
+   * the one free parameter of an arm on its goal). None while an anchor is
+   * read.
    *
    * @param person The person.
    * @param segment The action.

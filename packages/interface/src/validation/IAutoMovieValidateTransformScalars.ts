@@ -1,10 +1,11 @@
+import type { IAutoMovieTransform } from "../geometry/IAutoMovieTransform";
 import type { IAutoMovieViolationCollector } from "./IAutoMovieViolationCollector";
 
-/** Unchecked transform and reporting sink for shared TRS scalar admission. */
+/** Transform and reporting sink for shared TRS scalar admission. */
 export namespace IAutoMovieValidateTransformScalars {
   /**
-   * Inputs to validateTransformScalars, which checks a transform object and
-   * independently reports malformed translation, rotation and scale fields. All
+   * Inputs to validateTransformScalars, which independently reports
+   * out-of-domain translation, rotation and scale fields. All
    * components must be finite, scale axes strictly positive and quaternion norm
    * within 1e-6 of one. It neither normalizes values nor mutates the
    * transform.
@@ -15,11 +16,8 @@ export namespace IAutoMovieValidateTransformScalars {
    * findings. This operation returns no admitted transform or boolean.
    */
   export type IProps = {
-    /**
-     * Unchecked TRS value with translation, rotation and scale fields; no
-     * caller assertion of its structure is required.
-     */
-    transform: unknown;
+    /** TRS value with translation, rotation and scale fields. */
+    transform: IAutoMovieTransform;
 
     /**
      * Location prefix to which ".translation", ".rotation", ".scale" and

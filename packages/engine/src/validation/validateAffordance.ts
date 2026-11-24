@@ -5,7 +5,6 @@ import {
 } from "@automovie/interface";
 
 import { convexHull2D } from "../math/convexHull2D";
-import { collectNonEmptyId } from "./collectNonEmptyId";
 import { validateTransformScalars } from "./validateTransformScalars";
 
 /**
@@ -57,7 +56,6 @@ export const validateAffordance: (
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
-  collectNonEmptyId(affordance.id, `${path}.id`, "affordance id", collector);
   validateTransformScalars({
     transform: affordance.frame,
     path: `${path}.frame`,

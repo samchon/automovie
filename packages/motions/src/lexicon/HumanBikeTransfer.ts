@@ -179,8 +179,8 @@ function planHumanBikeTransfer(
   );
   const origin: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
   /**
-   * Whether an entire displayed sole is on the floor on the required side
-   * of the line.
+   * Whether an entire displayed sole is on the floor on the required side of
+   * the line.
    */
   const qualifies = (
     side: AutoMovieHumanSide,

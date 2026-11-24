@@ -31,6 +31,7 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * A planted sole stays in the ground frame and lifts during swing.
  *
  * Scenarios:
+ *
  * 1. Read one gait cycle of a straight walk.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A planted sole stays in the ground frame and lifts during swing.
@@ -65,7 +66,7 @@ export function test_motion_gait_gait_ground_lock(): void {
   const toe = event("leftToeOff1"),
     heel = event("leftHeelStrike1"),
     next = event("leftToeOff2");
-  const reader = HumanSignature.of(film, "a", body, 0);
+  const reader = HumanSignature(film, "a", body, 0);
   const sockets = (t: number) =>
     HumanFoot.sockets(body, film.bones("a", t), "left").map((s) => s.point);
   const supported = (heel + next) / 2;
@@ -155,7 +156,7 @@ export function test_motion_gait_gait_ground_lock(): void {
           );
       }
     }
-    const violations = HumanVerdicts.of(work, 24, {
+    const violations = HumanVerdicts(work, 24, {
       from: phase.entryTime,
       to: squat ? phase.end : instant + 0.1,
     }).findings.filter(

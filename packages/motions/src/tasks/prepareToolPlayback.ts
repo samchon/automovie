@@ -8,7 +8,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
@@ -42,7 +41,6 @@ type IPrepareToolPlaybackProps = {
 export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   const { plan, body, side, entry, ready, recover, target, compose, finish } =
     props;
-  if (!createHumanBody.owns(body)) return;
   const root: IAutoMovieVector3 = { ...entry.root };
   const frame: IAutoMovieMotionHumanPosture = { ...entry, root };
   const sameFrame = (posture: IAutoMovieMotionHumanPosture): boolean =>
@@ -83,7 +81,6 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     );
     if (
       body.profile !== profile ||
-      !createHumanBody.owns(body) ||
       !Object.is(body.measure.upperArm, upperArm) ||
       current === undefined ||
       !Object.is(current.x, rest.x) ||

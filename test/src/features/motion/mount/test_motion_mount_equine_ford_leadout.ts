@@ -26,13 +26,22 @@ const LEAD: number = 3;
 const TOLERANCE: number = 0.01;
 
 /**
- * A rider climbs a far bank's exit mounted, dismounts on the dry top and leads the horse out.
+ * A rider climbs a far bank's exit mounted, dismounts on the dry top and leads
+ * the horse out.
  *
  * Scenarios:
- * 1. Up the exit and on the dry top, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion) and the right palm stays within 10 mm of its rein's skin.
- * 2. At the halt the rider dismounts with the rise, walks to the horse's head and leads it out 3 m; through the lead's held interval the right palm stays within 10 mm of the lead rope's skin.
- * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
- * The crossing that reaches the exit belongs to test_archetype_equine_ford_rider; dismounting and leading on level ground to test_motion_equestrian_lifecycle.
+ *
+ * 1. Up the exit and on the dry top, the rider's seat socket stays within 10 mm of
+ *    the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths
+ *    of it, slipping less than 10 mm, the vault spec's handle criterion) and
+ *    the right palm stays within 10 mm of its rein's skin.
+ * 2. At the halt the rider dismounts with the rise, walks to the horse's head and
+ *    leads it out 3 m; through the lead's held interval the right palm stays
+ *    within 10 mm of the lead rope's skin.
+ * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal,
+ *    skate, floor or unloaded fault. The crossing that reaches the exit belongs
+ *    to test_archetype_equine_ford_rider; dismounting and leading on level
+ *    ground to test_motion_equestrian_lifecycle.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted, rise, walk and lead laws over the public horse ride up the authored exit and reads the displayed seat and palms against the horse's moving saddle, mane, rein and lead; a rider left behind on the climb or a hand off its hold fails.
@@ -93,7 +102,7 @@ export function test_motion_mount_equine_ford_leadout(): void {
   const issues: string[] = [];
 
   // 1. Seated up the exit and on the top.
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "rider",
     body,

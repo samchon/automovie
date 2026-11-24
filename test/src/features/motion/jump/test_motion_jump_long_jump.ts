@@ -34,17 +34,18 @@ const DISTANCE: number = 2.6;
  * Carry a sprint over the board into a long jump's flight and sand landing.
  *
  * Scenarios:
- * 1. The run's last three planted feet hold their forefoot pivots within
- *    5 mm, and the run is cut at the left foot's footfall behind the board's
- *    take-off line.
- * 2. The jump pushes off that left foot, held within 5 mm until `takeoff`,
- *    and leaves with no more horizontal speed than the run brought.
- * 3. Between `takeoff` and `touchdown` neither foot is planted; at the
- *    touchdown both heels lie within 30 mm of the authored distance from the
- *    take-off line and both feet bear on the pit.
- * 4. A footfall whose toe passes the line is a foul, refused on `approach`;
- *    a distance the sprint cannot bring is refused on `distance`; a long
- *    jump from standing is refused on `approach`.
+ *
+ * 1. The run's last three planted feet hold their forefoot pivots within 5 mm, and
+ *    the run is cut at the left foot's footfall behind the board's take-off
+ *    line.
+ * 2. The jump pushes off that left foot, held within 5 mm until `takeoff`, and
+ *    leaves with no more horizontal speed than the run brought.
+ * 3. Between `takeoff` and `touchdown` neither foot is planted; at the touchdown
+ *    both heels lie within 30 mm of the authored distance from the take-off
+ *    line and both feet bear on the pit.
+ * 4. A footfall whose toe passes the line is a foul, refused on `approach`; a
+ *    distance the sprint cannot bring is refused on `distance`; a long jump
+ *    from standing is refused on `approach`.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the run-up, take-off, flight, landing and refusal cases and their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes run and long jump through the public chain over a real pit model and measures displayed feet, centre of mass, events and contact windows.
@@ -137,7 +138,7 @@ export function test_motion_jump_long_jump(): void {
       pushed <= PLANT &&
       socket(film, body, leap!.start, "left", "toe").z <= line,
   );
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
@@ -223,7 +224,10 @@ export function test_motion_jump_long_jump(): void {
   );
 }
 
-/** How a take is staged: the run's cut, or none for a standing entry, and the distance. */
+/**
+ * How a take is staged: the run's cut, or none for a standing entry, and the
+ * distance.
+ */
 interface IStage {
   /** The run's footfall event the jump cuts it at; absent jumps from standing. */
   cut: string | undefined;

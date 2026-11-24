@@ -91,7 +91,7 @@ export namespace HumanArmTrajectoryConvex {
     const inner = (k: number): boolean => M.inner(c, k);
     // The Jacobians of every probe, the contact and the hand's rotation
     // (`HumanArmTrajectoryJacobians`).
-    const jac: J.IJacobian[][] = J.of(c, x, at);
+    const jac: J.IJacobian[][] = J(c, x, at);
     const along = (
       a: number,
       k: number,
@@ -245,7 +245,14 @@ export namespace HumanArmTrajectoryConvex {
         const placedK: IAutoMovieMotionHumanArmGeometry.IPlaced =
           at.placed[a]![k]!;
         if (site !== undefined) {
-          const at: P.ILocated = P.located(c, at0.placed, a, k, site);
+          const at: P.ILocated = P.located(
+            c,
+            (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+              at0.placed[arm]![k]!,
+            a,
+            k,
+            site,
+          );
           const contact0: IAutoMovieVector3 = P.pad(placedK, site.contact);
           const n: IAutoMovieVector3 | undefined = at.normal;
           // The contact's motion, less the riding segment's motion at it: the
@@ -368,7 +375,7 @@ export namespace HumanArmTrajectoryConvex {
           if (pair.rested) square(T.LIFT, -pair.short, v.idx, v.coef);
         }
         // The chart and coordinate domains, elastic, have one row owner.
-        rows.push(...HumanArmTrajectoryRanges.of(c, a, k, arm[k]!, index, mu));
+        rows.push(...HumanArmTrajectoryRanges(c, a, k, arm[k]!, index, mu));
       }
     });
     // Each arm's probes clear of the other arm's own colliders as both

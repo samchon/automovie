@@ -14,7 +14,9 @@ import { TestValidator } from "@nestia/e2e";
  * Construct one action with two event names at the same physical instant.
  *
  * Scenarios:
- * 1. Two event names resolve to one quarter of the take and a third to three quarters.
+ *
+ * 1. Two event names resolve to one quarter of the take and a third to three
+ *    quarters.
  * 2. Only the explicitly requested optional contact appears on the plan.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Documents how coincident clock events are exposed and when the optional contact appears.
@@ -24,7 +26,7 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/testing.md#execution-ownership One fixed posture and one clock, without any body solve.
  */
 export function test_motion_catalogue_root_public_event_receipts(): void {
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(4, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(4, [
     { name: "release", seconds: 3 },
     { name: "depart", seconds: 1 },
     { name: "signal", seconds: 1 },

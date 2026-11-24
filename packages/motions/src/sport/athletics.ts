@@ -154,7 +154,7 @@ export namespace athletics {
    * @returns The plan.
    * @throws {HumanRefusal} When the hold is negative, the optional drive is not
    *   positive, a named block's plates are missing, misaligned or contradict
-   *   `front` (`sprintStartBlocks.of`), or the set cannot be fitted to them.
+   *   `front` (`sprintStartBlocks`), or the set cannot be fitted to them.
    */
   export function plan(
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanAthletics.IParams>,
@@ -164,16 +164,18 @@ export namespace athletics {
     const hold: number = p.hold ?? 1.5;
     HumanBound.least("hold", hold, 0, "s");
     if (p.drive !== undefined) HumanBound.above("drive", p.drive, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const blocks: sprintStartBlocks.IPlaced | undefined =
       p.on === undefined
         ? undefined
-        : sprintStartBlocks.of(context, p.on, p.front);
+        : sprintStartBlocks(context, p.on, p.front);
     const front: AutoMovieHumanSide = blocks?.front ?? p.front ?? "left";
     const rear: AutoMovieHumanSide = front === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const target: ReturnType<typeof sprintStartSet.of> = sprintStartSet.of(
+    const target: ReturnType<typeof sprintStartSet> = sprintStartSet(
       context,
       entry,
       front,
@@ -196,21 +198,18 @@ export namespace athletics {
       p.drive === undefined
         ? 0
         : Math.max(0, Math.min(1, (seconds - gun) / (end - gun)));
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: "onYourMarks", seconds: 0 },
-        { name: "set", seconds: timed.at("ready") },
-        { name: "gun", seconds: gun },
-        ...(p.drive === undefined
-          ? []
-          : [
-              { name: "rearBlockOff", seconds: rearOff },
-              { name: "blockExit", seconds: end },
-            ]),
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: "onYourMarks", seconds: 0 },
+      { name: "set", seconds: timed.at("ready") },
+      { name: "gun", seconds: gun },
+      ...(p.drive === undefined
+        ? []
+        : [
+            { name: "rearBlockOff", seconds: rearOff },
+            { name: "blockExit", seconds: end },
+          ]),
+    ]);
     const ready: number = clock.at("ready");
     const into: (seconds: number) => number = AutoMovieMotionClock.prepare(
       clock,
@@ -328,7 +327,7 @@ export namespace athletics {
             // The rear foot recovering off its block bears nothing, so it
             // keeps within the passive dorsal range.
             if (recovery !== undefined && seconds > rearOff)
-              return AutoMovieMotionHumanFootRelax.of(
+              return AutoMovieMotionHumanFootRelax(
                 body,
                 posture,
                 side,
@@ -340,7 +339,7 @@ export namespace athletics {
             // A foot stepping back into its block bears nothing on the way,
             // so it too keeps within the passive dorsal range.
             if (at > 0 && at < 1)
-              return AutoMovieMotionHumanFootRelax.of(
+              return AutoMovieMotionHumanFootRelax(
                 body,
                 posture,
                 side,
@@ -352,7 +351,7 @@ export namespace athletics {
             // lifts, its heel rising about the toes' joint, so it leaves
             // within the passive dorsal range.
             if (recovery !== undefined && seconds > b)
-              return AutoMovieMotionHumanFootRelax.of(
+              return AutoMovieMotionHumanFootRelax(
                 body,
                 posture,
                 side,

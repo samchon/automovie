@@ -58,8 +58,12 @@ export function test_motion_gait_gait_study_readouts(): void {
             ...(weary ? { manner: AutoMovieMotionManner.PRESETS.weary } : {}),
           }).node,
         });
-        const reader: IAutoMovieMotionHumanSignature.IReader =
-          HumanSignature.of(film, "a", body, 0);
+        const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
+          film,
+          "a",
+          body,
+          0,
+        );
         const from: number = film.duration * 0.25,
           to: number = film.duration * 0.85;
         const z = (t: number): number =>

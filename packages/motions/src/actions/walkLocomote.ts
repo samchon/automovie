@@ -64,7 +64,7 @@ export function walkLocomote(
   // The manner's gait factors: its step and swing scale the authored step
   // and arm swing, and its tempo divides the speed at that step, so a weary
   // walk is slower in cadence as well as shorter in step.
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     p.manner,
   );
@@ -146,8 +146,8 @@ export function walkLocomote(
       walkPosture.PELVIS * Math.sin(2 * Math.PI * phase) * amount,
     ];
   };
-  const { events, contacts }: ReturnType<typeof walkWindows.of> =
-    walkWindows.of(steps);
+  const { events, contacts }: ReturnType<typeof walkWindows> =
+    walkWindows(steps);
   // Every swing of the schedule, so each swing's constants are prepared as
   // the walk is planned rather than on the first second that reads them.
   const swings: walkLocomoteSwings.ISwing[] = walkLocomoteSwings(steps);
@@ -209,7 +209,7 @@ export function walkLocomote(
   // The swinging arms are carried clear of the body, the hands passing the
   // thighs no nearer than they hang beside them, by one abduction read
   // over one of its strides (`walkCarriage`), once for the plan.
-  const carried: Record<AutoMovieHumanSide, number> = walkCarriage.of(
+  const carried: Record<AutoMovieHumanSide, number> = walkCarriage(
     body,
     steps.events,
     duration,

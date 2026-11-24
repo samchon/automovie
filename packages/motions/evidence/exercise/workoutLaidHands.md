@@ -16,7 +16,7 @@ The values `workout.plan` already holds.
 
 The restored pose is absent exactly when the exercise does not rise back to a recovered stance.
 
-# src/exercise/workoutLaidHands.ts#workoutLaidHands.of
+# src/exercise/workoutLaidHands.ts#workoutLaidHands
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

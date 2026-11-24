@@ -16,7 +16,7 @@ Built by `of`.
 
 None.
 
-# src/lexicon/HeldRideArms.ts#HeldRideArms.of
+# src/lexicon/HeldRideArms.ts#HeldRideArms
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

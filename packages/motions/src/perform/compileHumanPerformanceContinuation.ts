@@ -70,8 +70,6 @@ export function compileHumanPerformanceContinuation(
       sum + count(part, false),
     0,
   );
-  if (!portable(suffix))
-    refuse("the replacement requires portable action data");
   if (retained === 0 || count(suffix, true) === 0)
     refuse("the retained groups and replacement must both place actions");
 
@@ -241,40 +239,6 @@ function count(node: IAutoMovieComposition, replacement: boolean): number {
       return count(node.part, replacement);
   }
   return refuse("the composition contains an unknown node kind");
-}
-
-/**
- * Plain acyclic JSON-like data with no executable values or getters. Optional
- * fields may be undefined.
- */
-function portable(value: unknown, ancestry: Set<object> = new Set()): boolean {
-  if (
-    value === null ||
-    value === undefined ||
-    typeof value === "string" ||
-    typeof value === "boolean"
-  )
-    return true;
-  if (typeof value === "number") return Number.isFinite(value);
-  if (typeof value !== "object" || ancestry.has(value)) return false;
-  const prototype: unknown = Object.getPrototypeOf(value);
-  if (
-    prototype !== Object.prototype &&
-    prototype !== null &&
-    prototype !== Array.prototype
-  )
-    return false;
-  if (Object.getOwnPropertySymbols(value).length !== 0) return false;
-
-  ancestry.add(value);
-  const valid: boolean = Object.values(
-    Object.getOwnPropertyDescriptors(value),
-  ).every(
-    (descriptor: PropertyDescriptor): boolean =>
-      "value" in descriptor && portable(descriptor.value, ancestry),
-  );
-  ancestry.delete(value);
-  return valid;
 }
 
 /** The timing and event ledger, excluding opaque schedule state. */

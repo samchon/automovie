@@ -1,9 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  Quaternion,
-  Vector3,
-  minimumJerk,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -18,7 +13,6 @@ import type {
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -26,18 +20,17 @@ import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk"
 import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
-import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "../sport/GymnasticsFlight";
-
-/** The alternatives of `PlanContactsPart2`'s site. */
-type PlanContactsPart2 = "leftFoot" | "rightFoot";
-
-/** The alternatives of `PlanContactsPart`'s site. */
-type PlanContactsPart = "leftFoot" | "rightFoot";
+import { diveAnkleMid } from "./diveAnkleMid";
+import { diveContacts } from "./diveContacts";
+import { diveCrouched } from "./diveCrouched";
+import { diveCrouchedOn } from "./diveCrouchedOn";
+import { diveFootRoll } from "./diveFootRoll";
+import { diveLift } from "./diveLift";
 
 /**
  * A fall onto the floor on purpose from a stance: a goalkeeper's dive to the
@@ -280,29 +273,7 @@ export namespace dive {
       posture: IAutoMovieMotionHumanPosture,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ) => IAutoMovieVector3 = (
-      posture: IAutoMovieMotionHumanPosture,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieVector3 => {
-      const read: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(resolution);
-      const bones: ReturnType<typeof poseBones> = readAnkles(
-        resolveHumanPosture.seeded(
-          body,
-          posture,
-          undefined,
-          undefined,
-          read,
-          HumanBoneGroups.FEET,
-          projection,
-        ).pose,
-        read(),
-      );
-      const l: IAutoMovieVector3 = bones.get("leftFoot")!.worldPosition;
-      const r: IAutoMovieVector3 = bones.get("rightFoot")!.worldPosition;
-      return { x: (l.x + r.x) / 2, y: (l.y + r.y) / 2, z: (l.z + r.z) / 2 };
-    };
+    ) => IAutoMovieVector3 = diveAnkleMid({ readAnkles, body });
 
     // Take-off: crouched on the feet, a third of the way into the shape. The
     // root goes down with the legs planted on the entry's feet, so the knees
@@ -321,33 +292,14 @@ export namespace dive {
       on?: Feet,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ) => IAutoMovieMotionHumanPosture = (
-      share: number,
-      on?: Feet,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieMotionHumanPosture => {
-      const posture: IAutoMovieMotionHumanPosture = shape(share / 3, 0);
-      const local: IAutoMovieVector3 = ankleMid(
-        posture,
-        resolution,
-        projection,
-      );
-      const placed: IAutoMovieMotionHumanPosture = {
-        ...posture,
-        root: {
-          x: ankles.x - local.x,
-          y: ankles.y - local.y - 0.05 * stature * share,
-          z: ankles.z - local.z,
-        },
-      };
-      return on === undefined
-        ? plant(placed)
-        : AutoMovieMotionHumanTrunk.planted(body, placed, on, [
-            "left",
-            "right",
-          ]);
-    };
+    ) => IAutoMovieMotionHumanPosture = diveCrouchedOn({
+      shape,
+      ankleMid,
+      ankles,
+      stature,
+      plant,
+      body,
+    });
 
     // Toe-off (a dive's; a slide's feet stay on the floor): each foot rolls
     // about its ball, toes down, by the angle that brings the take-off's
@@ -356,35 +308,12 @@ export namespace dive {
     // the angle is solved on the planted take-off itself, by secant steps
     // from the flat take-off's excess.
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const roll: (side: AutoMovieHumanSide) => FootRoll = (
-      side: AutoMovieHumanSide,
-    ): FootRoll => {
-      const foot: IAutoMovieMotionHumanFoot.IPlacement = feet[side];
-      const local: IAutoMovieVector3 = HumanFoot.offset(body, side, "ball");
-      const ball: IAutoMovieVector3 = Vector3.add(
-        foot.ankle,
-        Quaternion.rotateVector(foot.rotation, local),
-      );
-      const heading: number =
-        HumanFoot.heading(foot.rotation) * Quaternion.DEG2RAD;
-      const along: IAutoMovieVector3 = Number.isFinite(heading)
-        ? { x: Math.sin(heading), y: 0, z: Math.cos(heading) }
-        : HumanFrame.forward(entry.yaw);
-      const axis: IAutoMovieVector3 = Vector3.cross(up, along);
-      return (degrees: number): IAutoMovieMotionHumanFoot.IPlacement => {
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-          Quaternion.fromAxisAngle(axis, degrees),
-          foot.rotation,
-        );
-        return {
-          ankle: Vector3.subtract(
-            ball,
-            Quaternion.rotateVector(rotation, local),
-          ),
-          rotation,
-        };
-      };
-    };
+    const roll: (side: AutoMovieHumanSide) => FootRoll = diveFootRoll({
+      feet,
+      body,
+      entry,
+      up,
+    });
     const rolls: Readonly<Record<AutoMovieHumanSide, FootRoll>> = {
       left: roll("left"),
       right: roll("right"),
@@ -402,72 +331,19 @@ export namespace dive {
         right: (joints.rightFoot?.[0] ?? 0) - ANKLE_DORSIFLEXION.unloaded,
       };
     };
-    const lift: Lift = ((): Lift => {
-      if (kind !== "dive") return { left: 0, right: 0 };
-      let before: Lift = { left: 0, right: 0 };
-      let over: Lift = excess();
-      let now: Lift = {
-        left: Math.max(0, over.left),
-        right: Math.max(0, over.right),
-      };
-      for (
-        let k: number = 0;
-        k < SECANT && (now.left > 0 || now.right > 0);
-        ++k
-      ) {
-        const after: Lift = excess(rolled(now));
-        if (after.left <= 0 && after.right <= 0) break;
-        const step: (side: AutoMovieHumanSide) => number = (
-          side: AutoMovieHumanSide,
-        ): number => {
-          if (after[side] <= 0) return now[side];
-          const slope: number =
-            (over[side] - after[side]) / (now[side] - before[side]);
-          // A roll that did not lower the ankle is stepped by the excess.
-          return (
-            now[side] +
-            after[side] / (Number.isFinite(slope) && slope > 0 ? slope : 1)
-          );
-        };
-        const next: Lift = { left: step("left"), right: step("right") };
-        before = now;
-        over = after;
-        now = next;
-      }
-      return now;
-    })();
+    const lift: Lift = diveLift({ kind, excess, rolled });
     const toeOff: number = Math.min(TOE_OFF, crouch);
     const crouched: (
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ) => IAutoMovieMotionHumanPosture = (
-      seconds: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-      projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieMotionHumanPosture => {
-      const share: number = minimumJerk.share(seconds / crouch);
-      const toe: number = minimumJerk.share(
-        Math.max(0, (seconds - (crouch - toeOff)) / toeOff),
-      );
-      if (!(toe > 0 && (lift.left > 0 || lift.right > 0)))
-        return crouchedOn(share, undefined, resolution, projection);
-      const posture: IAutoMovieMotionHumanPosture = crouchedOn(
-        share,
-        rolled({ left: lift.left * toe, right: lift.right * toe }),
-        resolution,
-        projection,
-      );
-      // With the heels up the toes bend at their joints and stay on the floor.
-      return {
-        ...posture,
-        joints: {
-          ...posture.joints,
-          leftToes: [lift.left * toe, 0, 0],
-          rightToes: [lift.right * toe, 0, 0],
-        },
-      };
-    };
+    ) => IAutoMovieMotionHumanPosture = diveCrouched({
+      crouch,
+      toeOff,
+      lift,
+      crouchedOn,
+      rolled,
+    });
     const takeoff: IAutoMovieMotionHumanPosture = crouched(crouch);
     const off: IAutoMovieVector3 = takeoff.root;
 
@@ -525,49 +401,13 @@ export namespace dive {
     const duration: number = crouch + travel + rest;
     const share: (seconds: number) => number = (seconds: number): number =>
       seconds / duration;
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      ...(["leftFoot", "rightFoot"] as const).map(
-        (part: PlanContactsPart): IAutoMovieMotionHumanContactWindow => ({
-          part,
-          kind: "plant",
-          from: 0,
-          to: share(crouch),
-          support: { kind: "ground" },
-          // A dive's foot rolls about its held ball at the toe-off.
-          ...(kind === "dive" ? { socket: "ball" as const } : {}),
-        }),
-      ),
-      {
-        part: "seat",
-        kind: "lie",
-        from: share(kind === "dive" ? crouch + travel : crouch + 0.3 * travel),
-        to: 1,
-        support: { kind: "ground" },
-      },
-      // A slide's feet stay on the floor and slide with it, bearing.
-      ...(kind === "slide"
-        ? (["leftFoot", "rightFoot"] as const).map(
-            (part: PlanContactsPart2): IAutoMovieMotionHumanContactWindow => ({
-              part,
-              kind: "bear",
-              from: share(crouch),
-              to: 1,
-              support: { kind: "ground" },
-            }),
-          )
-        : []),
-      ...(kind === "dive"
-        ? [
-            {
-              part: toLeft > 0 ? ("leftHand" as const) : ("rightHand" as const),
-              kind: "plant" as const,
-              from: share(crouch + travel),
-              to: 1,
-              support: { kind: "ground" as const },
-            },
-          ]
-        : []),
-    ];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = diveContacts({
+      share,
+      crouch,
+      kind,
+      travel,
+      toLeft,
+    });
     return {
       duration,
       events: [
@@ -606,22 +446,24 @@ export namespace dive {
   }
 
   /** One changing share/turn of a fixed entered or solved-launch articulation. */
-  type ShapeReader = (
+  export type ShapeReader = (
     share: number,
     turn: number,
   ) => IAutoMovieMotionHumanPosture;
 
   /** Each foot's placement, world frame. */
-  type Feet = Readonly<
+  export type Feet = Readonly<
     Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>
   >;
 
   /** A foot's placement rolled about its ball by an angle, degrees, toes down. */
-  type FootRoll = (degrees: number) => IAutoMovieMotionHumanFoot.IPlacement;
+  export type FootRoll = (
+    degrees: number,
+  ) => IAutoMovieMotionHumanFoot.IPlacement;
 
   /**
    * Each foot's toe-off roll, degrees, or each take-off ankle's dorsiflexion
    * past the unloaded limit.
    */
-  type Lift = Readonly<Record<AutoMovieHumanSide, number>>;
+  export type Lift = Readonly<Record<AutoMovieHumanSide, number>>;
 }

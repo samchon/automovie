@@ -147,7 +147,7 @@ export function HumanLanceCouchCarriage(
   };
 }
 
-/** `HumanLanceCouchCarriage.of` and its records. */
+/** `HumanLanceCouchCarriage` and its records. */
 export namespace HumanLanceCouchCarriage {
   /**
    * A mounted arm's carriage of a held lance: the hand's frame and the elbow

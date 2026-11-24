@@ -19,6 +19,116 @@ type IOfProps = {
 };
 
 /**
+ * The most a clearing turns either freedom from the given arm, degrees
+ * (provisional: beyond it the arm is no longer the carry's).
+ */
+const SPAN: number = 40;
+
+/**
+ * The step a direction is scanned in for its first clear turn, degrees
+ * (provisional: a few centimetres at the hand).
+ */
+const STEP: number = 5;
+
+/**
+ * The room over its allowance a clearing leaves, degrees (provisional: a
+ * twentieth of a degree, a quarter of a millimetre at the elbow).
+ */
+const TOLERANCE: number = 0.05;
+
+/**
+ * The bisections that find the least clear turn inside one step: eight halve it
+ * to 1/256 of the step, a fiftieth of a degree (provisional).
+ */
+const HALVINGS: number = 8;
+
+/**
+ * The directions a clearing tries, in order, as shares of abduction and of
+ * elbow flexion: out, folded, out and folded, then unfolded, out and unfolded,
+ * in, in and folded, in and unfolded; and after those eight the eight that lie
+ * midway between two of them, in the same order of their angles from out
+ * through folded.
+ */
+const ORDER: readonly (readonly [number, number])[] = [
+  [1, 0],
+  [0, 1],
+  [Math.SQRT1_2, Math.SQRT1_2],
+  [0, -1],
+  [Math.SQRT1_2, -Math.SQRT1_2],
+  [-1, 0],
+  [-Math.SQRT1_2, Math.SQRT1_2],
+  [-Math.SQRT1_2, -Math.SQRT1_2],
+  ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
+    (degrees: number): readonly [number, number] => [
+      Math.cos((degrees * Math.PI) / 180),
+      Math.sin((degrees * Math.PI) / 180),
+    ],
+  ),
+];
+
+/**
+ * An arm turned until its room is within its allowance.
+ *
+ * @param props The arm, the room it lacks over its allowance (degrees; cleared
+ *   at or below `TOLERANCE`) and how far outside their ranges its joints are
+ *   (degrees).
+ * @returns The arm's joint angles, the hand's unchanged; the arm with the least
+ *   lacking room met when no direction clears it.
+ */
+export function HumanArmClearing(
+  props: IOfProps,
+): IAutoMovieMotionHumanArmClearance.IArm {
+  const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
+  if (props.over(arm) <= TOLERANCE) return arm;
+  const turned = (
+    direction: readonly [number, number],
+    degrees: number,
+  ): IAutoMovieMotionHumanArmClearance.IArm => ({
+    upper: [arm.upper[0], arm.upper[1] + direction[0] * degrees, arm.upper[2]],
+    lower: [arm.lower[0] + direction[1] * degrees, arm.lower[1], arm.lower[2]],
+    hand: arm.hand,
+  });
+  const limit: number = props.range(arm) + 1e-9;
+  let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
+  let least: number = props.over(arm);
+  for (const direction of ORDER) {
+    // `SPAN` bounds each freedom, so a ray between the two runs until its
+    // larger share reaches it: a diagonal ray stopped at a length of
+    // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
+    // out and 40 unfolded clears was left 3 degrees short of its room.
+    const reach: number =
+      SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
+    let near: number = 0;
+    while (near < reach - 1e-9) {
+      const far: number = Math.min(near + STEP, reach);
+      const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
+        direction,
+        far,
+      );
+      if (props.range(candidate) > limit) break;
+      const value: number = props.over(candidate);
+      if (value <= TOLERANCE) {
+        // The least turn of this direction that still clears the arm.
+        let lo: number = near;
+        let hi: number = far;
+        for (let i: number = 0; i < HALVINGS; i++) {
+          const mid: number = (lo + hi) / 2;
+          if (props.over(turned(direction, mid)) <= TOLERANCE) hi = mid;
+          else lo = mid;
+        }
+        return turned(direction, hi);
+      }
+      if (value < least) {
+        least = value;
+        best = candidate;
+      }
+      near = far;
+    }
+  }
+  return best;
+}
+
+/**
  * The turn that clears an arm: of the two freedoms that move a forearm without
  * a goal, the upper arm's abduction and the elbow's flexion, the least turn
  * along the first of a fixed order of directions that brings the arm's room
@@ -39,122 +149,6 @@ type IOfProps = {
  * step.
  */
 export namespace HumanArmClearing {
-  /**
-   * The most a clearing turns either freedom from the given arm, degrees
-   * (provisional: beyond it the arm is no longer the carry's).
-   */
-  const SPAN: number = 40;
-
-  /**
-   * The step a direction is scanned in for its first clear turn, degrees
-   * (provisional: a few centimetres at the hand).
-   */
-  const STEP: number = 5;
-
-  /**
-   * The room over its allowance a clearing leaves, degrees (provisional: a
-   * twentieth of a degree, a quarter of a millimetre at the elbow).
-   */
-  const TOLERANCE: number = 0.05;
-
-  /**
-   * The bisections that find the least clear turn inside one step: eight halve
-   * it to 1/256 of the step, a fiftieth of a degree (provisional).
-   */
-  const HALVINGS: number = 8;
-
-  /**
-   * The directions a clearing tries, in order, as shares of abduction and of
-   * elbow flexion: out, folded, out and folded, then unfolded, out and
-   * unfolded, in, in and folded, in and unfolded; and after those eight the
-   * eight that lie midway between two of them, in the same order of their
-   * angles from out through folded.
-   */
-  const ORDER: readonly (readonly [number, number])[] = [
-    [1, 0],
-    [0, 1],
-    [Math.SQRT1_2, Math.SQRT1_2],
-    [0, -1],
-    [Math.SQRT1_2, -Math.SQRT1_2],
-    [-1, 0],
-    [-Math.SQRT1_2, Math.SQRT1_2],
-    [-Math.SQRT1_2, -Math.SQRT1_2],
-    ...[22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5].map(
-      (degrees: number): readonly [number, number] => [
-        Math.cos((degrees * Math.PI) / 180),
-        Math.sin((degrees * Math.PI) / 180),
-      ],
-    ),
-  ];
-
-  /**
-   * An arm turned until its room is within its allowance.
-   *
-   * @param props The arm, the room it lacks over its allowance (degrees;
-   *   cleared at or below `TOLERANCE`) and how far outside their ranges its
-   *   joints are (degrees).
-   * @returns The arm's joint angles, the hand's unchanged; the arm with the
-   *   least lacking room met when no direction clears it.
-   */
-  export function of(props: IOfProps): IAutoMovieMotionHumanArmClearance.IArm {
-    const arm: IAutoMovieMotionHumanArmClearance.IArm = props.arm;
-    if (props.over(arm) <= TOLERANCE) return arm;
-    const turned = (
-      direction: readonly [number, number],
-      degrees: number,
-    ): IAutoMovieMotionHumanArmClearance.IArm => ({
-      upper: [
-        arm.upper[0],
-        arm.upper[1] + direction[0] * degrees,
-        arm.upper[2],
-      ],
-      lower: [
-        arm.lower[0] + direction[1] * degrees,
-        arm.lower[1],
-        arm.lower[2],
-      ],
-      hand: arm.hand,
-    });
-    const limit: number = props.range(arm) + 1e-9;
-    let best: IAutoMovieMotionHumanArmClearance.IArm = arm;
-    let least: number = props.over(arm);
-    for (const direction of ORDER) {
-      // `SPAN` bounds each freedom, so a ray between the two runs until its
-      // larger share reaches it: a diagonal ray stopped at a length of
-      // `SPAN` turned each freedom only 28 degrees, and an arm a turn of 40
-      // out and 40 unfolded clears was left 3 degrees short of its room.
-      const reach: number =
-        SPAN / Math.max(Math.abs(direction[0]), Math.abs(direction[1]));
-      let near: number = 0;
-      while (near < reach - 1e-9) {
-        const far: number = Math.min(near + STEP, reach);
-        const candidate: IAutoMovieMotionHumanArmClearance.IArm = turned(
-          direction,
-          far,
-        );
-        if (props.range(candidate) > limit) break;
-        const value: number = props.over(candidate);
-        if (value <= TOLERANCE) {
-          // The least turn of this direction that still clears the arm.
-          let lo: number = near;
-          let hi: number = far;
-          for (let i: number = 0; i < HALVINGS; i++) {
-            const mid: number = (lo + hi) / 2;
-            if (props.over(turned(direction, mid)) <= TOLERANCE) hi = mid;
-            else lo = mid;
-          }
-          return turned(direction, hi);
-        }
-        if (value < least) {
-          least = value;
-          best = candidate;
-        }
-        near = far;
-      }
-    }
-    return best;
-  }
-
   /**
    * The shares of the way at which a carry's clearing is solved: the tenths,
    * and the twentieths beside both ends (provisional: each a few centimetres of

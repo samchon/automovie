@@ -33,36 +33,36 @@ interface IHelperPlace {
 }
 
 /**
- * The helpers' compositions of #3440 keep their bounds: helping someone up
- * from the floor (`HumanCoupled.helpUp`, a support sequence whose hand
- * grips the helper, #3435) and a walk between two helpers
- * (`HumanCoupled.supportWalk`, one coupled meeting of three roles, #3437).
+ * The helpers' compositions of #3440 keep their bounds: helping someone up from
+ * the floor (`HumanCoupled.helpUp`, a support sequence whose hand grips the
+ * helper, #3435) and a walk between two helpers (`HumanCoupled.supportWalk`,
+ * one coupled meeting of three roles, #3437).
  *
  * Bounds: a contact within 10 mm (#3349's contact bound); the helped body
- * standing at the end when its head lies more than 0.3 of its stature above
- * its hips (`test_human_motion_carried_carries`'s standing test); the
- * release of the grip only after the feet bear, the support rule (Escande,
- * Kheddar and Miossec 2013, as `support` cites).
+ * standing at the end when its head lies more than 0.3 of its stature above its
+ * hips (`test_human_motion_carried_carries`'s standing test); the release of
+ * the grip only after the feet bear, the support rule (Escande, Kheddar and
+ * Miossec 2013, as `support` cites).
  *
- * Scenarios:
- * over the pairs (m-large, f-small), (f-small, m-large) and
+ * Scenarios: over the pairs (m-large, f-small), (f-small, m-large) and
  * (m-average, m-average), the first named helping:
- * 1. `helpUp`, the helped person lying first and the helper standing a
- *    foot's length beyond the helped right wrist, facing it (`helperStand`): the helped hand's grip on the
- *    helper opens and closes within the rise, the feet bear before release
- *    and through the end, and the palms meet within 10 mm throughout the
- *    clasp, sampled at 20 Hz and at the contact events. The helped body
- *    ends standing.
- * 2. `supportWalk`, two average men helping the small woman and two small
- *    women helping the large man, the second helper standing where the
- *    coupling's frame puts it (`secondAt`): each helper bears a positive share
- *    summing to one, and every bearing contact lies within 10 mm of its
- *    helper's region at 20 Hz; or a capacity refusal on `mass` whose
- *    feasible maximum lies below the helped mass.
- * 3. The average man helps the average man up by the left hand. The palms
- *    meet within 10 mm at closure, mid-hold and release, and the helped
- *    palm slips by at most 10 mm in the helper's displayed palm-bone frame.
- *    Both feet bear on the floor before the grip releases and through the end.
+ *
+ * 1. `helpUp`, the helped person lying first and the helper standing a foot's
+ *    length beyond the helped right wrist, facing it (`helperStand`): the
+ *    helped hand's grip on the helper opens and closes within the rise, the
+ *    feet bear before release and through the end, and the palms meet within 10
+ *    mm throughout the clasp, sampled at 20 Hz and at the contact events. The
+ *    helped body ends standing.
+ * 2. `supportWalk`, two average men helping the small woman and two small women
+ *    helping the large man, the second helper standing where the coupling's
+ *    frame puts it (`secondAt`): each helper bears a positive share summing to
+ *    one, and every bearing contact lies within 10 mm of its helper's region at
+ *    20 Hz; or a capacity refusal on `mass` whose feasible maximum lies below
+ *    the helped mass.
+ * 3. The average man helps the average man up by the left hand. The palms meet
+ *    within 10 mm at closure, mid-hold and release, and the helped palm slips
+ *    by at most 10 mm in the helper's displayed palm-bone frame. Both feet bear
+ *    on the floor before the grip releases and through the end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the records through the public chain and reads the displayed bodies and the plans' windows; a grip that never closes or never lets go, a body left on the floor, a helper bearing nothing or a contact off its region fails with its cell and numbers.
  * @evidence contracts/development/testing.md#independent-expectations The 10 mm bounds come from #3349's contact requirement and #3419's grip-slip acceptance; slip is displacement from closure in the partner's frame, distinct from the absolute palm gap. The support rule requires bearing before release.
@@ -145,7 +145,7 @@ export function test_motion_carry_person_coupled_support(): void {
           ),
       ),
     );
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       film,
       "b",
       bodies.b,
@@ -154,7 +154,7 @@ export function test_motion_carry_person_coupled_support(): void {
     if (hand === "left") {
       checkLeftGrip(all, cell, film, bodies, rise, grips, feet, CONTACT);
     } else {
-      const helper: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const helper: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         film,
         "a",
         bodies.a,
@@ -257,7 +257,10 @@ export function test_motion_carry_person_coupled_support(): void {
   all.assert("the helpers' compositions keep their bounds");
 }
 
-/** Check the declared left grip against both displayed hands and its supporting feet. */
+/**
+ * Check the declared left grip against both displayed hands and its supporting
+ * feet.
+ */
 function checkLeftGrip(
   all: motionComplaints.IGatherer,
   cell: string,
@@ -326,10 +329,10 @@ function checkLeftGrip(
 }
 
 /**
- * Where a helper stands to help a person up: the helped body laid down on
- * its own, the selected wrist read where it lies, and the helper a foot's
- * length beyond that wrist, away from the hips, facing it, so the wrist lies
- * under the helper's reach.
+ * Where a helper stands to help a person up: the helped body laid down on its
+ * own, the selected wrist read where it lies, and the helper a foot's length
+ * beyond that wrist, away from the hips, facing it, so the wrist lies under the
+ * helper's reach.
  */
 function helperStand(
   helped: IAutoMovieMotionHumanBody,
@@ -351,7 +354,7 @@ function helperStand(
   });
   const segments = lying.segments("b");
   const last = segments[segments.length - 1]!;
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     lying,
     "b",
     helped,

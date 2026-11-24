@@ -154,7 +154,7 @@ export namespace touchCrossedSupport {
     const reach: number = AutoMovieMotionHumanTiming.transport(
       Math.max(longest(0, ready), longest(relax, first.duration)),
     );
-    return reach * AutoMovieMotionManner.of(context, p.manner).tempo > ready
+    return reach * AutoMovieMotionManner(context, p.manner).tempo > ready
       ? build(context, { assist, reach })
       : first;
   }

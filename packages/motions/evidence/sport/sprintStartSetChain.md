@@ -52,7 +52,7 @@ Both lie on the one chain the measures define.
 
 States both points.
 
-# src/sport/sprintStartSetChain.ts#sprintStartSetChain.of
+# src/sport/sprintStartSetChain.ts#sprintStartSetChain
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

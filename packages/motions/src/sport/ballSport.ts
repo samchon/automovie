@@ -170,8 +170,10 @@ export namespace ballSport {
       body.measure;
     const count: number = p.count ?? 4;
     HumanBound.whole("count", count);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const attack: number =
       p.kind === "dribble"
         ? count / BOUNCES

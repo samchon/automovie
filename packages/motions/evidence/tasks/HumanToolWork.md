@@ -1,4 +1,4 @@
-# src/tasks/HumanToolWork.ts#HumanToolWork.of
+# src/tasks/HumanToolWork.ts#HumanToolWork
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -55,7 +55,7 @@ export namespace HumanCue {
       throw new Error("A section wave needs exactly one timing source");
 
     const values: readonly number[] | undefined = seconds ?? distances;
-    if (!Array.isArray(values) || values.length === 0)
+    if (values === undefined || values.length === 0)
       throw new Error("A section wave needs at least one section");
 
     let origin: number = 0;

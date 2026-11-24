@@ -41,7 +41,7 @@ export function pianoScoreHand(
   return { note, previous, transport };
 }
 
-/** `pianoScoreHand.of` and its records. */
+/** `pianoScoreHand` and its records. */
 export namespace pianoScoreHand {
   /** One hand's position on its voicing and the preceding transport. */
   export interface ISample {

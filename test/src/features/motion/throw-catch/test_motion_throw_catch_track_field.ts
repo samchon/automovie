@@ -25,17 +25,18 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * Show a block exit, the named launch leg and crossbar plane of a high
- * jump, and a handspring vault landing on an authored raised mat.
+ * Show a block exit, the named launch leg and crossbar plane of a high jump,
+ * and a handspring vault landing on an authored raised mat.
  *
  * Scenarios:
- * 1. The sprint hands come off at the gun. The right-foot block leaves
- *    before the left one. The displayed hips and rear ankle rise.
- * 2. Each high-jump support choice holds that foot to takeoff. The
- *    displayed centre crosses the bar's world plane within 10 mm and
- *    peaks at its axis plus the optional reserve.
- * 3. A 50 mm mat rise changes both ankles' touchdown height by 50 mm
- *    within 10 mm, and both feet subsequently bear on the mat.
+ *
+ * 1. The sprint hands come off at the gun. The right-foot block leaves before the
+ *    left one. The displayed hips and rear ankle rise.
+ * 2. Each high-jump support choice holds that foot to takeoff. The displayed
+ *    centre crosses the bar's world plane within 10 mm and peaks at its axis
+ *    plus the optional reserve.
+ * 3. A 50 mm mat rise changes both ankles' touchdown height by 50 mm within 10 mm,
+ *    and both feet subsequently bear on the mat.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the staged actions, contact order and metre-valued checks.
  * @evidence contracts/development/testing.md#behavioral-verification Plans through the public lexicon and measures resolved skeletons alongside declared bearing windows.
@@ -154,7 +155,7 @@ export function test_motion_throw_catch_track_field(): void {
       leap,
       (side + "Foot") as "leftFoot" | "rightFoot",
     );
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       jump,
       "a",
       body,

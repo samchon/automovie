@@ -28,7 +28,7 @@ One timing rule shared by the two roles.
 
 Retains no value.
 
-# src/actions/supportAssist.ts#supportAssist.of
+# src/actions/supportAssist.ts#supportAssist
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

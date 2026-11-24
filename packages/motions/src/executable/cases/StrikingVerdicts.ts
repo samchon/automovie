@@ -32,6 +32,25 @@ type ContactDeclared = "feint" | "miss" | "graze" | undefined;
 type IStrikeOther = { id: string; body: IAutoMovieMotionHumanBody };
 
 /**
+ * Every verdict of one strike.
+ *
+ * @param strike The strike.
+ * @returns The contact (or extension), penetration, support slip, range of
+ *   motion and, for a kick, leg goal verdicts.
+ */
+export function StrikingVerdicts(
+  strike: StrikingVerdicts.IStrike,
+): IMotionCaptureCase.IVerdict[] {
+  return [
+    StrikingVerdicts.contact(strike),
+    StrikingVerdicts.penetration(strike),
+    StrikingVerdicts.slip(strike),
+    StrikingVerdicts.rangeOfMotion(strike),
+    ...(strike.segment.name === "kick" ? [StrikingVerdicts.goal(strike)] : []),
+  ];
+}
+
+/**
  * The verdicts of a displayed strike, each measured on the shown bones against
  * the action's own goal, each able to fail and each printing its bound.
  *
@@ -170,23 +189,6 @@ export namespace StrikingVerdicts {
     if (/^(hips|spine|chest|upperChest)$/.test(bone)) return "trunk";
     if (/(UpperLeg|LowerLeg|Foot|Toes)$/.test(bone)) return "leg";
     return "guard";
-  }
-
-  /**
-   * Every verdict of one strike.
-   *
-   * @param strike The strike.
-   * @returns The contact (or extension), penetration, support slip, range of
-   *   motion and, for a kick, leg goal verdicts.
-   */
-  export function of(strike: IStrike): IMotionCaptureCase.IVerdict[] {
-    return [
-      contact(strike),
-      penetration(strike),
-      slip(strike),
-      rangeOfMotion(strike),
-      ...(strike.segment.name === "kick" ? [goal(strike)] : []),
-    ];
   }
 
   /**

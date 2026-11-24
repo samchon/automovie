@@ -27,11 +27,11 @@ type AxisChain = "ids" | "ends";
 /** The alternatives of `RadiusResult`'s site. */
 type RadiusResult = "radius" | "tailRadius";
 
-/** The alternatives of `RadiusRadii`'s site. */
-type RadiusRadii = number | readonly [number, number];
+/** A capsule's radii at its two axis ends, metres. */
+type RadiusRadii = readonly [number, number];
 
-/** The alternatives of `ChainRadiiItem`'s site. */
-type ChainRadiiItem = number | readonly [number, number];
+/** A chain capsule's radii at its two axis ends, metres. */
+type ChainRadiiItem = readonly [number, number];
 
 /**
  * A striking limb as the capsule weapons the performance's joint contact
@@ -214,9 +214,9 @@ export namespace StrikingWeapon {
     limb: IAutoMovieMotionWeaponPath["limb"];
 
     /**
-     * One radius per capsule, metres: one number for a capsule of one radius,
-     * or the radii at its two axis ends for a tapered capsule, as a limb
-     * narrows from one joint's girth to the next.
+     * The radii at each capsule's two axis ends, metres: equal for a capsule of
+     * one radius, unequal for a tapered capsule, as a limb narrows from one
+     * joint's girth to the next.
      */
     radii: readonly ChainRadiiItem[];
 
@@ -285,7 +285,7 @@ export namespace StrikingWeapon {
           free ??=
             chain.read === undefined
               ? chain.ends
-              : StrikingWeaponTable.of(chain.read, chain.from);
+              : StrikingWeaponTable(chain.read, chain.from);
           ends = free(seconds);
           posed.set(seconds, ends);
         }
@@ -355,12 +355,15 @@ export namespace StrikingWeapon {
   export const girth: typeof StrikingWeaponGirth.girth =
     StrikingWeaponGirth.girth;
 
-  /** A capsule's radius members as a weapon carries them. */
+  /**
+   * A capsule's radius members as a weapon carries them: a tail radius only
+   * where the capsule tapers.
+   */
   function radius(
     radii: RadiusRadii,
   ): Pick<IAutoMovieMotionWeaponPath, RadiusResult> {
-    return typeof radii === "number"
-      ? { radius: radii }
+    return radii[0] === radii[1]
+      ? { radius: radii[0] }
       : { radius: radii[0], tailRadius: radii[1] };
   }
 

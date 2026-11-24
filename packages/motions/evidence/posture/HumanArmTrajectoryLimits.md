@@ -16,7 +16,7 @@ The same reading serves the merit, convex point row and fine configuration check
 
 Carries the law's actual bound without combining angles and distances.
 
-# src/posture/HumanArmTrajectoryLimits.ts#HumanArmTrajectoryLimits.of
+# src/posture/HumanArmTrajectoryLimits.ts#HumanArmTrajectoryLimits
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

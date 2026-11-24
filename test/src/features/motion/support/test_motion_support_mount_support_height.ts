@@ -33,9 +33,13 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
  * Mounting from the front or side uses the actual seat and available footrests.
  *
  * Scenarios:
- * - A chair, bar stool and scooter face forward. Bicycle, motorcycle and horse saddles admit an astride posture.
- * - With and without footrests, each approach matches seat height, planted ball placement, free clearance and standing exit.
- * - Commit, seat contact, pre-seat-off and standing distinguish four admissible changes of support. A mid-mount stand or walk is refused.
+ *
+ * - A chair, bar stool and scooter face forward. Bicycle, motorcycle and horse
+ *   saddles admit an astride posture.
+ * - With and without footrests, each approach matches seat height, planted ball
+ *   placement, free clearance and standing exit.
+ * - Commit, seat contact, pre-seat-off and standing distinguish four admissible
+ *   changes of support. A mid-mount stand or walk is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual joint positions and declared contact windows at seated hold, plant and standing phases.
  * @evidence contracts/development/testing.md#independent-expectations The placed object's seat and tread coordinates establish target heights. The campaign bounds are 10 mm seat error, 15 mm rest error, 5 mm slip and 20 mm standing hip error or free sole clearance.
@@ -120,7 +124,7 @@ function checkMount(
       complaints.push(`${label}: ${String(error)}`);
       continue;
     }
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "a",
       body,
@@ -250,7 +254,7 @@ function checkMount(
       );
       return;
     }
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "a",
       body,

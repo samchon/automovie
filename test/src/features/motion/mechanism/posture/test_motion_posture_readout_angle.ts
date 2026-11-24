@@ -13,28 +13,29 @@ import { TestValidator } from "@nestia/e2e";
  * The shipped signature readings give the angle a figure was built with.
  *
  * A production asserts a cited value on its own composition through
- * `HumanSignature`, so each reading must mean what its name says in degrees
- * and seconds. The figure here is a stick figure built from known angles, not
- * a performed body: the expected value of every reading is the angle the
- * figure was drawn at.
+ * `HumanSignature`, so each reading must mean what its name says in degrees and
+ * seconds. The figure here is a stick figure built from known angles, not a
+ * performed body: the expected value of every reading is the angle the figure
+ * was drawn at.
  *
- * The figure faces +Z: hips at 1 m, 0.2 m apart, shoulders 0.5 m along a
- * trunk line tipped forward by a chosen inclination, a thigh and a shank of
- * 0.4 m folded at a chosen knee angle, an upper arm and a forearm of 0.3 m
- * folded at a chosen elbow angle, and a head whose forward axis is pitched
- * down by a chosen angle.
+ * The figure faces +Z: hips at 1 m, 0.2 m apart, shoulders 0.5 m along a trunk
+ * line tipped forward by a chosen inclination, a thigh and a shank of 0.4 m
+ * folded at a chosen knee angle, an upper arm and a forearm of 0.3 m folded at
+ * a chosen elbow angle, and a head whose forward axis is pitched down by a
+ * chosen angle.
  *
  * Scenarios:
- * 1. Trunk inclinations of -20, 0, 15 and 40 degrees read as built, within
- *    1e-9; the reading is positive forward.
- * 2. The same figure turned to face +X and read along a heading of 90
- *    degrees gives the same inclination (the reading follows the heading).
- * 3. Knee flexions of 0, 30, 90 and 135 degrees read as built on either
- *    side, and elbow flexions of 0, 45 and 120 likewise.
+ *
+ * 1. Trunk inclinations of -20, 0, 15 and 40 degrees read as built, within 1e-9;
+ *    the reading is positive forward.
+ * 2. The same figure turned to face +X and read along a heading of 90 degrees
+ *    gives the same inclination (the reading follows the heading).
+ * 3. Knee flexions of 0, 30, 90 and 135 degrees read as built on either side, and
+ *    elbow flexions of 0, 45 and 120 likewise.
  * 4. Head pitches of -10, 0 and 25 degrees read as built, positive down.
  * 5. `flexion` of three collinear points is 0 and of a right angle is 90.
- * 6. `times` from 0 to 1 at 4 Hz has five instants ending at 1, and `mean`
- *    of a linear reading over them is its midpoint value.
+ * 6. `times` from 0 to 1 at 4 Hz has five instants ending at 1, and `mean` of a
+ *    linear reading over them is its midpoint value.
  * 7. A joint the figure lacks throws instead of reading as zero.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public readings on bones a test places by hand; a reading in the wrong plane, with the wrong sign or of the wrong joints fails.
@@ -115,7 +116,7 @@ export function test_motion_posture_readout_angle(): void {
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
     yaw: number = 0,
   ): IAutoMovieMotionHumanSignature.IReader =>
-    HumanSignature.of(
+    HumanSignature(
       { duration: 1, bones: () => bones },
       "a",
       // No reading of this test reads the body.

@@ -23,15 +23,17 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
  * (`relax` at `end`) is planned and written to the end, its last waypoint
  * solved on the site rather than pinned to a return.
  *
- * Scenario: the average man's right hand reaches from the quiet stance onto
- * a place ahead at waist height over 0.8 s and stays there until 1.5 s. Every
+ * Scenario: the average man's right hand reaches from the quiet stance onto a
+ * place ahead at waist height over 0.8 s and stays there until 1.5 s. Every
  * written second to the end is finite; the palm moves no farther between two
- * frames than the audit's travel bound allows; and from `ready` to the end,
- * the last frame included, the palm lies within 11 mm of its place: the
- * planner's 10 mm site disc and a millimetre.
+ * frames than the audit's travel bound allows; and from `ready` to the end, the
+ * last frame included, the palm lies within 11 mm of its place: the planner's
+ * 10 mm site disc and a millimetre.
  *
  * Scenarios:
- * 1. Read the real carried palm through a held endpoint whose return duration is zero.
+ *
+ * 1. Read the real carried palm through a held endpoint whose return duration is
+ *    zero.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Prepares and writes the real carried arm and reads the palm on the resolved pose; a NaN instant, a jump at the end or a hand pulled off its site to a return fails.
  * @evidence contracts/development/testing.md#independent-expectations The place is stated here, the bound on a frame's travel is the audit's 80 mm per twenty-fourth of a second, and the disc is the planner's stated 10 mm.

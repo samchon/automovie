@@ -1,19 +1,16 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import type { IAutoMovieConstraintViolation } from "@automovie/interface";
 
-import { describeInvalidValue } from "./describeInvalidValue";
 import { pushViolation } from "./pushViolation";
 
 /**
- * Require a finite numeric actual value between independently configured
- * open/closed endpoints.
+ * Require a finite value between independently configured open/closed
+ * endpoints.
  *
  * Both endpoints default to inclusive. Infinite bounds are permitted, but the
- * tested value must be a finite number and is never coerced into one. Refusals
- * retain the authored value; failed string conversion produces `an
- * uninspectable value` only in the explanatory text.
+ * tested value must be finite. Refusals retain the authored value.
  */
 export const validateRange: (
-  value: unknown,
+  value: number,
   path: string,
   min: number,
   max: number,
@@ -22,7 +19,7 @@ export const validateRange: (
   inclusiveMin?: boolean,
   inclusiveMax?: boolean,
 ) => void = (
-  value: unknown,
+  value: number,
   path: string,
   min: number,
   max: number,
@@ -31,18 +28,17 @@ export const validateRange: (
   inclusiveMin: boolean = true,
   inclusiveMax: boolean = true,
 ): void => {
-  const numeric: number = typeof value === "number" ? value : NaN;
-  const aboveMin: boolean = inclusiveMin ? numeric >= min : numeric > min;
+  const aboveMin: boolean = inclusiveMin ? value >= min : value > min;
   const belowMax: boolean =
-    max === Infinity ? true : inclusiveMax ? numeric <= max : numeric < max;
-  if (!Number.isFinite(numeric) || !aboveMin || !belowMax)
+    max === Infinity ? true : inclusiveMax ? value <= max : value < max;
+  if (!Number.isFinite(value) || !aboveMin || !belowMax)
     pushViolation(
       violations,
       "range",
       path,
       max === Infinity
-        ? `${label} must be finite and ${inclusiveMin ? ">=" : ">"} ${min}, but was ${describeInvalidValue(value)}`
-        : `${label} must be finite and within ${inclusiveMin ? "[" : "("}${min}, ${max}${inclusiveMax ? "]" : ")"}, but was ${describeInvalidValue(value)}`,
+        ? `${label} must be finite and ${inclusiveMin ? ">=" : ">"} ${min}, but was ${value}`
+        : `${label} must be finite and within ${inclusiveMin ? "[" : "("}${min}, ${max}${inclusiveMax ? "]" : ")"}, but was ${value}`,
       value,
     );
 };

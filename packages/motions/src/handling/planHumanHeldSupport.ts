@@ -106,7 +106,7 @@ export function planHumanHeldSupport(
     body,
     requested,
   );
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     props.side,
     props.prop,
@@ -355,15 +355,12 @@ export function planHumanHeldSupport(
     { origin: at.root, yaw: at.yaw },
     bend,
   );
-  const gesture: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-    clock.duration,
-    [
-      { name: "supportStart", seconds: span.start },
-      { name: "supportReady", seconds: span.ready },
-      { name: "supportRelax", seconds: span.relax },
-      { name: "supportEnd", seconds: span.end },
-    ],
-  );
+  const gesture: IAutoMovieMotionClock = AutoMovieMotionClock(clock.duration, [
+    { name: "supportStart", seconds: span.start },
+    { name: "supportReady", seconds: span.ready },
+    { name: "supportRelax", seconds: span.relax },
+    { name: "supportEnd", seconds: span.end },
+  ]);
   const weight = (seconds: number): number =>
     gesture.envelope(
       ["supportStart", "supportReady"],

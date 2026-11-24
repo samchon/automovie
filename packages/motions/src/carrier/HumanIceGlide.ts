@@ -330,7 +330,7 @@ function sheds(
 ): IAutoMovieHumanLimbGoal {
   if (goal.rotation === undefined) return goal;
   const placed: IAutoMovieMotionHumanFoot.IPlacement =
-    AutoMovieMotionHumanFootRelax.of(
+    AutoMovieMotionHumanFootRelax(
       body,
       posture,
       side,

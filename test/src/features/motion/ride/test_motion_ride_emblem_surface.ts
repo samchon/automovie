@@ -25,17 +25,19 @@ const { HumanEmblem } = AutoMovieMotionHumanGesture;
  * sweeps forward, away from the face (#3345), `blownKiss` followed by
  * `blownKissSend`.
  *
- * For either hand on the same body, at the middle of the
- * send's hold:
+ * For either hand on the same body, at the middle of the send's hold:
+ *
  * 1. The two rows plan one after the other.
  * 2. The requested palm lies at least 0.25 m ahead of the mouth (provisional: an
  *    arm's half reach, far enough to read as sent and not as a hand at the
  *    chin).
- * 3. The palm lies no higher than the mouth and no lower than the chest's
- *    height: the hand is offered forward, not dropped (provisional).
+ * 3. The palm lies no higher than the mouth and no lower than the chest's height:
+ *    the hand is offered forward, not dropped (provisional).
  *
  * Scenarios:
- * 1. Observe a hand leaving the lips and reaching the forward, open-palm send pose.
+ *
+ * 1. Observe a hand leaving the lips and reaching the forward, open-palm send
+ *    pose.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Registers the two rows, performs them through the public chain and reads the displayed palm and mouth; a send that stays at the lips, drops to the waist or is refused fails.
  * @evidence contracts/development/testing.md#independent-expectations The bounds are the test's own, stated provisional, and name what the gesture must read as; none is read from the row.
@@ -85,7 +87,7 @@ export function test_motion_ride_emblem_surface(): void {
         AutoMovieMotionHumanTouch.touch.EFFECTORS.palm,
       );
       const mouth: IAutoMovieVector3 = HumanSignature.region(
-        HumanSignature.of(performance, "a", body, 0),
+        HumanSignature(performance, "a", body, 0),
         "mouth",
         held,
       );

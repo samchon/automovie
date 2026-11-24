@@ -1,4 +1,4 @@
-# src/daily/handToFaceArm.ts#handToFaceArm.of
+# src/daily/handToFaceArm.ts#handToFaceArm
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

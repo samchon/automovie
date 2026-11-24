@@ -45,30 +45,34 @@ interface IHeldReading {
 
 /**
  * What a hand holds is read once, in that hand's frame, and stays there: a
- * point of the held prop found from that reading is where the film shows
- * the prop's point for as long as the hand holds it.
+ * point of the held prop found from that reading is where the film shows the
+ * prop's point for as long as the hand holds it.
  *
- * The reading is a registered law entered after a glass is picked up with
- * the right hand. While it plans it reads the held glass
+ * The reading is a registered law entered after a glass is picked up with the
+ * right hand. While it plans it reads the held glass
  * (`AutoMovieMotionHumanHeld.of`) and the glass's `lip` in the hand's grip
  * frame, declares the grip and the hold the reading gives, and keeps its
  * posture; a short walk follows, carrying the glass.
  *
  * Scenarios, on the average man and the small woman:
- * 1. At every sixth of a second from the reader's start to the film's end,
- *    the lip placed from the reading on the displayed right hand (the grip
- *    socket's point and the hand bone's rotation) lies within 1 mm of the
- *    lip of the displayed glass, the campaign's bound on a grip's drift.
+ *
+ * 1. At every sixth of a second from the reader's start to the film's end, the lip
+ *    placed from the reading on the displayed right hand (the grip socket's
+ *    point and the hand bone's rotation) lies within 1 mm of the lip of the
+ *    displayed glass, the campaign's bound on a grip's drift.
  * 2. The lip's direction from the reading is a unit vector.
- * 3. On the average body, asked of the left hand, which holds nothing, the reading is an
- *    `affordance` refusal on `prop`; asked for a contact the glass lacks,
+ * 3. On the average body, asked of the left hand, which holds nothing, the reading
+ *    is an `affordance` refusal on `prop`; asked for a contact the glass lacks,
  *    it is an `affordance` refusal on `point` that lists `lip`.
- * 4. Asked of a body whose skeleton lacks the right hand's bone, the reading
- *    is a `participant` refusal on `side` that lists only `left`.
- * 5. The loaded glass and its gripping hand stay in place between grip closure and lift-off.
+ * 4. Asked of a body whose skeleton lacks the right hand's bone, the reading is a
+ *    `participant` refusal on `side` that lists only `left`.
+ * 5. The loaded glass and its gripping hand stay in place between grip closure and
+ *    lift-off.
  *
  * Scenarios:
- * 1. Place a real held working point from the displayed hand and compare with the visible prop, including a refusal when the requested grip is absent.
+ *
+ * 1. Place a real held working point from the displayed hand and compare with the
+ *    visible prop, including a refusal when the requested grip is absent.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs the chain through the public input and compares the point the reading gives, carried by the displayed hand, with the displayed prop's own point; a reading in another frame, one that drifts, or a missing refusal fails.
  * @evidence contracts/development/testing.md#independent-expectations The displayed glass comes from the performance's own carry of the prop and the hand from the displayed pose; the 1 mm is the campaign's grip bound. Neither is computed by the reading.
@@ -97,18 +101,21 @@ export function test_motion_carry_person_carried_frame(): void {
       plan: (
         context: IAutoMovieMotionHumanActionContext<never>,
       ): IAutoMovieMotionHumanActionPlan => {
-        const held: IAutoMovieMotionHumanHeld.IHeld =
-          AutoMovieMotionHumanHeld.of(context, "right", "glass");
+        const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
+          context,
+          "right",
+          "glass",
+        );
         read.lip = AutoMovieMotionHumanHeld.point(held, "lip");
         if (checkRefusals) {
           read.left = refused((): unknown =>
-            AutoMovieMotionHumanHeld.of(context, "left", "glass"),
+            AutoMovieMotionHumanHeld(context, "left", "glass"),
           );
           read.missing = refused((): unknown =>
             AutoMovieMotionHumanHeld.point(held, "spout"),
           );
           read.handless = refused((): unknown =>
-            AutoMovieMotionHumanHeld.of(
+            AutoMovieMotionHumanHeld(
               {
                 ...context,
                 // Remove the hand from both the skeleton and its name index.

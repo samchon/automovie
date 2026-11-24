@@ -66,15 +66,6 @@ function plan(
       reason: "the push, coast and brake require positive finite durations",
       fix: "give ramp and coast in positive seconds",
     });
-  if (p.hand !== "left" && p.hand !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "hand",
-      value: p.hand,
-      reason:
-        "one hand must release the departure bar and catch the arrival bar",
-      fix: "name the left or right hand on the rail side of the cabin",
-    });
 
   const craft: IAutoMovieMotionHumanPropReader = context.prop(p.spacecraft);
   if (

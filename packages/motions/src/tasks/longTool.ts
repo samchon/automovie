@@ -101,7 +101,7 @@ export namespace longTool {
       HumanFrame.point({ origin: { x: 0, y: 0, z: 0 }, yaw }, v);
 
     // The held tool: its face and line in the trailing hand's frame.
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       trail,
       params.prop,
@@ -129,7 +129,7 @@ export namespace longTool {
     const shoulder: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
       side: AutoMovieHumanSide,
     ): IAutoMovieVector3 => bones.get(`${side}UpperArm`)!.worldPosition;
-    const stroke: LongToolStroke.IStroke = LongToolStroke.of({
+    const stroke: LongToolStroke.IStroke = LongToolStroke({
       stroke: params.stroke,
       at: params.at,
       to: params.to,

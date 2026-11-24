@@ -23,7 +23,7 @@ export function HumanLanceCouchPick(
   return { laid: undefined, miss };
 }
 
-/** `HumanLanceCouchPick.of` and its records. */
+/** `HumanLanceCouchPick` and its records. */
 export namespace HumanLanceCouchPick {
   /**
    * How many of the least-turning carriages are tried against the arm's own fit

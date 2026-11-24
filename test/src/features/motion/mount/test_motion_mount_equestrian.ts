@@ -57,15 +57,16 @@ interface ITrial {
  * seat, stirrup and turning demands survive display through HumanPerformance.
  *
  * Scenarios:
- * 1. Opposite canter leads change the sign of the displayed pelvic bank at
- *    the same fraction of their respective leading-fore touchdown clocks.
- *    The pelvis returns to its touchdown orientation at the next touchdown.
- * 2. On an authored moving support, the rider lifts off the seat during the
- *    jump, keeps both foot balls on the stirrups and settles back on recovery.
- *    A ride with the takeoff and landing cues exchanged is refused.
+ *
+ * 1. Opposite canter leads change the sign of the displayed pelvic bank at the
+ *    same fraction of their respective leading-fore touchdown clocks. The
+ *    pelvis returns to its touchdown orientation at the next touchdown.
+ * 2. On an authored moving support, the rider lifts off the seat during the jump,
+ *    keeps both foot balls on the stirrups and settles back on recovery. A ride
+ *    with the takeoff and landing cues exchanged is refused.
  * 3. At an over-shoulder cue the face enters the rear hemisphere of the horse
- *    while the horse travels forward and the pelvis faces with the saddle.
- *    The face returns forward when the cue window ends.
+ *    while the horse travels forward and the pelvis faces with the saddle. The
+ *    face returns forward when the cue window ends.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the support, cue clocks, displayed coordinates, three cases and the rejected cue order.
  * @evidence contracts/development/testing.md#behavioral-verification Read displayed pelvis and head frames and sole points from the performance. Sample independently published tack frames and seat windows. A rider carried rigidly, a lost stirrup or a turn of the whole carrier cannot pass.
@@ -106,7 +107,7 @@ export function test_motion_mount_equestrian(): void {
   );
 
   // 2. Read the actual seat and soles as the carrier moves through the jump.
-  const rider: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const rider: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     left.film,
     "rider",
     body,
@@ -215,7 +216,10 @@ function local(
   );
 }
 
-/** Prepare a real canter, with an authored vertical carrier path in the jumping case. */
+/**
+ * Prepare a real canter, with an authored vertical carrier path in the jumping
+ * case.
+ */
 function trial(
   body: IAutoMovieMotionHumanBody,
   lead: AutoMovieHumanSide,

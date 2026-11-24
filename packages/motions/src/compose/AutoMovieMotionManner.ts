@@ -21,6 +21,37 @@ type OfContext = "skill" | "random" | "tempo";
 type BOUNDSEntryItem = "tempo" | "extent";
 
 /**
+ * The modifiers of an action's manner, drawn from the action's own seeded
+ * channel and with the performer's timing skill where the manner states no
+ * proficiency, and with its moving spans slowed by the action's own time scale
+ * (`IHumanActionContext.tempo`) with or without a manner; its holds keep their
+ * seconds.
+ *
+ * @param context The action's skill, draw streams and time scale.
+ * @param manner The manner; neutral when absent.
+ * @returns The modifiers.
+ */
+export function AutoMovieMotionManner(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  manner: IAutoMovieMotionManner | undefined,
+): IAutoMovieMotionManner.IModifiers {
+  const own: IAutoMovieMotionManner.IModifiers =
+    manner === undefined
+      ? AutoMovieMotionManner.NEUTRAL
+      : AutoMovieMotionManner.resolve(
+          { consistency: context.skill.axes.timing, ...manner },
+          context.random("manner"),
+        );
+
+  // The action's own time scale, where it is replanned to take the time
+  // its motion needs, slows its moving spans only: a hold is a duration,
+  // not a speed-limited phase, so its seconds (an authored hold's
+  // included) stay as the manner gives them.
+  const scale: number = context.tempo ?? 1;
+  return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
+}
+
+/**
  * How an action is performed, as distinct from which action it is: how fast,
  * how large, how forceful, how skilled and how varied.
  *
@@ -107,37 +138,6 @@ export namespace AutoMovieMotionManner {
       step: effort.step,
       swing: effort.swing,
     };
-  }
-
-  /**
-   * The modifiers of an action's manner, drawn from the action's own seeded
-   * channel and with the performer's timing skill where the manner states no
-   * proficiency, and with its moving spans slowed by the action's own time
-   * scale (`IHumanActionContext.tempo`) with or without a manner; its holds
-   * keep their seconds.
-   *
-   * @param context The action's skill, draw streams and time scale.
-   * @param manner The manner; neutral when absent.
-   * @returns The modifiers.
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    manner: IAutoMovieMotionManner | undefined,
-  ): IAutoMovieMotionManner.IModifiers {
-    const own: IAutoMovieMotionManner.IModifiers =
-      manner === undefined
-        ? NEUTRAL
-        : resolve(
-            { consistency: context.skill.axes.timing, ...manner },
-            context.random("manner"),
-          );
-
-    // The action's own time scale, where it is replanned to take the time
-    // its motion needs, slows its moving spans only: a hold is a duration,
-    // not a speed-limited phase, so its seconds (an authored hold's
-    // included) stay as the manner gives them.
-    const scale: number = context.tempo ?? 1;
-    return scale === 1 ? own : { ...own, tempo: own.tempo * scale };
   }
 
   /**

@@ -34,7 +34,7 @@ Every member feeds the worn branch or the key builder of `presented`.
 
 No fixed pose or sampled frame.
 
-# src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation.of
+# src/handling/HumanGraspUsePreparation.ts#HumanGraspUsePreparation
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

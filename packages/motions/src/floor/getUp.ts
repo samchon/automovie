@@ -231,8 +231,10 @@ export namespace getUp {
     const trail: AutoMovieHumanSide = lead === "right" ? "left" : "right";
 
     // Each phase takes its share of a whole rise from lying.
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const phase: number =
       (SECONDS / ROUTES[supine ? pattern : "rotation"].length) *
       modifiers.tempo;

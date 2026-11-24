@@ -12,9 +12,11 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../../internal/motionHumanBody";
 
 /**
- * An arm overlay on stairs and on a left-handed carry preserves carrier support.
+ * An arm overlay on stairs and on a left-handed carry preserves carrier
+ * support.
  *
  * Scenarios:
+ *
  * 1. The small actor performs the original obstacle or stair crossing.
  * 2. The average actor performs the original flat-floor carrier.
  * 3. A two-hand clap takes both free arms while a walk keeps its foot contacts.
@@ -55,7 +57,7 @@ export function test_motion_posture_slope_overlay(): void {
         performance.overlays("a").length,
         1,
       );
-      const verdict = HumanVerdicts.of(performance);
+      const verdict = HumanVerdicts(performance);
       if (!verdict.clean)
         findings.push(name + ": " + HumanVerdicts.describe(verdict));
     } catch (error) {

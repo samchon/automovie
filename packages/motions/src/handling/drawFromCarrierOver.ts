@@ -175,7 +175,7 @@ export function drawFromCarrierOver(
   };
 }
 
-/** `drawFromCarrierOver.of` and its records. */
+/** `drawFromCarrierOver` and its records. */
 export namespace drawFromCarrierOver {
   /** What a draw over a carrier is planned from, as the grounded draw read it. */
   export interface IOver {

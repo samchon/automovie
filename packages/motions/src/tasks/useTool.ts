@@ -6,7 +6,6 @@ import type {
   AutoMovieMotionHumanActionName,
   IAutoMovieAffordance,
   IAutoMovieMotionClock,
-  IAutoMovieMotionClockPhase,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -22,7 +21,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -41,6 +39,7 @@ import { poseBones } from "../posture/poseBones";
 import { HumanToolTurn } from "./HumanToolTurn";
 import { HumanToolWork } from "./HumanToolWork";
 import { prepareToolPlayback } from "./prepareToolPlayback";
+import { useToolClock } from "./useToolClock";
 import { useToolCycle } from "./useToolCycle";
 import { useToolPose } from "./useToolPose";
 import { useToolTarget } from "./useToolTarget";
@@ -70,13 +69,13 @@ type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
  * (`HumanToolWork`); a screwdriver turns about its own axis into the work, the
  * forearm's pronation and supination of `TURN` degrees each way. The hand
  * reaches the working pose in the timing owner's movement time
- * (`AutoMovieMotionHumanTiming.of`), works `cycles` cycles (a hammer's and a
- * saw's of `PERIODS` seconds, a stir's the time its circle takes at a tool
- * stroke's speed, `STROKE_SPEED`), and returns, its fingers kept closed on the
- * tool as the grip left them. Experts vary amplitude less (Bril et al. 2010, J
- * Exp Psychol Hum Percept Perform 36:825); the seeded variation is not drawn
- * yet. Events: `ready`, per cycle `contact<n>` (the strike, the stroke's
- * middle, the circle's nearest point, the turn's end), and `recover`.
+ * (`AutoMovieMotionHumanTiming`), works `cycles` cycles (a hammer's and a saw's
+ * of `PERIODS` seconds, a stir's the time its circle takes at a tool stroke's
+ * speed, `STROKE_SPEED`), and returns, its fingers kept closed on the tool as
+ * the grip left them. Experts vary amplitude less (Bril et al. 2010, J Exp
+ * Psychol Hum Percept Perform 36:825); the seeded variation is not drawn yet.
+ * Events: `ready`, per cycle `contact<n>` (the strike, the stroke's middle, the
+ * circle's nearest point, the turn's end), and `recover`.
  *
  * The plan carries the tool's working point in the hand (`IPlan.tool`), so a
  * capture reads it from the displayed hand; the tool stays held after.
@@ -213,8 +212,10 @@ export namespace useTool {
     // (`IAutoMovieMotionHumanUseTool.IParams.cycles`).
     const cycles: number = context.params.count ?? 4;
     HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const yaw: number = context.entry.posture.yaw;
     const axes: (v: IAutoMovieVector3) => IAutoMovieVector3 = (
       v: IAutoMovieVector3,
@@ -230,7 +231,7 @@ export namespace useTool {
     );
 
     // The held tool: its working point and its line in the hand's frame.
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       subject,
@@ -254,7 +255,7 @@ export namespace useTool {
         fix: "hold a tool whose working face stands off its grip, as createTool's do",
       });
     const line: IAutoMovieVector3 = Vector3.scale(reach, 1 / length);
-    const work: HumanToolWork.IWork = HumanToolWork.of(context, {
+    const work: HumanToolWork.IWork = HumanToolWork(context, {
       kind,
       on: context.params.on,
       forward,
@@ -342,8 +343,8 @@ export namespace useTool {
       );
     // The reach brings the tool's face onto the work: aimed at the face's
     // own width where the tool declares one, else the timing law's rule for
-    // a target of no measured width (`AutoMovieMotionHumanTiming.of`).
-    const travel: number = AutoMovieMotionHumanTiming.of(
+    // a target of no measured width (`AutoMovieMotionHumanTiming`).
+    const travel: number = AutoMovieMotionHumanTiming(
       Vector3.length(
         Vector3.subtract(
           pose.grip,
@@ -359,24 +360,13 @@ export namespace useTool {
           )?.width,
       },
     );
-    const period: number =
-      kind === "stir"
-        ? (2 * Math.PI * work.radius) / STROKE_SPEED
-        : PERIODS[kind];
-    const phases: IAutoMovieMotionClockPhase[] = [
-      { name: "reaching", seconds: travel },
-    ];
-    for (let k: number = 1; k <= cycles; k++)
-      phases.push(
-        { name: k === 1 ? "ready" : `cycle${k}`, seconds: period / 2 },
-        { name: `contact${k}`, seconds: period / 2 },
-      );
-    phases.push({ name: "recover", seconds: travel });
-    const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.sequence(phases),
+    const clock: IAutoMovieMotionClock = useToolClock({
+      kind,
+      work,
+      travel,
+      cycles,
       modifiers,
-      { holds: [] },
-    );
+    });
     const duration: number = clock.duration;
     const ready: number = clock.at("ready");
     const recover: number = clock.at("recover");

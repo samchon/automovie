@@ -18,6 +18,7 @@ import { vclose } from "../../../internal/vclose";
  * Root excursion returns a signed displacement to its entry height.
  *
  * Scenarios:
+ *
  * 1. Read entry, full excursion and exit on a vertical quarter-metre dip.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Root excursion returns a signed displacement to its entry height.
@@ -30,7 +31,7 @@ export function test_motion_dynamics_primitive_root_excursion(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 2, y: 0, z: 3 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "peak", seconds: 1 },
   ]);
   const primitive: IAutoMovieMotionHumanPrimitive =

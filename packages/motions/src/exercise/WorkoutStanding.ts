@@ -38,7 +38,7 @@ export namespace WorkoutStanding {
      */
     deadlift: {
       midfoot: true,
-      ...WorkoutStance.of(
+      ...WorkoutStance(
         WorkoutStance.ANKLES,
         WorkoutStance.FEET,
         0,
@@ -62,7 +62,7 @@ export namespace WorkoutStanding {
     },
 
     /** A back squat: the hands at the shoulders, down to a level thigh and up. */
-    backSquat: WorkoutStance.of(
+    backSquat: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.8,
@@ -98,7 +98,7 @@ export namespace WorkoutStanding {
      * A kettlebell swing: from the hinge with the arms between the legs to
      * standing with the arms level.
      */
-    kettlebellSwing: WorkoutStance.of(
+    kettlebellSwing: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.8,
@@ -140,7 +140,7 @@ export namespace WorkoutStanding {
      */
     overheadPress: {
       midfoot: true,
-      ...WorkoutStance.of(
+      ...WorkoutStance(
         WorkoutStance.ANKLES,
         WorkoutStance.FEET,
         0.8,
@@ -168,7 +168,7 @@ export namespace WorkoutStanding {
      * Arm circles: both straight arms forward, overhead, out to the side and
      * down.
      */
-    armCircles: WorkoutStance.of(
+    armCircles: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.3,
@@ -207,7 +207,7 @@ export namespace WorkoutStanding {
      * Leg swings: the right leg swung forward and back over the standing left
      * foot.
      */
-    legSwings: WorkoutStance.of(
+    legSwings: WorkoutStance(
       ["leftFoot"],
       WorkoutStance.LEFT,
       0,
@@ -238,7 +238,7 @@ export namespace WorkoutStanding {
     ),
 
     /** Butt kicks in place: one heel brought to the seat, alternating. */
-    buttKicks: WorkoutStance.of(
+    buttKicks: WorkoutStance(
       ["hips"],
       [],
       0,
@@ -261,7 +261,7 @@ export namespace WorkoutStanding {
      * The B-skip in place: the knee driven up and the shank reached forward,
      * alternating.
      */
-    bSkip: WorkoutStance.of(
+    bSkip: WorkoutStance(
       ["hips"],
       [],
       0,
@@ -290,7 +290,7 @@ export namespace WorkoutStanding {
      * A skipping rope's hops: both feet off the floor by 3 % of the stature
      * (provisional), the elbows at the sides.
      */
-    jumpRope: WorkoutStance.of(
+    jumpRope: WorkoutStance(
       ["hips"],
       [],
       0.3,

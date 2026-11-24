@@ -90,10 +90,10 @@ export const validateAutoMovieFormationMotions: (
       left.start - right.start ||
       compareCodeUnits(left.id, right.id),
   )) {
-    if (cue.id.trim().length === 0 || ids.has(cue.id))
+    if (ids.has(cue.id))
       fail(
         `formationMotion:${cue.id || "(blank)"}`,
-        "must have one non-blank id unique inside the shot",
+        "must have one id unique inside the shot",
       );
     ids.add(cue.id);
     if (

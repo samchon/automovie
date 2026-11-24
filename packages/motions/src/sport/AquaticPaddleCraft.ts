@@ -144,8 +144,11 @@ function kneel(
       fix: "compose a half-kneel on the floor before the stroke",
     });
   return (shape, seconds): IAutoMovieMotionHumanPosture => {
-    const carry: IAutoMovieMotionHumanSupportCarry.ICarry =
-      HumanSupportCarry.of(hull.frame, start, start + seconds);
+    const carry: IAutoMovieMotionHumanSupportCarry.ICarry = HumanSupportCarry(
+      hull.frame,
+      start,
+      start + seconds,
+    );
     const current: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(
       carry,
       entry.posture,

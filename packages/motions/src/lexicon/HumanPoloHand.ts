@@ -10,6 +10,48 @@ import type {
 import { HumanHand } from "../posture/HumanHand";
 
 /**
+ * Read a held tool in the hand's rest frame.
+ *
+ * @param body The body.
+ * @param side The holding hand.
+ * @param tool The held tool.
+ * @returns The hand frame and the working point in it.
+ */
+export function HumanPoloHand(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  tool: IAutoMovieMotionHumanStrikingHeld.ITool,
+): HumanPoloHand.IHand {
+  const asked: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
+  const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
+    Quaternion.inverse(
+      HumanHand.rotation(side, {
+        fingers: asked,
+        palm: { x: 0, y: -1, z: 0 },
+      }),
+    ),
+    asked,
+  );
+  const shaft: IAutoMovieVector3 = Vector3.normalize(
+    Vector3.subtract(
+      tool.axis,
+      Vector3.scale(fingers, Vector3.dot(tool.axis, fingers)),
+    ),
+  );
+  const point: IAutoMovieVector3 = Vector3.add(
+    HumanHand.offset(body, side, "grip").point,
+    tool.tip,
+  );
+  return {
+    fingers,
+    shaft,
+    along: Vector3.dot(point, fingers),
+    out: Vector3.dot(point, shaft),
+    across: Vector3.dot(point, Vector3.cross(fingers, shaft)),
+  };
+}
+
+/**
  * The held tool's geometry in the hand's own rest frame, and one instant of a
  * swing it places (`HumanPolo`).
  */
@@ -189,47 +231,5 @@ export namespace HumanPoloHand {
     return Math.abs(cosine) <= 1
       ? Math.acos(cosine) - Math.atan2(hand.out, hand.along)
       : NaN;
-  }
-
-  /**
-   * Read a held tool in the hand's rest frame.
-   *
-   * @param body The body.
-   * @param side The holding hand.
-   * @param tool The held tool.
-   * @returns The hand frame and the working point in it.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool,
-  ): IHand {
-    const asked: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
-    const fingers: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(
-        HumanHand.rotation(side, {
-          fingers: asked,
-          palm: { x: 0, y: -1, z: 0 },
-        }),
-      ),
-      asked,
-    );
-    const shaft: IAutoMovieVector3 = Vector3.normalize(
-      Vector3.subtract(
-        tool.axis,
-        Vector3.scale(fingers, Vector3.dot(tool.axis, fingers)),
-      ),
-    );
-    const point: IAutoMovieVector3 = Vector3.add(
-      HumanHand.offset(body, side, "grip").point,
-      tool.tip,
-    );
-    return {
-      fingers,
-      shaft,
-      along: Vector3.dot(point, fingers),
-      out: Vector3.dot(point, shaft),
-      across: Vector3.dot(point, Vector3.cross(fingers, shaft)),
-    };
   }
 }

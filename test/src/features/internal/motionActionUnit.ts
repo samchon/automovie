@@ -146,7 +146,7 @@ export namespace motionActionUnit {
         (s: IAutoMovieMotionHumanSegment): boolean =>
           s.id === act.id && s.index <= act.index,
       ).length;
-    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts.of(
+    const report: IAutoMovieMotionHumanVerdicts.IReport = HumanVerdicts(
       take,
       RATE,
       {

@@ -200,7 +200,7 @@ export namespace rise {
     }
     const rising: number =
       seatedCourse.descent(r) *
-      AutoMovieMotionManner.of(context, context.params.manner).tempo;
+      AutoMovieMotionManner(context, context.params.manner).tempo;
     const yaw: number = context.entry.posture.yaw;
     const legged: ReturnType<typeof stand.prepareLegs> = stand.prepareLegs(
       body,
@@ -227,7 +227,7 @@ export namespace rise {
     );
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
+      ...standUpright(body).joints,
     };
 
     // Shallow sitting first: the pelvis edges forward on the seat until the

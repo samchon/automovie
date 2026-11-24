@@ -1,4 +1,4 @@
-# src/touch/touchSite.ts#touchSite.of
+# src/touch/touchSite.ts#touchSite
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

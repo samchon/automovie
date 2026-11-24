@@ -239,7 +239,7 @@ export namespace dress {
       context.entry.holds.right !== subject
         ? "left"
         : "right");
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       holder,
       subject,
@@ -249,8 +249,10 @@ export namespace dress {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       held.frame.rotation,
     );
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const yaw: number = context.entry.posture.yaw;
     const forward: IAutoMovieVector3 = HumanFrame.point(
       { origin: { x: 0, y: 0, z: 0 }, yaw },
@@ -330,7 +332,7 @@ export namespace dress {
     // The reach lasts the movement time of the farther hand's way, from
     // where it starts to where it holds the item up, the lead before its
     // place on the entry's head: a place in free space, so it takes the
-    // free-space rule, not an aimed one (`AutoMovieMotionHumanTiming.of`).
+    // free-space rule, not an aimed one (`AutoMovieMotionHumanTiming`).
     const up: (point: IAutoMovieVector3) => IAutoMovieVector3 = (
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 => Vector3.add(point, Vector3.scale(forward, lead));
@@ -348,7 +350,7 @@ export namespace dress {
         ),
       ),
     );
-    const reach: number = AutoMovieMotionHumanTiming.of(far, { solid: false });
+    const reach: number = AutoMovieMotionHumanTiming(far, { solid: false });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.phrase({
         prepare: reach,

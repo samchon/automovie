@@ -68,7 +68,7 @@ function planTurnOver(
       fix: "lie down first",
     });
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const from: lyingTurn.ITurn = lyingTurn.of(entry);
+  const from: lyingTurn.ITurn = lyingTurn(entry);
   const target: number = toward(
     from.turn,
     lyingTurn.TURNS[p.to],
@@ -89,7 +89,7 @@ function planTurnOver(
       { name: p.to, seconds: 0 },
       { name: "settled", seconds: hold },
     ]),
-    AutoMovieMotionManner.of(context, p.manner),
+    AutoMovieMotionManner(context, p.manner),
     { holds: ["settled"] },
   );
   const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =

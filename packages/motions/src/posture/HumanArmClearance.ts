@@ -125,7 +125,7 @@ export namespace HumanArmClearance {
     hint?: IAutoMovieVector3,
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
   ): number {
-    return HumanArmOvershoot.of(
+    return HumanArmOvershoot(
       body,
       shapes,
       elbow,
@@ -349,7 +349,7 @@ export namespace HumanArmClearance {
     };
     const outside: ReturnType<typeof prepareHumanJointRom> =
       prepareHumanJointRom(body);
-    return HumanArmClearing.of({
+    return HumanArmClearing({
       arm,
       over,
       range: (of: IAutoMovieMotionHumanArmClearance.IArm): number =>

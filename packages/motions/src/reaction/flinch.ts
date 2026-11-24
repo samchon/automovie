@@ -117,11 +117,13 @@ export namespace flinch {
     context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanFlinch.IParams>,
   ): IAutoMovieMotionHumanActionPlan {
     const p: IAutoMovieMotionHumanFlinch.IParams = context.params;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, {
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      {
         ...(p.intensity === undefined ? {} : { intensity: p.intensity }),
         ...p.manner,
-      });
+      },
+    );
     const intensity: number = modifiers.extent;
     const body: IAutoMovieMotionHumanActionContext["body"] = context.body;
     const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =

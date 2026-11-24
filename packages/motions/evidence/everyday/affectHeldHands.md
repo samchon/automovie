@@ -22,8 +22,8 @@ One demanded-bone forward kinematics before the layer, and one after it only whe
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The demanded-bone reader is prepared once per body and bone set.
+The one demanded-bone reader prepared for the call serves both readings, before and after the layer; the bone chain between a hand and its touched bone reads the body's bone records' parents.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The cache holds prepared readers weakly per body; no posture or pose is retained.
+Retains nothing; the prepared reader ends with the call.

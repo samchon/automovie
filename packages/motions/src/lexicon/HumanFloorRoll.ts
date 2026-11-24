@@ -18,7 +18,7 @@ export namespace HumanFloorRoll {
    */
   export const forwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["forwardRoll"]
-  > = HumanActionRow.of("forwardRoll", roll, {
+  > = HumanActionRow("forwardRoll", roll, {
     direction: "forward",
   });
 
@@ -29,7 +29,7 @@ export namespace HumanFloorRoll {
    */
   export const backwardRoll: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["floorRoll"]["backwardRoll"]
-  > = HumanActionRow.of("backwardRoll", roll, {
+  > = HumanActionRow("backwardRoll", roll, {
     direction: "backward",
   });
 }

@@ -13,6 +13,34 @@ type OfWay = IAutoMovieMotionHumanPushPullLean.Way | "drag";
 type EntryEntryEntry = "waist" | "shoulder";
 
 /**
+ * The trunk's incline from the vertical for a haul.
+ *
+ * @param body The body.
+ * @param way The way the load is moved; a drag reads as a push.
+ * @param load The declared load level.
+ * @param height The handles' height above the floor, metres.
+ * @returns Degrees, positive leaning forward toward the way the body faces,
+ *   negative leaning back.
+ */
+export function pushPullLean(
+  body: IAutoMovieMotionHumanBody,
+  way: OfWay,
+  load: IAutoMovieMotionHumanPushPullLean.Load,
+  height: number,
+): number {
+  const table: Record<OfTableEntry, number> =
+    pushPullLean.ANGLES[way === "pull" ? "pull" : "push"][load];
+  const waist: number = body.measure.waistHeight;
+  const shoulder: number = body.measure.shoulderHeight;
+  const share: number = Math.min(
+    1,
+    Math.max(0, (height - waist) / (shoulder - waist)),
+  );
+  const angle: number = table.waist + (table.shoulder - table.waist) * share;
+  return way === "pull" ? -angle : angle;
+}
+
+/**
  * How far the trunk leans when a load is pushed, pulled or dragged by its
  * handles, by the load's declared level and the handles' height.
  *
@@ -60,32 +88,4 @@ export namespace pushPullLean {
       heavy: { waist: 17.7, shoulder: 21.8 },
     },
   };
-
-  /**
-   * The trunk's incline from the vertical for a haul.
-   *
-   * @param body The body.
-   * @param way The way the load is moved; a drag reads as a push.
-   * @param load The declared load level.
-   * @param height The handles' height above the floor, metres.
-   * @returns Degrees, positive leaning forward toward the way the body faces,
-   *   negative leaning back.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    way: OfWay,
-    load: IAutoMovieMotionHumanPushPullLean.Load,
-    height: number,
-  ): number {
-    const table: Record<OfTableEntry, number> =
-      ANGLES[way === "pull" ? "pull" : "push"][load];
-    const waist: number = body.measure.waistHeight;
-    const shoulder: number = body.measure.shoulderHeight;
-    const share: number = Math.min(
-      1,
-      Math.max(0, (height - waist) / (shoulder - waist)),
-    );
-    const angle: number = table.waist + (table.shoulder - table.waist) * share;
-    return way === "pull" ? -angle : angle;
-  }
 }

@@ -19,6 +19,278 @@ import { crawlFrame } from "./crawlFrame";
 /** The record of `IOfDescendNearest`'s site. */
 type IOfDescendNearest = { lam: number; residual: number };
 
+/** Upright lengths and lateral places read by this chain's preparation. */
+const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
+  "leftUpperArm",
+  "rightUpperArm",
+  "leftUpperLeg",
+  "rightUpperLeg",
+  "leftLowerLeg",
+  "rightLowerLeg",
+]);
+
+/**
+ * Build the chain for a body.
+ *
+ * @param body The body.
+ * @param standing The standing posture the walk starts from.
+ * @param frame The floor frame of the heading, its origin under the root.
+ * @param forward The heading's unit vector.
+ * @returns The chain.
+ */
+export function crawlChain(
+  body: IAutoMovieMotionHumanBody,
+  standing: IAutoMovieMotionHumanPosture,
+  frame: IAutoMovieMotionHumanFrame,
+  forward: IAutoMovieVector3,
+): crawlChain.IChain {
+  const yaw: number = frame.yaw;
+  const DEG: number = 180 / Math.PI;
+  const upright: ReturnType<typeof poseBones> = poseBones(
+    body,
+    resolveHumanPosture(body, {
+      ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
+      root: standing.root,
+    }),
+    undefined,
+    MEASURED,
+  );
+  const floor: ReturnType<typeof HumanFrame.prepare> =
+    HumanFrame.prepare(frame);
+  const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
+    bone: AutoMovieHumanoidBone,
+  ): IAutoMovieVector3 => floor.local(upright.get(bone)!.worldPosition);
+  const chest: IAutoMovieVector3 = Vector3.subtract(
+    Vector3.lerp(at("leftUpperArm"), at("rightUpperArm"), 0.5),
+    Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
+  );
+  const thigh: number = body.measure.thigh;
+  const shank: number = body.measure.shank;
+  const t: number = Vector3.length(chest);
+  const l: number = crawlChain.LEG * (thigh + shank);
+  const r: number =
+    crawlChain.ARM * (body.measure.upperArm + body.measure.forearm);
+  const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> =
+    crawlFrame.wrists(body, standing, forward);
+  const wv: number = (wrists.left.y + wrists.right.y) / 2;
+  const ball = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
+    const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
+    return floor.local(
+      HumanFoot.point(body, side, "mtp", {
+        ankle: from.point,
+        rotation: from.rotation ?? HumanFrame.turn(yaw),
+      }),
+    );
+  };
+  const balls: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
+    left: ball("left"),
+    right: ball("right"),
+  };
+  const ballY: number = (balls.left.y + balls.right.y) / 2;
+  const extension: number =
+    AutoMovieMotionHumanRange.limit("leftToes", "flexion") ?? 90;
+  // How much further forward than the leg's line the shank leans, the
+  // knee bent toward the front to shorten the leg to `l`.
+  const kappa: number =
+    Math.acos(
+      Math.max(
+        -1,
+        Math.min(1, (l * l + shank * shank - thigh * thigh) / (2 * l * shank)),
+      ),
+    ) * DEG;
+
+  // The leg at an elevation over the foot pivoted on its ball, the heel
+  // lifted as far as the shank leans forward.
+  const pivot: ReturnType<typeof HumanFoot.preparePivot> =
+    HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
+  const unturned: ReturnType<typeof HumanFrame.prepare> = HumanFrame.prepare({
+    origin: { x: 0, y: 0, z: 0 },
+    yaw,
+  });
+  /**
+   * Fixed foot and leg offsets for one exact elevation, before current
+   * translation.
+   */
+  interface IGeometry {
+    /** Degrees of heel lift. */
+    heel: number;
+    /** Current native pivot's ankle offset, heading-local metres. */
+    ankle: IAutoMovieVector3;
+    /** Hip offset forward from the ankle, metres. */
+    along: number;
+    /** Hip offset above the ankle, metres. */
+    up: number;
+  }
+  const geometryAt: (lam: number) => IGeometry = (lam: number): IGeometry => {
+    const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
+    return {
+      heel,
+      ankle: unturned.local(pivot(-heel).ankle),
+      along: l * Math.cos(lam / DEG),
+      up: l * Math.sin(lam / DEG),
+    };
+  };
+  const upper: (
+    u: number,
+    v: number,
+    geometry: IGeometry,
+  ) => crawlChain.IPlanar = (
+    u: number,
+    v: number,
+    geometry: IGeometry,
+  ): crawlChain.IPlanar => ({ u: u + geometry.along, v: v + geometry.up });
+  const legAt: (mu: number, lam: number) => crawlChain.ILeg = (
+    mu: number,
+    lam: number,
+  ): crawlChain.ILeg => {
+    const geometry: IGeometry = geometryAt(lam);
+    const a: crawlChain.IPlanar = {
+      u: mu + geometry.ankle.z,
+      v: ballY + geometry.ankle.y,
+    };
+    return {
+      lam,
+      heel: geometry.heel,
+      ankle: a,
+      hips: upper(a.u, a.v, geometry),
+    };
+  };
+  const planar = (p: IAutoMovieVector3): crawlChain.IPlanar => ({
+    u: p.z,
+    v: p.y,
+  });
+  const angle = (
+    a: crawlChain.IPlanar,
+    vertex: crawlChain.IPlanar,
+    b: crawlChain.IPlanar,
+  ): number => {
+    const x: crawlChain.IPlanar = { u: a.u - vertex.u, v: a.v - vertex.v };
+    const y: crawlChain.IPlanar = { u: b.u - vertex.u, v: b.v - vertex.v };
+    const cosine: number =
+      (x.u * y.u + x.v * y.v) / (Math.hypot(x.u, x.v) * Math.hypot(y.u, y.v));
+    return Math.acos(Math.max(-1, Math.min(1, cosine))) * DEG;
+  };
+  // The first elevation, scanning down by a degree, at which a residual
+  // stops being positive, refined by bisection; the one nearest to it
+  // when none is (the shoulders a hair beyond the straight leg's reach).
+  const descend = (residual: (lam: number) => number, from: number): number => {
+    let hi: number = from;
+    let lo: number | null = null;
+    let nearest: IOfDescendNearest = {
+      lam: from,
+      residual: Infinity,
+    };
+    for (let lam: number = from; lam >= crawlChain.LOWEST; lam -= 1) {
+      const value: number = residual(lam);
+      if (value <= 0) {
+        lo = lam;
+        break;
+      }
+      if (value < nearest.residual) nearest = { lam, residual: value };
+      hi = lam;
+    }
+    if (lo === null) return nearest.lam;
+    for (let i: number = 0; i < 30; i++) {
+      const mid: number = (lo + hi) / 2;
+      if (residual(mid) <= 0) lo = mid;
+      else hi = mid;
+    }
+    return (lo + hi) / 2;
+  };
+
+  // The plank: the straight body whose shoulders stand an arm over the
+  // wrists, and how far before the balls they stand.
+  let lo: number = 0;
+  let hi: number = 90;
+  for (let i: number = 0; i < 40; i++) {
+    const mid: number = (lo + hi) / 2;
+    const geometry: IGeometry = geometryAt(mid);
+    const hips: crawlChain.IPlanar = upper(
+      0 + geometry.ankle.z,
+      ballY + geometry.ankle.y,
+      geometry,
+    );
+    if (hips.v + t * Math.sin(mid / DEG) > wv + r) hi = mid;
+    else lo = mid;
+  }
+  const straight: crawlChain.ILeg = legAt(0, (lo + hi) / 2);
+  const plank: number = straight.hips.u + t * Math.cos(straight.lam / DEG);
+
+  // The shoulders plumb over the wrists, no further out than the plank;
+  // the hips a trunk from them on the leg's arc, the higher place.
+  const shape = (mu: number, wristU: number): crawlChain.IShape => {
+    const shoulders: crawlChain.IPlanar = {
+      u: Math.min(wristU, mu + plank),
+      v: wv + r,
+    };
+    const leg: crawlChain.ILeg = legAt(
+      mu,
+      descend((lam: number): number => {
+        const geometry: IGeometry = geometryAt(lam);
+        const hips: crawlChain.IPlanar = upper(
+          mu + geometry.ankle.z,
+          ballY + geometry.ankle.y,
+          geometry,
+        );
+        return Math.hypot(shoulders.u - hips.u, shoulders.v - hips.v) - t;
+      }, 120),
+    );
+    return { ...leg, shoulders, hip: angle(leg.ankle, leg.hips, shoulders) };
+  };
+
+  // The fold: how far before the balls the wrists stand when the hip
+  // flexes to `SPARE` short of its range. The pelvis turns with the
+  // trunk's line less its upright lean, and the thigh lies off the leg's
+  // line by the bent knee's turn and off the pelvis at rest by its rest
+  // angle, so the flexion is 180 less the hip angle, the lean and the rest
+  // angle, plus the turn; the angle opens as the hands go out.
+  const lean: number = Math.atan2(chest.z, chest.y) * DEG;
+  const rest: crawlChain.IPlanar = {
+    u: (at("leftLowerLeg").z + at("rightLowerLeg").z) / 2,
+    v: (at("leftLowerLeg").y + at("rightLowerLeg").y) / 2,
+  };
+  const hipRest: crawlChain.IPlanar = planar(
+    Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
+  );
+  const resting: number =
+    Math.atan2(rest.u - hipRest.u, hipRest.v - rest.v) * DEG;
+  const turn: number =
+    Math.acos(
+      Math.max(
+        -1,
+        Math.min(1, (l * l + thigh * thigh - shank * shank) / (2 * l * thigh)),
+      ),
+    ) * DEG;
+  const fold: number =
+    180 -
+    lean -
+    resting +
+    turn -
+    ((AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion") ?? 120) -
+      crawlChain.SPARE);
+  lo = 0;
+  hi = plank;
+  for (let i: number = 0; i < 40; i++) {
+    const mid: number = (lo + hi) / 2;
+    if (shape(0, mid).hip < fold) lo = mid;
+    else hi = mid;
+  }
+  const folding: number = (lo + hi) / 2;
+
+  return {
+    shape,
+    lean,
+    folding,
+    plank,
+    wrists,
+    palms: {
+      left: at("leftUpperArm").x - wrists.left.x,
+      right: at("rightUpperArm").x - wrists.right.x,
+    },
+    balls,
+  };
+}
+
 /**
  * The inchworm's reaches, solved on its body in its middle plane: a chain from
  * the feet's balls to the wrists, from which the fold's and the plank's
@@ -127,281 +399,4 @@ export namespace crawlChain {
     /** Each foot's ball standing, in the floor frame. */
     balls: Record<AutoMovieHumanSide, IAutoMovieVector3>;
   }
-
-  /**
-   * Build the chain for a body.
-   *
-   * @param body The body.
-   * @param standing The standing posture the walk starts from.
-   * @param frame The floor frame of the heading, its origin under the root.
-   * @param forward The heading's unit vector.
-   * @returns The chain.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    standing: IAutoMovieMotionHumanPosture,
-    frame: IAutoMovieMotionHumanFrame,
-    forward: IAutoMovieVector3,
-  ): IChain {
-    const yaw: number = frame.yaw;
-    const DEG: number = 180 / Math.PI;
-    const upright: ReturnType<typeof poseBones> = poseBones(
-      body,
-      resolveHumanPosture(body, {
-        ...crawlFrame.posed(body, yaw, 0, 0, 0, 0),
-        root: standing.root,
-      }),
-      undefined,
-      MEASURED,
-    );
-    const floor: ReturnType<typeof HumanFrame.prepare> =
-      HumanFrame.prepare(frame);
-    const at: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
-      bone: AutoMovieHumanoidBone,
-    ): IAutoMovieVector3 => floor.local(upright.get(bone)!.worldPosition);
-    const chest: IAutoMovieVector3 = Vector3.subtract(
-      Vector3.lerp(at("leftUpperArm"), at("rightUpperArm"), 0.5),
-      Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
-    );
-    const thigh: number = body.measure.thigh;
-    const shank: number = body.measure.shank;
-    const t: number = Vector3.length(chest);
-    const l: number = LEG * (thigh + shank);
-    const r: number = ARM * (body.measure.upperArm + body.measure.forearm);
-    const wrists: Record<AutoMovieHumanSide, IAutoMovieVector3> =
-      crawlFrame.wrists(body, standing, forward);
-    const wv: number = (wrists.left.y + wrists.right.y) / 2;
-    const ball = (side: AutoMovieHumanSide): IAutoMovieVector3 => {
-      const from: IAutoMovieHumanLimbGoal = standing.limbs[`${side}Leg`]!;
-      return floor.local(
-        HumanFoot.point(body, side, "mtp", {
-          ankle: from.point,
-          rotation: from.rotation ?? HumanFrame.turn(yaw),
-        }),
-      );
-    };
-    const balls: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-      left: ball("left"),
-      right: ball("right"),
-    };
-    const ballY: number = (balls.left.y + balls.right.y) / 2;
-    const extension: number =
-      AutoMovieMotionHumanRange.limit("leftToes", "flexion") ?? 90;
-    // How much further forward than the leg's line the shank leans, the
-    // knee bent toward the front to shorten the leg to `l`.
-    const kappa: number =
-      Math.acos(
-        Math.max(
-          -1,
-          Math.min(
-            1,
-            (l * l + shank * shank - thigh * thigh) / (2 * l * shank),
-          ),
-        ),
-      ) * DEG;
-
-    // The leg at an elevation over the foot pivoted on its ball, the heel
-    // lifted as far as the shank leans forward.
-    const pivot: ReturnType<typeof HumanFoot.preparePivot> =
-      HumanFoot.preparePivot(body, "left", "mtp", { x: 0, y: 0, z: 0 }, yaw);
-    const unturned: ReturnType<typeof HumanFrame.prepare> = HumanFrame.prepare({
-      origin: { x: 0, y: 0, z: 0 },
-      yaw,
-    });
-    /**
-     * Fixed foot and leg offsets for one exact elevation, before current
-     * translation.
-     */
-    interface IGeometry {
-      /** Degrees of heel lift. */
-      heel: number;
-      /** Current native pivot's ankle offset, heading-local metres. */
-      ankle: IAutoMovieVector3;
-      /** Hip offset forward from the ankle, metres. */
-      along: number;
-      /** Hip offset above the ankle, metres. */
-      up: number;
-    }
-    const scan: Map<number, IGeometry> = new Map();
-    const geometryAt: (lam: number) => IGeometry = (lam: number): IGeometry => {
-      let geometry: IGeometry | undefined = scan.get(lam);
-      if (geometry === undefined) {
-        const heel: number = Math.min(extension, Math.max(0, 90 - lam + kappa));
-        const ankle: IAutoMovieVector3 = unturned.local(pivot(-heel).ankle);
-        geometry = {
-          heel,
-          ankle,
-          along: l * Math.cos(lam / DEG),
-          up: l * Math.sin(lam / DEG),
-        };
-        if (Number.isInteger(lam) && lam >= LOWEST && lam <= 120)
-          scan.set(lam, geometry);
-      }
-      return geometry;
-    };
-    const upper: (u: number, v: number, geometry: IGeometry) => IPlanar = (
-      u: number,
-      v: number,
-      geometry: IGeometry,
-    ): IPlanar => ({ u: u + geometry.along, v: v + geometry.up });
-    const legAt: (mu: number, lam: number) => ILeg = (
-      mu: number,
-      lam: number,
-    ): ILeg => {
-      const geometry: IGeometry = geometryAt(lam);
-      const a: IPlanar = {
-        u: mu + geometry.ankle.z,
-        v: ballY + geometry.ankle.y,
-      };
-      return {
-        lam,
-        heel: geometry.heel,
-        ankle: a,
-        hips: upper(a.u, a.v, geometry),
-      };
-    };
-    const planar = (p: IAutoMovieVector3): IPlanar => ({ u: p.z, v: p.y });
-    const angle = (a: IPlanar, vertex: IPlanar, b: IPlanar): number => {
-      const x: IPlanar = { u: a.u - vertex.u, v: a.v - vertex.v };
-      const y: IPlanar = { u: b.u - vertex.u, v: b.v - vertex.v };
-      const cosine: number =
-        (x.u * y.u + x.v * y.v) / (Math.hypot(x.u, x.v) * Math.hypot(y.u, y.v));
-      return Math.acos(Math.max(-1, Math.min(1, cosine))) * DEG;
-    };
-    // The first elevation, scanning down by a degree, at which a residual
-    // stops being positive, refined by bisection; the one nearest to it
-    // when none is (the shoulders a hair beyond the straight leg's reach).
-    const descend = (
-      residual: (lam: number) => number,
-      from: number,
-    ): number => {
-      let hi: number = from;
-      let lo: number | null = null;
-      let nearest: IOfDescendNearest = {
-        lam: from,
-        residual: Infinity,
-      };
-      for (let lam: number = from; lam >= LOWEST; lam -= 1) {
-        const value: number = residual(lam);
-        if (value <= 0) {
-          lo = lam;
-          break;
-        }
-        if (value < nearest.residual) nearest = { lam, residual: value };
-        hi = lam;
-      }
-      if (lo === null) return nearest.lam;
-      for (let i: number = 0; i < 30; i++) {
-        const mid: number = (lo + hi) / 2;
-        if (residual(mid) <= 0) lo = mid;
-        else hi = mid;
-      }
-      return (lo + hi) / 2;
-    };
-
-    // The plank: the straight body whose shoulders stand an arm over the
-    // wrists, and how far before the balls they stand.
-    let lo: number = 0;
-    let hi: number = 90;
-    for (let i: number = 0; i < 40; i++) {
-      const mid: number = (lo + hi) / 2;
-      const geometry: IGeometry = geometryAt(mid);
-      const hips: IPlanar = upper(
-        0 + geometry.ankle.z,
-        ballY + geometry.ankle.y,
-        geometry,
-      );
-      if (hips.v + t * Math.sin(mid / DEG) > wv + r) hi = mid;
-      else lo = mid;
-    }
-    const straight: ILeg = legAt(0, (lo + hi) / 2);
-    const plank: number = straight.hips.u + t * Math.cos(straight.lam / DEG);
-
-    // The shoulders plumb over the wrists, no further out than the plank;
-    // the hips a trunk from them on the leg's arc, the higher place.
-    const shape = (mu: number, wristU: number): IShape => {
-      const shoulders: IPlanar = {
-        u: Math.min(wristU, mu + plank),
-        v: wv + r,
-      };
-      const leg: ILeg = legAt(
-        mu,
-        descend((lam: number): number => {
-          const geometry: IGeometry = geometryAt(lam);
-          const hips: IPlanar = upper(
-            mu + geometry.ankle.z,
-            ballY + geometry.ankle.y,
-            geometry,
-          );
-          return Math.hypot(shoulders.u - hips.u, shoulders.v - hips.v) - t;
-        }, 120),
-      );
-      return { ...leg, shoulders, hip: angle(leg.ankle, leg.hips, shoulders) };
-    };
-
-    // The fold: how far before the balls the wrists stand when the hip
-    // flexes to `SPARE` short of its range. The pelvis turns with the
-    // trunk's line less its upright lean, and the thigh lies off the leg's
-    // line by the bent knee's turn and off the pelvis at rest by its rest
-    // angle, so the flexion is 180 less the hip angle, the lean and the rest
-    // angle, plus the turn; the angle opens as the hands go out.
-    const lean: number = Math.atan2(chest.z, chest.y) * DEG;
-    const rest: IPlanar = {
-      u: (at("leftLowerLeg").z + at("rightLowerLeg").z) / 2,
-      v: (at("leftLowerLeg").y + at("rightLowerLeg").y) / 2,
-    };
-    const hipRest: IPlanar = planar(
-      Vector3.lerp(at("leftUpperLeg"), at("rightUpperLeg"), 0.5),
-    );
-    const resting: number =
-      Math.atan2(rest.u - hipRest.u, hipRest.v - rest.v) * DEG;
-    const turn: number =
-      Math.acos(
-        Math.max(
-          -1,
-          Math.min(
-            1,
-            (l * l + thigh * thigh - shank * shank) / (2 * l * thigh),
-          ),
-        ),
-      ) * DEG;
-    const fold: number =
-      180 -
-      lean -
-      resting +
-      turn -
-      ((AutoMovieMotionHumanRange.limit("leftUpperLeg", "flexion") ?? 120) -
-        SPARE);
-    lo = 0;
-    hi = plank;
-    for (let i: number = 0; i < 40; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (shape(0, mid).hip < fold) lo = mid;
-      else hi = mid;
-    }
-    const folding: number = (lo + hi) / 2;
-
-    return {
-      shape,
-      lean,
-      folding,
-      plank,
-      wrists,
-      palms: {
-        left: at("leftUpperArm").x - wrists.left.x,
-        right: at("rightUpperArm").x - wrists.right.x,
-      },
-      balls,
-    };
-  }
-
-  /** Upright lengths and lateral places read by this chain's preparation. */
-  const MEASURED: ReadonlySet<AutoMovieHumanoidBone> = new Set([
-    "leftUpperArm",
-    "rightUpperArm",
-    "leftUpperLeg",
-    "rightUpperLeg",
-    "leftLowerLeg",
-    "rightLowerLeg",
-  ]);
 }

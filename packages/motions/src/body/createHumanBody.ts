@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { standRelaxed } from "../actions/standRelaxed";
 import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanColliders } from "../posture/HumanColliders";
@@ -35,9 +36,9 @@ type CreateHumanBody = "measure" | "surfaces";
  * @param profile Its physical profile.
  * @returns The body with its measure, surfaces, topology, rest joints, bone
  *   records by name and immutable canonical FK preparation. The bone-local mass
- *   model, the quiet-stance alignment, collider placement, hull faces and each
- *   side's hanging arm are prepared by their actual first queries. Recreate it
- *   after editing the input rig or profile.
+ *   model, the quiet-stance alignment, the relaxed hanging arms, collider
+ *   placement, hull faces and each side's hanging arm are prepared by their
+ *   actual first queries. Recreate it after editing the input rig or profile.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -99,6 +100,7 @@ export function createHumanBody(
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
   let upright: IAutoMovieMotionHumanBody["upright"] | undefined;
+  let relaxed: IAutoMovieMotionHumanBody["relaxed"] | undefined;
   let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
@@ -138,6 +140,12 @@ export function createHumanBody(
       upright ??= standUpright.align(body);
       return upright;
     },
+
+    // The relaxed hanging arms are a property of the body as well.
+    get relaxed(): IAutoMovieMotionHumanBody["relaxed"] {
+      relaxed ??= standRelaxed.solve(body);
+      return relaxed;
+    },
     rest,
     bones,
     hanging: (
@@ -148,101 +156,5 @@ export function createHumanBody(
       return hung.get(side)!;
     },
   };
-  const readers: IReader[] = [];
-  for (const source of [
-    poseResolution,
-    body.projection,
-    body.projection.joints,
-  ])
-    for (const [key, value] of Object.entries(source))
-      if (typeof value === "function") readers.push({ source, key, value });
-  for (const key of [
-    "poseResolution",
-    "projection",
-    "hanging",
-    "reads",
-  ] as const)
-    readers.push({ source: body, key, value: body[key] });
-  readers.push({
-    source: body.projection,
-    key: "joints",
-    value: body.projection.joints,
-  });
-  for (const limb of ["leftArm", "rightArm", "leftLeg", "rightLeg"] as const) {
-    const pair: (typeof body.reads)[typeof limb] = body.reads[limb];
-    readers.push({ source: body.reads, key: limb, value: pair });
-    for (const [index, read] of pair.entries()) {
-      readers.push({ source: pair, key: String(index), value: read });
-      for (const key of ["bones", "requested", "demand"] as const)
-        readers.push({ source: read, key, value: read[key] });
-      readers.push({ source: read.demand, key: "map", value: read.demand.map });
-    }
-  }
-  NATIVE_READERS.set(body, readers);
-  BEND_MEASURE.set(body, measure);
   return body;
-}
-
-/** Reader identities supplied at construction, owned by the body itself. */
-const NATIVE_READERS: WeakMap<IAutoMovieMotionHumanBody, readonly IReader[]> =
-  new WeakMap();
-/** The factory's original measurement object for pure Bend scoring. */
-const BEND_MEASURE: WeakMap<
-  IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanBody["measure"]
-> = new WeakMap();
-/** One original own property read by the native actor. */
-interface IReader {
-  source: object;
-  key: string;
-  value: unknown;
-}
-/** Identify bodies whose factory-installed readers can be used by native motion. */
-export namespace createHumanBody {
-  /**
-   * Whether this body's original FK, projection, hanging and limb readers are
-   * still installed.
-   */
-  export function owns(body: IAutoMovieMotionHumanBody): boolean {
-    const readers: readonly IReader[] | undefined = NATIVE_READERS.get(body);
-    return (
-      readers !== undefined &&
-      readers.every(
-        (reader: IReader): boolean =>
-          Object.getOwnPropertyDescriptor(reader.source, reader.key)?.value ===
-          reader.value,
-      )
-    );
-  }
-
-  /**
-   * Read the two current scalar measures the ordinary Bend candidate scorer
-   * uses.
-   */
-  export function bendMeasure(
-    body: IAutoMovieMotionHumanBody,
-  ): readonly [number, number] | undefined {
-    if (!owns(body)) return undefined;
-    const original: IAutoMovieMotionHumanBody["measure"] | undefined =
-      BEND_MEASURE.get(body);
-    if (
-      original === undefined ||
-      Object.getOwnPropertyDescriptor(body, "measure")?.value !== original
-    )
-      return undefined;
-    const length: unknown = Object.getOwnPropertyDescriptor(
-      original,
-      "upperArm",
-    )?.value;
-    const radius: unknown = Object.getOwnPropertyDescriptor(
-      original,
-      "forearmRadius",
-    )?.value;
-    return typeof length === "number" &&
-      Number.isFinite(length) &&
-      typeof radius === "number" &&
-      Number.isFinite(radius)
-      ? [length, radius]
-      : undefined;
-  }
 }

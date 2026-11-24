@@ -200,7 +200,7 @@ export namespace writeWith {
     facing: IAutoMovieQuaternion,
   ): writeWith.IAim {
     const other: AutoMovieHumanSide = side === "left" ? "right" : "left";
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       other,
       steady.tool,

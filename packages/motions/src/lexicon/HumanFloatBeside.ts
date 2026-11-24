@@ -112,7 +112,7 @@ function planHumanFloatBeside(
   const sign: number = side === "left" ? 1 : -1;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const first: IAutoMovieRigidTransform = support.frame(context.start);
-  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
+  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands(
     {
       ...context,
       params: { on, duration: seconds, hands: { [near]: hold } },

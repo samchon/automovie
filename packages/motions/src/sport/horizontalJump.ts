@@ -86,7 +86,7 @@ export namespace horizontalJump {
     const p: IAutoMovieMotionHumanHorizontalJump.IParams = context.params;
     const body: IAutoMovieMotionHumanBody = context.body;
     HumanBound.above("distance", p.distance, 0, "m");
-    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp.of(
+    const approach: AthleticsRunUp.IApproach | undefined = AthleticsRunUp(
       context,
       0,
       "approach",

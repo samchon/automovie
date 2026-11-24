@@ -168,32 +168,78 @@ export namespace HumanPerformanceSoftBoundary {
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 
-  /** A reader of displayed bones by person and step, each read once. */
-  export const memoBones: (
+  /**
+   * The displayed bones a soft pass reads, read before its solves: every step
+   * of each person a moving anchor (`actor-bone`) or a body capsule names, and
+   * the steps of each grip window for its gripping person. The solves replay
+   * from step 0 once per grip, so each of these reads serves every replay.
+   *
+   * @param state The performance.
+   * @param domain The soft domain as seeded.
+   * @param windows The grip windows on the prop, clipped to the performance.
+   * @param count The domain's last step.
+   * @param dt The domain's fixed step, seconds.
+   * @returns The bones by person and step.
+   */
+  export function prepareBones(
     state: IAutoMovieMotionHumanPerformanceState,
-  ) => BoneReader = (
-    state: IAutoMovieMotionHumanPerformanceState,
-  ): BoneReader => {
-    const kept: Map<
+    domain: IAutoMovieSoftBodyDomain,
+    windows: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
+    count: number,
+    dt: number,
+  ): BoneReader {
+    const steps: Map<string, Set<number>> = new Map();
+    const need = (person: string, from: number, to: number): void => {
+      const wanted: Set<number> = steps.get(person) ?? new Set();
+      for (let k: number = from; k <= to; ++k) wanted.add(k);
+      steps.set(person, wanted);
+    };
+    for (const anchor of domain.anchors)
+      if (anchor.binding?.kind === "actor-bone")
+        need(anchor.binding.actor, 0, count);
+    for (const collider of domain.colliders)
+      if (collider.kind === "body-capsule") need(collider.actor, 0, count);
+
+    // A grip's particle is bound from the step nearest its closing second and
+    // its socket read at every step it holds.
+    for (const window of windows)
+      need(
+        window.subject,
+        Math.max(0, Math.floor(window.from / dt)),
+        Math.min(count, Math.ceil(window.to / dt)),
+      );
+    const read: Map<
       string,
-      ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-    > = new Map();
+      Map<number, ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>>
+    > = new Map(
+      [...steps].map(
+        ([person, wanted]: [string, Set<number>]): [
+          string,
+          Map<
+            number,
+            ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
+          >,
+        ] => [
+          person,
+          new Map(
+            [...wanted].map(
+              (
+                k: number,
+              ): [
+                number,
+                ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+              ] => [k, HumanPerformanceRead.bones(state, person, k * dt)],
+            ),
+          ),
+        ],
+      ),
+    );
     return (
       person: string,
       k: number,
-      seconds: number,
-    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> => {
-      const key: string = `${person}:${k}`;
-      let read:
-        | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-        | undefined = kept.get(key);
-      if (read === undefined) {
-        read = HumanPerformanceRead.bones(state, person, seconds);
-        kept.set(key, read);
-      }
-      return read;
-    };
-  };
+    ): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+      read.get(person)!.get(k)!;
+  }
 
   /**
    * The grip that holds a particle at a second: the one that closed last among

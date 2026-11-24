@@ -1,14 +1,12 @@
 import type {
   IAutoMovieAffordance,
   IAutoMovieModel,
+  IAutoMovieSceneNode,
+  IAutoMovieSurfaceGraphicTrack,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
 import { appendSurfaceGraphicArtifact } from "./appendSurfaceGraphicArtifact";
-import { isRecord } from "./isRecord";
-import { validateArrayArtifact } from "./validateArrayArtifact";
-import { validateNonEmptyId } from "./validateNonEmptyId";
-import { validateObjectArtifact } from "./validateObjectArtifact";
 
 /**
  * Check shot-local surface graphic tracks, appending findings under
@@ -16,7 +14,7 @@ import { validateObjectArtifact } from "./validateObjectArtifact";
  *
  * Structurally, every track names a staged node and a surface id, no node and
  * surface pair repeats, its keys open at zero and strictly increase inside [0,
- * duration), and every graphic is well formed. When the model registry is
+ * duration), and every graphic is in range. When the model registry is
  * supplied, each surface must also be a `surface` affordance of the node's
  * registered model with positive finite `width` and `depth`, and must not ride
  * an articulation, because a graphic is parented to the prop's built object and
@@ -26,8 +24,8 @@ import { validateObjectArtifact } from "./validateObjectArtifact";
  * its ids other than the shot's own camera.
  */
 export function appendSurfaceGraphicsArtifact(
-  tracks: unknown,
-  sceneNodes: readonly unknown[],
+  tracks: readonly IAutoMovieSurfaceGraphicTrack[] | undefined,
+  sceneNodes: readonly Pick<IAutoMovieSceneNode, "id" | "model">[],
   duration: number,
   collector: IAutoMovieViolationCollector,
   models?: readonly IAutoMovieModel[],
@@ -41,26 +39,16 @@ export function appendSurfaceGraphicsArtifact(
   },
 ): void {
   const root: string = "$input.surfaceGraphics";
-  if (
-    tracks === undefined ||
-    !validateArrayArtifact(
-      tracks,
-      root,
-      "surface graphic tracks",
-      collector.items,
-    ) ||
-    tracks.length === 0
-  )
-    return;
+  if (tracks === undefined || tracks.length === 0) return;
 
-  const nodes: Map<string, string> = new Map();
-  for (const node of sceneNodes)
-    if (
-      isRecord(node) &&
-      typeof node.id === "string" &&
-      typeof node.model === "string"
-    )
-      nodes.set(node.id, node.model);
+  const nodes: Map<string, string> = new Map(
+    sceneNodes.map(
+      (node: Pick<IAutoMovieSceneNode, "id" | "model">): [string, string] => [
+        node.id,
+        node.model,
+      ],
+    ),
+  );
   const registry: Map<string, IAutoMovieModel> | undefined =
     models === undefined
       ? undefined
@@ -72,126 +60,84 @@ export function appendSurfaceGraphicsArtifact(
         );
   const targets: Set<string> = new Set();
 
-  for (const [index, track] of tracks.entries()) {
+  tracks.forEach((track: IAutoMovieSurfaceGraphicTrack, index: number): void => {
     const path: string = `${root}[${index}]`;
-    if (
-      !validateObjectArtifact(
-        track,
-        path,
-        "surface graphic track",
-        collector.items,
-      )
-    )
-      continue;
-
-    const before: number = collector.items.length;
-    validateNonEmptyId(
-      track.node,
-      `${path}.node`,
-      "surface graphic node",
-      collector.items,
-    );
-    validateNonEmptyId(
-      track.surface,
-      `${path}.surface`,
-      "surface graphic surface",
-      collector.items,
-    );
-    const named: boolean = collector.items.length === before;
-    const modelId: string | undefined = named
-      ? nodes.get(track.node as string)
-      : undefined;
-    if (named && modelId === undefined)
+    const modelId: string | undefined = nodes.get(track.node);
+    if (modelId === undefined)
       collector.push(
         "type",
         `${path}.node`,
         "must name a staged prop node",
         track.node,
       );
-    if (named) {
-      const pair: string = JSON.stringify([track.node, track.surface]);
-      if (targets.has(pair))
-        collector.push(
-          "type",
-          `${path}.surface`,
-          "one surface graphic track per node and surface",
-          track.surface,
-        );
-      targets.add(pair);
-    }
-    if (named && modelId !== undefined && registry !== undefined)
+    const pair: string = JSON.stringify([track.node, track.surface]);
+    if (targets.has(pair))
+      collector.push(
+        "type",
+        `${path}.surface`,
+        "one surface graphic track per node and surface",
+        track.surface,
+      );
+    targets.add(pair);
+    if (modelId !== undefined && registry !== undefined)
       appendSurface(
         registry.get(modelId),
         modelId,
-        track.surface as string,
+        track.surface,
         `${path}.surface`,
         collector,
       );
 
     const keysPath: string = `${path}.keys`;
-    const keys: unknown = track.keys;
-    if (
-      !validateArrayArtifact(
-        keys,
-        keysPath,
-        "surface graphic keys",
-        collector.items,
-      )
-    )
-      continue;
-    if (keys.length === 0)
+    if (track.keys.length === 0)
       collector.push(
         "type",
         keysPath,
         "must start with a key at shot time zero",
-        keys.length,
+        track.keys.length,
       );
     let previous: number = -Infinity;
-    for (const [keyIndex, key] of keys.entries()) {
-      const keyPath: string = `${keysPath}[${keyIndex}]`;
-      if (
-        !validateObjectArtifact(
-          key,
-          keyPath,
-          "surface graphic key",
-          collector.items,
+    track.keys.forEach(
+      (
+        key: IAutoMovieSurfaceGraphicTrack["keys"][number],
+        keyIndex: number,
+      ): void => {
+        const keyPath: string = `${keysPath}[${keyIndex}]`;
+        const time: number = key.time;
+        if (
+          !Number.isFinite(time) ||
+          (keyIndex === 0 && time !== 0) ||
+          time <= previous ||
+          time < 0 ||
+          time >= duration
         )
-      )
-        continue;
-      const time: unknown = key.time;
-      if (
-        typeof time !== "number" ||
-        !Number.isFinite(time) ||
-        (keyIndex === 0 && time !== 0) ||
-        time <= previous ||
-        time < 0 ||
-        time >= duration
-      )
-        collector.push(
-          "range",
-          `${keyPath}.time`,
-          "first time must be zero and times must strictly increase within [0, duration)",
-          time,
+          collector.push(
+            "range",
+            `${keyPath}.time`,
+            "first time must be zero and times must strictly increase within [0, duration)",
+            time,
+          );
+        else previous = time;
+        appendSurfaceGraphicArtifact(
+          key.graphic,
+          `${keyPath}.graphic`,
+          collector,
+          {
+            fonts,
+            ...(cameras === undefined
+              ? {}
+              : {
+                  cameras: cameras.ids,
+                  ...(cameras.shot === undefined
+                    ? {}
+                    : { camera: cameras.shot }),
+                }),
+          },
         );
-      else previous = time;
-      appendSurfaceGraphicArtifact(
-        key.graphic,
-        `${keyPath}.graphic`,
-        collector,
-        {
-          fonts,
-          ...(cameras === undefined
-            ? {}
-            : {
-                cameras: cameras.ids,
-                ...(cameras.shot === undefined ? {} : { camera: cameras.shot }),
-              }),
-        },
-      );
-    }
-  }
+      },
+    );
+  });
 }
-
 /**
  * Resolve a track's surface on its node's registered model: an unregistered
  * model, an id that is not a `surface` affordance, a surface without positive

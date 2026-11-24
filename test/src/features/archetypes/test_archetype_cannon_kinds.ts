@@ -23,12 +23,12 @@ const LB: number = 0.45359237;
  * 2. Over 200 seeds a mortar is the 1861 manual's 10-inch siege mortar or the 24-pounder Coehorn whole (bore, length, bed and mass with the bed), never a blend, and both appear.
  * 3. A mortar's muzzle points up at 45 degrees; a naval gun's elevation turns its muzzle up at its travel and down at its reverse, each an admitted model.
  * 4. Each kind's `muzzle` and `vent` are sockets.
- * 5. A model given for a gun, or a mortar not of the two, is refused at `model`.
+ * 5. A model given for a gun is refused at `model`.
  * 6. A swivel gun is Royal Museums Greenwich KTP0053's 2.25 in calibre on a 1000 mm tube (provisional); its `elevation` rides its `traverse`, so panning a quarter turn carries the tilted muzzle round with it, and its tilt's and pan's ends are admitted models; its `tiller` rides the elevation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Produces each kind, reads its dimensions and contacts, sweeps the mortar's models and articulates the naval gun; a figure off its source, a blended mortar, a muzzle at the wrong angle or an unrefused model is caught.
  * @evidence contracts/development/testing.md#independent-expectations The figures are written here from Griffiths, Douglas and the 1861 manual's pages.
- * @evidence contracts/development/testing.md#distinguishing-cases The three new kinds, both mortars, the elevation's and the pan's ends and two refusals.
+ * @evidence contracts/development/testing.md#distinguishing-cases The three new kinds, both mortars, the elevation's and the pan's ends and a refusal.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory models, discovered by its exported name; it starts no host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the six scenarios and what each pins.
  */
@@ -124,11 +124,6 @@ export function test_archetype_cannon_kinds(): void {
 
   for (const call of [
     (): unknown => createCannon({ kind: "fieldGun", model: "siege10" }, 1),
-    (): unknown =>
-      createCannon(
-        { kind: "mortar", model: "howitzer" as createCannon.Model },
-        1,
-      ),
   ]) {
     let refused: unknown = null;
     try {

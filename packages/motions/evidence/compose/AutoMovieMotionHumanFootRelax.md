@@ -28,7 +28,7 @@ The walk's binary dorsal limit.
 
 Retains nothing.
 
-# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax.of
+# src/compose/AutoMovieMotionHumanFootRelax.ts#AutoMovieMotionHumanFootRelax
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

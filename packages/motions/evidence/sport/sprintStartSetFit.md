@@ -16,7 +16,7 @@ The values `sprintStartSet.of` prepares for the fit.
 
 The centre row is absent exactly when placed plates decide where the body stands.
 
-# src/sport/sprintStartSetFit.ts#sprintStartSetFit.of
+# src/sport/sprintStartSetFit.ts#sprintStartSetFit
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

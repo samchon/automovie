@@ -15,6 +15,128 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 
 /**
+ * The swing of a ball arm.
+ *
+ * @param body The body.
+ * @param side The ball arm.
+ * @param style The throw's style.
+ * @returns The windup and elbow writers.
+ */
+export function throwObjectSwing(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  style: IAutoMovieMotionHumanThrowObjectForm.Style,
+): throwObjectSwing.ISwing {
+  // The hand passes clear of the chest by the forearm's radius and the
+  // hand's half thickness, the wrist's own radius standing for it.
+  const radius: number =
+    body.measure.chestBreadth / 2 + 2 * body.measure.forearmRadius;
+  return {
+    windup: (
+      posture: IAutoMovieMotionHumanPosture,
+      from: IAutoMovieVector3,
+      to: IAutoMovieVector3,
+      u: number,
+    ): IAutoMovieVector3 => {
+      const chest: IAutoMovieVector3 = poseBones(
+        body,
+        resolveHumanPosture(body, { ...posture, limbs: {} }),
+        undefined,
+        new Set<AutoMovieHumanoidBone>(["chest"]),
+      ).get("chest")!.worldPosition;
+
+      // The trunk and the head above it stand as one upright column about
+      // the chest, up to the crown and the hand's clearance over it: the
+      // line's nearest approach to it is measured across the floor, so a
+      // line drawn over the chest, through the face, is caught as one
+      // through the trunk is.
+      const line: IAutoMovieVector3 = Vector3.subtract(to, from);
+      const flat: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
+      const span: number = Vector3.dot(flat, flat);
+      const s: number =
+        span > 1e-12
+          ? Math.min(
+              1,
+              Math.max(
+                0,
+                Vector3.dot(Vector3.subtract(chest, from), flat) / span,
+              ),
+            )
+          : 0;
+      const nearest: IAutoMovieVector3 = Vector3.add(
+        from,
+        Vector3.scale(line, s),
+      );
+      const away: IAutoMovieVector3 = {
+        x: nearest.x - chest.x,
+        y: 0,
+        z: nearest.z - chest.z,
+      };
+      const crown: number =
+        chest.y +
+        body.measure.stature -
+        body.measure.chestHeight +
+        2 * body.measure.forearmRadius;
+      const depth: number = radius - Vector3.length(away);
+      if (depth <= 0 || nearest.y > crown) return Vector3.lerp(from, to, u);
+
+      // The detour leaves the column across the floor, at the height the
+      // line has there, around the front: an arm carries its hand past the
+      // face, never behind the head. A line passing behind the axis is
+      // mirrored to the front, and the heading is added by how deep the
+      // line enters, so the side turns continuously to straight ahead as
+      // the line nears the axis.
+      const ahead: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: 0, y: 0, z: 1 },
+      );
+      const behind: number = Math.min(0, Vector3.dot(away, ahead));
+      const out: IAutoMovieVector3 = Vector3.normalize(
+        Vector3.add(
+          Vector3.subtract(away, Vector3.scale(ahead, 2 * behind)),
+          Vector3.scale(ahead, depth),
+        ),
+      );
+      const clear: IAutoMovieVector3 = {
+        x: chest.x + out.x * radius,
+        y: nearest.y,
+        z: chest.z + out.z * radius,
+      };
+      // A quadratic through `clear` at its middle.
+      const control: IAutoMovieVector3 = Vector3.subtract(
+        Vector3.scale(clear, 2),
+        Vector3.scale(Vector3.add(from, to), 0.5),
+      );
+      return Vector3.add(
+        Vector3.add(
+          Vector3.scale(from, (1 - u) * (1 - u)),
+          Vector3.scale(control, 2 * u * (1 - u)),
+        ),
+        Vector3.scale(to, u * u),
+      );
+    },
+    elbow: (
+      posture: IAutoMovieMotionHumanPosture,
+      goal: IAutoMovieHumanLimbGoal,
+    ): IAutoMovieHumanLimbGoal => {
+      if (style !== "bowling") return goal;
+      const right: IAutoMovieVector3 = HumanFrame.point(
+        { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
+        { x: -1, y: 0, z: 0 },
+      );
+      return AutoMovieMotionHumanElbowPlace(
+        body,
+        posture,
+        side,
+        goal,
+        (along: IAutoMovieVector3): IAutoMovieVector3 =>
+          Vector3.cross(along, right),
+      );
+    },
+  };
+}
+
+/**
  * The ball arm's way around the body.
  *
  * The windup carries the hand from where it held the prop to the chamber. A
@@ -65,127 +187,5 @@ export namespace throwObjectSwing {
       posture: IAutoMovieMotionHumanPosture,
       goal: IAutoMovieHumanLimbGoal,
     ): IAutoMovieHumanLimbGoal;
-  }
-
-  /**
-   * The swing of a ball arm.
-   *
-   * @param body The body.
-   * @param side The ball arm.
-   * @param style The throw's style.
-   * @returns The windup and elbow writers.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    style: IAutoMovieMotionHumanThrowObjectForm.Style,
-  ): ISwing {
-    // The hand passes clear of the chest by the forearm's radius and the
-    // hand's half thickness, the wrist's own radius standing for it.
-    const radius: number =
-      body.measure.chestBreadth / 2 + 2 * body.measure.forearmRadius;
-    return {
-      windup: (
-        posture: IAutoMovieMotionHumanPosture,
-        from: IAutoMovieVector3,
-        to: IAutoMovieVector3,
-        u: number,
-      ): IAutoMovieVector3 => {
-        const chest: IAutoMovieVector3 = poseBones(
-          body,
-          resolveHumanPosture(body, { ...posture, limbs: {} }),
-          undefined,
-          new Set<AutoMovieHumanoidBone>(["chest"]),
-        ).get("chest")!.worldPosition;
-
-        // The trunk and the head above it stand as one upright column about
-        // the chest, up to the crown and the hand's clearance over it: the
-        // line's nearest approach to it is measured across the floor, so a
-        // line drawn over the chest, through the face, is caught as one
-        // through the trunk is.
-        const line: IAutoMovieVector3 = Vector3.subtract(to, from);
-        const flat: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
-        const span: number = Vector3.dot(flat, flat);
-        const s: number =
-          span > 1e-12
-            ? Math.min(
-                1,
-                Math.max(
-                  0,
-                  Vector3.dot(Vector3.subtract(chest, from), flat) / span,
-                ),
-              )
-            : 0;
-        const nearest: IAutoMovieVector3 = Vector3.add(
-          from,
-          Vector3.scale(line, s),
-        );
-        const away: IAutoMovieVector3 = {
-          x: nearest.x - chest.x,
-          y: 0,
-          z: nearest.z - chest.z,
-        };
-        const crown: number =
-          chest.y +
-          body.measure.stature -
-          body.measure.chestHeight +
-          2 * body.measure.forearmRadius;
-        const depth: number = radius - Vector3.length(away);
-        if (depth <= 0 || nearest.y > crown) return Vector3.lerp(from, to, u);
-
-        // The detour leaves the column across the floor, at the height the
-        // line has there, around the front: an arm carries its hand past the
-        // face, never behind the head. A line passing behind the axis is
-        // mirrored to the front, and the heading is added by how deep the
-        // line enters, so the side turns continuously to straight ahead as
-        // the line nears the axis.
-        const ahead: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-          { x: 0, y: 0, z: 1 },
-        );
-        const behind: number = Math.min(0, Vector3.dot(away, ahead));
-        const out: IAutoMovieVector3 = Vector3.normalize(
-          Vector3.add(
-            Vector3.subtract(away, Vector3.scale(ahead, 2 * behind)),
-            Vector3.scale(ahead, depth),
-          ),
-        );
-        const clear: IAutoMovieVector3 = {
-          x: chest.x + out.x * radius,
-          y: nearest.y,
-          z: chest.z + out.z * radius,
-        };
-        // A quadratic through `clear` at its middle.
-        const control: IAutoMovieVector3 = Vector3.subtract(
-          Vector3.scale(clear, 2),
-          Vector3.scale(Vector3.add(from, to), 0.5),
-        );
-        return Vector3.add(
-          Vector3.add(
-            Vector3.scale(from, (1 - u) * (1 - u)),
-            Vector3.scale(control, 2 * u * (1 - u)),
-          ),
-          Vector3.scale(to, u * u),
-        );
-      },
-      elbow: (
-        posture: IAutoMovieMotionHumanPosture,
-        goal: IAutoMovieHumanLimbGoal,
-      ): IAutoMovieHumanLimbGoal => {
-        if (style !== "bowling") return goal;
-        const right: IAutoMovieVector3 = HumanFrame.point(
-          { origin: { x: 0, y: 0, z: 0 }, yaw: posture.yaw },
-          { x: -1, y: 0, z: 0 },
-        );
-        return AutoMovieMotionHumanElbowPlace.of(
-          body,
-          posture,
-          side,
-          goal,
-          (along: IAutoMovieVector3): IAutoMovieVector3 =>
-            Vector3.cross(along, right),
-        );
-      },
-    };
   }
 }

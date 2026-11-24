@@ -109,7 +109,7 @@ export namespace walkPoleCarriage {
       seen.add(prop);
       const plant: IAutoMovieMotionHumanActionContext.ICut["plant"] =
         context.cut?.plant?.prop === prop ? context.cut.plant : undefined;
-      const pole: walkPoleFrame.IPole | undefined = walkPoleFrame.of(
+      const pole: walkPoleFrame.IPole | undefined = walkPoleFrame(
         context,
         prop,
         plant?.end ?? "tip",

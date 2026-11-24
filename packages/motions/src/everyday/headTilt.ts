@@ -38,7 +38,7 @@ function planHeadTilt(
     0.6,
     "s",
   );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
     { name: "ready", seconds: 0 },
     { name: "strokeStart", seconds: 0 },
     { name: "stroke", seconds: seconds / 3 },

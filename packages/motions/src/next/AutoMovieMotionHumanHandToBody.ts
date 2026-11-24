@@ -200,7 +200,7 @@ export namespace AutoMovieMotionHumanHandToBody {
    * held to, and, for a held vessel, its lean toward the lips and the way it
    * faces.
    */
-  export import handToFaceArm = handToFaceArmLaw;
+  export const handToFaceArm: typeof handToFaceArmLaw = handToFaceArmLaw;
 
   /**
    * Where a hand-to-face task holds a sheet to be read: the one task whose

@@ -23,7 +23,10 @@ const FACE: equineBankStage.IFace = { grade: 0.6, run: 3 };
 /** The face's static hoof friction, authored. */
 const FRICTION: number = 0.5;
 
-/** A sole on its surface: the hoof bar's lowest surface within this of the plane, metres. */
+/**
+ * A sole on its surface: the hoof bar's lowest surface within this of the
+ * plane, metres.
+ */
 const SURFACE: number = 0.005;
 
 /** The contact tolerance of the seated rider specs, metres. */
@@ -32,7 +35,10 @@ const TOLERANCE: number = 0.01;
 /** Seconds a rider's figure change takes. */
 const TRANSFER: number = 0.4;
 
-/** The least forward lean of an ascending rider's trunk in space, degrees: authored, a light seat over the withers. */
+/**
+ * The least forward lean of an ascending rider's trunk in space, degrees:
+ * authored, a light seat over the withers.
+ */
 const FORWARD: number = 10;
 
 /** The scramble on the face, at a friction and a bound. */
@@ -52,11 +58,22 @@ const scramble = (
  * A horse scrambles up a steep bank in bounds, carrying its rider over the top.
  *
  * Scenarios:
- * 1. At each bound boundary inside the face the fore hooves stand higher than the hind hooves, and the hooves that stand there are on the authored surface (their lowest surface within 5 mm of the plane).
- * 2. Through the scramble a hoof on its surface at two reads 0.1 s apart stays put (within 5 mm): the standing pair never slides while the other bounds.
- * 3. The ride's placement stays continuous onto the level top, with no jump between reads 20 ms apart across the scramble's end.
- * 4. A face steeper than the technique's bound, a face its friction holds, a scramble without a run-out over the top, one without authored footing and bounds climbing beyond the fores' reach are refused on the leg's `equineFootwork`.
- * 5. A mounted rider in the ascent seat, the left hand on the mane, rides clear of the saddle (the seat socket more than 10 mm above it) with the trunk at least 10 degrees forward in space at each bound, and the take passes the shipped take verdicts.
+ *
+ * 1. At each bound boundary inside the face the fore hooves stand higher than the
+ *    hind hooves, and the hooves that stand there are on the authored surface
+ *    (their lowest surface within 5 mm of the plane).
+ * 2. Through the scramble a hoof on its surface at two reads 0.1 s apart stays put
+ *    (within 5 mm): the standing pair never slides while the other bounds.
+ * 3. The ride's placement stays continuous onto the level top, with no jump
+ *    between reads 20 ms apart across the scramble's end.
+ * 4. A face steeper than the technique's bound, a face its friction holds, a
+ *    scramble without a run-out over the top, one without authored footing and
+ *    bounds climbing beyond the fores' reach are refused on the leg's
+ *    `equineFootwork`.
+ * 5. A mounted rider in the ascent seat, the left hand on the mane, rides clear of
+ *    the saddle (the seat socket more than 10 mm above it) with the trunk at
+ *    least 10 degrees forward in space at each bound, and the take passes the
+ *    shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides the public horse ride over authored footing and reads the emitted hooves against the face, and a mounted rider's seat against the saddle; fores landing below the hinds, a standing hoof that slides or floats, a jump at the top or an admitted face out of bounds fails.
@@ -204,7 +221,7 @@ export function test_motion_mount_equine_bank_scramble(): void {
       },
     ]),
   );
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "rider",
     body,

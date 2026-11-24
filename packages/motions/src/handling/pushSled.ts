@@ -125,7 +125,7 @@ export namespace pushSled {
       );
 
     const grips: Record<AutoMovieHumanSide, pushSledHandles.IHandle> =
-      pushSledHandles.of(context, p.sled, p.left ?? "left", p.right ?? "right");
+      pushSledHandles(context, p.sled, p.left ?? "left", p.right ?? "right");
     const hands: Record<AutoMovieHumanSide, IAutoMovieMotionHumanHand.IFrame> =
       {
         left: HumanHand.offset(body, "left", "grip", "fist"),

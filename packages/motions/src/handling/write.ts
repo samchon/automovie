@@ -110,7 +110,7 @@ function planWrite(
     });
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.tool ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.tool,

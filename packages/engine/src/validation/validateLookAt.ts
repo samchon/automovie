@@ -55,16 +55,6 @@ export const validateLookAt: (
   collector: IAutoMovieViolationCollector,
 ): void => {
   if (lookAt.type === "expression") return;
-  if (lookAt.type !== "bone") {
-    const unknown: { type: unknown } = lookAt as { type: unknown };
-    collector.push(
-      "type",
-      `${path}.type`,
-      `lookAt type must be "bone" or "expression", but was "${String(unknown.type)}"`,
-      unknown.type,
-    );
-    return;
-  }
 
   for (const range of RANGES)
     finiteMinimum(lookAt[range], 0, `${path}.${range}`, `${range}`, collector);

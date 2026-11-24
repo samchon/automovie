@@ -1,4 +1,4 @@
-# src/law/HumanActionRow.ts#HumanActionRow.of
+# src/law/HumanActionRow.ts#HumanActionRow
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

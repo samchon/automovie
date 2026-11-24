@@ -155,7 +155,7 @@ export namespace poleVault {
 
     // The pole in the hands that hold it, the top hand (the farther from
     // the planted end) carrying it.
-    const found: walkPoleFrame.IPole | undefined = walkPoleFrame.of(
+    const found: walkPoleFrame.IPole | undefined = walkPoleFrame(
       context,
       p.pole,
       p.end ?? "tip",
@@ -166,7 +166,7 @@ export namespace poleVault {
           ? "right"
           : "left"
         : found.hands[0]!.side;
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       p.pole,
@@ -224,7 +224,7 @@ export namespace poleVault {
       z: ahead.z * speed * climbCosine,
     };
     const takeoff: IAutoMovieMotionHumanGymnasticsTakeoff.ITakeoff =
-      GymnasticsTakeoff.of(
+      GymnasticsTakeoff(
         context,
         (): IAutoMovieVector3 => ({ ...takeoffVelocity }),
       );

@@ -152,7 +152,7 @@ export namespace HumanGraspUse {
       ahead,
       socket,
       roll: rollAt,
-    }: HumanGraspUsePreparation.IPrepared = HumanGraspUsePreparation.of(
+    }: HumanGraspUsePreparation.IPrepared = HumanGraspUsePreparation(
       props,
       closure,
     );

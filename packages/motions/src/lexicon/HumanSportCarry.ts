@@ -23,7 +23,7 @@ export namespace HumanSportCarry {
    */
   export const farmersWalk: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersWalk"]
-  > = HumanActionRow.of("farmersWalk", walk, {
+  > = HumanActionRow("farmersWalk", walk, {
     pace: "slow",
     armSwing: 0,
   });
@@ -35,7 +35,7 @@ export namespace HumanSportCarry {
    */
   export const farmersHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["farmersHold"]
-  > = HumanActionRow.of("farmersHold", carryHang, {});
+  > = HumanActionRow("farmersHold", carryHang, {});
 
   /**
    * A sled push: the handles of a pushed load held in both hands through a slow
@@ -44,5 +44,5 @@ export namespace HumanSportCarry {
    */
   export const sledPush: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["sportCarry"]["sledPush"]
-  > = HumanActionRow.of("sledPush", pushSled, {});
+  > = HumanActionRow("sledPush", pushSled, {});
 }

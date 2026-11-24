@@ -182,7 +182,7 @@ export namespace juggle {
     HumanBound.whole("throws", throws);
 
     // The schedule: throw j from hand j % 2 (right first) every half cycle.
-    const radius: number = HumanBall.of(
+    const radius: number = HumanBall(
       context,
       p.balls[0]!,
       context.start,
@@ -371,7 +371,7 @@ export namespace juggle {
     const composed: IAutoMovieMotionHumanActionPlan =
       composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(end, entry, contacts),
-        clock: AutoMovieMotionClock.of(end, instants),
+        clock: AutoMovieMotionClock(end, instants),
         primitives: (["left", "right"] as const).map(
           (side: AutoMovieHumanSide): IAutoMovieMotionHumanPrimitive => ({
             channels: [side === "left" ? "leftArm" : "rightArm"],
@@ -388,7 +388,7 @@ export namespace juggle {
                 // The elbow placed out and below the hand, so the hand's
                 // rotation cannot flip it across the arm.
                 [side === "left" ? "leftArm" : "rightArm"]:
-                  AutoMovieMotionHumanElbowPlace.of(
+                  AutoMovieMotionHumanElbowPlace(
                     body,
                     posture,
                     side,

@@ -67,8 +67,7 @@ export const validateAutoMovieEffects: (
       compareCodeUnits(left.id, right.id),
   )) {
     const field: string = `effectCue:${cue.id || "(blank)"}`;
-    if (cue.id.trim().length === 0 || ids.has(cue.id))
-      fail(field, "must have one non-blank id unique inside the shot");
+    if (ids.has(cue.id)) fail(field, "must have one id unique inside the shot");
     ids.add(cue.id);
     const compiled: IAutoMovieCompiledEffect | undefined = streams.get(cue.id);
     if (compiled === undefined || compiled.zone !== cue.zone)

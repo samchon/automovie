@@ -39,8 +39,8 @@ const RECEIVER_YAW: number = 188;
 type Disposition = "mat" | "refused";
 
 /**
- * Where a form is entered from: the hand and hip throws turn in from the
- * grip at arm's length, while the leg throws step in beside the partner.
+ * Where a form is entered from: the hand and hip throws turn in from the grip
+ * at arm's length, while the leg throws step in beside the partner.
  */
 type Range = "turn" | "step";
 
@@ -70,11 +70,17 @@ interface IPath {
   /** The take's label. */
   label: string;
 
-  /** Receiver pelvis displacement from its opening place at the quarter, half and three-quarter samples and the end, metres. */
+  /**
+   * Receiver pelvis displacement from its opening place at the quarter, half
+   * and three-quarter samples and the end, metres.
+   */
   hips: readonly IAutoMovieVector3[];
 }
 
-/** Shoulder, hip, leg and sweep throws, a scaled cast and an unreachable hip block. */
+/**
+ * Shoulder, hip, leg and sweep throws, a scaled cast and an unreachable hip
+ * block.
+ */
 const TAKES: readonly ITake[] = [
   {
     scene: { kind: "seoiNage", outcome: "complete" },
@@ -116,20 +122,21 @@ const TAKES: readonly ITake[] = [
 ];
 
 /**
- * Four staged judo throws read as different receiver paths and recover on
- * the mat, a smaller cast repeats one on proportional marks, and a blocked
- * hip throw whose grip the marks cannot reach is refused.
+ * Four staged judo throws read as different receiver paths and recover on the
+ * mat, a smaller cast repeats one on proportional marks, and a blocked hip
+ * throw whose grip the marks cannot reach is refused.
  *
  * Scenarios:
- * 1. The shoulder, hip, leg and sweep throws use the same cast, the hand and
- *    hip throws one pair of marks and the leg throws a closer receiver mark.
- *    Each grips collar and sleeve over a named window that closes at its
- *    release and lays the receiver on the mat with a declared floor support.
- * 2. Every two completed throws displace the displayed receiver pelvis from
- *    its opening place differently by more than 5 cm at some shared phase.
+ *
+ * 1. The shoulder, hip, leg and sweep throws use the same cast, the hand and hip
+ *    throws one pair of marks and the leg throws a closer receiver mark. Each
+ *    grips collar and sleeve over a named window that closes at its release and
+ *    lays the receiver on the mat with a declared floor support.
+ * 2. Every two completed throws displace the displayed receiver pelvis from its
+ *    opening place differently by more than 5 cm at some shared phase.
  * 3. The small cast plays the shoulder throw on marks scaled by stature.
- * 4. The blocked hip throw's sleeve grip lies beyond the arm at its marks and
- *    is refused on its partner axis while the poses are sampled.
+ * 4. The blocked hip throw's sleeve grip lies beyond the arm at its marks and is
+ *    refused on its partner axis while the poses are sampled.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the four forms, the same-cast control, the scaled cast, the shared film clock and the refused case.
  * @evidence contracts/development/testing.md#behavioral-verification The public mutual composition places both characters. Samples read both posed rigs at the shared phases and the named release, with the grip windows from the plan and floor support observed on the final displayed pose.
@@ -151,9 +158,13 @@ export function test_motion_stage_fight_staged_mat_comparison(): void {
       assertTakeClean(`mat ${scene.kind} ${range} ${scale}`, film);
       const a: IAutoMovieMotionHumanSegment = film.segments("a").at(-1)!;
       const b: IAutoMovieMotionHumanSegment = film.segments("b").at(-1)!;
-      const receiver: IAutoMovieMotionHumanSignature.IReader =
-        HumanSignature.of(film, "b", body, RECEIVER_YAW);
-      const actor: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const receiver: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
+        film,
+        "b",
+        body,
+        RECEIVER_YAW,
+      );
+      const actor: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         film,
         "a",
         body,

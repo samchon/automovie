@@ -16,7 +16,6 @@ import { channelKey } from "../resolve/channelKey";
 import { sampleClipSequence } from "../resolve/sampleClipSequence";
 import { sampleFormationMotion } from "../sampleFormationMotion";
 import { transformFormationPoint } from "../transformFormationPoint";
-import { isRecord } from "../validation/isRecord";
 import { animatedBaseAt } from "./animatedBaseAt";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 
@@ -36,13 +35,10 @@ export function compilePerformShotFocusPull(
   focusPull: NonNullable<IAutoMovieCameraIntent["focusPull"]>;
 } | null {
   const action: IAutoMoviePerformShotFrameJob["action"] = job.action;
-  const pull: unknown = action.focusPull;
+  const pull: NonNullable<IAutoMoviePerformShotFrameJob["action"]["focusPull"]> =
+    action.focusPull!;
   const path: string = `${context.base}[${job.index}]`;
   const pullPath: string = `${path}.focusPull`;
-  if (!isRecord(pull)) {
-    context.out.push("type", pullPath, "a focus pull must be an object", pull);
-    return null;
-  }
 
   if (action.focus === undefined)
     context.out.push(
@@ -51,10 +47,8 @@ export function compilePerformShotFocusPull(
       "a focus pull requires an explicit source target",
       action.focus,
     );
-  const offset: number =
-    typeof pull.start === "number" ? pull.start : Number.NaN;
-  const duration: number =
-    typeof pull.duration === "number" ? pull.duration : Number.NaN;
+  const offset: number = pull.start;
+  const duration: number = pull.duration;
   const validOffset: boolean = Number.isFinite(offset) && offset >= 0;
   const validDuration: boolean = Number.isFinite(duration) && duration > 0;
   if (!validOffset)

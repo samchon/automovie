@@ -169,7 +169,7 @@ export function throwObjectAim(
   const implement:
     | IAutoMovieMotionHumanThrowObjectLever.IImplement
     | undefined = context.params.implement;
-  const lever: throwObjectLever.ILever | undefined = throwObjectLever.of({
+  const lever: throwObjectLever.ILever | undefined = throwObjectLever({
     context,
     side,
     shoulder: from,

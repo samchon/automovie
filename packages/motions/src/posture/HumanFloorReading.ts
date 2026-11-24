@@ -34,6 +34,169 @@ type IOfTargetsItem = {
   point?: IAutoMovieVector3;
 };
 
+/** A smooth support point and the downward radius extending beneath it. */
+interface ICandidate {
+  /** Actual world point on the shape's rigid frame. */
+  point: IAutoMovieVector3;
+
+  /** Metres below that point; zero for a corner or hull vertex. */
+  lift: number;
+}
+
+/**
+ * Append a placed collider's support candidates: the points its lowest point is
+ * the least of, each with how far below it the collider reaches. A collider's
+ * lowest height is the least of theirs, so each is a smooth function of the
+ * posture where their least is not: a shank lying flat has two, its knee end
+ * and its ankle end, and the one lowest turns from one to the other as the leg
+ * turns. Centre and rotation are the same freshly composed shape frame already
+ * consumed by the bounds owner, so no transform is applied twice. Hull vertices
+ * are transferred by that owner; this appender visits sphere, capsule and box
+ * points in the original end/corner order.
+ */
+function candidates(
+  centre: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  shape: Exclude<Parameters<typeof physicalShapeBounds>[1], ICandidatesShape>,
+  out: ICandidate[],
+): void {
+  const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+    local: IAutoMovieVector3,
+  ): IAutoMovieVector3 =>
+    Vector3.add(centre, Quaternion.rotateVector(rotation, local));
+  if (shape.kind === "sphere") {
+    out.push({ point: centre, lift: shape.radius });
+    return;
+  }
+  if (shape.kind === "capsule") {
+    for (let end: number = -1; end <= 1; end += 2)
+      out.push({
+        point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
+        lift: shape.radius,
+      });
+    return;
+  }
+  for (let x: number = -1; x <= 1; x += 2)
+    for (let y: number = -1; y <= 1; y += 2)
+      for (let z: number = -1; z <= 1; z += 2)
+        out.push({
+          point: at({
+            x: x * shape.halfExtents.x,
+            y: y * shape.halfExtents.y,
+            z: z * shape.halfExtents.z,
+          }),
+          lift: 0,
+        });
+}
+
+/**
+ * The reading of a posture.
+ *
+ * @param body The body.
+ * @param posture The posture, written by its joint angles alone.
+ * @param bearing Each bearing part, as the bones it bears through.
+ * @param targets The points read: each a bone and a point in its frame, its
+ *   origin when absent.
+ * @param source Optional exact FK reader or lazy supplier borrowed only during
+ *   this synchronous reading.
+ * @returns The reading.
+ */
+export function HumanFloorReading(
+  body: IAutoMovieMotionHumanBody,
+  posture: IAutoMovieMotionHumanPosture,
+  bearing: readonly RegExp[],
+  targets: readonly IOfTargetsItem[],
+  source?: Parameters<typeof prepareHumanPoseResolution>[0],
+): HumanFloorReading.IReading {
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> | undefined =
+    source === undefined ? undefined : prepareHumanPoseResolution(source);
+  const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
+    body,
+    resolution === undefined
+      ? resolveHumanPosture(body, posture)
+      : resolveHumanPosture.seeded(
+          body,
+          posture,
+          undefined,
+          undefined,
+          resolution,
+        ).pose,
+    resolution?.(),
+  );
+  const lows: number[] = [];
+  const owners: AutoMovieHumanoidBone[] = [];
+  const heights: number[] = [];
+  const spots: IAutoMovieVector3[] = [];
+  const of: number[] = [];
+  const parts: number[] = bearing.map((): number => Infinity);
+  const members: number[][] = bearing.map((): number[] => []);
+  for (const segment of HumanColliders.placed(body, bones))
+    for (const shape of segment.shapes) {
+      const centre: IAutoMovieVector3 = Vector3.add(
+        segment.pose.position,
+        Quaternion.rotateVector(
+          segment.pose.rotation,
+          shape.transform.position,
+        ),
+      );
+      const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+        segment.pose.rotation,
+        shape.transform.rotation,
+      );
+      const found: ICandidate[] = [];
+      const box: IOfBox = physicalShapeBounds.fromFrame(
+        centre,
+        rotation,
+        shape,
+        shape.kind !== "hull"
+          ? undefined
+          : (point: IAutoMovieVector3): void => {
+              point.x = centre.x + point.x;
+              point.y = centre.y + point.y;
+              point.z = centre.z + point.z;
+              found.push({ point, lift: 0 });
+            },
+      );
+      lows.push(box.min.y);
+      owners.push(segment.bone);
+      if (shape.kind !== "hull") candidates(centre, rotation, shape, found);
+      for (const c of found) {
+        heights.push(c.point.y - c.lift);
+        spots.push(c.point);
+        of.push(lows.length - 1);
+      }
+      bearing.forEach((bears: RegExp, k: number): void => {
+        if (bears.test(segment.bone)) {
+          parts[k] = Math.min(parts[k]!, box.min.y);
+          members[k]!.push(lows.length - 1);
+        }
+      });
+    }
+  return {
+    parts,
+    members,
+    points: targets.map((target: IOfTarget): IAutoMovieVector3 => {
+      const at: IAutoMovieResolvedBone = bones.get(target.bone)!;
+      return target.point === undefined
+        ? at.worldPosition
+        : Vector3.add(
+            at.worldPosition,
+            Quaternion.rotateVector(at.worldRotation, target.point),
+          );
+    }),
+    turns: targets.map(
+      (target: IOfTarget2): IAutoMovieQuaternion =>
+        bones.get(target.bone)!.worldRotation,
+    ),
+    lows,
+    owners,
+    heights,
+    spots,
+    of,
+    bones,
+  };
+}
+
 /**
  * What a posture shows of the floor, read as the floor audit reads it: the
  * lowest point of each collider of the posed body, the lowest of the colliders
@@ -85,171 +248,5 @@ export namespace HumanFloorReading {
 
     /** The posed bones read. */
     bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
-  }
-
-  /**
-   * The reading of a posture.
-   *
-   * @param body The body.
-   * @param posture The posture, written by its joint angles alone.
-   * @param bearing Each bearing part, as the bones it bears through.
-   * @param targets The points read: each a bone and a point in its frame, its
-   *   origin when absent.
-   * @param source Optional exact FK reader or lazy supplier borrowed only
-   *   during this synchronous reading.
-   * @returns The reading.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    bearing: readonly RegExp[],
-    targets: readonly IOfTargetsItem[],
-    source?: Parameters<typeof prepareHumanPoseResolution>[0],
-  ): IReading {
-    const resolution:
-      | ReturnType<typeof prepareHumanPoseResolution>
-      | undefined =
-      source === undefined ? undefined : prepareHumanPoseResolution(source);
-    const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> = poseBones(
-      body,
-      resolution === undefined
-        ? resolveHumanPosture(body, posture)
-        : resolveHumanPosture.seeded(
-            body,
-            posture,
-            undefined,
-            undefined,
-            resolution,
-          ).pose,
-      resolution?.(),
-    );
-    const lows: number[] = [];
-    const owners: AutoMovieHumanoidBone[] = [];
-    const heights: number[] = [];
-    const spots: IAutoMovieVector3[] = [];
-    const of: number[] = [];
-    const parts: number[] = bearing.map((): number => Infinity);
-    const members: number[][] = bearing.map((): number[] => []);
-    for (const segment of HumanColliders.placed(body, bones))
-      for (const shape of segment.shapes) {
-        const centre: IAutoMovieVector3 = Vector3.add(
-          segment.pose.position,
-          Quaternion.rotateVector(
-            segment.pose.rotation,
-            shape.transform.position,
-          ),
-        );
-        const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-          segment.pose.rotation,
-          shape.transform.rotation,
-        );
-        const found: ICandidate[] = [];
-        const box: IOfBox = physicalShapeBounds.fromFrame(
-          centre,
-          rotation,
-          shape,
-          shape.kind !== "hull"
-            ? undefined
-            : (point: IAutoMovieVector3): void => {
-                point.x = centre.x + point.x;
-                point.y = centre.y + point.y;
-                point.z = centre.z + point.z;
-                found.push({ point, lift: 0 });
-              },
-        );
-        lows.push(box.min.y);
-        owners.push(segment.bone);
-        if (shape.kind !== "hull") candidates(centre, rotation, shape, found);
-        for (const c of found) {
-          heights.push(c.point.y - c.lift);
-          spots.push(c.point);
-          of.push(lows.length - 1);
-        }
-        bearing.forEach((bears: RegExp, k: number): void => {
-          if (bears.test(segment.bone)) {
-            parts[k] = Math.min(parts[k]!, box.min.y);
-            members[k]!.push(lows.length - 1);
-          }
-        });
-      }
-    return {
-      parts,
-      members,
-      points: targets.map((target: IOfTarget): IAutoMovieVector3 => {
-        const at: IAutoMovieResolvedBone = bones.get(target.bone)!;
-        return target.point === undefined
-          ? at.worldPosition
-          : Vector3.add(
-              at.worldPosition,
-              Quaternion.rotateVector(at.worldRotation, target.point),
-            );
-      }),
-      turns: targets.map(
-        (target: IOfTarget2): IAutoMovieQuaternion =>
-          bones.get(target.bone)!.worldRotation,
-      ),
-      lows,
-      owners,
-      heights,
-      spots,
-      of,
-      bones,
-    };
-  }
-
-  /** A smooth support point and the downward radius extending beneath it. */
-  interface ICandidate {
-    /** Actual world point on the shape's rigid frame. */
-    point: IAutoMovieVector3;
-
-    /** Metres below that point; zero for a corner or hull vertex. */
-    lift: number;
-  }
-
-  /**
-   * Append a placed collider's support candidates: the points its lowest point
-   * is the least of, each with how far below it the collider reaches. A
-   * collider's lowest height is the least of theirs, so each is a smooth
-   * function of the posture where their least is not: a shank lying flat has
-   * two, its knee end and its ankle end, and the one lowest turns from one to
-   * the other as the leg turns. Centre and rotation are the same freshly
-   * composed shape frame already consumed by the bounds owner, so no transform
-   * is applied twice. Hull vertices are transferred by that owner; this
-   * appender visits sphere, capsule and box points in the original end/corner
-   * order.
-   */
-  function candidates(
-    centre: IAutoMovieVector3,
-    rotation: IAutoMovieQuaternion,
-    shape: Exclude<Parameters<typeof physicalShapeBounds>[1], ICandidatesShape>,
-    out: ICandidate[],
-  ): void {
-    const at: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
-      local: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      Vector3.add(centre, Quaternion.rotateVector(rotation, local));
-    if (shape.kind === "sphere") {
-      out.push({ point: centre, lift: shape.radius });
-      return;
-    }
-    if (shape.kind === "capsule") {
-      for (let end: number = -1; end <= 1; end += 2)
-        out.push({
-          point: at({ x: 0, y: end * shape.halfLength, z: 0 }),
-          lift: shape.radius,
-        });
-      return;
-    }
-    for (let x: number = -1; x <= 1; x += 2)
-      for (let y: number = -1; y <= 1; y += 2)
-        for (let z: number = -1; z <= 1; z += 2)
-          out.push({
-            point: at({
-              x: x * shape.halfExtents.x,
-              y: y * shape.halfExtents.y,
-              z: z * shape.halfExtents.z,
-            }),
-            lift: 0,
-          });
   }
 }

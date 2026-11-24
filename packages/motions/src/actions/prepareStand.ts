@@ -41,13 +41,9 @@ export function prepareStand(
   side: AutoMovieHumanSide,
 ): (duration: number) => IAutoMovieMotionHumanActionPlan {
   const yaw: number = context.entry.posture.yaw;
-  const course: standFeet.ICourse = standFeet.of(
-    context.body,
-    context.entry,
-    yaw,
-  );
+  const course: standFeet.ICourse = standFeet(context.body, context.entry, yaw);
   const initial: IAutoMovieVector3 = course.offset(0);
-  const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright.of(
+  const upright: IAutoMovieMotionHumanStandUpright.IAlignment = standUpright(
     context.body,
   );
   const middle: IAutoMovieVector3 = stand.root(context.body, course.flat, yaw);
@@ -55,7 +51,7 @@ export function prepareStand(
   // The arms hang relaxed beside the thighs of the stance settled on the
   // entry's feet, which may stand wider or staggered than the quiet stance;
   // while the stance settles, a hand the moving thighs meet is let out at
-  // the shoulder (`HumanArmSwing.of`), as a gait's swinging arm is.
+  // the shoulder (`HumanArmSwing`), as a gait's swinging arm is.
   const aligned: IAutoMovieMotionHumanPosture["joints"] = {
     ...standClearArms(context.body, [
       course.write(
@@ -98,7 +94,7 @@ export function prepareStand(
   ): IAutoMovieMotionHumanSupportCarry.ICarry | undefined =>
     on === undefined
       ? undefined
-      : HumanSupportCarry.of(
+      : HumanSupportCarry(
           (t: number): IAutoMovieRigidTransform =>
             context.prop(on.prop).frame(t),
           context.start,
@@ -182,7 +178,7 @@ export function prepareStand(
         );
         // Settled, the arms hang clear of the thighs they were found clear
         // of; while settling, the thighs move under them.
-        return s < 1 ? HumanArmSwing.of(context.body, written, SIDES) : written;
+        return s < 1 ? HumanArmSwing(context.body, written, SIDES) : written;
       },
     };
   };

@@ -119,7 +119,7 @@ export namespace HumanQuadraticProgram {
   export function prepare(
     problem: IAutoMovieMotionHumanQuadraticProgram.IProblem,
   ): HumanQuadraticModel.IModel {
-    return HumanQuadraticModel.of(problem, TOLERANCE);
+    return HumanQuadraticModel(problem, TOLERANCE);
   }
 
   /**

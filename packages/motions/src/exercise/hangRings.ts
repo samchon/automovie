@@ -177,7 +177,7 @@ export function hangRings(
           shape: "fist",
           point: fist.grip,
           rotation: from.worldRotation,
-          bend: AutoMovieMotionHumanElbowPole.of(
+          bend: AutoMovieMotionHumanElbowPole(
             context.body,
             free,
             fist.lower,

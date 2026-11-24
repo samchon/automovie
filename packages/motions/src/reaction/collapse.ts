@@ -113,7 +113,7 @@ export namespace collapse {
     const kneel: number = sag + knockdown.SEATED;
     const down: number =
       sag + (direction === "inPlace" ? FOLDED : knockdown.DOWN);
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(down + lie, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(down + lie, [
       { name: "sag", seconds: sag },
       { name: "knees", seconds: kneel },
       { name: "stroke", seconds: kneel },
@@ -160,7 +160,7 @@ export namespace collapse {
         ? angle((Math.atan2(away.x, away.z) * 180) / Math.PI - entry.yaw)
         : 0;
     const fold = (seconds: number): CollapseFold.IFold =>
-      CollapseFold.of(
+      CollapseFold(
         direction,
         tone,
         side,

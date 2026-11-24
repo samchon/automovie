@@ -14,7 +14,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
@@ -181,17 +180,12 @@ export namespace bendLower {
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     lateral?: number,
   ) => IAutoMovieMotionHumanPosture {
-    const native: boolean = createHumanBody.owns(body);
-    const geometry: IStrategyGeometry | undefined = native
-      ? {
-          drop: hipDrop(body, strategy),
-          retreat: retreat(body, strategy),
-          deepest: strategy === "stoop" ? stoopReach(body) : 0,
-        }
-      : undefined;
-    const lowerPlanted: Lower | undefined = native
-      ? lowerHumanPosture.prepare(body)
-      : undefined;
+    const geometry: IStrategyGeometry = {
+      drop: hipDrop(body, strategy),
+      retreat: retreat(body, strategy),
+      deepest: strategy === "stoop" ? stoopReach(body) : 0,
+    };
+    const lowerPlanted: Lower = lowerHumanPosture.prepare(body);
     return (posture, pitch, share, back, resolution, lateral = 0) =>
       current(
         body,

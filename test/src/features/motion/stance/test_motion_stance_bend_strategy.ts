@@ -15,15 +15,20 @@ import { motionHumanLaw } from "../../internal/motionHumanLaw";
 import { motionHumanSignature as M } from "../../internal/motionHumanSignature";
 
 /**
- * The three bend strategies have distinct motions of the knees, trunk and pelvis.
- * The paths through each strategy keep their contact, timing, skin and joint
- * constraints from lowering through return, including both acting sides.
+ * The three bend strategies have distinct motions of the knees, trunk and
+ * pelvis. The paths through each strategy keep their contact, timing, skin and
+ * joint constraints from lowering through return, including both acting sides.
  *
  * Scenarios:
- * 1. A stoop keeps knee flexion at most 30° and inclines the trunk at least 45°. The hips move back relative to the entrance posture.
- * 2. A squat bends the knees at least 90° with a more upright trunk. The semi-squat's flexion is between the two.
- * 3. Both feet still bear at the deepest point of each bend, and the law's unrequested balance stays outside the audit.
- * 4. Quiet stance on the same bodies inclines no more than 3° from vertical (Kendall et al. 2005).
+ *
+ * 1. A stoop keeps knee flexion at most 30° and inclines the trunk at least 45°.
+ *    The hips move back relative to the entrance posture.
+ * 2. A squat bends the knees at least 90° with a more upright trunk. The
+ *    semi-squat's flexion is between the two.
+ * 3. Both feet still bear at the deepest point of each bend, and the law's
+ *    unrequested balance stays outside the audit.
+ * 4. Quiet stance on the same bodies inclines no more than 3° from vertical
+ *    (Kendall et al. 2005).
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each direction and threshold at the decisive event and the two support conditions.
  * @evidence contracts/development/testing.md#behavioral-verification Performs each strategy and reads displayed knees, hips, trunk and foot support. Tipping the stoop forward at the hips or giving all strategies the same knee angle fails.
@@ -77,7 +82,7 @@ export function test_motion_stance_bend_strategy(): void {
       row + " leaves unrequested balance unjudged",
       !bend.film.segments("a").some((span) => HumanPhysics.judged(span)),
     );
-    const verdict = HumanVerdicts.of(bend.film.performance);
+    const verdict = HumanVerdicts(bend.film.performance);
     if (!verdict.clean)
       complaints.list.push(row + ": " + HumanVerdicts.describe(verdict));
     return {
@@ -139,7 +144,10 @@ export function test_motion_stance_bend_strategy(): void {
 /** Burgess-Limerick's maximum knee flexion classified as a stoop, degrees. */
 const STOOP_KNEE: number = 30;
 
-/** Roundoff when recovering the exact limiting angle from two measured joint vectors. */
+/**
+ * Roundoff when recovering the exact limiting angle from two measured joint
+ * vectors.
+ */
 const STOOP_ANGLE_ROUNDOFF: number =
   // Six subtractions, three products, two additions, two norms,
   // their product and the quotient, rounded up to a binary operation bound.
@@ -169,7 +177,7 @@ function checkCrouch(complaints: motionComplaints.IGatherer): void {
       row + " exits standing",
       film.performance.segments("a")[0]!.plan.base?.kind === "standing",
     );
-    const verdict = HumanVerdicts.of(film.performance);
+    const verdict = HumanVerdicts(film.performance);
     if (!verdict.clean)
       complaints.list.push(row + ": " + HumanVerdicts.describe(verdict));
   }

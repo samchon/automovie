@@ -71,7 +71,7 @@ export function test_motion_ride_target_surface(): void {
     normal: { x: 0, y: 0, z: 1 },
   };
   const radius: number = 0.05;
-  const nearest: ReturnType<typeof touchSite.of> = touchSite.of(context, {
+  const nearest: ReturnType<typeof touchSite> = touchSite(context, {
     rule: "reach",
     within: radius,
   });
@@ -116,7 +116,7 @@ export function test_motion_ride_target_surface(): void {
     point: frame.point,
     normal: { x: 0, y: 1, z: 0 },
   };
-  const fixed: ReturnType<typeof touchSite.of> = touchSite.of(context, {
+  const fixed: ReturnType<typeof touchSite> = touchSite(context, {
     up: 0.02,
     out: 0.04,
   });
@@ -128,7 +128,7 @@ export function test_motion_ride_target_surface(): void {
       z: 3.02,
     }) <= 1e-12,
   );
-  const draw: ReturnType<typeof touchSite.of> = touchSite.of(context, {
+  const draw: ReturnType<typeof touchSite> = touchSite(context, {
     draw: radius,
   });
   const offset: IAutoMovieVector3 = Vector3.subtract(
@@ -150,7 +150,7 @@ export function test_motion_ride_target_surface(): void {
       Vector3.add(moved.point, offset),
     ) <= 1e-12,
   );
-  const zero: ReturnType<typeof touchSite.of> = touchSite.of(context, {
+  const zero: ReturnType<typeof touchSite> = touchSite(context, {
     rule: "reach",
     within: 0,
   });
@@ -160,10 +160,10 @@ export function test_motion_ride_target_surface(): void {
     frame.point,
   );
   checks.refuses("negative reach radius", () =>
-    touchSite.of(context, { rule: "reach", within: -radius }),
+    touchSite(context, { rule: "reach", within: -radius }),
   );
   checks.refuses("negative draw radius", () =>
-    touchSite.of(context, { draw: -radius }),
+    touchSite(context, { draw: -radius }),
   );
   checks.assert("ride target surface");
 }

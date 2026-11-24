@@ -32,77 +32,47 @@ type OfReadSide = "Left" | "Right";
  * 22.5 degrees, all on the shape, so the outline never reaches past it. Each
  * bone's points are dropped to the height of the sole sockets and reduced to
  * the corners of their convex hull in the horizontal plane.
+ *
+ * @param body The body.
+ * @param side The foot.
+ * @returns The outline's corners as frames on the foot's bones.
  */
-export namespace HumanFootOutline {
-  /**
-   * A foot's outline corners.
-   *
-   * @param body The body.
-   * @param side The foot.
-   * @returns The outline's corners as frames on the foot's bones.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-  ): readonly IAutoMovieHumanoidSurfaces.IFrame[] {
-    let found:
-      | Record<AutoMovieHumanSide, IAutoMovieHumanoidSurfaces.IFrame[]>
-      | undefined = OUTLINES.get(body);
-    if (found === undefined) {
-      const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
-        AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
-      const read: (
-        s: AutoMovieHumanSide,
-      ) => IAutoMovieHumanoidSurfaces.IFrame[] = (
-        s: AutoMovieHumanSide,
-      ): IAutoMovieHumanoidSurfaces.IFrame[] => {
-        const Side: OfReadSide = s === "left" ? "Left" : "Right";
-        const heel: IAutoMovieHumanoidSurfaces.IFrame =
-          body.surfaces.sockets[`heel${Side}`];
-        const floor: number = resolveAutoMovieHumanoidSurfaces.point(
-          heel,
-          tools.at(heel.bone),
-        ).y;
-        const out: IAutoMovieHumanoidSurfaces.IFrame[] = [];
-        for (const bone of [`${s}Foot`, `${s}Toes`] as const) {
-          const segment: IAutoMoviePhysicalSegment | undefined =
-            body.profile.segments.find(
-              (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
-            );
-          if (segment === undefined) continue;
-          const points: IAutoMovieVector3[] = segment.shapes.flatMap(
-            (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
-              shapePoints(segment.neutral, shape).map(
-                (p: IAutoMovieVector3): IAutoMovieVector3 => ({
-                  ...p,
-                  y: floor,
-                }),
-              ),
-          );
-          for (const corner of convexHull2D(points))
-            out.push(
-              tools.local(
-                bone,
-                corner,
-                { x: 0, y: -1, z: 0 },
-                { x: 0, y: 0, z: 1 },
-              ),
-            );
-        }
-        return out;
-      };
-      found = { left: read("left"), right: read("right") };
-      OUTLINES.set(body, found);
-    }
-    return found[side];
+export function HumanFootOutline(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+): readonly IAutoMovieHumanoidSurfaces.IFrame[] {
+  const tools: ReturnType<typeof AutoMovieHumanoidSurfaceRays.tools> =
+    AutoMovieHumanoidSurfaceRays.tools(body.skeleton, body.profile);
+  const Side: OfReadSide = side === "left" ? "Left" : "Right";
+  const heel: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.sockets[`heel${Side}`];
+  const floor: number = resolveAutoMovieHumanoidSurfaces.point(
+    heel,
+    tools.at(heel.bone),
+  ).y;
+  const out: IAutoMovieHumanoidSurfaces.IFrame[] = [];
+  for (const bone of [`${side}Foot`, `${side}Toes`] as const) {
+    const segment: IAutoMoviePhysicalSegment | undefined =
+      body.profile.segments.find(
+        (x: IAutoMoviePhysicalSegment): boolean => x.bone === bone,
+      );
+    if (segment === undefined) continue;
+    const points: IAutoMovieVector3[] = segment.shapes.flatMap(
+      (shape: IAutoMoviePhysicalShape): IAutoMovieVector3[] =>
+        shapePoints(segment.neutral, shape).map(
+          (p: IAutoMovieVector3): IAutoMovieVector3 => ({
+            ...p,
+            y: floor,
+          }),
+        ),
+    );
+    for (const corner of convexHull2D(points))
+      out.push(
+        tools.local(bone, corner, { x: 0, y: -1, z: 0 }, { x: 0, y: 0, z: 1 }),
+      );
   }
+  return out;
 }
-
-/** Each body's sole outlines, made once. */
-const OUTLINES: WeakMap<
-  IAutoMovieMotionHumanBody,
-  Record<AutoMovieHumanSide, IAutoMovieHumanoidSurfaces.IFrame[]>
-> = new WeakMap();
 
 /**
  * The horizontal directions a round collider's outline is read along, every

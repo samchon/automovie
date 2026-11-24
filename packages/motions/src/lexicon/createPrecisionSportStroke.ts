@@ -127,7 +127,7 @@ export function createPrecisionSportStroke<P extends Stroke>(
       const held: IAutoMovieMotionHumanHeld.IHeld | undefined =
         form.bare === true
           ? undefined
-          : AutoMovieMotionHumanHeld.of(context, side, implement(params));
+          : AutoMovieMotionHumanHeld(context, side, implement(params));
       const entryBones: ReturnType<typeof poseBones> = poseBones(
         body,
         context.entry.pose,

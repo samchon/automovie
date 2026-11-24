@@ -17,6 +17,92 @@ import { HumanMount } from "./HumanMount";
 type Frame2 = "root" | "yaw" | "pitch" | "roll" | "joints";
 
 /**
+ * The course's reader.
+ *
+ * @param c The climb.
+ * @returns The frame at a second of the climb.
+ */
+export function HumanMountOnFrame(
+  c: HumanMountOnFrame.IClimb,
+): (t: number) => HumanMountOnFrame.Frame {
+  const {
+    body,
+    seat,
+    start,
+    goal,
+    climb,
+    hop,
+    final,
+  }: HumanMountOnFrame.IClimb = c;
+  const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
+    ...stand.relaxed(body),
+    ...standUpright(body).joints,
+  };
+  const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
+    Object.entries(final.joints) as [
+      AutoMovieHumanoidBone,
+      readonly [number, number, number],
+    ][];
+  const across: readonly [number, number] = HumanMountOnFrame.crossing(
+    climb,
+    seat.astride === true,
+  );
+  return (t: number): HumanMountOnFrame.Frame => {
+    const crossed: number = minimumJerk.share(
+      (t - across[0]) / (across[1] - across[0]),
+    );
+    const socket: IAutoMovieVector3 = {
+      x: start.x + (goal.x - start.x) * crossed,
+      y:
+        start.y +
+        (goal.y + hop - start.y) *
+          minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
+        hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
+      z: start.z + (goal.z - start.z) * crossed,
+    };
+    const settle: number = minimumJerk.share((t - 0.6 * climb) / (0.4 * climb));
+    const lean: number =
+      t < 0.6 * climb
+        ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
+        : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
+    const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
+    for (const [bone, a] of finish) {
+      const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
+      joints[bone] = [
+        was[0] + a[0] * settle,
+        was[1] + a[1] * settle,
+        was[2] + a[2] * settle,
+      ];
+    }
+    // The hanging arms open out while the legs climb, clear of a thigh
+    // the leading leg lifts, and close again as the body settles.
+    const open: number =
+      HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
+    for (const side of ["left", "right"] as const) {
+      const arm: readonly [number, number, number] = joints[
+        `${side}UpperArm`
+      ] ?? [0, 0, 0];
+      joints[`${side}UpperArm`] = [arm[0], arm[1] + open, arm[2]];
+    }
+    const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
+      joints,
+      lean,
+    );
+    const yaw: number = c.yaw + c.turn * crossed;
+    // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
+    const pitch: number = tilt.pitch + (seat.pitch ?? 0) * crossed;
+    const roll: number = (seat.roll ?? 0) * crossed;
+    return {
+      root: seated.root(body, socket, { yaw, pitch, roll }),
+      yaw,
+      pitch,
+      roll,
+      joints: tilt.joints,
+    };
+  };
+}
+
+/**
  * The pelvis's and the trunk's course in getting onto a high seat
  * (`HumanMountOn`): the seat socket travels up from 10 % of the climb, passes
  * `HumanMount.HOP` above the seat and sets down on it at 80 %, the contact; it
@@ -88,85 +174,5 @@ export namespace HumanMountOnFrame {
     astride: boolean,
   ): readonly [number, number] {
     return astride ? [0.3 * climb, 0.8 * climb] : [0, 0.7 * climb];
-  }
-
-  /**
-   * The course's reader.
-   *
-   * @param c The climb.
-   * @returns The frame at a second of the climb.
-   */
-  export function of(c: IClimb): (t: number) => Frame {
-    const { body, seat, start, goal, climb, hop, final }: IClimb = c;
-    const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
-      ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
-    };
-    const finish: [AutoMovieHumanoidBone, readonly [number, number, number]][] =
-      Object.entries(final.joints) as [
-        AutoMovieHumanoidBone,
-        readonly [number, number, number],
-      ][];
-    const across: readonly [number, number] = crossing(
-      climb,
-      seat.astride === true,
-    );
-    return (t: number): Frame => {
-      const crossed: number = minimumJerk.share(
-        (t - across[0]) / (across[1] - across[0]),
-      );
-      const socket: IAutoMovieVector3 = {
-        x: start.x + (goal.x - start.x) * crossed,
-        y:
-          start.y +
-          (goal.y + hop - start.y) *
-            minimumJerk.share((t - 0.1 * climb) / (0.45 * climb)) -
-          hop * minimumJerk.share((t - 0.55 * climb) / (0.25 * climb)),
-        z: start.z + (goal.z - start.z) * crossed,
-      };
-      const settle: number = minimumJerk.share(
-        (t - 0.6 * climb) / (0.4 * climb),
-      );
-      const lean: number =
-        t < 0.6 * climb
-          ? HumanMount.LEAN * minimumJerk.share(t / (0.4 * climb))
-          : HumanMount.LEAN + (final.pitch - HumanMount.LEAN) * settle;
-      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...relaxed };
-      for (const [bone, a] of finish) {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [
-          was[0] + a[0] * settle,
-          was[1] + a[1] * settle,
-          was[2] + a[2] * settle,
-        ];
-      }
-      // The hanging arms open out while the legs climb, clear of a thigh
-      // the leading leg lifts, and close again as the body settles.
-      const open: number =
-        HumanMount.OPEN * minimumJerk.share(t / (0.3 * climb)) * (1 - settle);
-      for (const side of ["left", "right"] as const) {
-        const arm: readonly [number, number, number] = joints[
-          `${side}UpperArm`
-        ] ?? [0, 0, 0];
-        joints[`${side}UpperArm`] = [arm[0], arm[1] + open, arm[2]];
-      }
-      const tilt: ReturnType<typeof HumanTrunk.incline> = HumanTrunk.incline(
-        joints,
-        lean,
-      );
-      const yaw: number = c.yaw + c.turn * crossed;
-      // A tipped or tilted seat, as a saddle on a grade, tips the pelvis with it as the body crosses onto it.
-      const pitch: number = tilt.pitch + (seat.pitch ?? 0) * crossed;
-      const roll: number = (seat.roll ?? 0) * crossed;
-      return {
-        root: seated.root(body, socket, { yaw, pitch, roll }),
-        yaw,
-        pitch,
-        roll,
-        joints: tilt.joints,
-      };
-    };
   }
 }

@@ -235,8 +235,10 @@ export namespace clinch {
         ? (loan.bones ??= partner.bones(context.start + seconds, requested))
         : partner.bones(context.start + seconds, requested);
     };
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     const reach: number = AutoMovieMotionHumanTiming.aimed(
       0.85 * (body.measure.upperArm + body.measure.forearm),
       0.05,

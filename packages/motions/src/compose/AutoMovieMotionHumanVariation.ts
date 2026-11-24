@@ -32,6 +32,42 @@ type SPREADSEntryItem =
   | "curvature";
 
 /**
+ * The source of an action's variation.
+ *
+ * @param context The action's skill and series.
+ * @param manner The manner; its `variation` and `proficiency` are read.
+ * @returns The source, or `undefined` when the variation is absent or 0.
+ * @throws {Error} When the variation or the proficiency lies outside [0, 1].
+ */
+export function AutoMovieMotionHumanVariation(
+  context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
+  manner: Pick<IAutoMovieMotionManner, OfManner> | undefined,
+): IAutoMovieMotionHumanVariation.ISource | undefined {
+  const variation: number = manner?.variation ?? 0;
+  HumanBound.within("manner.variation", variation, 0, 1);
+  if (variation === 0) return undefined;
+  const proficiency: number | undefined = manner?.consistency;
+  if (proficiency !== undefined)
+    HumanBound.within("manner.proficiency", proficiency, 0, 1);
+  return {
+    skill:
+      proficiency === undefined
+        ? context.skill
+        : {
+            ...context.skill,
+            axes: {
+              ...context.skill.axes,
+              path: proficiency,
+              timing: proficiency,
+            },
+          },
+    variation,
+    series: (key: string): IAutoMovieMotionHumanActionContext.ISeries =>
+      context.series(`variation/${key}`),
+  };
+}
+
+/**
  * The seeded offset of a symbolic slot: how one performance of an action
  * differs from the next.
  *
@@ -126,42 +162,6 @@ export namespace AutoMovieMotionHumanVariation {
     bend: 0.1,
     curvature: 0.04,
   };
-
-  /**
-   * The source of an action's variation.
-   *
-   * @param context The action's skill and series.
-   * @param manner The manner; its `variation` and `proficiency` are read.
-   * @returns The source, or `undefined` when the variation is absent or 0.
-   * @throws {Error} When the variation or the proficiency lies outside [0, 1].
-   */
-  export function of(
-    context: Pick<IAutoMovieMotionHumanActionContext, OfContext>,
-    manner: Pick<IAutoMovieMotionManner, OfManner> | undefined,
-  ): IAutoMovieMotionHumanVariation.ISource | undefined {
-    const variation: number = manner?.variation ?? 0;
-    HumanBound.within("manner.variation", variation, 0, 1);
-    if (variation === 0) return undefined;
-    const proficiency: number | undefined = manner?.consistency;
-    if (proficiency !== undefined)
-      HumanBound.within("manner.proficiency", proficiency, 0, 1);
-    return {
-      skill:
-        proficiency === undefined
-          ? context.skill
-          : {
-              ...context.skill,
-              axes: {
-                ...context.skill.axes,
-                path: proficiency,
-                timing: proficiency,
-              },
-            },
-      variation,
-      series: (key: string): IAutoMovieMotionHumanActionContext.ISeries =>
-        context.series(`variation/${key}`),
-    };
-  }
 
   /** The tangent offset of no variation: the region's own point. */
   export const CENTRE: IAutoMovieMotionHumanVariation.ITangent = {

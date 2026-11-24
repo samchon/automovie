@@ -88,7 +88,7 @@ function planHumanLanceCouch(
   const target: IAutoMovieMotionHumanPropReader = context.prop(
     params.target.prop,
   );
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.frame ?? "seat",
@@ -98,7 +98,7 @@ function planHumanLanceCouch(
     carrier(context.start),
     HumanMountedFrame.LOCAL,
   );
-  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
     context,
     "right",
     params.prop,

@@ -34,7 +34,7 @@ The members the reading reads.
 
 Reuses the collider record and `IShape`.
 
-# src/posture/HumanArmOvershootRoom.ts#HumanArmOvershootRoom.of
+# src/posture/HumanArmOvershootRoom.ts#HumanArmOvershootRoom
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

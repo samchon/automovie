@@ -25,19 +25,31 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 
 type Ride = ReturnType<typeof rideHorse>;
 
-/** Seconds the rider sits on the standing horse before its course starts, as the equestrian exercise does. */
+/**
+ * Seconds the rider sits on the standing horse before its course starts, as the
+ * equestrian exercise does.
+ */
 const WAIT: number = 6;
 
 /** The rider attachment campaign's contact drift bound, metres. */
 const CONTACT: number = 0.01;
 
 /**
- * A rider keeps seat, stirrups and reins through a leg-yield and across the cut back to straight trot.
+ * A rider keeps seat, stirrups and reins through a leg-yield and across the cut
+ * back to straight trot.
  *
  * Scenarios:
- * 1. The horse trots straight, leg-yields toward the left at 30 degrees and recovers to straight travel; the rider sits the trot on the horse's own left fore track with both feet on the stirrups and both hands on the reins.
- * 2. Seat, stirrup and rein contacts read in the tack's current frames stay within 10 mm of their values at the last straight touchdown before the figure, at every left fore touchdown through the figure and across the cut back to straight travel.
- * 3. The saddle itself turns off the travel during the figure and back after it, so the contacts are read on a body that actually changed heading.
+ *
+ * 1. The horse trots straight, leg-yields toward the left at 30 degrees and
+ *    recovers to straight travel; the rider sits the trot on the horse's own
+ *    left fore track with both feet on the stirrups and both hands on the
+ *    reins.
+ * 2. Seat, stirrup and rein contacts read in the tack's current frames stay within
+ *    10 mm of their values at the last straight touchdown before the figure, at
+ *    every left fore touchdown through the figure and across the cut back to
+ *    straight travel.
+ * 3. The saddle itself turns off the travel during the figure and back after it,
+ *    so the contacts are read on a body that actually changed heading.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the horse course, the cue track, the contacts read and the times.
  * @evidence contracts/development/testing.md#behavioral-verification Reads displayed rider joints, seat region and foot sockets against the horse's published seat, stirrup and rein frames.
@@ -118,7 +130,7 @@ export function test_motion_dress_equestrian_dressage(): void {
         equestrian: { stride: { cue: "trot", gait: "trot" } },
       }).node,
   });
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "rider",
     body,

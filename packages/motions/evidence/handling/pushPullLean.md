@@ -1,4 +1,4 @@
-# src/handling/pushPullLean.ts#pushPullLean.of
+# src/handling/pushPullLean.ts#pushPullLean
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -70,7 +70,7 @@ export namespace WorkoutGym {
     low: readonly [Keyed, number, string, string],
     high: readonly [Keyed, number, string, string],
   ): IAutoMovieMotionHumanWorkoutKind =>
-    WorkoutStance.of(
+    WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.8,
@@ -162,7 +162,7 @@ export namespace WorkoutGym {
     ),
 
     /** A calf raise: both heels lifted over the toes' joints, which stay. */
-    calfRaise: WorkoutStance.of(
+    calfRaise: WorkoutStance(
       ["leftToes", "rightToes"],
       WorkoutStance.FEET,
       0,
@@ -214,7 +214,7 @@ export namespace WorkoutGym {
      * A split squat: a split stance lowered and raised, the feet where the
      * stance put them.
      */
-    splitSquat: WorkoutStance.of(
+    splitSquat: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.2,
@@ -243,7 +243,7 @@ export namespace WorkoutGym {
      * A wall sit: the thighs level over upright shanks, the trunk upright, held
      * 30 s.
      */
-    wallSit: WorkoutStance.of(
+    wallSit: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.5,
@@ -286,7 +286,7 @@ export namespace WorkoutGym {
     ),
 
     /** A power clean with the pull, catch and standing rack on separate events. */
-    powerClean: WorkoutStance.of(
+    powerClean: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,
@@ -300,7 +300,7 @@ export namespace WorkoutGym {
      * follows the shape compared with the lunge-style jerk in PMID 39337870.
      * The transition durations are authored staging values.
      */
-    cleanAndJerk: WorkoutStance.of(
+    cleanAndJerk: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,
@@ -348,7 +348,7 @@ export namespace WorkoutGym {
      * A snatch as its positions: the wide start, the full extension, the catch
      * in an overhead squat, and standing up under the locked arms.
      */
-    snatch: WorkoutStance.of(
+    snatch: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,

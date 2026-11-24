@@ -156,7 +156,7 @@ export namespace HumanPerformanceSchedule {
       });
     } catch (error) {
       throw error instanceof AutoMovieScheduleError
-        ? HumanScheduleRefusal.of(
+        ? HumanScheduleRefusal(
             error,
             (subject: string, capability: string): number =>
               HumanPerformanceRead.where(self, { subject, capability })

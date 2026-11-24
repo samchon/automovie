@@ -51,7 +51,7 @@ export namespace stretchHoldClock {
     const removed: number = (end - begin) * step;
     const local = (seconds: number): number =>
       seconds <= first ? seconds : seconds <= last ? first : seconds - removed;
-    const compressed: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const compressed: IAutoMovieMotionClock = AutoMovieMotionClock(
       local(clock.duration),
       clock.instants.map(
         (

@@ -1,5 +1,3 @@
-import { createHumanBody } from "@automovie/motions";
-
 import type { IMotionTakeSource } from "./IMotionTakeSource";
 
 /**
@@ -27,7 +25,7 @@ export function assertMotionTakeBindings(source: IMotionTakeSource): void {
   // Canonical bodies rebind their lazy internal readers through the installed owner.
   for (const input of Object.values(source.human))
     for (const performer of input.performers)
-      if (createHumanBody.owns(performer.body)) visited.add(performer.body);
+      visited.add(performer.body);
   /** Traverse runtime owner data without evaluating property getters. */
   const visit = (value: unknown, field: string): void => {
     if (typeof value === "function") {

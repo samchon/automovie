@@ -160,7 +160,7 @@ A pure function.
 
 Retains nothing.
 
-# src/lexicon/HumanPoloHand.ts#HumanPoloHand.of
+# src/lexicon/HumanPoloHand.ts#HumanPoloHand
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

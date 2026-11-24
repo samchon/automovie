@@ -48,14 +48,15 @@ interface IStrike {
 }
 
 /**
- * Distinct gait rules change pace, suspension, the stance interval or the
- * limb that moves. Check their defining observations at the relevant phase.
+ * Distinct gait rules change pace, suspension, the stance interval or the limb
+ * that moves. Check their defining observations at the relevant phase.
  *
  * Scenarios:
+ *
  * 1. A march keeps the quick-time cadence and displayed step length.
  * 2. A jog has a free-flight interval and advances faster than a walk.
- * 3. A unilateral limp shortens that side's stance. A stiff-knee limp
- *    also reduces the affected side's displayed knee flexion.
+ * 3. A unilateral limp shortens that side's stance. A stiff-knee limp also reduces
+ *    the affected side's displayed knee flexion.
  * 4. A tiptoe lifts the heel above the toe at the centre of stance.
  * 5. Wandering changes lateral displacement and cadence regularity.
  *
@@ -175,7 +176,10 @@ export function test_motion_gait_gait_styles(): void {
   );
 }
 
-/** Prepare the installed gait once with the same standing setup as its reference. */
+/**
+ * Prepare the installed gait once with the same standing setup as its
+ * reference.
+ */
 function trial(
   body: IAutoMovieMotionHumanBody,
   distance: number,
@@ -205,7 +209,7 @@ function trial(
   });
   return {
     segment: film.segments("a")[1]!,
-    shown: HumanSignature.of(film, "a", body, 0),
+    shown: HumanSignature(film, "a", body, 0),
   };
 }
 
@@ -226,7 +230,10 @@ function strikes(
     .sort((a: IStrike, b: IStrike): number => a.seconds - b.seconds);
 }
 
-/** Use the original steady-gait window without reading separate poses for every style. */
+/**
+ * Use the original steady-gait window without reading separate poses for every
+ * style.
+ */
 function steady(segment: IAutoMovieMotionHumanSegment): IStrike[] {
   const duration: number = segment.end - segment.entryTime;
   return strikes(segment, "HeelStrike")
@@ -285,7 +292,10 @@ function unevenness(test: ITrial): number {
   );
 }
 
-/** Find each same-foot interval ending at the next opposite event in the steady window. */
+/**
+ * Find each same-foot interval ending at the next opposite event in the steady
+ * window.
+ */
 function phases(
   segment: IAutoMovieMotionHumanSegment,
   side: AutoMovieHumanSide,

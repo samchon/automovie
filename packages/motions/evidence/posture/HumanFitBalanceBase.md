@@ -16,7 +16,7 @@ Every half-plane `of` builds names its own corners; none is left fixed while its
 
 States the three kinds and what `p` and `q` are in each.
 
-# src/posture/HumanFitBalanceBase.ts#HumanFitBalanceBase.of
+# src/posture/HumanFitBalanceBase.ts#HumanFitBalanceBase
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

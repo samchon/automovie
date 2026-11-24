@@ -340,7 +340,7 @@ export namespace trampolineBounce {
     };
     return composeAutoMovieMotionHumanAction({
       base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
-      clock: AutoMovieMotionClock.of(duration, instants),
+      clock: AutoMovieMotionClock(duration, instants),
       primitives: [writer],
     });
   }

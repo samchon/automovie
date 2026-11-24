@@ -29,7 +29,10 @@ import { motionComplaints } from "../../internal/motionComplaints";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 import { nclose } from "../../internal/nclose";
 
-/** One weapon's bout: its blocking, the touches' targets and the scripted result. */
+/**
+ * One weapon's bout: its blocking, the touches' targets and the scripted
+ * result.
+ */
 interface IBout {
   /** The weapon. */
   kind: Exclude<AutoMovieMotionHumanStageFight.HumanStagePiste.Kind, "kendo">;
@@ -50,7 +53,10 @@ interface IBout {
   result: AutoMovieMotionHumanStageFight.HumanStagePiste.Result;
 }
 
-/** A scoring touch: its action's anchor, the struck performer and the region it lands on. */
+/**
+ * A scoring touch: its action's anchor, the struck performer and the region it
+ * lands on.
+ */
 type Touch = readonly [
   anchor: string,
   struck: string,
@@ -97,13 +103,19 @@ const ANSWERING: number = 1;
 /** Duration of each advance, seconds. */
 const SECONDS: number = 0.6;
 
-/** A touch lands within this of its target, metres: the blade strokes spec's bound. */
+/**
+ * A touch lands within this of its target, metres: the blade strokes spec's
+ * bound.
+ */
 const TOUCH: number = 0.015;
 
 /** Planted support and a held grip hold within this, metres. */
 const HOLD: number = 0.005;
 
-/** A foot settles on its mark within this, metres: the stage footwork spec's bound. */
+/**
+ * A foot settles on its mark within this, metres: the stage footwork spec's
+ * bound.
+ */
 const MARK: number = 0.008;
 
 /**
@@ -112,19 +124,20 @@ const MARK: number = 0.008;
  * scripted result decides the exchange and is announced at the touch.
  *
  * Scenarios:
- * 1. The foil's lunge lands on the trunk and the epee's on the thigh, each
- *    scoring for the first; the sabre's cut is parried and the second's
- *    riposte cut lands, scoring for the second.
- * 2. Over the approach the first's lead foot leaves first while the rear
- *    holds, both feet settle the approach's distance forward and the pelvis
- *    follows; each performer keeps its blade's grip.
+ *
+ * 1. The foil's lunge lands on the trunk and the epee's on the thigh, each scoring
+ *    for the first; the sabre's cut is parried and the second's riposte cut
+ *    lands, scoring for the second.
+ * 2. Over the approach the first's lead foot leaves first while the rear holds,
+ *    both feet settle the approach's distance forward and the pelvis follows;
+ *    each performer keeps its blade's grip.
  * 3. The attacker recovers from the lunge to the stance it lunged from.
- * 4. The epee's double touch: both performers lunge at once, each blade
- *    following the other as it lunges, and both land at one instant, where
- *    the double is announced, and not once the counter lands later than the
- *    epee's 40 ms window.
- * 5. The rules refuse a double touch in foil, a foil touch on the thigh and
- *    a sabre touch below the waist, and admit an epee touch on the thigh.
+ * 4. The epee's double touch: both performers lunge at once, each blade following
+ *    the other as it lunges, and both land at one instant, where the double is
+ *    announced, and not once the counter lands later than the epee's 40 ms
+ *    window.
+ * 5. The rules refuse a double touch in foil, a foil touch on the thigh and a
+ *    sabre touch below the waist, and admit an epee touch on the thigh.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the three weapons' bouts, their results, the approach, grip and recovery checks, the double touch and the rule refusals.
  * @evidence contracts/development/testing.md#behavioral-verification Places the public bout, samples both performers' displayed feet, pelvis and regions and the blades' displayed points and axes, and reads the announced result from the placed schedule.
@@ -270,8 +283,8 @@ function entry(
 }
 
 /**
- * How far a scoring touch lands from its region at its decisive instant:
- * a thrust's point, or for a cut the nearest place on the blade's axis.
+ * How far a scoring touch lands from its region at its decisive instant: a
+ * thrust's point, or for a cut the nearest place on the blade's axis.
  */
 function missed(
   body: IAutoMovieMotionHumanBody,
@@ -294,7 +307,7 @@ function missed(
     Quaternion.rotateVector(frame.rotation, point),
   );
   const aimed: IAutoMovieVector3 = HumanSignature.region(
-    HumanSignature.of(film, struck, body, struck === "a" ? 0 : 180),
+    HumanSignature(film, struck, body, struck === "a" ? 0 : 180),
     region,
     action.contact,
   );
@@ -429,9 +442,9 @@ function play(
 }
 
 /**
- * The epee's double touch: both lunge at once, each blade following the
- * other performer as it lunges, and both land at one instant, where the
- * double is announced, and not once the counter lands outside the window.
+ * The epee's double touch: both lunge at once, each blade following the other
+ * performer as it lunges, and both land at one instant, where the double is
+ * announced, and not once the counter lands outside the window.
  */
 function double(
   body: IAutoMovieMotionHumanBody,

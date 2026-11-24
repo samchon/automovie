@@ -66,15 +66,6 @@ function planCrossAnkleOverKnee(
 ): IAutoMovieMotionHumanActionPlan {
   const { body, entry } = context;
   const side: AutoMovieHumanSide = context.params.side ?? "right";
-  if (side !== "left" && side !== "right")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "side",
-      value: side,
-      feasible: { kind: "alternatives", values: ["left", "right"] },
-      reason: "the raised ankle must be on one side",
-      fix: "choose left or right",
-    });
 
   const carried: AutoMovieHumanSide = side === "left" ? "right" : "left";
   const lifted: PlanCrossAnkleOverKneeLifted = `${side}Foot`;

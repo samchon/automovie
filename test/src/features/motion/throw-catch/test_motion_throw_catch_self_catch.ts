@@ -1,4 +1,4 @@
-﻿import { createRhythmicBall } from "@automovie/archetypes";
+import { createRhythmicBall } from "@automovie/archetypes";
 import { AutoMovieGravity, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionEvent,
@@ -52,7 +52,7 @@ export function test_motion_throw_catch_self_catch(): void {
       const height: number = 1.2 * body.measure.stature;
       const apex: IAutoMovieVector3 = aimed(body, height);
       const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-        AutoMovieMotionHumanThrowCatch.throwObject.of(
+        AutoMovieMotionHumanThrowCatch.readThrowObjectLaunch(
           take(body, apex, false).segments("a")[1]!.plan,
         )!;
       const across: number = Math.hypot(launch.velocity.x, launch.velocity.z);
@@ -151,7 +151,7 @@ function aimed(
   let apex: IAutoMovieVector3 = { x: 0, y: height, z: 0.35 };
   for (let pass: number = 0; pass < PASSES; pass++) {
     const launch: IAutoMovieMotionHumanThrowObjectLaunch.ILaunch =
-      AutoMovieMotionHumanThrowCatch.throwObject.of(
+      AutoMovieMotionHumanThrowCatch.readThrowObjectLaunch(
         take(body, apex, false).segments("a")[1]!.plan,
       )!;
     const rise: number = height - launch.point.y;

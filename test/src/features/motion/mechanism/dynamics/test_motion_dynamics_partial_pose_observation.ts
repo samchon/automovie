@@ -23,28 +23,29 @@ import { qclose } from "../../../internal/qclose";
 import { vclose } from "../../../internal/vclose";
 
 /**
- * A public performer observation may request a few bones without publishing
- * the omitted free-limb fit as a complete displayed pose.
+ * A public performer observation may request a few bones without publishing the
+ * omitted free-limb fit as a complete displayed pose.
  *
  * Scenarios:
+ *
  * 1. A registered observer captures another performer's public reader during
- *    planning and calls it from its own posture. After construction settles,
- *    a head-only observation at an arbitrary
- *    instant returns exactly that bone; the following full public pose/bones
- *    must still fit the authored lifted foot within 0.001 metres.
- * 2. Reversing the full/partial query order at another exact instant preserves
- *    the same actual target. Repeated head observations cannot poison a later
- *    full pose through the existing exact-time pose cache.
- * 3. Mutating a returned partial head position cannot alter another partial
- *    map or the fresh full bone map at that same instant.
- * 4. The body's real mass-bearing bone set returns the same current world
- *    frames as full display and cannot publish an incomplete full-pose cache.
+ *    planning and calls it from its own posture. After construction settles, a
+ *    head-only observation at an arbitrary instant returns exactly that bone;
+ *    the following full public pose/bones must still fit the authored lifted
+ *    foot within 0.001 metres.
+ * 2. Reversing the full/partial query order at another exact instant preserves the
+ *    same actual target. Repeated head observations cannot poison a later full
+ *    pose through the existing exact-time pose cache.
+ * 3. Mutating a returned partial head position cannot alter another partial map or
+ *    the fresh full bone map at that same instant.
+ * 4. The body's real mass-bearing bone set returns the same current world frames
+ *    as full display and cannot publish an incomplete full-pose cache.
  * 5. During a real arm overlay, a head-only observation keeps the overlay's
  *    conservative complete solve. A following full pose still contains the
  *    literal10-degree arm write and the current lifted-foot task.
- * 6. A real cut at0.4s inertializes for0.2s into a different lifted-foot
- *    task. During the offset, partial-first full frames equal a separate
- *    complete performance; after0.6s the target's literal demand holds.
+ * 6. A real cut at0.4s inertializes for0.2s into a different lifted-foot task.
+ *    During the offset, partial-first full frames equal a separate complete
+ *    performance; after0.6s the target's literal demand holds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States post-construction timing, partial/full ownership, canonical Human, real mass demand, query order, active-overlay/cut fallback and the unchanged contact bound in six scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Uses actual registered laws, context.performer.bones and public HumanPerformance reads. It checks requested membership, foot contact after partial-first reads, mass-frame parity, reversed order, nested output isolation and the real overlay's literal arm write after a selected observation.

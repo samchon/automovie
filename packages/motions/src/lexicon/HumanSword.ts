@@ -156,7 +156,7 @@ export namespace HumanSword {
   ): IAutoMovieMotionHumanSword.ISetup => {
     const p: IAutoMovieMotionHumanSword.IWield = context.params;
     const side: AutoMovieHumanSide = p.hand ?? "right";
-    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+    const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
       context,
       side,
       p.blade,

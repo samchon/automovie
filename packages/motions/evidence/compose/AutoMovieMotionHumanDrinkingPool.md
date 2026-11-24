@@ -76,7 +76,7 @@ A member's signature; `of`, which implements it, carries this claim.
 
 A member's signature; `of`, which implements it, carries this claim.
 
-# src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool.of
+# src/compose/AutoMovieMotionHumanDrinkingPool.ts#AutoMovieMotionHumanDrinkingPool
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

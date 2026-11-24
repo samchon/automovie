@@ -29,6 +29,142 @@ type IOfMoved = {
 };
 
 /**
+ * An arm's sweeps over one interval between read waypoints: every axis sphere
+ * against every shape whose bounding sphere lies within the pairs' reach of the
+ * sphere at the interval's first waypoint, its course read through its place at
+ * every frame of the interval, carried into the shape's frame at the first,
+ * each frame step its chord, as the frame grid's own reading takes it. Every
+ * step within the active set is its own sweep, as each of trajopt's subdivided
+ * casts is its own contact: the merit counts each step past its allowance and
+ * the convex model linearises each, so a miss that spans several steps is moved
+ * by all of them at once. A step shorter than the sphere's radius relative to a
+ * shape sweeps nothing against it and is left out, as is a step the shape's
+ * bounding sphere shows clear of its allowance by more than `T.CHECK`, which no
+ * reader uses, and a step the last exact reading of the same course still keeps
+ * that clear by conservative advancement (Mirtich 1996): the course's chord
+ * travel since that reading (`AutoMovieMotionBound`) is less than its
+ * distance's excess over the check.
+ *
+ * @param c The context.
+ * @param a The arm.
+ * @param k The interval's first waypoint.
+ * @param from The arm placed at `k`.
+ * @param near The arm on the way to the interval's last waypoint.
+ * @returns The sweeps, by sphere, then shape, then step.
+ */
+export function HumanArmTrajectorySweep(
+  c: M.IContext,
+  a: number,
+  k: number,
+  from: IAutoMovieMotionHumanArmGeometry.IPlaced,
+  near: HumanArmTrajectoryHalfStep.INear,
+): HumanArmTrajectorySweep.ISwept[] {
+  const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
+  const out: HumanArmTrajectorySweep.ISwept[] = [];
+  for (let probe: number = 0; probe < G.SURFACE; ++probe) {
+    const [pa, r]: readonly [IAutoMovieVector3, number] = from.probes[probe]!;
+    for (const shape of S.near(
+      frame,
+      pa,
+      r + T.REACH,
+      undefined,
+      c.reachable[a]![k]!,
+    )) {
+      // The hand's spheres on what the hand rests on are the goal's contact.
+      if (probe >= G.WRIST && frame.resting.has(frame.shapes[shape]!.part))
+        continue;
+      // The probe's course relative to the shape, which may move too.
+      const frames: number[] = [k];
+      const course: IAutoMovieVector3[] = [pa];
+      const turns: IAutoMovieQuaternion[] = [Quaternion.identity()];
+      for (const step of near.path) {
+        const moved: IOfMoved = HumanArmTrajectoryHalfStep.carry(
+          c,
+          a,
+          k,
+          step.at,
+          shape,
+          step.placed.probes[probe]![0],
+        );
+        frames.push(step.at);
+        course.push(moved.point);
+        turns.push(moved.turn);
+      }
+      const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
+      const bound: AutoMovieMotionBound.IPrepared | undefined =
+        HumanArmTrajectorySweepBound.chords(c, k, frames, course);
+
+      // The last exact reading of this course: its step and its distance.
+      let read: number = -1;
+      let gap: number = 0;
+      for (let i: number = 0; i + 1 < course.length; ++i) {
+        // A step shorter than the sphere's radius relative to the shape
+        // passes through nothing its two places do not already touch: the
+        // sweep guards the course between frames against passing through a
+        // shape, and what a place itself touches is the pairs' reading, at
+        // the read waypoints and over their courses through every frame.
+        if (Vector3.distance(course[i]!, course[i + 1]!) < r) continue;
+        const lower: number = Math.min(
+          c.allowed(a, frames[i]!, probe, shape),
+          c.allowed(a, frames[i + 1]!, probe, shape),
+        );
+
+        // Conservative advancement (Mirtich 1996, ch. 3): each end of this
+        // step's chord lies within the course's travel since the last
+        // exact reading of that reading's chord ends, and a segment's
+        // distance to a convex shape changes no more than its ends move, so
+        // a step that reading still keeps past the check distance has no
+        // reader and its shape is not read.
+        if (
+          bound !== undefined &&
+          read >= 0 &&
+          1000 *
+            (gap -
+              bound.travel(bound.times[read]!, bound.times[i + 1]!) -
+              r -
+              lower) >
+            T.CHECK
+        )
+          continue;
+
+        // A step its shape's bounding sphere shows clear of its allowance
+        // by more than the active set's check distance has no reader: the
+        // merit counts only a sweep past its allowance and the convex model
+        // only one within `T.CHECK` of it (TrajOpt's d_check, Schulman et
+        // al. 2014, section IV), so its exact distance is not read.
+        if (
+          1000 *
+            (HumanArmTrajectoryHalfStep.sphere(s, course[i]!, course[i + 1]!) -
+              r -
+              lower) >
+          T.CHECK
+        )
+          continue;
+        const reading: IAutoMoviePhysicalShapeNearest.IResult =
+          physicalShapeNearest(s.pose, s.shape, course[i]!, course[i + 1]!);
+        read = i;
+        gap = reading.distance;
+        if (1000 * (reading.distance - r - lower) > T.CHECK) continue;
+        out.push({
+          probe,
+          shape,
+          from: frames[i]!,
+          start: course[i]!,
+          first: turns[i]!,
+          other: frames[i + 1]!,
+          to: course[i + 1]!,
+          turn: turns[i + 1]!,
+          clear: reading.distance - r,
+          lower,
+          near: reading,
+        });
+      }
+    }
+  }
+  return out;
+}
+
+/**
  * The arm's probes swept between two read waypoints of its trajectory
  * (`HumanArmTrajectoryModel`): each probe's course from one to the next is read
  * through its place at every frame between, each frame step its chord, against
@@ -101,147 +237,6 @@ export namespace HumanArmTrajectorySweep {
   }
 
   /**
-   * An arm's sweeps over one interval between read waypoints: every axis sphere
-   * against every shape whose bounding sphere lies within the pairs' reach of
-   * the sphere at the interval's first waypoint, its course read through its
-   * place at every frame of the interval, carried into the shape's frame at the
-   * first, each frame step its chord, as the frame grid's own reading takes it.
-   * Every step within the active set is its own sweep, as each of trajopt's
-   * subdivided casts is its own contact: the merit counts each step past its
-   * allowance and the convex model linearises each, so a miss that spans
-   * several steps is moved by all of them at once. A step shorter than the
-   * sphere's radius relative to a shape sweeps nothing against it and is left
-   * out, as is a step the shape's bounding sphere shows clear of its allowance
-   * by more than `T.CHECK`, which no reader uses, and a step the last exact
-   * reading of the same course still keeps that clear by conservative
-   * advancement (Mirtich 1996): the course's chord travel since that reading
-   * (`AutoMovieMotionBound`) is less than its distance's excess over the
-   * check.
-   *
-   * @param c The context.
-   * @param a The arm.
-   * @param k The interval's first waypoint.
-   * @param from The arm placed at `k`.
-   * @param near The arm on the way to the interval's last waypoint.
-   * @returns The sweeps, by sphere, then shape, then step.
-   */
-  export function of(
-    c: M.IContext,
-    a: number,
-    k: number,
-    from: IAutoMovieMotionHumanArmGeometry.IPlaced,
-    near: HumanArmTrajectoryHalfStep.INear,
-  ): ISwept[] {
-    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![k]!;
-    const out: ISwept[] = [];
-    for (let probe: number = 0; probe < G.SURFACE; ++probe) {
-      const [pa, r]: readonly [IAutoMovieVector3, number] = from.probes[probe]!;
-      for (const shape of S.near(
-        frame,
-        pa,
-        r + T.REACH,
-        undefined,
-        c.reachable[a]![k]!,
-      )) {
-        // The hand's spheres on what the hand rests on are the goal's contact.
-        if (probe >= G.WRIST && frame.resting.has(frame.shapes[shape]!.part))
-          continue;
-        // The probe's course relative to the shape, which may move too.
-        const frames: number[] = [k];
-        const course: IAutoMovieVector3[] = [pa];
-        const turns: IAutoMovieQuaternion[] = [Quaternion.identity()];
-        for (const step of near.path) {
-          const moved: IOfMoved = HumanArmTrajectoryHalfStep.carry(
-            c,
-            a,
-            k,
-            step.at,
-            shape,
-            step.placed.probes[probe]![0],
-          );
-          frames.push(step.at);
-          course.push(moved.point);
-          turns.push(moved.turn);
-        }
-        const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
-        const bound: AutoMovieMotionBound.IPrepared | undefined =
-          HumanArmTrajectorySweepBound.chords(c, k, frames, course);
-
-        // The last exact reading of this course: its step and its distance.
-        let read: number = -1;
-        let gap: number = 0;
-        for (let i: number = 0; i + 1 < course.length; ++i) {
-          // A step shorter than the sphere's radius relative to the shape
-          // passes through nothing its two places do not already touch: the
-          // sweep guards the course between frames against passing through a
-          // shape, and what a place itself touches is the pairs' reading, at
-          // the read waypoints and over their courses through every frame.
-          if (Vector3.distance(course[i]!, course[i + 1]!) < r) continue;
-          const lower: number = Math.min(
-            c.allowed(a, frames[i]!, probe, shape),
-            c.allowed(a, frames[i + 1]!, probe, shape),
-          );
-
-          // Conservative advancement (Mirtich 1996, ch. 3): each end of this
-          // step's chord lies within the course's travel since the last
-          // exact reading of that reading's chord ends, and a segment's
-          // distance to a convex shape changes no more than its ends move, so
-          // a step that reading still keeps past the check distance has no
-          // reader and its shape is not read.
-          if (
-            bound !== undefined &&
-            read >= 0 &&
-            1000 *
-              (gap -
-                bound.travel(bound.times[read]!, bound.times[i + 1]!) -
-                r -
-                lower) >
-              T.CHECK
-          )
-            continue;
-
-          // A step its shape's bounding sphere shows clear of its allowance
-          // by more than the active set's check distance has no reader: the
-          // merit counts only a sweep past its allowance and the convex model
-          // only one within `T.CHECK` of it (TrajOpt's d_check, Schulman et
-          // al. 2014, section IV), so its exact distance is not read.
-          if (
-            1000 *
-              (HumanArmTrajectoryHalfStep.sphere(
-                s,
-                course[i]!,
-                course[i + 1]!,
-              ) -
-                r -
-                lower) >
-            T.CHECK
-          )
-            continue;
-          const reading: IAutoMoviePhysicalShapeNearest.IResult =
-            physicalShapeNearest(s.pose, s.shape, course[i]!, course[i + 1]!);
-          read = i;
-          gap = reading.distance;
-          if (1000 * (reading.distance - r - lower) > T.CHECK) continue;
-          out.push({
-            probe,
-            shape,
-            from: frames[i]!,
-            start: course[i]!,
-            first: turns[i]!,
-            other: frames[i + 1]!,
-            to: course[i + 1]!,
-            turn: turns[i + 1]!,
-            clear: reading.distance - r,
-            lower,
-            near: reading,
-          });
-        }
-      }
-    }
-    return out;
-  }
-
-  /**
    * An arm's audit collider probes swept over one interval between read
    * waypoints: the course between the waypoints the pairs read
    * (`HumanArmTrajectoryPairs.deepest`). Each audit part is read against each
@@ -290,7 +285,7 @@ export namespace HumanArmTrajectorySweep {
     ];
     const moving: HumanArmTrajectoryHalfStep.ITravel =
       HumanArmTrajectoryHalfStep.travel(c, a, k, from, near);
-    const parts: HumanArmTrajectoryLinks.ILink[] = HumanArmTrajectoryLinks.of(
+    const parts: HumanArmTrajectoryLinks.ILink[] = HumanArmTrajectoryLinks(
       c,
       a,
       k,

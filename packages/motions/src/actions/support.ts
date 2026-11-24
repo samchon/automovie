@@ -214,8 +214,7 @@ export namespace support {
       );
     };
 
-    const paired: ReturnType<typeof supportAssist.of> =
-      supportAssist.of(context);
+    const paired: ReturnType<typeof supportAssist> = supportAssist(context);
     const { inherited, laid, recordFloors } = prepareSupportFloor(
       body,
       context.entry,
@@ -428,6 +427,6 @@ export namespace support {
         });
       },
     );
-    return supportPlan.of(context, keys, seconds, entry, course, routes);
+    return supportPlan(context, keys, seconds, entry, course, routes);
   }
 }

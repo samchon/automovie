@@ -107,7 +107,7 @@ export namespace HumanPerformanceBonds {
             HumanPerformanceRead.person(self, wearer);
           const limbs: readonly IBound[] = admit(wearer, wear, wear.link);
           const span: IAutoMovieMotionHumanPerformanceState.IGrip | undefined =
-            HumanPerformanceGrips.of(self, wear.prop).find(
+            HumanPerformanceGrips(self, wear.prop).find(
               (g: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
                 g.subject === wearer &&
                 g.bone === wear.bone &&

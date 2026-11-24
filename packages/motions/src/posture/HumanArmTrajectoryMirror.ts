@@ -60,21 +60,20 @@ export namespace HumanArmTrajectoryMirror {
    * its sites, rests and bases mirrored.
    *
    * @param problem The problem.
-   * @returns Its mirror image; each base and site is mirrored into one record
-   *   however often it is read.
+   * @returns Its mirror image, each base and site mirrored once.
    */
   export function mirrored(
     problem: HumanArmTrajectory.IProblem,
   ): HumanArmTrajectory.IProblem {
     return {
       ...problem,
-      bases: problem.bases.map(mirroredBase),
+      bases: problem.bases.map(HumanArmMirror.mirrored),
       ...(problem.material === undefined
         ? {}
         : {
             material: {
               at: (seconds: number): G.IBase =>
-                mirroredBase(problem.material!.at(seconds)),
+                HumanArmMirror.mirrored(problem.material!.at(seconds)),
               bones: problem.material.bones.map((bone: string | undefined) =>
                 bone === undefined
                   ? undefined
@@ -105,29 +104,8 @@ export namespace HumanArmTrajectoryMirror {
   }
 }
 
-/**
- * A base's mirror image (`HumanArmMirror.mirrored`), one record per base, so
- * the frames built on it are built once.
- */
-function mirroredBase(base: G.IBase): G.IBase {
-  let found: G.IBase | undefined = MIRRORED.get(base);
-  if (found === undefined)
-    MIRRORED.set(base, (found = HumanArmMirror.mirrored(base)));
-  return found;
-}
-
-/**
- * A site's mirror image across the world's x = 0 plane, one record per site, as
- * `mirroredBase`.
- */
+/** A site's mirror image across the world's x = 0 plane. */
 function mirroredSite(site: M.ISite): M.ISite {
-  let found: M.ISite | undefined = SITES.get(site);
-  if (found === undefined) SITES.set(site, (found = flipped(site)));
-  return found;
-}
-
-/** A site's mirror image, built. */
-function flipped(site: M.ISite): M.ISite {
   return {
     ...site,
     point: HumanArmMirror.flip(site.point),
@@ -166,11 +144,6 @@ function flipped(site: M.ISite): M.ISite {
   };
 }
 
-/** Each base's mirror image, kept while the base is held. */
-const MIRRORED: WeakMap<G.IBase, G.IBase> = new WeakMap();
-
-/** Each site's mirror image, kept while the site is held. */
-const SITES: WeakMap<M.ISite, M.ISite> = new WeakMap();
 
 /** A side's name and its mirror's. */
 const SWAP: Readonly<Record<string, string>> = {

@@ -38,23 +38,25 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { throwsError } from "../../internal/throwsError";
 
 /**
- * A centered foam ball moves from its staged launch to the catcher and is
- * then carried on the catcher's right hand without a position jump. The
- * catch owns only its tagged flight, so there is no later floor impact.
+ * A centered foam ball moves from its staged launch to the catcher and is then
+ * carried on the catcher's right hand without a position jump. The catch owns
+ * only its tagged flight, so there is no later floor impact.
  *
  * Scenarios:
+ *
  * 1. The complete catch takes custody and carries the foam ball.
  * 2. A catch cut at preparation stops before custody.
  * 3. A relaunch placed after the catch replaces its tagged flight before closure.
- * 4. A branch saved during flight preserves the capture and replaces a later stand.
+ * 4. A branch saved during flight preserves the capture and replaces a later
+ *    stand.
  * 5. A suffix cannot use an anchor offset or an opaque callback.
  *
- * The catch plane is the catch contract's documented 0.6 arm lengths
- * ahead of the performer's entry pelvis. The emitter sends the ball to that plane in
- * 0.6 s and authors vertical speed so it returns to its release height
- * there. Trajectory and boundary parity use the campaign's 1 쨉m position
- * bound. The palm meets the ball's radius within the campaign's 2 mm
- * held-prop alignment bound.
+ * The catch plane is the catch contract's documented 0.6 arm lengths ahead of
+ * the performer's entry pelvis. The emitter sends the ball to that plane in 0.6
+ * s and authors vertical speed so it returns to its release height there.
+ * Trajectory and boundary parity use the campaign's 1 쨉m position bound. The
+ * palm meets the ball's radius within the campaign's 2 mm held-prop alignment
+ * bound.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes the opt-in capture, ballistic interception, spatial handoff, and geometric tolerances.
  * @evidence contracts/development/testing.md#behavioral-verification Registers the staged catch and release through public performance inputs, then reads the flight, contacts, ball frames and palm. A floating grip, lost capture, position jump or subsequent ghost impact fails.
@@ -121,7 +123,10 @@ export function test_motion_throw_catch_stage_catch(): void {
         };
       },
     };
-  /** Compose the release and catch, optionally placing a second launch afterward. */
+  /**
+   * Compose the release and catch, optionally placing a second launch
+   * afterward.
+   */
   const input = (
     cut: boolean,
     redirect: boolean = false,
@@ -196,7 +201,7 @@ export function test_motion_throw_catch_stage_catch(): void {
   const captured: number = flight.capturedAt ?? Infinity;
   // Flight verdicts use the whole film. Body findings are outside this spec.
   const framesPerSecond: number = 24;
-  const unended: string[] | undefined = HumanVerdicts.of(
+  const unended: string[] | undefined = HumanVerdicts(
     performance,
     framesPerSecond,
     {

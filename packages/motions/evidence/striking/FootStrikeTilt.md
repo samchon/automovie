@@ -1,4 +1,4 @@
-# src/striking/FootStrikeTilt.ts#FootStrikeTilt.of
+# src/striking/FootStrikeTilt.ts#FootStrikeTilt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

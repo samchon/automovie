@@ -282,7 +282,7 @@ export namespace staggerRecover {
         if (known.done && k === order.length - 1) caught = true;
       }
       if (!caught) continue;
-      const recovery: IRecovery | null = staggerClose.of(
+      const recovery: IRecovery | null = staggerClose(
         pendulum,
         order[order.length - 1]!,
         righting,

@@ -136,7 +136,7 @@ export namespace climbLadder {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const count: number = context.params.rungs ?? 3;
     HumanBound.whole("rungs", count);
-    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder.of(
+    const ladder: IAutoMovieMotionHumanLadder.ILadder = HumanLadder(
       context,
       context.params.ladder,
     );
@@ -147,8 +147,10 @@ export namespace climbLadder {
       };
     const frame: IAutoMovieMotionHumanFrame = ladder.frame;
     const yaw: number = frame.yaw;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
     // The feet leave the floor from the entry; the rungs take the settled
     // stance's foot headings (`stand.footprints`).
     const stood: stand.IFootprints = stand.footprints(context);

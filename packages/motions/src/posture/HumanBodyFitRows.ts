@@ -21,14 +21,159 @@ type Of = "at" | "motions";
 /** The record of `IReading2`'s site. */
 type IReading2 = {
   /**
-   * Exact source clinical posture used for this reading's resolution/FK;
-   * kept unchanged while current Jacobian and final result consume it.
+   * Exact source clinical posture used for this reading's resolution/FK; kept
+   * unchanged while current Jacobian and final result consume it.
    */
   written: IAutoMovieMotionHumanPosture;
 
   /** Requested base-of-support reading on these same bones. */
   balance?: HumanFitBalance.IReading;
 };
+
+/**
+ * A slope in millimetres per solved unit from a reading's rate per a variable's
+ * own unit.
+ */
+function scaled(
+  step: HumanBodyFitRows.IStep,
+  rate: (m: IAutoMovieMotionHumanJacobian.IMotion) => number,
+): number[] {
+  return step.motions.map(
+    (m: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
+      rate(m) * step.units[i]! * HumanBodyFitRows.MM,
+  );
+}
+
+/**
+ * A support candidate's height's slope: its point's, riding its collider's
+ * bone.
+ */
+function low(step: HumanBodyFitRows.IStep, c: number): number[] {
+  return scaled(step, (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
+    HumanJacobian.velocityY(
+      m,
+      step.at.owners[step.at.of[c]!]!,
+      step.at.spots[c]!,
+    ),
+  );
+}
+
+/**
+ * A step's rows, but the floor's under the colliders.
+ *
+ * @param step The step.
+ * @returns The rows of the contacts, the targets and the balance.
+ */
+export function HumanBodyFitRows(
+  step: HumanBodyFitRows.IStep,
+): HumanBodyFitRows.IRead[] {
+  const { at, motions }: Pick<HumanBodyFitRows.IStep, Of> = step;
+  const all: readonly number[] = step.index;
+  const rows: HumanBodyFitRows.IRead[] = [];
+  const equal: (
+    key: string,
+    f: (r: HumanBodyFitRows.IReading) => number,
+    goal: number,
+    coef: number[],
+    weight: number,
+    upper?: number,
+  ) => void = (
+    key: string,
+    f: (r: HumanBodyFitRows.IReading) => number,
+    goal: number,
+    coef: number[],
+    weight: number,
+    upper: number = goal,
+  ): void => {
+    const value: number = f(at);
+    const miss: number = (goal - value) * HumanBodyFitRows.MM;
+
+    // A goal of one value may be missed by the band unpriced, so a step
+    // that meets it to the solver's accuracy holds; a physical interval
+    // already has its width and is held to its own ends, as a target's
+    // physical bound is (`HumanBodyFitMerit`).
+    const band: number = upper > goal ? 0 : HumanBodyFitRows.BAND;
+    rows.push({
+      row: {
+        key,
+        index: all,
+        coef,
+        l: miss - band * HumanBodyFitRows.MM,
+        u: (upper - value + band) * HumanBodyFitRows.MM,
+        weight,
+      },
+      f,
+    });
+  };
+
+  // A part bears on the support candidates the solve holds (`touching`),
+  // each a smooth row of its own, so a planted sole bears where it touches
+  // and no row follows a least that turns from one point to another.
+  for (const c of step.touching)
+    equal(
+      `touch:${c}`,
+      (r: HumanBodyFitRows.IReading): number => r.heights[c]!,
+      0,
+      low(step, c),
+      step.price,
+    );
+  rows.push(...HumanFitTargets.rows(step, equal, HumanBodyFitRows.MM));
+
+  // Centre goals request these at their original post-angle phase; balance
+  // then consumes the same completed columns for this unchanged model.
+  let massColumns: readonly IAutoMovieVector3[] | undefined;
+  const readColumns: (() => readonly IAutoMovieVector3[]) | undefined =
+    step.centre === undefined || at.balance === undefined
+      ? undefined
+      : (): readonly IAutoMovieVector3[] => {
+          if (massColumns === undefined)
+            massColumns = HumanFitBalance.velocities(
+              step.body,
+              at.bones,
+              motions,
+            );
+          return massColumns;
+        };
+  HumanFitGoals.rows(step, equal, HumanBodyFitRows.MM, readColumns);
+
+  // The centre of mass inside each half-plane of the base of support, the
+  // half-planes read where the step starts and moved with their corners'
+  // bones (`HumanFitBalance.slopes`); a trial is measured on the same
+  // half-planes through its own corners (`HumanFitBalance.at`), the
+  // function the row linearises.
+  if (at.balance !== undefined) {
+    const balance: HumanFitBalance.IReading = at.balance;
+    HumanFitBalance.slopes(
+      step.body,
+      at.bones,
+      motions,
+      at.balance,
+      readColumns?.(),
+    ).forEach((slope: number[], e: number): void => {
+      const inside: (r: HumanBodyFitRows.IReading) => number = (
+        r: HumanBodyFitRows.IReading,
+      ): number =>
+        r === at
+          ? balance.inside[e]!
+          : HumanFitBalance.at(balance, e, r.bones, r.balance!.com);
+      rows.push({
+        row: {
+          key: `balance:${e}`,
+          index: all,
+          coef: slope.map(
+            (v: number, i: number): number =>
+              v * step.units[i]! * HumanBodyFitRows.MM,
+          ),
+          l: (-inside(at) - HumanBodyFitRows.BAND) * HumanBodyFitRows.MM,
+          u: Infinity,
+          weight: step.price,
+        },
+        f: inside,
+      });
+    });
+  }
+  return rows;
+}
 
 /**
  * The rows of one step of a whole-body fit (`HumanBodyFit`), each with the
@@ -113,118 +258,6 @@ export namespace HumanBodyFitRows {
   export const MARGIN: number = HumanFoot.BEARING;
 
   /**
-   * A step's rows, but the floor's under the colliders.
-   *
-   * @param step The step.
-   * @returns The rows of the contacts, the targets and the balance.
-   */
-  export function of(step: IStep): IRead[] {
-    const { at, motions }: Pick<IStep, Of> = step;
-    const all: readonly number[] = step.index;
-    const rows: IRead[] = [];
-    const equal: (
-      key: string,
-      f: (r: IReading) => number,
-      goal: number,
-      coef: number[],
-      weight: number,
-      upper?: number,
-    ) => void = (
-      key: string,
-      f: (r: IReading) => number,
-      goal: number,
-      coef: number[],
-      weight: number,
-      upper: number = goal,
-    ): void => {
-      const value: number = f(at);
-      const miss: number = (goal - value) * MM;
-
-      // A goal of one value may be missed by the band unpriced, so a step
-      // that meets it to the solver's accuracy holds; a physical interval
-      // already has its width and is held to its own ends, as a target's
-      // physical bound is (`HumanBodyFitMerit`).
-      const band: number = upper > goal ? 0 : BAND;
-      rows.push({
-        row: {
-          key,
-          index: all,
-          coef,
-          l: miss - band * MM,
-          u: (upper - value + band) * MM,
-          weight,
-        },
-        f,
-      });
-    };
-
-    // A part bears on the support candidates the solve holds (`touching`),
-    // each a smooth row of its own, so a planted sole bears where it touches
-    // and no row follows a least that turns from one point to another.
-    for (const c of step.touching)
-      equal(
-        `touch:${c}`,
-        (r: IReading): number => r.heights[c]!,
-        0,
-        low(step, c),
-        step.price,
-      );
-    rows.push(...HumanFitTargets.rows(step, equal, MM));
-
-    // Centre goals request these at their original post-angle phase; balance
-    // then consumes the same completed columns for this unchanged model.
-    let massColumns: readonly IAutoMovieVector3[] | undefined;
-    const readColumns: (() => readonly IAutoMovieVector3[]) | undefined =
-      step.centre === undefined || at.balance === undefined
-        ? undefined
-        : (): readonly IAutoMovieVector3[] => {
-            if (massColumns === undefined)
-              massColumns = HumanFitBalance.velocities(
-                step.body,
-                at.bones,
-                motions,
-              );
-            return massColumns;
-          };
-    HumanFitGoals.rows(step, equal, MM, readColumns);
-
-    // The centre of mass inside each half-plane of the base of support, the
-    // half-planes read where the step starts and moved with their corners'
-    // bones (`HumanFitBalance.slopes`); a trial is measured on the same
-    // half-planes through its own corners (`HumanFitBalance.at`), the
-    // function the row linearises.
-    if (at.balance !== undefined) {
-      const balance: HumanFitBalance.IReading = at.balance;
-      HumanFitBalance.slopes(
-        step.body,
-        at.bones,
-        motions,
-        at.balance,
-        readColumns?.(),
-      ).forEach((slope: number[], e: number): void => {
-        const inside: (r: IReading) => number = (r: IReading): number =>
-          r === at
-            ? balance.inside[e]!
-            : HumanFitBalance.at(balance, e, r.bones, r.balance!.com);
-        rows.push({
-          row: {
-            key: `balance:${e}`,
-            index: all,
-            coef: slope.map(
-              (v: number, i: number): number => v * step.units[i]! * MM,
-            ),
-            l: (-inside(at) - BAND) * MM,
-            u: Infinity,
-            weight: step.price,
-          },
-          f: inside,
-        });
-      });
-    }
-    return rows;
-  }
-
-  /**
    * The floor's rows under the support candidates given one: none under the
    * floor.
    *
@@ -307,32 +340,4 @@ export namespace HumanBodyFitRows {
    */
   export const residual: typeof HumanFitTargets.residual =
     HumanFitTargets.residual;
-
-  /**
-   * A slope in millimetres per solved unit from a reading's rate per a
-   * variable's own unit.
-   */
-  function scaled(
-    step: IStep,
-    rate: (m: IAutoMovieMotionHumanJacobian.IMotion) => number,
-  ): number[] {
-    return step.motions.map(
-      (m: IAutoMovieMotionHumanJacobian.IMotion, i: number): number =>
-        rate(m) * step.units[i]! * MM,
-    );
-  }
-
-  /**
-   * A support candidate's height's slope: its point's, riding its collider's
-   * bone.
-   */
-  function low(step: IStep, c: number): number[] {
-    return scaled(step, (m: IAutoMovieMotionHumanJacobian.IMotion): number =>
-      HumanJacobian.velocityY(
-        m,
-        step.at.owners[step.at.of[c]!]!,
-        step.at.spots[c]!,
-      ),
-    );
-  }
 }

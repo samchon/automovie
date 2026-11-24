@@ -26,7 +26,10 @@ export namespace AutoMovieMotionHumanJoints {
     angles: IAutoMovieMotionHumanJoints.Angles,
   ): AutoMovieMotionHumanChannel[] {
     const found: Set<AutoMovieMotionHumanChannel> = new Set(
-      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(HumanChannels.of),
+      (Object.keys(angles) as AutoMovieHumanoidBone[]).map(
+        (bone: AutoMovieHumanoidBone): AutoMovieMotionHumanChannel =>
+          HumanChannels(bone),
+      ),
     );
     return HumanChannels.ORDER.filter(
       (c: AutoMovieMotionHumanChannel): boolean => found.has(c),

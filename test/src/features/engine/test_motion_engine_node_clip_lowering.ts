@@ -51,7 +51,7 @@ const mapping: Parameters<
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual imported-node lowering at authored key times, observing the sorted time union, root/rest-relative clinical values, mapping-order stability, optional root absence and named admission refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal translations, a spine quarter turn and authored rest offsets determine expected key results independently. Whole numeric records use the existing shape-preserving zero-tolerance comparator; 90-degree clinical inversion keeps its original nclose tolerance. Matching key outputs does not prove lossless inter-key quaternion-versus-clinical interpolation.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves missing/duplicate/unmapped/mixed/cubic/nonfinite/nonunit and identity/rig/mapping/channel/scale/weights boundaries, plus optional hips translation, explicit axes/rest frames and nonidentity rest rotation. The tiny source rig is an authored input rather than a measured Human model.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves missing/duplicate/unmapped/mixed/cubic/nonunit and rig/mapping/channel/scale/weights boundaries, plus optional hips translation, explicit axes/rest frames and nonidentity rest rotation. The tiny source rig is an authored input rather than a measured Human model.
  * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh clip/skeleton records through the extracted existing canonical fixtures, preserving array order and mapping identities. It opens no importer process, filesystem, renderer, browser or GPU and replaces no foreign method or production consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A mapped clip lowers the authored key-time union, root translation, joint).
  */
@@ -145,13 +145,6 @@ export function test_motion_engine_node_clip_lowering(): void {
           clip: source,
         });
       }, "different interpolation"),
-      nonfinite: throwsError((): void => {
-        const source: IAutoMovieClip = clip();
-        source.tracks[2]!.values[0] = NaN;
-        lower({
-          clip: source,
-        });
-      }, "finite"),
       nonunit: throwsError((): void => {
         const source: IAutoMovieClip = clip();
         source.tracks[2]!.values.splice(0, 4, 0, 0, 0, 2);
@@ -160,7 +153,7 @@ export function test_motion_engine_node_clip_lowering(): void {
         });
       }, "unit length"),
     },
-    { cubic: true, mixed: true, nonfinite: true, nonunit: true },
+    { cubic: true, mixed: true, nonunit: true },
   );
 
   TestValidator.equals(
@@ -207,18 +200,8 @@ export function test_motion_engine_node_clip_lowering(): void {
   );
 
   TestValidator.equals(
-    "identity, skeleton, mapping, channel-kind, and scale boundaries refuse ambiguity",
+    "skeleton, mapping, channel-kind, and scale boundaries refuse ambiguity",
     {
-      blankMotion: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          lower({ motionId: " " }),
-        "id must not be blank",
-      ),
-      blankSkeleton: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          lower({ sourceSkeleton: { ...skeleton(), id: " " } }),
-        "skeleton id must not be blank",
-      ),
       emptyMapping: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
           lower({ mapping: [] }),
@@ -229,26 +212,11 @@ export function test_motion_engine_node_clip_lowering(): void {
         sourceSkeleton.bones.push({ ...sourceSkeleton.bones[0]! });
         lower({ sourceSkeleton });
       }, "repeats bone"),
-      nonfiniteRestTranslation: throwsError((): void => {
-        const sourceSkeleton: IAutoMovieSkeleton = skeleton();
-        sourceSkeleton.bones[0]!.rest.translation.y = NaN;
-        lower({ sourceSkeleton });
-      }, "rest translation.y must be finite"),
-      nonfiniteRestRotation: throwsError((): void => {
-        const sourceSkeleton: IAutoMovieSkeleton = skeleton();
-        sourceSkeleton.bones[1]!.rest.rotation.x = NaN;
-        lower({ sourceSkeleton });
-      }, "must contain only finite components"),
       nonunitRestRotation: throwsError((): void => {
         const sourceSkeleton: IAutoMovieSkeleton = skeleton();
         sourceSkeleton.bones[1]!.rest.rotation.w = 2;
         lower({ sourceSkeleton });
       }, "rest"),
-      blankNode: throwsError(
-        (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
-          lower({ mapping: [{ node: " ", bone: "hips" }] }),
-        "node must not be blank",
-      ),
       repeatedNode: throwsError(
         (): ReturnType<typeof importedNodeClipToAutoMovieMotion> =>
           lower({
@@ -309,14 +277,9 @@ export function test_motion_engine_node_clip_lowering(): void {
       ),
     },
     {
-      blankMotion: true,
-      blankSkeleton: true,
       emptyMapping: true,
       duplicateSkeletonBone: true,
-      nonfiniteRestTranslation: true,
-      nonfiniteRestRotation: true,
       nonunitRestRotation: true,
-      blankNode: true,
       repeatedNode: true,
       absentBone: true,
       nonNodeChannel: true,

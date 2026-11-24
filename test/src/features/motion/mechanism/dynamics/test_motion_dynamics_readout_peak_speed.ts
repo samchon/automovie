@@ -6,9 +6,11 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { nclose } from "../../../internal/nclose";
 
 /**
- * Peak hand speed is measured in metres per second over the centred readout interval.
+ * Peak hand speed is measured in metres per second over the centred readout
+ * interval.
  *
  * Scenarios:
+ *
  * 1. Read the public measure on the declared input and its control.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Peak hand speed is measured in metres per second over the centred readout interval.
@@ -20,7 +22,7 @@ import { nclose } from "../../../internal/nclose";
 export function test_motion_dynamics_readout_peak_speed(): void {
   const peak = (position: (t: number) => number): number =>
     HumanSignature.speed(
-      HumanSignature.of(
+      HumanSignature(
         motionAuditPoints(2, (t: number) => ({
           rightHand: { x: position(t), y: 1, z: 0 },
         })),

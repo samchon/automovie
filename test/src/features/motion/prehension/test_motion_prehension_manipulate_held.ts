@@ -49,7 +49,10 @@ const CONTACT: number = 0.002;
 /** The rigid grip translation bound in the specification (#3447), metres. */
 const SLIP: number = 0.001;
 
-/** Authored press times 0.30 s apart, the measured inward mean (Trudeau et al. 2012). */
+/**
+ * Authored press times 0.30 s apart, the measured inward mean (Trudeau et al.
+ * 2012).
+ */
 const TIMES: readonly [number, number] = [0.4, 0.7];
 
 /** The four fingers holding the pad. */
@@ -63,20 +66,21 @@ const HOLDERS: readonly AutoMovieHumanoidBone[] = [
 /**
  * Thumb taps on a pad the same hand holds as the carrier moves.
  *
- * The pad is already in the hand at the start of the shot. Two reachable
- * sites come from direct forward kinematics of distinct, authored flexion
- * poses within the thumb's range. Each site's surface faces the thumb at its
- * authored contact pose. The independent oracle transforms the fixed sites by
- * the displayed prop frame at each authored press time.
+ * The pad is already in the hand at the start of the shot. Two reachable sites
+ * come from direct forward kinematics of distinct, authored flexion poses
+ * within the thumb's range. Each site's surface faces the thumb at its authored
+ * contact pose. The independent oracle transforms the fixed sites by the
+ * displayed prop frame at each authored press time.
  *
  * Scenarios:
  *
  * 1. The overlay takes the right thumb alone, at both authored instants.
  * 2. The thumb reaches each site within 2 mm after the moving carrier has
  *    displaced it. Four fingers retain their authored grip throughout.
- * 3. The prop's local translation and rotation in the hand stay constant
- *    through the approach, presses and release.
- * 4. The overlay refuses the same named pad without a hold, and refuses a key that has its own mechanical articulation.
+ * 3. The prop's local translation and rotation in the hand stay constant through
+ *    the approach, presses and release.
+ * 4. The overlay refuses the same named pad without a hold, and refuses a key that
+ *    has its own mechanical articulation.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the held pad fixture, the forward-kinematics oracle and the four scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Performs the public thumbText row over a moving carrier and observes displayed joints, thumb tip and prop frame at planned times.
@@ -99,7 +103,10 @@ export function test_motion_prehension_manipulate_held(): void {
     joints: fingerAngles,
   });
 
-  /** Use the carrier's clinical joint defaults before measuring the two explicitly flexed thumb poses by forward kinematics. */
+  /**
+   * Use the carrier's clinical joint defaults before measuring the two
+   * explicitly flexed thumb poses by forward kinematics.
+   */
   const forward = (flexion: number): IAutoMovieResolvedBone[] =>
     resolvePose(
       resolveHumanPosture(body, {

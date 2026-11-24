@@ -32,9 +32,9 @@ import PEOPLE from "../../internal/MOTION_HUMAN_PEOPLE.json";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A seated performer rests either ankle across the other knee and sets it
- * back down. The tested geometry follows the ankle-on-knee posture in Jeong
- * et al. (2008), independently of the law's target height and travel curve.
+ * A seated performer rests either ankle across the other knee and sets it back
+ * down. The tested geometry follows the ankle-on-knee posture in Jeong et al.
+ * (2008), independently of the law's target height and travel curve.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the posture, support retention, and geometry checked in both directions.
  * @evidence contracts/development/testing.md#behavioral-verification Plays the opt-in action after real chair sitting and compares the displayed seat, supporting ankle and raised ankle at contact, hold, release and return.

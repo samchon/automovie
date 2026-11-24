@@ -72,7 +72,7 @@ export function test_motion_stance_rest_arm_clearance(): void {
             ),
         );
 
-      const kept: IAutoMovieMotionHumanPosture = HumanArmSwing.of(body, quiet, [
+      const kept: IAutoMovieMotionHumanPosture = HumanArmSwing(body, quiet, [
         "right",
       ]);
       checks.check(
@@ -88,11 +88,9 @@ export function test_motion_stance_rest_arm_clearance(): void {
         joints: { ...quiet.joints, rightUpperLeg: [0, SPREAD, 0] },
       };
       const sunk: number = thigh(spread);
-      const swung: IAutoMovieMotionHumanPosture = HumanArmSwing.of(
-        body,
-        spread,
-        ["right"],
-      );
+      const swung: IAutoMovieMotionHumanPosture = HumanArmSwing(body, spread, [
+        "right",
+      ]);
       const cleared: number = thigh(swung);
       checks.check(
         `${profile}: over a spread thigh the relaxed digits sink (${sunk.toFixed(4)} m) and the swung arm takes them out (${cleared.toFixed(4)} m)`,

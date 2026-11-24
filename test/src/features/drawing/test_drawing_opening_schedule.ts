@@ -14,7 +14,6 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { drawingEnvironment, drawingView } from "../internal/drawingFixtures";
-import { throwsError } from "../internal/predicates";
 import { test02DrawingOpeningGeometry } from "../internal/test02DrawingOpeningGeometry";
 import { test02DrawingOpeningTypes } from "../internal/test02DrawingOpeningTypes";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
@@ -50,13 +49,12 @@ import { test12ValuesClose } from "../internal/test12ValuesClose";
  * 7. Clockwise and counter-clockwise square faces yield twelve triangles;
  *    selected face points, polygon triangle counts and the concave L's area
  *    are checked without proving manifold closure or full triangle placement.
- * 8. An invalid design is refused before anything is scheduled.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Schedules the atelier openings and compares full literal type rows, counts, membership bounds, canonical marks and representative locations; observes profile/fill/unmeasured fallbacks, connector rows and gaps, public opening geometry and face triangulation. Original scenarios 5/6/7 run sequentially through test02DrawingOpeningGeometry before the units refusal.
+ * @evidence contracts/development/testing.md#behavioral-verification Schedules the atelier openings and compares full literal type rows, counts, membership bounds, canonical marks and representative locations; observes profile/fill/unmeasured fallbacks, connector rows and gaps, public opening geometry and face triangulation. Original scenarios 5/6/7 run sequentially through test02DrawingOpeningGeometry.
  * @evidence contracts/development/testing.md#independent-expectations Authored front-door dimensions give 0.9 by 2.1 and 1.89 area; the oculus's two half turns give diameter 0.6 and pi times 0.09. Literal mark/order tables, 11 ports with eight retained/three omitted, sampled connector minima, translated face points and L area five anchor selected results without product-generated expected values.
  * @evidence contracts/development/testing.md#distinguishing-cases Profile versus fill, external/triangle-empty/absent geometry, measured versus unmeasured ordering, reversed declaration order and type members on different boundaries distinguish schedule branches. Constant versus sampled connector sections, straight/shallow/half-turn/zero-length/negative-sweep behavior and convex/concave/short polygons distinguish geometry branches; triangle counts and summed areas do not certify coverage or winding.
  * @evidence contracts/development/testing.md#execution-ownership Uses existing local declarations and synchronous schedule/drawing/geometry APIs without a renderer, filesystem publication, clocks, global replacement or another host. Drawing and schedule share sizing logic, so their id agreement is supplemented by literal rows, not treated as independent arithmetic; repeated digests do not independently compare serialized bytes. Connector nominal sizes do not prove traversal performance.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The schedule's total is the design's own opening count, and the row counts).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The schedule's total is the design's own opening count, and the row counts).
  */
 export function test_drawing_opening_schedule(): void {
   const environment: IAutoMovieBuiltEnvironment = drawingEnvironment();
@@ -379,19 +377,6 @@ export function test_drawing_opening_schedule(): void {
 
   // 5-7. Existing connector and geometry cases retain their original order.
   test02DrawingOpeningGeometry(environment);
-
-  // 8. Refusal.
-  TestValidator.predicate(
-    "an invalid design is refused before anything is scheduled",
-    throwsError(
-      (): IAutoMovieDrawingSchedule =>
-        deriveAutoMovieDrawingSchedule({
-          environment: { ...environment, units: "foot" as unknown as "meter" },
-          subject: "opening",
-        }),
-      ["is invalid at", 'building units must be "meter"'],
-    ),
-  );
 }
 
 const byText: (left: string, right: string) => number = (

@@ -1,4 +1,4 @@
-# src/handling/HumanSheath.ts#HumanSheath.of
+# src/handling/HumanSheath.ts#HumanSheath
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

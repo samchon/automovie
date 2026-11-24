@@ -44,9 +44,7 @@ interface IKey {
   binds: IBind[];
 }
 
-/**
- * Admit the figures, lay each key once, then sample.
- */
+/** Admit the figures, lay each key once, then sample. */
 function planHumanTrick(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
@@ -97,7 +95,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     },
   );
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     on,
     frame,

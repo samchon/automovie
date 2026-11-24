@@ -18,6 +18,7 @@ import { vclose } from "../../../internal/vclose";
  * A shift in a turned body frame moves along its world forward axis.
  *
  * Scenarios:
+ *
  * 1. Observe the midpoint, end and hold of a half-metre forward shift.
  *
  * @evidence contracts/development/testing.md#behavioral-verification A shift in a turned body frame moves along its world forward axis.
@@ -30,7 +31,7 @@ export function test_motion_dynamics_primitive_root_shift(): void {
   const body: IAutoMovieMotionHumanBody = motionHumanBody("m-average");
   const base: IAutoMovieMotionHumanPosture =
     AutoMovieMotionHumanStance.stand.posture(body, { x: 2, y: 0, z: 3 }, 90);
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(2, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(2, [
     { name: "peak", seconds: 1 },
   ]);
   const primitive: IAutoMovieMotionHumanPrimitive =

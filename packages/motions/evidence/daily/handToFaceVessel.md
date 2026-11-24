@@ -16,7 +16,7 @@ Two members: the law's effector and the arm's drink.
 
 The drink is the one the side was admitted with, never solved again.
 
-# src/daily/handToFaceVessel.ts#handToFaceVessel.of
+# src/daily/handToFaceVessel.ts#handToFaceVessel
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

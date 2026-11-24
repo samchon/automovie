@@ -84,7 +84,7 @@ export function courtStroke(
   const size: number = body.measure.stature;
   const arm: number = body.measure.upperArm + body.measure.forearm;
   const scale: number = Math.sqrt(size / REFERENCE_STATURE);
-  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const manner: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     context.params.manner,
   );
@@ -94,7 +94,7 @@ export function courtStroke(
   const end: number = impact + recovery;
   const halfFlight: number = (profile.air * scale) / 2;
   const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-    AutoMovieMotionClock.of(end, [
+    AutoMovieMotionClock(end, [
       { name: "stepStart", seconds: ready * 0.18 },
       { name: "plant", seconds: ready * 0.86 },
       { name: "ready", seconds: ready },
@@ -401,13 +401,10 @@ export function courtStroke(
       );
       const contactStart: number = strike - half;
       const contactEnd: number = strike + half;
-      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-        duration,
-        [
-          { name: "contactStart", seconds: contactStart },
-          { name: "contactEnd", seconds: contactEnd },
-        ],
-      );
+      const gripClock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
+        { name: "contactStart", seconds: contactStart },
+        { name: "contactEnd", seconds: contactEnd },
+      ]);
       primitives.push(
         AutoMovieMotionHumanArm.carried({
           body,

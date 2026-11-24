@@ -37,7 +37,10 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanStance } from "../../internal/motionHumanStance";
 import { nclose } from "../../internal/nclose";
 
-/** A deck's heading: a quarter turn about +Y, so a reading that left the support's rotation out would not hold the foot. */
+/**
+ * A deck's heading: a quarter turn about +Y, so a reading that left the
+ * support's rotation out would not hold the foot.
+ */
 const QUARTER: IAutoMovieQuaternion = {
   x: 0,
   y: Math.SQRT1_2,
@@ -51,7 +54,10 @@ const deck = (seconds: number): IAutoMovieRigidTransform => ({
   rotation: QUARTER,
 });
 
-/** One second-long action that declares both feet planted on a support, or nothing. */
+/**
+ * One second-long action that declares both feet planted on a support, or
+ * nothing.
+ */
 const spans = (
   support: IAutoMovieMotionHumanContactWindow.Support | null,
 ): IAutoMovieMotionHumanAuditMotion.ISpan[] => [
@@ -81,20 +87,36 @@ const spans = (
 ];
 
 /**
- * The audits read a planted foot in the frame of the support it is planted
- * on, read the floor only where one bears the person, and count a plant on a
- * prop as bearing load.
+ * The audits read a planted foot in the frame of the support it is planted on,
+ * read the floor only where one bears the person, and count a plant on a prop
+ * as bearing load.
  *
  * Scenarios:
- * 1. Feet planted on a deck travelling 1 m/s: no slip and no loose foot, while the same motion read without the deck's frame slips by the deck's travel.
- * 2. Feet that travel 10 % faster than the deck: the 0.1 m slip on the deck and its 0.1 m/s loose speed are caught.
- * 3. A swimmer 1 m under the surface: no floor finding while the water carries them, and about 1 m read against the world plane otherwise.
- * 4. A swimmer's feet sweeping at the surface at 1 m/s: no skate in the water, a skate on a floor.
- * 5. Feet planted on a bank 0.3 m high read as on level ground, and 0.1 m sunk into it reads as 0.1 m sunk into the floor; on a slope the lower foot's ground is the floor; a rider seated on a wading horse 0.6 m below the plane has no floor under them, while the same body with nothing bearing it is 0.6 m under the floor.
- * 6. A foot riding an escalator tread at 0.5 m/s past its plant window, level with the other foot's planted landing: no skate on the tread, a 0.5 m/s skate read in the world.
- * 7. An ankle dorsiflexed 10 degrees past the unloaded limit: no overshoot while a plant on a prop holds the foot, 10 degrees with no plant.
- * 8. A crawl of the shipped aquatic law, read by the shipped verdicts under the surface: the swimmer is below the world plane and draws no floor or skate finding.
- * 9. A float of the shipped immersed law in water twice its density, its water named as the water itself: partly under the world plane, no floor or skate finding.
+ *
+ * 1. Feet planted on a deck travelling 1 m/s: no slip and no loose foot, while the
+ *    same motion read without the deck's frame slips by the deck's travel.
+ * 2. Feet that travel 10 % faster than the deck: the 0.1 m slip on the deck and
+ *    its 0.1 m/s loose speed are caught.
+ * 3. A swimmer 1 m under the surface: no floor finding while the water carries
+ *    them, and about 1 m read against the world plane otherwise.
+ * 4. A swimmer's feet sweeping at the surface at 1 m/s: no skate in the water, a
+ *    skate on a floor.
+ * 5. Feet planted on a bank 0.3 m high read as on level ground, and 0.1 m sunk
+ *    into it reads as 0.1 m sunk into the floor; on a slope the lower foot's
+ *    ground is the floor; a rider seated on a wading horse 0.6 m below the
+ *    plane has no floor under them, while the same body with nothing bearing it
+ *    is 0.6 m under the floor.
+ * 6. A foot riding an escalator tread at 0.5 m/s past its plant window, level with
+ *    the other foot's planted landing: no skate on the tread, a 0.5 m/s skate
+ *    read in the world.
+ * 7. An ankle dorsiflexed 10 degrees past the unloaded limit: no overshoot while a
+ *    plant on a prop holds the foot, 10 degrees with no plant.
+ * 8. A crawl of the shipped aquatic law, read by the shipped verdicts under the
+ *    surface: the swimmer is below the world plane and draws no floor or skate
+ *    finding.
+ * 9. A float of the shipped immersed law in water twice its density, its water
+ *    named as the water itself: partly under the world plane, no floor or skate
+ *    finding.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Slip, loose, floor, skate and unloaded readings on supports and in water.
  * @evidence contracts/development/testing.md#independent-expectations The deck's travel, the feet's extra 0.1 m, the 1 m depth, the 1 m/s sweep and the 10 degree overshoot are written into the motion in closed form.
@@ -445,7 +467,7 @@ export function test_motion_support_audit_moving_support(): void {
   );
   TestValidator.predicate(
     "no floor finding for the aquatic swimmer in the water",
-    HumanVerdicts.of(swim, 24, span).findings.every(
+    HumanVerdicts(swim, 24, span).findings.every(
       (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         f.check !== "floor" && f.check !== "skate",
     ),
@@ -489,7 +511,7 @@ export function test_motion_support_audit_moving_support(): void {
   );
   TestValidator.predicate(
     "no floor finding for the immersed swimmer in the water",
-    HumanVerdicts.of(floating).findings.every(
+    HumanVerdicts(floating).findings.every(
       (f: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
         f.check !== "floor" && f.check !== "skate",
     ),

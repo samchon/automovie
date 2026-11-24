@@ -16,7 +16,7 @@ What the throw's plan and the spin read.
 
 Plain vectors, a rate and the hand's turn.
 
-# src/throwing/throwObjectLever.ts#throwObjectLever.of
+# src/throwing/throwObjectLever.ts#throwObjectLever
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

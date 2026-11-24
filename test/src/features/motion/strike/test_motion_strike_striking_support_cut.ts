@@ -54,10 +54,9 @@ export function test_motion_strike_striking_support_cut(): void {
 }
 
 /**
- * Cut from an ongoing foot transfer into another authored step. The old
- * bearing sole stays put through the first landing, then releases. The
- * incoming step claims the exact cut second and settles both feet on the floor.
- *
+ * Cut from an ongoing foot transfer into another authored step. The old bearing
+ * sole stays put through the first landing, then releases. The incoming step
+ * claims the exact cut second and settles both feet on the floor.
  */
 function verifyStepCuts(): void {
   const failures: string[] = [];
@@ -182,9 +181,8 @@ function verifyStepCuts(): void {
 
 /**
  * Each recipient of a step cut receives the displayed bearing foot and an
- * airborne foot. Check the actual sole and the live contact at the cut and
- * its return to the floor, with one true backing performer for the defence.
- *
+ * airborne foot. Check the actual sole and the live contact at the cut and its
+ * return to the floor, with one true backing performer for the defence.
  */
 function verifyRecipientCuts(): void {
   const failures: string[] = [];

@@ -251,14 +251,19 @@ export function staggerAdmission(
 
     // The pelvis on the centre of mass's course less the trunk's shift of
     // it (`staggerLean`), lowered as the legs ask.
+    const root: IAutoMovieVector3 = lean(t).root;
     const ground: walkReach.IGround = walkReach.ground(
       body,
-      lean(t).root,
-      entry.posture.yaw,
-      entry.posture.joints.hips ?? [0, 0, 0],
+      root,
+      walkReach.pelvis(
+        body,
+        root,
+        entry.posture.yaw,
+        entry.posture.joints.hips ?? [0, 0, 0],
+        feet,
+      ),
       feet,
       {},
-      undefined,
       undefined,
       undefined,
       staggerDorsal(body, walk.pressure(t), feet),

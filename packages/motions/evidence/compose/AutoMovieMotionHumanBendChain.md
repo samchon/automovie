@@ -34,7 +34,7 @@ Five members, all read by `AutoMovieMotionHumanBendSearch`; `prepared` and `axes
 
 The engine's preparation and axes types are derived from the engine's functions rather than declared again, and no member is optional, so a half-prepared chain cannot be written.
 
-# src/compose/AutoMovieMotionHumanBendChain.ts#AutoMovieMotionHumanBendChain.of
+# src/compose/AutoMovieMotionHumanBendChain.ts#AutoMovieMotionHumanBendChain
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

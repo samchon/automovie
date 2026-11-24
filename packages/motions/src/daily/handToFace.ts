@@ -176,8 +176,10 @@ export namespace handToFace {
             1,
           )[0]!;
     } else hold = HumanBound.least("hold", p.hold ?? row.hold, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const bones: ReturnType<typeof poseBones> = poseBones(
       body,
@@ -300,7 +302,7 @@ export namespace handToFace {
           at(atFace, 0),
           false,
         );
-      const vessel: handToFaceVessel.IVessel = handToFaceVessel.of(
+      const vessel: handToFaceVessel.IVessel = handToFaceVessel(
         body,
         atFace,
         first,
@@ -333,7 +335,7 @@ export namespace handToFace {
         side,
         name,
       ]: (typeof hands)[number]): IAutoMovieMotionHumanHandToFaceArm.IArm =>
-        handToFaceArm.of({
+        handToFaceArm({
           body,
           atFace,
           turned,
@@ -393,14 +395,11 @@ export namespace handToFace {
       }),
       modifiers,
     );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-      timed.duration,
-      [
-        ...timed.instants,
-        { name: row.at, seconds: timed.at("ready") },
-        { name: "taskEnd", seconds: timed.at("strokeEnd") },
-      ],
-    );
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(timed.duration, [
+      ...timed.instants,
+      { name: row.at, seconds: timed.at("ready") },
+      { name: "taskEnd", seconds: timed.at("strokeEnd") },
+    ]);
 
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     if (head !== 0)

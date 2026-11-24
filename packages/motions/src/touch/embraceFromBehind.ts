@@ -319,7 +319,7 @@ function planEmbraceFromBehind(
 
   const chin = (): IAutoMovieVector3 =>
     HumanTrunk.region(body, entry, "chin").point;
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     p.manner,
   );

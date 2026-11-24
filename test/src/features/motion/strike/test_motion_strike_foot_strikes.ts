@@ -78,52 +78,65 @@ const ROWS: readonly IRow[] = [
 
 /**
  * The partner's distance, a share of stature: a kicking range where the leg
- * reaches the chest. The head lies past the leg here even with the body
- * tilted away and the support on its ball (the jaw stands about 0.94 m from
- * the average body's kicking hip so raised, against a leg of about 0.85 m),
- * where a strike lands short at the leg's full reach (scenario 7), so the
- * rows that land on the partner aim at the chest.
+ * reaches the chest. The head lies past the leg here even with the body tilted
+ * away and the support on its ball (the jaw stands about 0.94 m from the
+ * average body's kicking hip so raised, against a leg of about 0.85 m), where a
+ * strike lands short at the leg's full reach (scenario 7), so the rows that
+ * land on the partner aim at the chest.
  */
 const DISTANCE: number = 0.5;
 
-/** The sweep's distance, a share of stature: close enough for the lead leg to reach the partner's lead heel. */
+/**
+ * The sweep's distance, a share of stature: close enough for the lead leg to
+ * reach the partner's lead heel.
+ */
 const SWEEP: number = 0.3;
 
-/** A landing lies within this of its target, metres: the blade strokes spec's bound. */
+/**
+ * A landing lies within this of its target, metres: the blade strokes spec's
+ * bound.
+ */
 const TOUCH: number = 0.015;
 
 /** A planted ball stays within this, metres: the support checks' bound. */
 const HOLD: number = 0.005;
 
-/** A foot clears the floor by at least this, metres: one millimetre above contact. */
+/**
+ * A foot clears the floor by at least this, metres: one millimetre above
+ * contact.
+ */
 const CLEAR: number = 0.001;
 
 /** One film frame at 240 Hz, seconds. */
 const STEP: number = 1 / 240;
 
-/** The side kick's launch to contact band, seconds (Pieter and Pieter 1995, as #3970 cites). */
+/**
+ * The side kick's launch to contact band, seconds (Pieter and Pieter 1995, as
+ * #3970 cites).
+ */
 const SIDE: readonly [number, number] = [0.7, 0.84];
 
 /**
- * The foot strike rows land the heel or the sole on their targets along
- * their own paths, with the support planted.
+ * The foot strike rows land the heel or the sole on their targets along their
+ * own paths, with the support planted.
  *
  * Scenarios:
- * 1. On two bodies, each row's contact point (heel or sole) lies on its
- *    target at the impact: the partner's region, or the floor for the stomp.
- * 2. It arrives along its path over the last frame: the side, back and
- *    jumping side kicks along the line, the hook and spinning hook toward the
- *    kicker's own side, the crescent and the sweep away from it, the axe and
- *    the stomp from above.
- * 3. The side kick lands 0.70 to 0.84 s after its launch, its foot fastest
- *    after the chamber and before the contact.
+ *
+ * 1. On two bodies, each row's contact point (heel or sole) lies on its target at
+ *    the impact: the partner's region, or the floor for the stomp.
+ * 2. It arrives along its path over the last frame: the side, back and jumping
+ *    side kicks along the line, the hook and spinning hook toward the kicker's
+ *    own side, the crescent and the sweep away from it, the axe and the stomp
+ *    from above.
+ * 3. The side kick lands 0.70 to 0.84 s after its launch, its foot fastest after
+ *    the chamber and before the contact.
  * 4. Every planted support ball stays fixed through chamber and recoil; the
- *    spinning hook kick turns the pelvis past a half turn before the contact
- *    on that ball.
+ *    spinning hook kick turns the pelvis past a half turn before the contact on
+ *    that ball.
  * 5. The jumping side kick has both feet off the floor at the contact.
- * 6. The sweep's partner falls on its contact: the knockdown synced to it
- *    takes the partner's struck heel off the floor, and a partner out of
- *    reach is refused with the distance.
+ * 6. The sweep's partner falls on its contact: the knockdown synced to it takes
+ *    the partner's struck heel off the floor, and a partner out of reach is
+ *    refused with the distance.
  * 7. A side kick at a point beyond the leg is missed at the leg's full reach.
  * 8. Every take passes the shipped verdicts.
  *
@@ -162,7 +175,7 @@ export function test_motion_strike_foot_strikes(): void {
         false,
       );
       const strike: IAutoMovieScheduleEntry = struck(film);
-      const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+      const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
         film,
         "a",
         body,
@@ -198,7 +211,7 @@ export function test_motion_strike_foot_strikes(): void {
         false,
       );
       HumanSignature.bones(
-        HumanSignature.of(film, "a", body, 0),
+        HumanSignature(film, "a", body, 0),
         struck(film).contact ?? struck(film).end,
       );
       complaints.list.push(`${name}: a sweep out of reach was admitted`);
@@ -214,7 +227,10 @@ export function test_motion_strike_foot_strikes(): void {
   complaints.assert("Foot strikes");
 }
 
-/** Play a row from a stand at a partner standing a distance ahead; the sweep's partner falls on its contact. */
+/**
+ * Play a row from a stand at a partner standing a distance ahead; the sweep's
+ * partner falls on its contact.
+ */
 function perform(
   body: IAutoMovieMotionHumanBody,
   row: Row,
@@ -272,7 +288,10 @@ function struck(film: HumanPerformance): IAutoMovieScheduleEntry {
   return strike;
 }
 
-/** The kicking side: the foot that travels farther from the launch to the impact. */
+/**
+ * The kicking side: the foot that travels farther from the launch to the
+ * impact.
+ */
 function kicking(
   a: IAutoMovieMotionHumanSignature.IReader,
   strike: IAutoMovieScheduleEntry,
@@ -334,13 +353,13 @@ function play(
     complaints.list.push(`${cell}: no impact`);
     return;
   }
-  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const a: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     0,
   );
-  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const b: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,

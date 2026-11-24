@@ -51,7 +51,7 @@ export function staggerResolved(
                 resolveHumanPostureSource.fit(body, assembled),
             );
       knots[index] = { assembled, seeded };
-      const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing.of(
+      const cleared: IAutoMovieMotionHumanPosture = HumanArmSwing(
         body,
         posture,
         ["left", "right"],

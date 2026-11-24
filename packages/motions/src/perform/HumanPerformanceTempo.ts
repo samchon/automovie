@@ -26,7 +26,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * replans has the action refused with the whole time it needs, never an
  * iteration toward the bound. The slower time reaches the plan through the
  * action's time scale (`IHumanActionContext.tempo`), which the manner owner
- * applies to every span physics does not fix (`AutoMovieMotionManner.of`).
+ * applies to every span physics does not fix (`AutoMovieMotionManner`).
  */
 export namespace HumanPerformanceTempo {
   /**

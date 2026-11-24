@@ -56,7 +56,7 @@ Nothing to reuse or cache; `HumanPrehension.nominal` delegates here.
 
 A pure function that retains nothing.
 
-# src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming.of
+# src/compose/AutoMovieMotionHumanTiming.ts#AutoMovieMotionHumanTiming
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -19,4 +19,4 @@ import { handToFace } from "./handToFace";
  * the default 1.2 s additional hold are authored choices.
  */
 export const coverFace: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanHandToBody.ICoverFace> =
-  HumanActionRow.of("coverFace", handToFace, HUMAN_HAND_TO_BODY_COVER_FACE);
+  HumanActionRow("coverFace", handToFace, HUMAN_HAND_TO_BODY_COVER_FACE);

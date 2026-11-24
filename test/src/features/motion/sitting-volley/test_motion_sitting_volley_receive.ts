@@ -19,15 +19,16 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * A floor-seated player shifts laterally on the court with a stationary
- * palm, releases it and presents both forearms to a receiving location.
+ * A floor-seated player shifts laterally on the court with a stationary palm,
+ * releases it and presents both forearms to a receiving location.
  *
  * Scenarios:
- * 1. The selected palm stays within 15 mm of the floor and within 10 mm
- *    of its original position through the shift. The seat advances the
- *    requested 80 mm within 10 mm while keeping its floor height.
- * 2. Both displayed forearms present a platform near the authored target
- *    after the palm's support ends and before the player recovers.
+ *
+ * 1. The selected palm stays within 15 mm of the floor and within 10 mm of its
+ *    original position through the shift. The seat advances the requested 80 mm
+ *    within 10 mm while keeping its floor height.
+ * 2. Both displayed forearms present a platform near the authored target after the
+ *    palm's support ends and before the player recovers.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Specifies the floor seat, single planted palm, displacement, receiving target and measured bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Reads achieved palm, seat and forearm geometry during authored contact and release intervals through HumanPerformance.
@@ -87,7 +88,7 @@ export function test_motion_sitting_volley_receive(): void {
     }).node,
   });
   const action: IAutoMovieMotionHumanSegment = take.segments("receiver")[2]!;
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     take,
     "receiver",
     body,

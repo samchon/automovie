@@ -1,4 +1,4 @@
-# src/terrain/climbStairsPelvis.ts#climbStairsPelvis.of
+# src/terrain/climbStairsPelvis.ts#climbStairsPelvis
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

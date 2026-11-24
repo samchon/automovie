@@ -201,9 +201,6 @@ export namespace handshakeOffer {
       turn: (turn(lowered) * 180) / Math.PI,
     };
   }
-  /** The alternatives of `PointTried`'s site. */
-  type PointTried = IMeeting | handshakeReach.IMiss;
-
   /**
    * Where two shaking hands meet: the point both forearms reach from the elbows
    * of the two offering arms.
@@ -252,13 +249,10 @@ export namespace handshakeOffer {
     side: AutoMovieHumanSide,
     pump: number,
   ): IMeeting {
-    const tried: PointTried = attempt(a, b, side, pump);
-    if (!("bound" in tried)) return tried;
-    throw handshakeReach.refusal(a, b, side, pump, tried, attempt);
+    const tried: handshakeReach.IAttempt = attempt(a, b, side, pump);
+    if (tried.kind === "met") return tried.meeting;
+    throw handshakeReach.refusal(a, b, side, pump, tried.miss, attempt);
   }
-  /** The alternatives of `AttemptResult`'s site. */
-  type AttemptResult = IMeeting | handshakeReach.IMiss;
-
   /**
    * The meeting, or the bound it missed: `point` without the refusal, which the
    * refusal reads again to find the band of gaps that would plan.
@@ -274,15 +268,19 @@ export namespace handshakeOffer {
     b: ISide,
     side: AutoMovieHumanSide,
     pump: number,
-  ): AttemptResult {
+  ): handshakeReach.IAttempt {
     const span: IAutoMovieVector3 = Vector3.subtract(b.shoulder, a.shoulder);
     const gap: number = Math.hypot(span.x, span.z);
-    if (!(gap > 1e-9)) return { bound: "apart", gap };
+    const missed = (miss: handshakeReach.IMiss): handshakeReach.IAttempt => ({
+      kind: "missed",
+      miss,
+    });
+    if (!(gap > 1e-9)) return missed({ bound: "apart", gap });
     // The chests touch when the acting shoulders, each half its chest's
     // depth behind it, stand the two half depths apart.
     const chests: number =
       (a.body.measure.chestDepth + b.body.measure.chestDepth) / 2;
-    if (gap < chests) return { bound: "chests", gap, chests };
+    if (gap < chests) return missed({ bound: "chests", gap, chests });
     const lower: [number, number] = [
       forearm(a.body, side),
       forearm(b.body, side),
@@ -382,7 +380,7 @@ export namespace handshakeOffer {
         elbow(a, 1, degrees),
         elbow(b, -1, degrees),
       ];
-      if (apart(raised(90)) > forearms) return far(raised(90));
+      if (apart(raised(90)) > forearms) return missed(far(raised(90)));
       const high: number = bracketedBisection(
         (degrees: number): boolean => apart(raised(degrees)) > forearms,
         SHOULDER,
@@ -421,7 +419,7 @@ export namespace handshakeOffer {
         elbows = lowered(high);
         angles =
           top === 0 ? [SHOULDER - high, SHOULDER] : [SHOULDER, SHOULDER - high];
-        if (apart(elbows) > forearms) return far(elbows);
+        if (apart(elbows) > forearms) return missed(far(elbows));
       }
     }
     let met: IAutoMovieVector3 = meet(elbows);
@@ -442,7 +440,7 @@ export namespace handshakeOffer {
         const at: IAutoMovieVector3 = meet(tried);
         return within(at, 0) && within(at, 1);
       };
-      if (!holds(RETRACT)) return deep(back(RETRACT));
+      if (!holds(RETRACT)) return missed(deep(back(RETRACT)));
       const step: number = RETRACT / 2 ** 40;
       const high: number = bracketedBisection(
         (degrees: number): boolean => !holds(degrees),
@@ -454,9 +452,10 @@ export namespace handshakeOffer {
       // Brought back until they part beyond the forearms before both pump
       // bottoms reach: the pump is missed where the elbows still met, one
       // bisection step short of the bound.
-      if (apart(elbows) > forearms) return deep(back(Math.max(0, high - step)));
+      if (apart(elbows) > forearms)
+        return missed(deep(back(Math.max(0, high - step))));
       met = meet(elbows);
-      if (!within(met, 0) || !within(met, 1)) return deep(elbows);
+      if (!within(met, 0) || !within(met, 1)) return missed(deep(elbows));
     }
 
     // Partners so near that the arms pass each other have no meeting: each
@@ -469,7 +468,7 @@ export namespace handshakeOffer {
       ahead(met) <= 0 ||
       ahead(met) >= gap
     )
-      return { bound: "cross", gap };
+      return missed({ bound: "cross", gap });
     // The hands lie along the bisector of the two forearms: level between
     // equal partners, tilted down from the higher elbow's side otherwise.
     const slopes: [number, number] = [
@@ -478,11 +477,14 @@ export namespace handshakeOffer {
     ];
     const tilt: number = (slopes[0] - slopes[1]) / 2;
     return {
-      point: met,
-      fingers: {
-        x: (Math.cos(tilt) * span.x) / gap,
-        y: -Math.sin(tilt),
-        z: (Math.cos(tilt) * span.z) / gap,
+      kind: "met",
+      meeting: {
+        point: met,
+        fingers: {
+          x: (Math.cos(tilt) * span.x) / gap,
+          y: -Math.sin(tilt),
+          z: (Math.cos(tilt) * span.z) / gap,
+        },
       },
     };
   }

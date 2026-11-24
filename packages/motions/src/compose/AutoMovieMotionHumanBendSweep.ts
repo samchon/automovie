@@ -103,7 +103,7 @@ export function AutoMovieMotionHumanBendSweep(
   const strained: (
     u: IAutoMovieResolvedJointAngles,
     lowerWorld: () => IAutoMovieQuaternion,
-  ) => number = AutoMovieMotionHumanBendStrain.of(
+  ) => number = AutoMovieMotionHumanBendStrain(
     chain,
     body,
     side,

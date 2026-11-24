@@ -16,7 +16,7 @@ Keeps every collider and candidate, with Infinity for a bearing part that matche
 
 Defines current pose, world units, index relationships, absent-part behavior and target/candidate frames.
 
-# src/posture/HumanFloorReading.ts#HumanFloorReading.of
+# src/posture/HumanFloorReading.ts#HumanFloorReading
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -2,11 +2,9 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanChannel,
-  IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
   IAutoMoviePose,
   IAutoMovieResolvedBone,
@@ -18,6 +16,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
 import { HumanPerformanceHold } from "./HumanPerformanceHold";
+import { HumanPerformanceReadMissing } from "./HumanPerformanceReadMissing";
+import { HumanPerformanceReadWhere } from "./HumanPerformanceReadWhere";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPropHold } from "./HumanPropHold";
 import { HumanSegment } from "./HumanSegment";
@@ -25,9 +25,6 @@ import { HumanSegmentShown } from "./HumanSegmentShown";
 import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
-
-/** The alternatives of `MissingWhat`'s site. */
-type MissingWhat = "performer" | "prop";
 
 /** The alternatives of `AvailableAxis`'s site. */
 type AvailableAxis = string | (() => string);
@@ -268,7 +265,7 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
   ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
-    return HumanPerformanceGrips.of(self, subject);
+    return HumanPerformanceGrips(self, subject);
   }
 
   /** A hand's grip-socket point with the hand bone's world rotation. */
@@ -446,42 +443,19 @@ export namespace HumanPerformanceRead {
     return person;
   }
 
-  /** Locate an intent by performer, action and next occurrence of its id. */
-  export function where(
-    self: IAutoMovieMotionHumanPerformanceState,
-    intent: IAutoMovieIntent,
-  ): IAutoMovieMotionHumanRefusal.IWhere {
-    const id: string = intent.anchor ?? intent.capability;
-    const person: IAutoMovieMotionHumanSegment.IPerson | undefined =
-      self.people.get(intent.subject);
-    let instance: number = 1;
-    if (person !== undefined) {
-      for (const segment of person.segments) if (segment.id === id) ++instance;
-      for (const overlay of person.overlays) if (overlay.id === id) ++instance;
-    }
-    return {
-      performer: intent.subject,
-      act: intent.capability,
-      instance,
-    };
-  }
+  /**
+   * Locate an intent by performer, action and next occurrence of its id
+   * (`HumanPerformanceReadWhere`).
+   */
+  export const where: typeof HumanPerformanceReadWhere =
+    HumanPerformanceReadWhere;
 
-  /** Construct the missing-performer or missing-prop refusal with alternatives. */
-  export function missing(
-    what: MissingWhat,
-    subject: string,
-    known: readonly string[],
-    axis: string = what,
-  ): IAutoMovieMotionHumanRefusal {
-    return new HumanRefusal({
-      kind: what === "prop" ? "affordance" : "participant",
-      axis,
-      value: subject,
-      feasible: { kind: "alternatives", values: known },
-      reason: `the performance has no ${what} named ${subject}`,
-      fix: `name one of the performance's ${what}s, or add ${subject} to them`,
-    });
-  }
+  /**
+   * The missing-performer or missing-prop refusal with alternatives
+   * (`HumanPerformanceReadMissing`).
+   */
+  export const missing: typeof HumanPerformanceReadMissing =
+    HumanPerformanceReadMissing;
 
   /** Read the same raw root for projectile broad-phase rejection. */
   export function projectileRoot(

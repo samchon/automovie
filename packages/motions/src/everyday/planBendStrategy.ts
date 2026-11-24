@@ -19,7 +19,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { createHumanBody } from "../body/createHumanBody";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanHand } from "../compose/AutoMovieMotionHumanHand";
@@ -114,7 +113,7 @@ export function planBendStrategy(
   const speed: number = HumanSkill.quantity(context.skill, "speed", 1.4, 1.0);
   const down: number = speed * AutoMovieMotionHumanTiming.aimed(D, 0);
   const duration: number = 2 * down + hold;
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: duration },
@@ -177,20 +176,16 @@ export function planBendStrategy(
           ),
           strategy,
           side,
-          fixedWrist ??
-            ((
-              posture: IAutoMovieMotionHumanPosture,
-              placed?: ReadonlyMap<
-                AutoMovieHumanoidBone,
-                IAutoMovieResolvedBone
-              >,
-            ): IAutoMovieVector3 => {
-              const shared: typeof placed =
-                placed !== undefined && createHumanBody.owns(body)
-                  ? placed
-                  : undefined;
-              return goal(posture, undefined, undefined, shared).point;
-            }),
+          fixedWrist === undefined
+            ? (
+                posture: IAutoMovieMotionHumanPosture,
+                placed?: ReadonlyMap<
+                  AutoMovieHumanoidBone,
+                  IAutoMovieResolvedBone
+                >,
+              ): IAutoMovieVector3 =>
+                goal(posture, undefined, undefined, placed).point
+            : (): IAutoMovieVector3 => fixedWrist,
         );
   const base: IAutoMovieMotionHumanActionPlan =
     window === null
@@ -351,7 +346,6 @@ export function planBendStrategy(
           region !== undefined &&
           contactBones !== undefined &&
           readContact !== undefined &&
-          createHumanBody.owns(body) &&
           prepareHumanPoseResolution.isNativeSource(source) &&
           (projection === undefined || projection === body.projection)
         ) {
@@ -418,7 +412,7 @@ export function planBendStrategy(
           weight: share,
         })
       : bendFloorHand(body, upright, hand, moving, share);
-  const travel: IAutoMovieMotionClock = AutoMovieMotionClock.of(moving, [
+  const travel: IAutoMovieMotionClock = AutoMovieMotionClock(moving, [
     { name: "contact", seconds: down },
     { name: "deepest", seconds: down },
     { name: "upright", seconds: moving },

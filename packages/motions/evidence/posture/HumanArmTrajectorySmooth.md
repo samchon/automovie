@@ -34,7 +34,7 @@ The dimensions the convex model allocates by, the band it copies and the terms i
 
 One record for a trajectory and a still configuration alike.
 
-# src/posture/HumanArmTrajectorySmooth.ts#HumanArmTrajectorySmooth.of
+# src/posture/HumanArmTrajectorySmooth.ts#HumanArmTrajectorySmooth
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

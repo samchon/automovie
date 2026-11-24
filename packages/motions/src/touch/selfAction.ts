@@ -143,8 +143,10 @@ export namespace selfAction {
     const count: number =
       p.count ?? (kind === "fistPump" ? 3 : kind.endsWith("Roll") ? 2 : 1);
     HumanBound.whole("count", count);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const m = body.measure;
     const arm: number = m.upperArm + m.forearm;
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;

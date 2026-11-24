@@ -78,7 +78,7 @@ function planLogRoll(
       fix: "give either the half turns or the place",
     });
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const from: lyingTurn.ITurn = lyingTurn.of(entry);
+  const from: lyingTurn.ITurn = lyingTurn(entry);
   const sign: number = p.toward === "left" ? 1 : -1;
   // The body's left when supine; turning positive rolls the body toward it.
   const left: IAutoMovieVector3 = {
@@ -100,7 +100,7 @@ function planLogRoll(
       { name: "rolled", seconds: 0 },
       { name: "settled", seconds: 0 },
     ]),
-    AutoMovieMotionManner.of(context, p.manner),
+    AutoMovieMotionManner(context, p.manner),
     { holds: ["settled"] },
   );
   const progress: ReturnType<typeof AutoMovieMotionClock.prepare> =

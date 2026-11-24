@@ -19,18 +19,19 @@ import { motionHumanBody } from "../../../internal/motionHumanBody";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
- * An action entered past its start is aligned on the timing it will have
- * when placed: the instant the schedule aligns falls on its target second.
+ * An action entered past its start is aligned on the timing it will have when
+ * placed: the instant the schedule aligns falls on its target second.
  *
- * A test law `marker` lasts a second with its `mark` at three quarters, and
- * its own cancel table enters a following `marker` at half of it. The
- * second marker is synced so that its `mark` falls on the third beat of a
- * 96 bpm score (1.25 s), which cuts into the first one. The schedule plans it once as a trial to read how
- * far its `mark` lies after its start, then places it: the trial must read
- * what the placed action gives, the part left after the entry and the
+ * A test law `marker` lasts a second with its `mark` at three quarters, and its
+ * own cancel table enters a following `marker` at half of it. The second marker
+ * is synced so that its `mark` falls on the third beat of a 96 bpm score (1.25
+ * s), which cuts into the first one. The schedule plans it once as a trial to
+ * read how far its `mark` lies after its start, then places it: the trial must
+ * read what the placed action gives, the part left after the entry and the
  * shares on that part, or the mark lands a quarter second early.
  *
  * Scenarios:
+ *
  * 1. The placed second marker is entered at half of its plan.
  * 2. Its `mark` falls on the beat at 1.25 s, within a microsecond.
  *
@@ -44,7 +45,7 @@ export function test_motion_posture_paired_event(): void {
   checkCueRecipients();
   // Two roles meet on the same cue, while their independent follow-through durations remain intact.
   for (const lead of [0.25, 0.75]) {
-    const native = AutoMovieMotionClock.of(2, [
+    const native = AutoMovieMotionClock(2, [
       { name: "meet", seconds: lead },
       { name: "alsoMeet", seconds: lead },
       { name: "release", seconds: 2 },
@@ -135,7 +136,10 @@ export function test_motion_posture_paired_event(): void {
   );
 }
 
-/** Role-specific delays align to the selected cue and do not move another role's clock. */
+/**
+ * Role-specific delays align to the selected cue and do not move another role's
+ * clock.
+ */
 function checkCueRecipients(): void {
   const body = motionHumanBody("m-average");
   const cues = HumanCue.orders([
@@ -209,7 +213,10 @@ function checkCueRecipients(): void {
   }
 }
 
-/** After the second hand closes, an offset prop landmark moves rigidly with that hand. */
+/**
+ * After the second hand closes, an offset prop landmark moves rigidly with that
+ * hand.
+ */
 function checkHandoff(
   body: IAutoMovieMotionHumanBody,
   marker: IAutoMovieMotionHumanActionLaw<never>,

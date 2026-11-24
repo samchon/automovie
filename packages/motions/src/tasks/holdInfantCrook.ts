@@ -23,6 +23,63 @@ const FLEXION: number = 35;
 const ACROSS: number = 25;
 
 /**
+ * The cradling arm of a hold.
+ *
+ * @param body The body.
+ * @param side The holding arm.
+ * @param hold The hold.
+ * @param shoulder The holding shoulder's joint, world metres.
+ * @param forward The body's level forward, unit.
+ * @param toward The level unit toward the holding side.
+ * @returns The elbow and the wrist.
+ */
+export function holdInfantCrook(
+  body: IAutoMovieMotionHumanBody,
+  side: AutoMovieHumanSide,
+  hold: holdInfantCrook.Lying,
+  shoulder: IAutoMovieVector3,
+  forward: IAutoMovieVector3,
+  toward: IAutoMovieVector3,
+): holdInfantCrook.ICrook {
+  const length: (
+    from: AutoMovieHumanoidBone,
+    to: AutoMovieHumanoidBone,
+  ) => number = (
+    from: AutoMovieHumanoidBone,
+    to: AutoMovieHumanoidBone,
+  ): number => Vector3.distance(body.rest.get(from)!, body.rest.get(to)!);
+  const radians: (degrees: number) => number = (degrees: number): number =>
+    (degrees * Math.PI) / 180;
+  const elbow: IAutoMovieVector3 = Vector3.add(
+    shoulder,
+    Vector3.scale(
+      Vector3.add(
+        Vector3.scale(UP, -Math.cos(radians(FLEXION))),
+        Vector3.scale(forward, Math.sin(radians(FLEXION))),
+      ),
+      length(`${side}UpperArm`, `${side}LowerArm`),
+    ),
+  );
+  const across: IAutoMovieVector3 = Vector3.add(
+    Vector3.scale(toward, -Math.cos(radians(ACROSS))),
+    Vector3.scale(forward, Math.sin(radians(ACROSS))),
+  );
+  return {
+    elbow,
+    wrist: Vector3.add(
+      elbow,
+      Vector3.scale(
+        Vector3.add(
+          Vector3.scale(across, Math.cos(radians(holdInfantCrook.RISE[hold]))),
+          Vector3.scale(UP, -Math.sin(radians(holdInfantCrook.RISE[hold]))),
+        ),
+        length(`${side}LowerArm`, `${side}Hand`),
+      ),
+    ),
+  };
+}
+
+/**
  * The arm an infant lies along in the cradle and the feed (`holdInfant`): the
  * upper arm hangs forward of the trunk, flexed `FLEXION` from hanging, and the
  * forearm runs across the front, turned `ACROSS` forward, rising from the wrist
@@ -52,61 +109,4 @@ export namespace holdInfantCrook {
     cradle: (Math.atan(0.15) * 180) / Math.PI,
     feed: (Math.atan(0.5) * 180) / Math.PI,
   };
-
-  /**
-   * The cradling arm of a hold.
-   *
-   * @param body The body.
-   * @param side The holding arm.
-   * @param hold The hold.
-   * @param shoulder The holding shoulder's joint, world metres.
-   * @param forward The body's level forward, unit.
-   * @param toward The level unit toward the holding side.
-   * @returns The elbow and the wrist.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    hold: Lying,
-    shoulder: IAutoMovieVector3,
-    forward: IAutoMovieVector3,
-    toward: IAutoMovieVector3,
-  ): ICrook {
-    const length: (
-      from: AutoMovieHumanoidBone,
-      to: AutoMovieHumanoidBone,
-    ) => number = (
-      from: AutoMovieHumanoidBone,
-      to: AutoMovieHumanoidBone,
-    ): number => Vector3.distance(body.rest.get(from)!, body.rest.get(to)!);
-    const radians: (degrees: number) => number = (degrees: number): number =>
-      (degrees * Math.PI) / 180;
-    const elbow: IAutoMovieVector3 = Vector3.add(
-      shoulder,
-      Vector3.scale(
-        Vector3.add(
-          Vector3.scale(UP, -Math.cos(radians(FLEXION))),
-          Vector3.scale(forward, Math.sin(radians(FLEXION))),
-        ),
-        length(`${side}UpperArm`, `${side}LowerArm`),
-      ),
-    );
-    const across: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(toward, -Math.cos(radians(ACROSS))),
-      Vector3.scale(forward, Math.sin(radians(ACROSS))),
-    );
-    return {
-      elbow,
-      wrist: Vector3.add(
-        elbow,
-        Vector3.scale(
-          Vector3.add(
-            Vector3.scale(across, Math.cos(radians(RISE[hold]))),
-            Vector3.scale(UP, -Math.sin(radians(RISE[hold]))),
-          ),
-          length(`${side}LowerArm`, `${side}Hand`),
-        ),
-      ),
-    };
-  }
 }

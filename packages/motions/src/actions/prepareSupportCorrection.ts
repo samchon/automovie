@@ -87,7 +87,7 @@ export function prepareSupportCorrection(
       );
     const bones: ReturnType<typeof poseBones> = frames(solved.pose, read());
     const hull: IAutoMovieVector3[] = convexHull2D(
-      bearing.flatMap((c) => HumanSupportPatch.of(body, bones, c)),
+      bearing.flatMap((c) => HumanSupportPatch(body, bones, c)),
     );
     if (hull.length === 0) return posture;
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(

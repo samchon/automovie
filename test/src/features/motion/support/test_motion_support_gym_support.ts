@@ -23,23 +23,24 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 import { motionHumanStance } from "../../internal/motionHumanStance";
 
 /**
- * A two-hand box vault (`AutoMovieMotionHumanAcrobatics.HumanGymnastics.boxVault`, the squat vault law)
- * lays the hands on the box, flies over it and lands beyond it, on the
+ * A two-hand box vault
+ * (`AutoMovieMotionHumanAcrobatics.HumanGymnastics.boxVault`, the squat vault
+ * law) lays the hands on the box, flies over it and lands beyond it, on the
  * average man and the small woman.
  *
  * The box is a 30 inch plyometric box (`createPlyoBox`, its tallest common
- * height), stood with its near side half the arm's length ahead of the
- * quiet stance's toes, where a body standing at it lays its hands
- * (provisional placement). Its far edge is read from its own geometry: its
- * place along the heading plus half its declared depth.
+ * height), stood with its near side half the arm's length ahead of the quiet
+ * stance's toes, where a body standing at it lays its hands (provisional
+ * placement). Its far edge is read from its own geometry: its place along the
+ * heading plus half its declared depth.
  *
- * Scenarios:
- * on each body:
+ * Scenarios: on each body:
+ *
  * 1. The vault plans and is placed under its row's name.
- * 2. No contact window is open strictly between the push-off (`tucked`)
- *    and `touchdown`: the body flies, borne by nothing.
- * 3. At `touchdown` both heels lie beyond the box's far edge along the
- *    heading: the feet land past the box, not on or before it.
+ * 2. No contact window is open strictly between the push-off (`tucked`) and
+ *    `touchdown`: the body flies, borne by nothing.
+ * 3. At `touchdown` both heels lie beyond the box's far edge along the heading:
+ *    the feet land past the box, not on or before it.
  * 4. Both feet are planted from `touchdown` to the end.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the vault through the public chain with a real archetype box and reads the plan's windows and events and the displayed feet; a vault that lands on or before the box, or that leans on something in flight, fails with its numbers.
@@ -235,7 +236,7 @@ function checkInvertedSupport(findings: motionComplaints.IGatherer): void {
         .registered(law.name).node,
     });
     const span = p.segments("a")[1]!,
-      reader = HumanSignature.of(p, "a", body, 0);
+      reader = HumanSignature(p, "a", body, 0);
     const t = (share: number) => span.start + share * span.plan.duration;
     const half = t(span.plan.events.find((e) => e.name === "inverted")!.share);
     const hips = (at: number) =>

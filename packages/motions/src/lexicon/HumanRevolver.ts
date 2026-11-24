@@ -21,25 +21,25 @@ export namespace HumanRevolver {
   /** Cock the hammer with the thumb. */
   export const cock: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["cock"]
-  > = HumanActionRow.of("cockRevolver", operate, {});
+  > = HumanActionRow("cockRevolver", operate, {});
 
   /** Fan the hammer with the other palm. */
   export const fanHammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["fanHammer"]
-  > = HumanActionRow.of("fanHammer", operate, {});
+  > = HumanActionRow("fanHammer", operate, {});
 
   /** Open the loading gate. */
   export const openGate: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["openGate"]
-  > = HumanActionRow.of("openGate", operate, {});
+  > = HumanActionRow("openGate", operate, {});
 
   /** Load a cartridge into the chamber at the gate. */
   export const loadChamber: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["loadChamber"]
-  > = HumanActionRow.of("loadChamber", operate, {});
+  > = HumanActionRow("loadChamber", operate, {});
 
   /** Close the loading gate. */
   export const closeGate: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["revolver"]["closeGate"]
-  > = HumanActionRow.of("closeGate", operate, {});
+  > = HumanActionRow("closeGate", operate, {});
 }

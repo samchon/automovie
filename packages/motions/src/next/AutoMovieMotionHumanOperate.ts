@@ -285,14 +285,14 @@ export namespace AutoMovieMotionHumanOperate {
    * circles inside the vessel it stirs (`HumanToolWork`); a screwdriver turns
    * about its own axis into the work, the forearm's pronation and supination of
    * `TURN` degrees each way. The hand reaches the working pose in the timing
-   * owner's movement time (`AutoMovieMotionHumanTiming.of`), works `cycles`
-   * cycles (a hammer's and a saw's of `PERIODS` seconds, a stir's the time its
-   * circle takes at a tool stroke's speed, `STROKE_SPEED`), and returns, its
-   * fingers kept closed on the tool as the grip left them. Experts vary
-   * amplitude less (Bril et al. 2010, J Exp Psychol Hum Percept Perform
-   * 36:825); the seeded variation is not drawn yet. Events: `ready`, per cycle
-   * `contact<n>` (the strike, the stroke's middle, the circle's nearest point,
-   * the turn's end), and `recover`.
+   * owner's movement time (`AutoMovieMotionHumanTiming`), works `cycles` cycles
+   * (a hammer's and a saw's of `PERIODS` seconds, a stir's the time its circle
+   * takes at a tool stroke's speed, `STROKE_SPEED`), and returns, its fingers
+   * kept closed on the tool as the grip left them. Experts vary amplitude less
+   * (Bril et al. 2010, J Exp Psychol Hum Percept Perform 36:825); the seeded
+   * variation is not drawn yet. Events: `ready`, per cycle `contact<n>` (the
+   * strike, the stroke's middle, the circle's nearest point, the turn's end),
+   * and `recover`.
    *
    * The plan carries the tool's working point in the hand (`IPlan.tool`), so a
    * capture reads it from the displayed hand; the tool stays held after.

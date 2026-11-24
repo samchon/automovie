@@ -236,7 +236,7 @@ export namespace gesture {
     // from: set once the named place's transport is known, so the places are
     // as named until then.
     const source: IAutoMovieMotionHumanVariation.ISource | undefined =
-      AutoMovieMotionHumanVariation.of(context, p.manner);
+      AutoMovieMotionHumanVariation(context, p.manner);
     let travel: IAutoMovieMotionHumanVariationPlace.ITravel | undefined;
 
     // The body under the gesture: the carrier's when the gesture is an
@@ -322,9 +322,9 @@ export namespace gesture {
       );
 
     // The Effort's tempo, slowed by the action's own time scale where it is
-    // replanned to take the time its motion needs (`AutoMovieMotionManner.of`).
+    // replanned to take the time its motion needs (`AutoMovieMotionManner`).
     const T: number =
-      mods.tempo * AutoMovieMotionManner.of(context, undefined).tempo;
+      mods.tempo * AutoMovieMotionManner(context, undefined).tempo;
     const named: number = span();
     if (source !== undefined && named > 0)
       travel = {
@@ -401,7 +401,7 @@ export namespace gesture {
       gestureJoints.at(p.kind, 0, cycles, 1, 1),
     ) as AutoMovieHumanoidBone[];
     const claimed: Set<AutoMovieMotionHumanChannel> = new Set(
-      direct.map(HumanChannels.of),
+      direct.map(HumanChannels),
     );
     for (const side of sides) {
       claimed.add(`${side}Arm`);

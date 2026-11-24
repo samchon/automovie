@@ -166,7 +166,7 @@ export namespace putDown {
     const tool: IAutoMovieMotionHumanStrikingHeld.ITool | undefined =
       onto?.via === undefined
         ? undefined
-        : StrikingHeld.of(context, side, context.params.prop, {
+        : StrikingHeld(context, side, context.params.prop, {
             tip: onto.via,
           });
     const frame: IAutoMovieMotionHumanStrikingHeld.IHandFrame = {
@@ -521,7 +521,7 @@ export namespace putDown {
     // Look-ahead has the pickup's clock. Fit tracked contacts when their placement starts.
     if (putDownTarget.track(ahead, ahead.params.onto!.prop) !== undefined)
       return [];
-    const destination: IAutoMovieRigidTransform = putDownTarget.of(
+    const destination: IAutoMovieRigidTransform = putDownTarget(
       ahead,
       (): ReturnType<typeof resolveHumanPosture> =>
         resolveHumanPosture(ahead.body, ahead.grip.posture),

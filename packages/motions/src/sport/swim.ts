@@ -136,8 +136,10 @@ export namespace swim {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const cycles: number = p.count ?? 3;
     HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
     const water: number = p.water ?? entry.root.y + m.chestHeight;
 
@@ -178,7 +180,7 @@ export namespace swim {
         );
       } else instants.push({ name: `cycle${i + 1}`, seconds: i * period });
     const duration: number = cycles * period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       ...instants,
       { name: "relax", seconds: duration },
     ]);

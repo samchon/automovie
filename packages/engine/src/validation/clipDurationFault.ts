@@ -5,15 +5,15 @@ import type { IAutoMovieClipShapeFault } from "@automovie/interface";
  * seconds.
  */
 export const clipDurationFault: (
-  duration: unknown,
+  duration: number,
 ) => IAutoMovieClipShapeFault | null = (
-  duration: unknown,
+  duration: number,
 ): IAutoMovieClipShapeFault | null => {
-  if (typeof duration !== "number" || !Number.isFinite(duration))
+  if (!Number.isFinite(duration))
     return {
       kind: "range",
       field: "duration",
-      message: `duration must be finite, but was ${String(duration)}`,
+      message: `duration must be finite, but was ${duration}`,
       value: duration,
     };
   if (duration < 0)

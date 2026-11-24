@@ -78,6 +78,91 @@ interface IGroup {
 }
 
 /**
+ * Map a verdict report to shared findings and coverage.
+ *
+ * Each performer is covered on its sixteen bounds, a pair on `partner`; the
+ * nine bounds the floor does not carry are `excluded` for a performer who swims
+ * or climbs a ladder.
+ *
+ * @param report The report.
+ * @param performers The report's performers in its order.
+ * @returns The findings and the coverage rows of one inspection packet.
+ * @throws {Error} When a finding names a performer or a pair not given.
+ */
+export function HumanVerdictInspection(
+  report: IAutoMovieMotionHumanVerdicts.IReport,
+  performers: readonly IAutoMovieMotionHumanVerdicts.IPerformer[],
+): Packet {
+  const paths: Map<string, readonly string[]> = new Map();
+  const coverage: IAutoMovieInspectionDiagnostics.ICoverage[] = [];
+  for (let i: number = 0; i < performers.length; i++) {
+    const person: IAutoMovieMotionHumanVerdicts.IPerformer = performers[i]!;
+    paths.set(person.subject, [person.path]);
+    for (const bound of BOUNDS)
+      coverage.push(
+        person.airborne && UNREAD.includes(bound)
+          ? {
+              check: `human-${bound}`,
+              key: person.subject,
+              required: false,
+              status: "excluded",
+              reason: `The ${bound} bound reads a body the floor carries, and this performer swims or climbs a ladder.`,
+            }
+          : {
+              check: `human-${bound}`,
+              key: person.subject,
+              required: true,
+              status: "checked",
+            },
+      );
+    for (let j: number = i + 1; j < performers.length; j++) {
+      const other: IAutoMovieMotionHumanVerdicts.IPerformer = performers[j]!;
+      const key: string = `${person.subject}+${other.subject}`;
+      paths.set(
+        key,
+        [person.path, other.path].sort((x: string, y: string): number =>
+          x < y ? -1 : x > y ? 1 : 0,
+        ),
+      );
+      coverage.push({
+        check: "human-partner",
+        key,
+        required: true,
+        status: "checked",
+      });
+    }
+  }
+
+  const groups: Map<string, IGroup> = new Map();
+  for (const finding of report.findings) {
+    const named: readonly string[] | undefined = paths.get(finding.subject);
+    if (named === undefined)
+      throw new Error(
+        `The verdict on ${finding.subject} names no performer or pair given.`,
+      );
+    const id: string = JSON.stringify([finding.check, finding.subject]);
+    const group: IGroup | undefined = groups.get(id);
+    if (group === undefined)
+      groups.set(id, {
+        paths: named,
+        worst: finding,
+        faults: finding.check === "timing" ? [finding.where] : [],
+      });
+    else if (finding.check === "timing") group.faults.push(finding.where);
+    else if (
+      finding.value > group.worst.value ||
+      (finding.value === group.worst.value &&
+        finding.seconds < group.worst.seconds)
+    )
+      group.worst = finding;
+  }
+  return {
+    findings: [...groups.values()].map(toFinding),
+    coverage,
+  };
+}
+
+/**
  * The verdict report of a performance as the shared inspection findings and
  * coverage of a capture or a delivery.
  *
@@ -106,8 +191,8 @@ export namespace HumanVerdictInspection {
    * @throws {Error} When a performer has no path.
    */
   export function read(source: IAutoMovieMotionHumanVerdicts.ISource): Packet {
-    return of(
-      HumanVerdicts.of(source.performance),
+    return HumanVerdictInspection(
+      HumanVerdicts(source.performance),
       source.performance.performers.map(
         (
           person: IAutoMovieMotionHumanPerformer,
@@ -118,91 +203,6 @@ export namespace HumanVerdictInspection {
         }),
       ),
     );
-  }
-
-  /**
-   * Map a verdict report to shared findings and coverage.
-   *
-   * Each performer is covered on its sixteen bounds, a pair on `partner`; the
-   * nine bounds the floor does not carry are `excluded` for a performer who
-   * swims or climbs a ladder.
-   *
-   * @param report The report.
-   * @param performers The report's performers in its order.
-   * @returns The findings and the coverage rows of one inspection packet.
-   * @throws {Error} When a finding names a performer or a pair not given.
-   */
-  export function of(
-    report: IAutoMovieMotionHumanVerdicts.IReport,
-    performers: readonly IAutoMovieMotionHumanVerdicts.IPerformer[],
-  ): Packet {
-    const paths: Map<string, readonly string[]> = new Map();
-    const coverage: IAutoMovieInspectionDiagnostics.ICoverage[] = [];
-    for (let i: number = 0; i < performers.length; i++) {
-      const person: IAutoMovieMotionHumanVerdicts.IPerformer = performers[i]!;
-      paths.set(person.subject, [person.path]);
-      for (const bound of BOUNDS)
-        coverage.push(
-          person.airborne && UNREAD.includes(bound)
-            ? {
-                check: `human-${bound}`,
-                key: person.subject,
-                required: false,
-                status: "excluded",
-                reason: `The ${bound} bound reads a body the floor carries, and this performer swims or climbs a ladder.`,
-              }
-            : {
-                check: `human-${bound}`,
-                key: person.subject,
-                required: true,
-                status: "checked",
-              },
-        );
-      for (let j: number = i + 1; j < performers.length; j++) {
-        const other: IAutoMovieMotionHumanVerdicts.IPerformer = performers[j]!;
-        const key: string = `${person.subject}+${other.subject}`;
-        paths.set(
-          key,
-          [person.path, other.path].sort((x: string, y: string): number =>
-            x < y ? -1 : x > y ? 1 : 0,
-          ),
-        );
-        coverage.push({
-          check: "human-partner",
-          key,
-          required: true,
-          status: "checked",
-        });
-      }
-    }
-
-    const groups: Map<string, IGroup> = new Map();
-    for (const finding of report.findings) {
-      const named: readonly string[] | undefined = paths.get(finding.subject);
-      if (named === undefined)
-        throw new Error(
-          `The verdict on ${finding.subject} names no performer or pair given.`,
-        );
-      const id: string = JSON.stringify([finding.check, finding.subject]);
-      const group: IGroup | undefined = groups.get(id);
-      if (group === undefined)
-        groups.set(id, {
-          paths: named,
-          worst: finding,
-          faults: finding.check === "timing" ? [finding.where] : [],
-        });
-      else if (finding.check === "timing") group.faults.push(finding.where);
-      else if (
-        finding.value > group.worst.value ||
-        (finding.value === group.worst.value &&
-          finding.seconds < group.worst.seconds)
-      )
-        group.worst = finding;
-    }
-    return {
-      findings: [...groups.values()].map(toFinding),
-      coverage,
-    };
   }
 }
 

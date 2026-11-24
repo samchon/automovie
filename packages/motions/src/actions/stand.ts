@@ -213,7 +213,7 @@ export namespace stand {
     entry: IAutoMovieMotionHumanEntryState,
     yaw: number,
   ): Record<AutoMovieHumanSide, IAutoMovieVector3> {
-    return standFeet.of(body, entry, yaw).flat;
+    return standFeet(body, entry, yaw).flat;
   }
 
   /**
@@ -330,7 +330,7 @@ export namespace stand {
       yaw,
       pitch: 0,
       roll: 0,
-      joints: { ...arms, ...standUpright.of(body).joints },
+      joints: { ...arms, ...standUpright(body).joints },
       limbs: legs(body, placed, yaw, feet),
     };
   }

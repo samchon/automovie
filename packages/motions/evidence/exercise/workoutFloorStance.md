@@ -14,7 +14,7 @@ The two values `workout.plan` branches on.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts `entered` is null exactly when the body enters from standing.
 
-# src/exercise/workoutFloorStance.ts#workoutFloorStance.of
+# src/exercise/workoutFloorStance.ts#workoutFloorStance
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

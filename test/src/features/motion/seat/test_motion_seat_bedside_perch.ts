@@ -18,17 +18,18 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * A person can sit on either long edge of a double bed with both feet
- * outside its footprint, pause on the mattress, and stand on the same side.
+ * A person can sit on either long edge of a double bed with both feet outside
+ * its footprint, pause on the mattress, and stand on the same side.
  *
  * Scenarios:
- * 1. A standing adult perches on each edge of a translated, rotated double
- *    bed. During the pause the seat region stays within 10 mm of the upper
- *    plane, inside the chosen half of the mattress. The feet touch the floor
- *    outside the edge and slip at most 5 mm during the hold.
+ *
+ * 1. A standing adult perches on each edge of a translated, rotated double bed.
+ *    During the pause the seat region stays within 10 mm of the upper plane,
+ *    inside the chosen half of the mattress. The feet touch the floor outside
+ *    the edge and slip at most 5 mm during the hold.
  * 2. The seated hold lasts the authored 0.8 seconds, then the person stands
- *    outside that edge with both feet bearing on the floor and knees within
- *    15 degrees of straight.
+ *    outside that edge with both feet bearing on the floor and knees within 15
+ *    degrees of straight.
  * 3. A crib has no adult seat along its edge and the request is refused.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the bed geometry, both performances, physical bounds and the unavailable seat case.
@@ -76,7 +77,7 @@ export function test_motion_seat_bedside_perch(): void {
         hold,
       ).node,
     });
-    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+    const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
       performance,
       "actor",
       body,

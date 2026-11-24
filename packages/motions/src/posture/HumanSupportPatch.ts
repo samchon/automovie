@@ -12,6 +12,25 @@ import { HumanContactWindow } from "../law/HumanContactWindow";
 import { HumanFoot } from "./HumanFoot";
 
 /**
+ * A planted sole contributes its bearing outline, and a named region
+ * contributes its touching point.
+ */
+export function HumanSupportPatch(
+  body: IAutoMovieMotionHumanBody,
+  bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
+  contact: IAutoMovieMotionHumanContactWindow,
+): IAutoMovieVector3[] {
+  if (
+    contact.region === undefined &&
+    (contact.part === "leftFoot" || contact.part === "rightFoot")
+  )
+    return HumanFoot.base(body, bones, [
+      contact.part === "leftFoot" ? "left" : "right",
+    ]);
+  return [HumanSupportPatch.point(body, bones, contact)];
+}
+
+/**
  * The geometry of a declared contact on the displayed body, shared by motion
  * and its audit.
  */
@@ -37,24 +56,5 @@ export namespace HumanSupportPatch {
       surface,
       bones.get(surface.bone)!,
     ).point;
-  }
-
-  /**
-   * A planted sole contributes its bearing outline, and a named region
-   * contributes its touching point.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-    contact: IAutoMovieMotionHumanContactWindow,
-  ): IAutoMovieVector3[] {
-    if (
-      contact.region === undefined &&
-      (contact.part === "leftFoot" || contact.part === "rightFoot")
-    )
-      return HumanFoot.base(body, bones, [
-        contact.part === "leftFoot" ? "left" : "right",
-      ]);
-    return [point(body, bones, contact)];
   }
 }

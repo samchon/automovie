@@ -179,7 +179,7 @@ export function ballCourt(
   const { body, params }: typeof context = context;
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
   const row: (typeof PHRASES)[Kind] = PHRASES[kind];
-  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner.of(
+  const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
     context,
     params.manner,
   );

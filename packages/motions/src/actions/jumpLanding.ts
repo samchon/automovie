@@ -10,6 +10,89 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { stand } from "./stand";
 
 /**
+ * The landing's places at a destination.
+ *
+ * @param body The body.
+ * @param to The floor point under the destination, its height ignored.
+ * @param heading The jump's heading, degrees about +Y.
+ * @param rise The landing surface's height, metres.
+ * @param lean The upright stand's forward lean, metres.
+ * @param turned Whether the footprints receive the flight's fractional yaw.
+ * @param back How far behind the footprints' middle the root touches down,
+ *   metres: the flight's capture offset (jump).
+ * @returns The places.
+ */
+export function jumpLanding(
+  body: IAutoMovieMotionHumanBody,
+  to: IAutoMovieVector3,
+  heading: number,
+  rise: number,
+  lean: number,
+  turned: boolean,
+  back: number,
+): jumpLanding.ILanding {
+  const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+  const l: number = m.hipHeight;
+  const frame: HumanFrame.IPrepared = HumanFrame.prepare({
+    origin: { ...to, y: 0 },
+    yaw: heading,
+  });
+  const turn: HumanFrame.IPrepared = HumanFrame.prepare({
+    origin: { x: 0, y: 0, z: 0 },
+    yaw: heading,
+  });
+  const footprint: (
+    s: AutoMovieHumanSide,
+  ) => IAutoMovieMotionHumanFoot.IPlacement = (
+    s: AutoMovieHumanSide,
+  ): IAutoMovieMotionHumanFoot.IPlacement => ({
+    ankle: frame.point({
+      x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
+      y: m.ankleHeight + rise,
+      z: 0,
+    }),
+    rotation: HumanFoot.rotation(
+      heading + (s === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
+      0,
+    ),
+  });
+  const feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
+    {
+      left: footprint("left"),
+      right: footprint("right"),
+    };
+
+  // The landing ends in the quiet stance over these feet, so it ends at
+  // the root the standing law places there; touchdown and absorption are
+  // offsets from that root with its lean taken out.
+  const stood: IAutoMovieVector3 = stand.root(
+    body,
+    { left: feet.left.ankle, right: feet.right.ankle },
+    heading,
+  );
+  const offset: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
+    local: IAutoMovieVector3,
+  ): IAutoMovieVector3 => {
+    const d: IAutoMovieVector3 = turn.point(local);
+    return { x: stood.x + d.x, y: stood.y + d.y, z: stood.z + d.z };
+  };
+  return {
+    feet,
+    touched: offset({
+      x: 0,
+      y: -TOUCH_DROP * l,
+      z: -back - lean,
+    }),
+    stood,
+    absorbed: offset({
+      x: 0,
+      y: -ABSORB_DROP * l,
+      z: turned ? -lean : (ABSORB_LEAN - 1) * lean,
+    }),
+  };
+}
+
+/**
  * Where a jump comes down, at the height of what it lands on (the floor's 0, a
  * box's top, a step's): both feet flat on footprints at the destination, at the
  * body's rest separation and turned out by the stance angle, and the root's
@@ -33,91 +116,6 @@ export namespace jumpLanding {
 
     /** The root stood upright, world metres. */
     stood: IAutoMovieVector3;
-  }
-
-  /**
-   * The landing's places at a destination.
-   *
-   * @param body The body.
-   * @param to The floor point under the destination, its height ignored.
-   * @param heading The jump's heading, degrees about +Y.
-   * @param rise The landing surface's height, metres.
-   * @param lean The upright stand's forward lean, metres.
-   * @param turned Whether the footprints receive the flight's fractional yaw.
-   * @param back How far behind the footprints' middle the root touches down,
-   *   metres: the flight's capture offset (jump).
-   * @returns The places.
-   */
-  export function of(
-    body: IAutoMovieMotionHumanBody,
-    to: IAutoMovieVector3,
-    heading: number,
-    rise: number,
-    lean: number,
-    turned: boolean,
-    back: number,
-  ): ILanding {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
-    const l: number = m.hipHeight;
-    const frame: HumanFrame.IPrepared = HumanFrame.prepare({
-      origin: { ...to, y: 0 },
-      yaw: heading,
-    });
-    const turn: HumanFrame.IPrepared = HumanFrame.prepare({
-      origin: { x: 0, y: 0, z: 0 },
-      yaw: heading,
-    });
-    const footprint: (
-      s: AutoMovieHumanSide,
-    ) => IAutoMovieMotionHumanFoot.IPlacement = (
-      s: AutoMovieHumanSide,
-    ): IAutoMovieMotionHumanFoot.IPlacement => ({
-      ankle: frame.point({
-        x: (s === "left" ? 1 : -1) * Math.abs(body.rest.get(`${s}Foot`)!.x),
-        y: m.ankleHeight + rise,
-        z: 0,
-      }),
-      rotation: HumanFoot.rotation(
-        heading + (s === "left" ? stand.TOE_OUT : -stand.TOE_OUT),
-        0,
-      ),
-    });
-    const feet: Record<
-      AutoMovieHumanSide,
-      IAutoMovieMotionHumanFoot.IPlacement
-    > = {
-      left: footprint("left"),
-      right: footprint("right"),
-    };
-
-    // The landing ends in the quiet stance over these feet, so it ends at
-    // the root the standing law places there; touchdown and absorption are
-    // offsets from that root with its lean taken out.
-    const stood: IAutoMovieVector3 = stand.root(
-      body,
-      { left: feet.left.ankle, right: feet.right.ankle },
-      heading,
-    );
-    const offset: (local: IAutoMovieVector3) => IAutoMovieVector3 = (
-      local: IAutoMovieVector3,
-    ): IAutoMovieVector3 => {
-      const d: IAutoMovieVector3 = turn.point(local);
-      return { x: stood.x + d.x, y: stood.y + d.y, z: stood.z + d.z };
-    };
-    return {
-      feet,
-      touched: offset({
-        x: 0,
-        y: -TOUCH_DROP * l,
-        z: -back - lean,
-      }),
-      stood,
-      absorbed: offset({
-        x: 0,
-        y: -ABSORB_DROP * l,
-        z: turned ? -lean : (ABSORB_LEAN - 1) * lean,
-      }),
-    };
   }
 }
 

@@ -151,8 +151,10 @@ export namespace exercise {
     HumanBound.whole("count", reps);
     const tempo: readonly [number, number, number] = p.tempo ?? [2, 0, 1];
     for (const span of tempo) HumanBound.least("tempo", span, 0, "s");
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const top: number = 0.3;
     const timed: IAutoMovieMotionClock = AutoMovieMotionClock.sequence([
       ...AutoMovieMotionClock.repeat(
@@ -166,7 +168,7 @@ export namespace exercise {
       ),
     ]);
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
-      AutoMovieMotionClock.of(timed.duration, [
+      AutoMovieMotionClock(timed.duration, [
         ...timed.instants,
         { name: "relax", seconds: timed.duration },
       ]),

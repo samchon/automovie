@@ -346,7 +346,7 @@ export namespace carry {
       },
     });
     const duration: number = base.duration;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       base.events.map(
         (

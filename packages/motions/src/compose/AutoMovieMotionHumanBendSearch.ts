@@ -17,19 +17,12 @@ import type {
 
 import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanBendSide } from "./AutoMovieMotionHumanBendSide";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 import { AutoMovieMotionHumanBendSweep } from "./AutoMovieMotionHumanBendSweep";
 
-/** The alternatives of `PrepareTrial`'s site. */
-type PrepareTrial = 0 | 1;
-
 /** The alternatives of `PrepareGoal`'s site. */
 type PrepareGoal = "point" | "rotation";
-
-/** The alternatives of `PrepareTrialResult`'s site. */
-type PrepareTrialResult = 0 | 1;
 
 /** The alternatives of `PrepareGoalResult`'s site. */
 type PrepareGoalResult = "point" | "rotation";
@@ -166,7 +159,7 @@ export namespace AutoMovieMotionHumanBendSearch {
       ) => number)
     | null {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(
+      AutoMovieMotionHumanBendChain(
         body,
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
@@ -180,7 +173,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     const strained: (
       u: IAngles,
       lowerWorld: () => IAutoMovieQuaternion,
-    ) => number = AutoMovieMotionHumanBendStrain.of(
+    ) => number = AutoMovieMotionHumanBendStrain(
       chain,
       body,
       side,
@@ -233,7 +226,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     props: Pick<IAutoMovieMotionHumanBend.ISolve, ContinuedProps>,
   ): (near?: IAutoMovieSwivelNear) => ContinuedResult {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(props.body, props.posture, props.side);
+      AutoMovieMotionHumanBendChain(props.body, props.posture, props.side);
     const neutral: IAngles | null = props.body.hanging(props.side);
     return (near?: IAutoMovieSwivelNear): ContinuedResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
@@ -276,7 +269,7 @@ export namespace AutoMovieMotionHumanBendSearch {
     hint: IAutoMovieVector3,
   ): IAngles | null {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(
+      AutoMovieMotionHumanBendChain(
         body,
         { root: { x: 0, y: 0, z: 0 }, yaw: 0 },
         side,
@@ -348,10 +341,9 @@ export namespace AutoMovieMotionHumanBendSearch {
   ): (
     goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoalResult>,
     rank: Parameters<typeof search>[1],
-    trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, PrepareTrialResult],
   ) => PrepareResult {
     const chain: AutoMovieMotionHumanBendChain.IChain | null =
-      AutoMovieMotionHumanBendChain.of(
+      AutoMovieMotionHumanBendChain(
         props.body,
         props.posture,
         props.side,
@@ -361,7 +353,6 @@ export namespace AutoMovieMotionHumanBendSearch {
     return (
       goal: Pick<IAutoMovieMotionHumanBend.ISolve, PrepareGoal>,
       rank: Parameters<typeof search>[1],
-      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, PrepareTrial],
     ): PrepareResult2 => {
       if (chain === null || neutral === null) return "the rig has no arm chain";
       const distance: number = Vector3.length(
@@ -380,7 +371,6 @@ export namespace AutoMovieMotionHumanBendSearch {
           neutral,
           ranking,
           undefined,
-          trial,
           ranking === strained,
         )?.candidate ?? "the arm chain is degenerate"
       );

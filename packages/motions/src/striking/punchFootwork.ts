@@ -377,7 +377,7 @@ export namespace punchFootwork {
       ): IAutoMovieMotionHumanFoot.IPlacement =>
         down[side]
           ? placed[side]
-          : AutoMovieMotionHumanFootRelax.of(
+          : AutoMovieMotionHumanFootRelax(
               body,
               { ...written, limbs: {} },
               side,

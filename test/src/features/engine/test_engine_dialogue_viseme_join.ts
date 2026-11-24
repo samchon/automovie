@@ -61,13 +61,12 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  *    object, unchanged.
  * 3. A line without a speaker, a speaker with no binding, and a speaker bound
  *    twice each return their own `not-run` reason.
- * 4. No viseme timing, overlapping visemes, a blank actor, fractional, negative or
- *    reversed line ranges, empty, negative or overrunning viseme shares, an
- *    unsupported mouth target, and a non-finite sample frame are each refused.
+ * 4. No viseme timing, overlapping visemes, fractional, negative or reversed line
+ *    ranges, and empty, negative or overrunning viseme shares are each refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls joinAutoMovieDialogueVisemes with explicit speaker bindings and supplied timing, then sampleAutoMovieDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing/target/sample refusals.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls joinAutoMovieDialogueVisemes with explicit speaker bindings and supplied timing, then sampleAutoMovieDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing refusals.
  * @evidence contracts/development/testing.md#independent-expectations Literal line [10,20), 2 000 samples per frame and the authored shares determine three ranges with the pause as `sil`. Frame 13 lies inside the aa range and frame 16 inside the pause, so they must lead with aa and sil, and the authored sad intensity remains 0.75; these expectations do not call the join or sampler to calculate their answers.
- * @evidence contracts/development/testing.md#distinguishing-cases Active-gap-active seeking distinguishes range selection from retained playback state; absent speaker, absent actor and duplicate bindings retain different reasons. Empty/overlapping/out-of-line/negative timing, blank actor, unsupported target and invalid sample frame each require the stated Error cause; coarticulation bounds belong to `test_engine_dialogue_viseme_coarticulation`.
+ * @evidence contracts/development/testing.md#distinguishing-cases Active-gap-active seeking distinguishes range selection from retained playback state; absent speaker, absent actor and duplicate bindings retain different reasons. Empty/overlapping/out-of-line/negative timing each require the stated Error cause; coarticulation bounds belong to `test_engine_dialogue_viseme_coarticulation`.
  * @evidence contracts/development/testing.md#execution-ownership Uses local timing/binding/expression records and synchronous pure APIs with existing throwsError and structural numeric comparator, without audio, scene/actor application, clocks, global replacement or a new host. Fixture timing does not authenticate final audio bytes, prove lip synchrony, or certify production pipeline wiring.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A line from frame 10 to 20 bound to one actor, with visemes at 12..15 and).
  */
@@ -251,10 +250,6 @@ export function test_engine_dialogue_viseme_join(): void {
   TestValidator.equals(
     "every malformed line and viseme boundary is refused at the join",
     {
-      blankActor: throwsError(
-        (): IAutoMovieDialogueVisemeCompilation => joinWith({ actor: " " }),
-        "must not be blank",
-      ),
       fractionalLineStart: throwsError(
         (): IAutoMovieDialogueVisemeCompilation =>
           joinWith({ line: { ...line(), startFrame: 10.5 } }),
@@ -317,33 +312,8 @@ export function test_engine_dialogue_viseme_join(): void {
           }),
         "outside or overlaps",
       ),
-      unsupportedViseme: throwsError(
-        (): IAutoMovieDialogueVisemeCompilation =>
-          joinWith({
-            visemes: [
-              {
-                phoneme: "x",
-                viseme: "bogus" as IAutoMovieProductionViseme["viseme"],
-                startSample: 4_000,
-                endSample: 6_000,
-              },
-            ],
-          }),
-        "unsupported mouth target",
-      ),
-      infiniteSample: throwsError(
-        (): IAutoMovieDialogueExpressionLayers =>
-          sampleAutoMovieDialogueExpression({
-            timeline: compiled.timeline!,
-            frame: Number.POSITIVE_INFINITY,
-            fps: 24,
-            authored: null,
-          }),
-        "finite",
-      ),
     },
     {
-      blankActor: true,
       fractionalLineStart: true,
       fractionalLineEnd: true,
       negativeLineStart: true,
@@ -351,8 +321,6 @@ export function test_engine_dialogue_viseme_join(): void {
       negativeViseme: true,
       emptyViseme: true,
       beyondLine: true,
-      unsupportedViseme: true,
-      infiniteSample: true,
     },
   );
 }

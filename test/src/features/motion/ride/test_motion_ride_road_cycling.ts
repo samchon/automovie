@@ -34,18 +34,22 @@ import { nclose } from "../../internal/nclose";
 import { vclose } from "../../internal/vclose";
 
 /**
- * One road take begins rolling, accelerates through seated and standing pedalling,
- * starts freewheeling while standing, reseats, and brakes into a flat turn.
+ * One road take begins rolling, accelerates through seated and standing
+ * pedalling, starts freewheeling while standing, reseats, and brakes into a
+ * flat turn.
  *
  * Scenarios:
+ *
  * 1. The rolling start and powered effort move both wheels and change the pedal
- *    phase. During the brake and turn, the wheels keep rolling and the pedals hold.
+ *    phase. During the brake and turn, the wheels keep rolling and the pedals
+ *    hold.
  * 2. Both displayed soles and hands follow the bicycle throughout the effort,
- *    coast and turn. The pelvis clears the saddle in the effort and settles again.
- * 3. Both posed tires stay within 5 mm of the road. The cycle is upright on
- *    the straight and leans inward at the speed and radius of the turn.
- * 4. The small woman, whose inseam lies below the saddle band, is refused
- *    the fitted bicycle at its saddle height.
+ *    coast and turn. The pelvis clears the saddle in the effort and settles
+ *    again.
+ * 3. Both posed tires stay within 5 mm of the road. The cycle is upright on the
+ *    straight and leans inward at the speed and radius of the turn.
+ * 4. The small woman, whose inseam lies below the saddle band, is refused the
+ *    fitted bicycle at its saddle height.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the authored phases, supports and road-height tolerance.
  * @evidence contracts/development/testing.md#behavioral-verification Observes wheel geometry, crank travel, moving contact frames and resolved Human poses at named beats and repeated film seconds.
@@ -59,7 +63,10 @@ export function test_motion_ride_road_cycling(): void {
   );
 }
 
-/** The riding body; the small woman is refused the bicycle, pinned by `bicycleRiders`. */
+/**
+ * The riding body; the small woman is refused the bicycle, pinned by
+ * `bicycleRiders`.
+ */
 type BodyKey = "m-average";
 
 /**
@@ -172,7 +179,7 @@ function take(key: BodyKey, failures: string[]): void {
   collectTakeClean(`${key} road cycling performance`, performance, failures);
   const segment: IAutoMovieMotionHumanSegment =
     performance.segments("cyclist")[1]!;
-  const rider: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const rider: ReturnType<typeof HumanSignature> = HumanSignature(
     performance,
     "cyclist",
     body,
@@ -187,7 +194,10 @@ function take(key: BodyKey, failures: string[]): void {
     if (!valid) findings.push(label);
   };
 
-  /** Displayed rider point relative to an actual bicycle contact in the carrier's axes. */
+  /**
+   * Displayed rider point relative to an actual bicycle contact in the
+   * carrier's axes.
+   */
   const relative = (
     id: createBicycle.Affordance,
     point: IAutoMovieVector3,

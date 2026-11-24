@@ -287,7 +287,7 @@ export namespace brace {
     const forward: number =
       (Math.atan2(toward.x, toward.z) * 180) / Math.PI - yaw;
     const upright: IAutoMovieMotionHumanPosture["joints"] =
-      standUpright.of(body).joints;
+      standUpright(body).joints;
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
       ...upright,

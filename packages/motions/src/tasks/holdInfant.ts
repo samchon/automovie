@@ -98,7 +98,7 @@ export namespace holdInfant {
       y: 0,
       z: 0,
     });
-    const infant: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const infant: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       params.prop,
@@ -107,7 +107,7 @@ export namespace holdInfant {
       params.kind === "feed"
         ? params.bottle === undefined
           ? refuse("feed", "a feed holds a bottle in the other hand")
-          : AutoMovieMotionHumanHeld.of(context, other, params.bottle)
+          : AutoMovieMotionHumanHeld(context, other, params.bottle)
         : undefined;
     const site: (
       held: IAutoMovieMotionHumanHeld.IHeld,
@@ -143,14 +143,7 @@ export namespace holdInfant {
     const crook: holdInfantCrook.ICrook | undefined =
       params.kind === "shoulder"
         ? undefined
-        : holdInfantCrook.of(
-            body,
-            side,
-            params.kind,
-            shoulder,
-            forward,
-            toward,
-          );
+        : holdInfantCrook(body, side, params.kind, shoulder, forward, toward);
     const face: IAutoMovieVector3 = Vector3.normalize(
       Vector3.add(UP, Vector3.scale(forward, -0.25)),
     );

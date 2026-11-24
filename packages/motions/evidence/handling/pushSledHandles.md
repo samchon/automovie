@@ -16,7 +16,7 @@ Three members, each read by `pushSled`'s grasp search.
 
 The symmetry is the affordance's own type, not restated.
 
-# src/handling/pushSledHandles.ts#pushSledHandles.of
+# src/handling/pushSledHandles.ts#pushSledHandles
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -1,4 +1,4 @@
-# src/compose/AutoMovieMotionMeeting.ts#AutoMovieMotionMeeting.of
+# src/compose/AutoMovieMotionMeeting.ts#AutoMovieMotionMeeting
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

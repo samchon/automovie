@@ -29,28 +29,46 @@ const FACE: equineBankStage.IFace = { grade: -0.6, run: 4 };
 /** The face's static hoof friction, authored. */
 const FRICTION: number = 0.5;
 
-/** A sole on its surface: the hoof bar's lowest surface within this of the plane, metres. */
+/**
+ * A sole on its surface: the hoof bar's lowest surface within this of the
+ * plane, metres.
+ */
 
-/** A sole standing on its surface, not lifting: within this of the plane, metres, under a swing's first rise. */
+/**
+ * A sole standing on its surface, not lifting: within this of the plane,
+ * metres, under a swing's first rise.
+ */
 const PLANTED: number = 0.001;
 
-/** The least turn of a hoof bar over a read interval that marks it rolling over its toe rather than sliding, radians: authored, one degree. */
+/**
+ * The least turn of a hoof bar over a read interval that marks it rolling over
+ * its toe rather than sliding, radians: authored, one degree.
+ */
 const ROLL: number = Math.PI / 180;
 const SURFACE: number = 0.005;
 
 /** The contact tolerance of the seated rider specs, metres. */
 const TOLERANCE: number = 0.01;
 
-/** The least extra flexion at the stifle and the hock while sat, degrees: an authored bound well under the sit's own pitch. */
+/**
+ * The least extra flexion at the stifle and the hock while sat, degrees: an
+ * authored bound well under the sit's own pitch.
+ */
 const FLEXION: number = 5;
 
-/** The least nose-up pitch of the trunk against the face while sat, degrees: an authored bound well under the technique's sit. */
+/**
+ * The least nose-up pitch of the trunk against the face while sat, degrees: an
+ * authored bound well under the technique's sit.
+ */
 const SAT: number = 10;
 
 /** Seconds a rider's figure change takes. */
 const TRANSFER: number = 0.4;
 
-/** The most a descending rider's trunk leans from upright in space, degrees: authored, well inside the horse's pitch on the face. */
+/**
+ * The most a descending rider's trunk leans from upright in space, degrees:
+ * authored, well inside the horse's pitch on the face.
+ */
 const UPRIGHT: number = 10;
 
 /** The slide on the face, at a friction. */
@@ -63,15 +81,32 @@ const slide = (friction: number): AutoMovieArchetypeEquineBank.ISlide => ({
 });
 
 /**
- * A horse slides down a steep bank sat on its haunches, its hinds sliding on the face and its fores stepping, carrying its rider.
+ * A horse slides down a steep bank sat on its haunches, its hinds sliding on
+ * the face and its fores stepping, carrying its rider.
  *
  * Scenarios:
- * 1. Through the sat interval each hind sole stays on the face (its lowest surface within 5 mm of the plane) and moves down it, while a fore sole standing on its surface (within 1 mm) through a 0.1 s interval (at each of its fifths) moves no more than 5 mm without turning by a degree (a hoof rolling over its toe turns): the slide is on the hinds only. Before the slide no hind sole on its surface through such an interval moves.
- * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the hock than when standing at the start, and the trunk pitches at least 10 degrees nose-up against the face, read from the emitted bars.
- * 3. The ride's placement stays continuous onto the level foot, with no jump between reads 20 ms apart across the slide's end.
- * 4. A face steeper than the technique's bound, a face its friction holds, a slide without a run-out at its foot and one without authored footing are refused on the leg's `equineFootwork`.
- * 6. No hoof standing on its surface lands within its pastern's length of the face's concave foot, where the face meets the level ground below: the hoof's foothold, its terminal endpoint (its rig pastern along the bar from the fetlock) laid onto its plane, stays that far from the edge.
- * 5. A mounted rider in the descent seat keeps the seat socket within 10 mm of the saddle and the trunk within 10 degrees of upright in space through the slide, and the take passes the shipped take verdicts.
+ *
+ * 1. Through the sat interval each hind sole stays on the face (its lowest surface
+ *    within 5 mm of the plane) and moves down it, while a fore sole standing on
+ *    its surface (within 1 mm) through a 0.1 s interval (at each of its fifths)
+ *    moves no more than 5 mm without turning by a degree (a hoof rolling over
+ *    its toe turns): the slide is on the hinds only. Before the slide no hind
+ *    sole on its surface through such an interval moves.
+ * 2. Sat, each hind limb flexes at least 5 degrees more at the stifle and at the
+ *    hock than when standing at the start, and the trunk pitches at least 10
+ *    degrees nose-up against the face, read from the emitted bars.
+ * 3. The ride's placement stays continuous onto the level foot, with no jump
+ *    between reads 20 ms apart across the slide's end.
+ * 4. A face steeper than the technique's bound, a face its friction holds, a slide
+ *    without a run-out at its foot and one without authored footing are refused
+ *    on the leg's `equineFootwork`.
+ * 5. No hoof standing on its surface lands within its pastern's length of the
+ *    face's concave foot, where the face meets the level ground below: the
+ *    hoof's foothold, its terminal endpoint (its rig pastern along the bar from
+ *    the fetlock) laid onto its plane, stays that far from the edge.
+ * 6. A mounted rider in the descent seat keeps the seat socket within 10 mm of the
+ *    saddle and the trunk within 10 degrees of upright in space through the
+ *    slide, and the take passes the shipped take verdicts.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Rides the public horse ride over authored footing and reads the emitted hoof, limb and trunk bars against the face, and a mounted rider's seat against the saddle; a hoof off the face, a fore that slides, unflexed hinds, an upright trunk, a jump at the foot or an admitted face out of bounds fails.
@@ -97,7 +132,10 @@ export function test_motion_mount_equine_bank_slide(): void {
 
   // 1. The hinds slide on the face; the fores do not.
   const step: number = 0.1;
-  /** A hoof on its surface through a read interval, at each of its fifths, that moves more than a sole's tolerance: a slide, not a liftoff or a touchdown. */
+  /**
+   * A hoof on its surface through a read interval, at each of its fifths, that
+   * moves more than a sole's tolerance: a slide, not a liftoff or a touchdown.
+   */
   const slides = (
     at: number,
     limb: AutoMovieArchetypeQuadrupedBody.Limb,
@@ -328,7 +366,7 @@ export function test_motion_mount_equine_bank_slide(): void {
       },
     ]),
   );
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "rider",
     body,

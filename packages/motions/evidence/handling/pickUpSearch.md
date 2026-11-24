@@ -16,7 +16,7 @@ pickUpStance chooses among these records and pickUp consumes all three fields to
 
 Every record comes from its own actual stance search, without reusing another stance's wrist, goal, solution or refusal verdict.
 
-# src/handling/pickUpSearch.ts#pickUpSearch.of
+# src/handling/pickUpSearch.ts#pickUpSearch
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

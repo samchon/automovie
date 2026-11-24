@@ -16,7 +16,7 @@ The stroke and grip admission read the same modeled tool and pivot as the pose c
 
 None optional.
 
-# src/lexicon/HumanWeaponPose.ts#HumanWeaponPose.of
+# src/lexicon/HumanWeaponPose.ts#HumanWeaponPose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -203,7 +203,7 @@ export function drawFromCarrierPivot(
   };
 }
 
-/** `drawFromCarrierPivot.of` and its records. */
+/** `drawFromCarrierPivot` and its records. */
 export namespace drawFromCarrierPivot {
   /**
    * The two roots of a point's slide back along a carrier's line that put it at

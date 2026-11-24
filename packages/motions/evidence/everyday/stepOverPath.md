@@ -1,4 +1,4 @@
-# src/everyday/stepOverPath.ts#stepOverPath.of
+# src/everyday/stepOverPath.ts#stepOverPath
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

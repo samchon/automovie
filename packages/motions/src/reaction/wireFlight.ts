@@ -121,9 +121,9 @@ export namespace wireFlight {
     // it, so a bone the shape does not name keeps its hanging angle.
     const quiet: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(context.body),
-      ...standUpright.of(context.body).joints,
+      ...standUpright(context.body).joints,
     };
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
       { name: "takeoff", seconds: 0 },
       { name: "land", seconds },
     ]);

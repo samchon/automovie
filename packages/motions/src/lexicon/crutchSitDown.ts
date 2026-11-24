@@ -306,7 +306,7 @@ export function crutchSitDown(
       kind: "plant",
       from: (lower + reach) / duration,
       to: 1,
-      support: HumanSupportFrame.of(context),
+      support: HumanSupportFrame(context),
     },
   ];
   const events: IAutoMovieMotionEvent[] = [

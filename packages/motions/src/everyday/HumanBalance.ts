@@ -305,7 +305,7 @@ export namespace HumanBalance {
     at: (seconds: number) => IAutoMovieMotionHumanPosture,
     seconds: number,
   ): number {
-    return HumanBalanceExtrapolated.of(body, at, seconds);
+    return HumanBalanceExtrapolated(body, at, seconds);
   }
 
   /**

@@ -133,7 +133,7 @@ export function wardrobeSleeve(
   };
 }
 
-/** `wardrobeSleeve.of` and its records. */
+/** The records of `wardrobeSleeve`. */
 export namespace wardrobeSleeve {
   /** Two display grip targets lie on opposite sides of a real sleeve. */
   export interface ISleeve {

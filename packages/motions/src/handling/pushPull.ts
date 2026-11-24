@@ -95,11 +95,11 @@ export namespace pushPull {
 
     // The lean for the declared load at the handles' height above the floor.
     const handles: Record<AutoMovieHumanSide, pushSledHandles.IHandle> =
-      pushSledHandles.of(context, p.prop, left, right);
+      pushSledHandles(context, p.prop, left, right);
     const height: number =
       (handles.left.frame.point.y + handles.right.frame.point.y) / 2 -
       pushSledStance.floor(context.body, context.entry.feet);
-    const incline: number = pushPullLean.of(
+    const incline: number = pushPullLean(
       context.body,
       p.way,
       p.load ?? "moderate",

@@ -39,7 +39,7 @@ export namespace HumanPartner {
    */
   export const relayIncoming: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayIncoming"]
-  > = HumanActionRow.of("relayIncoming", relayPass, {
+  > = HumanActionRow("relayIncoming", relayPass, {
     role: "incoming",
   });
 
@@ -52,7 +52,7 @@ export namespace HumanPartner {
    */
   export const relayOutgoing: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["relayOutgoing"]
-  > = HumanActionRow.of("relayOutgoing", relayPass, {
+  > = HumanActionRow("relayOutgoing", relayPass, {
     role: "outgoing",
   });
 
@@ -64,7 +64,7 @@ export namespace HumanPartner {
    */
   export const danceLead: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceLead"]
-  > = HumanActionRow.of("danceLead", walk, {
+  > = HumanActionRow("danceLead", walk, {
     pace: "slow",
   });
 
@@ -77,7 +77,7 @@ export namespace HumanPartner {
    */
   export const danceFollow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceFollow"]
-  > = HumanActionRow.of("danceFollow", approach, {
+  > = HumanActionRow("danceFollow", approach, {
     from: "right",
     at: 0.4,
     pace: "slow",
@@ -93,7 +93,7 @@ export namespace HumanPartner {
    */
   export const danceHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["danceHold"]
-  > = HumanActionRow.of("danceHold", touch, HUMAN_TOUCH_PARTNER_DANCE_HOLD);
+  > = HumanActionRow("danceHold", touch, HUMAN_TOUCH_PARTNER_DANCE_HOLD);
 
   /**
    * Judo's grip (kumikata) for a throw: the right hand on the partner's left
@@ -102,7 +102,7 @@ export namespace HumanPartner {
    */
   export const judoGrip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["judoGrip"]
-  > = HumanActionRow.of("judoGrip", clinch, HUMAN_GRAPPLE_JUDO_GRIP);
+  > = HumanActionRow("judoGrip", clinch, HUMAN_GRAPPLE_JUDO_GRIP);
 
   /**
    * The receiver of a judo throw drawn off balance forward (`kuzushi`), the
@@ -110,7 +110,7 @@ export namespace HumanPartner {
    */
   export const judoBroken: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["social"]["judoBroken"]
-  > = HumanActionRow.of("judoBroken", kuzushi, {
+  > = HumanActionRow("judoBroken", kuzushi, {
     depth: kuzushi.DEPTH,
   });
 

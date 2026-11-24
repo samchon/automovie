@@ -102,8 +102,10 @@ export namespace dance {
       body.measure;
     const bpm: number = p.bpm ?? BPM;
     const beats: number = p.count ?? 8;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     // The beats: the locked track's instants from the start, at their mean
     // interval (each its own under a waltz), or the tempo's.
     const clocked: IAutoMovieMotionHumanDanceBeats = prepareDanceBeats(
@@ -120,7 +122,7 @@ export namespace dance {
     for (let k: number = 1; k <= beats; k++)
       instants.push({ name: `beat${k}`, seconds: beatAt(k) });
     const duration: number = beatAt(beats) + period;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       ...instants,
       { name: "relax", seconds: beatAt(beats) },
     ]);

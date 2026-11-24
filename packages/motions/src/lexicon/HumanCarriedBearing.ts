@@ -119,7 +119,7 @@ export namespace HumanCarriedBearing {
             HumanCarried.CARRIES[keyed],
             role,
           );
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(seconds, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(seconds, [
       { name: "held", seconds: Math.min(seconds, HumanCarried.TAKE) },
     ]);
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];

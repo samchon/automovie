@@ -28,12 +28,17 @@ import { nclose, qclose, vclose } from "../internal/predicates";
 import { throwsError } from "../internal/throwsError";
 
 /**
- * Course geometry and the rendered carrier use the same measured frames, including pauses and banking.
+ * Course geometry and the rendered carrier use the same measured frames,
+ * including pauses and banking.
  *
  * Scenarios:
+ *
  * 1. A 3-4-5 straight grade yields a known forward vector and 30-degree bank.
- * 2. A nonplanar loop joins its own frame, rail sections and held station. Live motion keeps a seated rider in the carrier's frame throughout the lapped course.
- * 3. Invalid bank basis, station without a dwell and inclined boarding are refused at the authoring seam.
+ * 2. A nonplanar loop joins its own frame, rail sections and held station. Live
+ *    motion keeps a seated rider in the carrier's frame throughout the lapped
+ *    course.
+ * 3. Invalid bank basis, station without a dwell and inclined boarding are refused
+ *    at the authoring seam.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Identifies each observable frame, seam, stop and authoring refusal.
  * @evidence contracts/development/testing.md#behavioral-verification Reads a scene environment's emitted mesh, prop and object-motion clip and an existing seated ride action.
@@ -135,7 +140,7 @@ export function test_location_tracked_ride(): void {
     (contact: IAutoMovieAffordance): boolean => contact.id === "seat",
   )!;
   const { film, actor, body } = locationTrackedRidePassenger(fixture);
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     actor.node,
     body,

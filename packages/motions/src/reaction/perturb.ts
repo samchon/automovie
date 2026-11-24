@@ -252,7 +252,7 @@ export namespace perturb {
         params: { target: from, speed: Math.max(speed, Number.MIN_VALUE) },
       };
     const admitted: staggerRecovery.IAdmitted | null =
-      balanced.outcome === "absorb" ? null : staggerRecovery.of(staggered);
+      balanced.outcome === "absorb" ? null : staggerRecovery(staggered);
     const caught: IAutoMovieMotionHumanActionPlan | null =
       admitted === null || admitted.recovery === null
         ? null
@@ -364,7 +364,7 @@ export namespace perturb {
     // Settled to within e^-4 (under 2 %) of the peak: x(t) / x(1 / ω0) =
     // τ e^(1 - τ) at τ = ω0 t, which falls to e^-4 where τ - ln τ = 5.
     const duration: number = SETTLED / w0;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(duration, [
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, [
       { name: "peak", seconds: 1 / w0 },
     ]);
     const local: IAutoMovieVector3 = HumanFrame.local(

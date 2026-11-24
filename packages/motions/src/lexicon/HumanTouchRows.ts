@@ -32,7 +32,7 @@ export namespace HumanTouchRows {
    */
   export const touchTap: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchTap"]
-  > = HumanActionRow.of("touchTap", touch, HUMAN_TOUCH_TAP);
+  > = HumanActionRow("touchTap", touch, HUMAN_TOUCH_TAP);
 
   /**
    * `touch` of kind `pat`: 3 pats of 0.4 s, then 0.4 s, 1.6 s after the reach;
@@ -42,7 +42,7 @@ export namespace HumanTouchRows {
    */
   export const touchPat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPat"]
-  > = HumanActionRow.of("touchPat", touch, HUMAN_TOUCH_PAT);
+  > = HumanActionRow("touchPat", touch, HUMAN_TOUCH_PAT);
 
   /**
    * `touch` of kind `stroke`: one stroke at a 5 cm/s peak (the pleasant-touch
@@ -52,7 +52,7 @@ export namespace HumanTouchRows {
    */
   export const touchStroke: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchStroke"]
-  > = HumanActionRow.of("touchStroke", touch, HUMAN_TOUCH_STROKE);
+  > = HumanActionRow("touchStroke", touch, HUMAN_TOUCH_STROKE);
 
   /**
    * `touch` of kind `rub`: 3 rubs of 0.5 s, then 0.4 s, 1.9 s after the reach;
@@ -62,7 +62,7 @@ export namespace HumanTouchRows {
    */
   export const touchRub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchRub"]
-  > = HumanActionRow.of("touchRub", touch, HUMAN_TOUCH_RUB);
+  > = HumanActionRow("touchRub", touch, HUMAN_TOUCH_RUB);
 
   /**
    * `touch` of kind `press`: one press of 0.4 s, then held 1.2 s, 1.6 s after
@@ -72,7 +72,7 @@ export namespace HumanTouchRows {
    */
   export const touchPress: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchPress"]
-  > = HumanActionRow.of("touchPress", touch, HUMAN_TOUCH_PRESS);
+  > = HumanActionRow("touchPress", touch, HUMAN_TOUCH_PRESS);
 
   /**
    * `touch` of kind `squeeze`: one squeeze of 0.4 s with the fingers curled 20
@@ -82,7 +82,7 @@ export namespace HumanTouchRows {
    */
   export const touchSqueeze: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchSqueeze"]
-  > = HumanActionRow.of("touchSqueeze", touch, HUMAN_TOUCH_SQUEEZE);
+  > = HumanActionRow("touchSqueeze", touch, HUMAN_TOUCH_SQUEEZE);
 
   /**
    * `touch` of kind `hold`: one placement of 0.4 s, then held 1.2 s, 1.6 s
@@ -92,7 +92,7 @@ export namespace HumanTouchRows {
    */
   export const touchHold: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchHold"]
-  > = HumanActionRow.of("touchHold", touch, HUMAN_TOUCH_HOLD);
+  > = HumanActionRow("touchHold", touch, HUMAN_TOUCH_HOLD);
 
   /**
    * `touch` of kind `scratch`: 3 scratches of 0.2 s with curled fingers, then
@@ -102,5 +102,5 @@ export namespace HumanTouchRows {
    */
   export const touchScratch: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperTouch"]["touchScratch"]
-  > = HumanActionRow.of("touchScratch", touch, HUMAN_TOUCH_SCRATCH);
+  > = HumanActionRow("touchScratch", touch, HUMAN_TOUCH_SCRATCH);
 }

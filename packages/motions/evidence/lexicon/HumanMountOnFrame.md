@@ -34,7 +34,7 @@ Given by the sitting.
 
 The sitting's own seated posture.
 
-# src/lexicon/HumanMountOnFrame.ts#HumanMountOnFrame.of
+# src/lexicon/HumanMountOnFrame.ts#HumanMountOnFrame
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

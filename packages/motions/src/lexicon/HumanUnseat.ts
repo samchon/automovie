@@ -113,7 +113,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
 
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.frame,
@@ -240,7 +240,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       window,
     });
 
-  const flight: HumanUnseatFlight.IFlight = HumanUnseatFlight.of(
+  const flight: HumanUnseatFlight.IFlight = HumanUnseatFlight(
     at.root,
     velocity,
     push,

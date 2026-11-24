@@ -1,4 +1,4 @@
-# src/perform/sampleHumanSimulationTargets.ts#sampleHumanSimulationTargets
+# src/perform/sampleHumanSimulationTargets.ts#sampleHumanSimulationTargets.of
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

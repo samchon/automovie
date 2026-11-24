@@ -22,7 +22,7 @@ export namespace HumanDressRows {
    */
   export const dressHat: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressHat"]
-  > = HumanActionRow.of("dressHat", dress, { item: "hat" });
+  > = HumanActionRow("dressHat", dress, { item: "hat" });
 
   /**
    * `dress` putting on a `glasses`. The same phases as the hat without the turn
@@ -30,7 +30,7 @@ export namespace HumanDressRows {
    */
   export const dressGlasses: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["upperDress"]["dressGlasses"]
-  > = HumanActionRow.of("dressGlasses", dress, {
+  > = HumanActionRow("dressGlasses", dress, {
     item: "glasses",
   });
 }

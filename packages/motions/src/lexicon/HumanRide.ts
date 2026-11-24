@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { createHumanBody } from "../body/createHumanBody";
 import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -121,7 +120,7 @@ export namespace HumanRide {
         });
       const support: IAutoMovieMotionHumanPropReader = context.prop(on);
       // A hand that holds a prop and takes no grip of the ride keeps the carriage it brought in, its prop gripped through the ride (`HeldRideArms`).
-      const kept: HeldRideArms.IKept = HeldRideArms.of(context);
+      const kept: HeldRideArms.IKept = HeldRideArms(context);
       const seated: IAutoMovieMotionHumanPosture = kept.posture;
       const origin: IAutoMovieRigidTransform = support.frame(context.start);
       const bears = (
@@ -226,7 +225,7 @@ export namespace HumanRide {
         gripsAt,
         closures,
         alternatives,
-      }: HumanRideHands.IHands = HumanRideHands.of(
+      }: HumanRideHands.IHands = HumanRideHands(
         context,
         on,
         support,
@@ -257,7 +256,7 @@ export namespace HumanRide {
       const rests: RideRestingHands.Rests =
         equestrian === undefined
           ? {}
-          : RideRestingHands.of(
+          : RideRestingHands(
               context.body,
               seated,
               context.entry.pose,
@@ -395,8 +394,7 @@ export namespace HumanRide {
         const taking: ReturnType<typeof HumanMountRider.taking> | undefined =
           taken < 1 &&
           grips.left !== undefined &&
-          grips.right !== undefined &&
-          createHumanBody.owns(context.body)
+          grips.right !== undefined
             ? HumanMountRider.taking(context.body, out, taken)
             : undefined;
         for (const side of ["left", "right"] as const) {

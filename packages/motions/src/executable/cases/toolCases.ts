@@ -87,7 +87,7 @@ export function toolCases(
                     : "square",
               },
             })
-            .act("useTool", params),
+            .act("useTool", params).node,
           props,
         );
       const plan: IAutoMovieMotionHumanUseTool.IPlan = performance

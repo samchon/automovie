@@ -23,20 +23,43 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 /** The contact tolerance of the seated rider specs, metres. */
 const TOLERANCE: number = 0.01;
 
-/** Seconds a figure change takes: the stirrups let go at the float and retaken at the landing. */
+/**
+ * Seconds a figure change takes: the stirrups let go at the float and retaken
+ * at the landing.
+ */
 const TRANSFER: number = 0.6;
 
-/** The rider's head region kept over the water: the head bone's centre at least this far above it, metres, an authored margin for the jaw below the head joint. */
+/**
+ * The rider's head region kept over the water: the head bone's centre at least
+ * this far above it, metres, an authored margin for the jaw below the head
+ * joint.
+ */
 const HEAD: number = 0.12;
 
 /**
- * A rider stays seated on a horse wading a ford, swimming it with the feet out of the stirrups, and taking the stirrups back as the horse lands on the far shelf.
+ * A rider stays seated on a horse wading a ford, swimming it with the feet out
+ * of the stirrups, and taking the stirrups back as the horse lands on the far
+ * shelf.
  *
  * Scenarios:
- * 1. While wading and after the landing, the rider's seat socket stays within 10 mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand lengths of it, slipping less than 10 mm, the vault spec's handle criterion), and the right palm stays within 10 mm of its rein's skin. While the horse swims, the seat and both holds stay, the feet are out of the stirrups (a swimming horse's rider takes them out, so a rolling horse cannot trap them; scenario 2), and the head bone's centre is at least 0.12 m above the water. At every read instant each ankle lies outside the horse's barrel (its trunk capsule).
- * 2. The mounted law's stirrup windows close at the float, stay closed through the swim and reopen within the landing figure's transfer, held to the halt.
- * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
- * The far bank's unreachable shelf is refused by the crossing itself, pinned by test_archetype_equine_ford; the floating crossing belongs to test_archetype_equine_ford_float and the mounted climb out with the lead-out to test_archetype_equine_ford_leadout.
+ *
+ * 1. While wading and after the landing, the rider's seat socket stays within 10
+ *    mm of the saddle's seat, the left wrist holds the mane (within 0.7 hand
+ *    lengths of it, slipping less than 10 mm, the vault spec's handle
+ *    criterion), and the right palm stays within 10 mm of its rein's skin.
+ *    While the horse swims, the seat and both holds stay, the feet are out of
+ *    the stirrups (a swimming horse's rider takes them out, so a rolling horse
+ *    cannot trap them; scenario 2), and the head bone's centre is at least 0.12
+ *    m above the water. At every read instant each ankle lies outside the
+ *    horse's barrel (its trunk capsule).
+ * 2. The mounted law's stirrup windows close at the float, stay closed through the
+ *    swim and reopen within the landing figure's transfer, held to the halt.
+ * 3. The take passes the shipped take verdicts: no tangle, jump, turn, reversal,
+ *    skate, floor or unloaded fault. The far bank's unreachable shelf is
+ *    refused by the crossing itself, pinned by test_archetype_equine_ford; the
+ *    floating crossing belongs to test_archetype_equine_ford_float and the
+ *    mounted climb out with the lead-out to
+ *    test_archetype_equine_ford_leadout.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted laws on the public crossing and reads the displayed seat, palms, feet and head against the horse's moving saddle, mane, rein, stirrups and the authored water; a rider left behind at a cut, a hand off its hold or a submerged head fails.
@@ -105,7 +128,7 @@ export function test_motion_mount_equine_ford_rider(): void {
   };
 
   // 1. Seated through the crossing.
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "rider",
     body,

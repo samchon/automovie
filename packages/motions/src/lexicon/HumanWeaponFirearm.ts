@@ -54,7 +54,7 @@ export namespace HumanWeaponFirearm {
    */
   export const draw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["draw"]
-  > = HumanActionRow.of("drawFirearm", pickUp, HUMAN_FIREARM_DRAW);
+  > = HumanActionRow("drawFirearm", pickUp, HUMAN_FIREARM_DRAW);
 
   /**
    * Holster: put the firearm back where the composition says its holster holds
@@ -62,5 +62,5 @@ export namespace HumanWeaponFirearm {
    */
   export const holster: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["weaponFirearm"]["holster"]
-  > = HumanActionRow.of("holsterFirearm", putDown, {});
+  > = HumanActionRow("holsterFirearm", putDown, {});
 }

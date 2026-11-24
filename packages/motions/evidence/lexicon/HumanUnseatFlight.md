@@ -16,7 +16,7 @@ Read by `at`.
 
 None.
 
-# src/lexicon/HumanUnseatFlight.ts#HumanUnseatFlight.of
+# src/lexicon/HumanUnseatFlight.ts#HumanUnseatFlight
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -39,7 +39,7 @@ export namespace WorkoutPoses {
      * A standing calf stretch: the left leg back and straight with its heel
      * down, the hands forward, held 20 s.
      */
-    calfStretch: WorkoutStance.of(
+    calfStretch: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.5,
@@ -66,7 +66,7 @@ export namespace WorkoutPoses {
      * A chest stretch: both straight arms opened behind the line of the
      * shoulders, held 20 s.
      */
-    chestStretch: WorkoutStance.of(
+    chestStretch: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.5,
@@ -90,7 +90,7 @@ export namespace WorkoutPoses {
      * A triceps stretch: the right elbow overhead and bent, the left hand
      * brought to it, held 20 s.
      */
-    tricepsStretch: WorkoutStance.of(
+    tricepsStretch: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1.5,
@@ -116,7 +116,7 @@ export namespace WorkoutPoses {
      * A lunge with a twist, in place: a split stance with the trunk turned over
      * the front leg, alternating.
      */
-    lungeTwist: WorkoutStance.of(
+    lungeTwist: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0,
@@ -143,7 +143,7 @@ export namespace WorkoutPoses {
     ),
 
     /** Warrior I of yoga: a split stance with the arms overhead, held 15 s. */
-    warriorOne: WorkoutStance.of(
+    warriorOne: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       2,
@@ -165,7 +165,7 @@ export namespace WorkoutPoses {
      * The triangle of yoga: a straddle with the trunk bent to the side and the
      * arms in one line, held 15 s.
      */
-    triangle: WorkoutStance.of(
+    triangle: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       2,
@@ -192,7 +192,7 @@ export namespace WorkoutPoses {
      * 60 degrees over an upright shank, the arms level to the sides, held 15 s;
      * the straight leg's spread is solved so both feet stand.
      */
-    warriorTwo: WorkoutStance.of(
+    warriorTwo: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       2,
@@ -222,7 +222,7 @@ export namespace WorkoutPoses {
      * the plank, the cobra and the dog that complete the flow are their own
      * rows.
      */
-    sunSalutation: WorkoutStance.of(
+    sunSalutation: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0,
@@ -282,7 +282,7 @@ export namespace WorkoutPoses {
      * Karate's front stance (zenkutsu-dachi): a split stance with the fists at
      * the hips, held 3 s.
      */
-    frontStance: WorkoutStance.of(
+    frontStance: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,
@@ -301,7 +301,7 @@ export namespace WorkoutPoses {
     ),
 
     /** Karate's low block (gedan-barai) with the right arm. */
-    lowBlock: WorkoutStance.of(
+    lowBlock: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.4,
@@ -327,7 +327,7 @@ export namespace WorkoutPoses {
     ),
 
     /** Karate's rising block (age-uke) with the right arm. */
-    risingBlock: WorkoutStance.of(
+    risingBlock: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0.4,
@@ -356,7 +356,7 @@ export namespace WorkoutPoses {
      * A football header: the trunk drawn back and snapped forward through the
      * ball.
      */
-    header: WorkoutStance.of(
+    header: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0,
@@ -389,7 +389,7 @@ export namespace WorkoutPoses {
     ),
 
     /** A chest trap: the trunk leaned back under the ball with the arms out. */
-    chestTrap: WorkoutStance.of(
+    chestTrap: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       0,
@@ -416,7 +416,7 @@ export namespace WorkoutPoses {
      * A thigh trap: the right thigh raised under the ball over the standing
      * left foot.
      */
-    thighTrap: WorkoutStance.of(
+    thighTrap: WorkoutStance(
       ["leftFoot"],
       WorkoutStance.LEFT,
       0,
@@ -451,7 +451,7 @@ export namespace WorkoutPoses {
      * A ballroom closed hold: the left hand out at the shoulder's height, the
      * right arm round the partner, held 5 s.
      */
-    closedHold: WorkoutStance.of(
+    closedHold: WorkoutStance(
       WorkoutStance.ANKLES,
       WorkoutStance.FEET,
       1,

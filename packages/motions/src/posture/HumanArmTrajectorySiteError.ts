@@ -64,7 +64,14 @@ export namespace HumanArmTrajectorySiteError {
   ): IReading {
     const base: IValue = value(c, placed, x, a, k, site, -1, -1, 0);
     const arms: number[] = [a];
-    const riding: number | undefined = P.located(c, placed, a, k, site).on?.arm;
+    const riding: number | undefined = P.located(
+      c,
+      (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+        placed[arm]![k]!,
+      a,
+      k,
+      site,
+    ).on?.arm;
     if (riding !== undefined && riding !== a) arms.push(riding);
     const idx: number[] = [];
     const excessRow: number[] = [];
@@ -129,7 +136,14 @@ export namespace HumanArmTrajectorySiteError {
               return copy;
             },
           );
-    const at: P.ILocated = P.located(c, moved, a, k, site);
+    const at: P.ILocated = P.located(
+      c,
+      (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+        moved[arm]![k]!,
+      a,
+      k,
+      site,
+    );
     const contact: IAutoMovieVector3 = P.pad(moved[a]![k]!, site.contact);
     const off: IAutoMovieVector3 = Vector3.scale(
       Vector3.subtract(contact, at.point),

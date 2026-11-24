@@ -227,7 +227,7 @@ export namespace sit {
     const final: (typeof sitPlace.BACKS)[typeof back] = sitPlace.BACKS[back];
     const relaxed: IAutoMovieMotionHumanPosture["joints"] = {
       ...stand.relaxed(body),
-      ...standUpright.of(body).joints,
+      ...standUpright(body).joints,
     };
     const adjusted: ReturnType<typeof prepareSitWorkingFeet> =
       prepareSitWorkingFeet(context, entered, goal, final.pitch, relaxed);
@@ -238,7 +238,7 @@ export namespace sit {
     const r: number = seated.ratio(body, seat, under);
     const descent: number =
       seatedCourse.descent(r) *
-      AutoMovieMotionManner.of(context, context.params.manner).tempo;
+      AutoMovieMotionManner(context, context.params.manner).tempo;
     const peak: number = seatedCourse.flexion(r);
     const contact: number = CONTACT * descent;
     const across: number = ACROSS * descent;
@@ -345,7 +345,7 @@ export namespace sit {
         kind: "seat",
         from: contact / duration,
         to: 1,
-        support: HumanSupportFrame.of(context),
+        support: HumanSupportFrame(context),
       },
     ];
 
@@ -357,7 +357,7 @@ export namespace sit {
           kind: "plant",
           from: contact / duration,
           to: 1,
-          support: HumanSupportFrame.of(context),
+          support: HumanSupportFrame(context),
         });
     // The body lowered over its feet and onto the seat, its arms hanging and
     // its fingers straightening as each hand comes to rest.

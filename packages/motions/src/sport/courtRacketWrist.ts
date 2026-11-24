@@ -156,7 +156,7 @@ export namespace courtRacketWrist {
     side: AutoMovieHumanSide,
     implement: string,
   ): IAutoMovieMotionHumanStrikingHeld.ITool {
-    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+    const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
       context,
       side,
       implement,

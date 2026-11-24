@@ -80,7 +80,7 @@ function level(
   );
   const lean: IAutoMovieVector3 = HumanFrame.point(
     { origin: { x: 0, y: 0, z: 0 }, yaw },
-    { x: 0, y: 0, z: standUpright.of(body).lean },
+    { x: 0, y: 0, z: standUpright(body).lean },
   );
   return {
     x: (feet.left.x + feet.right.x) / 2 - mid.x + lean.x,

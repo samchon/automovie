@@ -459,7 +459,7 @@ export namespace HumanSwordParry {
                 HumanSwordTiming.travel(s.tool, closed, held)) /
               speed,
           }),
-          AutoMovieMotionManner.of(context, context.params.manner),
+          AutoMovieMotionManner(context, context.params.manner),
         );
 
         // A taken blade is carried aside by one minimum-jerk unit from the

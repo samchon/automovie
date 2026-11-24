@@ -98,7 +98,7 @@ export function kickChainRead(
               foot.worldRotation,
             ),
           ),
-          Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2]),
+          Vector3.scale(props.direction, StrikingWeapon.legRadii(body)[2][0]),
         );
   const residual: number = Vector3.distance(reached, props.planned);
   const flexion: number =

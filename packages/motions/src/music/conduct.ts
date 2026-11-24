@@ -109,9 +109,7 @@ export const conduct: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanConduc
     plan,
   };
 
-/**
- * Read the beats and the lever, then aim the baton hand along the figure.
- */
+/** Read the beats and the lever, then aim the baton hand along the figure. */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanConduct.IParams>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -126,7 +124,7 @@ function plan(
   );
   const side: AutoMovieHumanSide =
     p.hand ?? (context.entry.holds.left === p.baton ? "left" : "right");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.baton,

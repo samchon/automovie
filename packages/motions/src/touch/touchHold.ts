@@ -295,7 +295,7 @@ export namespace touchHold {
     const travel: number =
       AutoMovieMotionHumanTouchForm.FORMS[p.kind ?? "pat"].travel *
       context.body.measure.hand *
-      AutoMovieMotionManner.of(context, p.manner).extent;
+      AutoMovieMotionManner(context, p.manner).extent;
     return (
       side: AutoMovieHumanSide,
       target: IAutoMovieMotionTarget,

@@ -1,4 +1,4 @@
-# src/floor/crawlInchwormPose.ts#crawlInchwormPose.of
+# src/floor/crawlInchwormPose.ts#crawlInchwormPose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

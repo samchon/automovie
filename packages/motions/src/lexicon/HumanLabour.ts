@@ -26,7 +26,7 @@ export namespace HumanLabour {
    */
   export const carryBox: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryBox"]
-  > = HumanActionRow.of("carryBox", carry, {
+  > = HumanActionRow("carryBox", carry, {
     kind: "twoHands",
   });
 
@@ -37,7 +37,7 @@ export namespace HumanLabour {
    */
   export const carryBag: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryBag"]
-  > = HumanActionRow.of("carryBag", carry, {
+  > = HumanActionRow("carryBag", carry, {
     kind: "oneHand",
   });
 
@@ -48,7 +48,7 @@ export namespace HumanLabour {
    */
   export const carryOnHip: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["carryOnHip"]
-  > = HumanActionRow.of("carryOnHip", carry, {
+  > = HumanActionRow("carryOnHip", carry, {
     kind: "hip",
   });
 
@@ -59,7 +59,7 @@ export namespace HumanLabour {
    */
   export const pushCart: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["pushCart"]
-  > = HumanActionRow.of("pushCart", carry, { kind: "push" });
+  > = HumanActionRow("pushCart", carry, { kind: "push" });
 
   /**
    * Haul a heavy load slowly in both hands: the slow walk (about 0.82 m/s,
@@ -68,7 +68,7 @@ export namespace HumanLabour {
    */
   export const haul: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["haul"]
-  > = HumanActionRow.of("haul", carry, HUMAN_LABOUR_HAUL);
+  > = HumanActionRow("haul", carry, HUMAN_LABOUR_HAUL);
 
   /**
    * Drive nails: a hammer swung four times at 2 Hz, 2 s
@@ -76,7 +76,7 @@ export namespace HumanLabour {
    */
   export const hammer: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["hammer"]
-  > = HumanActionRow.of("hammer", useTool, HUMAN_LABOUR_HAMMER);
+  > = HumanActionRow("hammer", useTool, HUMAN_LABOUR_HAMMER);
 
   /**
    * Saw through a board: 4 push-pull cycles of 0.5 s, 2 s, when `cycles` is
@@ -84,12 +84,12 @@ export namespace HumanLabour {
    */
   export const saw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["saw"]
-  > = HumanActionRow.of("saw", useTool, { tool: "saw" });
+  > = HumanActionRow("saw", useTool, { tool: "saw" });
 
   /** Stir a pot. */
   export const stir: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["stir"]
-  > = HumanActionRow.of("stir", useTool, { tool: "stir" });
+  > = HumanActionRow("stir", useTool, { tool: "stir" });
 
   /**
    * Drive a screw: 4 turns of 0.7 s, 2.8 s, when `cycles` is absent
@@ -97,7 +97,7 @@ export namespace HumanLabour {
    */
   export const screw: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["screw"]
-  > = HumanActionRow.of("screw", useTool, {
+  > = HumanActionRow("screw", useTool, {
     tool: "screwdriver",
   });
 
@@ -107,7 +107,7 @@ export namespace HumanLabour {
    */
   export const scrub: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["scrub"]
-  > = HumanActionRow.of("scrub", wipe, HUMAN_LABOUR_SCRUB);
+  > = HumanActionRow("scrub", wipe, HUMAN_LABOUR_SCRUB);
 
   /**
    * Toss something lightly to a place or a person. The release speed follows
@@ -116,7 +116,7 @@ export namespace HumanLabour {
    */
   export const toss: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["toss"]
-  > = HumanActionRow.of("toss", throwObject, { style: "toss" });
+  > = HumanActionRow("toss", throwObject, { style: "toss" });
 
   /**
    * Hurl something overarm. The release speed follows from the distance by the
@@ -124,7 +124,7 @@ export namespace HumanLabour {
    */
   export const hurl: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["hurl"]
-  > = HumanActionRow.of("hurl", throwObject, {
+  > = HumanActionRow("hurl", throwObject, {
     style: "overarm",
   });
 
@@ -135,7 +135,7 @@ export namespace HumanLabour {
    */
   export const chop: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["chop"]
-  > = HumanActionRow.of("chop", longTool, { stroke: "chop" });
+  > = HumanActionRow("chop", longTool, { stroke: "chop" });
 
   /**
    * Chop level into a standing trunk. 3 strokes when `cycles` is absent; the
@@ -144,7 +144,7 @@ export namespace HumanLabour {
    */
   export const sideChop: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["sideChop"]
-  > = HumanActionRow.of("sideChop", longTool, { stroke: "side" });
+  > = HumanActionRow("sideChop", longTool, { stroke: "side" });
 
   /**
    * Swing a sledgehammer or a pickaxe down at the ground. 3 strokes when
@@ -153,7 +153,7 @@ export namespace HumanLabour {
    */
   export const sledge: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["sledge"]
-  > = HumanActionRow.of("sledge", longTool, { stroke: "swing" });
+  > = HumanActionRow("sledge", longTool, { stroke: "swing" });
 
   /**
    * Dig with a shovel and throw each load aside. 3 strokes when `cycles` is
@@ -162,7 +162,7 @@ export namespace HumanLabour {
    */
   export const dig: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["dig"]
-  > = HumanActionRow.of("dig", longTool, { stroke: "dig" });
+  > = HumanActionRow("dig", longTool, { stroke: "dig" });
 
   /**
    * Rake or hoe the ground toward oneself. 3 strokes when `cycles` is absent;
@@ -171,7 +171,7 @@ export namespace HumanLabour {
    */
   export const rake: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["rake"]
-  > = HumanActionRow.of("rake", longTool, { stroke: "rake" });
+  > = HumanActionRow("rake", longTool, { stroke: "rake" });
 
   /**
    * Cradle an infant across the front, its head in the holding arm's crook.
@@ -180,7 +180,7 @@ export namespace HumanLabour {
    */
   export const cradleInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["cradleInfant"]
-  > = HumanActionRow.of("cradleInfant", holdInfant, { kind: "cradle" });
+  > = HumanActionRow("cradleInfant", holdInfant, { kind: "cradle" });
 
   /**
    * Hold an infant against the shoulder and pat its back. Held 4 s when
@@ -188,7 +188,7 @@ export namespace HumanLabour {
    */
   export const burpInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["burpInfant"]
-  > = HumanActionRow.of("burpInfant", holdInfant, { kind: "shoulder" });
+  > = HumanActionRow("burpInfant", holdInfant, { kind: "shoulder" });
 
   /**
    * Feed a cradled infant from a bottle in the other hand. Held 4 s when
@@ -196,5 +196,5 @@ export namespace HumanLabour {
    */
   export const feedInfant: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["labour"]["feedInfant"]
-  > = HumanActionRow.of("feedInfant", holdInfant, { kind: "feed" });
+  > = HumanActionRow("feedInfant", holdInfant, { kind: "feed" });
 }

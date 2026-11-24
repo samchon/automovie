@@ -67,7 +67,7 @@ function planCoatPartner(
     );
   const hand: AutoMovieHumanSide =
     params.hand ?? (entry.holds.right === params.prop ? "right" : "left");
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     hand,
     params.prop,

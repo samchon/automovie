@@ -1,4 +1,4 @@
-# src/reaction/staggerNearest.ts#staggerNearest.of
+# src/reaction/staggerNearest.ts#staggerNearest
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

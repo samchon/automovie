@@ -1,4 +1,4 @@
-# src/lexicon/HumanMountFlight.ts#HumanMountFlight.of
+# src/lexicon/HumanMountFlight.ts#HumanMountFlight
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

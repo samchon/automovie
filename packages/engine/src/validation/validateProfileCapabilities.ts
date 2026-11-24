@@ -19,7 +19,6 @@ export const validateProfileCapabilities: (
   const profileIds: Set<string> = new Set<string>();
   for (const [profileIndex, profile] of props.profiles.entries()) {
     const path: string = `$input.profiles[${profileIndex}]`;
-    nonBlank(profile.id, `${path}.id`, "profile id", collector);
     nonBlank(profile.name, `${path}.name`, "profile name", collector);
     unique(profileIds, profile.id, `${path}.id`, "profile id", collector);
     const traitKinds: Set<string> = new Set<string>();

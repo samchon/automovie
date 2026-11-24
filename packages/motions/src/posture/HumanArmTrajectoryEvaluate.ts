@@ -277,7 +277,7 @@ export function HumanArmTrajectoryEvaluate(
                   next,
                 );
                 return [
-                  ...HumanArmTrajectorySweep.of(c, a, k, placed[a]![k]!, near),
+                  ...HumanArmTrajectorySweep(c, a, k, placed[a]![k]!, near),
                   ...HumanArmTrajectorySweep.links(c, a, k, placed[a]!, near),
                 ];
               })();
@@ -302,7 +302,14 @@ export function HumanArmTrajectoryEvaluate(
       here = k;
       const site: M.ISite | undefined = c.sites[a]![k];
       if (site !== undefined) {
-        const at: P.ILocated = P.located(c, placed, a, k, site);
+        const at: P.ILocated = P.located(
+          c,
+          (arm: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+            placed[arm]![k]!,
+          a,
+          k,
+          site,
+        );
         const contact: IAutoMovieVector3 = P.pad(placed[a]![k]!, site.contact);
         const off: IAutoMovieVector3 = Vector3.scale(
           Vector3.subtract(contact, at.point),
@@ -337,7 +344,7 @@ export function HumanArmTrajectoryEvaluate(
             `the hand ${(-lift).toFixed(1)} mm inside its site at ${times[k]!.toFixed(3)} s`,
         );
         objective += T.LIFT * lift * lift;
-        for (const limit of L.of(site, at, placed[a]![k]!, c.frames[a]![k]!))
+        for (const limit of L(site, at, placed[a]![k]!, c.frames[a]![k]!))
           note(
             limit.distance - limit.allowance,
             "limit",

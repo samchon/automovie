@@ -81,7 +81,7 @@ export function manipulateHeld(
 ): IAutoMovieMotionHumanActionPlan {
   const side: AutoMovieHumanSide =
     context.entry.holds.left === context.params.prop ? "left" : "right";
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     context.params.prop,

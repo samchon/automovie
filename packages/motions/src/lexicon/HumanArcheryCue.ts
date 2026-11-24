@@ -47,7 +47,7 @@ export function HumanArcheryCue(
 
   const beat: number = AutoMovieMotionHumanTiming.PAUSES.brief;
   const cue: string = crossbow ? "strokeStart" : "open";
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(3 * beat, [
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(3 * beat, [
     { name: cue, seconds: beat },
     { name: "relax", seconds: 2 * beat },
   ]);

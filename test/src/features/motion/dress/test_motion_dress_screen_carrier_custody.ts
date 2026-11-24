@@ -41,7 +41,10 @@ const predicate: typeof TestValidator.predicate = TestValidator.predicate;
 /** Assert one deep-equal finding. */
 const equals: typeof TestValidator.equals = TestValidator.equals;
 
-/** A named sphere collider: its id, centre in the ornament frame and radius in metres. */
+/**
+ * A named sphere collider: its id, centre in the ornament frame and radius in
+ * metres.
+ */
 type Sphere = readonly [id: string, centre: IAutoMovieVector3, radius: number];
 /** The two custody laws the composition installs, by name. */
 interface ICustodyLaws {
@@ -56,9 +59,15 @@ type CustodyChain = IAutoMovieMotionHumanChain.Extended<ICustodyLaws>;
 
 /** Rigid attachment allowance, metres: the 1 mm mount bound. */
 const RIGID: number = 0.001;
-/** Insertion placement allowance, metres: the aperture placement law's seat tolerance. */
+/**
+ * Insertion placement allowance, metres: the aperture placement law's seat
+ * tolerance.
+ */
 const PLACE: number = 0.015;
-/** Insertion attitude allowance, radians: the aperture placement law's 15 degrees. */
+/**
+ * Insertion attitude allowance, radians: the aperture placement law's 15
+ * degrees.
+ */
 const ANGLE: number = Math.PI / 12;
 
 /** The origin of every local frame. */
@@ -97,11 +106,13 @@ const Chain: IAutoMovieMotionHumanChain.IExtension<ICustodyLaws> =
   });
 
 /**
- * An inert ornament keeps its identity through a shallow case, a hand, and
- * the same case again. The case can rest on a table or travel on the actor.
+ * An inert ornament keeps its identity through a shallow case, a hand, and the
+ * same case again. The case can rest on a table or travel on the actor.
  *
  * Scenarios:
- * 1. Confirm grip, clearance, return and seek for resting and worn cases on both bodies.
+ *
+ * 1. Confirm grip, clearance, return and seek for resting and worn cases on both
+ *    bodies.
  * 2. Cut before closure, at closure, during loading and during the early rise.
  * 3. Refuse a missing carrier, an invalid socket and an unreachable seat.
  *
@@ -467,7 +478,10 @@ function walls(): IAutoMoviePhysicalShape[] {
   );
 }
 
-/** Compare the two posed sphere centres to the open top or the inner walls and floor. */
+/**
+ * Compare the two posed sphere centres to the open top or the inner walls and
+ * floor.
+ */
 function clearsCase(frame: IAutoMovieRigidTransform): boolean {
   return SPHERES.every(([, point, radius]): boolean => {
     const centre: IAutoMovieVector3 = pointAt(frame, point);

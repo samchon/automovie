@@ -23,35 +23,35 @@ export namespace HumanBoltAction {
   /** Lift the bolt handle. */
   export const liftBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["liftBolt"]
-  > = HumanActionRow.of("liftBolt", operate, {});
+  > = HumanActionRow("liftBolt", operate, {});
 
   /** Draw the bolt back. */
   export const drawBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["drawBolt"]
-  > = HumanActionRow.of("drawBolt", operate, {});
+  > = HumanActionRow("drawBolt", operate, {});
 
   /** Run the bolt forward. */
   export const closeBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["closeBolt"]
-  > = HumanActionRow.of("closeBolt", operate, {});
+  > = HumanActionRow("closeBolt", operate, {});
 
   /** Turn the bolt handle down. */
   export const lowerBolt: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["lowerBolt"]
-  > = HumanActionRow.of("lowerBolt", operate, {});
+  > = HumanActionRow("lowerBolt", operate, {});
 
   /** Seat a magazine in its well. */
   export const seatMagazine: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["seatMagazine"]
-  > = HumanActionRow.of("seatMagazine", operate, {});
+  > = HumanActionRow("seatMagazine", operate, {});
 
   /** Press the magazine release. */
   export const pressRelease: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["pressRelease"]
-  > = HumanActionRow.of("pressRelease", operate, {});
+  > = HumanActionRow("pressRelease", operate, {});
 
   /** Let the empty magazine drop. */
   export const dropMagazine: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["boltAction"]["dropMagazine"]
-  > = HumanActionRow.of("dropMagazine", release, {});
+  > = HumanActionRow("dropMagazine", release, {});
 }

@@ -173,8 +173,10 @@ export namespace crawl {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const cycles: number = context.params.count ?? 3;
     HumanBound.whole("count", cycles);
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, context.params.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      context.params.manner,
+    );
 
     // Entered on the knees or crouched over the hands, the crawl measures
     // from a stance over the entry's hips and gets down from the entry.
@@ -368,7 +370,7 @@ export namespace crawl {
           { name: `${limb}Touchdown${k}`, seconds: lift(limb, k) + swing },
         );
     const duration: number = downAt + cycles * period + 0.3;
-    const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
+    const clock: IAutoMovieMotionClock = AutoMovieMotionClock(
       duration,
       instants,
     );
@@ -388,7 +390,7 @@ export namespace crawl {
     const place: (
       limb: IAutoMovieMotionHumanCrawl.Limb,
       seconds: number,
-    ) => IAutoMovieVector3 = crawlCourse.of({
+    ) => IAutoMovieVector3 = crawlCourse({
       limbs,
       cycles,
       print,

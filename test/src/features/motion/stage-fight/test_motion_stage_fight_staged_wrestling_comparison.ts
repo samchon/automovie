@@ -44,18 +44,19 @@ const JOINTS: readonly AutoMovieHumanoidBone[] = [
 ];
 
 /**
- * Cast pairs play two visually distinct upright-stage exchanges. Named
- * contacts coincide with the displayed surfaces and end before the final pose.
+ * Cast pairs play two visually distinct upright-stage exchanges. Named contacts
+ * coincide with the displayed surfaces and end before the final pose.
  *
  * Scenarios:
- * 1. Each form uses its staged blocking on matched average and small casts.
- *    The two floor marks scale together with cast stature.
- * 2. The authored shoulder and lower-body poses show distinct height and
- *    contact patterns during their named partner cue.
- * 3. Both actors play the chosen reset to an upright final pose and the
- *    bodies stay clear at contact and release landmarks.
- * 4. Both roles cross every phase boundary continuously at the trunk, the
- *    hands and the feet.
+ *
+ * 1. Each form uses its staged blocking on matched average and small casts. The
+ *    two floor marks scale together with cast stature.
+ * 2. The authored shoulder and lower-body poses show distinct height and contact
+ *    patterns during their named partner cue.
+ * 3. Both actors play the chosen reset to an upright final pose and the bodies
+ *    stay clear at contact and release landmarks.
+ * 4. Both roles cross every phase boundary continuously at the trunk, the hands
+ *    and the feet.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Gives the visible stage distinction, two cast sizes and shared reset.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public mutual performance with the production law; reads actual world joint and surface positions at named grip and release events and at the endpoints.
@@ -133,13 +134,13 @@ function observe(
   assertTakeClean(`staged_wrestling_comparison ${film.duration}`, film);
   const a: IAutoMovieMotionHumanSegment = film.segments("a").at(-1)!;
   const b: IAutoMovieMotionHumanSegment = film.segments("b").at(-1)!;
-  const actor: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const actor: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "a",
     body,
     actorYaw,
   );
-  const partner: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const partner: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     film,
     "b",
     body,

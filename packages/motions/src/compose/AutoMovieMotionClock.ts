@@ -11,6 +11,22 @@ import type { AutoMovieMotionInterval } from "./AutoMovieMotionInterval";
 import { AutoMovieMotionWave } from "./AutoMovieMotionWave";
 
 /**
+ * A clock from a duration and its named instants.
+ *
+ * @param duration Duration, seconds.
+ * @param instants The named instants, in any order.
+ * @returns The clock.
+ * @throws {Error} On a duration that is not positive, a reserved or repeated
+ *   name, or an instant outside the duration.
+ */
+export function AutoMovieMotionClock(
+  duration: number,
+  instants: readonly IAutoMovieMotionClockInstant[],
+): IAutoMovieMotionClock {
+  return AutoMovieMotionClockNative(duration, instants);
+}
+
+/**
  * The clock of one action: its duration and its named instants, and the only
  * owner of progress between two of them.
  *
@@ -49,21 +65,6 @@ export namespace AutoMovieMotionClock {
   ): (seconds: number) => number {
     return AutoMovieMotionClockNative.prepareEnvelope(clock, rise, fall);
   }
-  /**
-   * A clock from a duration and its named instants.
-   *
-   * @param duration Duration, seconds.
-   * @param instants The named instants, in any order.
-   * @returns The clock.
-   * @throws {Error} On a duration that is not positive, a reserved or repeated
-   *   name, or an instant outside the duration.
-   */
-  export function of(
-    duration: number,
-    instants: readonly IAutoMovieMotionClockInstant[],
-  ): IAutoMovieMotionClock {
-    return AutoMovieMotionClockNative.of(duration, instants);
-  }
 
   /**
    * A clock from phases laid end to end: each phase's name is the instant that
@@ -84,7 +85,7 @@ export namespace AutoMovieMotionClock {
       instants.push({ name: phase.name, seconds });
       seconds += phase.seconds;
     }
-    return of(seconds, instants);
+    return AutoMovieMotionClock(seconds, instants);
   }
 
   /**
@@ -129,7 +130,7 @@ export namespace AutoMovieMotionClock {
       seconds += length;
       if (i < PHRASE.length) instants.push({ name: PHRASE[i]!, seconds });
     });
-    return of(seconds, instants);
+    return AutoMovieMotionClock(seconds, instants);
   }
 
   /**
@@ -234,7 +235,7 @@ export namespace AutoMovieMotionClock {
       opening = instant.name;
     }
     advance(clock.duration);
-    return of(seconds, instants);
+    return AutoMovieMotionClock(seconds, instants);
   }
 
   /**

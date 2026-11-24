@@ -13,9 +13,11 @@ import { TestValidator } from "@nestia/e2e";
 import { motionHumanBody } from "../../internal/motionHumanBody";
 
 /**
- * Weary walking and obstacle clearance preserve planted feet and skin clearance.
+ * Weary walking and obstacle clearance preserve planted feet and skin
+ * clearance.
  *
  * Scenarios:
+ *
  * 1. The small actor performs the original obstacle or stair crossing.
  * 2. The average actor performs the original flat-floor carrier.
  *
@@ -83,7 +85,7 @@ export function test_motion_manner_manner_foot_lock(): void {
           composition: chain.node,
         });
 
-      const verdict = HumanVerdicts.of(performance);
+      const verdict = HumanVerdicts(performance);
       if (!verdict.clean)
         findings.push(name + ": " + HumanVerdicts.describe(verdict));
     } catch (error) {

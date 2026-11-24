@@ -117,7 +117,7 @@ function planPlaceOverHead(
       reason: "a loop is set over another performer's head",
       fix: "name another performer as the partner",
     });
-  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld.of(
+  const held: IAutoMovieMotionHumanHeld.IHeld = AutoMovieMotionHumanHeld(
     context,
     side,
     p.prop,

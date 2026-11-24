@@ -70,7 +70,7 @@ The members the inchworm reads.
 
 The key reaches are solved, not typed.
 
-# src/floor/crawlChain.ts#crawlChain.of
+# src/floor/crawlChain.ts#crawlChain
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

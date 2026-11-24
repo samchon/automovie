@@ -20,6 +20,65 @@ type OfSocket = "heel" | "ball" | undefined;
 type BearingResult = "part" | "kind" | "support";
 
 /**
+ * Windows on the target's actual support frame.
+ *
+ * @param context The sequence's subject and shared on target.
+ * @param keys The solved instants.
+ * @param duration The sequence's seconds.
+ * @param observe Optional reader of a window and the exact authored target that
+ *   opens it.
+ * @param socket The sole socket each floor foot holds through its window,
+ *   declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
+ * @returns Contact windows.
+ */
+export function supportWindows(
+  context: Pick<
+    IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
+    ContextField
+  >,
+  keys: readonly supportWindows.IKey[],
+  duration: number,
+  observe?: supportWindows.Observe,
+  socket?: (contact: IAutoMovieMotionHumanSupport.IContact) => OfSocket,
+): IAutoMovieMotionHumanContactWindow[] {
+  // An interval carries exactly the contacts common to its two solved keys.
+  // A newly placed contact starts on the arriving key. A lifted contact
+  // ends on the departing key, before the limb begins to travel. The
+  // ordered keys supply these boundaries independently of event labels.
+  const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+  const open: Map<string, IAutoMovieMotionHumanContactWindow> = new Map();
+  for (const key of keys) {
+    const share: number = key.seconds / duration;
+    const held: Set<string> = new Set();
+    for (const contact of key.contacts) {
+      const id: string = supportContact.id(contact);
+      held.add(id);
+      const existing: IAutoMovieMotionHumanContactWindow | undefined =
+        open.get(id);
+      if (existing !== undefined) {
+        existing.to = share;
+        continue;
+      }
+      const identity: ReturnType<typeof supportWindows.bearing> =
+        supportWindows.bearing(context, contact);
+      if (identity === undefined) continue;
+      const holds: OfHolds = socket?.(contact);
+      const window: IAutoMovieMotionHumanContactWindow = {
+        ...identity,
+        from: share,
+        to: share,
+        ...(holds === undefined ? {} : { socket: holds }),
+      };
+      contacts.push(window);
+      open.set(id, window);
+      observe?.(window, contact);
+    }
+    for (const id of open.keys()) if (!held.has(id)) open.delete(id);
+  }
+  return contacts;
+}
+
+/**
  * A support sequence's declared windows, including the frame each target
  * belongs to. The contact identity keeps separate placements and targets.
  */
@@ -85,62 +144,4 @@ export namespace supportWindows {
     window: IAutoMovieMotionHumanContactWindow,
     contact: IAutoMovieMotionHumanSupport.IContact,
   ) => void;
-
-  /**
-   * Windows on the target's actual support frame.
-   *
-   * @param context The sequence's subject and shared on target.
-   * @param keys The solved instants.
-   * @param duration The sequence's seconds.
-   * @param observe Optional reader of a window and the exact authored target
-   *   that opens it.
-   * @param socket The sole socket each floor foot holds through its window,
-   *   declared on it (`IAutoMovieMotionHumanContactWindow.socket`).
-   * @returns Contact windows.
-   */
-  export function of(
-    context: Pick<
-      IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSupport.IParams>,
-      ContextField
-    >,
-    keys: readonly IKey[],
-    duration: number,
-    observe?: Observe,
-    socket?: (contact: IAutoMovieMotionHumanSupport.IContact) => OfSocket,
-  ): IAutoMovieMotionHumanContactWindow[] {
-    // An interval carries exactly the contacts common to its two solved keys.
-    // A newly placed contact starts on the arriving key. A lifted contact
-    // ends on the departing key, before the limb begins to travel. The
-    // ordered keys supply these boundaries independently of event labels.
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    const open: Map<string, IAutoMovieMotionHumanContactWindow> = new Map();
-    for (const key of keys) {
-      const share: number = key.seconds / duration;
-      const held: Set<string> = new Set();
-      for (const contact of key.contacts) {
-        const id: string = supportContact.id(contact);
-        held.add(id);
-        const existing: IAutoMovieMotionHumanContactWindow | undefined =
-          open.get(id);
-        if (existing !== undefined) {
-          existing.to = share;
-          continue;
-        }
-        const identity: ReturnType<typeof bearing> = bearing(context, contact);
-        if (identity === undefined) continue;
-        const holds: OfHolds = socket?.(contact);
-        const window: IAutoMovieMotionHumanContactWindow = {
-          ...identity,
-          from: share,
-          to: share,
-          ...(holds === undefined ? {} : { socket: holds }),
-        };
-        contacts.push(window);
-        open.set(id, window);
-        observe?.(window, contact);
-      }
-      for (const id of open.keys()) if (!held.has(id)) open.delete(id);
-    }
-    return contacts;
-  }
 }

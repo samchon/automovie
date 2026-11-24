@@ -4,7 +4,6 @@ import type {
   IAutoMovieComposition,
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanChain,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMoviePose,
@@ -19,9 +18,6 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { everydayVerdicts } from "./everydayVerdicts";
 
-/** The alternatives of `DriftPoint`'s site. */
-type DriftPoint = IAutoMovieVector3 | ((seconds: number) => IAutoMovieVector3);
-
 /** The alternatives of `BandUnit`'s site. */
 type BandUnit = "mm" | "deg" | "s";
 
@@ -33,9 +29,6 @@ type IStabilityResult = { value: number; at: number };
 
 /** The alternatives of `AngleAxis`'s site. */
 type AngleAxis = 0 | 1 | 2;
-
-/** The alternatives of `PerformComposition`'s site. */
-type PerformComposition = IAutoMovieComposition | IAutoMovieMotionHumanChain;
 
 /** The record of `IPerformPerformersItem`'s site. */
 type IPerformPerformersItem = {
@@ -86,14 +79,14 @@ export namespace FamilyCaseKit {
    *
    * @param seed The chain seed.
    * @param performers Each subject's body, floor point and heading.
-   * @param composition What they do.
+   * @param composition What they do: a composition, or a chain's node.
    * @param props The props, none when absent.
    * @returns The performance.
    */
   export function perform(
     seed: string,
     performers: readonly IPerformPerformersItem[],
-    composition: PerformComposition,
+    composition: IAutoMovieComposition,
     props: readonly IAutoMovieMotionHumanProp[] = [],
   ): IAutoMovieMotionHumanPerformance {
     return new HumanPerformance({
@@ -106,7 +99,7 @@ export namespace FamilyCaseKit {
         proficiency: { level: "trained" as const },
       })),
       props: [...props],
-      composition: "node" in composition ? composition.node : composition,
+      composition,
     });
   }
 
@@ -327,7 +320,7 @@ export namespace FamilyCaseKit {
    * @param performance The performance.
    * @param subject The subject.
    * @param bone The bone.
-   * @param point The world point, or a function of film seconds.
+   * @param point The world point at a film second.
    * @param from Film seconds.
    * @param to Film seconds.
    * @returns Metres.
@@ -336,7 +329,7 @@ export namespace FamilyCaseKit {
     performance: IAutoMovieMotionHumanPerformance,
     subject: string,
     bone: AutoMovieHumanoidBone,
-    point: DriftPoint,
+    point: (seconds: number) => IAutoMovieVector3,
     from: number,
     to: number,
   ): number {
@@ -345,8 +338,7 @@ export namespace FamilyCaseKit {
       const at: IAutoMovieVector3 = performance
         .bones(subject, t)
         .get(bone)!.worldPosition;
-      const goal: IAutoMovieVector3 =
-        typeof point === "function" ? point(t) : point;
+      const goal: IAutoMovieVector3 = point(t);
       worst = Math.max(worst, Vector3.length(Vector3.subtract(at, goal)));
     }
     return worst;

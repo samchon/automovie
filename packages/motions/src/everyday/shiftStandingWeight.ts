@@ -153,10 +153,7 @@ function plan(
       { name: "release", seconds: seconds + hold },
       { name: "returned", seconds: duration },
     );
-  const clock: IAutoMovieMotionClock = AutoMovieMotionClock.of(
-    duration,
-    instants,
-  );
+  const clock: IAutoMovieMotionClock = AutoMovieMotionClock(duration, instants);
   return composeAutoMovieMotionHumanAction({
     clock,
     base: AutoMovieMotionHumanBase.still(

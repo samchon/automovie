@@ -304,7 +304,7 @@ export namespace HumanColliders {
     body: IAutoMovieMotionHumanBody,
     bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
   ): IAutoMovieMotionHumanColliders.IPlaced[] {
-    return HumanColliderPlacement.of(body, bones);
+    return HumanColliderPlacement(body, bones);
   }
 
   /**

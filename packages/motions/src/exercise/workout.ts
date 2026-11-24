@@ -129,14 +129,13 @@ export namespace workout {
     HumanBound.whole("count", reps);
     if (p.hold !== undefined) HumanBound.least("hold", p.hold, 0, "s");
     const stay: boolean = p.stay === true;
-    const floor: workoutFloorStance.IEntry = workoutFloorStance.of(
-      context,
-      kind,
-    );
+    const floor: workoutFloorStance.IEntry = workoutFloorStance(context, kind);
     const heldFloorStance: boolean = floor.held;
     const entered: IAutoMovieMotionHumanPosture | null = floor.entered;
-    const modifiers: IAutoMovieMotionManner.IModifiers =
-      AutoMovieMotionManner.of(context, p.manner);
+    const modifiers: IAutoMovieMotionManner.IModifiers = AutoMovieMotionManner(
+      context,
+      p.manner,
+    );
     const restoresStance: boolean = entered !== null && !stay;
     const standPlan: IAutoMovieMotionHumanActionPlan = stand.plan({
       ...context,
@@ -168,7 +167,7 @@ export namespace workout {
     // before its declared grip. The 0.25 s setup is an authored stage beat.
     const loaded: boolean = p.load?.other !== undefined;
     const { phases, spans, between, held }: workoutSpans.IPlanned =
-      workoutSpans.of({
+      workoutSpans({
         kind,
         route,
         reps,
@@ -195,7 +194,7 @@ export namespace workout {
     const footed: (
       placed: IAutoMovieMotionHumanPosture,
     ) => IAutoMovieMotionHumanPosture = WorkoutFeet.keep(context, kind, yaw);
-    const at: IAutoMovieVector3 = WorkoutPlace.of(
+    const at: IAutoMovieVector3 = WorkoutPlace(
       { context, kind, standing, first: first.key, borne },
       heldFloorStance,
     );
@@ -338,7 +337,7 @@ export namespace workout {
     const load: IAutoMovieMotionHumanWorkoutLoad.ILoad | null =
       p.load === undefined
         ? null
-        : WorkoutLoad.of(
+        : WorkoutLoad(
             context,
             p.load,
             kind.midfoot === true,
@@ -387,7 +386,7 @@ export namespace workout {
         admit(write(standing, at, undefined, read, project));
       });
     }
-    const contacts: IAutoMovieMotionHumanContactWindow[] = workoutContacts.of({
+    const contacts: IAutoMovieMotionHumanContactWindow[] = workoutContacts({
       kind,
       prop: p.on?.prop,
       spans,
@@ -404,7 +403,7 @@ export namespace workout {
     ];
     if (kind.hands === true)
       primitives.push(
-        ...workoutLaidHands.of({
+        ...workoutLaidHands({
           context,
           kind,
           first: first.key,

@@ -26,7 +26,10 @@ const SLIDE: number = 1.2;
 /** Seconds read afloat after the slide. */
 const AFLOAT: number = 2.5;
 
-/** The floating rider's trunk and leg bones, which must stay outside the horse's barrel; the near arm reaches in to the mane. */
+/**
+ * The floating rider's trunk and leg bones, which must stay outside the horse's
+ * barrel; the near arm reaches in to the mane.
+ */
 const TRAILING: readonly AutoMovieHumanoidBone[] = [
   "hips",
   "spine",
@@ -40,13 +43,23 @@ const TRAILING: readonly AutoMovieHumanoidBone[] = [
 ];
 
 /**
- * A rider slides off a swimming horse to its upstream side and floats beside it, holding the mane and kicking, with the mouth out of the water.
+ * A rider slides off a swimming horse to its upstream side and floats beside
+ * it, holding the mane and kicking, with the mouth out of the water.
  *
  * Scenarios:
- * 1. At the float the rider slides off to the upstream right side: the hips start over the saddle, within the barrel's half width (its girth over 2π) of the horse's midline, and end outside it on the horse's right.
- * 2. Afloat, the left palm's skin (the body's own palm socket) lies within 10 mm of the mane's skin, the mouth region stays above the water, the trunk and legs stay outside the barrel on the right, and the knees alternate above each other, a flutter kick.
- * 3. A float on a blocked side is refused on `side`; a float whose water lies 1.5 m below the swimming horse's, leaving the mane beyond the arm's reach from the surface, is refused on `hold`.
- * 4. The take passes the shipped take verdicts: no tangle, jump, turn, reversal, skate, floor or unloaded fault.
+ *
+ * 1. At the float the rider slides off to the upstream right side: the hips start
+ *    over the saddle, within the barrel's half width (its girth over 2π) of the
+ *    horse's midline, and end outside it on the horse's right.
+ * 2. Afloat, the left palm's skin (the body's own palm socket) lies within 10 mm
+ *    of the mane's skin, the mouth region stays above the water, the trunk and
+ *    legs stay outside the barrel on the right, and the knees alternate above
+ *    each other, a flutter kick.
+ * 3. A float on a blocked side is refused on `side`; a float whose water lies 1.5
+ *    m below the swimming horse's, leaving the mane beyond the arm's reach from
+ *    the surface, is refused on `hold`.
+ * 4. The take passes the shipped take verdicts: no tangle, jump, turn, reversal,
+ *    skate, floor or unloaded fault.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios and bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the mounted and float laws on the public crossing and reads the displayed hips, palm, mouth, trunk and legs against the horse's moving mane, barrel and the authored water; a rider sliding off the wrong side or into the horse, a hand off the mane, a submerged mouth, still legs or an admitted blocked side fails.
@@ -83,7 +96,7 @@ export function test_motion_mount_equine_ford_float(): void {
       } satisfies IAutoMovieMotionHumanFloatBeside),
     );
   const film: HumanPerformance = take({});
-  const reader: ReturnType<typeof HumanSignature.of> = HumanSignature.of(
+  const reader: ReturnType<typeof HumanSignature> = HumanSignature(
     film,
     "rider",
     body,

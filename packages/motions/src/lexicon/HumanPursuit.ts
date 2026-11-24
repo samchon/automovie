@@ -49,7 +49,7 @@ export namespace HumanPursuit {
    */
   export const follow: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["follow"]
-  > = HumanActionRow.of("follow", approach, HUMAN_GAIT_FOLLOW);
+  > = HumanActionRow("follow", approach, HUMAN_GAIT_FOLLOW);
 
   /**
    * Come to a person's left side at the personal distance, as an escort takes
@@ -57,12 +57,12 @@ export namespace HumanPursuit {
    */
   export const escort: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["escort"]
-  > = HumanActionRow.of("escort", approach, HUMAN_GAIT_ESCORT);
+  > = HumanActionRow("escort", approach, HUMAN_GAIT_ESCORT);
 
   /** Step up face to face, as a confrontation begins. */
   export const confront: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["confront"]
-  > = HumanActionRow.of("confront", approach, HUMAN_GAIT_CONFRONT);
+  > = HumanActionRow("confront", approach, HUMAN_GAIT_CONFRONT);
 
   /**
    * Head a moving person off: a run to where they will be when the runner gets
@@ -143,7 +143,7 @@ export namespace HumanPursuit {
    */
   export const chase: IAutoMovieMotionHumanActionLaw<
     IAutoMovieMotionHumanLexiconParams["pursuit"]["chase"]
-  > = HumanActionRow.of("chase", intercept, {});
+  > = HumanActionRow("chase", intercept, {});
 
   /**
    * Seconds one glance back at a pursuer lasts before the eyes return ahead

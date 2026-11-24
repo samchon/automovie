@@ -1,4 +1,4 @@
-# src/sport/GymnasticsTakeoff.ts#GymnasticsTakeoff.of
+# src/sport/GymnasticsTakeoff.ts#GymnasticsTakeoff
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

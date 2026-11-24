@@ -17,12 +17,17 @@ import { motionHumanLawSweep } from "../../internal/motionHumanLawSweep";
 import { nclose } from "../../internal/nclose";
 
 /**
- * The resting arms and digits clear the torso and opposite hand while reaching their named support.
+ * The resting arms and digits clear the torso and opposite hand while reaching
+ * their named support.
  *
  * Scenarios:
- * 1. Pose the original actor through the public action with its original seed and placement.
- * 2. Compare displayed arm and finger angles with the original authoring law at the start, interior and arrival.
- * 3. Compare the specified collision pair at its observed entry time against the 10 mm skin allowance.
+ *
+ * 1. Pose the original actor through the public action with its original seed and
+ *    placement.
+ * 2. Compare displayed arm and finger angles with the original authoring law at
+ *    the start, interior and arrival.
+ * 3. Compare the specified collision pair at its observed entry time against the
+ *    10 mm skin allowance.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The table identifies the actor, action input, time and anatomical pair responsible for each observation.
  * @evidence contracts/development/testing.md#behavioral-verification Measures actual forward-kinematic shapes at the recorded instant. Unreachable paths must fail the test.

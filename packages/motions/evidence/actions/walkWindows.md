@@ -1,4 +1,4 @@
-# src/actions/walkWindows.ts#walkWindows.of
+# src/actions/walkWindows.ts#walkWindows
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

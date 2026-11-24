@@ -242,7 +242,7 @@ export function prepareSkateboardPhrase(
     const fade = (from: number, to: number): number =>
       HumanSurfaceBoard.ease(share, from, to);
     const moving: IAutoMovieMotionHumanPosture = HumanSupportCarry.posture(
-      HumanSupportCarry.of(
+      HumanSupportCarry(
         (time: number): IAutoMovieRigidTransform =>
           time === 0 ? initial : placed,
         0,

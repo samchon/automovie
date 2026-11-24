@@ -9,6 +9,43 @@ import { ExerciseKey } from "./ExerciseKey";
 import { WorkoutKind } from "./WorkoutKind";
 
 /**
+ * A standing kind: the named bones stay where they stand.
+ *
+ * @param pin The bones that stay.
+ * @param supports The parts that bear.
+ * @param enter Seconds from standing to the first posture; 0 when it is
+ *   standing.
+ * @param reps Repetitions when the author names none.
+ * @param route The postures of one repetition.
+ * @param alternate Whether every other repetition is mirrored; `false` when
+ *   absent.
+ * @param strides Whether the feet move into a stance of the kind's own; `false`
+ *   when absent, and the bearing feet are then held where they stand.
+ * @returns The kind.
+ */
+export function WorkoutStance(
+  pin: readonly AutoMovieHumanoidBone[],
+  supports: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[],
+  enter: number,
+  reps: number,
+  route: IAutoMovieMotionHumanWorkoutKind["route"],
+  alternate: boolean = false,
+  strides: boolean = false,
+): IAutoMovieMotionHumanWorkoutKind {
+  return {
+    base: "standing",
+    anchor: "stance",
+    pin,
+    supports,
+    enter,
+    count: reps,
+    route,
+    alternate,
+    strides,
+  };
+}
+
+/**
  * What the standing kinds of the workout law share: the supports of a standing
  * body, the record of a kind whose pinned bones stay where they stand, and the
  * stances whose angles are solved on the body so both feet reach the floor.
@@ -30,44 +67,6 @@ export namespace WorkoutStance {
     "leftFoot",
     "rightFoot",
   ];
-
-  /**
-   * A standing kind: the named bones stay where they stand.
-   *
-   * @param pin The bones that stay.
-   * @param supports The parts that bear.
-   * @param enter Seconds from standing to the first posture; 0 when it is
-   *   standing.
-   * @param reps Repetitions when the author names none.
-   * @param route The postures of one repetition.
-   * @param alternate Whether every other repetition is mirrored; `false` when
-   *   absent.
-   * @param strides Whether the feet move into a stance of the kind's own;
-   *   `false` when absent, and the bearing feet are then held where they
-   *   stand.
-   * @returns The kind.
-   */
-  export function of(
-    pin: readonly AutoMovieHumanoidBone[],
-    supports: readonly IAutoMovieMotionHumanWorkoutKind.ISupport[],
-    enter: number,
-    reps: number,
-    route: IAutoMovieMotionHumanWorkoutKind["route"],
-    alternate: boolean = false,
-    strides: boolean = false,
-  ): IAutoMovieMotionHumanWorkoutKind {
-    return {
-      base: "standing",
-      anchor: "stance",
-      pin,
-      supports,
-      enter,
-      count: reps,
-      route,
-      alternate,
-      strides,
-    };
-  }
 
   /**
    * Standing, as the step every repetition returns to (`recover`, `stood`).

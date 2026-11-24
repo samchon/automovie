@@ -34,9 +34,7 @@ const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
  */
 const REACH: number = 0.01;
 
-/**
- * Fit and verify both displayed hands against two actual moving handles.
- */
+/** Fit and verify both displayed hands against two actual moving handles. */
 function planHumanHoldHandles(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanHoldHandles>,
 ): IAutoMovieMotionHumanActionPlan {
@@ -90,7 +88,7 @@ function planHumanHoldHandles(
     seconds,
   );
   const first: IAutoMovieRigidTransform = support.frame(context.start);
-  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands.of(
+  const { gripsAt, closures }: HumanRideHands.IHands = HumanRideHands(
     { ...context, params: { on, duration: seconds, hands: ids } },
     on,
     support,

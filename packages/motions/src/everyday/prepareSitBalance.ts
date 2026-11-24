@@ -76,12 +76,14 @@ export function prepareSitBalance(props: ISeatDescent): ISeatCourse {
   // The weight-over-the-feet course is the balance option's
   // (`IAutoMovieMotionHumanBalance`); without it the seat socket goes
   // back on its own minimum-jerk progress and no centre of mass is read.
-  const clock: ReturnType<typeof AutoMovieMotionClock.of> =
-    AutoMovieMotionClock.of(duration, [
+  const clock: ReturnType<typeof AutoMovieMotionClock> = AutoMovieMotionClock(
+    duration,
+    [
       { name: "commit", seconds: contact },
       { name: "seatContact", seconds: contact },
       { name: "seated", seconds: descent },
-    ]);
+    ],
+  );
 
   const total: number = prefix + duration;
   const timing: Parameters<typeof HumanPhysics.prepare>[3] = {

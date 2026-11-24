@@ -16,7 +16,7 @@ The fields the windows, intervals and course writers read.
 
 Keys are built only by support.plan.
 
-# src/actions/supportPlan.ts#supportPlan.of
+# src/actions/supportPlan.ts#supportPlan
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

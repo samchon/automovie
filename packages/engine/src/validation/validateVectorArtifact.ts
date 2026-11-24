@@ -1,24 +1,22 @@
-import { IAutoMovieConstraintViolation } from "@automovie/interface";
+import type {
+  IAutoMovieConstraintViolation,
+  IAutoMovieVector3,
+} from "@automovie/interface";
 
 import { pushViolation } from "./pushViolation";
-import { validateObjectArtifact } from "./validateObjectArtifact";
 
-/**
- * Require a shallow object and finite x/y/z components, appending each bad
- * axis.
- */
+/** Require finite x/y/z components, appending each bad axis. */
 export const validateVectorArtifact: (
-  vector: unknown,
+  vector: IAutoMovieVector3,
   path: string,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ) => void = (
-  vector: unknown,
+  vector: IAutoMovieVector3,
   path: string,
   label: string,
   violations: IAutoMovieConstraintViolation[],
 ): void => {
-  if (!validateObjectArtifact(vector, path, label, violations)) return;
   for (const axis of ["x", "y", "z"] as const)
     if (!Number.isFinite(vector[axis]))
       pushViolation(

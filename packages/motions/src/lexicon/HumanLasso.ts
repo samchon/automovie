@@ -67,9 +67,7 @@ const HAND: ReadonlySet<AutoMovieHumanoidBone> = new Set<AutoMovieHumanoidBone>(
 /** The world up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
-/**
- * Admit the throw, lay the swing and the launch, then sample.
- */
+/** Admit the throw, lay the swing and the launch, then sample. */
 function planHumanLasso(context: Context): IAutoMovieMotionHumanActionPlan {
   return plan(context);
 }
@@ -129,14 +127,14 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
 
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
-  const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
+  const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
     params.on,
     params.frame,
   );
   const origin: IAutoMovieRigidTransform = carrier(context.start);
   const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld.of(
+  const tool: IAutoMovieMotionHumanStrikingHeld.ITool = StrikingHeld(
     context,
     "right",
     params.lariat,

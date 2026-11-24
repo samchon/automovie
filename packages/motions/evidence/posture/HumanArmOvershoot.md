@@ -1,4 +1,4 @@
-# src/posture/HumanArmOvershoot.ts#HumanArmOvershoot.of
+# src/posture/HumanArmOvershoot.ts#HumanArmOvershoot
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

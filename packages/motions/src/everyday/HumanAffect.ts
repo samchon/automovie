@@ -392,7 +392,7 @@ function write(
 const INHALATION_END: number = 0.4;
 
 /** One normalized clock for the sigh and yawn, independent of their lengths. */
-const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock.of(1, [
+const BREATH_DISPLAY_CLOCK: IAutoMovieMotionClock = AutoMovieMotionClock(1, [
   { name: "inhaled", seconds: INHALATION_END },
 ]);
 

@@ -358,7 +358,7 @@ function readHaul(
     (placed.plan.events.find((e): boolean => e.name === "gripped")?.share ??
       NaN) *
       placed.plan.duration;
-  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature.of(
+  const reader: IAutoMovieMotionHumanSignature.IReader = HumanSignature(
     performance,
     "a",
     body,
