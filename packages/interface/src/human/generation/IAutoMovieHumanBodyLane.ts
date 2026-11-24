@@ -1,4 +1,5 @@
 import type { IAutoMovieConstructionNode } from "../../construction/IAutoMovieConstructionNode";
+import type { IAutoMovieConstructionSharedLoop } from "../../construction/IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieLoftChain } from "../../construction/IAutoMovieLoftChain";
 import type { IAutoMovieLoftContract } from "../../construction/IAutoMovieLoftContract";
 import type { IAutoMovieSolidBody } from "../../construction/IAutoMovieSolidBody";
@@ -255,6 +256,9 @@ export namespace IAutoMovieHumanBodyLane {
      * this realization.
      */
     sourceParts: ReadonlyMap<string, IAutoMovieViewPart>;
+
+    /** Original paired chart loops bound to joins in this invocation. */
+    loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
     /**
      * Actual consumed hand contact records, retaining the same parent original
      * and anatomical joint separately.

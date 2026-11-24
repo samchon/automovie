@@ -305,6 +305,7 @@ function inspectNeutralHead(skin: boolean): void {
   const construction = { name: SUBJECT + ".head", root: head.root };
   const options = {
     sources: head.source.sources,
+    loopSources: head.loopSources,
     chord: AutoMovieHumanTrunkRows.MAX_GAP / 1000,
   };
   const result = skin

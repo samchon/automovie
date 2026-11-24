@@ -4,6 +4,7 @@ import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionRealization,
+  IAutoMovieConstructionSharedLoop,
   IAutoMovieConstructionSplit,
   IAutoMovieHumanBodyTree,
   IAutoMovieHumanMassSource,
@@ -254,6 +255,7 @@ export namespace AutoMovieHumanBodyTree {
     limits: IAutoMovieHumanBodyTree.ILimits,
     diagnostics: IAutoMovieLoftContract.IDiagnostic[],
     sources?: ReadonlyMap<string, IAutoMovieViewPart>,
+    loopSources?: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>,
   ): IAutoMovieHumanBodyTree.IOutput {
     const result: IAutoMovieConstructionRealization.IWithoutSkin =
       realizeAutoMovieConstruction(
@@ -262,6 +264,7 @@ export namespace AutoMovieHumanBodyTree {
           chord: limits.gap * AutoMovieHumanConstructionView.METRES,
           skin: false,
           sources,
+          loopSources,
         },
       );
     diagnostics.push(

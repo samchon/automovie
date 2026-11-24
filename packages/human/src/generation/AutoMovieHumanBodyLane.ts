@@ -97,6 +97,7 @@ export namespace AutoMovieHumanBodyLane {
         definition.limits,
         diagnostics,
         definition.sourceParts,
+        definition.loopSources,
       );
     return AutoMovieHumanBodyPublication.of(
       realized.chains,
@@ -369,7 +370,15 @@ export namespace AutoMovieHumanBodyLane {
       AutoMovieHumanBodyTree.context(input.head?.source.sources, sources);
     diagnostics.push(...(input.diagnostics?.slice(preparedDiagnostics) ?? []));
     root = AutoMovieHumanBodyTree.sources(root, sourceParts, diagnostics);
-    return { root, limits, diagnostics, sources, handAttachments, sourceParts };
+    return {
+      root,
+      limits,
+      diagnostics,
+      sources,
+      handAttachments,
+      sourceParts,
+      ...(input.head === undefined ? {} : { loopSources: input.head.loopSources }),
+    };
   }
 
   /** The distance of two points, mm. */

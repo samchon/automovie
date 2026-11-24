@@ -4,6 +4,7 @@ export * from "./AutoMovieHumanHeadCanonical";
 export * from "./AutoMovieHumanHeadComposer";
 export * from "./AutoMovieHumanHeadDome";
 export * from "./AutoMovieHumanHeadDomeHost";
+export * from "./AutoMovieHumanHeadEarContact";
 export * from "./AutoMovieHumanHeadEarFrame";
 export * from "./AutoMovieHumanHeadEarParts";
 export * from "./AutoMovieHumanHeadEarPlate";

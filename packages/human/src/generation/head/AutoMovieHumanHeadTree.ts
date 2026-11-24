@@ -11,6 +11,7 @@ import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieConstructionOutline,
+  IAutoMovieConstructionSharedLoop,
   IAutoMovieConstructionSource,
   IAutoMovieConstructionView,
   IAutoMovieHumanHeadComposer,
@@ -22,6 +23,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
+import { AutoMovieHumanHeadEarContact } from "./AutoMovieHumanHeadEarContact";
 
 /**
  * The composed head as a construction tree (`IAutoMovieConstruction`), which
@@ -34,13 +36,14 @@ import { AutoMovieHumanSeamUnion } from "../../lofting/AutoMovieHumanSeamUnion";
  * the invocation-owned source map. Its scalar and frame callbacks reach
  * engine lofting without a declaration roundtrip. Explicit serializable
  * declarations remain a separate caliper and independent-study boundary.
- * Each join is seeded by the engine's
+ * Traced joins are seeded by the engine's
  * search along the part's station line at the phase the part names, its
  * blend's chord a share of each side's normal-section radius at every traced
  * point, capped at half the lesser of the part's height and least half
  * extent (`AutoMovieHumanSeamUnion.width`), with the phase parameter for a
  * round footprint and the arc parameter for one more than twice as long as
- * wide. Lengths are metres in the head's frame: the composer's calibration
+ * wide. Auricles supply paired native charts along their closed contact.
+ * Lengths are metres in the head's frame: the composer's calibration
  * millimetres over a thousand. Source-leaf inputs stay in their original
  * millimetres; explicit declarations and operator distances use metres.
  *
@@ -159,8 +162,13 @@ export namespace AutoMovieHumanHeadTree {
    * @evidence contracts/performance.md#bound-retention-and-release-resources Returns the caller-owned tree; the temporary subtree map is released after construction.
    */
   export function of(
-    composed: Pick<IAutoMovieHumanHeadComposer.IOutput, "massView" | "parts">,
-  ): IAutoMovieConstruction {
+    composed: Pick<
+      IAutoMovieHumanHeadComposer.IOutput,
+      "massPart" | "massView" | "parts"
+    >,
+  ): IAutoMovieConstruction & {
+    loopSources: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
+  } {
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, IAutoMovieConstructionNode> = new Map();
     for (const placed of composed.parts)
@@ -190,7 +198,21 @@ export namespace AutoMovieHumanHeadTree {
         placed.feature.parent === "head.mass"
       )
         root = join(placed, root, subtree.get(placed.feature.part.name)!);
-    return { name: "head", root };
+    return {
+      name: "head",
+      root,
+      loopSources: AutoMovieHumanHeadEarContact.context(
+        composed.massPart,
+        composed.parts
+          .filter(
+            ({ feature, sectionOwner }) =>
+              feature.parent === composed.massPart.name &&
+              sectionOwner === undefined,
+          )
+          .map(({ feature }) => feature.part),
+        TOLERANCE,
+      ),
+    };
   }
 
   /**
@@ -289,12 +311,16 @@ export namespace AutoMovieHumanHeadTree {
         METRES,
       end: END,
     };
+    const name: string = `blend.${feature.part.name}`;
     return {
       type: "join",
       kind: feature.join,
-      name: `blend.${feature.part.name}`,
+      name,
       host,
       part,
+      ...(AutoMovieHumanHeadEarContact.sideOf(feature.part.name) === null
+        ? {}
+        : { loop: { type: "source", source: name } }),
       seed: {
         type: "search",
         partFace: feature.part.name,

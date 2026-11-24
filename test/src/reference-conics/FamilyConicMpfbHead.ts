@@ -483,7 +483,10 @@ function viewport(name: string, middle: Point, width: number): N.Camera {
   return { ...camera, scale: 600_000 / width };
 }
 
-if (require.main === module) {
+if (
+  require.main === module &&
+  path.parse(process.argv[1] ?? "").name === "FamilyConicMpfbHead"
+) {
   const [, , out, assetFile] = process.argv;
   if (out === undefined)
     throw new Error(

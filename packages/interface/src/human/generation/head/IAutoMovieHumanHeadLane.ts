@@ -1,4 +1,5 @@
 import type { IAutoMovieConstructionNode } from "../../../construction/IAutoMovieConstructionNode";
+import type { IAutoMovieConstructionSharedLoop } from "../../../construction/IAutoMovieConstructionSharedLoop";
 import type { IAutoMovieHumanHermiteCurve } from "../../lofting/IAutoMovieHumanHermiteCurve";
 import type { IAutoMovieHumanEyeSeat } from "../IAutoMovieHumanEyeSeat";
 import type { IAutoMovieHumanHeadAttachmentLandmarks } from "../IAutoMovieHumanHeadAttachmentLandmarks";
@@ -24,6 +25,9 @@ export namespace IAutoMovieHumanHeadLane {
   export interface IOutput {
     /** The head's subtree, metres. */
     root: IAutoMovieConstructionNode;
+
+    /** Caller-owned paired chart loops bound to original head joins. */
+    loopSources: ReadonlyMap<string, IAutoMovieConstructionSharedLoop.ISource>;
 
     /** The same composed source object used to make root; studies remain explicitly outside that tree. */
     source: IAutoMovieHumanHeadComposer.IOutput;
@@ -103,7 +107,7 @@ export namespace IAutoMovieHumanHeadLane {
    */
   export interface IPrepared extends Omit<
     IOutput,
-    "root" | "source" | "vermilion"
+    "root" | "source" | "vermilion" | "loopSources"
   > {
     /** Actual canonical mass and neck, without any regional face source. */
     source: IAutoMovieHumanHeadComposer.IBase;

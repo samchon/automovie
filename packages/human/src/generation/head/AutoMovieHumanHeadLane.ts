@@ -79,8 +79,10 @@ export namespace AutoMovieHumanHeadLane {
         canonical.source,
         canonical.originals(),
       );
+    const tree = AutoMovieHumanHeadTree.of(composed);
     return {
-      root: AutoMovieHumanHeadTree.of(composed).root,
+      root: tree.root,
+      loopSources: tree.loopSources,
       source: composed,
       face: canonical.face,
       search: canonical.search,
