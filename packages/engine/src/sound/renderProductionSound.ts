@@ -133,19 +133,19 @@ export const renderProductionSound: (
 
     // Each line is levelled as it is placed, so a line's level follows its
     // measured loudness rather than whatever level its generator wrote.
-    const fade: (index: number) => number = (index: number): number =>
-      edgeEnvelope(index, source.length, 240);
-    const levelled: { measuredLufs: number; gainDb: number } =
+    const levelled: ReturnType<typeof levelProductionDialogueLine> =
       levelProductionDialogueLine({
         id: line.id,
         samples: source,
-        fade,
         targetLufs: targets.dialogueLufs,
       });
-    lines.push({ id: line.id, ...levelled });
-    const gain: number = 10 ** (levelled.gainDb / 20);
+    lines.push({
+      id: line.id,
+      measuredLufs: levelled.measuredLufs,
+      gainDb: levelled.gainDb,
+    });
     for (let index: number = 0; index < source.length; ++index) {
-      const value: number = source[index]! * fade(index) * gain;
+      const value: number = levelled.placed[index]!;
       pcm[(start + index) * 2] += value;
       pcm[(start + index) * 2 + 1] += value;
     }
@@ -388,16 +388,6 @@ const frameToSample: (
     ticksPerSecond: plan.sampleRate,
     rounding: "nearest",
   });
-
-/**
- * Return the lesser of unity and the two edge-distance ratios for the fixed
- * positive edge length; the last included sample need not reach exact zero.
- */
-const edgeEnvelope: (index: number, length: number, edge: number) => number = (
-  index: number,
-  length: number,
-  edge: number,
-): number => Math.min(1, index / edge, (length - index) / edge);
 
 /** Each cue seed's pinned counter-based stream, keyed once. */
 const noiseStreams: Map<number, IAutoMovieRandom> = new Map();

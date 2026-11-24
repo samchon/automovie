@@ -6,7 +6,7 @@ The comment states which lines enter, what each carries, which engine functions 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The jaw is #4054's envelope: each frame's RMS of the line's own samples on the clock the mix places it with, mapped by the envelope jaw's floor and full levels. The ranges are each phoneme's equal share of its chunk placed on the emission clock from the line's start frame, the timing the coarticulation sampler reads. A line enters only when its speaker binds to one actor, the binding the viseme join requires.
+The jaw is #4054's envelope: each frame's RMS of the line as the mix places it, faded and levelled to the dialogue target by levelProductionDialogueLine, on the clock the mix places it with, mapped by the envelope jaw's floor and full levels, whose −20 dBFS full level assumes a line levelled near −23 LUFS. So the same audio opens the jaw alike whatever level its take was generated at. The ranges are each phoneme's equal share of its chunk placed on the emission clock from the line's start frame, the clock the speech span ends on, the timing the coarticulation sampler reads. A line enters only when its speaker binds to one actor, the binding the viseme join requires.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,7 +18,7 @@ No line, speaker or actor is special-cased; a bound line that fails to join is a
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in the lines' samples for the levels, plus the phonemes of each chunk and the bindings per line.
+Linear in the lines' samples for the levelling and the levels, plus the phonemes of each chunk and the bindings per line.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

@@ -1,12 +1,16 @@
 import {
   joinAutoMovieDialogueVisemes,
+  productionPhonemesToVisemes,
+  productionSpeechEndFrame,
   sampleAutoMovieDialogueExpression,
 } from "@automovie/engine";
 import type {
   IAutoMovieDialogueExpressionLayers,
+  IAutoMovieDialogueMouthRange,
   IAutoMovieDialogueVisemeCompilation,
   IAutoMovieExpression,
   IAutoMovieHumanVisemeWeights,
+  IAutoMovieJoinDialogueVisemes,
   IAutoMovieProductionDialogueLine,
   IAutoMovieProductionViseme,
 } from "@automovie/interface";
@@ -33,10 +37,14 @@ const visemes: IAutoMovieProductionViseme[] = [
   { phoneme: "i", viseme: "I", startSample: 14_000, endSample: 18_000 },
 ];
 
-/** The rates every join below uses. */
-const rates: { sourceSampleRate: number; fps: number } = {
+/** The source rate, count and plan clock every join below uses. */
+const rates: Pick<
+  IAutoMovieJoinDialogueVisemes.IProps,
+  "sourceSampleRate" | "sourceSamples" | "clock"
+> = {
   sourceSampleRate: 48_000,
-  fps: 24,
+  sourceSamples: 20_000,
+  clock: { fps: 24, sampleRate: 48_000 },
 };
 
 /** The viseme with the largest weight. */
@@ -64,9 +72,12 @@ const heaviest = (weights: IAutoMovieHumanVisemeWeights): string =>
  * 4. No viseme timing, overlapping visemes, a blank actor, fractional, negative or
  *    reversed line ranges, empty, negative or overrunning viseme shares, an
  *    unsupported mouth target, and a non-finite sample frame are each refused.
+ * 5. A line of 13 979 samples at 22.05 kHz in a 30000/1001 fps film, whose speech
+ *    span ends on frame 19, joins a chunk ending on its last sample, and its
+ *    last range ends on frame 19 instead of past the span.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls joinAutoMovieDialogueVisemes with explicit speaker bindings and supplied timing, then sampleAutoMovieDialogueExpression at active/gap/backward-seek frames. Asserts the complete ordered timeline, separate authored/mouth layers, borrowed authored identity, closed not-run reasons, and malformed timing/target/sample refusals.
- * @evidence contracts/development/testing.md#independent-expectations Literal line [10,20), 2 000 samples per frame and the authored shares determine three ranges with the pause as `sil`. Frame 13 lies inside the aa range and frame 16 inside the pause, so they must lead with aa and sil, and the authored sad intensity remains 0.75; these expectations do not call the join or sampler to calculate their answers.
+ * @evidence contracts/development/testing.md#independent-expectations Literal line [10,20), 2 000 samples per frame and the authored shares determine three ranges with the pause as `sil`. Frame 13 lies inside the aa range and frame 16 inside the pause, so they must lead with aa and sil, and the authored sad intensity remains 0.75; these expectations do not call the join or sampler to calculate their answers. Scenario 5's frame 19 is worked by hand in its comment: 30 430 decoded samples and the nearest ticks 28 829 and 30 430 of frames 18 and 19.
  * @evidence contracts/development/testing.md#distinguishing-cases Active-gap-active seeking distinguishes range selection from retained playback state; absent speaker, absent actor and duplicate bindings retain different reasons. Empty/overlapping/out-of-line/negative timing, blank actor, unsupported target and invalid sample frame each require the stated Error cause; coarticulation bounds belong to `test_engine_dialogue_viseme_coarticulation`.
  * @evidence contracts/development/testing.md#execution-ownership Uses local timing/binding/expression records and synchronous pure APIs with existing throwsError and structural numeric comparator, without audio, scene/actor application, clocks, global replacement or a new host. Fixture timing does not authenticate final audio bytes, prove lip synchrony, or certify production pipeline wiring.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A line from frame 10 to 20 bound to one actor, with visemes at 12..15 and).
@@ -354,5 +365,38 @@ export function test_engine_dialogue_viseme_join(): void {
       unsupportedViseme: true,
       infiniteSample: true,
     },
+  );
+
+  // The span and the visemes share the mix's clock. 13 979 samples at
+  // 22.05 kHz decode to round(30 430.204) = 30 430 samples at 48 kHz; frame
+  // 19's boundary at 30000/1001 fps is round(19 × 1601.6) = 30 430 and frame
+  // 18's is 28 829, so the speech span ends on frame 19, while the exact
+  // source time of the last sample is frame 19.0000476.
+  const clock: IAutoMovieJoinDialogueVisemes.IProps["clock"] = {
+    fps: 30_000 / 1_001,
+    frameRate: { numerator: 30_000, denominator: 1_001 },
+    sampleRate: 48_000,
+  };
+  const endFrame: number = productionSpeechEndFrame(clock, 0, 30_430);
+  const spoken: IAutoMovieDialogueVisemeCompilation =
+    joinAutoMovieDialogueVisemes({
+      line: { ...line(), startFrame: 0, endFrame },
+      bindings: [{ speaker: "narrator", actor: "actor" }],
+      visemes: productionPhonemesToVisemes({
+        chunks: [{ phonemes: "ama", startSample: 0, endSample: 13_979 }],
+      }),
+      sourceSampleRate: 22_050,
+      sourceSamples: 13_979,
+      clock,
+    });
+  const last: IAutoMovieDialogueMouthRange | undefined =
+    spoken.timeline?.ranges.at(-1);
+  TestValidator.predicate(
+    "a chunk ending on the receipt's last sample ends on the span's end frame",
+    endFrame === 19 &&
+      spoken.join.status === "available" &&
+      last !== undefined &&
+      last.endFrame === 19 &&
+      spoken.timeline!.ranges[0]!.startFrame === 0,
   );
 }

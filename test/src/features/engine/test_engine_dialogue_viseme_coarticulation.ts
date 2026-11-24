@@ -66,7 +66,8 @@ export function test_engine_dialogue_viseme_coarticulation(): void {
         bindings: [{ speaker: "ann", actor: "ann-node" }],
         visemes,
         sourceSampleRate: 48_000,
-        fps: 24,
+        sourceSamples: samples,
+        clock: { fps: 24, sampleRate: 48_000 },
       });
     if (joined.timeline === null) throw new Error("the join did not run");
     return joined.timeline;

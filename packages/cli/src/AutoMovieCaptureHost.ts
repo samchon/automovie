@@ -261,7 +261,7 @@ export class AutoMovieCaptureHost {
     try {
       // A film with a sound list speaks in its stills as in its delivered
       // frames: the same lines on the same clock give the same mouths.
-      const { sound, fps, durationSeconds } = session.subject;
+      const { sound, fps, durationSeconds, delivery } = session.subject;
       if (sound !== undefined) {
         const [numerator, denominator]: readonly [number, number] =
           render.autoMovieVideoFrameRate(fps);
@@ -280,6 +280,7 @@ export class AutoMovieCaptureHost {
             }),
             speakers: sound.speakers,
             frameRate,
+            loudness: delivery?.loudness,
           }),
         );
       }

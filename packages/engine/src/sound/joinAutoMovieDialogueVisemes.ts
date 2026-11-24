@@ -4,21 +4,31 @@ import type {
   IAutoMovieDialogueSpeakerBinding,
   IAutoMovieDialogueVisemeCompilation,
   IAutoMovieJoinDialogueVisemes,
+  IAutoMovieProductionFrameRate,
 } from "@automovie/interface";
+
+import { productionFrameBoundaryToGridTick } from "../film/productionFrameBoundaryToGridTick";
+import { resolveProductionFrameRate } from "../film/resolveProductionFrameRate";
 
 /**
  * Bind a line's timed visemes to its speaker's actor and place them on the
  * emission clock.
  *
- * Each viseme's sample bounds become film frames from the line's start frame at
- * the film's rate, `frame = line.startFrame + sample × fps / sourceSampleRate`,
- * which is the clock the line's samples play on; no propagation delay is added.
- * Pauses between visemes become `sil` ranges, so a pause inside a line closes
- * the mouth. The weights layer over the actor's authored expression
+ * The emission clock is the one the mix places the line's samples on, which
+ * also ends its speech span (`productionSpeechEndFrame`): the decoded line
+ * holds `n = round(sourceSamples × sampleRate / sourceSampleRate)` samples from
+ * the start frame's sample tick, and frame boundaries sit on their nearest
+ * ticks. A viseme bound `s` plays at offset `s × n / sourceSamples` into the
+ * decoded line, within half a sample of `s × sampleRate / sourceSampleRate`, so
+ * the receipt's last bound lands on the decoded line's last sample and never
+ * past the span's end frame. Inside a frame the frame position runs linearly
+ * between its two boundary ticks. No propagation delay is added. Pauses between
+ * visemes become `sil` ranges, so a pause inside a line closes the mouth. The
+ * weights layer over the actor's authored expression
  * (`mouth-layer-over-authored-expression`).
  *
- * @param props The line, the film's speaker bindings, the timed visemes and the
- *   two rates.
+ * @param props The line, the film's speaker bindings, the timed visemes, the
+ *   line's model-native rate and count, and the plan clock.
  * @returns The join outcome, with the timeline when it is available.
  */
 export const joinAutoMovieDialogueVisemes: (
@@ -56,14 +66,14 @@ export const joinAutoMovieDialogueVisemes: (
     props.line.startFrame < 0 ||
     props.line.endFrame <= props.line.startFrame ||
     !(props.sourceSampleRate > 0) ||
-    !(props.fps > 0)
+    !Number.isSafeInteger(props.sourceSamples) ||
+    props.sourceSamples <= 0
   )
     throw new Error(
-      `dialogue line "${props.line.id}" has an invalid range or rate`,
+      `dialogue line "${props.line.id}" has an invalid range, rate or sample count`,
     );
 
-  const frame: (sample: number) => number = (sample: number): number =>
-    props.line.startFrame + (sample * props.fps) / props.sourceSampleRate;
+  const frame: (sample: number) => number = emissionFrame(props);
   const ranges: IAutoMovieDialogueMouthRange[] = [];
   let cursor: number = props.visemes[0]!.startSample;
   for (const [index, viseme] of props.visemes.entries()) {
@@ -77,6 +87,7 @@ export const joinAutoMovieDialogueVisemes: (
       viseme.startSample < cursor ||
       viseme.startSample < 0 ||
       viseme.endSample <= viseme.startSample ||
+      viseme.endSample > props.sourceSamples ||
       frame(viseme.endSample) > props.line.endFrame
     )
       throw new Error(
@@ -103,6 +114,52 @@ export const joinAutoMovieDialogueVisemes: (
       composition: "mouth-layer-over-authored-expression",
     },
     timeline: { line: props.line.id, actor: binding.actor, ranges },
+  };
+};
+
+/**
+ * The emission-clock frame of a source sample bound: its offset into the
+ * decoded line, `s × n / sourceSamples`, added to the start frame's tick, then
+ * read between the nearest-tick boundaries of the frame holding that tick.
+ *
+ * The start of frame `f` is `tick(f)`; a tick `T` with `tick(f) ≤ T < tick(f +
+ * 1)` reads as `f + (T − tick(f)) / (tick(f + 1) − tick(f))`, so a boundary
+ * tick reads as its whole frame. The closed-form guess `floor(T × numerator /
+ * (denominator × sampleRate))` is within one frame, because nearest rounding
+ * moves a boundary by at most half a tick, so each adjustment loop runs at most
+ * once.
+ */
+const emissionFrame: (
+  props: IAutoMovieJoinDialogueVisemes.IProps,
+) => (sample: number) => number = (
+  props: IAutoMovieJoinDialogueVisemes.IProps,
+): ((sample: number) => number) => {
+  const rate: IAutoMovieProductionFrameRate = resolveProductionFrameRate(
+    props.clock,
+  );
+  const tick: (frame: number) => number = (frame: number): number =>
+    productionFrameBoundaryToGridTick({
+      frame,
+      frameRate: rate,
+      ticksPerSecond: props.clock.sampleRate,
+      rounding: "nearest",
+    });
+  const decoded: number = Math.round(
+    (props.sourceSamples * props.clock.sampleRate) / props.sourceSampleRate,
+  );
+  const origin: number = tick(props.line.startFrame);
+  return (sample: number): number => {
+    const at: number = origin + (sample * decoded) / props.sourceSamples;
+    let whole: number = Math.max(
+      0,
+      Math.floor(
+        (at * rate.numerator) / (rate.denominator * props.clock.sampleRate),
+      ),
+    );
+    while (whole > 0 && tick(whole) > at) --whole;
+    while (tick(whole + 1) <= at) ++whole;
+    const from: number = tick(whole);
+    return whole + (at - from) / (tick(whole + 1) - from);
   };
 };
 

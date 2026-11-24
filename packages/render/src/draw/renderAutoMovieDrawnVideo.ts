@@ -222,6 +222,7 @@ export async function renderAutoMovieDrawnVideo(props: {
       lines,
       speakers: subject.sound.speakers,
       frameRate,
+      loudness: subject.delivery?.loudness,
     });
     await props.session.speak(track);
     speech = { lines, track };
