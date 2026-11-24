@@ -55,9 +55,10 @@ const SIDES: readonly measureAutoMovieCameraFrameEdge.Side[] = [
  *
  * When some side has an extent and the meshes are readable,
  * measureAutoMovieCameraFrameEdgeSurface confirms or clears the cut on the
- * drawn surface and measures the visible fraction. When no crossed side has an
- * extent there is no drawn part past an edge to examine, so the surface outcome
- * is null and the crossing stays a candidate of the bounds.
+ * drawn surface and measures the visible fraction, or finds that no drawn part
+ * lies inside the frame, so the subject is outside it. When no crossed side has
+ * an extent there is no drawn part past an edge to examine, so the surface
+ * outcome is null and the crossing stays a candidate of the bounds.
  *
  * @param props Delivery camera, subject bounds and meshes, and the triangle
  *   budget.

@@ -6,7 +6,7 @@ States the near-plane clip, the cut test and its slack, how the visible fraction
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The GPU draws nothing on the camera side of the near plane, so each triangle is clipped to it first. Signed distance to a side plane is linear over the clipped convex polygon, so a vertex outside the plane beyond 32 ulps of its arithmetic plus an owned skin's stated float32 tolerance confirms a cut. A planar polygon beyond the near plane projects to the polygon of its projected vertices, so its shoelace area is exact; the ratio of in-frame to whole area is independent of the axis scales of normalized device space. Opacity follows the near-clip check's stock-surface rule.
+The GPU draws nothing on the camera side of the near plane, so each triangle is clipped to it first. Signed distance to a side plane is linear over the clipped convex polygon, so a vertex outside the plane beyond 32 ulps of its arithmetic plus an owned skin's stated float32 tolerance confirms a cut. A planar polygon beyond the near plane projects to the polygon of its projected vertices, so its shoelace area is exact; the ratio of in-frame to whole area is independent of the axis scales of normalized device space. A surface with projected area and none of it in frame draws nothing in the picture, so it is `outside` rather than a cut with a visible fraction of zero. Opacity follows the near-clip check's stock-surface rule.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

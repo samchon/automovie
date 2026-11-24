@@ -10,7 +10,7 @@ Uses Three's normalized frustum planes from the actual delivery projection, so c
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Read the projection and bounds, list crossed sides, measure their extents, then let measureAutoMovieCameraFrameEdgeSurface judge the drawn surface only when some side has an extent.
+Read the projection and bounds, list crossed sides, measure their extents, then let measureAutoMovieCameraFrameEdgeSurface judge the drawn surface, cut, clear or wholly outside, only when some side has an extent.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

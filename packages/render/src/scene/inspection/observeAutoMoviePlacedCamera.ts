@@ -12,6 +12,7 @@ import { measureAutoMovieCameraFrameEdge } from "./measureAutoMovieCameraFrameEd
 import { measureAutoMovieCameraNearClip } from "./measureAutoMovieCameraNearClip.js";
 import { measureAutoMovieCameraOcclusionPixels } from "./measureAutoMovieCameraOcclusionPixels.js";
 import { observeAutoMovieCameraInspection } from "./observeAutoMovieCameraInspection.js";
+import { reportAutoMovieCameraFrameEdge } from "./reportAutoMovieCameraFrameEdge.js";
 
 /** A source requirement active in the placed sample. */
 interface ICameraRequirement {
@@ -89,6 +90,9 @@ const FRAMING_FAILURES: Readonly<
  * A subject whose bounds cross a side of the frame gets an optional
  * `camera-frame-edge` check: a cut by the frame edge is often the intended
  * composition, so it is a `frame-edge-cut` warning that never blocks delivery.
+ * When that check finds none of the subject's drawn surface inside the frame,
+ * the subject is wholly outside it and gets the confirmed framing error that
+ * bounds wholly outside the frame give.
  *
  * @param props The placed sample and the requirements active at its time.
  * @returns Findings and one coverage row per check and requirement.
@@ -162,24 +166,7 @@ export function observeAutoMoviePlacedCamera(props: {
       grade === "before-near" ||
       grade === "past-far"
     ) {
-      const failure: { code: string; description: string } =
-        FRAMING_FAILURES[grade];
-      findings.push({
-        check: framing.check,
-        key: path,
-        code: failure.code,
-        paths: [path],
-        category: "error",
-        confidence: "confirmed",
-        message: `Required subject ${path} ${failure.description}.`,
-        witness: {},
-      });
-      if (occlusion.required)
-        coverage.push({
-          ...occlusion,
-          status: "excluded",
-          reason: "Framing already excludes the required subject.",
-        });
+      exclude(findings, coverage, framing, occlusion, grade);
       continue;
     }
 
@@ -237,13 +224,10 @@ export function observeAutoMoviePlacedCamera(props: {
       key: path,
       required: false,
     };
-    if (grade === "possible") coverage.push({ ...edge, status: "checked" });
-    else
-      coverage.push(
-        reportFrameEdge(
-          findings,
-          edge,
-          measureAutoMovieCameraFrameEdge({
+    const cut: measureAutoMovieCameraFrameEdge.IResult =
+      grade === "possible"
+        ? { status: "inside" }
+        : measureAutoMovieCameraFrameEdge({
             camera: sample.camera,
             meshes,
             ...(targetBounds === undefined ? {} : { bounds: targetBounds }),
@@ -253,9 +237,15 @@ export function observeAutoMoviePlacedCamera(props: {
                 : clip.status === "unmeasured"
                   ? clipTriangles
                   : clipTriangles - clip.triangles,
-          }),
-        ),
-      );
+          });
+    coverage.push(reportAutoMovieCameraFrameEdge(findings, edge, cut));
+
+    // Bounds that cross a side around a surface that shows nowhere in the
+    // frame hold a subject wholly outside it, not cut by it.
+    if (cut.status === "crossed" && cut.surface?.status === "outside") {
+      exclude(findings, coverage, framing, occlusion, "outside");
+      continue;
+    }
     if (
       maxOcclusionRatio !== undefined &&
       (!Number.isFinite(maxOcclusionRatio) ||
@@ -349,6 +339,37 @@ export function observeAutoMoviePlacedCamera(props: {
 }
 
 /**
+ * Report a confirmed whole-subject exclusion as a framing error, and exclude
+ * the subject's required occlusion check, which has nothing in frame to grade.
+ */
+function exclude(
+  findings: IAutoMovieInspectionDiagnostics.IFinding[],
+  coverage: IAutoMovieInspectionDiagnostics.ICoverage[],
+  framing: IRow,
+  occlusion: IRow,
+  grade: keyof typeof FRAMING_FAILURES,
+): void {
+  const failure: { code: string; description: string } =
+    FRAMING_FAILURES[grade];
+  findings.push({
+    check: framing.check,
+    key: framing.key,
+    code: failure.code,
+    paths: [framing.key],
+    category: "error",
+    confidence: "confirmed",
+    message: `Required subject ${framing.key} ${failure.description}.`,
+    witness: {},
+  });
+  if (occlusion.required)
+    coverage.push({
+      ...occlusion,
+      status: "excluded",
+      reason: "Framing already excludes the required subject.",
+    });
+}
+
+/**
  * Report an exact pixel count that breaks the authored limit or finds no
  * subject.
  */
@@ -408,92 +429,4 @@ function reportPixels(
       ],
     },
   });
-}
-
-/**
- * Report a cut by the frame's sides as a warning and return its coverage row.
- *
- * A cut confirmed on an opaque drawn surface is `confirmed`; one seen only on a
- * transparent surface, or inferred from bounds the surface could not check, is
- * a `candidate`. A side the bounds cross only before the near plane is listed
- * as crossed with no extent, and a finding whose sides all lack one is a
- * candidate with no rank, its row `checked`. A budget stop leaves the row
- * `deferred` and an unreadable surface leaves it `unsupported`, each with its
- * candidate.
- */
-function reportFrameEdge(
-  findings: IAutoMovieInspectionDiagnostics.IFinding[],
-  row: IRow,
-  result: measureAutoMovieCameraFrameEdge.IResult,
-): IAutoMovieInspectionDiagnostics.ICoverage {
-  if (result.status === "unmeasured")
-    return { ...row, status: "unsupported", reason: result.reason };
-  if (result.status === "inside" || result.surface?.status === "clear")
-    return { ...row, status: "checked" };
-  const { crossings, surface } = result;
-  const extents: number[] = crossings.flatMap(
-    (crossing: measureAutoMovieCameraFrameEdge.ICrossing): number[] =>
-      crossing.extent === undefined ? [] : [crossing.extent],
-  );
-  const sides: string = crossings
-    .map(
-      (crossing: measureAutoMovieCameraFrameEdge.ICrossing): string =>
-        crossing.side,
-    )
-    .join(" ");
-  const confirmed: boolean = surface?.status === "cut" && surface.opaque;
-  findings.push({
-    check: row.check,
-    key: row.key,
-    code: "frame-edge-cut",
-    paths: [row.key],
-    category: "warning",
-    confidence: confirmed ? "confirmed" : "candidate",
-    message: `Required subject ${row.key} ${confirmed ? "is" : "may be"} cut by the ${sides.replaceAll(" ", " and ")} ${crossings.length > 1 ? "edges" : "edge"} of the delivery frame.`,
-    witness: {
-      ...(extents.length === 0 ? {} : { rank: Math.max(...extents) }),
-      measurements: [
-        { name: "crossed-sides", value: sides, unit: "sides" },
-        ...crossings.flatMap(
-          (
-            crossing: measureAutoMovieCameraFrameEdge.ICrossing,
-          ): IAutoMovieInspectionDiagnostics.IMeasurement[] =>
-            crossing.extent === undefined
-              ? []
-              : [
-                  {
-                    name: `${crossing.side}-edge-extent`,
-                    value: crossing.extent,
-                    unit: "normalized device units",
-                  },
-                ],
-        ),
-        ...(surface?.status === "cut"
-          ? [
-              {
-                name: "frame-edge-triangles",
-                value: surface.triangles,
-                unit: "triangles",
-              },
-              ...(surface.fraction === undefined
-                ? []
-                : [
-                    {
-                      name: "visible-fraction-by-projected-surface-area",
-                      value: surface.fraction,
-                      unit: "fraction",
-                    },
-                  ]),
-            ]
-          : []),
-      ],
-    },
-  });
-  return surface === null || surface.status === "cut"
-    ? { ...row, status: "checked" }
-    : {
-        ...row,
-        status: surface.status === "over-budget" ? "deferred" : "unsupported",
-        reason: surface.reason,
-      };
 }
