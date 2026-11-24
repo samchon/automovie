@@ -1,4 +1,5 @@
 export * from "./AutoMovieMatrix3";
+export * from "./EllipticFunctions";
 export * from "./Matrix4";
 export * from "./Quaternion";
 export * from "./prepareLinearSystem";
@@ -40,6 +41,7 @@ export * from "./mixSeed";
 export * from "./nearestAngleAlias";
 export * from "./nearestHullEdge";
 export * from "./orderAutoMovieQuadraticMatrix";
+export * from "./pinnedElastica";
 export * from "./pointHullDistance";
 export * from "./pointInHull";
 export * from "./pointSegmentDistance";

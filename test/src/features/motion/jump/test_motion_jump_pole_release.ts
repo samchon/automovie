@@ -3,7 +3,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -21,22 +20,23 @@ import { motionHumanBody } from "../../internal/motionHumanBody";
 /**
  * Load a pole at the plant and let it go at the release.
  *
- * The pole lies across a rack in front of the performer, its tip to the
- * left, and is taken up as a vaulter carries it: the right hand at its top
- * grip, the left steadying it at the lower grip toward the tip, the lower
- * hand the fulcrum of the drop (Coaches Insider, "Pole carry and drop"),
- * planted from the top hand overhead (Frontiers in Sports and Active Living
- * 2022, 10.3389/fspor.2022.835659: the upper grip at take-off 121 % of
- * stature in men).
+ * The pole lies across a rack in front of the performer, its tip to the left,
+ * and is taken up as a vaulter carries it: the right hand at its top grip, the
+ * left steadying it at the lower grip toward the tip, the lower hand the
+ * fulcrum of the drop (Coaches Insider, "Pole carry and drop"), planted from
+ * the top hand overhead (Frontiers in Sports and Active Living 2022,
+ * 10.3389/fspor.2022.835659: the upper grip at take-off 121 % of stature in
+ * men).
  *
  * Scenarios:
- * 1. Through the swing the pole's `tip` stays planted within 5 mm while the
- *    hand holds the pole within 10 mm of its grip.
- * 2. At `release` the pole leaves the hand without a jump: its origin moves
- *    less than 10 mm over the 2 ms around the release.
- * 3. A quarter second after the release the pole has left the hand: its
- *    origin lies more than 50 mm from its seat in the hand's frame, five
- *    times the grip bound a held pole keeps.
+ *
+ * 1. Through the swing the pole's `tip` stays planted within 5 mm while the hand
+ *    holds the pole within 10 mm of its grip.
+ * 2. At `release` the pole leaves the hand without a jump: its origin moves less
+ *    than 10 mm over the 2 ms around the release.
+ * 3. A quarter second after the release the pole has left the hand: its origin
+ *    lies more than 50 mm from its seat in the hand's frame, five times the
+ *    grip bound a held pole keeps.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the load, the release and the unload with their bounds.
  * @evidence contracts/development/testing.md#behavioral-verification Composes pick-up, run and vault through the public chain with the real pole and reads the displayed pole frame and hand.
@@ -93,16 +93,11 @@ export function test_motion_jump_pole_release(): void {
       vault.plan.duration;
   const takeoff: number = when("takeoff");
   const release: number = when("release");
-  const tip: IAutoMovieVector3 = pole.affordance("tip").frame.translation;
+  // The tip where the pole's bend puts it: the site reads the pole's
+  // affordances as its hinges pose them.
   const tipAt: (seconds: number) => IAutoMovieVector3 = (
     seconds: number,
-  ): IAutoMovieVector3 => {
-    const frame: IAutoMovieRigidTransform = film.prop("pole", seconds);
-    return Vector3.add(
-      frame.position,
-      Quaternion.rotateVector(frame.rotation, tip),
-    );
-  };
+  ): IAutoMovieVector3 => film.site("pole", "tip", seconds).position;
   const grip: (seconds: number) => IAutoMovieVector3 = (
     seconds: number,
   ): IAutoMovieVector3 =>

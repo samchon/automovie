@@ -9,6 +9,7 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   AutoMovieMotionHumanActionKey,
+  IAutoMovieAffordance,
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -19,6 +20,7 @@ import type {
   IAutoMovieMotionHumanHeld,
   IAutoMovieMotionHumanPoleVault,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionPropDrive,
   IAutoMovieMotionPropLaunch,
   IAutoMovieResolveCenterOfMass,
   IAutoMovieResolvedBone,
@@ -32,12 +34,15 @@ import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanIn
 import { WorkoutSupport } from "../exercise/WorkoutSupport";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { HumanPostureRaw } from "../posture/HumanPostureRaw";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { GymnasticsFlight } from "./GymnasticsFlight";
 import { GymnasticsMat } from "./GymnasticsMat";
 import { GymnasticsTakeoff } from "./GymnasticsTakeoff";
+import { poleVaultBend } from "./poleVaultBend";
+import { poleVaultSwing } from "./poleVaultSwing";
 import { prepareGymnasticsPlacement } from "./prepareGymnasticsPlacement";
 import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
 
@@ -52,7 +57,8 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  * planted end is the prop's `tip` affordance, or the one named.
  *
  * 1. Take-off: the jump's push-off (`GymnasticsTakeoff`) at the run's speed, kept,
- *    rising at `ANGLE`. Over it the hands carry the pole on from the run's drop
+ *    rising at the angle Linthorne and Weetman 2012 read from the run's speed
+ *    (`takeoffAngle`). Over it the hands carry the pole on from the run's drop
  *    (`plants`, `walkPoleCarriage`) to the plant: the top arm straight, raised
  *    until its forearm meets the pole at the grip's own neutral angle
  *    (`walkPoleFrame.plant`), no higher than lets the pole lean `LEAN` from
@@ -62,24 +68,32 @@ import { preparePoleVaultPlant } from "./preparePoleVaultPlant";
  *    (`walkPoleFrame`): the end comes down onto the plant from above and never
  *    passes through the floor, as a vaulter's tip falls onto the box as the top
  *    hand rises overhead (Coaches Insider, "Pole carry and drop").
- * 2. Swing, about one axis, the body's left one through the planted end: body and
- *    pole turn as one rigid pendulum. At the plant the centre's velocity across
- *    the pendulum's radius is kept, as the angular momentum about the planted
- *    end is, and the part along the radius is lost to the plant; the turn then
- *    follows the energy of a point mass on a rigid massless pole, ω² = ω₀² +
- *    (2g/R)(cos θ₀ − cos θ), integrated once into a table of time by angle. The
- *    hand lets go when the pole stands upright. A run too slow to bring it
- *    upright is refused with the speed needed.
- * 3. Flight: the centre on the parabola of its velocity at the release, the body
- *    keeping the swing's rate, until its lowest shape meets the landing
- *    surface; then it lies there (`GymnasticsMat`), on its back or its front as
- *    its turn brought it.
+ * 2. Swing, in the vault's plane, on a bending pole: Linthorne's flexible-pole
+ *    model (`poleVaultSwing`; Linthorne 2000), the vaulter a point mass at the
+ *    top hand's grip on a massless pole planted at its tip, integrated once at
+ *    the paper's 0.01 s from the take-off's velocity, the plant's loss taken
+ *    and the pole pushing along its chord until it recoils to its length, where
+ *    the hand lets go. The pole's stiffness is its rating (`IParams.rating`),
+ *    the vaulter's own weight when not given, the least a vaulter may use (NFHS
+ *    Track and Field Rule 7-5-3: the vaulter's weight at or below the pole's
+ *    rating). The pole shows the elastica of the swing's chord on its hinged
+ *    chain (`poleVaultBend`, driven per hinge), so its tip stays planted; the
+ *    body turns with the chord about the planted tip, as the point mass's pole
+ *    does, its grip on the chain's own chord, and the hands hold the pole where
+ *    the chain puts the held link, the arms taking its turn from the chord: the
+ *    vaulter's arms are deflected backward relative to the shoulders as the
+ *    pole bends (Linthorne 2000, "Take-off and pole plant phases"), as the
+ *    multi-segment vaulters of Hubbard 1980 and Ekevad and Lundberg 1997 hang
+ *    from the pole by the hands. A run too slow to swing the pole upright is
+ *    refused.
+ * 3. Flight: the centre on the parabola of its velocity at the release, the grip's
+ *    velocity and the chord's turn, the body keeping the chord's rate, until
+ *    its lowest shape meets the landing surface; then it lies there
+ *    (`GymnasticsMat`), on its back or its front as its turn brought it.
  *
- * First pass: the pole does not bend and the body does not swing about the
- * hands, so there is no inversion, no pull and turn and no push off the pole,
- * which a bending pole and a body that rocks back over its hands give a vaulter
- * (a multi-axis flight is not planned); the pole's own mass and the body's
- * inertia about its centre are left out of the pendulum; a hand that does not
+ * First pass: the vaulter is passive on the pole, as Linthorne's is, so there
+ * is no inversion, no pull and turn and no push off the pole (a multi-axis
+ * flight is not planned); the pole's own mass is left out; a hand that does not
  * hold the pole keeps the jump's arm swing; the released pole flies from the
  * velocity of its origin in the swing (`launches`) rather than pivoting on in
  * the box.
@@ -102,13 +116,6 @@ export namespace poleVault {
   };
 
   /**
-   * The take-off's rise above the horizontal, degrees (Linthorne and Weetman
-   * 2012, J. Sports Sci. Med. 11: about 20 degrees at an athlete's competition
-   * run-up of 8.4 m/s).
-   */
-  export const ANGLE: number = 20;
-
-  /**
    * The least lean of the pole from upright at the plant, degrees
    * (provisional).
    */
@@ -122,24 +129,6 @@ export namespace poleVault {
    * height.
    */
   const PLANT: number = 4;
-
-  /** The number of steps the swing's table is integrated in. */
-  const STEPS: number = 200;
-
-  /**
-   * The centre's height at the take-off, share of the stature: 1.24 m of a
-   * 1.855 m vaulter (Frontiers in Sports and Active Living 2022,
-   * 10.3389/fspor.2022.835659, men's take-off CM height and upper grip at 121.3
-   * % of stature).
-   */
-  const CENTRE_HIGH: number = 1.24 / 1.855;
-
-  /**
-   * How far the centre stands behind the top hand at the take-off, share of the
-   * stature: the take-off foot 0.14 m behind the upper hand, the centre over it
-   * (the same study).
-   */
-  const CENTRE_BEHIND: number = 0.14 / 1.855;
 
   /**
    * The halvings the grip's bisection takes: a pole's length to well under a
@@ -189,6 +178,19 @@ export namespace poleVault {
     // Held, with its end: the reads above refuse otherwise.
     const pole: walkPoleFrame.IPole = found!;
     const length: number = Vector3.length(end);
+    if (
+      !held.affordances.some(
+        (a: IAutoMovieAffordance): boolean => a.kind === "hinge",
+      )
+    )
+      throw new HumanRefusal({
+        kind: "parameter",
+        axis: "pole",
+        value: p.pole,
+        reason:
+          "a vaulting pole bends on its hinges as the vaulter swings on it, and this pole has none",
+        fix: "vault with a pole that bends, such as createVaultingPole's",
+      });
     const readGrip: ReturnType<typeof poseBones.prepare> = poseBones.prepare(
       body,
       HumanHand.frameBones(body, side, "grip"),
@@ -197,7 +199,7 @@ export namespace poleVault {
       readGrip(context.entry.pose);
     const hand0: IAutoMovieResolvedBone = entered.get(`${side}Hand`)!;
 
-    // The run: its speed kept, rising at `ANGLE`.
+    // The run: its speed kept, rising at its take-off angle.
     const run: IAutoMovieVector3 = {
       x: context.entry.velocity.linear.x,
       y: 0,
@@ -214,7 +216,7 @@ export namespace poleVault {
         fix: "run into the vault",
       });
     const ahead: IAutoMovieVector3 = Vector3.scale(run, 1 / speed);
-    const rise: number = (ANGLE * Math.PI) / 180;
+    const rise: number = (takeoffAngle(speed) * Math.PI) / 180;
     const climbCosine: number = Math.cos(rise);
     const takeoffVelocity: IAutoMovieVector3 = {
       x: ahead.x * speed * climbCosine,
@@ -239,8 +241,8 @@ export namespace poleVault {
     const { shoulders, root: rootT }: ITakeoffFrame = ((): ITakeoffFrame => {
       const resolution: ReturnType<typeof preparePoseResolution> =
         preparePoseResolution();
-      const projection: ReturnType<typeof prepareHumanPostureProjection> =
-        prepareHumanPostureProjection(body);
+      const projection: ReturnType<typeof prepareHumanPostureProjection.of> =
+        prepareHumanPostureProjection.of(body);
       const raw: IAutoMovieMotionHumanPosture = takeoff.plan.posture(
         off,
         undefined,
@@ -248,7 +250,7 @@ export namespace poleVault {
         projection,
       );
       const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
+        poseBones.of(
           body,
           resolveHumanPosture.seeded(
             body,
@@ -401,92 +403,147 @@ export namespace poleVault {
     const from: IAutoMovieMotionHumanPosture = plantFit.posture;
     const tipAt: IAutoMovieVector3 = plantFit.tip;
     const gripAt: IAutoMovieVector3 = plantFit.grip;
-    const c0: IAutoMovieVector3 = plantFit.centre;
-    const radius: IAutoMovieVector3 = Vector3.subtract(c0, tipAt);
-    const rf: number = Vector3.dot(radius, ahead);
-    const ry: number = radius.y;
-    const r: number = Math.hypot(rf, ry);
-    const vf: number = Vector3.dot(takeoff.velocity, ahead);
-    const omega0: number = (vf * ry - takeoff.velocity.y * rf) / (r * r);
-    const beta0: number = Math.atan2(rf, ry);
-    const pole0: number = Math.atan2(
-      Vector3.dot(Vector3.subtract(gripAt, tipAt), ahead),
-      gripAt.y - tipAt.y,
-    );
-    const upright: number = -pole0;
-    const cosine: number = Math.cos(beta0);
-    const gravity: number = (2 * AutoMovieGravity.STANDARD) / r;
-    const initialRate2: number = omega0 * omega0;
-    const rate2: (alpha: number) => number = (alpha: number): number =>
-      initialRate2 + gravity * (cosine - Math.cos(beta0 + alpha));
-    const rates: number[] = [];
-    let needed: number = 0;
-    for (let i: number = 0; i <= STEPS; i++) {
-      const at: number = Math.cos(beta0 + (upright * i) / STEPS);
-      needed = Math.max(needed, gravity * (at - cosine));
-      rates.push(initialRate2 + gravity * (cosine - at));
-    }
-    if (!(omega0 > 0) || initialRate2 <= needed)
-      throw new HumanRefusal({
-        kind: "base",
-        axis: "run",
-        value: speed,
-        feasible: {
-          kind: "range",
-          minimum: omega0 > 0 ? (speed * Math.sqrt(needed)) / omega0 : null,
-          maximum: null,
-          unit: "m/s",
-          open: "minimum",
-        },
-        reason: `at ${speed.toFixed(2)} m/s the body swings over the planted pole at ${omega0.toFixed(2)} rad/s, too slow to bring the pole upright`,
-        fix: "run faster into the vault",
-      });
 
-    // The table of seconds by angle, by the trapezoid rule on 1 / ω.
-    const inverse: number[] = rates.map(
-      (value: number): number => 1 / Math.sqrt(value),
-    );
-    const seconds: number[] = [0];
-    for (let i: number = 1; i <= STEPS; i++) {
-      const a: number = (upright * (i - 1)) / STEPS;
-      const b: number = (upright * i) / STEPS;
-      seconds.push(
-        seconds[i - 1]! + ((b - a) / 2) * (inverse[i - 1]! + inverse[i]!),
-      );
-    }
-    const swing: number = seconds[STEPS]!;
-    const angleAt: (t: number) => number = (t: number): number => {
-      let low: number = 1;
-      let high: number = STEPS;
-      while (low < high) {
-        const middle: number = Math.floor((low + high) / 2);
-        if (seconds[middle]! < t) low = middle + 1;
-        else high = middle;
-      }
-      const i: number = low;
-      const u: number = (t - seconds[i - 1]!) / (seconds[i]! - seconds[i - 1]!);
-      return (upright * (i - 1 + Math.min(1, Math.max(0, u)))) / STEPS;
+    // Linthorne's flexible pole (`poleVaultSwing`): the vaulter a point mass
+    // at the top hand's grip, swung from the take-off's velocity on a pole as
+    // stiff as its rating, the vaulter's own weight when none is given (NFHS
+    // Rule 7-5-3).
+    const reach0: IAutoMovieVector3 = Vector3.subtract(gripAt, tipAt);
+    const radius0: poleVaultSwing.IPlane = {
+      forward: Vector3.dot(reach0, ahead),
+      up: reach0.y,
     };
+    const swing: poleVaultSwing.ISwing = poleVaultSwing.of({
+      radius: radius0,
+      velocity: {
+        forward: Vector3.dot(takeoff.velocity, ahead),
+        up: takeoff.velocity.y,
+      },
+      mass: body.profile.mass,
+      buckling: (p.rating ?? body.profile.mass) * poleVaultSwing.RATING,
+      gravity: AutoMovieGravity.STANDARD,
+      upright: 0,
+      run: speed,
+    });
+    const bend: poleVaultBend.IBend = poleVaultBend.of(swing, held.affordances);
     const degrees: number = 180 / Math.PI;
+    const chord0: number = Math.atan2(radius0.forward, radius0.up);
+    // A direction in the vault's plane at an angle from upright toward the run.
+    const towards = (angle: number): IAutoMovieVector3 =>
+      Vector3.add(Vector3.scale(ahead, Math.sin(angle)), {
+        x: 0,
+        y: Math.cos(angle),
+        z: 0,
+      });
+    // A point turned about the planted tip in the vault's plane, toward the run.
+    const about = (
+      point: IAutoMovieVector3,
+      angle: number,
+    ): IAutoMovieVector3 => {
+      const offset: IAutoMovieVector3 = Vector3.subtract(point, tipAt);
+      const forth: number = Vector3.dot(offset, ahead);
+      const aside: IAutoMovieVector3 = Vector3.subtract(
+        offset,
+        Vector3.add(Vector3.scale(ahead, forth), { x: 0, y: offset.y, z: 0 }),
+      );
+      return Vector3.add(
+        Vector3.add(tipAt, aside),
+        Vector3.add(
+          Vector3.scale(
+            ahead,
+            forth * Math.cos(angle) + offset.y * Math.sin(angle),
+          ),
+          {
+            x: 0,
+            y: offset.y * Math.cos(angle) - forth * Math.sin(angle),
+            z: 0,
+          },
+        ),
+      );
+    };
+    // The pole bends away from the vaulter, toward the run's side of its
+    // chord: its hinges turn the way that bows its `+Z` there, or the other
+    // way when the hands hold it turned.
+    const plantBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
+      readGrip(resolveHumanPosture.of(body, from));
+    const bow: number =
+      Vector3.dot(
+        Quaternion.rotateVector(
+          Quaternion.multiply(
+            plantBones.get(side === "left" ? "leftHand" : "rightHand")!
+              .worldRotation,
+            held.frame.rotation,
+          ),
+          { x: 0, y: 0, z: 1 },
+        ),
+        towards(chord0 + Math.PI / 2),
+      ) >= 0
+        ? 1
+        : -1;
     const turnFrom: ReturnType<typeof GymnasticsFlight.prepareTurned> =
       GymnasticsFlight.prepareTurned(from, tipAt);
-    const swinging: (t: number) => IAutoMovieMotionHumanPosture = (
-      t: number,
-    ): IAutoMovieMotionHumanPosture => turnFrom(0, angleAt(t) * degrees);
+    // The body turned with the chord about the planted tip, its grip on the
+    // shown chain's chord, and the hands on the pole where the chain puts the
+    // held link: the arms take that link's turn from the chord.
+    const swinging = (t: number): IAutoMovieMotionHumanPosture => {
+      const at: poleVaultSwing.ISample = swing.at(t);
+      const chord: number = Math.atan2(at.position.forward, at.position.up);
+      const shown: poleVaultBend.IChain = bend.chain(t);
+      const shift: IAutoMovieVector3 = Vector3.scale(
+        towards(chord),
+        shown.chord - swing.length,
+      );
+      const turned: IAutoMovieMotionHumanPosture = turnFrom(
+        0,
+        (chord - chord0) * degrees,
+      );
+      const base: IAutoMovieMotionHumanPosture = HumanPostureRaw.translated(
+        turned,
+        Vector3.add(turned.root, shift),
+      );
+      return walkPoleFrame.write(
+        base,
+        walkPoleFrame.place(
+          pole,
+          Vector3.addScaled(tipAt, towards(chord), shown.chord),
+          Vector3.scale(towards(chord + shown.top), -1),
+          (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
+            Vector3.add(about(shoulders[hand]!, chord - chord0), shift),
+        ),
+        (hand: AutoMovieHumanSide): IAutoMovieVector3 =>
+          AutoMovieMotionHumanBend.hang(body, base, hand),
+      );
+    };
 
-    // The release: the centre and its velocity from the pendulum.
-    const omega: number = Math.sqrt(rate2(upright));
-    const released: IAutoMovieMotionHumanPosture = swinging(swing);
+    // The release: the grip's state where the pole has recoiled, the centre
+    // carried with it at the chord's rate.
+    const last: poleVaultSwing.ISample =
+      swing.samples[swing.samples.length - 1]!;
+    const omega: number =
+      (last.position.up * last.velocity.forward -
+        last.position.forward * last.velocity.up) /
+      (last.position.forward ** 2 + last.position.up ** 2);
+    const released: IAutoMovieMotionHumanPosture = swinging(swing.duration);
     const cr: IAutoMovieVector3 = GymnasticsFlight.centre(
       body,
       model,
       released,
     );
-    const out: IAutoMovieVector3 = Vector3.subtract(cr, tipAt);
+    const out: IAutoMovieVector3 = Vector3.subtract(
+      cr,
+      Vector3.add(
+        Vector3.add(tipAt, Vector3.scale(ahead, last.position.forward)),
+        {
+          x: 0,
+          y: last.position.up,
+          z: 0,
+        },
+      ),
+    );
     const forth: number = Vector3.dot(out, ahead);
     const velocity: IAutoMovieVector3 = Vector3.add(
-      Vector3.scale(ahead, omega * out.y),
-      { x: 0, y: -omega * forth, z: 0 },
+      Vector3.scale(ahead, last.velocity.forward + omega * out.y),
+      { x: 0, y: last.velocity.up - omega * forth, z: 0 },
     );
     const placeFlight: ReturnType<typeof prepareGymnasticsPlacement> =
       prepareGymnasticsPlacement(body, model, released);
@@ -510,8 +567,8 @@ export namespace poleVault {
     const down: number = ((): number => {
       const [floorResolution, floorProjection]: [
         ReturnType<typeof preparePoseResolution>,
-        ReturnType<typeof prepareHumanPostureProjection>,
-      ] = [preparePoseResolution(), prepareHumanPostureProjection(body)];
+        ReturnType<typeof prepareHumanPostureProjection.of>,
+      ] = [preparePoseResolution(), prepareHumanPostureProjection.of(body)];
       const readLowest: ReturnType<typeof GymnasticsFlight.prepareLowest> =
         GymnasticsFlight.prepareLowest(body);
       const lowest: (t: number) => number = (t: number): number =>
@@ -539,7 +596,7 @@ export namespace poleVault {
       height: surface,
     });
 
-    const release: number = off + swing;
+    const release: number = off + swing.duration;
     const touchdown: number = release + down;
     const settled: number = touchdown + GymnasticsMat.SETTLE;
     const duration: number = settled + GymnasticsMat.HOLD;
@@ -578,7 +635,7 @@ export namespace poleVault {
     // The released pole leaves its held frame on the grip with the velocity
     // the rigid swing about the planted end gives its origin.
     const releasedGrip: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      readGrip(resolveHumanPosture(body, released));
+      readGrip(resolveHumanPosture.of(body, released));
     const hand: IAutoMovieResolvedBone = releasedGrip.get(
       side === "left" ? "leftHand" : "rightHand",
     )!;
@@ -598,11 +655,27 @@ export namespace poleVault {
       }),
       rotation: Quaternion.multiply(hand.worldRotation, held.frame.rotation),
     };
+
+    // The pole's hinges, driven by the bend through the swing and turned the
+    // way that bows it away from the vaulter (`bow`); straight again at the
+    // release, where the last travel holds.
+    const drives: IAutoMovieMotionPropDrive[] = bend.hinges.map(
+      (articulation: string, k: number): IAutoMovieMotionPropDrive => ({
+        prop: p.pole,
+        articulation,
+        from: off / duration,
+        to: release / duration,
+        travel: (seconds: number): number =>
+          bow *
+          bend.turn(k, Math.min(swing.duration, Math.max(0, seconds - off))),
+      }),
+    );
     return {
       duration,
       events,
       contacts,
       launches: [launch],
+      drives,
       contact: off,
       base: { kind: "lying" },
       posture: (
@@ -635,27 +708,27 @@ export namespace poleVault {
   }
 
   /**
-   * The farthest from the planted end the top hand can grip a rigid pole and
-   * still swing it upright from a run at `speed`: a rigid pole stands only as
-   * far as the run's energy carries the body over the planted end, so a slower
-   * run grips lower, as coaches set a beginner's grip from the approach speed.
+   * The farthest from the planted end the top hand can grip the pole and still
+   * swing it upright from a run at `speed`: a pole stands only as far as the
+   * run's energy carries the vaulter over the planted end (Linthorne 2000: the
+   * grip height is "determined primarily by the kinetic energy at take-off"),
+   * so a slower run grips lower, as coaches set a beginner's grip from the
+   * approach speed.
    *
    * Each grip ℓ is planted as the vault plants (`walkPoleFrame.plant`, the
    * straight top arm at the body's power-grip angle, `walkPoleFrame.power`),
-   * and its swing judged by the vault's own pendulum: the centre at the
-   * take-off 0.668 of the stature high and 0.0755 of it behind the top hand
-   * (Frontiers in Sports and Active Living 2022, 10.3389/fspor.2022.835659:
-   * take-off CM height 1.24 m and the take-off foot 0.14 m behind the upper
-   * hand in men, whose upper grip 2.25 m is 121.3 % of stature, 1.855 m), the
-   * run's speed kept and rising at `ANGLE`, ω₀ = (v_f r_y − v_y r_f) / r², and
-   * the pole upright if ω₀² > (2g / r)(cos β − cos β₀) at its highest β. That
-   * holds for every grip up to one and for none past it, so the grip is found
-   * by bisection on that monotone condition.
+   * and its swing judged by the vault's own model (`poleVaultSwing.integrate`):
+   * the grip behind the planted end at its plant height, the run's speed kept
+   * and rising at its take-off angle (`takeoffAngle`), on a pole as stiff as
+   * `rating`. A swing reaches the release for every grip up to one and for none
+   * past it, so the grip is found by bisection on that monotone condition.
    *
    * @param body The vaulter's body.
    * @param side The top hand.
    * @param speed The run's speed, m/s (`run.speed`).
    * @param length The pole's whole length, metres: the farthest grip.
+   * @param rating The pole's stiffness rating, kilograms; the vaulter's mass
+   *   when absent (NFHS Rule 7-5-3).
    * @returns The grip's distance from the planted end, metres; the whole length
    *   when that already swings upright.
    * @throws {HumanRefusal} When no grip that plants swings upright at that
@@ -666,18 +739,20 @@ export namespace poleVault {
     side: AutoMovieHumanSide,
     speed: number,
     length: number,
+    rating?: number,
   ): number {
     // The body's own power-grip angle, as a grasp of the bar will hold it.
     const neutral: number = walkPoleFrame.power(body, side);
-    const stature: number = body.measure.stature;
     const shoulder: number =
       body.rest.get(side === "left" ? "leftUpperArm" : "rightUpperArm")!.y -
       body.rest.get(side === "left" ? "leftFoot" : "rightFoot")!.y +
       body.measure.ankleHeight;
     const reach: number = body.measure.upperArm + body.measure.forearm;
-    const rise: number = (ANGLE * Math.PI) / 180;
+    const rise: number = (takeoffAngle(speed) * Math.PI) / 180;
     const vf: number = speed * Math.cos(rise);
     const vy: number = speed * Math.sin(rise);
+    const buckling: number =
+      (rating ?? body.profile.mass) * poleVaultSwing.RATING;
     const swings = (l: number): boolean => {
       const at: walkPoleFrame.IPlant | undefined = walkPoleFrame.plant(
         shoulder,
@@ -687,22 +762,20 @@ export namespace poleVault {
         LEAN,
       );
       if (at === undefined) return false;
-      // Along the run from the planted end: the grip behind it, the centre
-      // behind the grip.
-      const ahead: number = Math.sqrt(Math.max(0, l * l - at.high * at.high));
-      const rf: number = -ahead - CENTRE_BEHIND * stature;
-      const ry: number = CENTRE_HIGH * stature;
-      const r2: number = rf * rf + ry * ry;
-      const r: number = Math.sqrt(r2);
-      const omega: number = (vf * ry - vy * rf) / r2;
-      const beta: number = Math.atan2(rf, ry);
-      const upright: number = Math.atan2(ahead, at.high);
-      const top: number = beta + upright >= 0 ? 0 : beta + upright;
+      // The grip behind the planted end along the run, at its plant height.
       return (
-        omega > 0 &&
-        omega * omega >
-          ((2 * AutoMovieGravity.STANDARD) / r) *
-            (Math.cos(top) - Math.cos(beta))
+        poleVaultSwing.integrate({
+          radius: {
+            forward: -Math.sqrt(Math.max(0, l * l - at.high * at.high)),
+            up: at.high,
+          },
+          velocity: { forward: vf, up: vy },
+          mass: body.profile.mass,
+          buckling,
+          gravity: AutoMovieGravity.STANDARD,
+          upright: 0,
+          run: speed,
+        }).failure === null
       );
     };
     if (swings(length)) return length;
@@ -718,7 +791,7 @@ export namespace poleVault {
         kind: "base",
         axis: "run",
         value: speed,
-        reason: `at ${speed.toFixed(2)} m/s no grip on a rigid pole swings it upright`,
+        reason: `at ${speed.toFixed(2)} m/s no grip on the pole swings it upright`,
         fix: "run faster into the vault",
       });
     for (let k: number = 0; k < SPLITS; k++) {
@@ -763,4 +836,15 @@ function onLine(
     Math.min(1, (-b + Math.sqrt(discriminant)) / (2 * a)),
   );
   return Vector3.add(from, Vector3.scale(slide, along));
+}
+
+/**
+ * The take-off's rise above the horizontal at a run-up speed, degrees: the
+ * regression over an athlete's run-ups from 4.5 to 8.5 m/s, `48.8 - 3.51 v`
+ * (Linthorne and Weetman 2012, "Effects of run-up velocity on performance,
+ * kinematics, and energy exchanges in the pole vault", J. Sports Sci. Med.
+ * 11:245-254), about 19 degrees at a competition run-up of 8.4 m/s.
+ */
+function takeoffAngle(speed: number): number {
+  return 48.8 - 3.51 * speed;
 }
