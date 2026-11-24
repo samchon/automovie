@@ -7,6 +7,7 @@ import {
   IAutoMovieMaterial,
   IAutoMovieModel,
   type IAutoMovieSceneEnvironmentUse,
+  type IAutoMovieSurfaceGraphicImageUse,
   type IAutoMovieTextureClosureInput,
   type IAutoMovieTextureImageFacts,
   IAutoMovieTextureReference,
@@ -35,7 +36,12 @@ const ENVIRONMENT_MEDIA: ReadonlySet<AutoMovieTextureMediaType> = new Set([
 ]);
 
 /**
- * Cross-check every sampled material/environment image with manifest registration, production consumer authorization, media/edge facts and consistent color intent. A binding that names an image its model carries skips the ledger, which holds project files only, and joins the colour-intent check under that model.
+ * Cross-check every sampled material, environment and surface-graphic image
+ * with manifest registration, production consumer authorization, media/edge
+ * facts and consistent color intent. A binding or surface image that names an
+ * image its model carries skips the ledger, which holds project files only, and
+ * joins the colour-intent check under that model; a surface image that resolves
+ * nowhere is refused as unregistered.
  */
 export const validateTextureAssets: (
   props: IAutoMovieTextureClosureInput,
@@ -144,6 +150,37 @@ export const validateTextureAssets: (
     },
   );
 
+  // A surface graphic's image is a colour picture: a carried image of the
+  // prop's model needs no ledger row, and any other id is a project file.
+  const carriedBy: Map<string, Set<string>> = new Map(
+    props.models.map((model: IAutoMovieModel): [string, Set<string>] => [
+      model.id,
+      new Set(
+        (model.images ?? []).map((image: IAutoMovieImage): string => image.id),
+      ),
+    ]),
+  );
+  (props.surfaceImages ?? []).forEach(
+    (use: IAutoMovieSurfaceGraphicImageUse, useIndex: number): void => {
+      const path: string = `$input.surfaceImages[${useIndex}].asset`;
+      if (carriedBy.get(use.model)?.has(use.asset) === true) {
+        intend(`image "${use.asset}" of model "${use.model}"`, path, "srgb");
+        return;
+      }
+      claim("surface-graphic", use.shot, use.asset);
+      intend(`texture asset "${use.asset}"`, path, "srgb");
+      checkAsset({
+        asset: use.asset,
+        path,
+        consumer: { kind: "surface-graphic", id: use.shot },
+        media: MATERIAL_MEDIA,
+        out,
+        input: props,
+        records,
+      });
+    },
+  );
+
   // The same bytes cannot be both a colour and a measurement.
   for (const [subject, slots] of intents) {
     const distinct: Set<string> = new Set(slots.values());
@@ -164,7 +201,8 @@ export const validateTextureAssets: (
         if (use.production !== props.production) return;
         if (
           use.consumer.kind !== "material-texture" &&
-          use.consumer.kind !== "scene-environment"
+          use.consumer.kind !== "scene-environment" &&
+          use.consumer.kind !== "surface-graphic"
         )
           return;
         const key: string = `${use.consumer.kind}\0${use.consumer.id}`;
@@ -202,17 +240,21 @@ const bindingAsset: (binding: string | IAutoMovieTextureReference) => string = (
 ): string => (typeof binding === "string" ? binding : binding.asset);
 
 /**
- * Map Radiance header media to linear and supported8-bit image media to srgb environment intent.
+ * Map Radiance header media to linear and supported8-bit image media to srgb
+ * environment intent.
  *
- * The existing viewer decoding policy determines the environment's single color interpretation.
+ * The existing viewer decoding policy determines the environment's single color
+ * interpretation.
  *
- * Header facts are metadata; this does not inspect transfer-function chunks or decoded pixels.
+ * Header facts are metadata; this does not inspect transfer-function chunks or
+ * decoded pixels.
  *
  * The returned closed intent feeds cross-slot contradiction checks.
  *
  * One media comparison takes constant work.
  *
- * Environment and material consumers share the same request-local intent ledger.
+ * Environment and material consumers share the same request-local intent
+ * ledger.
  *
  * Only a string literal escapes and no image/decoder is retained.
  */
@@ -224,24 +266,33 @@ const environmentIntent: (
   facts.mediaType === "image/vnd.radiance" ? "linear" : "srgb";
 
 /**
- * Check registration, exact production/consumer authorization, allowed header media and positive bounded pixel edges.
+ * Check registration, exact production/consumer authorization, allowed header
+ * media and positive bounded pixel edges.
  *
- * The ledger owns identity and this helper owns the cited slot's closure policy.
+ * The ledger owns identity and this helper owns the cited slot's closure
+ * policy.
  *
  * It does not redigest bytes or certify complete image decoding.
  *
- * Unregistered/unreadable/disallowed assets report at the citing slot with field-specific dimensions.
+ * Unregistered/unreadable/disallowed assets report at the citing slot with
+ * field-specific dimensions.
  *
- * One map lookup plus record-use scan and facts callback dominate; fixed media/dimension checks follow.
+ * One map lookup plus record-use scan and facts callback dominate; fixed
+ * media/dimension checks follow.
  *
- * The coordinator shares its records map and the host may cache facts by current byte identity.
+ * The coordinator shares its records map and the host may cache facts by
+ * current byte identity.
  *
- * Only caller-owned diagnostics remain; asset/facts references are borrowed without an image load.
+ * Only caller-owned diagnostics remain; asset/facts references are borrowed
+ * without an image load.
  */
 const checkAsset: (props: {
   asset: string;
   path: string;
-  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  consumer: {
+    kind: "material-texture" | "scene-environment" | "surface-graphic";
+    id: string;
+  };
   media: ReadonlySet<AutoMovieTextureMediaType>;
   out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;
@@ -249,7 +300,10 @@ const checkAsset: (props: {
 }) => void = (props: {
   asset: string;
   path: string;
-  consumer: { kind: "material-texture" | "scene-environment"; id: string };
+  consumer: {
+    kind: "material-texture" | "scene-environment" | "surface-graphic";
+    id: string;
+  };
   media: ReadonlySet<AutoMovieTextureMediaType>;
   out: IAutoMovieViolationCollector;
   input: IAutoMovieTextureClosureInput;

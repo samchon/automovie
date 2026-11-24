@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Two calls are what a host needs: what the subject offers, to plan, and one picture per planned call.
+Three calls are what a host needs: what the subject offers, to plan, the film's dialogue mouths once, and one picture per planned call.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Exactly the two members the session calls; the scene, the renderer and the inspection stay inside the page.
+Exactly the three members the session calls; the scene, the renderer, the inspection and the mouth record stay inside the page.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -21,6 +21,36 @@ States who installs and calls it and the no-overlap rule.
 ## @evidence contracts/development/common.md#meaningful-documentation
 
 States what is created and returned.
+
+## @evidenceExclude contracts/development/implementation.md#principled-implementation
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+## @evidenceExclude contracts/development/implementation.md#clear-and-simple-structure
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+## @evidenceExclude contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+## @evidenceExclude contracts/development/implementation.md#efficient-algorithms
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+A signature has no body; `installAutoMovieDraw` answers.
+
+# src/draw/IAutoMovieDrawFunction.ts#IAutoMovieDrawFunction.speak
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is handed, that it replaces an earlier track, what later draws report, and what a subject without `speak` gives.
 
 ## @evidenceExclude contracts/development/implementation.md#principled-implementation
 

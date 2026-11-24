@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the same encoded artifact, commissioned clock, process and per-stream output.
+Names the same encoded artifact, commissioned clock, process, the optional loudness meter for the audio pass and per-stream output.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

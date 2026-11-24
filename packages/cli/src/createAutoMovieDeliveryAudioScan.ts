@@ -1,4 +1,7 @@
-import type { IAutoMovieDeliveryContentAudit } from "@automovie/interface";
+import type {
+  IAutoMovieDeliveryContentAudit,
+  IAutoMovieLoudnessMeter,
+} from "@automovie/interface";
 
 /** A qualifying quiet run in sample frames; a null end runs to the stream end. */
 interface ISampleRange {
@@ -8,20 +11,29 @@ interface ISampleRange {
 
 /**
  * Measures silence at exact sample frame boundaries in f32le PCM. Every channel
- * must be within the amplitude limit. Separate pipe chunks can split a float
- * or an interleaved sample frame. Sample frames from the presented count on
- * are counted for coverage but not measured, and an interval still open there
- * ends with the stream.
+ * must be within the amplitude limit. Separate pipe chunks can split a float or
+ * an interleaved sample frame. Sample frames from the presented count on are
+ * counted for coverage but not measured, and an interval still open there ends
+ * with the stream.
+ *
+ * When a loudness meter is supplied, the presented samples also feed it, so the
+ * decoded delivery's loudness and true peak exclude codec padding. The meter
+ * measures 48 kHz mono or stereo; other formats are not measured.
  *
  * @param format Decoded sample rate and interleaved channel count.
  * @param settings Maximum normalized amplitude and minimum qualifying duration.
- * @param presented Sample frames the container presents, after which decoded samples are padding.
- * @returns A byte stream consumer and its complete sample and interval evidence.
+ * @param presented Sample frames the container presents, after which decoded
+ *   samples are padding.
+ * @param meter Creates the render's BS.1770-5 meter for the channel count, when
+ *   loudness is measured.
+ * @returns A byte stream consumer and its complete sample, interval and
+ *   loudness evidence.
  */
 export function createAutoMovieDeliveryAudioScan(
   format: { sampleRate: number; channels: number },
   settings: IAutoMovieDeliveryContentAudit.IThresholds["silence"],
   presented: number,
+  meter?: (channels: 1 | 2) => IAutoMovieLoudnessMeter,
 ) {
   const floatBytes = 4;
   const carry = Buffer.alloc(floatBytes);
@@ -54,6 +66,16 @@ export function createAutoMovieDeliveryAudioScan(
       ticks,
   );
 
+  // Presented samples reach the meter in batches of whole frames.
+  const loudness: IAutoMovieLoudnessMeter | undefined =
+    meter !== undefined &&
+    format.sampleRate === 48_000 &&
+    (format.channels === 1 || format.channels === 2)
+      ? meter(format.channels)
+      : undefined;
+  const batch = new Float32Array(4096 * format.channels);
+  let batched = 0;
+
   const flush = (end: number | null): void => {
     if (
       quietStart !== undefined &&
@@ -65,6 +87,13 @@ export function createAutoMovieDeliveryAudioScan(
   const take = (sample: number): void => {
     if (!Number.isFinite(sample)) valid = false;
     quiet &&= Math.abs(sample) <= maximumAmplitude;
+    if (loudness !== undefined && sampleFrames < presented) {
+      batch[batched++] = sample;
+      if (batched === batch.length) {
+        loudness.push(batch);
+        batched = 0;
+      }
+    }
     if (++channel !== format.channels) return;
     if (sampleFrames < presented) {
       if (quiet) quietStart ??= sampleFrames;
@@ -90,12 +119,31 @@ export function createAutoMovieDeliveryAudioScan(
       carryLength = chunk.length - offset;
       if (carryLength > 0) chunk.copy(carry, 0, offset);
     },
-    finish(): { sampleFrames: number; valid: boolean; silent: ISampleRange[] } {
+    finish(): {
+      sampleFrames: number;
+      valid: boolean;
+      silent: ISampleRange[];
+      loudness?: Omit<IAutoMovieLoudnessMeter.IMeasurement, "sampleFrames">;
+    } {
       flush(null);
+      let measured: IAutoMovieLoudnessMeter.IMeasurement | undefined;
+      if (loudness !== undefined) {
+        loudness.push(batch.subarray(0, batched));
+        batched = 0;
+        measured = loudness.measure();
+      }
       return {
         sampleFrames,
         valid: valid && carryLength === 0 && channel === 0,
         silent,
+        ...(measured === undefined
+          ? {}
+          : {
+              loudness: {
+                integratedLufs: measured.integratedLufs,
+                truePeakDbtp: measured.truePeakDbtp,
+              },
+            }),
       };
     },
   };

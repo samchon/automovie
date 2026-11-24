@@ -6,11 +6,14 @@ import {
   IAutoMovieValidation,
 } from "@automovie/interface";
 
+import { validateAutoMovieFontSources } from "../typography/validateAutoMovieFontSources";
 import { ViolationCollector } from "./ViolationCollector";
+import { appendFlamesArtifact } from "./appendFlamesArtifact";
 import { appendLightMotionsArtifact } from "./appendLightMotionsArtifact";
 import { appendPolygonBodyCuesArtifact } from "./appendPolygonBodyCuesArtifact";
 import { appendPracticalSurfacesArtifact } from "./appendPracticalSurfacesArtifact";
 import { appendShotMetadataArtifact } from "./appendShotMetadataArtifact";
+import { appendSurfaceGraphicsArtifact } from "./appendSurfaceGraphicsArtifact";
 import { asArray } from "./asArray";
 import { isRecord } from "./isRecord";
 import { pushViolation } from "./pushViolation";
@@ -24,7 +27,11 @@ import { validateUniqueBy } from "./validateUniqueBy";
 import { validateUniqueIds } from "./validateUniqueIds";
 
 /**
- * Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
+ * Admit shot/scene/camera references, performances, motion clips, polygon body
+ * cue, practical surface track, flame cue, surface graphic track and font
+ * source shape and staged-node references, a bound flame's light clip, a feed
+ * camera other than the shot's own, metadata and delivered-camera clearance
+ * correspondence.
  *
  * A replay host can pass its staged skeleton resolver to check polygon cue
  * pivots and branch overlap on the same rig it will draw. Without a resolver,
@@ -207,6 +214,39 @@ export const validateShotArtifact: (
     shot.duration,
     violations,
   );
+  // A bound flame names its binding, which the compiled shot carries as the
+  // light clip of the same id.
+  appendFlamesArtifact(shot.flames, sceneNodes, shot.duration, collector, {
+    lights: new Set(
+      asArray(shot.lightMotions)
+        .filter(isRecord)
+        .map((clip: Record<string, unknown>): unknown => clip.id)
+        .filter((id: unknown): id is string => typeof id === "string"),
+    ),
+  });
+  validateAutoMovieFontSources(shot.fonts, "$input.fonts", collector);
+  appendSurfaceGraphicsArtifact(
+    shot.surfaceGraphics,
+    sceneNodes,
+    shot.duration,
+    collector,
+    undefined,
+    new Set(
+      asArray(shot.fonts)
+        .filter(isRecord)
+        .map((source: Record<string, unknown>): unknown => source.id)
+        .filter((id: unknown): id is string => typeof id === "string"),
+    ),
+    {
+      ids: new Set(
+        sceneCameras
+          .filter(isRecord)
+          .map((camera: Record<string, unknown>): unknown => camera.id)
+          .filter((id: unknown): id is string => typeof id === "string"),
+      ),
+      ...(typeof shot.camera === "string" ? { shot: shot.camera } : {}),
+    },
+  );
   appendShotMetadataArtifact(
     shot,
     "$input",
@@ -281,15 +321,18 @@ export const validateShotArtifact: (
  *
  * The light channel gate receives only the cross-reference index it needs.
  *
- * Nonrecords/non-string ids are omitted; duplicate ids use last map assignment and scene admission owns uniqueness.
+ * Nonrecords/non-string ids are omitted; duplicate ids use last map assignment
+ * and scene admission owns uniqueness.
  *
- * Missing/undefined kind is indistinguishable from absence to the downstream gate.
+ * Missing/undefined kind is indistinguishable from absence to the downstream
+ * gate.
  *
  * L lights cost O(L) traversal and O(U) map storage plus id hashing.
  *
  * One map serves all shot light track gates.
  *
- * The caller owns the map and borrowed kind values, with no staged renderer light acquired.
+ * The caller owns the map and borrowed kind values, with no staged renderer
+ * light acquired.
  */
 const stagedLightKinds: (scene: unknown) => ReadonlyMap<string, unknown> = (
   scene: unknown,

@@ -21,6 +21,7 @@ export * from "./renderVideo.js";
 export * from "./picture/index.js";
 export * from "./scene/index.js";
 export * from "./screenplay/index.js";
+export * from "./typography/index.js";
 export * from "./IAutoMovieRenderAdapters.js";
 export * from "./IAutoMovieCapturedFrame.js";
 export * from "./IAutoMovieRenderResult.js";
@@ -66,8 +67,11 @@ export * from "./film/productionVisualDeliveryOccurrence.js";
 export * from "./delivery/auditAutoMovieDecodedFrames.js";
 export * from "./delivery/auditAutoMovieEncodedPresentation.js";
 export * from "./audio/encodeAutoMovieWavPcm16.js";
-export * from "./audio/mixAutoMovieAudioPcm.js";
-export * from "./delivery/assertProductionOpusProfile.js";
-export * from "./delivery/productionOpusDescription.js";
+export * from "./audio/mixAutoMovieFilmSound.js";
+export * from "./delivery/assertProductionAacProfile.js";
+export * from "./delivery/AUTOMOVIE_PRODUCTION_AAC_PROFILE.js";
 export * from "./delivery/AUTOMOVIE_MP4_SRGB_COLOUR.js";
 export * from "./delivery/AUTOMOVIE_MP4_UNITY_MATRIX.js";
+// The delivery host measures decoded audio with the same meter the mix uses,
+// and reaches it through the production's render.
+export { createAutoMovieLoudnessMeter } from "@automovie/engine";

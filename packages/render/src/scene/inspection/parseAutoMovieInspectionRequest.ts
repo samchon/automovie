@@ -5,13 +5,23 @@ import type {
   IAutoMovieSectionPlane,
 } from "@automovie/interface";
 
-/** Stroke width in output pixels when none is asked: three, which stays visible when a still is reduced into a contact-sheet cell. */
+/**
+ * Stroke width in output pixels when none is asked: three, which stays visible
+ * when a still is reduced into a contact-sheet cell.
+ */
 const STROKE: number = 3;
 
-/** Seconds a trail reaches before and after the drawn second when none is asked: one, which shows where a movement comes from and goes within a typical action. */
+/**
+ * Seconds a trail reaches before and after the drawn second when none is asked:
+ * one, which shows where a movement comes from and goes within a typical
+ * action.
+ */
 const REACH: number = 1;
 
-/** Trail samples per second when none is asked: five, the lower end of the five to ten stills per second the capture skill reads a movement at. */
+/**
+ * Trail samples per second when none is asked: five, the lower end of the five
+ * to ten stills per second the capture skill reads a movement at.
+ */
 const TICKS: number = 5;
 
 /** Every shade, keyed so the compiler refuses a list that misses one. */
@@ -22,35 +32,48 @@ const SHADES: Record<AutoMovieInspectionShade, true> = {
   normal: true,
   outline: true,
   pose: true,
+  albedo: true,
+  graphics: true,
   clay: true,
   faces: true,
 };
 
 /**
- * Read an inspection request from named text values, the form both a page address and a command line supply.
+ * Read an inspection request from named text values, the form both a page
+ * address and a command line supply.
  *
- * `read` returns the text of a key, or null or undefined when the key is absent. A key that is present without a value reads as the empty string, which turns a switch on. `AUTO_MOVIE_INSPECTION_KEYS` lists every key read, and `formatAutoMovieInspectionRequest` writes a request back as these values.
+ * `read` returns the text of a key, or null or undefined when the key is
+ * absent. A key that is present without a value reads as the empty string,
+ * which turns a switch on. `AUTO_MOVIE_INSPECTION_KEYS` lists every key read,
+ * and `formatAutoMovieInspectionRequest` writes a request back as these
+ * values.
  *
- * | Key | Text | Absent |
- * | --- | --- | --- |
- * | `parts`, `hide` | Path patterns separated by commas | No pattern |
- * | `shade` | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `clay` or `faces` | `beauty` |
- * | `surface` | A switch | On |
- * | `marks` | Kind patterns separated by commas, such as `curve/section,defect` | No mark |
- * | `sliver` | A positive aspect limit | No sliver measured |
- * | `section` | `x:0.2` cuts away everything beyond x = 0.2 m, `-x:0.2` everything before it, likewise `y` and `z`; or `px,py,pz:nx,ny,nz`, a point in metres and the direction cut away | No cut |
- * | `xray` | A switch | Off |
- * | `stroke` | A positive width in output pixels | 3 |
- * | `label` | Path patterns separated by commas | No label |
- * | `color` | `pattern=rrggbb` pairs separated by commas, such as `hero/arm=ff8800,curve/section=00ff00` | No colour |
- * | `trail` | Path patterns of the objects whose travel is drawn, separated by commas | No trail |
- * | `reach` | Seconds a trail samples before and after the drawn second, positive | 1 |
- * | `ticks` | Trail samples per second, positive | 5 |
+ * | Key             | Text                                                                                                                                                                     | Absent             |
+ * | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ |
+ * | `parts`, `hide` | Path patterns separated by commas                                                                                                                                        | No pattern         |
+ * | `shade`         | `beauty`, `depth`, `mask`, `normal`, `outline`, `pose`, `albedo`, `clay` or `faces`                                                                                      | `beauty`           |
+ * | `surface`       | A switch                                                                                                                                                                 | On                 |
+ * | `marks`         | Kind patterns separated by commas, such as `curve/section,defect`                                                                                                        | No mark            |
+ * | `sliver`        | A positive aspect limit                                                                                                                                                  | No sliver measured |
+ * | `section`       | `x:0.2` cuts away everything beyond x = 0.2 m, `-x:0.2` everything before it, likewise `y` and `z`; or `px,py,pz:nx,ny,nz`, a point in metres and the direction cut away | No cut             |
+ * | `xray`          | A switch                                                                                                                                                                 | Off                |
+ * | `stroke`        | A positive width in output pixels                                                                                                                                        | 3                  |
+ * | `label`         | Path patterns separated by commas                                                                                                                                        | No label           |
+ * | `color`         | `pattern=rrggbb` pairs separated by commas, such as `hero/arm=ff8800,curve/section=00ff00`                                                                               | No colour          |
+ * | `trail`         | Path patterns of the objects whose travel is drawn, separated by commas                                                                                                  | No trail           |
+ * | `reach`         | Seconds a trail samples before and after the drawn second, positive                                                                                                      | 1                  |
+ * | `ticks`         | Trail samples per second, positive                                                                                                                                       | 5                  |
  *
- * A switch is on for the empty string, `1` or `true` and off for `0` or `false`. Any other text, an unknown shade or a number out of range throws an `Error` that names the key, the text and what is accepted. Mark kinds are not checked here, because their producers own them; `applyAutoMovieInspection` refuses a kind pattern that matches no kind it is given.
+ * A switch is on for the empty string, `1` or `true` and off for `0` or
+ * `false`. Any other text, an unknown shade or a number out of range throws an
+ * `Error` that names the key, the text and what is accepted. Mark kinds are not
+ * checked here, because their producers own them; `applyAutoMovieInspection`
+ * refuses a kind pattern that matches no kind it is given.
  *
  * ```ts
- * const request = parseAutoMovieInspectionRequest((key) => url.searchParams.get(key));
+ * const request = parseAutoMovieInspectionRequest((key) =>
+ *   url.searchParams.get(key),
+ * );
  * ```
  */
 export function parseAutoMovieInspectionRequest(

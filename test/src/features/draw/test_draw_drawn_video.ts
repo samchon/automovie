@@ -29,15 +29,23 @@ const SUBJECT: IAutoMovieCaptureSubject = {
 };
 
 /**
- * A delivered video is every frame of the subject's clock drawn by the page's draw function, written as numbered PNG files in order, then encoded once with the planned arguments.
+ * A delivered video is every frame of the subject's clock drawn by the page's
+ * draw function, written as numbered PNG files in order, then encoded once with
+ * the planned arguments.
  *
  * Scenarios:
  *
- * 1. Half a second at 8 fps draws four frames, at 0, 0.125, 0.25 and 0.375 s, each through the film's own camera in the beauty pass at the subject's 16 by 10 raster.
- * 2. Each is written as `frames/frame_0000<i>.png` before the next is drawn, and decodes to the page's picture, rows from the top.
- * 3. The encoder runs once, after the last write, with the subject's 8 fps and 16x10 raster in the vector and four frames cut at 0.5 s.
- * 4. A subject whose clock is not a whole number of frames is refused before any frame is drawn.
- * 5. Diagnostics on the middle two frames preserve their first and worst evidence, use the actual output indices and report the missing observations.
+ * 1. Half a second at 8 fps draws four frames, at 0, 0.125, 0.25 and 0.375 s, each
+ *    through the film's own camera in the beauty pass at the subject's 16 by 10
+ *    raster.
+ * 2. Each is written as `frames/frame_0000<i>.png` before the next is drawn, and
+ *    decodes to the page's picture, rows from the top.
+ * 3. The encoder runs once, after the last write, with the subject's 8 fps and
+ *    16x10 raster in the vector and four frames cut at 0.5 s.
+ * 4. A subject whose clock is not a whole number of frames is refused before any
+ *    frame is drawn.
+ * 5. Diagnostics on the middle two frames preserve their first and worst evidence,
+ *    use the actual output indices and report the missing observations.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public renderer through a draw session over a recording page and recording write and encode functions; a renderer that skipped or reordered frames, drew another view, pass or raster, wrote out of order, encoded before the last frame or with another frame format fails.
  * @evidence contracts/development/testing.md#independent-expectations Frame seconds are `i / fps` of the half-open clock; file names are the shared `frame_%05d.png` pattern; the pixels are the page double's, so a decoded file shows what the page drew.
@@ -123,6 +131,9 @@ export async function test_draw_drawn_video(): Promise<void> {
         log.push(`write ${path}`);
         files.set(path, data);
       },
+      read: async (path: string): Promise<Uint8Array> => {
+        throw new Error(`No sound file "${path}" in this fixture`);
+      },
       encode: async (args: readonly string[]): Promise<void> => {
         log.push(`encode ${args.join(" ")}`);
       },
@@ -198,12 +209,12 @@ export async function test_draw_drawn_video(): Promise<void> {
   const encoded: string = log.at(-1)!;
   TestValidator.predicate(
     "the subject's rate, raster and clock",
-    ["-framerate 24", "-framerate 30", "-s 1280x720"].every(
+    ["-framerate 24", "-framerate 30", "scale=w=1280:h=720"].every(
       (part: string): boolean => !encoded.includes(part),
     ) &&
       [
         "-framerate 8",
-        "-s 16x10",
+        "scale=w=16:h=10",
         "-frames:v 4",
         "-t 0.5",
         "frames/frame_%05d.png",
@@ -222,6 +233,9 @@ export async function test_draw_drawn_video(): Promise<void> {
     outputPath: "film.mp4",
     audio: null,
     write: async (): Promise<void> => {},
+    read: async (path: string): Promise<Uint8Array> => {
+      throw new Error(`No sound file "${path}" in this fixture`);
+    },
     encode: async (): Promise<void> => {},
   })
     .then((): string => "")

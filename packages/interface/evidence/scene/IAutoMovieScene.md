@@ -10,8 +10,8 @@ Scene placement stays separate from reusable rigs and structured buildings, whos
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Omitted space, fog and environment preserve documented legacy paths rather than inventing current authored conditions; structural guides bypass appearance fog and tone mapping.
+Omitted space, fog, medium and environment preserve documented legacy paths rather than inventing current authored conditions; structural guides bypass appearance fog and tone mapping.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines composition ownership, default viewpoint, model placements and optional environment/space/fog state and guide-pass effects.
+Defines composition ownership, default viewpoint, model placements and optional environment/space/fog/medium state and guide-pass effects, including that a medium excludes fog and needs a film's linear target.

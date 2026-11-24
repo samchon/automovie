@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Engine texture closure resolves material-texture model ids and scene-environment shot ids, allowing shared images and checking reverse bindings. Other arms retain authoring addresses without a surviving production graph resolver or exclusive-use gate; this union alone establishes no consumer existence.
+Engine texture closure resolves material-texture model ids and scene-environment and surface-graphic shot ids, allowing shared images and checking reverse bindings. Font admission resolves `font` uses by font source id and requires the asset's licence. Other arms retain authoring addresses without a surviving production graph resolver or exclusive-use gate; this union alone establishes no consumer existence.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

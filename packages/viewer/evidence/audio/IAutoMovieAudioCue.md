@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives the purpose (One placed audio source excerpt on the film clock, the same shape the Render mixer (`mixAutoMovieAudioPcm`) sums, so Viewer playback and the exported soundtrack read one cue list) and documents 7 documented members as stated in this comment.
+Gives the purpose (One placed audio source excerpt on the film clock; the film's master comes only from engine's `renderProductionSound`, and the Viewer hears the delivered sound by playing that mixed soundtrack as one cue) and documents 7 documented members as stated in this comment.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents One placed audio source excerpt on the film clock, the same shape the Render mixer (`mixAutoMovieAudioPcm`) sums, so Viewer playback and the exported soundtrack read one cue list: interface of 7 members (`asset`, `seconds`, `gain`, `pan`, `offsetSeconds`, `durationSeconds`, ...); units and frames named in its text: seconds, second. Optional members `pan`, `offsetSeconds`, `durationSeconds`, `rate` express documented absence, and the ranges its member docs state are left to runtime validation.
+Represents One placed audio source excerpt on the film clock; the film's master comes only from engine's `renderProductionSound`, and the Viewer hears the delivered sound by playing that mixed soundtrack as one cue: interface of 7 members (`asset`, `seconds`, `gain`, `pan`, `offsetSeconds`, `durationSeconds`, ...); units and frames named in its text: seconds, second. Optional members `pan`, `offsetSeconds`, `durationSeconds`, `rate` express documented absence, and the ranges its member docs state are left to runtime validation.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

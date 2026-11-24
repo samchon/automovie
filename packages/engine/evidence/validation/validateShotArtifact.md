@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Admit shot/scene/camera references, performances, motion clips, polygon body cue and practical surface track shape and staged-node references, metadata and delivered-camera clearance correspondence.
+Admit shot/scene/camera references, performances, motion clips, polygon body cue, practical surface track, flame cue, surface graphic track and font source shape and staged-node references, metadata and delivered-camera clearance correspondence. A bound flame must name one of the shot's light clips, because the compiled shot carries its binding as the clip of that id and render reads the flame's luminance from it; a feed layer must name a staged camera other than the shot's own.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

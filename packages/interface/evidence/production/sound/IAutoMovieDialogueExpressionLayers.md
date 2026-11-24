@@ -1,17 +1,17 @@
 # src/production/sound/IAutoMovieDialogueExpressionLayers.ts#IAutoMovieDialogueExpressionLayers
 
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the composition and the range and sum of the weights.
+
 ## @evidence contracts/development/design.md#principled-representation
 
-sampleAutoMovieDialogueExpression preserves the authored expression reference and derives only a closed mouth preset/intensity pair; rest and frames outside the joined half-open ranges produce neutral at zero intensity.
+The authored expression and the mouth's viseme weights as two layers, so the mouth layers over emotion without overwriting it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Two explicit layers let a consumer compose mouth motion without replacing the authored emotion; this record does not itself apply either layer to an actor.
+Returned by engine's `sampleAutoMovieDialogueExpression`; render's `applyExpression` takes both layers.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-A missing active range produces rest, without inventing an actor, emotion or audible-arrival offset; actual actor consumption remains unwired in the repository.
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Identifies the borrowed authored reference, fresh mouth pair, closed preset and binary intensity policy rather than promising a merged expression.
+The mouth carries weights, not one preset at intensity 0 or 1.

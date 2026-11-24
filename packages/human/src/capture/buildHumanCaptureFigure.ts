@@ -1,19 +1,34 @@
-import type { IAutoMovieMark } from "@automovie/interface";
+import type { IAutoMovieHumanF1, IAutoMovieMark } from "@automovie/interface";
 import * as THREE from "three";
 
 import { HUMAN_CAPTURE_PEOPLE } from "./HUMAN_CAPTURE_PEOPLE";
 import { markHumanCaptureCurves } from "./markHumanCaptureCurves";
+import { markHumanCaptureProbes } from "./markHumanCaptureProbes";
 import { resolveHumanCaptureSubject } from "./resolveHumanCaptureSubject";
 
 /**
- * Build one capture subject's figure: the person's generated surface as three.js meshes named by the pieces the generator emits, and its construction as marks named by its families.
+ * Build one capture subject's figure: the person's generated surface as
+ * three.js meshes named by the pieces the generator emits, its construction as
+ * marks named by its families, and its empty probes as marks under
+ * `<person>/probe/`, each measured against the skin and the families' convex
+ * hull (`markHumanCaptureProbes`).
  *
- * The object is a group named after the person; each generated piece is one mesh beneath it named by its piece: `body` for the skin every sewn family shares, and a loose family's name or `<family>.mirror` for its reflected twin. So the sewn skin's path is `<person>/body`, and a family sewn into it has no surface of its own to select; its curves name it. The group turns the figure's frame (forward +X, up +Y, left +Z) a quarter turn about the vertical so the figure faces +Z, the side the `front` view stands on. Pieces are shaded in one light skin tone on both sides, because a loose family is an open tube whose inside shows at its ends. A piece the generator could not build has no mesh.
+ * The object is a group named after the person; each generated piece is one
+ * mesh beneath it named by its piece: `body` for the skin every sewn family
+ * shares, and a loose family's name or `<family>.mirror` for its reflected
+ * twin. So the sewn skin's path is `<person>/body`, and a family sewn into it
+ * has no surface of its own to select; its curves name it. The group turns the
+ * figure's frame (forward +X, up +Y, left +Z) a quarter turn about the vertical
+ * so the figure faces +Z, the side the `front` view stands on. Pieces are
+ * shaded in one light skin tone on both sides, because a loose family is an
+ * open tube whose inside shows at its ends. A piece the generator could not
+ * build has no mesh.
  *
  * It throws as `resolveHumanCaptureSubject` does for an unknown person or pose.
  *
  * @param name The subject's name, such as `f1`.
- * @returns The figure's object, its marks, and the call that releases its geometry and material.
+ * @returns The figure's object, its marks, and the call that releases its
+ *   geometry and material.
  */
 export function buildHumanCaptureFigure(name: string): {
   object: THREE.Group;
@@ -32,7 +47,8 @@ export function buildHumanCaptureFigure(name: string): {
     side: THREE.DoubleSide,
   });
   const geometries: THREE.BufferGeometry[] = [];
-  for (const piece of offered.create()) {
+  const pieces: IAutoMovieHumanF1.IPiece[] = offered.create();
+  for (const piece of pieces) {
     if (piece.indices.length === 0) continue;
     const geometry: THREE.BufferGeometry = new THREE.BufferGeometry();
     geometry.setAttribute(
@@ -49,7 +65,15 @@ export function buildHumanCaptureFigure(name: string): {
   object.updateMatrixWorld(true);
   return {
     object,
-    marks: markHumanCaptureCurves(person, offered.members),
+    marks: [
+      ...markHumanCaptureCurves(person, offered.members),
+      ...markHumanCaptureProbes(
+        person,
+        offered.probes(),
+        offered.members,
+        pieces,
+      ),
+    ],
     dispose: (): void => {
       for (const geometry of geometries) geometry.dispose();
       material.dispose();

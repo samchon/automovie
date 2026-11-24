@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Selects the requested supported guide projection, excludes existing nonmesh beauty renderables, suspends fog/image lighting and returns a reversible handle; uses attached semantic masks when present and documented positional fallback otherwise. Depth/edge numeric options remain caller premises and anonymous instanced members have no bone graph for the pose overlay.
+Selects the requested supported guide projection, excludes existing nonmesh beauty renderables and, outside the mask pass, surface graphic roots, suspends fog/image lighting and returns a reversible handle; uses attached semantic masks when present and documented positional fallback otherwise. Depth/edge numeric options remain caller premises and anonymous instanced members have no bone graph for the pose overlay.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Resolves an unknown mode before mutation and restores boundary suspensions if it
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Explains all six modes, semantic/legacy mask distinction, frame-independent depth default, outline extrusion, pose population gap, caller options and the returned restoration obligation.
+Explains all seven modes, the albedo pass's per-material base-colour override, semantic/legacy mask distinction, frame-independent depth default, outline extrusion, pose population gap, caller options and the returned restoration obligation.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

@@ -6,7 +6,7 @@ AutoMovieDrawSession.frame emits records in requested pass order, using the same
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-AutoMovieDrawSession.frame returns the pass and picture with any diagnostics supplied by that draw.
+AutoMovieDrawSession.frame returns the pass and picture with any diagnostics supplied by that draw, for a mask the palette the page reported, which the control channel writer records, and the dialogue mouths the subject read, which the delivery render measures lip sync on.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

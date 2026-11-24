@@ -15,16 +15,19 @@ const SCENIC: string =
   "Authored set size. Staff and panel silhouettes draw on the Met standard bearer (https://www.metmuseum.org/art/collection/search/546175) and the British Museum textile banner (https://islamicworld.britishmuseum.org/collection/RRM186437).";
 
 /**
- * A carried processional standard with a banner panel or a round sign.
- * The staff starts at local ground and points up. The scene can mount a hand
- * on `grip` along the exposed shaft and use `face` as a framing point.
- * The panel keeps a fixed silhouette through the authored carry.
+ * A carried processional standard with a banner panel or a round sign. The
+ * staff starts at local ground and points up. The scene can mount a hand on
+ * `grip` along the exposed shaft and use `face` as a framing point. The panel
+ * keeps a fixed silhouette through the authored carry. The head is mounted
+ * ahead of the staff, its back on the staff's front. `face` spans the head's
+ * `headSpan` square on its front, read with model `+Y` up; on a roundel the
+ * square's corners lie outside the disc, so content placed there overhangs it.
  *
  * @param params The silhouette and any fixed set dimensions.
  * @param seed The seed for the remaining dimensions.
  * @returns A scenic prop with a shaft grip and a front-facing marker.
- * @throws {AutoMovieArchetypeRefusal} For an unsupported silhouette or dimension.
- *
+ * @throws {AutoMovieArchetypeRefusal} For an unsupported silhouette or
+ *   dimension.
  * @evidence contracts/development/common.md#meaningful-documentation Describes the two silhouettes, local resting frame, seed and contacts.
  * @evidence contracts/development/implementation.md#principled-implementation A single staff and independently declared head size determine both the shape and its graspable clear shaft.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Draw admitted dimensions, lay out the pole and face, and publish their two motion sites.
@@ -70,7 +73,11 @@ export function createScenicStandard(
   const faceTop: number = dimensions.length - shaftRadius;
   const faceCenter: number = faceTop - faceRadius;
   const clearShaft: number = faceTop - dimensions.headSpan;
-  const front: number = dimensions.faceDepth / 2;
+
+  // The head is mounted ahead of the staff, its back on the staff's front,
+  // so the staff never shows across the face.
+  const middle: number = shaftRadius + dimensions.faceDepth / 2;
+  const front: number = shaftRadius + dimensions.faceDepth;
   builder.rod(
     "shaft",
     shaftRadius,
@@ -87,14 +94,14 @@ export function createScenicStandard(
     builder.box(
       "panel",
       vector(dimensions.headSpan, dimensions.headSpan, dimensions.faceDepth),
-      vector(0, faceCenter, 0),
+      vector(0, faceCenter, middle),
       { color: "#885149" },
     );
   } else
     builder.rod(
       "panel",
       faceRadius,
-      vector(0, faceCenter, -front),
+      vector(0, faceCenter, shaftRadius),
       vector(0, faceCenter, front),
       { color: "#a77649" },
     );
@@ -121,37 +128,24 @@ export function createScenicStandard(
       vector(1, 0, 0),
     ),
     extent: null,
+    width: dimensions.headSpan,
+    depth: dimensions.headSpan,
   });
   return builder.build(dimensions.mass);
 }
 
-/**
- * Author controls for a carried scenic standard.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Names the two forms, contacts, units and free set dimensions.
- * @evidence contracts/development/design.md#principled-representation One closed silhouette choice shares a shaft and physically located head.
- * @evidence contracts/development/design.md#minimal-and-owned-surface Publishes dimension bands and two sites on the geometry.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts Bands give full positive dimensions and a rigid silhouette for film staging.
- */
+/** Author controls for a carried scenic standard. */
 export namespace createScenicStandard {
-  /**
-   * A carried textile-shaped panel or a circular emblem.
-   */
+  /** A carried textile-shaped panel or a circular emblem. */
   export type Kind = "banner" | "roundel";
 
-  /**
-   * The recognized silhouette choices.
-   */
+  /** The recognized silhouette choices. */
   export const KINDS: readonly Kind[] = ["banner", "roundel"];
 
-  /**
-   * The clear shaft handle and the front of the displayed head.
-   */
+  /** The clear shaft handle and the front of the displayed head. */
   export type Affordance = "grip" | "face";
 
-  /**
-   * The overall shaft height, diameter, head width, head depth and model mass.
-   */
+  /** The overall shaft height, diameter, head width, head depth and model mass. */
   export type Dimension =
     | "length"
     | "shaftDiameter"
@@ -159,9 +153,7 @@ export namespace createScenicStandard {
     | "faceDepth"
     | "mass";
 
-  /**
-   * Each dimension uses metres or kilograms.
-   */
+  /** Each dimension uses metres or kilograms. */
   export const UNITS: Readonly<
     Record<Dimension, AutoMovieArchetypeDrawSession.Unit>
   > = {
@@ -172,9 +164,7 @@ export namespace createScenicStandard {
     mass: "kg",
   };
 
-  /**
-   * Set dimensions sized for a hand-carried silhouette with an exposed shaft.
-   */
+  /** Set dimensions sized for a hand-carried silhouette with an exposed shaft. */
   export const BANDS: Readonly<Record<Dimension, IAutoMovieArchetypeBand>> = {
     length: AutoMovieArchetypeBand.metres(1.2, 2.1, SCENIC, true),
     shaftDiameter: AutoMovieArchetypeBand.metres(0.026, 0.048, SCENIC, true),
@@ -183,9 +173,7 @@ export namespace createScenicStandard {
     mass: AutoMovieArchetypeBand.of("kg", 0.3, 1.5, SCENIC, true),
   };
 
-  /**
-   * The named silhouette and optional fixed dimensions of the standard.
-   */
+  /** The named silhouette and optional fixed dimensions of the standard. */
   export interface IParams extends Partial<Record<Dimension, number>> {
     /** The principal outline. */
     kind: Kind;

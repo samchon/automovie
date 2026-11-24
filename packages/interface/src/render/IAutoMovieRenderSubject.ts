@@ -1,9 +1,13 @@
 import type { IAutoMovieBuiltEnvironment } from "../architecture/IAutoMovieBuiltEnvironment";
+import type { IAutoMovieFlameCue } from "../cinematics/IAutoMovieFlameCue";
+import type { IAutoMovieSurfaceGraphicTrack } from "../cinematics/IAutoMovieSurfaceGraphicTrack";
 import type { IAutoMovieModel } from "../model/IAutoMovieModel";
 import type { IAutoMovieCompiledEffect } from "../production/IAutoMovieCompiledEffect";
 import type { IAutoMovieCompiledFormation } from "../production/IAutoMovieCompiledFormation";
 import type { IAutoMovieCompiledInstanceSet } from "../production/IAutoMovieCompiledInstanceSet";
 import type { IAutoMovieScene } from "../scene/IAutoMovieScene";
+import type { IAutoMovieFontSource } from "../typography/IAutoMovieFontSource";
+import type { IAutoMovieRenderFilm } from "./IAutoMovieRenderFilm";
 import type { IAutoMovieRenderPlanting } from "./IAutoMovieRenderPlanting";
 import type { IAutoMovieRenderSoftPanel } from "./IAutoMovieRenderSoftPanel";
 import type { IAutoMovieRenderTextureResidency } from "./IAutoMovieRenderTextureResidency";
@@ -76,6 +80,26 @@ export interface IAutoMovieRenderSubject {
   plantings?: readonly IAutoMovieRenderPlanting[];
 
   /**
+   * Pictures the shot shows on `surface` affordances of placed props.
+   *
+   * Each track paints its whole face rectangle in the mask under
+   * `surface-graphic:<node>/<surface>`, owned by `node:<node>`, whatever its
+   * layers hold. Shot admission keeps one track per node and surface, so the id
+   * is unique within the subject.
+   */
+  surfaceGraphics?: readonly IAutoMovieSurfaceGraphicTrack[];
+
+  /**
+   * Flames the shot draws. Each paints its flame mesh in the mask under
+   * `flame:<node>/<id>`, owned by `node:<node>`; shot admission keeps cue ids
+   * unique, so the id is unique within the subject.
+   */
+  flames?: readonly IAutoMovieFlameCue[];
+
+  /** Font sources the surface graphics' text layers name; omitted means none. */
+  fonts?: readonly IAutoMovieFontSource[];
+
+  /**
    * Decoded dimensions of texture assets, when the caller knows them.
    *
    * An asset a material binds but this list omits makes `textureBytes`
@@ -89,4 +113,12 @@ export interface IAutoMovieRenderSubject {
    * Omission describes a fresh context containing only this subject.
    */
   textureResidency?: IAutoMovieRenderTextureResidency;
+
+  /**
+   * The directly rendered film's optics and shading at its most demanding
+   * second, whose film stage targets the inventory counts at the drawing
+   * buffer's raster. Omitted describes a frame drawn without optics, which
+   * allocates no film stage target.
+   */
+  film?: IAutoMovieRenderFilm;
 }

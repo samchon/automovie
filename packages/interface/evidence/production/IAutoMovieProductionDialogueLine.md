@@ -2,16 +2,16 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-deriveProductionSoundPlan copies canonical caption identity, text, language, speaker and frame interval into dialogue rows. Supplied PCM and receipt validation use that line identity; this projection neither synthesizes audio nor applies an actor mouth layer.
+A line is a half-open interval on the film-frame clock. For a line with adopted speech the interval is its speech span, derived from its sample count by `productionSpeechEndFrame`, so the mixer, the ducking envelope and the viseme mapping all read the line's real extent; an unspoken caption keeps its caption window. Frame integrality and order are checked by the mixer and the join at runtime.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Carries only shared line content and placement, leaving generated audio, phonemes, visemes and actor joins in their own receipt and runtime records.
+Interface owns it; the timeline planner and render's sound-list route produce it, and the mixer, ducking envelope and viseme join read it. It carries only line content and placement, leaving bytes and receipts to their own records.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Omitted speaker remains unspecified. The separately available join helper returns not-run for absent or ambiguous bindings, but currently has only test callers; ProductionDesign.speakerBindings supplies no wired mouth application.
+Omitted speaker remains unspecified rather than defaulted; the same interval type serves spoken and unspoken lines because every consumer reads both the same way.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Defines caption ownership, spoken text, authored language and speaker labels, and inclusive-start exclusive-end film frames.
+Defines the speech span, which lines keep a caption window, id uniqueness, text, language, speaker, and the inclusive-start exclusive-end frames.

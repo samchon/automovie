@@ -7,16 +7,22 @@ import { nclose, throwsError } from "../internal/predicates";
 import { test12ValuesClose } from "../internal/test12ValuesClose";
 
 /**
- * Cue and dialogue ingress distinguish invalid empty spans from bounded decoded and resampled native PCM.
+ * Cue and dialogue ingress distinguish invalid empty spans from bounded decoded
+ * native PCM placed at unit rate.
  *
  * Scenarios:
- * 1. An empty cue refuses; a decoded 1e-6 sample matches its onset within 1e-12, stays silent beyond its generation and falls below the absolute loudness gate.
- * 2. A supported short native dialogue is audible and finite; an empty supplied dialogue refuses by line identity.
- * 3. A zero-sample film refuses while the adjacent one-sample frame returns two finite silent stereo values at 48000 Hz.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the actual production PCM mixer with decoded cue/dialogue buffers, observing empty-span/empty-PCM refusals, bounded cue onset/end, null sub-gate loudness, audible finite resampling and adjacent zero/one-sample film outcomes.
+ * 1. An empty cue refuses; a decoded 1e-6 sample matches its onset within 1e-12,
+ *    stays silent beyond its generation and falls below the absolute loudness
+ *    gate.
+ * 2. A native dialogue line half its four-frame span is audible and finite; an
+ *    empty supplied dialogue refuses by line identity.
+ * 3. A zero-sample film refuses while the adjacent one-sample frame returns two
+ *    finite silent stereo values at 48000 Hz.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the actual production PCM mixer with decoded cue/dialogue buffers, observing empty-span/empty-PCM refusals, bounded cue onset/end, null sub-gate loudness, audible finite unit-rate dialogue placement inside a longer span and adjacent zero/one-sample film outcomes.
  * @evidence contracts/development/testing.md#independent-expectations Literal 1e-6 cue PCM, its one-sample extent, four-frame dialogue destination and zero/one native sample clocks establish expectations independently; cue tolerance remains 1e-12 and formerly exact numeric records use zero tolerance. Audibility is nonzero PCM, not a hearing threshold or perceptual quality measurement.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty versus one-sample cues, empty versus two-sample supplied dialogue, below-gate loudness and zero versus one 48000 Hz film frame. It does not exercise decoding file bytes, arbitrary resampling ratios or playback hardware.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves empty versus one-sample cues, empty versus half-span supplied dialogue, below-gate loudness and zero versus one 48000 Hz film frame. It does not exercise decoding file bytes, rate conversion, which ingest owns, or playback hardware.
  * @evidence contracts/development/testing.md#execution-ownership This named synchronous unit owns fresh plans, maps and PCM buffers through the existing fixture; it runs no decoder, filesystem/audio-device operation, renderer, browser or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An empty cue refuses; a decoded 1e-6 sample matches its onset within 1e-12, stays silent beyond its generation and falls below the...).
  */
@@ -100,7 +106,7 @@ export function test_engine_sound_decoded_pcm_admission(): void {
 
   const resampledDialoguePlan: IAutoMovieProductionSoundPlan = {
     ...eventPlan(),
-    fps: 48_000,
+    fps: 48,
     totalFrames: 4,
     events: [],
     dialogue: [
@@ -117,11 +123,22 @@ export function test_engine_sound_decoded_pcm_admission(): void {
   const resampledDialogue: ReturnType<typeof renderProductionSound> =
     renderProductionSound({
       plan: resampledDialoguePlan,
-      dialogue: new Map([["resampled", Float32Array.from([0.25, 0.5])]]),
+      // Half the four-frame span: 2000 samples of a 1 kHz tone at 0.07 peak,
+      // near the −23 LUFS dialogue target, so levelling accepts it.
+      dialogue: new Map([
+        [
+          "resampled",
+          Float32Array.from(
+            { length: 2000 },
+            (_: unknown, index: number): number =>
+              0.07 * Math.sin((2 * Math.PI * 1000 * index) / 48_000),
+          ),
+        ],
+      ]),
     });
 
   TestValidator.equals(
-    "decoded generation extents, absolute loudness gate and dialogue resampling remain explicit",
+    "decoded generation extents, absolute loudness gate and unit-rate dialogue placement remain explicit",
     {
       decodedFirstSample: nclose(decodedCue.pcm[0]!, 1e-6, 1e-12),
       decodedPastEndIsSilent: nclose(decodedCue.pcm[2]!, 0, 0),

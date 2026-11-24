@@ -22,7 +22,6 @@ import { furnishRoom } from "./furnishRoom";
  * @param params The useful room layout and positive number of stations.
  * @returns The placed-room module, with stage nodes and operative prop records.
  * @throws When the requested stations or their clearances do not fit.
- *
  * @evidence contracts/development/common.md#meaningful-documentation States the room origin, orientation, bench and weight roles, attached contact paths and failure condition.
  * @evidence contracts/development/implementation.md#principled-implementation Positions the measured rest boxes of flat benches and dumbbells. The two weights stand alongside a bench without crossing its sides. FurnishRoom uses the lowest rest extent on Y to place each model on the floor.
  * @evidence contracts/development/implementation.md#clear-and-simple-structure Chooses the room's two model prototypes and their group relationship. Common layout and prop instantiation stay in furnishRoom.
@@ -50,40 +49,35 @@ export function createGymKit(
     const weightBox: IAutoMoviePropBox = furnishRoom.measure(dumbbell);
     return furnishRoom(context, {
       layout: params,
-      count: params.stations,
-      capacity: "stations",
-      prefix: "bench",
-      group: [
-        { role: "", model: bench, bounds: benchBox, x: 0, z: 0, heading: 0 },
-        {
-          role: "dumbbell-left",
-          model: dumbbell,
-          bounds: weightBox,
-          x: benchBox.max.x - weightBox.min.x,
-          z: 0,
-          heading: 0,
-        },
-        {
-          role: "dumbbell-right",
-          model: dumbbell,
-          bounds: weightBox,
-          x: benchBox.min.x - weightBox.max.x,
-          z: 0,
-          heading: 0,
-        },
-      ],
+      grid: {
+        count: params.stations,
+        capacity: "stations",
+        prefix: "bench",
+        group: [
+          { role: "", model: bench, bounds: benchBox, x: 0, z: 0, heading: 0 },
+          {
+            role: "dumbbell-left",
+            model: dumbbell,
+            bounds: weightBox,
+            x: benchBox.max.x - weightBox.min.x,
+            z: 0,
+            heading: 0,
+          },
+          {
+            role: "dumbbell-right",
+            model: dumbbell,
+            bounds: weightBox,
+            x: benchBox.min.x - weightBox.max.x,
+            z: 0,
+            heading: 0,
+          },
+        ],
+      },
     });
   };
 }
 
-/**
- * Types of the gym kit producer.
- *
- * @evidence contracts/development/common.md#meaningful-documentation States the room layout it extends and the count of free-weight stations it adds.
- * @evidence contracts/development/design.md#principled-representation The furnishing layout of the interface plus one positive integer count.
- * @evidence contracts/development/design.md#minimal-and-owned-surface What the kit's producer takes and nothing else.
- * @evidence contracts/development/design.md#prohibited-design-shortcuts The layout's own members are not restated.
- */
+/** Types of the gym kit producer. */
 export namespace createGymKit {
   /** The room layout and the positive integer count of the kit's repeated group. */
   export interface IParams extends IAutoMovieFurnishingLayout {

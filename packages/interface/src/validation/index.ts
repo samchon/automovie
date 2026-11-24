@@ -29,6 +29,7 @@ export type { IAutoMoviePlacedContinuity } from "./IAutoMoviePlacedContinuity";
 export type { IAutoMovieSceneCollision } from "./IAutoMovieSceneCollision";
 export type { IAutoMovieSceneEnvironmentUse } from "./IAutoMovieSceneEnvironmentUse";
 export type { IAutoMovieSupportResult } from "./IAutoMovieSupportResult";
+export type { IAutoMovieSurfaceGraphicImageUse } from "./IAutoMovieSurfaceGraphicImageUse";
 export type { IAutoMovieSweptCapsuleCollision } from "./IAutoMovieSweptCapsuleCollision";
 export type { IAutoMovieTextureClosureInput } from "./IAutoMovieTextureClosureInput";
 export type { IAutoMovieTextureImageFacts } from "./IAutoMovieTextureImageFacts";
@@ -43,6 +44,7 @@ export type { IAutoMovieValidateFormationOverlap } from "./IAutoMovieValidateFor
 export type { IAutoMovieValidateFormationSlotMotions } from "./IAutoMovieValidateFormationSlotMotions";
 export type { IAutoMovieValidateGroundContact } from "./IAutoMovieValidateGroundContact";
 export type { IAutoMovieValidateMaterialLobes } from "./IAutoMovieValidateMaterialLobes";
+export type { IAutoMovieValidateMaterialProcedural } from "./IAutoMovieValidateMaterialProcedural";
 export type { IAutoMovieValidateModel } from "./IAutoMovieValidateModel";
 export type { IAutoMovieValidateMotion } from "./IAutoMovieValidateMotion";
 export type { IAutoMovieValidatePose } from "./IAutoMovieValidatePose";

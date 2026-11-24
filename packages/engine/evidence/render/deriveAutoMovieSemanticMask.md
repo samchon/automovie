@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Collect semantic entity/owner/node claims, refuse duplicate ids and palette excess, add bounded instance-slot claims, then allocate FNV-derived RGB colors in id order with forward probing and hash the complete canonical v2 payload.
+Collect semantic entity/owner/node claims, including one face claim per surface graphic track joined by its render root name, refuse duplicate ids and palette excess, add bounded instance-slot claims, then allocate FNV-derived RGB colors in id order with forward probing and hash the complete canonical v2 payload.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

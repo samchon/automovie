@@ -8,7 +8,7 @@ States what the session holds, which calls make pictures and how, the timeout's 
 
 An opened page with a described subject, so a session that exists can always draw; the backend text joins what launched the browser with the renderer the page reported, because the record must name both.
 
-## @evidence contracts/development/design.md#minimal-and-owned-surface `open`, `drawing` for the capture run, `frame` for a delivery's passes, `draw` beneath both, `close`; the subject, the renderer and the backend are read by hosts to plan and to report.
+## @evidence contracts/development/design.md#minimal-and-owned-surface `open`, `speak` for a film's dialogue mouths, `drawing` for the capture run, `frame` for a delivery's passes, `draw` beneath both, `close`; the subject, the renderer and the backend are read by hosts to plan and to report.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -43,6 +43,36 @@ The created subject and the page's renderer serve every call of the session.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 The returned session owns the page until `close`.
+
+# src/draw/AutoMovieDrawSession.ts#AutoMovieDrawSession.prototype.speak
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States what is handed, when, what later pictures carry and the two rejections.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The track crosses into the page once as JSON, so every later draw, at any second and in any pass, samples the same mouths the host planned.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One bounded page call.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A failed or slow hand-over is an error, never skipped.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+One page call linear in the track's size.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Called once per session.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+The page holds the track for its life; the session holds nothing.
 
 # src/draw/AutoMovieDrawSession.ts#AutoMovieDrawSession.prototype.draw
 
@@ -108,7 +138,7 @@ The picture is the caller's.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the view, the raster, the order and the one call per pass.
+States the view, the raster, the order and the one call per pass; each pass carries the page's diagnostics, mask palette and drawn mouths as reported.
 
 ## @evidence contracts/development/implementation.md#principled-implementation `.agents/skills/visual-debugging/passes.md`: every pass of a set is drawn from the same evaluated state, so each pass is the same second through the same `film` view with only the shade changed.
 

@@ -19,6 +19,12 @@ import type { IAutoMovieRendererEnvironmentHandle } from "./IAutoMovieRendererEn
  * own curve, exposure and shadow policy exactly as it found them: a caller that
  * knows no delivery curve states none rather than imposing `none`, which is how
  * a pre-environment production keeps rendering what it always rendered.
+ *
+ * This precedence governs the compiled-scene pass (`renderAutoMovieScenePass`)
+ * and its budget projection, which draw straight to their target. On the draw
+ * path a draw scene's `optics` owns exposure and curve instead:
+ * `AutoMovieFilmResponseStage` holds the renderer's own curve at none and its
+ * exposure at one while the beauty pass draws into its linear target.
  */
 export const applyRendererEnvironment: (
   renderer: THREE.WebGLRenderer,

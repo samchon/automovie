@@ -14,7 +14,7 @@ No camera path or focal default repairs an invalid span, and indexed traversal r
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents start seconds, nullable focus/focal fields, strictly positive millimetre focal length and the exact canonical vocabulary used.
+Documents start seconds, nullable focus/focal fields, strictly positive millimetre focal length and f-number and the exact canonical vocabulary used.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

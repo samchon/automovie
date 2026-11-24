@@ -17,12 +17,23 @@ import { createAutoMovieRandom } from "../random/createAutoMovieRandom";
 import { deriveAutoMovieSeed } from "../random/deriveAutoMovieSeed";
 import { analyzeProductionSound } from "./analyzeProductionSound";
 import { applyAutoMovieInteriorAcousticResponse } from "./applyAutoMovieInteriorAcousticResponse";
+import { levelProductionDialogueLine } from "./levelProductionDialogueLine";
+import { mixProductionRoomTone } from "./mixProductionRoomTone";
 import { productionScoreDuckingEnvelope } from "./productionScoreDuckingEnvelope";
 import { productionSoundEventTone } from "./productionSoundEventTone";
+import { resolveProductionLoudness } from "./resolveProductionLoudness";
 
 /**
- * Mix semantic events, authored cue trims and supplied dialogue into a fresh stereo master.
- * When enabled, score ducking attenuates the music bus around the placed dialogue with adopted PCM, before the master limiter.
+ * Mix semantic events, authored cue trims and supplied dialogue into a fresh
+ * stereo mix, with the plan's room-tone beds generated on the ambience bus
+ * (`mixProductionRoomTone`). When enabled, score ducking attenuates the music
+ * bus around the placed dialogue with adopted PCM.
+ *
+ * Loudness follows the production's intent, or EBU R 128 without one
+ * (`resolveProductionLoudness`): each dialogue line is levelled to the dialogue
+ * target as placed (`levelProductionDialogueLine`). The mix has no master
+ * stage, so its samples may leave [−1, 1]; `masterProductionSound` brings it to
+ * the integrated target under the true-peak ceiling.
  */
 export const renderProductionSound: (
   props: IAutoMovieRenderProductionSound.IProps,
@@ -56,6 +67,10 @@ export const renderProductionSound: (
     if (source !== undefined)
       assertFiniteProductionPcm(source, `dialogue line "${line}"`);
   }
+  const targets: Pick<
+    IAutoMovieRenderedProductionSound.ILoudness,
+    "intent" | "source" | "dialogueLufs" | "ceilingDbtp"
+  > = resolveProductionLoudness(props.loudness);
   const sampleFrames: number = frameToSample(
     props.plan,
     props.plan.totalFrames,
@@ -99,38 +114,47 @@ export const renderProductionSound: (
         cue.bus === "music" ? scoreEnvelope : undefined,
       ),
   );
+  mixProductionRoomTone(pcm, props.plan);
+  const lines: IAutoMovieRenderedProductionSound.ILoudness["lines"] = [];
   for (const line of props.plan.dialogue) {
     const source: Float32Array<ArrayBufferLike> | undefined =
       props.dialogue?.get(line.id);
     if (source === undefined) continue;
+    // The line plays at unit rate from its start tick: its speech span was
+    // derived from this very sample count, so a line longer than its span is
+    // a plan that disagrees with its own bytes, and fitting it to the span
+    // would change its tempo and pitch.
     const start: number = frameToSample(props.plan, line.startFrame);
     const end: number = frameToSample(props.plan, line.endFrame);
-    const fitted: Float32Array<ArrayBufferLike> = resampleMono(
-      source,
-      Math.max(0, end - start),
-    );
-    for (
-      let index: number = 0;
-      index < fitted.length && start + index < sampleFrames;
-      ++index
-    ) {
-      const envelope: number = edgeEnvelope(index, fitted.length, 240);
-      const value: number = fitted[index]! * envelope * 0.72;
+    if (source.length > end - start || end > sampleFrames)
+      throw new Error(
+        `Production sound dialogue line "${line.id}" has ${source.length} samples, but its speech span from frame ${line.startFrame} to ${line.endFrame} holds ${Math.max(0, end - start)} samples inside the ${sampleFrames}-sample film.`,
+      );
+
+    // Each line is levelled as it is placed, so a line's level follows its
+    // measured loudness rather than whatever level its generator wrote.
+    const fade: (index: number) => number = (index: number): number =>
+      edgeEnvelope(index, source.length, 240);
+    const levelled: { measuredLufs: number; gainDb: number } =
+      levelProductionDialogueLine({
+        id: line.id,
+        samples: source,
+        fade,
+        targetLufs: targets.dialogueLufs,
+      });
+    lines.push({ id: line.id, ...levelled });
+    const gain: number = 10 ** (levelled.gainDb / 20);
+    for (let index: number = 0; index < source.length; ++index) {
+      const value: number = source[index]! * fade(index) * gain;
       pcm[(start + index) * 2] += value;
       pcm[(start + index) * 2 + 1] += value;
     }
   }
   assertFiniteProductionPcm(pcm, "generated production mix");
-  let peak: number = 0;
-  for (const value of pcm) peak = Math.max(peak, Math.abs(value));
-  if (peak > 0.95) {
-    const scale: number = 0.95 / peak;
-    for (let index: number = 0; index < pcm.length; ++index)
-      pcm[index] = Math.fround(pcm[index]! * scale);
-  }
   return {
     pcm,
     analysis: analyzeProductionSound(props.plan, pcm, sampleAtFrame),
+    loudness: { ...targets, lines },
   };
 };
 
@@ -148,7 +172,11 @@ const assertFiniteProductionPcm: (
       );
 };
 
-/** Mix the selected fixed event tone from emission or declared arrival, skipping segment-trimmed events; per-event pan/filter/density gains feed the same Float32 accumulation order. */
+/**
+ * Mix the selected fixed event tone from emission or declared arrival, skipping
+ * segment-trimmed events; per-event pan/filter/density gains feed the same
+ * Float32 accumulation order.
+ */
 const mixEvent: (
   pcm: Float32Array<ArrayBufferLike>,
   plan: IAutoMovieProductionSoundPlan,
@@ -219,7 +247,11 @@ const mixEvent: (
   }
 };
 
-/** Read the admitted source trim at unit sample rate with authored fades, or use the bus stand-in when the asset is absent; no rate reconciliation extends the trim. */
+/**
+ * Read the admitted source trim at unit sample rate with authored fades, or use
+ * the bus stand-in when the asset is absent; no rate reconciliation extends the
+ * trim.
+ */
 const mixCue: (
   pcm: Float32Array<ArrayBufferLike>,
   plan: IAutoMovieProductionSoundPlan,
@@ -342,34 +374,10 @@ const cueSampleRanges: (
   };
 };
 
-/** Fit adopted mono samples by endpoint-aligned linear interpolation and Float32 rounding; singleton sources fill the output, and a one-sample output selects the first source sample. */
-const resampleMono: (
-  source: Float32Array<ArrayBufferLike>,
-  length: number,
-) => Float32Array<ArrayBufferLike> = (
-  source: Float32Array,
-  length: number,
-): Float32Array => {
-  const output: Float32Array<ArrayBuffer> = new Float32Array(length);
-  if (source.length === 0) return output;
-  if (source.length === 1) {
-    output.fill(source[0]!);
-    return output;
-  }
-  for (let index: number = 0; index < length; ++index) {
-    const position: number =
-      length === 1 ? 0 : (index * (source.length - 1)) / (length - 1);
-    const left: number = Math.floor(position);
-    const right: number = Math.min(source.length - 1, left + 1);
-    const weight: number = position - left;
-    output[index] = Math.fround(
-      source[left]! * (1 - weight) + source[right]! * weight,
-    );
-  }
-  return output;
-};
-
-/** Delegate a frame boundary to the shared rational film-clock nearest-tick rule at the plan's sample rate, including its numeric admission failures. */
+/**
+ * Delegate a frame boundary to the shared rational film-clock nearest-tick rule
+ * at the plan's sample rate, including its numeric admission failures.
+ */
 const frameToSample: (
   plan: IAutoMovieProductionSoundPlan,
   frame: number,
@@ -381,7 +389,10 @@ const frameToSample: (
     rounding: "nearest",
   });
 
-/** Return the lesser of unity and the two edge-distance ratios for the fixed positive edge length; the last included sample need not reach exact zero. */
+/**
+ * Return the lesser of unity and the two edge-distance ratios for the fixed
+ * positive edge length; the last included sample need not reach exact zero.
+ */
 const edgeEnvelope: (index: number, length: number, edge: number) => number = (
   index: number,
   length: number,
@@ -391,7 +402,11 @@ const edgeEnvelope: (index: number, length: number, edge: number) => number = (
 /** Each cue seed's pinned counter-based stream, keyed once. */
 const noiseStreams: Map<number, IAutoMovieRandom> = new Map();
 
-/** One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox stream (`createAutoMovieRandom`) read at the sample index; this seed stream is not content identity. */
+/**
+ * One stateless signed noise sample in (-1, 1): the cue seed's pinned Philox
+ * stream (`createAutoMovieRandom`) read at the sample index; this seed stream
+ * is not content identity.
+ */
 const seededNoise: (seed: number, index: number) => number = (
   seed: number,
   index: number,

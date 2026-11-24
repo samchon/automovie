@@ -27,98 +27,65 @@ import {
  *
  * Scenarios:
  *
- * 1. Authored phoneme chunks retain text and map vowels and rest to mouth targets on the frame clock, including the existing text and extent boundaries.
+ * 1. Authored phoneme chunks give each phoneme an equal share of the chunk's
+ *    samples, map vowels and glottals to MPEG-4 visemes, keep every phoneme in
+ *    order and add nothing for whitespace.
  * 2. An empty plan produces three seconds of measurable silence.
- * 3. Planning refuses missing compiled contracts, camera, event declarations and spatial subjects.
+ * 3. Planning refuses missing compiled contracts, camera, event declarations and
+ *    spatial subjects.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Maps supplied phoneme chunks into mouth intervals and observes vowel/rest tokens, text retention, silent-master analysis and named refusals from inconsistent sound-planning inputs.
- * @evidence contracts/development/testing.md#independent-expectations The closed vowel/rest mapping, authored chunk/frame clocks and exact three-second silent plan supply expectations; these records prove neither speech recognition nor synthesized audio provenance.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all five vowel targets/rest, Unicode case expansion, empty text, zero source/window extent, token binning and missing contract/camera/event/subject inputs; cue PCM and spatial-density boundaries are separate.
+ * @evidence contracts/development/testing.md#behavioral-verification Maps supplied phoneme chunks into timed visemes and observes vowel and silence targets, equal sample shares, text retention, silent-master analysis and named refusals from inconsistent sound-planning inputs.
+ * @evidence contracts/development/testing.md#independent-expectations The IPA vowel classes, equal shares of authored chunk samples and the exact three-second silent plan supply expectations; these records prove neither speech recognition nor synthesized audio provenance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all five vowel targets and silence, whitespace-only text, chunk boundaries and missing contract/camera/event/subject inputs; cue PCM and spatial-density boundaries are separate.
  * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_production_sound_viseme and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Authored phoneme chunks retain text and map vowels and rest to mouth targets on the frame clock, including the existing text and extent...).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Authored phoneme chunks give each phoneme an equal share of the chunk's samples).
  */
 export function test_film_production_sound_viseme(): void {
   const visemes: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
-    chunks: [{ phonemes: "a i u e o x", startSample: 0, endSample: 600 }],
-    sourceSamples: 600,
-    startFrame: 10,
-    endFrame: 16,
+    chunks: [{ phonemes: "a ɪ u ɛ o h", startSample: 0, endSample: 600 }],
   });
   TestValidator.equals(
-    "phoneme timing covers the caption and maps all VRM vowel targets",
+    "a chunk's phonemes map to MPEG-4 vowels and silence in equal shares",
     visemes.map(
-      (
-        item: IAutoMovieProductionViseme,
-      ): "rest" | "aa" | "ih" | "ou" | "ee" | "oh" => item.viseme,
+      (item: IAutoMovieProductionViseme): [string, number, number] => [
+        item.viseme,
+        item.startSample,
+        item.endSample,
+      ],
     ),
-    ["aa", "ih", "ou", "ee", "oh", "rest"],
-  );
-  TestValidator.equals(
-    "case folding expansion preserves the matched vowel",
-    productionPhonemesToVisemes({
-      chunks: [{ phonemes: "İ", startSample: 0, endSample: 20 }],
-      sourceSamples: 20,
-      startFrame: 0,
-      endFrame: 1,
-    })[0]?.viseme,
-    "ih",
-  );
-  TestValidator.equals(
-    "empty phonemes hold one neutral mouth target",
-    productionPhonemesToVisemes({
-      chunks: [{ phonemes: " ", startSample: 0, endSample: 20 }],
-      sourceSamples: 20,
-      startFrame: 1,
-      endFrame: 3,
-    }),
     [
-      {
-        phoneme: "",
-        viseme: "rest",
-        startFrame: 1,
-        endFrame: 3,
-      },
+      ["aa", 0, 100],
+      ["I", 100, 200],
+      ["U", 200, 300],
+      ["E", 300, 400],
+      ["O", 400, 500],
+      ["sil", 500, 600],
     ],
   );
   TestValidator.equals(
-    "non-positive dialogue windows have no visemes",
+    "a chunk of only whitespace adds no phoneme",
     productionPhonemesToVisemes({
-      chunks: [{ phonemes: "a", startSample: 0, endSample: 20 }],
-      sourceSamples: 20,
-      startFrame: 2,
-      endFrame: 2,
-    }),
-    [],
-  );
-  TestValidator.equals(
-    "non-positive source clocks have no visemes",
-    productionPhonemesToVisemes({
-      chunks: [{ phonemes: "a", startSample: 0, endSample: 20 }],
-      sourceSamples: 0,
-      startFrame: 0,
-      endFrame: 2,
+      chunks: [{ phonemes: " ", startSample: 0, endSample: 20 }],
     }),
     [],
   );
   const chunkTimed: IAutoMovieProductionViseme[] = productionPhonemesToVisemes({
     chunks: [
       { phonemes: "a", startSample: 0, endSample: 100 },
-      { phonemes: "iueox", startSample: 100, endSample: 1_000 },
+      { phonemes: "iueo", startSample: 100, endSample: 1_000 },
     ],
-    sourceSamples: 1_000,
-    startFrame: 0,
-    endFrame: 4,
   });
   TestValidator.equals(
     "chunk sample clocks preserve timing and no phoneme token is discarded",
     namedFacts([
-      ["chunkTimedEndFrame", (): boolean => chunkTimed[0]?.endFrame === 1],
+      ["chunkTimedEndSample", (): boolean => chunkTimed[0]?.endSample === 100],
       [
         "chunkTimedItemIndex",
         (): boolean =>
           chunkTimed.every(
             (item: IAutoMovieProductionViseme, index: number): boolean =>
-              index === 0 || item.startFrame >= chunkTimed[index - 1]!.endFrame,
+              index === 0 ||
+              item.startSample === chunkTimed[index - 1]!.endSample,
           ),
       ],
       [
@@ -126,11 +93,11 @@ export function test_film_production_sound_viseme(): void {
         (): boolean =>
           chunkTimed
             .map((item: IAutoMovieProductionViseme): string => item.phoneme)
-            .join("") === "aiueox",
+            .join("") === "aiueo",
       ],
     ]),
     {
-      chunkTimedEndFrame: true,
+      chunkTimedEndSample: true,
       chunkTimedItemIndex: true,
       chunkTimedItemItem: true,
     },

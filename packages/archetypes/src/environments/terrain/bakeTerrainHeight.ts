@@ -18,9 +18,13 @@ type IHeightfield = Extract<IAutoMovieHeightRule, { kind: "heightfield" }>;
  * @param origin Column-zero and row-zero world XZ coordinates in metres.
  * @param size Width and depth in metres.
  * @param pitch Largest allowed spacing in either direction, in metres.
- * @param tolerance Largest permitted vertical error against the bilinear surface, in metres.
+ * @param tolerance Largest permitted vertical error against the bilinear
+ *   surface, in metres.
  * @param height Shared grade evaluator in world metres.
- * @returns The canonical sampled support rule used by both scene and world records.
+ * @param advice Optional sentence the sample-budget refusal appends, naming
+ *   what in the relief drives the lattice and which fields lower it.
+ * @returns The canonical sampled support rule used by both scene and world
+ *   records.
  */
 export function bakeTerrainHeight(
   id: string,
@@ -29,6 +33,7 @@ export function bakeTerrainHeight(
   pitch: number,
   tolerance: number,
   height: (point: { x: number; z: number }) => number,
+  advice?: string,
 ): IHeightfield {
   let columns: number = Math.ceil(size[0] / pitch);
   let rows: number = Math.ceil(size[1] / pitch);
@@ -40,7 +45,7 @@ export function bakeTerrainHeight(
       (columns + 1) * (rows + 1) > MAX_SAMPLES
     )
       throw new Error(
-        `Terrain "${id}" needs more than ${MAX_SAMPLES} samples for its feature widths and ${tolerance} m mesh tolerance.`,
+        `Terrain "${id}" needs more than ${MAX_SAMPLES} samples for its feature widths and ${tolerance} m mesh tolerance.${advice === undefined ? "" : ` ${advice}`}`,
       );
     const x: number =
       previous === undefined ? size[0] / columns : previous.spacingX / 2;
@@ -83,7 +88,10 @@ export function bakeTerrainHeight(
   }
 }
 
-/** Conservative maximum linear-interpolation error over all complete lattice cells. */
+/**
+ * Conservative maximum linear-interpolation error over all complete lattice
+ * cells.
+ */
 function maximumBilinearError(rule: IHeightfield): number {
   let error: number = 0;
   for (let row: number = 0; row + 1 < rule.rows; row += 1)

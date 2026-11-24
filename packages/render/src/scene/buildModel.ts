@@ -18,6 +18,7 @@ import { defaultMaterial } from "./defaultMaterial.js";
 import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { applyReliefWeights } from "./reliefWeightShading/index.js";
+import { applyMaterialWear } from "./wearShading/index.js";
 
 /**
  * Build a renderable `three.js` object from an {@link IAutoMovieModel}.
@@ -57,19 +58,22 @@ import { applyReliefWeights } from "./reliefWeightShading/index.js";
  * what every pre-texture production still renders. The resolver must answer
  * with a texture object PER BINDING, because {@link buildMaterial} writes that
  * binding's color space, UV transform and sampler onto whatever it is given,
- * and two slots sharing one object would fight over one repeat.
- * Every returned geometry and material is registered as soon as it is acquired,
- * before a later part, binding or attachment can fail. Failure independently
- * retires those owned objects, including objects not yet attached to the group;
- * successful return transfers them to the caller. Texture wrappers stay with
- * the resolver's owner. A nested producer retires its own failed allocation.
- * An anisotropic rigid mesh without morph targets or normal maps receives
- * native computed tangents when its indexed normal/UV geometry supports them.
- * Mapped and deforming meshes retain their derivative frame: a rest tangent
- * cannot follow a morph or replace a transformed normal-map frame. This
- * changes no source arrays or material coefficients, is not a MikkTSpace bake
- * guarantee and leaves degenerate UVs on their existing fallback.
- * Fully transparent, non-transmissive parts stay hidden when a guide swaps materials.
+ * and two slots sharing one object would fight over one repeat. Every returned
+ * geometry and material is registered as soon as it is acquired, before a later
+ * part, binding or attachment can fail. Failure independently retires those
+ * owned objects, including objects not yet attached to the group; successful
+ * return transfers them to the caller. Texture wrappers stay with the
+ * resolver's owner. A nested producer retires its own failed allocation. An
+ * anisotropic rigid mesh without morph targets or normal maps receives native
+ * computed tangents when its indexed normal/UV geometry supports them. Mapped
+ * and deforming meshes retain their derivative frame: a rest tangent cannot
+ * follow a morph or replace a transformed normal-map frame. This changes no
+ * source arrays or material coefficients, is not a MikkTSpace bake guarantee
+ * and leaves degenerate UVs on their existing fallback. Fully transparent,
+ * non-transmissive parts stay hidden when a guide swaps materials. A part whose
+ * material declares `wear` gets its own material instance and is drawn
+ * non-indexed with its bind-pose feature edges, by `applyMaterialWear`;
+ * disposing that material also disposes its edge texture.
  */
 export const buildModel: (
   model: IAutoMovieModel,
@@ -143,7 +147,7 @@ export const buildModel: (
         THREE.Object3D<THREE.Object3DEventMap>
       > = new Map<string, THREE.Object3D>();
       for (const part of model.parts) {
-        const geo: THREE.BufferGeometry<
+        let geo: THREE.BufferGeometry<
           THREE.NormalBufferAttributes,
           THREE.BufferGeometryEventMap
         > = own(buildGeometry(part.geometry));
@@ -163,6 +167,23 @@ export const buildModel: (
           mat = own(defaultMaterial());
           mat.vertexColors = colored;
           if (dualQuaternion) applyDualQuaternionSkinning(mat);
+        } else if (definition.wear !== undefined) {
+          // A worn material reads this geometry's own feature edges, so each
+          // part gets its own material and its non-indexed geometry.
+          mat = own(buildMaterial(definition, resolveTexture));
+          mat.vertexColors = colored;
+          if (weighted && mat.normalMap !== null) applyReliefWeights(mat);
+          if (dualQuaternion) applyDualQuaternionSkinning(mat);
+          const worn: {
+            geometry: THREE.BufferGeometry;
+            texture: THREE.DataTexture;
+          } = applyMaterialWear(geo, mat, definition.wear);
+          geo = own(worn.geometry);
+          own(worn.texture);
+
+          // Only the material's compiled program reads the edge texture, so
+          // whoever disposes the part's material releases it too.
+          mat.addEventListener("dispose", (): void => worn.texture.dispose());
         } else {
           let variants: Map<string, THREE.MeshStandardMaterial> | undefined =
             materials.get(definition.id);

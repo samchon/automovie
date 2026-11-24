@@ -12,13 +12,14 @@ import type {
 
 /**
  * Assemble the model validation result in stable diagnostic order. IDs and
- * references precede parts, rigs, body/profile/affordance metadata and materials.
- * Cohesive leaf owners check their typed inputs and append to this one local
- * collector. Caller models are read-only; validation reports faults rather than
- * repairing geometry or binding external resources. Model generators,
- * authoring builders and static exporters all consume this same public entry.
- * Moving a leaf must preserve predicate arithmetic, paths and ordering because
- * downstream correction rounds present these diagnostics to the author.
+ * references precede parts, rigs, body/profile/affordance metadata and
+ * materials. Cohesive leaf owners check their typed inputs and append to this
+ * one local collector. Caller models are read-only; validation reports faults
+ * rather than repairing geometry or binding external resources. Model
+ * generators, authoring builders and static exporters all consume this same
+ * public entry. Moving a leaf must preserve predicate arithmetic, paths and
+ * ordering because downstream correction rounds present these diagnostics to
+ * the author.
  */
 
 import { admitAutoMovieBicubicAtlas } from "../geometry/admitAutoMovieBicubicAtlas";
@@ -37,6 +38,8 @@ import { validateJointConstraint } from "./validateJointConstraint";
 import { validateLookAt } from "./validateLookAt";
 import { validateMaterialLobes } from "./validateMaterialLobes";
 import { validateMaterialOverlays } from "./validateMaterialOverlays";
+import { validateMaterialProcedural } from "./validateMaterialProcedural";
+import { validateMaterialWear } from "./validateMaterialWear";
 import { validateMesh } from "./validateMesh";
 import { validateModelImages } from "./validateModelImages";
 import { validateProfileCapabilities } from "./validateProfileCapabilities";
@@ -46,7 +49,9 @@ import { validateTransformScalars } from "./validateTransformScalars";
 import { validateUniqueValues } from "./validateUniqueValues";
 
 /**
- * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes), gaze, transform, body/profile/affordance and material checks in stable order.
+ * Assemble id/reference, primitive/mesh, skeleton (with declared joint axes),
+ * gaze, transform, body/profile/affordance and material checks in stable
+ * order.
  */
 export const validateModel: (
   props: IAutoMovieValidateModel.IProps,
@@ -314,6 +319,14 @@ export const validateModel: (
       partsPath: `${path}.parts`,
       collector,
     });
+    validateMaterialProcedural({
+      material: m,
+      path: mp,
+      parts: model.parts,
+      partsPath: `${path}.parts`,
+      collector,
+    });
+    validateMaterialWear(m.wear, `${mp}.wear`, collector);
     collector.range(`${mp}.metallic`, m.metallic, 0, 1, "metallic");
     collector.range(`${mp}.roughness`, m.roughness, 0, 1, "roughness");
     collector.range(`${mp}.opacity`, m.opacity, 0, 1, "opacity");

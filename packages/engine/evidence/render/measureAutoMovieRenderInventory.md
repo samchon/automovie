@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Measure populations then simulations with one model cache, complete resource closure, material resolution and shadow/outline/background passes, preserving phase addition order and explicit unknown totals. Frame bounds maximize supported tiers; geometryBytes covers declared prototype/surface buffers rather than all native chunk clones/instance streams.
+Measure populations then simulations with one model cache, complete resource closure, material resolution, surface-graphic feed targets and their scene passes (`measureAutoMovieRenderFeeds`, each shown feed redrawing the scene with its shadow maps), shadow/outline/background passes, and a directly rendered film's stage targets and passes (`measureAutoMovieRenderFilmStage`), preserving phase addition order and explicit unknown totals. Frame bounds maximize supported tiers; geometryBytes covers declared prototype/surface buffers rather than all native chunk clones/instance streams.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Population/simulation/resource policy owners feed one orchestrator and semantic node index, keeping owner attribution aligned with the mask without embedding a renderer or simulation host.
+Population, simulation, texture (`measureRenderTextures`), geometry memory (`measureRenderGeometryBytes`) and frame-pass (`measureRenderPasses`) and film-stage (`measureAutoMovieRenderFilmStage`) phases feed one orchestrator and semantic node index, which keeps the phase order and the totals, keeping owner attribution aligned with the mask without embedding a renderer or simulation host.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

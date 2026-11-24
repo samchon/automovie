@@ -58,8 +58,8 @@ const withAffordances: (
  *
  * Scenarios:
  *
- * 1. A model without the field and one with `affordances: null` both
- *    succeed; a valid stack-top + handle pair succeeds.
+ * 1. A model without the field and one with `affordances: null` both succeed; a
+ *    valid stack-top + handle pair succeeds.
  * 2. A duplicate affordance id is a `type` violation on the second entry.
  * 3. An empty id is a `type` violation.
  * 4. A stack-top with `extent: null` is a `type` violation on `.extent`.
@@ -69,12 +69,16 @@ const withAffordances: (
  * 8. A handle carrying an extent is a `type` violation (point-like).
  * 9. A non-finite frame scalar is a `range` violation via the shared transform
  *    check.
+ * 10. A sized surface with a diamond outline inside its 1 m square succeeds; an
+ *     outline on a handle, one of two points and a crossing bow tie are `type`
+ *     violations on `.outline`, and a point 0.6 m out on a 1 m wide face is a
+ *     `range` violation on that point's `x`.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls validateModel with omitted, null and populated affordances and requires accepted controls or located type/range findings, catching lost optional-state compatibility, duplicate IDs, invalid support extents and nonfinite frame scalars.
  * @evidence contracts/development/testing.md#independent-expectations Literal IDs and diagnostic addresses follow authored ownership; the square spans XZ area, two points and a collinear triple cannot define a support face, and NaN/Infinity are nonfinite. Success checks admission only and does not establish byte identity or geometric display quality.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves omitted/null/valid stack-top-plus-handle controls and all eight malformed variations, including duplicate/blank IDs, absent/short/collinear/nonfinite extents, a point-like handle with an extent and an invalid frame. Broader transform and mesh admission have separate entries.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves omitted/null/valid stack-top-plus-handle controls, a valid surface outline, and the malformed variations, including duplicate/blank IDs, absent/short/collinear/nonfinite extents, a point-like handle with an extent and an invalid frame. Broader transform and mesh admission have separate entries.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable named unit uses the existing model fixture and local affordance records to exercise portable engine validation without building a figure, launching a host or loading assets.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 9 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model without the field and one with `affordances: null` both).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 10 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model without the field and one with `affordances: null` both).
  */
 export function test_validation_model_affordances(): void {
   TestValidator.equals(
@@ -192,4 +196,67 @@ export function test_validation_model_affordances(): void {
       ".affordances[0].frame.translation.y",
     ),
   );
+
+  // 10. A sized surface's outline.
+  const face: IAutoMovieAffordance = {
+    id: "face",
+    kind: "surface",
+    frame: HANDLE.frame,
+    extent: null,
+    width: 1,
+    depth: 1,
+  };
+  const at = (x: number, z: number): IAutoMovieVector3 => ({ x, y: 0, z });
+  const DIAMOND: IAutoMovieVector3[] = [
+    at(0, -0.5),
+    at(0.5, 0),
+    at(0, 0.5),
+    at(-0.5, 0),
+  ];
+  TestValidator.equals(
+    "a surface outline inside its rectangle succeeds",
+    validateModel({
+      model: withAffordances([{ ...face, outline: DIAMOND }]),
+    }).success,
+    true,
+  );
+  for (const [name, affordance, kind, path] of [
+    [
+      "an outline on a handle",
+      { ...HANDLE, outline: DIAMOND },
+      "type",
+      ".affordances[0].outline",
+    ],
+    [
+      "an outline of two points",
+      { ...face, outline: DIAMOND.slice(0, 2) },
+      "type",
+      ".affordances[0].outline",
+    ],
+    [
+      "an outline point past the rectangle",
+      { ...face, outline: [at(0, -0.5), at(0.6, 0), at(0, 0.5)] },
+      "range",
+      ".affordances[0].outline[1].x",
+    ],
+    [
+      "a crossing outline",
+      {
+        ...face,
+        outline: [at(-0.5, -0.5), at(0.5, 0.5), at(0.5, -0.5), at(-0.5, 0.5)],
+      },
+      "type",
+      ".affordances[0].outline",
+    ],
+  ] as const)
+    TestValidator.predicate(
+      `${name} fails`,
+      hasViolation(
+        validateModel({
+          model: withAffordances([affordance as IAutoMovieAffordance]),
+        }),
+        kind,
+        path,
+      ),
+    );
 }
