@@ -284,11 +284,9 @@ export namespace AutoMovieSolidRailSolve {
               : AutoMovieSolidTraceTrial(host, face0, u1, v1, true);
           if (crossed !== null && !crossed.crossed) continue;
           if (crossed === null || crossed.face === came) continue;
-          // The crossing is judged by where the solve goes on the neighbour, not by its foot: the foot is mapped by the boundary's chord
-          // share, a different world point from the iterate's (on f1's arm past its armpit band it stood 0.0035 to 0.0113 mm off the
-          // section plane, so every foot's residual exceeded the band end's and the crossing was refused though the arm kept a root).
-          // It is taken when one Newton step on the neighbour from the foot, backtracked within the neighbour's region, lowers the
-          // residual below this iterate's.
+          // The boundary's chord share maps the foot to a different world
+          // point. The crossing is admitted when one Newton step on the
+          // neighbour, backtracked in its chart, lowers the current residual.
           const settled: IAutoMovieSolidTraceTrialTrial | null = onward(
             crossed,
             merit,
@@ -407,6 +405,10 @@ export namespace AutoMovieSolidRailSolve {
 
   /**
    * Solve positive world chord length along a supplied owned-chart jet reader.
+   * Halve the initial tangent estimate until it lies on the increasing branch.
+   * Backtrack subsequent Newton steps within that predicate and require
+   * residual decrease. This keeps a failed trial separate from an unavailable
+   * root. See Armijo 1966, doi:10.2140/pjm.1966.16.1.
    */
   export function offset(
     along: (l: number) => IAutoMovieSolidSurface.IJet | null,
@@ -427,8 +429,9 @@ export namespace AutoMovieSolidRailSolve {
       ]),
     );
     if (!(speed > 0)) return null;
-    let l: number = (start ?? width) / speed;
-    for (let step: number = 0; step < steps; step++) {
+    /** Read the chord and its derivative on the current positive branch. */
+    const read = (l: number): { miss: number; rate: number } | null => {
+      if (!(Number.isFinite(l) && l > 0)) return null;
       const j: IAutoMovieSolidSurface.IJet | null = along(l);
       if (j === null) return null;
       const r: AutoMovieVector3Tuple = sub(j.p, from);
@@ -442,11 +445,36 @@ export namespace AutoMovieSolidRailSolve {
             [d[1], j.v],
           ]),
         ) / chord;
-      if (!(rate > 0)) return null;
-      const converged: boolean =
-        Math.abs(miss) <= rounding * (width + norm(from));
-      l -= miss / rate;
-      if (converged) return along(l) === null ? null : l;
+      return Number.isFinite(miss) && Number.isFinite(rate) && rate > 0
+        ? { miss, rate }
+        : null;
+    };
+    const tolerance: number = rounding * (width + norm(from));
+    let l: number = (start ?? width) / speed;
+    let current: ReturnType<typeof read> = read(l);
+
+    // Use the same halving budget as the two-coordinate rail solve.
+    for (let n: number = 0; current === null && n < 20; n++) {
+      l /= 2;
+      current = read(l);
+    }
+    if (current === null) return null;
+
+    for (let step: number = 0; step < steps; step++) {
+      const converged: boolean = Math.abs(current.miss) <= tolerance;
+      let delta: number = -current.miss / current.rate;
+      let next: ReturnType<typeof read> = null;
+      for (let n: number = 0; n < 20 && l + delta !== l; n++, delta /= 2) {
+        const trial: ReturnType<typeof read> = read(l + delta);
+        if (trial !== null && Math.abs(trial.miss) < Math.abs(current.miss)) {
+          next = trial;
+          break;
+        }
+      }
+      if (converged) return next === null ? l : l + delta;
+      if (next === null) return null;
+      l += delta;
+      current = next;
     }
     return null;
   }
