@@ -17,6 +17,7 @@ import { TestValidator } from "@nestia/e2e";
 
 import type { IFilmFormationFrameInput } from "../internal/IFilmFormationFrameInput";
 import type { IFilmFormationPerformanceInput } from "../internal/IFilmFormationPerformanceInput";
+import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import { createFilmFormationMemberModel } from "../internal/createFilmFormationMemberModel";
 import {
   makePerformanceWrite,
@@ -26,41 +27,36 @@ import {
 } from "../internal/filmFixtures";
 import { nclose, vclose } from "../internal/predicates";
 
-/**
- * One member's drawn height, and the interval between two of them.
- */
+/** One member's drawn height, and the interval between two of them. */
 const MEMBER_HEIGHT: number = 2;
 const INTERVAL: number = 2;
-/** The documented stand-in is 1.7 metres; keep this expectation independent of the runtime constant. */
+/**
+ * The documented stand-in is 1.7 metres; keep this expectation independent of
+ * the runtime constant.
+ */
 const STAND_IN_HEIGHT: number = 1.7;
 
-/**
- * Files in the wide unit, so it reaches `((5 - 1) / 2) * 2 = 4` m either side.
- */
+/** Files in the wide unit, so it reaches `((5 - 1) / 2) * 2 = 4` m either side. */
 const FILES: number = 5;
 
-/**
- * Where the one staged node stands, well behind the lens.
- */
+/** Where the one staged node stands, well behind the lens. */
 const NODE_Z: number = -30;
 
-/**
- * How far the cue carries the wide unit, and over how long.
- */
+/** How far the cue carries the wide unit, and over how long. */
 const CARRY_METRES: number = 30;
 const DURATION: number = 2;
 
 /**
  * One member-shaped runtime: a box standing on its own origin.
  *
- * A box tessellates about its centre, so lifting it by half its height puts its floor at zero and its top at {@link MEMBER_HEIGHT}. Every number below is read off that rather than out of the measurement under test.
+ * A box tessellates about its centre, so lifting it by half its height puts its
+ * floor at zero and its top at {@link MEMBER_HEIGHT}. Every number below is read
+ * off that rather than out of the measurement under test.
  */
 const memberModel: IAutoMovieModel =
   createFilmFormationMemberModel(MEMBER_HEIGHT);
 
-/**
- * One compiled unit of `count` members in a single rank, on the origin.
- */
+/** One compiled unit of `count` members in a single rank, on the origin. */
 const unit: (id: string, count: number) => IAutoMovieCompiledFormation = (
   id: string,
   count: number,
@@ -87,9 +83,7 @@ const unit: (id: string, count: number) => IAutoMovieCompiledFormation = (
 const WIDE_UNIT: IAutoMovieCompiledFormation = unit("wide-unit", FILES);
 const LONE_UNIT: IAutoMovieCompiledFormation = unit("lone-unit", 1);
 
-/**
- * The wide unit is carried along +x across the whole of the shot.
- */
+/** The wide unit is carried along +x across the whole of the shot. */
 const CARRY: IAutoMovieFormationMotion[] = [
   {
     id: "carry",
@@ -126,7 +120,10 @@ const script: IAutoMovieScript = makeScriptWrite({
 });
 
 /**
- * One camera stating a 90 degree vertical field of view, so `tan(fovY / 2) = 1` and every solved distance below is exactly half its visible span. The one staged node stands well behind the lens, so what the camera looks at is never the thing a case has it frame.
+ * One camera stating a 90 degree vertical field of view, so `tan(fovY / 2) = 1`
+ * and every solved distance below is exactly half its visible span. The one
+ * staged node stands well behind the lens, so what the camera looks at is never
+ * the thing a case has it frame.
  */
 const staged: IAutoMovieStagedSet.ISuccess =
   ((): IAutoMovieStagedSet.ISuccess => {
@@ -182,6 +179,7 @@ const perform: (
   props: IFilmFormationPerformanceInput,
 ): IAutoMoviePerformedShot =>
   performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script,
     staged,
     performance: makePerformanceWrite({
@@ -197,9 +195,7 @@ const perform: (
     formationMotions: props.formationMotions,
   });
 
-/**
- * Every translation key of a compiled camera clip, as points.
- */
+/** Every translation key of a compiled camera clip, as points. */
 const keysOf: (performed: IAutoMoviePerformedShot) => IAutoMovieVector3[] = (
   performed: IAutoMoviePerformedShot,
 ): IAutoMovieVector3[] => {
@@ -215,48 +211,34 @@ const keysOf: (performed: IAutoMoviePerformedShot) => IAutoMovieVector3[] = (
   );
 };
 
-/**
- * How far the solve stood the camera from the aim point it framed.
- */
+/** How far the solve stood the camera from the aim point it framed. */
 const standoff: (key: IAutoMovieVector3, aim: IAutoMovieVector3) => number = (
   key: IAutoMovieVector3,
   aim: IAutoMovieVector3,
 ): number => Math.hypot(key.x - aim.x, key.y - aim.y, key.z - aim.z);
 
-/**
- * `wide` shows four times the subject, and aims at half its height.
- */
+/** `wide` shows four times the subject, and aims at half its height. */
 const SHOWN: number = 4;
 const AIMED: number = 0.5;
 
-/**
- * How far the framing grammar stands back from a subject of this shape.
- */
+/** How far the framing grammar stands back from a subject of this shape. */
 const solved: (height: number, radius: number) => number = (
   height: number,
   radius: number,
 ): number => Math.max((height * SHOWN) / 2, (radius * 2 * SHOWN) / 2);
 
-/**
- * Half the wide unit's own reach, from its layout alone.
- */
+/** Half the wide unit's own reach, from its layout alone. */
 const REACH: number = ((FILES - 1) / 2) * INTERVAL;
 
-/**
- * The compiled fallback member radius, which no supplied radius here overrides.
- */
+/** The compiled fallback member radius, which no supplied radius here overrides. */
 const PAD: number = 0.5;
 
-/**
- * Half the horizontal diagonal of each box a case below has the camera hold.
- */
+/** Half the horizontal diagonal of each box a case below has the camera hold. */
 const WIDE_RADIUS: number = Math.hypot((REACH + PAD) * 2, PAD * 2) / 2;
 const LONE_RADIUS: number = Math.hypot(PAD * 2, PAD * 2) / 2;
 const UNION_RADIUS: number = Math.hypot((REACH + PAD) * 2, PAD - NODE_Z) / 2;
 
-/**
- * Where each of those boxes is aimed at, given the height above its floor.
- */
+/** Where each of those boxes is aimed at, given the height above its floor. */
 const WIDE_AIM: IAutoMovieVector3 = {
   x: 0,
   y: MEMBER_HEIGHT * AIMED,
@@ -274,9 +256,12 @@ const UNION_AIM: IAutoMovieVector3 = {
 };
 
 /**
- * Performs camera framing of compact formations, nodes and their union, then checks bounds, camera keys and cued follow endpoints against hand-derived extents.
+ * Performs camera framing of compact formations, nodes and their union, then
+ * checks bounds, camera keys and cued follow endpoints against hand-derived
+ * extents.
  *
  * Scenarios:
+ *
  * 1. Frame a five-file formation from its padded width and staged bearing.
  * 2. Frame one unmeasured node from the independent 1.7-metre stand-in.
  * 3. Frame the union of that distant node and the formation.

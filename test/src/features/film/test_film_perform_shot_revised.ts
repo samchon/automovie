@@ -6,6 +6,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -14,10 +15,14 @@ import {
 } from "../internal/filmFixtures";
 
 /**
- * Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
+ * Performs an invalid draft replaced by revise.final and checks success, the
+ * sole performing knight and one camera reused by two frame actions.
  *
  * Scenarios:
- * 1. Preserves the unknown draft actor, valid replacement and same-camera reframing with null rig; null-final and rig-checked neighbors are separate entries.
+ *
+ * 1. Preserves the unknown draft actor, valid replacement and same-camera
+ *    reframing with null rig; null-final and rig-checked neighbors are separate
+ *    entries.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs an invalid draft replaced by revise.final and checks success, the sole performing knight and one camera reused by two frame actions.
  * @evidence contracts/development/testing.md#independent-expectations The replacement actor exists while ghost does not, so success distinguishes final from draft evaluation; the null rig callback skips ROM without proving it would fail here. Camera identity and success admit two same-camera requests but do not independently inspect both compiled moves.
@@ -33,6 +38,7 @@ export function test_film_perform_shot_revised(): void {
   if (staged.success !== true) throw new Error("staging must succeed");
 
   const performed: IAutoMoviePerformedShot = performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite({

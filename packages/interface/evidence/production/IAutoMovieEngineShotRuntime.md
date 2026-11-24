@@ -10,7 +10,7 @@ One record for everything outside the shot program, so `compileDefinedShot` keep
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No member is defaulted to an invented rig, gait list or raster: an absent `skeleton` answer skips ROM for that node by contract, an absent `gaits` lookup skips only the gait check, an absent delivery `fps` keys camera paths at the documented 24 fps fallback, and a clearance-declaring camera without `cameraClearance` is a violation rather than a pass.
+No member is defaulted to an invented rig, gait list or raster: an absent `skeleton` answer skips ROM for that node by contract, an absent `gaits` lookup skips only the gait check, an absent delivery `fps` refuses a moving camera instead of keying it at an assumed rate, and a clearance-declaring camera without `cameraClearance` is a violation rather than a pass.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

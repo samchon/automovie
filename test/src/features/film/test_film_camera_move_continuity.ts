@@ -13,7 +13,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose } from "../internal/predicates";
+import { nclose, throwsError } from "../internal/predicates";
 
 /**
  * The moving camera: a 90-degree lens 5 m in front of the subject, level with
@@ -153,8 +153,9 @@ function compile(
  * 1. `push-in`, `orbit` and `truck` over 0 to 2 s at 30 fps move between every
  *    pair of adjacent frames exactly as far as the closed-form eased path does,
  *    so no frame's speed changes by sampling alone.
- * 2. Without a stated frame rate the push-in is keyed at 24 fps and matches the
- *    eased path on that grid.
+ * 2. At a stated 24 fps the push-in is keyed at every 24 fps frame on the eased
+ *    path, and without a stated rate it is refused instead of keyed at an
+ *    assumed one.
  * 3. `follow` of a subject accelerating as x = t² places the camera on the
  *    subject's position at every delivered frame.
  * 4. `push-in` at `"auto"` followed by `static` never moves away from the aim, and
@@ -179,7 +180,7 @@ function compile(
  *
  * @evidence contracts/development/testing.md#behavioral-verification Compiles camera clips through compileCameraMove and plays them through bakedTransformFromClipsAt at delivered frame instants, asserting per-frame travel, distance to the aim, swing angle and follow position.
  * @evidence contracts/development/testing.md#independent-expectations Expected travel comes from the grammar's closed form, the 1.25 to 0.8 dolly of the 0.62 m framed distance, the 45-degree swing and the one-distance truck, through the quadratic ease written from its definition; the follow oracle is the authored subject path. Monotone distance and angle follow from the requirement that a reversal happens only when written.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every eased move, an accelerating follow, the default frame rate, abutting push-in, orbit and static entries in both orders, and the adjacent negative case of an authored gap that must still re-frame outward.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every eased move, an accelerating follow, a second stated frame rate and a missing one, abutting push-in, orbit and static entries in both orders, and the adjacent negative case of an authored gap that must still re-frame outward.
  * @evidence contracts/development/testing.md#execution-ownership A unit test over in-memory cameras and subjects through the public compiler and clip sampler; rendered playback stays with review.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the seven scenarios with the input and the behavior each pins.
  */
@@ -229,20 +230,27 @@ export function test_film_camera_move_continuity(): void {
     );
   }
 
-  // 2. The fallback rate is 24 fps.
-  const fallback: IAutoMovieClip = compile(
-    [{ action: frame("push-in", 0, 2) }],
-    null,
-  );
+  // 2. Another stated rate keys its own grid; no rate is refused.
+  const cinema: IAutoMovieClip = compile([{ action: frame("push-in", 0, 2) }], {
+    numerator: 24,
+    denominator: 1,
+  });
   TestValidator.equals(
-    "an unstated rate keys at 24 fps",
-    fallback.tracks[0]!.times.length,
+    "a stated 24 fps keys every 24 fps frame",
+    cinema.tracks[0]!.times.length,
     49,
   );
   TestValidator.predicate(
     "the 24 fps keys sit on the eased path",
-    fallback.tracks[0]!.times.every((t: number): boolean =>
-      nclose(reach(fallback, t), D * (1.25 - 0.45 * easeInOut(t / 2)), 1e-9),
+    cinema.tracks[0]!.times.every((t: number): boolean =>
+      nclose(reach(cinema, t), D * (1.25 - 0.45 * easeInOut(t / 2)), 1e-9),
+    ),
+  );
+  TestValidator.predicate(
+    "a moving camera without a stated rate is refused",
+    throwsError(
+      (): IAutoMovieClip => compile([{ action: frame("push-in", 0, 2) }], null),
+      "no delivery frame rate",
     ),
   );
 

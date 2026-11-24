@@ -9,6 +9,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import {
   makePerformanceWrite,
   makeScriptWrite,
@@ -21,8 +22,11 @@ import { nclose } from "../internal/nclose";
  * A camera following an ensemble uses its active members' world positions.
  *
  * Scenarios:
- * 1. A performer moves from world X 0 to 1 while their group partner stays at X 4. The wide follow camera moves half a metre with their shared centre.
- * 2. An off-centre group member rotates and scales about its stationary root in an object clip. The camera tracks the drawn centre of its box.
+ *
+ * 1. A performer moves from world X 0 to 1 while their group partner stays at X 4.
+ *    The wide follow camera moves half a metre with their shared centre.
+ * 2. An off-centre group member rotates and scales about its stationary root in an
+ *    object clip. The camera tracks the drawn centre of its box.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the cast motion, their positions, the framing action and its expected displacement.
  * @evidence contracts/development/testing.md#behavioral-verification Compiles the shot from a group target and reads the emitted camera translation keys through performShot.
@@ -57,6 +61,7 @@ export function test_film_exercise_ensemble_framing(): void {
     1,
   );
   const result: IAutoMoviePerformedShot = performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script,
     staged,
     performance: makePerformanceWrite({
@@ -95,7 +100,10 @@ export function test_film_exercise_ensemble_framing(): void {
   verifyBakedBox(script, staged);
 }
 
-/** Compare the authored beginning and end of a box that turns and grows about a fixed node origin. */
+/**
+ * Compare the authored beginning and end of a box that turns and grows about a
+ * fixed node origin.
+ */
 function verifyBakedBox(
   script: IAutoMovieScript,
   staged: IAutoMovieStagedSet.ISuccess,
@@ -153,6 +161,7 @@ function verifyBakedBox(
     ],
   };
   const result: IAutoMoviePerformedShot = performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script,
     staged,
     performance: makePerformanceWrite({

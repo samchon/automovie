@@ -32,4 +32,4 @@ Missing models permit the subject framer's rig/default-size fallbacks but do not
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes clip naming, locked-off behavior, units, borrowed tables, the raster and clock fallbacks and refusal, model fallback and conditional runtime requirements.
+Describes clip naming, locked-off behavior, units, borrowed tables, the raster fallback, the clock's requirement for a moving take and its refusals, model fallback and conditional runtime requirements.

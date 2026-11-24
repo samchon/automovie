@@ -11,6 +11,7 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
+import { SQUARE_FRAME_AT_24_FPS } from "../internal/SQUARE_FRAME_AT_24_FPS";
 import { filmEffectValuesClose } from "../internal/filmEffectValuesClose";
 import {
   makeBlockingWrite,
@@ -95,6 +96,7 @@ const perform: (
   list?: IAutoMovieBlockingCoverage[] | undefined,
 ) => IAutoMoviePerformedShot = (list?: ICoverage[]): IAutoMoviePerformedShot =>
   performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),
@@ -253,6 +255,7 @@ export function test_film_perform_shot_coverage(): void {
   const omitted: IAutoMoviePerformedShot = perform();
   const emptyList: IAutoMoviePerformedShot = perform([]);
   const unblocked: IAutoMoviePerformedShot = performShot({
+    frameFormat: SQUARE_FRAME_AT_24_FPS,
     script: makeScriptWrite(),
     staged,
     performance: makePerformanceWrite(),

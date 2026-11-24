@@ -10,11 +10,11 @@ One compiler owns the whole framing grammar, every move's path and the continuit
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Names no subject or camera; +Z bearing and world -X screen-left are stated geometric-degeneracy fallbacks. The 24 fps fallback rate is a named constant whose origin, the theatrical sound-film rate, its comment states. Unknown framing/move, an invalid rate and a frame index outside safe-integer representation throw; the index gate prevents nonprogressing enumeration without an arbitrary workload cap.
+Names no subject or camera; +Z bearing and world -X screen-left are stated geometric-degeneracy fallbacks. No delivery rate is assumed: a moving entry without `frameRate` throws, because keying it at a rate the film does not have would play a polyline at that rate (#4043). Unknown framing/move, an invalid rate and a frame index outside safe-integer representation throw; the index gate prevents nonprogressing enumeration without an arbitrary workload cap.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the distance and aim solve, the bearing rule and its fallback, each move's path with its constants, the frame key grid, the hold and continuation between entries, span and auto-duration rules, key merging, the input preconditions, the null and error returns, and each parameter's role, units and default.
+States the distance and aim solve, the bearing rule and its fallback, each move's path with its constants, the frame key grid, the hold and continuation between entries, span and auto-duration rules, key merging, the input preconditions, the null and error returns, including a moving entry without a rate, and each parameter's role, units and default.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
