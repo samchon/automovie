@@ -165,3 +165,33 @@ A pure conversion coordinates no work.
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns a fresh record.
+
+# src/geometry/construction/AutoMovieConstructionSplitCompose.ts#AutoMovieConstructionSplitCompose.forks
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the ordered divider planes, the parent ring and the two directed crossing phases returned for each seam.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Classifies sampled ring points by the signed distance from each ordered divider plane. Refines sampled sign transitions on the actual ring by bisection, then unwraps the falling and rising phases around the preceding seam.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Samples establish brackets, the ring reader resolves each crossing, and the unwrapped phases express the required nesting.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Refuses sampled topology with other than one falling and one rising crossing or with a nonnested pair. Sampling must expose the crossing brackets.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Scans the ring samples once per plane and performs at most 200 bisection steps on each detected sign transition.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Shares the supplied ring sample coordinates across planes. Only brackets that show a sign change read additional ring points.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The phase pairs are fresh. Plane distances and bracket scratch belong to the call.

@@ -315,3 +315,33 @@ A pure scalar branch calculation coordinates no requests or effects.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Returns one number and owns no retained state, handle or task.
+
+# src/geometry/construction/AutoMovieSolidCycle.ts#AutoMovieSolidCycle.partition
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the existing periodic boundary cycle, authored coarse count, real station rows and returned indices of native angles.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Reads actual points and analytic normals on each native angular spoke at the requested stations. The maximum chord and normal turn per spoke interval define a cumulative measure. It picks strictly ordered existing indices nearest equal shares of that measure.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Admits one explicit periodic chart, measures interval costs across the station rows, then selects and verifies the coarse spokes.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Requires an enabled start or end cycle with strictly increasing finite phases and regular row normals. The selected intervals must advance by less than a half turn. The published boundary keeps every fine vertex.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+For S stations and F fine phases, performs O(S F) jet and interval work. The forward selection over fine indices is linear.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Uses the same fixed fine phase addresses on each station row. A station reader supplied by the surface shares that row's preparation across its changing phases.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+The fresh array contains only selected indices. It retains no boundary, row jets or surface callback.
