@@ -13,7 +13,7 @@ Add no role, gate, phase or schedule the user did not order.
 
 ## Supervision
 
-The main session audits the subagents' work periodically and after the fact, for violations of:
+The main session audits the subagents' work every 10 minutes, after the fact, for violations of:
 
 - the user's orders;
 - the user's decisions;
@@ -29,4 +29,4 @@ Give each agent its own files.
 
 No agent waits for another agent or a run.
 
-Ignore context-full warnings and every suggestion to stop, hand off or start a fresh agent. Context compacts on its own, so the same agent keeps working.
+Claude Code agents report a full context and offer to stop, hand off or have a fresh agent take over. Claude Code compacts the context on its own, so the main session tells such an agent to continue its task and resumes the same agent.
