@@ -1,5 +1,6 @@
 import { physicalOneStepCaptureRegion } from "./physicalOneStepCaptureRegion";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
+import { solveDenseActiveSet } from "./solveDenseActiveSet";
 
 /**
  * The support pieces of a push response for a body of any number of planted
@@ -73,44 +74,62 @@ export namespace physicalSupportSpanContacts {
   /**
    * IHMC's one-step capture region (`physicalOneStepCaptureRegion`,
    * `OneStepCaptureRegionCalculator.calculateCaptureRegion`, which takes any
-   * convex support polygon) on a polygon of any number of contacts: the
-   * polygon is the support, its lateral extent the foot width, and the
-   * reachable fan opens toward the capture point's side of the polygon's
-   * centroid, as the swing side.
+   * convex support polygon) on the support left while a limb swings. The
+   * reachable fan opens toward the swing side
+   * (`OneStepCaptureRegionCalculator.calculateReachableRegions`, `swingSide`):
+   * the side of the remaining support's centroid the swinging limb stands on,
+   * across the frame's lateral axis, and the foot width is the polygon's
+   * extent along that axis. The region is computed in the frame of
+   * {@link WORLD} moved to that centroid, as IHMC's is in the support sole's
+   * frame, and moved back.
    *
-   * @param input The support polygon, the capture point, both in the frame of
-   *   {@link WORLD}, the pendulum's rate, per second, the swing time left,
-   *   seconds, and the step range, metres.
+   * @param input The remaining support polygon, the capture point and the
+   *   swinging limb's point, all in the frame of {@link WORLD}, the pendulum's
+   *   rate, per second, the swing time left, seconds, and the step range,
+   *   metres.
    * @returns The region, in the frame of {@link WORLD}; empty when there is
    *   none.
    */
   export function captureRegion(input: {
     polygon: readonly Polygon.IPoint[];
     capture: Polygon.IPoint;
+    swing: Polygon.IPoint;
     omega: number;
     remaining: number;
     range: number;
   }): Polygon.IPoint[] {
-    const ys: number[] = input.polygon.map((p: Polygon.IPoint): number => p.y);
     const centroid: Polygon.IPoint = Polygon.centroid(input.polygon);
+    const moved = (p: Polygon.IPoint): Polygon.IPoint => ({
+      x: p.x - centroid.x,
+      y: p.y - centroid.y,
+    });
+    const ys: number[] = input.polygon.map((p: Polygon.IPoint): number => p.y);
     return physicalOneStepCaptureRegion({
-      support: input.capture.y > centroid.y ? "right" : "left",
+      // The fan opens away from the support side, toward the swing side.
+      support: input.swing.y > centroid.y ? "right" : "left",
       remaining: input.remaining,
-      capture: input.capture,
+      capture: moved(input.capture),
       omega: input.omega,
-      foot: input.polygon,
+      foot: input.polygon.map(moved),
       footWidth: Math.max(...ys) - Math.min(...ys),
       range: input.range,
-    });
+    }).map(
+      (p: Polygon.IPoint): Polygon.IPoint => ({
+        x: p.x + centroid.x,
+        y: p.y + centroid.y,
+      }),
+    );
   }
 
   /**
-   * The weight m g at the pivot split over the planted contacts: the
-   * least-norm shares w that sum to one and put their weighted mean of the
-   * contacts' centroids at the pivot, sum w_i = 1 and sum w_i p_i = pivot
-   * (the Moore-Penrose solution, Penrose 1955). Contacts on a line take the
-   * line's coordinate only, so two share by the pivot's place between them;
-   * one takes everything.
+   * The weight m g at the pivot split over the planted contacts, as IHMC
+   * distributes contact force over nonnegative basis magnitudes rho >= 0
+   * under a minimum rho weight (`WrenchMatrixCalculator`): the shares w of
+   * least norm, min |w|^2, with sum w_i = 1, sum w_i p_i = pivot over the
+   * contacts' centroids and w_i >= 0, solved by `solveDenseActiveSet`. A pivot
+   * outside the contacts' hull is projected onto it first; contacts on a line
+   * keep the line's coordinate only, so two share by the pivot's place between
+   * them; one takes everything.
    *
    * @param contacts The planted contacts.
    * @param pivot The pivot, world x and z.
@@ -143,9 +162,11 @@ function mean(contact: physicalSupportSpanContacts.IContact): {
 }
 
 /**
- * The least-norm weights w with A w = b, A's rows the ones and the points'
- * coordinates, b = (1, pivot): centred, w = 1/n + d^T S^-1 (pivot - mean). On
- * a line the coordinate along it alone; at one point, one.
+ * The least-norm nonnegative weights w with sum w = 1 and sum w d = pivot -
+ * mean over the centred points d: the equalities as pairs of opposite rows
+ * and -w_i <= 0, for `solveDenseActiveSet`. The pivot is projected into the
+ * points' hull first. On a line the coordinate along it alone, clamped to the
+ * points' span; at one point, one.
  */
 function split(
   points: readonly { x: number; z: number }[],
@@ -161,20 +182,48 @@ function split(
   const sxx: number = dx.reduce((s, v) => s + v * v, 0);
   const szz: number = dz.reduce((s, v) => s + v * v, 0);
   const sxz: number = dx.reduce((s, v, i) => s + v * dz[i]!, 0);
-  const px: number = pivot.x - cx;
-  const pz: number = pivot.z - cz;
   const det: number = sxx * szz - sxz * sxz;
   const trace: number = sxx + szz;
-  if (det > 1e-12 * trace * trace) {
-    const ax: number = (szz * px - sxz * pz) / det;
-    const az: number = (sxx * pz - sxz * px) / det;
-    return dx.map((v, i) => 1 / n + v * ax + dz[i]! * az);
-  }
   if (!(trace > 0)) return points.map(() => 1 / n);
-  const ux: number = Math.sqrt(sxx / trace) * (sxz < 0 ? -1 : 1);
-  const uz: number = Math.sqrt(szz / trace);
-  const s: number[] = dx.map((v, i) => v * ux + dz[i]! * uz);
-  const sss: number = s.reduce((sum, v) => sum + v * v, 0);
-  const ps: number = px * ux + pz * uz;
-  return s.map((v) => 1 / n + (v * ps) / sss);
+
+  // The equality rows and their values: the plane's two coordinates, or the
+  // line's one.
+  const equalities: { a: number[]; b: number }[] = [
+    { a: points.map(() => 1), b: 1 },
+  ];
+  if (det > 1e-12 * trace * trace) {
+    const frame = physicalSupportSpanContacts.WORLD;
+    const polygon: Polygon.IPoint[] = Polygon.hull(
+      points.map((p) => Polygon.local(frame, p)),
+    );
+    const local: Polygon.IPoint = Polygon.local(frame, pivot);
+    const inside: { x: number; z: number } = Polygon.inside(polygon, local)
+      ? pivot
+      : Polygon.world(frame, Polygon.project(polygon, local));
+    equalities.push({ a: dx, b: inside.x - cx }, { a: dz, b: inside.z - cz });
+  } else {
+    const ux: number = Math.sqrt(sxx / trace) * (sxz < 0 ? -1 : 1);
+    const uz: number = Math.sqrt(szz / trace);
+    const s: number[] = dx.map((v, i) => v * ux + dz[i]! * uz);
+    const ps: number = (pivot.x - cx) * ux + (pivot.z - cz) * uz;
+    equalities.push({
+      a: s,
+      b: Math.min(Math.max(...s), Math.max(Math.min(...s), ps)),
+    });
+  }
+  const solved: number[] | null = solveDenseActiveSet({
+    quadratic: points.map((_, i) => points.map((__, j) => (i === j ? 1 : 0))),
+    linear: points.map(() => 0),
+    rows: [
+      ...equalities.flatMap((row) => [
+        { a: row.a, b: row.b },
+        { a: row.a.map((v) => -v), b: -row.b },
+      ]),
+      ...points.map((_, i) => ({
+        a: points.map((__, j) => (i === j ? -1 : 0)),
+        b: 0,
+      })),
+    ],
+  });
+  return solved ?? points.map(() => 1 / n);
 }

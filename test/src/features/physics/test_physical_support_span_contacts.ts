@@ -11,7 +11,8 @@ import { TestValidator } from "@nestia/e2e";
  * 3. With the capture point inside the support the capture region is the whole
  *    reachable region, nonempty.
  * 4. The weight's shares at the centroid are 1/N each; at any pivot they sum to
- *    one and their weighted mean of the contacts is the pivot.
+ *    one, their weighted mean of the contacts is the pivot and none is
+ *    negative, with N = 6's pivot 0.01 m inside an edge.
  */
 export function test_physical_support_span_contacts(): void {
   for (const n of [2, 3, 4, 6, 8]) {
@@ -39,6 +40,7 @@ export function test_physical_support_span_contacts(): void {
         Contacts.captureRegion({
           polygon: Contacts.hull(contacts),
           capture: { x: 0, y: 0 },
+          swing: { x: 0, y: 0.3 },
           omega: 3.3,
           remaining: 0.3,
           range: 0.6,
@@ -49,10 +51,14 @@ export function test_physical_support_span_contacts(): void {
     );
     TestValidator.predicate(
       `${n}: even shares`,
-      even.every((share: number): boolean => Math.abs(share - 1 / n) < 1e-12),
+      even.every((share: number): boolean => Math.abs(share - 1 / n) < 1e-9),
     );
     const pivot: { x: number; z: number } =
-      n === 2 ? { x: 0.1, z: 0 } : { x: 0.05, z: -0.04 };
+      n === 2
+        ? { x: 0.1, z: 0 }
+        : n === 6
+          ? { x: 0.25 * Math.cos(Math.PI / 6), z: 0.25 * Math.sin(Math.PI / 6) }
+          : { x: 0.05, z: -0.04 };
     const shares: number[] = Contacts.loads(contacts, pivot).map(
       (load: Contacts.ILoad): number => load.share,
     );
@@ -65,9 +71,10 @@ export function test_physical_support_span_contacts(): void {
     TestValidator.predicate(
       `${n}: shares at the pivot`,
       Math.abs(shares.reduce((a: number, b: number): number => a + b, 0) - 1) <
-        1e-12 &&
-        Math.abs(at("x") - pivot.x) < 1e-12 &&
-        Math.abs(at("z") - pivot.z) < 1e-12,
+        1e-9 &&
+        Math.abs(at("x") - pivot.x) < 1e-9 &&
+        Math.abs(at("z") - pivot.z) < 1e-9 &&
+        shares.every((share: number): boolean => share >= -1e-12),
     );
   }
 }
