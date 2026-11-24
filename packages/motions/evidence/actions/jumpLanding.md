@@ -24,7 +24,7 @@ States each input, its unit and the result.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the turned absorption root centers over the stance, and the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed.
+The footprints are offsets in the heading's frame at the destination, lifted by the surface's height; the turned absorption root centers over the stance, and the stood root is the standing law's root over them (`stand.root`), and touchdown and absorption are heading-frame offsets from it with its lean removed; touchdown lies behind by the caller's capture offset (`jump`), no fixed distance.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

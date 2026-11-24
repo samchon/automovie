@@ -6,7 +6,7 @@ States the physical entry and refusal; helper documentation distinguishes the ra
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths.
+The same terminal heel/knee/toe producer supplies endpoint preparation and timed push. Its achieved canonical states supply both ballistic COM endpoints and root-frame free goals, replacing independently reconstructed takeoff geometry while retaining the existing minimum-jerk and sine flight paths. The root touches down behind the footprints by the flight's capture offset (Hof 2008; Pratt et al. 2006), its horizontal speed over the balance audit's pendulum frequency, the speed in closed form D / (T + 1 / omega), so the extrapolated centre lands over the feet.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

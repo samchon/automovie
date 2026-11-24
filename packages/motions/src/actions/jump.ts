@@ -290,6 +290,7 @@ export namespace jump {
       rise,
       upright.lean,
       headingChange !== 0,
+      0,
     );
     const landing: Record<
       "left" | "right",
@@ -384,7 +385,52 @@ export namespace jump {
       l,
       rise,
     );
-    const { vy, T, launch, land }: jumpFlight.IFlight = flight;
+    // The landing's capture (Hof 2008, Hum Mov Sci 27:112; Pratt et al. 2006,
+    // the capture point): the root touches down behind the footprints by the
+    // flight's horizontal speed over the body's pendulum frequency, the one
+    // the balance audit reads (`resolveAutoMovieCenterOfMass.pendulum`), so
+    // the extrapolated centre of mass, the centre plus its speed over that
+    // frequency, lies over the feet as they land: the place a body can stop
+    // over. The speed is the flight's own, the distance its centre covers
+    // over its time; the offset shortens that distance, so with `D` the
+    // distance to a landing over the feet and `T` the flight's time (set by
+    // the heights alone) the speed is `D / (T + 1 / omega)` in closed form.
+    const omega: number = resolveAutoMovieCenterOfMass.frequency(
+      resolveAutoMovieCenterOfMass.pendulum(l),
+    );
+    const ahead: number = Math.max(
+      0,
+      (comL.x - comT.x) * Math.sin((landingHeading * Math.PI) / 180) +
+        (comL.z - comT.z) * Math.cos((landingHeading * Math.PI) / 180),
+    );
+    const caught: jumpLanding.ILanding = jumpLanding.of(
+      body,
+      to,
+      landingHeading,
+      rise,
+      upright.lean,
+      headingChange !== 0,
+      ahead / (flight.T + 1 / omega) / omega,
+    );
+    const caughtEnds: jumpEndpoints.IEnds = jumpEndpoints.of(
+      endProps,
+      rootT,
+      caught.touched,
+      landing,
+      landingHeading,
+      landingKnee,
+    );
+    const caughtCentre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+      model,
+      readMassBones(caughtEnds.end.pose, prepareHumanPoseResolution()()),
+    );
+    const { vy, T, launch, land }: jumpFlight.IFlight = jumpFlight.solve(
+      comT,
+      caughtCentre,
+      context.params.apex,
+      l,
+      rise,
+    );
 
     // A manner retimes what the performer does, not the flight gravity fixes.
     const tempo: number = AutoMovieMotionManner.of(
@@ -467,8 +513,8 @@ export namespace jump {
       body,
       takeoff,
       heading,
-      start: startState,
-      end: endState,
+      start: caughtEnds.start,
+      end: caughtEnds.end,
     };
     /** The actual current landing demands before swing clearance. */
     const landingAtRoot: (
@@ -507,12 +553,12 @@ export namespace jump {
       (rotation?.somersault ?? 0) !== 0 || (rotation?.twist ?? 0) !== 0;
     const absorption: fitJumpAbsorption.IPath =
       rotates && rise === 0
-        ? fitJumpAbsorption(body, landed, land, absorb, (root, elapsed, read) =>
+        ? fitJumpAbsorption(body, caught, land, absorb, (root, elapsed, read) =>
             landingAtRoot(root, touchdown + elapsed, read),
           )
-        : { root: landed.absorbed, acceleration: 0 };
+        : { root: caught.absorbed, acceleration: 0 };
     const absorbRoot: ReturnType<typeof jumpPath.prepare> = jumpPath.prepare(
-      rootL,
+      caught.touched,
       land,
       absorption.root,
       { x: 0, y: 0, z: 0 },
@@ -600,8 +646,8 @@ export namespace jump {
       rotates
         ? jumpTouchdownRotation(
             body,
-            landed,
-            comL,
+            caught,
+            caughtCentre,
             headingChange,
             context.subject,
           )

@@ -13,8 +13,10 @@ import { stand } from "./stand";
  * box's top, a step's): both feet flat on footprints at the destination, at the
  * body's rest separation and turned out by the stance angle, and the root's
  * three places of the landing: stood upright as the standing law places a root
- * over those feet, touched down 0.03 hip heights below that and 0.1 back of the
- * feet, and absorbed 0.12 below it.
+ * over those feet, touched down 0.03 hip heights below that and back of the
+ * feet by the flight's capture offset (jump: its speed over the pendulum
+ * frequency, so the extrapolated centre lands over the feet), and absorbed 0.12
+ * below it.
  */
 export namespace jumpLanding {
   /** The landing's places. */
@@ -41,6 +43,8 @@ export namespace jumpLanding {
    * @param rise The landing surface's height, metres.
    * @param lean The upright stand's forward lean, metres.
    * @param turned Whether the footprints receive the flight's fractional yaw.
+   * @param back How far behind the footprints' middle the root touches down,
+   *   metres: the flight's capture offset (jump).
    * @returns The places.
    */
   export function of(
@@ -49,7 +53,8 @@ export namespace jumpLanding {
     heading: number,
     rise: number,
     lean: number,
-    turned: boolean = false,
+    turned: boolean,
+    back: number,
   ): ILanding {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     const l: number = m.hipHeight;
@@ -98,7 +103,11 @@ export namespace jumpLanding {
     };
     return {
       feet,
-      touched: offset({ x: 0, y: -TOUCH_DROP * l, z: -TOUCH_BACK * l - lean }),
+      touched: offset({
+        x: 0,
+        y: -TOUCH_DROP * l,
+        z: -back - lean,
+      }),
       stood,
       absorbed: offset({
         x: 0,
@@ -114,12 +123,6 @@ export namespace jumpLanding {
  * (provisional).
  */
 const TOUCH_DROP: number = 0.03;
-
-/**
- * How far behind the footprints' middle the root touches down, hip heights
- * (provisional).
- */
-const TOUCH_BACK: number = 0.1;
 
 /**
  * How far below the standing root the absorption bottoms out, hip heights
