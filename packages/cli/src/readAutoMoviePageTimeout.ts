@@ -11,10 +11,5 @@ export function readAutoMoviePageTimeout(
 ): number {
   if (value === undefined) return 120_000;
 
-  const timeout: number = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(timeout) || timeout < 1 || timeout > 2_147_483_647)
-    throw new Error(
-      "Page --timeout-ms must be an integer from 1 to 2147483647 milliseconds",
-    );
-  return timeout;
+  return typeof value === "number" ? value : Number(value);
 }
