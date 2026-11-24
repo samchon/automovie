@@ -22,9 +22,9 @@ Use one definition per subject or action. Vary it through parameters or a seed. 
 
 ## Places
 
-Build a place as [Environments](../3d-modeling/environments.md) sets out. Keep the production's dimensions and scene-specific selections in its set source.
+Build a place as [Environments](../3d-modeling/environments.md) sets out, and cite its items' named frames for entrances, seats and other motion targets. Keep the production's dimensions and scene-specific selections in its set source.
 
-Supply the prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because a runtime without `fps` keys moving camera paths at 24 frames per second whatever the film's rate. Actors who use overlapping floors or cross between supports cite the appropriate walkable surfaces in their staged support windows. Check the assembled scene and its contacts with the production's own capture.
+Supply the prepared stage to the shot's `defineShot` builder and the prepared runtime records to `compileDefinedShot`. Give the runtime's `frameFormat` the film's `fps`, `width` and `height`, because without `fps` moving camera paths are keyed at 24 frames per second. Actors who use overlapping floors or cross between supports cite the appropriate walkable surfaces in their staged support windows. Check the assembled scene and its contacts with the production's own capture.
 
 ## Shared modules
 

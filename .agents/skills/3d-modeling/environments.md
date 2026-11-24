@@ -4,7 +4,7 @@ Build a place, such as a furnished room, a terrain or an outdoor set, from the a
 
 ## Choosing the source
 
-Choose the source by what defines the thing:
+Choose each piece's source by what defines it:
 
 | Defined by | Source |
 | --- | --- |
@@ -27,7 +27,7 @@ Type a coordinate only when no relation states the intent. A relation keeps its 
 ## One occurrence, then many
 
 1. Build one occurrence of the room, stand or group.
-2. Check its support in the environment's `support` findings. Every piece should be `resting`, `declared` or `wall-borne`. Give a `floating` or `sunk` piece a relation or a support.
+2. Check its support in the environment's `support` findings: give each `floating` or `sunk` piece a relation or a support until every piece is `resting`, `declared` or `wall-borne`.
 3. Check its look in a capture at the shot camera under [visual debugging](../visual-debugging/SKILL.md).
 4. Repeat the checked occurrence through a kit count, a woods outline or an instance set.
 
