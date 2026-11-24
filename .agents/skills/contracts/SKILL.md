@@ -39,3 +39,5 @@ Review files the adapter cannot address, including default-export configs and gl
 ## Editing the checklists
 
 Adding, renaming or removing an H2 requires an authorized migration of its Evidence references.
+
+The common, design and implementation checklists ship to productions through scaffold placeholders, where declarations answer in their doc comments. Keep their text true there as well as here.
