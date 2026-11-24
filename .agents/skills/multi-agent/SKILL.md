@@ -7,26 +7,24 @@ description: Sets when automovie runs subagents and how the main session supervi
 
 ## Default
 
-Work as a single agent. Start subagents only on the user's explicit order and in the number the user names.
+Work alone. Use subagents only when the user orders them, as many as the user names.
 
 Add no role, gate, phase or schedule the user did not order.
 
 ## Supervision
 
-The main session audits the subagents' work every 10 minutes, after the fact, for violations of:
+Every 10 minutes, the main session audits the subagents' finished work for violations of:
 
 - the user's orders;
 - the user's decisions;
 - the skills' rules.
 
-It warns on each violation and orders its correction.
-
-It adds no approval step of its own for routine work. Approvals the project's rules reserve, such as destructive or outward-facing actions and the user's decisions, still go to the user.
+It warns and orders a fix for each violation, and adds no approval step of its own. Approvals the rules reserve still go to the user.
 
 ## Subagents
 
-A Claude Code subagent stops mid-task with a message like this:
+A Claude Code subagent stops with a message like this:
 
 > My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
 
-Claude Code compacts the context on its own. The main session resumes the same subagent with a firm order to continue the task and never stop for context. A mild request to resume does not hold.
+Its context compacts on its own. Resume the same subagent with a firm order to continue; a mild request does not hold.
