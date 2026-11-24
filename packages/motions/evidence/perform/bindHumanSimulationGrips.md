@@ -10,11 +10,11 @@ A grip of the reduced-order coupling (#3437, #3439) is the same hand-on-person r
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Finds the windows, maps their bones to segments and picks the colliders; the per-step bindings and groups are the body planner's.
+Finds the windows, maps their bones to the segments that carry them (the hand to its forearm when the window welds it) and picks the colliders among the hand's own; the per-step bindings and groups are the body planner's.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No grip is assumed; a profile without the arm's segments is refused by name instead of binding another chain.
+No grip is assumed; a profile without the upper arm's or forearm's segment is refused by name instead of binding another chain, and the bound collider is always one of the hand's own, never the forearm's.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

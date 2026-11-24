@@ -12,9 +12,10 @@ import { weldHumanSimulationProfile } from "./weldHumanSimulationProfile";
 
 /**
  * One performer's sampled displayed bones as the solver takes them: the profile
- * the window solves, its hands welded with their fingers at the first step
- * (`weldHumanSimulationProfile`), and each step's segment frames inside that
- * profile's joints (`admitHumanSimulationTargets`).
+ * the window solves, welded at the first step (`weldHumanSimulationProfile`:
+ * the hands with their fingers, the toes, and the neck with the head), and each
+ * step's segment frames inside that profile's joints
+ * (`admitHumanSimulationTargets`).
  *
  * @param body The performer's body.
  * @param bones The displayed bones at each step of the window.
@@ -67,7 +68,7 @@ export function sampleHumanSimulationTargets(
 export namespace sampleHumanSimulationTargets {
   /** The profile a window solves for a performer and its targets. */
   export interface IResult {
-    /** The body's profile with its hands welded with their fingers. */
+    /** The body's profile with its welds applied. */
     profile: IAutoMoviePhysicalProfile;
 
     /** The world segment frames the solver tracks, by step. */

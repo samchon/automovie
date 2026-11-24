@@ -1,4 +1,10 @@
-import { HUMANOID_REST_FRAME, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  HUMANOID_REST_FRAME,
+  Quaternion,
+  Vector3,
+  physicalJointRelativeRotation,
+  projectPhysicalJointRotation,
+} from "@automovie/engine";
 import type {
   AutoMovieClinicalAxis,
   AutoMovieHumanoidBone,
@@ -23,9 +29,16 @@ import type {
  * articulation (`resolvePoseBone`). A bone on a three-axis joint takes the
  * articulation `inverse(rest) * inverse(parent) * world`, lowered to clinical
  * angles by the rig's codec (`poseJointCodec`) exactly: the angles compose back
- * to the solved rotation. So is a bone whose joint declares the rig's
- * sequential chart (`IAutoMoviePhysicalJoint.order`), which the solver keeps
- * its rotation in, its locked angles at rest. Any other bone on a joint with
+ * to the solved rotation. A joint with fewer axes is read in its reduced
+ * coordinates, as a generalized-coordinate model keeps it: a revolute joint's
+ * transform is a function of its own coordinates alone (Featherstone 2008,
+ * Rigid Body Dynamics Algorithms, ch. 4, joint models; MuJoCo's hinge, whose
+ * body frames follow from `qpos`), so the solver's drift off a locked axis is
+ * not displayed. One that declares the rig's sequential chart
+ * (`IAutoMoviePhysicalJoint.order`) takes its solved joint rotation admitted to
+ * its own set by the engine's projection (`projectPhysicalJointRotation`: each
+ * chart angle in its free axis's range, a locked one at zero), laid on the
+ * displayed parent and lowered by the codec. Any other bone on a joint with
  * fewer axes is read on its own mobile axes: the solver keeps such a joint on
  * the coordinates of its free axes (`projectPhysicalJointRotation`: with
  * positive w each free coordinate is `2 atan(q.axis / w)` and a locked one is
@@ -38,11 +51,13 @@ import type {
  * differ from the clinical ranges they are read from). Children are read
  * against the displayed parent, so no difference passes down the chain. An
  * owned root keeps its own articulation and moves the pose's root transform
- * instead. A hand the solver owns holds its welded fingers at their
+ * instead. A segment the solver owns holds the bones welded into it at their
  * articulation at the window's start (`held`), the shape the solver gave the
- * welded hand. Positions follow the rotations through the rig's rest
+ * welded carrier. Positions follow the rotations through the rig's rest
  * translations; the solver's joint drift, within its contact tolerance, is not
- * displayed. A pose with no owned bone is returned as given.
+ * displayed, so a displayed distal end may lie off its solved collider by the
+ * drift the reduced readout drops. A pose with no owned bone is returned as
+ * given.
  *
  * @param body The performer's body, the rig the pose articulates.
  * @param codec The rig's joint codec, built with the body's joint axes and the
@@ -51,7 +66,7 @@ import type {
  * @param kinematic The pose the window replaces, at the same instant.
  * @param frame The solver's world states of this performer's segments, by bone.
  * @param owned The bones the solver owns at the instant.
- * @param held Each welded hand's finger joints at the window's start.
+ * @param held Each carrier's welded joints at the window's start.
  * @returns The displayed pose.
  */
 export function readHumanSimulatedPose(
@@ -72,9 +87,9 @@ export function readHumanSimulatedPose(
     ),
   );
   const replaced: Map<AutoMovieHumanoidBone, IAutoMovieJointPose> = new Map();
-  for (const hand of owned)
-    for (const finger of held.get(hand) ?? [])
-      replaced.set(finger.bone, finger);
+  for (const carrier of owned)
+    for (const welded of held.get(carrier) ?? [])
+      replaced.set(welded.bone, welded);
   const world: Map<AutoMovieHumanoidBone, IAutoMovieQuaternion> = new Map();
   let root: IAutoMovieTransform | null = kinematic.root;
 
@@ -143,6 +158,45 @@ export function readHumanSimulatedPose(
           Quaternion.multiply(bone.rest.rotation, articulation(bone.bone)),
         ),
       );
+    } else if (
+      solved !== undefined &&
+      joint !== undefined &&
+      joint.axes.length < 3 &&
+      frame[joint.parent] !== undefined &&
+      world.has(joint.parent as AutoMovieHumanoidBone)
+    ) {
+      // A fewer-axis joint in its sequential chart, read in reduced
+      // coordinates: the solved joint rotation admitted to the joint's own
+      // set, its locked angles at rest, and laid on the displayed parent.
+      const shown: IAutoMovieQuaternion = Quaternion.multiply(
+        Quaternion.multiply(
+          world.get(joint.parent as AutoMovieHumanoidBone)!,
+          joint.parentFrame.rotation,
+        ),
+        Quaternion.multiply(
+          projectPhysicalJointRotation(
+            joint,
+            physicalJointRelativeRotation(
+              {
+                [joint.parent]: frame[joint.parent]!,
+                [joint.child]: solved,
+              },
+              joint,
+            ),
+          ),
+          Quaternion.inverse(joint.childFrame.rotation),
+        ),
+      );
+      const [flexion, abduction, twist]: [number, number, number] =
+        codec.angles(
+          bone.bone,
+          Quaternion.multiply(
+            Quaternion.inverse(bone.rest.rotation),
+            Quaternion.multiply(Quaternion.inverse(parent), shown),
+          ),
+        );
+      replaced.set(bone.bone, { bone: bone.bone, flexion, abduction, twist });
+      world.set(bone.bone, shown);
     } else if (solved !== undefined) {
       const relative: IAutoMovieQuaternion = Quaternion.multiply(
         Quaternion.inverse(bone.rest.rotation),

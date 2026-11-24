@@ -19,24 +19,26 @@ import type {
 } from "@automovie/interface";
 
 /**
- * A performer's physical profile as a simulated window solves it: each hand and
- * every segment below it welded into one rigid body.
+ * A performer's physical profile as a simulated window solves it: the segments
+ * a reference humanoid gives no joint welded into the segment above them.
  *
- * A ragdoll does not simulate the fingers as their own small bodies: their
- * phalanges weigh grams on joints a hand's own motion whips past their limits,
- * so standard practice welds them to the hand, or drives them kinematically
- * from it (Unity's and Unreal's ragdoll setups put one body on the hand;
- * Unreal's Physics Asset tool skips bones below a minimum size). Here each
- * finger's colliders and mass are moved into its hand's frame at the pose the
- * window starts in, and the combined mass, centre and inertia are the
- * parallel-axis sum (`combinePhysicalMassProperties`). The displayed fingers
- * then keep the performance's own curl over the solved hand
+ * The weld set is the MuJoCo humanoid's (google-deepmind/mujoco,
+ * `model/humanoid/humanoid.xml` at 395129bbd3976e9e6163ab5d3c480234f665d55a,
+ * Apache-2.0, "Copyright 2021 DeepMind Technologies Limited"): its `hand_right`
+ * and `hand_left` bodies carry no joint and ride their lower arms, its `head`
+ * carries none and rides the torso, and its feet are leaf bodies with no toes.
+ * So each hand with its fingers is welded into its forearm, each foot's toes
+ * into the foot, and the neck with the head into the chest (`WELDS`). Each
+ * welded segment's colliders and mass are moved into its carrier's frame at the
+ * pose the window starts in, and the combined mass, centre and inertia are the
+ * parallel-axis sum (`combinePhysicalMassProperties`). The displayed welded
+ * bones keep their articulation at the window's start over the solved carrier
  * (`readHumanSimulatedPose`), the kinematic drive.
  *
  * @param profile The performer's profile.
  * @param displayed The displayed world segment frames at the window's start,
  *   every segment.
- * @returns A fresh profile with the hands welded; the same total mass.
+ * @returns A fresh profile with the welds applied; the same total mass.
  */
 export function weldHumanSimulationProfile(
   profile: IAutoMoviePhysicalProfile,
@@ -48,24 +50,25 @@ export function weldHumanSimulationProfile(
       ...(children.get(joint.parent) ?? []),
       joint.child,
     ]);
+
+  // Each welded bone by the segment that carries it: a weld's root and every
+  // bone below it ride the root's parent segment.
   const welded: Map<string, string> = new Map();
-  const below: (hand: string, bone: string) => void = (
-    hand: string,
+  const below: (carrier: string, bone: string) => void = (
+    carrier: string,
     bone: string,
   ): void => {
-    for (const child of children.get(bone) ?? []) {
-      welded.set(child, hand);
-      below(hand, child);
-    }
+    welded.set(bone, carrier);
+    for (const child of children.get(bone) ?? []) below(carrier, child);
   };
-  for (const hand of HANDS)
-    if (
-      profile.segments.some(
-        (s: IAutoMoviePhysicalSegment): boolean => s.bone === hand,
-      )
-    )
-      below(hand, hand);
+  for (const root of WELDS) {
+    const joint: IAutoMoviePhysicalJoint | undefined = profile.joints.find(
+      (candidate: IAutoMoviePhysicalJoint): boolean => candidate.child === root,
+    );
+    if (joint !== undefined) below(joint.parent, root);
+  }
   if (welded.size === 0) return profile;
+
   const segment: (bone: string) => IAutoMoviePhysicalSegment = (
     bone: string,
   ): IAutoMoviePhysicalSegment =>
@@ -75,14 +78,21 @@ export function weldHumanSimulationProfile(
   const segments: IAutoMoviePhysicalSegment[] = profile.segments
     .filter((s: IAutoMoviePhysicalSegment): boolean => !welded.has(s.bone))
     .map((s: IAutoMoviePhysicalSegment): IAutoMoviePhysicalSegment => {
-      const fingers: string[] = [...welded]
-        .filter(([, hand]: [string, string]): boolean => hand === s.bone)
+      const riders: string[] = [...welded]
+        .filter(
+          ([bone, carrier]: [string, string]): boolean =>
+            carrier === s.bone &&
+            profile.segments.some(
+              (candidate: IAutoMoviePhysicalSegment): boolean =>
+                candidate.bone === bone,
+            ),
+        )
         .map(([bone]: [string, string]): string => bone);
-      if (fingers.length === 0) return s;
+      if (riders.length === 0) return s;
       const frame: IAutoMovieRigidTransform = displayed[s.bone]!;
       const inverse: IAutoMovieQuaternion = Quaternion.inverse(frame.rotation);
 
-      // A finger's frame in the hand's frame at the window's start.
+      // A rider's frame in its carrier's frame at the window's start.
       const relative: (bone: string) => IAutoMovieRigidTransform = (
         bone: string,
       ): IAutoMovieRigidTransform => ({
@@ -109,22 +119,22 @@ export function weldHumanSimulationProfile(
         },
       ];
       const shapes: IAutoMoviePhysicalShape[] = [...s.shapes];
-      for (const bone of fingers) {
-        const finger: IAutoMoviePhysicalSegment = segment(bone);
+      for (const bone of riders) {
+        const rider: IAutoMoviePhysicalSegment = segment(bone);
         const at: IAutoMovieRigidTransform = relative(bone);
         parts.push({
-          mass: finger.mass,
-          centerOfMass: place(at, finger.centerOfMass),
-          inertia: finger.inertia,
+          mass: rider.mass,
+          centerOfMass: place(at, rider.centerOfMass),
+          inertia: rider.inertia,
           inertiaRotation: Quaternion.multiply(
             at.rotation,
-            finger.inertiaRotation,
+            rider.inertiaRotation,
           ),
         });
-        for (const shape of finger.shapes)
+        for (const shape of rider.shapes)
           shapes.push({
             ...shape,
-            id: `${bone}.${shape.id}`,
+            id: weldHumanSimulationProfile.shapeId(bone, shape.id),
             transform: {
               position: place(at, shape.transform.position),
               rotation: Quaternion.multiply(
@@ -147,16 +157,14 @@ export function weldHumanSimulationProfile(
     });
   const carrier: (bone: string) => string = (bone: string): string =>
     welded.get(bone) ?? bone;
-  const exclusions: NonNullable<
-    IAutoMoviePhysicalProfile["collisionExclusions"]
-  > = [];
+  const exclusions: weldHumanSimulationProfile.Exclusion[] = [];
   for (const pair of profile.collisionExclusions ?? []) {
     const a: string = carrier(pair.a);
     const b: string = carrier(pair.b);
     if (
       a !== b &&
       !exclusions.some(
-        (kept: (typeof exclusions)[number]): boolean =>
+        (kept: weldHumanSimulationProfile.Exclusion): boolean =>
           (kept.a === a && kept.b === b) || (kept.a === b && kept.b === a),
       )
     )
@@ -189,21 +197,49 @@ export function weldHumanSimulationProfile(
       (joint: IAutoMoviePhysicalJoint): boolean => !welded.has(joint.child),
     ),
     collisionExclusions: exclusions,
-    provenance: `${profile.provenance} Fingers welded to their hands at a simulated window's first pose.`,
+    provenance: `${profile.provenance} Hands with their fingers, toes, and neck with head welded at a simulated window's first pose (MuJoCo humanoid.xml).`,
   };
 }
 
-/** Companion readers of {@link weldHumanSimulationProfile}. */
+/** Companion readers and types of {@link weldHumanSimulationProfile}. */
 export namespace weldHumanSimulationProfile {
+  /** A collision exclusion of the solved profile. */
+  export type Exclusion = NonNullable<
+    IAutoMoviePhysicalProfile["collisionExclusions"]
+  >[number];
+
   /**
-   * Each welded hand's finger joints in a pose: the joints of the body's
-   * segments the solved profile folds into a hand, by that hand. A window holds
-   * the displayed fingers at these, the shape the hand was welded in.
+   * The id a welded segment's collider takes on its carrier: the welded bone's
+   * name, a dot, and the collider's own id.
+   *
+   * @param bone The welded bone.
+   * @param shape The collider's id on that bone's segment.
+   * @returns The collider's id on the carrier.
+   */
+  export function shapeId(bone: string, shape: string): string {
+    return `${bone}.${shape}`;
+  }
+
+  /**
+   * The welded bone a carrier's collider came from, the inverse of `shapeId`.
+   *
+   * @param shape The collider's id on the carrier.
+   * @returns The welded bone's name, or null for the carrier's own collider.
+   */
+  export function rider(shape: string): string | null {
+    const dot: number = shape.indexOf(".");
+    return dot < 0 ? null : shape.slice(0, dot);
+  }
+
+  /**
+   * Each carrier's welded joints in a pose: the joints of the body's segments
+   * the solved profile folds into a carrier, by that carrier. A window holds
+   * the displayed welded bones at these, the articulation they were welded in.
    *
    * @param body The performer's body.
    * @param profile The welded profile.
    * @param pose The pose at the window's start.
-   * @returns The finger joints by hand bone.
+   * @returns The welded joints by carrier bone.
    */
   export function held(
     body: IAutoMovieMotionHumanBody,
@@ -234,5 +270,17 @@ export namespace weldHumanSimulationProfile {
   }
 }
 
-/** The canonical rig's hand bones, the bodies the fingers weld to. */
-const HANDS: readonly string[] = ["leftHand", "rightHand"];
+/**
+ * The roots of the subtrees welded into their parent segment: the MuJoCo
+ * humanoid's jointless `hand_right`, `hand_left` and `head`, and the toes its
+ * leaf feet do not have (`model/humanoid/humanoid.xml` @395129bb). The rig's
+ * neck stands between the chest and the head, where MuJoCo's head rides the
+ * torso directly, so the neck is the head's weld root.
+ */
+const WELDS: readonly string[] = [
+  "leftHand",
+  "rightHand",
+  "leftToes",
+  "rightToes",
+  "neck",
+];

@@ -21,7 +21,7 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * physical reaches it: from the step an impulse lands on it, its subtree tracks
  * its sampled poses with the profile's bounded joint motors until the window
  * hands back; while it grips a simulated partner, the gripping arm's chain and
- * the hand's subtree track the grip as the solver's collider binding, fitted
+ * the hand's carrier track the grip as the solver's collider binding, fitted
  * together with the partner's when both grip each other (a coupled group). A
  * performer the window releases (a fall, or `released`) is wholly physical with
  * its tracking withdrawn from its release step, a passive body under gravity,
@@ -30,6 +30,11 @@ import type { bindHumanSimulationGrips } from "./bindHumanSimulationGrips";
  * what struck it, not sag. When the window hands back, every segment returns to
  * authored motion over the last `handoff` seconds through the engine's
  * continuous return.
+ *
+ * The struck set and the bindings change only at an impulse, a grip's first and
+ * past-last steps and a partner's release, so the window is cut at those steps
+ * once, and each span's physical subtree and bindings are built once and shared
+ * by its steps.
  *
  * @param props The performer, its solved profile and samples, the mode and the
  *   window's schedule.
@@ -52,11 +57,9 @@ export function planHumanSimulationBody(
           joint.child === segment.bone,
       ),
   )!.bone;
-  const closures: Map<string, string[]> = new Map();
+
+  // The subtrees below a set of bones, the root excepted, in code-unit order.
   const closure = (bones: ReadonlySet<string>): string[] => {
-    const key: string = [...bones].sort(ordinal).join(",");
-    const known: string[] | undefined = closures.get(key);
-    if (known !== undefined) return known;
     const found: Set<string> = new Set();
     const visit = (bone: string): void => {
       if (found.has(bone)) return;
@@ -64,16 +67,76 @@ export function planHumanSimulationBody(
       for (const child of children.get(bone) ?? []) visit(child);
     };
     for (const bone of bones) if (bone !== root) visit(bone);
-    const result: string[] = [...found].sort(ordinal);
-    Object.freeze(result);
-    closures.set(key, result);
-    return result;
+    return [...found].sort(ordinal);
   };
   const own: readonly bindHumanSimulationGrips.IGrip[] = props.grips.filter(
     (grip: bindHumanSimulationGrips.IGrip): boolean =>
       grip.subject === props.subject,
   );
   const release: number = props.releases.get(props.subject)!;
+
+  // Whether a grip binds at a step: inside its span, its partner not yet
+  // released.
+  const binds = (grip: bindHumanSimulationGrips.IGrip, step: number): boolean =>
+    grip.from <= step &&
+    step <= grip.to &&
+    step < props.releases.get(grip.partner)!;
+
+  // The steps where the struck set or the bindings can change, each the first
+  // step of a span.
+  const cuts: number[] = [
+    ...new Set<number>([
+      1,
+      ...props.impulses
+        .filter(
+          (impulse: planHumanSimulationBody.IImpulse): boolean =>
+            impulse.body === props.subject,
+        )
+        .map((impulse: planHumanSimulationBody.IImpulse): number =>
+          Math.max(1, impulse.step),
+        ),
+      ...own.flatMap((grip: bindHumanSimulationGrips.IGrip): number[] => [
+        Math.max(1, grip.from),
+        grip.to + 1,
+        props.releases.get(grip.partner)!,
+      ]),
+    ]),
+  ].sort((a: number, b: number): number => a - b);
+  const spans: planHumanSimulationBody.ISpan[] = cuts.map(
+    (first: number): planHumanSimulationBody.ISpan => {
+      const struck: Set<string> = new Set(
+        props.impulses
+          .filter(
+            (impulse: planHumanSimulationBody.IImpulse): boolean =>
+              impulse.body === props.subject && impulse.step <= first,
+          )
+          .map(
+            (impulse: planHumanSimulationBody.IImpulse): string => impulse.bone,
+          ),
+      );
+      const bindings: IAutoMoviePhysicalContactBinding[] = [];
+      for (const grip of own)
+        if (binds(grip, first)) {
+          for (const bone of grip.chain) struck.add(bone);
+          bindings.push({
+            id: `grip-${grip.side}-${grip.partner}`,
+            kind: "contact",
+            chain: [...grip.chain],
+            source: { ...grip.source },
+            target: { body: grip.partner, ...grip.target },
+            weight: 1,
+            compression: 0,
+            iterations: planHumanSimulationBody.ITERATIONS,
+            tolerance: planHumanSimulationBody.CONTACT_TOLERANCE,
+          });
+        }
+      return { first, dynamicSegments: closure(struck), bindings };
+    },
+  );
+  const still: string[] = closure(new Set());
+
+  // The span a step lies in: the last whose first step is at or before it.
+  let span: number = 0;
   const targets: IAutoMoviePhysicalSimulationInput.ITarget[] =
     props.targets.map(
       (
@@ -81,47 +144,19 @@ export function planHumanSimulationBody(
         step: number,
       ): IAutoMoviePhysicalSimulationInput.ITarget => {
         if (step === 0 || step > props.end)
-          return { strength: 1, segments, dynamicSegments: closure(new Set()) };
+          return { strength: 1, segments, dynamicSegments: still };
         if (step >= release) return { strength: 0, segments };
-        const struck: Set<string> = new Set(
-          props.impulses
-            .filter(
-              (impulse: planHumanSimulationBody.IImpulse): boolean =>
-                impulse.body === props.subject && impulse.step <= step,
-            )
-            .map(
-              (impulse: planHumanSimulationBody.IImpulse): string =>
-                impulse.bone,
-            ),
-        );
-        const bindings: IAutoMoviePhysicalContactBinding[] = [];
-        for (const grip of own)
-          if (
-            grip.from <= step &&
-            step <= grip.to &&
-            step < props.releases.get(grip.partner)!
-          ) {
-            for (const bone of grip.chain) struck.add(bone);
-            bindings.push({
-              id: `grip-${grip.side}-${grip.partner}`,
-              kind: "contact",
-              chain: [...grip.chain],
-              source: { ...grip.source },
-              target: { body: grip.partner, ...grip.target },
-              weight: 1,
-              compression: 0,
-              iterations: planHumanSimulationBody.ITERATIONS,
-              tolerance: planHumanSimulationBody.CONTACT_TOLERANCE,
-            });
-          }
+        while (span + 1 < spans.length && spans[span + 1]!.first <= step)
+          span++;
+        const at: planHumanSimulationBody.ISpan = spans[span]!;
         const group: string | undefined = props.groups
           .get(step)
           ?.get(props.subject);
         return {
           strength: 1,
           segments,
-          dynamicSegments: closure(struck),
-          ...(bindings.length === 0 ? {} : { bindings }),
+          dynamicSegments: at.dynamicSegments,
+          ...(at.bindings.length === 0 ? {} : { bindings: at.bindings }),
           ...(group === undefined ? {} : { coupledGroup: group }),
         };
       },
@@ -182,14 +217,29 @@ export namespace planHumanSimulationBody {
     bone: string;
   }
 
+  /**
+   * The steps from one cut to the next, over which the solver owns the same
+   * segments under the same bindings.
+   */
+  export interface ISpan {
+    /** The span's first step. */
+    first: number;
+
+    /** The segments the solver owns, in code-unit order. */
+    dynamicSegments: string[];
+
+    /** The grips bound over the span. */
+    bindings: IAutoMoviePhysicalContactBinding[];
+  }
+
   /** What one performer's body is planned from. */
   export interface IProps {
     /** The performer, the body's id. */
     subject: string;
 
     /**
-     * The profile the window solves for the performer, its hands welded with
-     * their fingers.
+     * The profile the window solves for the performer, welded as
+     * `weldHumanSimulationProfile` welds it.
      */
     profile: IAutoMoviePhysicalProfile;
 

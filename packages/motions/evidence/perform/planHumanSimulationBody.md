@@ -18,11 +18,11 @@ Every gain and limit is the profile's; the only body settings are zero root actu
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O((S + 1) * B) for S steps and B segments, with the descendant closure memoised per distinct bone set.
+O(C * B + S) for C cuts (the impulses, each grip's first and past-last steps and its partner's release), B segments and S steps: each span's physical subtree and bindings are built once, when the window is planned, and its steps take them.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Steps with the same owned set share one frozen array, so the engine's ownership selection sees no change between them.
+Steps of one span share its owned-set array and bindings, so the engine's ownership selection sees no change between them; nothing is cached across calls.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
