@@ -365,6 +365,7 @@ export function refineRecoveryCameraMapFeasible(
                   );
                   const value: number =
                     (norm / policy.maximumReprojectionErrorPx) ** 2 - 1;
+                  if (value === Infinity) return null;
                   values.push(value);
                   at++;
                 }

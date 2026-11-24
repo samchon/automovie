@@ -352,10 +352,13 @@ export function RecoveryEventRegionTopology(
       ? vertices.size - byEdge.size + component.cells.length
       : null;
     const closedBoundary: boolean = component.unresolvedBoundary.length === 0;
-    const genus: number | null =
+    // Twice the genus is an integer count; an odd one names no surface.
+    const twiceGenus: number | null =
       manifold && orientable && closedBoundary && euler !== null
-        ? (2 - component.cycles.length - euler) / 2
+        ? 2 - component.cycles.length - euler
         : null;
+    const genus: number | null =
+      twiceGenus !== null && twiceGenus % 2 === 0 ? twiceGenus / 2 : null;
     component.topology = {
       vertices: vertices.size,
       edges: byEdge.size,

@@ -150,7 +150,6 @@ export function physicalSpanPose(input: {
 export namespace physicalSpanPose {
   /** The selection that makes every segment kinematic while a span plays. */
   export const KINEMATIC: string[] = [];
-  Object.freeze(KINEMATIC);
 
   /** The leg fit's iteration budget. */
   export const ITERATIONS: number = 16;

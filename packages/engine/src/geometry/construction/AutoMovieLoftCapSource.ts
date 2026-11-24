@@ -133,16 +133,14 @@ function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;
   const end: IAutoMovieLoftChain.ILayer | undefined =
     chain.layers[pole.end === "bottom" ? 0 : chain.layers.length - 1];
-  if (source !== null && typeof source === "object") {
-    const passed: IChecked | undefined = CHECKED.get(source);
-    if (
-      passed !== undefined &&
-      passed.chain === chain &&
-      passed.layer === end &&
-      passed.pole === pole
-    )
-      return;
-  }
+  const passed: IChecked | undefined = CHECKED.get(source);
+  if (
+    passed !== undefined &&
+    passed.chain === chain &&
+    passed.layer === end &&
+    passed.pole === pole
+  )
+    return;
   check(chain, pole);
   CHECKED.set(source, { chain, layer: end!, pole });
 }
@@ -150,12 +148,7 @@ function validate(chain: IAutoMovieLoftChain, pole: Pole): void {
 /** The full check of a cap source against its chain's end. */
 function check(chain: IAutoMovieLoftChain, pole: Pole): void {
   const source: IAutoMovieLoftCapSource.ISource = pole.source!;
-  if (
-    source === null ||
-    typeof source !== "object" ||
-    !Array.isArray(source.point) ||
-    source.point.length !== 3
-  )
+  if (source.point.length !== 3)
     throw new Error(
       `The retained original ${pole.end} cap of ${chain.name} is malformed.`,
     );

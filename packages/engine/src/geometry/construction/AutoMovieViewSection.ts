@@ -246,7 +246,9 @@ export namespace AutoMovieViewSection {
         GIRTH_TOLERANCE,
         ITERATIONS,
       );
-      const value: Measured | null = r === null ? null : family.at(r).source;
+      // A refused local trial ends the bracket with no shoulder to read.
+      const value: Measured | null =
+        r === null || localRefusal ? null : family.at(r).source;
       const failure: string | null =
         value === null
           ? "no finite bracketed shoulder estimate"

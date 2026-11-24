@@ -144,7 +144,7 @@ function scan(
   // both axes being non-null made `{flexion:150, abduction:null}` pass while its
   // identical twin `{flexion:150, abduction:0}` (the same quaternion) failed
   // (#1245).
-  if (typeof constraint.swingDeg === "number") {
+  if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {
     const swing: number = swingConeAngle(
       joint.flexion ?? 0,
       joint.abduction ?? 0,

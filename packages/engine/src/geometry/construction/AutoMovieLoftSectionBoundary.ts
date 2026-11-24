@@ -190,9 +190,7 @@ function admit(
     bridge === null ||
     bridge === undefined ||
     bridge.kind !== "native" ||
-    !Array.isArray(bridge.ends) ||
     bridge.ends.length !== 2 ||
-    !Array.isArray(bridge.controls) ||
     bridge.controls.length !== 2
   )
     return "The present native continuation law is malformed.";
@@ -231,13 +229,10 @@ function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
     inputs !== null &&
     inputs !== undefined &&
     !chained(inputs) &&
-    Array.isArray(inputs.extents) &&
-    Array.isArray(inputs.shoulders) &&
     inputs.extents.length === 4 &&
     inputs.shoulders.length === 4 &&
     [...inputs.extents, ...inputs.shoulders].every(
       (jet: Scalar, q: number): boolean =>
-        Array.isArray(jet) &&
         jet.length === 3 &&
         jet[0] > 0 &&
         (q < 4 || jet[0] < 1),
@@ -254,7 +249,7 @@ function control(value: IAutoMovieLoftSectionBoundaryControls): boolean {
     value !== null &&
     value !== undefined &&
     [value.value, value.slope, value.curvature].every(
-      (row: number[]): boolean => Array.isArray(row) && row.length === 8,
+      (row: number[]): boolean => row.length === 8,
     )
   );
 }

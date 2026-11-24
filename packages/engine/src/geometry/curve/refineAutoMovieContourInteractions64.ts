@@ -72,8 +72,6 @@ export function refineAutoMovieContourInteractions64<
     0,
   );
   const axes: number[] = [0, 1, 2].filter((k: number): boolean => k !== drop);
-  const encoded: WeakMap<AutoMovieVector3Tuple, [bigint, bigint]> =
-    new WeakMap();
   const bits: DataView = new DataView(new ArrayBuffer(8));
   const integer = (x: number): bigint => {
     // Every finite binary64 value scaled by 2^1074 is an integer, including subnormals.
@@ -87,11 +85,10 @@ export function refineAutoMovieContourInteractions64<
         : ((1n << 52n) | fraction) << BigInt(exponent - 1);
     return value >> 63n ? -unsigned : unsigned;
   };
-  const encode = (p: AutoMovieVector3Tuple): [bigint, bigint] => {
-    if (!encoded.has(p))
-      encoded.set(p, [integer(p[axes[0]]), integer(p[axes[1]])]);
-    return encoded.get(p)!;
-  };
+  const encode = (p: AutoMovieVector3Tuple): [bigint, bigint] => [
+    integer(p[axes[0]]),
+    integer(p[axes[1]]),
+  ];
   const orient = (
     a: AutoMovieVector3Tuple,
     b: AutoMovieVector3Tuple,

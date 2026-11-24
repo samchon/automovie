@@ -118,7 +118,7 @@ function grid(
     if (old !== undefined) return old;
     const owner: IAutoMovieSolidSurface = prepared.surfaces.get(piece)!;
     const value: readonly number[] = owner.point!(station, phase);
-    if (!Array.isArray(value) || value.length !== 3)
+    if (value.length !== 3)
       fail("Original profile grid has no finite Point0.");
     const point: Point = [value[0]!, value[1]!, value[2]!];
     curve.set(phase, point);

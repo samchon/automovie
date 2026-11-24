@@ -50,7 +50,6 @@ export namespace AutoMovieLoftSectionSource {
       source.kind !== "view" ||
       source.data === null ||
       source.data?.kind !== "view" ||
-      !Array.isArray(source.rows) ||
       chain.basis !== "spline" ||
       chain.rule !== "polar"
     )
@@ -118,11 +117,7 @@ export namespace AutoMovieLoftSectionSource {
     const source: IAutoMovieLoftSectionSource.ISource | undefined =
       chain.nativeSource;
     if (source === undefined) return true;
-    if (
-      source === null ||
-      source.kind !== "view" ||
-      !Array.isArray(source.rows)
-    )
+    if (source === null || source.kind !== "view")
       throw new Error("The present native availability record is malformed.");
     return chain.layers.every(
       (layer: IAutoMovieLoftChain.ILayer, index: number): boolean =>
@@ -213,7 +208,6 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   if (value.kind === "basis")
     return (
       value.order > 0 &&
-      Array.isArray(value.rows) &&
       value.rows.length === 3 &&
       [0, 1, 2].every(
         (q: number): boolean =>
@@ -224,8 +218,6 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
   return (
     value.kind === "native" &&
     value.inputs !== null &&
-    Array.isArray(value.inputs?.extents) &&
-    Array.isArray(value.inputs.shoulders) &&
     value.inputs.extents.length === 4 &&
     value.inputs.shoulders.length === 4 &&
     [0, 1, 2, 3].every(
@@ -235,7 +227,7 @@ function family(value: IAutoMovieLoftSectionSourceFamily): boolean {
     ) &&
     [...value.inputs.extents, ...value.inputs.shoulders].every(
       (jet: readonly number[], q: number): boolean =>
-        Array.isArray(jet) && jet[0]! > 0 && (q < 4 || jet[0]! < 1),
+        jet[0]! > 0 && (q < 4 || jet[0]! < 1),
     )
   );
 }

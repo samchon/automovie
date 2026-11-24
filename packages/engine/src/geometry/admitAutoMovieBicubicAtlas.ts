@@ -17,20 +17,10 @@ export function admitAutoMovieBicubicAtlas(
 ): IAutoMovieAdmitBicubicAtlas.IResult {
   if (
     input.type !== "bicubic-atlas" ||
-    typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
-    !Array.isArray(input.controls) ||
-    !Array.isArray(input.patches) ||
     !(input.tolerance > 0) ||
     input.maxCells < 1 ||
-    input.maxVertices < 3 ||
-    (input.cellBudgetPolicy !== undefined &&
-      input.cellBudgetPolicy !== "retain-coarse" &&
-      input.cellBudgetPolicy !== "omit-unresolved") ||
-    (input.boundaryAuthorities !== undefined &&
-      !Array.isArray(input.boundaryAuthorities)) ||
-    (input.boundaryBindings !== undefined &&
-      !Array.isArray(input.boundaryBindings))
+    input.maxVertices < 3
   )
     throw new Error(
       "A named bicubic atlas needs finite tolerance and positive cell/vertex budgets",
@@ -47,17 +37,8 @@ export function admitAutoMovieBicubicAtlas(
     const fit: NonNullable<IAutoMovieBicubicAtlasGeometry["sourceFit"]> =
       input.sourceFit;
     if (
-      !fit ||
-      typeof fit.qualified !== "boolean" ||
-      (fit.maximumResidual !== null && !(fit.maximumResidual >= 0)) ||
-      !Array.isArray(fit.unqualifiedPatches) ||
-      fit.unqualifiedPatches.some(
-        (id: string): boolean => typeof id !== "string",
-      ) ||
-      !Array.isArray(fit.diagnostics) ||
-      fit.diagnostics.some(
-        (message: string): boolean => typeof message !== "string",
-      )
+      fit.maximumResidual !== null &&
+      !(fit.maximumResidual >= 0)
     )
       diagnostics.push(
         "Malformed source-fit qualification metadata; finite structural geometry remains displayable",
@@ -87,10 +68,8 @@ export function admitAutoMovieBicubicAtlas(
       input.patches[i]!;
     if (
       !patch ||
-      typeof patch.id !== "string" ||
       !patch.id.trim() ||
       names.has(patch.id) ||
-      !Array.isArray(patch.controlIds) ||
       patch.controlIds.length !== 16 ||
       Array.from(
         { length: 16 },
@@ -114,10 +93,8 @@ export function admitAutoMovieBicubicAtlas(
   for (const authority of input.boundaryAuthorities ?? []) {
     if (
       !authority ||
-      typeof authority.id !== "string" ||
       !authority.id.trim() ||
       authorities.has(authority.id) ||
-      !Array.isArray(authority.controlIds) ||
       authority.controlIds.length !== 4 ||
       Array.from(
         { length: 4 },
@@ -130,8 +107,7 @@ export function admitAutoMovieBicubicAtlas(
       diagnostics.push(
         "Omitted structurally invalid canonical boundary authority",
       );
-      if (authority && typeof authority.id === "string")
-        invalidAuthorities.add(authority.id);
+      if (authority) invalidAuthorities.add(authority.id);
       continue;
     }
     authorities.set(authority.id, authority);
@@ -152,7 +128,6 @@ export function admitAutoMovieBicubicAtlas(
       !names.has(binding.patch) ||
       ![0, 1, 2, 3].includes(binding.side) ||
       !authorities.has(binding.authority) ||
-      typeof binding.normalFan !== "string" ||
       !binding.normalFan.trim() ||
       bindings.has(key) ||
       binding.start < 0 ||

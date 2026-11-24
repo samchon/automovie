@@ -46,6 +46,8 @@ export function RecoveryChartBoundaryNetworkAugment(
     return (
       a > 0 &&
       b > 0 &&
+      a !== Infinity &&
+      b !== Infinity &&
       n.reduce(
         (sum: number, value: number, k: number): number =>
           sum + (value / a) * (before[k]! / b),

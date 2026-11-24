@@ -179,6 +179,11 @@ export namespace AutoMovieViewSectionConic {
     section: Pick<IAutoMovieViewSection.ISection, "conics" | "box" | "girth">,
   ): string | null {
     if (section.conics.failure !== null) return section.conics.failure;
+
+    // A girth is a positive length; the quadrature reports one it could not
+    // admit as no length at all (`girth`).
+    if (!(section.girth > 0))
+      return "the actual native arclength has no admitted finite quadrature";
     const e: readonly number[] = section.box.extents;
     for (let q: number = 0; q < 4; q++)
       for (let k: number = 0; k <= 96; k++) {

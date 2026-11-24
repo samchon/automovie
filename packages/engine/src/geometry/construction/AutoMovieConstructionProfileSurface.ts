@@ -127,7 +127,7 @@ export function AutoMovieConstructionProfileSurface(
 
 /** Every supplied local value or derivative has two genuine finite components. */
 function pair(value: readonly number[]): void {
-  if (!Array.isArray(value) || value.length !== 2)
+  if (value.length !== 2)
     fail("Original profile requires two finite local components.");
 }
 
@@ -138,7 +138,7 @@ function pair(value: readonly number[]): void {
 function frameRow(frame: IAutoMovieLoftSectionFrame): number[] {
   const row: number[] = [];
   for (const key of ["origin", "u", "v"] as const) {
-    if (!Array.isArray(frame[key]) || frame[key].length !== 3)
+    if (frame[key].length !== 3)
       fail("Original profile has incomplete or nonfinite plane data.");
     row.push(...frame[key]);
   }

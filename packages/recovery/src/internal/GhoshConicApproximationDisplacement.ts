@@ -60,7 +60,10 @@ export function GhoshConicApproximationDisplacement(
       roots = stable === 0 ? [-b / (2 * a)] : [stable / a, c / stable];
     }
   }
+  // A vanishing leading coefficient leaves no root to divide out.
   const valid: number[] = roots.filter((t: number): boolean =>
+    t !== Infinity &&
+    t !== -Infinity &&
     l.every((value: number, index: number): boolean => {
       const displacement: number =
         t * (index === 0 ? m0 : index === 1 ? m1 : m2);

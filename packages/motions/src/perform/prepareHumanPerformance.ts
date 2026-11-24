@@ -11,6 +11,7 @@ import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceSoft } from "./HumanPerformanceSoft";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanPropFlight } from "./HumanPropFlight";
+import { prepareHumanGripHand } from "./prepareHumanGripHand";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { prepareHumanPerformanceOrder } from "./prepareHumanPerformanceOrder";
 import { prepareHumanSegment } from "./prepareHumanSegment";
@@ -32,8 +33,20 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * 4. Each action's display record (`prepareHumanSegment`) and the carries of the
  *    holds it ends, in the depth-first order of the people's reads
  *    (`prepareHumanPerformanceOrder`);
- * 5. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
+ * 5. Each hand span's hand course (`prepareHumanGripHand`), which a held prop
+ *    is read on from then on;
+ * 6. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
  *    (`HumanPerformanceSoft.prepare`).
+ *
+ * No display read recurses through a held prop by dependency, not by a guard:
+ * once prepared, a held prop's frame reads its span's hand course (step 5),
+ * which evaluates no posture. The hand course itself is solved on the holder's
+ * prepared display, which reads the held prop only where a law's display reads
+ * the prop its own hand holds at that second; no law's does: every law that
+ * reads a held prop (`AutoMovieMotionHumanHeld.of`, `context.prop(...).frame`)
+ * reads it while it plans, on the performance as placed before it, and its
+ * display posture writes the hand from that plan (the audit greps
+ * `prop\(`...`\)\.frame\(` inside each plan's `posture` and `write`).
  *
  * @param self The resolved performance, every action placed.
  */
@@ -83,6 +96,13 @@ export function prepareHumanPerformance(
           held.carry = HumanSegmentCarry.capture(person, held);
     },
   );
+
+  // Each hand span's hand course, on the actions just prepared: from here
+  // on a held prop is read on it, never on the holder's live posture.
+  for (const grips of self.grips.values())
+    for (const grip of grips)
+      if (grip.bone === undefined && grip.mount === undefined)
+        grip.hand = prepareHumanGripHand(self, grip);
 
   self.hits = HumanPerformanceHits.solve(self);
   for (const prop of self.props.values())

@@ -140,7 +140,7 @@ export function fitRecoveryHomographyConsensus(
     population: first.length,
     forbiddenSupport,
     trials,
-    requiredTrialsAtForbiddenSupport: required,
+    requiredTrialsAtForbiddenSupport: required !== Infinity ? required : null,
     conditionalTrialTargetMet:
       trials >= required && trials >= budget.minimumRansacTrials,
     forbiddenOverlapFound: score.indices.length >= forbiddenSupport,

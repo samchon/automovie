@@ -71,7 +71,7 @@ export namespace AutoMovieLoftFrameSource {
         : same(layer.frameSlopes, source.jet.first) &&
           same(layer.frameCurvatures, source.jet.second);
     if (
-      typeof source.axis.jet !== "function" ||
+      source.axis.jet === undefined ||
       source.station !== layer.y ||
       !same(layer.frame, source.frame) ||
       !derivatives

@@ -78,13 +78,6 @@ export function generateAutoMovieContourLoft64(
   const document: IAutoMoviePrepareContourDocument64Document =
     prepareAutoMovieContourDocument64(input);
   const events: IAutoMovieContourLoft64.IEvent[] = document.declaredEvents;
-  if (
-    !sink ||
-    typeof sink.vertex !== "function" ||
-    typeof sink.triangle !== "function" ||
-    typeof sink.construction !== "function"
-  )
-    throw new Error("A complete synchronous contour output sink is required");
   let vertexCount: number = 0,
     triangleCount: number = 0,
     outputFailed: boolean = false;

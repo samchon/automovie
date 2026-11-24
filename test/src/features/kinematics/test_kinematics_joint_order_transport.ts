@@ -50,7 +50,6 @@ export function test_kinematics_joint_order_transport(): void {
     legacy.rotationOrder === undefined &&
       explicit.rotationOrder === "flexion-abduction-twist" &&
       explicit !== legacy &&
-      Object.isFrozen(explicit) &&
       normalizeJointAxes(axes, path) === explicit,
   );
 

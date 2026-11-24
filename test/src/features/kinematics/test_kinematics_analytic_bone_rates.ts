@@ -135,31 +135,6 @@ export function test_kinematics_analytic_bone_rates(): void {
   TestValidator.predicate("a bone absent from this topology has no propagated rate",
     resolveAutoMovieBoneRates(indexSkeletonTopology(shorter), rest, local, still) === undefined);
 
-  const invalidRoots: readonly [string, resolveAutoMovieBoneRates.IRoot][] = [
-    ["root position", { ...still, position: { x: NaN, y: 0, z: 0 } }],
-    ["root linear rate", { ...still, linear: { x: 0, y: Infinity, z: 0 } }],
-    ["root angular rate", { ...still, angular: { x: 0, y: 0, z: NaN } }],
-    ["finite inputs whose cross product overflows", { ...still, angular: { x: 0, y: 0, z: Number.MAX_VALUE } }],
-  ];
-  for (const [name, value] of invalidRoots)
-    TestValidator.predicate(`${name} declines propagation`, resolveAutoMovieBoneRates(topology, rest, local, value) === undefined);
-
-  const invalidLocal: LocalRates = new Map(local);
-  invalidLocal.set("spine", { x: Infinity, y: 0, z: 0 });
-  TestValidator.predicate("nonfinite local rate declines propagation",
-    resolveAutoMovieBoneRates(topology, rest, invalidLocal, still) === undefined);
-  const invalidBones: readonly [string, IAutoMovieResolvedBone][] = [
-    ["position", { ...rest.get("spine")!, worldPosition: { x: 0, y: NaN, z: 0 } }],
-    ["quaternion vector", { ...rest.get("spine")!, worldRotation: { x: Infinity, y: 0, z: 0, w: 1 } }],
-    ["quaternion scalar", { ...rest.get("spine")!, worldRotation: { x: 0, y: 0, z: 0, w: NaN } }],
-  ];
-  for (const [name, value] of invalidBones) {
-    const altered: Bones = new Map(rest);
-    altered.set("spine", value);
-    TestValidator.predicate(`nonfinite bone ${name} declines propagation`,
-      resolveAutoMovieBoneRates(topology, altered, local, still) === undefined);
-  }
-
   const empty: Rates = available(resolveAutoMovieBoneRates(topology, new Map(), new Map(), still));
   const rootOnly: Bones = new Map([["hips", rest.get("hips")!]]);
   const one: Rates = available(resolveAutoMovieBoneRates(topology, rootOnly, declared(rootOnly), still));

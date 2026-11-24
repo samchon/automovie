@@ -64,7 +64,7 @@ export namespace RecoveryBezierFit {
     for (let i: number = 1; i < points.length; i++) {
       const length: number = distance(points[i - 1]!, points[i]!);
       const total: number = cumulative[i - 1]! + length;
-      if (!(length > 0) || total <= cumulative[i - 1]!)
+      if (!(length > 0) || total === Infinity || total <= cumulative[i - 1]!)
         throw new Error(
           "Adjacent observations collapse or physical length is unresolved",
         );
@@ -285,7 +285,8 @@ export namespace RecoveryBezierFit {
       beta: number = (bx * aa - ax * ab) / determinant;
     const fallback: boolean =
       !(determinant > 64 * Number.EPSILON * aa * bb) ||
-      !(alpha > 0 && beta > 0);
+      !(alpha > 0 && beta > 0) ||
+      alpha + beta === Infinity;
     if (fallback) {
       alpha = distance(start, end) / 3;
       beta = alpha;
@@ -335,6 +336,8 @@ export namespace RecoveryBezierFit {
         split = i + 1;
       }
     }
+    if (sample + bound === Infinity)
+      throw new Error("Curve fitting arithmetic is unresolved");
     return { sample, bound, split };
   }
 
@@ -354,7 +357,8 @@ export namespace RecoveryBezierFit {
   /** Normalize a measurable tangent without inventing a direction at degeneracy. */
   function unit(a: AutoMovieVector3Tuple): AutoMovieVector3Tuple {
     const length: number = Math.hypot(...a);
-    if (!(length > 0)) throw new Error("Observation tangent is unresolved");
+    if (!(length > 0) || length === Infinity)
+      throw new Error("Observation tangent is unresolved");
     return scale(a, 1 / length);
   }
 }

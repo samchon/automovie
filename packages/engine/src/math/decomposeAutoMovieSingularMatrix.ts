@@ -36,7 +36,7 @@ export function decomposeAutoMovieSingularMatrix(
     );
   let scale: number = 0;
   for (const row of rows) {
-    if (!Array.isArray(row) || row.length !== width)
+    if (row.length !== width)
       throw new Error("singular-matrix: rectangular rows required");
     for (const value of row) {
       scale = Math.max(scale, Math.abs(value));

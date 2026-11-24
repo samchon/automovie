@@ -120,8 +120,7 @@ export function gatePerformShotStageAction(
         );
       if (
         action.onHit !== undefined &&
-        (typeof action.onHit.force !== "number" ||
-          !(action.onHit.force >= 0 && action.onHit.force <= 1))
+        !(action.onHit.force >= 0 && action.onHit.force <= 1)
       )
         out.push(
           "range",
@@ -198,10 +197,7 @@ export function gatePerformShotStageAction(
       return;
     }
     case "react":
-      if (
-        typeof action.force !== "number" ||
-        !(action.force >= 0 && action.force <= 1)
-      )
+      if (!(action.force >= 0 && action.force <= 1))
         out.push(
           "range",
           `${path}.force`,
@@ -218,10 +214,7 @@ export function gatePerformShotStageAction(
       });
       return;
     case "emote":
-      if (
-        typeof action.intensity !== "number" ||
-        !(action.intensity >= 0 && action.intensity <= 1)
-      )
+      if (!(action.intensity >= 0 && action.intensity <= 1))
         out.push(
           "range",
           `${path}.intensity`,

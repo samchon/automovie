@@ -85,16 +85,6 @@ export function* tessellateAutoMovieBicubicAtlas64(
   IAutoMovieBicubicAtlasTessellation64.Summary,
   void
 > {
-  if (
-    input.retainTriangleParameters !== undefined &&
-    typeof input.retainTriangleParameters !== "boolean"
-  )
-    throw new Error("Triangle parameter retention must be boolean");
-  if (
-    input.retainPatchCoefficients !== undefined &&
-    typeof input.retainPatchCoefficients !== "boolean"
-  )
-    throw new Error("Patch coefficient retention must be boolean");
   const prepared: IAutoMovieBicubicAtlasPlan64.IResult =
     AutoMovieBicubicAtlasPlan64(input, SIDES, CORNERS);
   const registered: IAutoMovieBicubicAtlasRegistry64.IResult =

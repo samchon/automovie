@@ -98,6 +98,13 @@ export function triangulateRecoverySceneTrack(
     homogeneous[1]! / homogeneous[3]!,
     homogeneous[2]! / homogeneous[3]!,
   ];
+  // A near-zero homogeneous weight overflows the point it divides.
+  if (
+    point.some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    )
+  )
+    return { point: null, reasons: ["nonfinite-point"] };
   const measured: ReturnType<IAutoMovieRecoveryScenePointEvaluationOperation.Operation> =
     evaluateRecoveryScenePoint(point, observations, poses, charts, policy);
   return { point: measured.accepted ? point : null, reasons: measured.reasons };

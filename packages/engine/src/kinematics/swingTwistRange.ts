@@ -129,8 +129,9 @@ export namespace swingTwistRange {
     q: IAutoMovieQuaternion,
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieSwingTwistRange.IReading {
-    const basis: IAutoMovieSwingTwistBasis.IBasis =
-      swingTwistBasis.of(joint.axes);
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
     const unit: IAutoMovieQuaternion = Quaternion.normalize(q);
     const direction: IAutoMovieVector3 = Vector3.normalize(
       Quaternion.rotateVector(unit, basis.u),
@@ -199,8 +200,9 @@ export namespace swingTwistRange {
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
   ): IAutoMovieQuaternion {
-    const basis: IAutoMovieSwingTwistBasis.IBasis =
-      swingTwistBasis.of(joint.axes);
+    const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
+      joint.axes,
+    );
     const reading: IAutoMovieSwingTwistRange.IReading = read(q, joint);
     const interval: IAutoMovieAngleRange = constraint.swingTwist!.twist;
     const turned: number = nearestAngleAlias(reading.twist, interval);

@@ -9,7 +9,7 @@ import { overflowsBinary64 } from "./overflowsBinary64";
 export namespace AutoMovieMatrix3 {
   /** Matrix whose action on x is the right-handed cross product vector cross x. */
   export function skew(vector: readonly number[]): number[] {
-    if (!Array.isArray(vector) || vector.length !== 3)
+    if (vector.length !== 3)
       throw new Error(
         "matrix3: finite three-coordinate cross-product operand required",
       );
@@ -31,12 +31,7 @@ export namespace AutoMovieMatrix3 {
     left: readonly number[],
     right: readonly number[],
   ): number[] {
-    if (
-      !Array.isArray(left) ||
-      !Array.isArray(right) ||
-      left.length !== 9 ||
-      right.length !== 9
-    )
+    if (left.length !== 9 || right.length !== 9)
       throw new Error(
         "matrix3: two complete finite row-major matrices required",
       );
@@ -57,7 +52,7 @@ export namespace AutoMovieMatrix3 {
 
   /** Swap row and column indices into a fresh finite nine-number array. */
   export function transpose(matrix: readonly number[]): number[] {
-    if (!Array.isArray(matrix) || matrix.length !== 9)
+    if (matrix.length !== 9)
       throw new Error("matrix3: complete finite row-major matrix required");
     return [
       matrix[0]!,
@@ -80,12 +75,7 @@ export namespace AutoMovieMatrix3 {
     matrix: readonly number[],
     vector: readonly number[],
   ): [number, number, number] {
-    if (
-      !Array.isArray(matrix) ||
-      !Array.isArray(vector) ||
-      matrix.length !== 9 ||
-      vector.length !== 3
-    )
+    if (matrix.length !== 9 || vector.length !== 3)
       throw new Error(
         "matrix3: complete finite matrix and three-coordinate vector required",
       );

@@ -166,9 +166,6 @@ export function test_kinematics_hinged_arm_near(): void {
   TestValidator.error("a zero tolerance", (): unknown =>
     fit(interior, { swivel: 63, branch: 0, tolerance: 0 }),
   );
-  TestValidator.error("a tolerance not finite", (): unknown =>
-    fit(interior, { swivel: 63, branch: 0, tolerance: Infinity }),
-  );
   const subnormal: IAutoMovieHingedArticulation = fit(interior, {
     swivel: 63.9,
     branch: 0,

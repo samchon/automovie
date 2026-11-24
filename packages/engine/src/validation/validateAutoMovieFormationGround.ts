@@ -33,15 +33,6 @@ const FORMATION_GROUND_SAMPLE_METRES: number = 0.5;
 const FORMATION_GROUND_SUPPORT_DIRECTIONS: number = 16;
 
 /**
- * Memoize member selection only while placement data stays unchanged; a live
- * weak key may retain rows beyond one compile.
- */
-const formationGroundMemberCache: WeakMap<
-  IAutoMovieFormationPlacement,
-  IFormationGroundMember[]
-> = new WeakMap<IAutoMovieFormationPlacement, IFormationGroundMember[]>();
-
-/**
  * Pair a zero-based slot with its designed world-space point.
  *
  * Slot identity lets sparse exceptions/removal carry the same member through
@@ -57,8 +48,7 @@ const formationGroundMemberCache: WeakMap<
  * Directional selection shares one row per slot across its16 support
  * directions.
  *
- * Cached rows are owned by the formation identity cache while callers borrow
- * them.
+ * Rows belong to the one validation that measured them.
  */
 interface IFormationGroundMember {
   /** Zero-based slot this point belongs to. */
@@ -74,28 +64,20 @@ interface IFormationGroundMember {
  *
  * Measured members replace box corners that may not belong to the formation.
  *
- * Only sampled directional extrema are checked; mutable placement changes
- * invalidate the implicit identity-cache premise.
+ * Only sampled directional extrema are checked.
  *
  * Returned rows pair slot identity with designed world points.
  *
  * N slots times16 fixed directions cost O(N), returning at most16 distinct
  * members.
  *
- * A WeakMap shares completed rows for the same unchanged placement object,
- * without mutation invalidation.
- *
- * Live placement identities retain their cached rows; weak keys allow eventual
- * collection but no explicit compile release exists.
+ * Each call measures the placement afresh; no row outlives the call.
  */
 const formationGroundMembers: (
   formation: IAutoMovieFormationPlacement,
 ) => IFormationGroundMember[] = (
   formation: IAutoMovieFormationPlacement,
 ): IFormationGroundMember[] => {
-  const remembered: IFormationGroundMember[] | undefined =
-    formationGroundMemberCache.get(formation);
-  if (remembered !== undefined) return remembered;
   const looks: { x: number; z: number }[] = Array.from(
     { length: FORMATION_GROUND_SUPPORT_DIRECTIONS },
     (_: unknown, index: number): { x: number; z: number } => {
@@ -137,7 +119,6 @@ const formationGroundMembers: (
       ),
     ),
   ];
-  formationGroundMemberCache.set(formation, members);
   return members;
 };
 

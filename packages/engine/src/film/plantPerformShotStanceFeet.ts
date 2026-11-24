@@ -83,7 +83,8 @@ export function plantPerformShotStanceFeet(
   );
   const space: IAutoMovieStagedSet.ISuccess["scene"]["space"] | null =
     props.staged.scene.space ?? null;
-  let worldGround: ((x: number, z: number) => number) | undefined;
+  const worldGround: ((x: number, z: number) => number) | undefined =
+    space === null ? undefined : spaceGround(space);
   const scopes: ReturnType<typeof prepareStageSupport> =
     admission === undefined ? new Map() : prepareStageSupport(props.staged);
   const actors: string[] = [
@@ -170,7 +171,8 @@ export function plantPerformShotStanceFeet(
           }
           if (
             gaitBearing &&
-            typeof height === "number" &&
+            height !== null &&
+            height !== undefined &&
             motion !== undefined &&
             time <= motion.duration
           ) {
@@ -235,9 +237,8 @@ export function plantPerformShotStanceFeet(
       continue;
     }
     let modelGround: ((x: number, z: number) => number) | undefined;
-    if (scope === undefined && space !== null) {
-      const ground: (x: number, z: number) => number = (worldGround ??=
-        spaceGround(space));
+    if (scope === undefined && worldGround !== undefined) {
+      const ground: (x: number, z: number) => number = worldGround;
       modelGround = (x: number, z: number): number => {
         const plan: IAutoMovieVector3 = toWorld({ x, y: 0, z });
         return toModel({ x: plan.x, y: ground(plan.x, plan.z), z: plan.z }).y;

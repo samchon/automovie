@@ -81,7 +81,7 @@ export function selectRecoveryFeasibleTrial<State>(
     if (candidate.qualified) {
       qualified++;
       if (best.length === 0 || trialCost! < best[0]!.cost!) best[0] = candidate;
-    } else if (trialCost === null) {
+    } else if (trialCost === null || trialCost === Infinity) {
       trials.infeasible++;
       trials.lastFailure = "actual-qualification";
     } else if (trialCost >= cost) {

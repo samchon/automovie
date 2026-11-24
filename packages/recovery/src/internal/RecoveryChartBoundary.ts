@@ -106,7 +106,7 @@ export function RecoveryChartBoundary(
             (x: number, k: number): number => x - points[i]![k]!,
           );
         const denominator: number = Math.hypot(...a) * Math.hypot(...b);
-        if (!(denominator > 0))
+        if (!(denominator > 0) || denominator === Infinity)
           throw new Error(
             "A private boundary observation edge is collapsed or unrepresentable",
           );

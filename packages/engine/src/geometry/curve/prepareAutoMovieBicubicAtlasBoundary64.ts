@@ -38,11 +38,8 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
   const authorities: Map<string, readonly number[]> = new Map();
   for (const authority of input.boundaryAuthorities ?? []) {
     if (
-      !authority ||
-      typeof authority.id !== "string" ||
       !authority.id.trim() ||
       authorities.has(authority.id) ||
-      !Array.isArray(authority.controlIds) ||
       authority.controlIds.length !== 4 ||
       Array.from(
         { length: 4 },
@@ -102,15 +99,12 @@ export function prepareAutoMovieBicubicAtlasBoundary64(
   };
   const constraints: { id: number; point: AutoMovieVector3Tuple }[] = [];
   for (const binding of input.boundaryBindings ?? []) {
-    if (!binding)
-      throw new Error("A patch side requires a complete canonical binding");
     const key: string = `${binding.patch}:${binding.side}`,
       use: Use | undefined = uses.get(key);
     if (
       !use ||
       ![0, 1, 2, 3].includes(binding.side) ||
       !authorities.has(binding.authority) ||
-      typeof binding.normalFan !== "string" ||
       !binding.normalFan.trim() ||
       explicit.has(key)
     )

@@ -64,24 +64,19 @@ export function determinantAutoMovieMatrix3(matrix: readonly number[]): number {
       exponent: exponent ? exponent - 1075 : -1074,
     };
   };
-  const decomposed: ({ integer: bigint; exponent: number } | undefined)[] =
-    new Array(9);
   const exact: { integer: bigint; exponent: number }[] = [];
   for (const indices of PRODUCTS) {
     // A zero factor makes this exact product zero, even if another product
-    // overflows or underflows. Each nonzero input is decomposed at most once.
+    // overflows or underflows.
     if (
       matrix[indices[0]] === 0 ||
       matrix[indices[1]] === 0 ||
       matrix[indices[2]] === 0
     )
       continue;
-    const a: { integer: bigint; exponent: number } = (decomposed[indices[0]] ??=
-      parts(matrix[indices[0]]));
-    const b: { integer: bigint; exponent: number } = (decomposed[indices[1]] ??=
-      parts(matrix[indices[1]]));
-    const c: { integer: bigint; exponent: number } = (decomposed[indices[2]] ??=
-      parts(matrix[indices[2]]));
+    const a: { integer: bigint; exponent: number } = parts(matrix[indices[0]]);
+    const b: { integer: bigint; exponent: number } = parts(matrix[indices[1]]);
+    const c: { integer: bigint; exponent: number } = parts(matrix[indices[2]]);
     exact.push({
       integer: BigInt(indices[3]) * a.integer * b.integer * c.integer,
       exponent: a.exponent + b.exponent + c.exponent,

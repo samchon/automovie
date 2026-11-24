@@ -109,6 +109,13 @@ export function RecoveryChartControlRelations(
         for (const [source, weight] of flattened[term.id]!) {
           const product: number = term.weight * weight,
             combined: number = (result.get(source) ?? 0) + product;
+          if (
+            [product, combined].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
+            throw new Error("Affine coefficient composition became nonfinite");
           if (combined === 0) result.delete(source);
           else result.set(source, combined);
           if (result.size > input.maxTerms)
@@ -138,12 +145,21 @@ export function RecoveryChartControlRelations(
     for (const [source, weight] of sources) {
       minimumWeight = Math.min(minimumWeight, weight);
       weightSum += weight;
+      if (weightSum === Infinity || weightSum === -Infinity)
+        throw new Error("An affine source-weight sum became nonfinite");
       const point: readonly [number, number, number] | undefined =
         fixed.get(source);
       if (point)
         for (let axis: number = 0; axis < 3; axis++) {
           const product: number = weight * point[axis]!,
             sum: number = constant[axis]! + product;
+          if (
+            [product, sum].some(
+              (value: number): boolean =>
+                value === Infinity || value === -Infinity,
+            )
+          )
+            throw new Error("A folded affine position became nonfinite");
           constant[axis] = sum;
         }
       else terms.push({ id: source, weight });

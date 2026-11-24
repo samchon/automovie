@@ -15,7 +15,7 @@ export function differentiateRecoveryMapTangent(
       throw new Error("camera-map-chart: finite owned seed chart required");
   }
   const squared: number = Math.hypot(...translation) ** 2;
-  if (!(squared > 0)) return null;
+  if (!(squared > 0) || squared === Infinity) return null;
   const result: [number, number, number][] = tangent.map(
     (row: readonly [number, number, number]): [number, number, number] => {
       const product: number =
@@ -30,5 +30,11 @@ export function differentiateRecoveryMapTangent(
       ];
     },
   );
-  return result;
+  return result.some((row: readonly number[]): boolean =>
+    row.some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ),
+  )
+    ? null
+    : result;
 }

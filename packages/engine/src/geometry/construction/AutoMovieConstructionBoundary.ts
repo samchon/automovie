@@ -128,7 +128,7 @@ function rows(chain: IAutoMovieLoftChain): string | null {
     for (const key of ["coefficients", "slopes", "curvatures"] as const) {
       const row: number[] | undefined = layer[key];
       if (key === "curvatures" && row === undefined) continue;
-      if (!Array.isArray(row) || row.length !== 2 * chain.order)
+      if (row === undefined || row.length !== 2 * chain.order)
         return `The native chain ${chain.name} has incompatible density rows.`;
     }
     AutoMovieLoftSectionSource.validate(chain, index, index);

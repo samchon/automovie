@@ -73,16 +73,16 @@ export function prepareAutoMovieSurfaceFrame(
       };
       if ([offset.x, offset.y, offset.z].some(overflowsBinary64))
         throw new Error("Surface offsets exceed finite coordinates.");
-      return Object.freeze(offset);
+      return offset;
     },
   );
-  const frame: IAutoMovieSurfaceFrame = Object.freeze({
-    origin: Object.freeze(basis.origin),
-    forward: Object.freeze(basis.x),
-    normal: Object.freeze(basis.normal),
-  });
-  return Object.freeze({
+  const frame: IAutoMovieSurfaceFrame = {
+    origin: basis.origin,
+    forward: basis.x,
+    normal: basis.normal,
+  };
+  return {
     frame,
-    offsets: Object.freeze([offsets[0], offsets[1], offsets[2]] as const),
-  });
+    offsets: [offsets[0], offsets[1], offsets[2]] as const,
+  };
 }

@@ -73,7 +73,8 @@ export namespace AutoMovieViewParameter {
       parameter.type === "root"
         ? Math.max(Math.abs(parameter.pole), Math.abs(station))
         : parameter.top - parameter.bottom;
-    const tolerance: number = AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE * extent;
+    const tolerance: number =
+      AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE * extent;
     if (parameter.type === "root")
       return (
         (parameter.end === "bottom"
@@ -163,7 +164,7 @@ export namespace AutoMovieViewParameter {
 
   /**
    * First two derivatives of station in the selected coordinate, including its
-   * finite pole limit.
+   * finite pole limit; absent outside the square roots' domain.
    */
   export function inverseJet(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,
@@ -175,25 +176,26 @@ export namespace AutoMovieViewParameter {
         parameter.end === "bottom"
           ? station - parameter.pole
           : parameter.pole - station;
-      return checked([
-        2 * Math.sqrt(distance),
-        parameter.end === "bottom" ? 2 : -2,
-      ]);
+      if (!(distance >= 0)) return null;
+      return [2 * Math.sqrt(distance), parameter.end === "bottom" ? 2 : -2];
     }
     const a: number = station - parameter.bottom;
     const b: number = parameter.top - station;
-    return checked([Math.sqrt(a) * Math.sqrt(b), (b - a) / 2]);
+    if (!(a >= 0 && b >= 0)) return null;
+    return [Math.sqrt(a) * Math.sqrt(b), (b - a) / 2];
   }
 
   /**
    * Derivatives of one source coordinate in another coordinate at the same
-   * station.
+   * station; absent outside either map's domain or where a quotient or a
+   * product of the chain rule would leave binary64.
    */
   export function transferJet(
     source: IAutoMovieConstructionOutlineParameter | undefined,
     target: IAutoMovieConstructionOutlineParameter | undefined,
     station: number,
   ): [number, number] | null {
+    if (!contains(source, station) || !contains(target, station)) return null;
     if (source === undefined) return inverseJet(target, station);
     if (same(source, target)) return [1, 0];
 
@@ -203,13 +205,13 @@ export namespace AutoMovieViewParameter {
       target?.type === "angle" &&
       source.pole === (source.end === "bottom" ? target.bottom : target.top)
     ) {
+      if (!(station - target.bottom >= 0 && target.top - station >= 0))
+        return null;
       const lower: number = Math.sqrt(station - target.bottom);
       const upper: number = Math.sqrt(target.top - station);
-      return checked(
-        source.end === "bottom"
-          ? [upper / 2, -lower / 4]
-          : [lower / 2, upper / 4],
-      );
+      return source.end === "bottom"
+        ? [upper / 2, -lower / 4]
+        : [lower / 2, upper / 4];
     }
     if (
       source.type === "angle" &&
@@ -223,47 +225,86 @@ export namespace AutoMovieViewParameter {
       if (!(other > 0)) return null;
       const root: number = Math.sqrt(other);
       const coordinate: number = at(target, station);
-      return checked([2 / root, (2 * coordinate) / other / root]);
+      if (!divides(2, root) || !divides(2 * coordinate, other * root))
+        return null;
+      return [2 / root, (2 * coordinate) / other / root];
     }
     if (source.type === "angle" && target?.type === "angle") {
-      if (source.bottom === target.bottom) {
-        const common: number = station - source.bottom;
-        const other: number = source.top - station;
-        if (!(other > 0)) return null;
-        return checked([
-          Math.sqrt(target.top - station) / Math.sqrt(other),
-          common === 0
-            ? 0
-            : ((target.top - source.top) / other / 2) *
-              (Math.sqrt(common) / Math.sqrt(other)),
-        ]);
-      }
-      if (source.top === target.top) {
-        const common: number = source.top - station;
-        const other: number = station - source.bottom;
-        if (!(other > 0)) return null;
-        return checked([
-          Math.sqrt(station - target.bottom) / Math.sqrt(other),
-          common === 0
-            ? 0
-            : ((target.bottom - source.bottom) / other / 2) *
-              (Math.sqrt(common) / Math.sqrt(other)),
-        ]);
-      }
+      if (source.bottom === target.bottom)
+        return shared(
+          station - source.bottom,
+          source.top - station,
+          target.top - station,
+          target.top - source.top,
+        );
+      if (source.top === target.top)
+        return shared(
+          source.top - station,
+          station - source.bottom,
+          station - target.bottom,
+          target.bottom - source.bottom,
+        );
     }
     const inverse: [number, number] | null = inverseJet(target, station);
     const forward: [number, number] | null = jet(source, station);
-    if (inverse === null || forward === null) return null;
-    return checked([
+    if (
+      inverse === null ||
+      forward === null ||
+      !jetRepresentable(source, station) ||
+      !fits(forward[0], inverse[0]) ||
+      !fits(inverse[0], inverse[0]) ||
+      !fits(forward[1], inverse[0] * inverse[0]) ||
+      !fits(forward[0], inverse[1]) ||
+      !(
+        Math.abs(forward[1] * inverse[0] * inverse[0]) <=
+        Number.MAX_VALUE - Math.abs(forward[0] * inverse[1])
+      )
+    )
+      return null;
+    return [
       forward[0] * inverse[0],
       forward[1] * inverse[0] * inverse[0] + forward[0] * inverse[1],
-    ]);
+    ];
   }
 }
 
-/** Finite derivative results remain explicit availability, never saturation. */
-function checked(jet: [number, number]): [number, number] | null {
-  return jet;
+/**
+ * Two angle maps sharing an endpoint: the transfer's jet with the common
+ * square-root factor cancelled, absent where its ratio of roots overflows.
+ *
+ * @param common The station's distance from the shared endpoint.
+ * @param other Its distance from the source's other endpoint.
+ * @param reach Its distance from the target's other endpoint.
+ * @param shift The other endpoints' difference, target less source.
+ */
+function shared(
+  common: number,
+  other: number,
+  reach: number,
+  shift: number,
+): [number, number] | null {
+  if (!(other > 0 && reach >= 0 && common >= 0)) return null;
+  const root: number = Math.sqrt(other);
+  if (!divides(Math.sqrt(reach), root)) return null;
+  if (common === 0) return [Math.sqrt(reach) / root, 0];
+  if (!divides(shift, other) || !divides(Math.sqrt(common), root)) return null;
+  const ratio: number = shift / other / 2;
+  const roots: number = Math.sqrt(common) / root;
+  if (!fits(ratio, roots)) return null;
+  return [Math.sqrt(reach) / root, ratio * roots];
+}
+
+/** Whether a quotient's magnitude stays within binary64, before it is formed. */
+function divides(numerator: number, denominator: number): boolean {
+  return (
+    denominator !== 0 &&
+    Math.abs(numerator) <= Math.abs(denominator) * Number.MAX_VALUE
+  );
+}
+
+/** Whether a product's magnitude stays within binary64, before it is formed. */
+function fits(x: number, y: number): boolean {
+  return y === 0 || Math.abs(x) <= Number.MAX_VALUE / Math.abs(y);
 }
 
 /**

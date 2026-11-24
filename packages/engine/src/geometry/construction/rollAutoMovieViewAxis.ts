@@ -45,7 +45,9 @@ export function rollAutoMovieViewAxis(
   to: number,
   up: AutoMovieVector3Tuple,
 ): IAutoMovieViewAxis.IAxis | string {
-  if (!(to > from))
+  // The separation `to - from` overflows binary64 where the stations straddle
+  // zero farther apart than the largest double.
+  if (!(to > from) || (from < 0 && to > Number.MAX_VALUE + from))
     return "material roll needs finite increasing stations with finite positive separation";
   if (up.length !== 3)
     return "material roll target is not a finite three-component direction";

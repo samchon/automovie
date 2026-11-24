@@ -164,7 +164,7 @@ function project(
   // as the renderer reads it (`jointToQuaternion`'s `?? 0`). Gating the cone on
   // both axes being non-null let `{flexion:150, abduction:null}` keep an angle
   // its identical twin `{flexion:150, abduction:0}` was clamped out of (#1245).
-  if (typeof constraint.swingDeg === "number") {
+  if (constraint.swingDeg !== undefined && constraint.swingDeg !== null) {
     const fv: number = f ?? 0;
     const av: number = a ?? 0;
     // Pull toward the box point nearest neutral rather than toward neutral

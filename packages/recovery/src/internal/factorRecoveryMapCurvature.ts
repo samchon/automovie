@@ -64,6 +64,8 @@ export function factorRecoveryMapCurvature(
         for (let previous: number = 0; previous < axis; previous++)
           value -= point[previous]![axis]! * point[previous]![column]!;
         value /= root;
+        if (value === Infinity || value === -Infinity)
+          return { metric: null, rows: null, reason: "point-pivot" };
         point[axis]![column] = value;
       }
     }
@@ -73,6 +75,8 @@ export function factorRecoveryMapCurvature(
         for (let component: number = 0; component < 3; component++)
           value -=
             point[component]![3 + axis]! * point[component]![3 + column]!;
+        if (value === Infinity || value === -Infinity)
+          return { metric: null, rows: null, reason: "camera-pivot" };
         blocks.camera[axis]![column] = value;
       }
   }
@@ -92,6 +96,8 @@ export function factorRecoveryMapCurvature(
         value -=
           blocks.camera[previous]![axis]! * blocks.camera[previous]![column]!;
       value /= root;
+      if (value === Infinity || value === -Infinity)
+        return { metric: null, rows: null, reason: "camera-pivot" };
       blocks.camera[axis]![column] = value;
     }
   }

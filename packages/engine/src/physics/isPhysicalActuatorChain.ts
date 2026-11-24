@@ -14,14 +14,12 @@ export function isPhysicalActuatorChain(
   source: string,
 ): boolean {
   return (
-    Array.isArray(chain) &&
     chain.length >= 1 &&
     chain.length <= 32 &&
     chain.at(-1) === source &&
     new Set(chain).size === chain.length &&
-    Array.from(chain).every(
+    chain.every(
       (bone: string, index: number): boolean =>
-        typeof bone === "string" &&
         profile.segments.some(
           (segment: IAutoMoviePhysicalSegment): boolean =>
             segment.bone === bone,

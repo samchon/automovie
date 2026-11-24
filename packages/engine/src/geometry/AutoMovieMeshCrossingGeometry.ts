@@ -27,12 +27,10 @@ export namespace AutoMovieMeshCrossingGeometry {
   export function prepare(
     mesh: IAutoMovieMesh,
   ): IAutoMovieMeshCrossingGeometry.ISnapshot {
-    const indices: readonly number[] = Object.freeze(
-      triangleIndicesOf(
-        mesh,
-        "Mesh crossings (complete triangle buffers)",
-      ).slice(),
-    );
+    const indices: readonly number[] = triangleIndicesOf(
+      mesh,
+      "Mesh crossings (complete triangle buffers)",
+    ).slice();
     const triangles: IAutoMovieMeshCrossingGeometry.ITriangle[] = read(
       mesh.positions,
       indices,

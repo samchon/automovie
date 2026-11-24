@@ -39,7 +39,7 @@ export function validateShotPhysicsAdvice(
     else ids.set(item.id, index);
 
     const rationaleValid: boolean =
-      typeof item.rationale === "string" && item.rationale.trim().length !== 0;
+      item.rationale !== null && item.rationale.trim().length !== 0;
     const proposalEqualsSelected: boolean =
       item.selected !== null &&
       JSON.stringify(canonicalAdviceValue(item.proposal)) ===

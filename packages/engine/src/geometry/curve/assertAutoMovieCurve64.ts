@@ -137,7 +137,6 @@ export function assertAutoMovieCurve64(
     }
     if (piece.primitive === "rationalXZPolynomialYBezier") {
       dense(piece.polynomialYControls);
-      for (const y of piece.polynomialYControls) scalar(y);
     }
   }
 }

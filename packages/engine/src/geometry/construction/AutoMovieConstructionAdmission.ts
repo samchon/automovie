@@ -36,8 +36,6 @@ export namespace AutoMovieConstructionAdmission {
      */
     function check(node: IAutoMovieConstructionNode): Names {
       const name: string = (node as { name?: unknown }).name as string;
-      if (typeof name !== "string")
-        throw new Error("realizeAutoMovieConstruction: a node has no name");
       if (seen.has(name))
         throw new Error(
           `realizeAutoMovieConstruction: the name ${name} is used twice`,
@@ -226,13 +224,6 @@ export namespace AutoMovieConstructionAdmission {
               !(profile.reach > 0 && profile.reach <= 1)
             )
               refuse(`profile reach ${profile.reach} is not in (0, 1]`);
-            if (
-              profile.square !== undefined &&
-              typeof profile.square !== "boolean"
-            )
-              refuse(
-                `profile square ${String(profile.square)} is not a boolean`,
-              );
             if (
               profile.fair !== undefined &&
               !(

@@ -36,6 +36,13 @@ export function RecoveryChartFitPrepare(
   const extent: number = Math.max(
     ...upper.map((x: number, k: number): number => x - lower[k]!),
   );
+  if (
+    extent === Infinity ||
+    origin.some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    )
+  )
+    throw new Error("Chart enclosure is not representable");
   const scale: number = extent || 1;
   const slots: Int32Array = new Int32Array(input.controls.length).fill(-1);
   input.controls.forEach((p: Readonly<AutoMovieVector3Tuple> | null): void => {
@@ -109,7 +116,7 @@ export function RecoveryChartFitPrepare(
     ): number => sum + row.weight,
     0,
   );
-  if (!(totalWeight > 0))
+  if (!(totalWeight > 0) || totalWeight === Infinity)
     throw new Error("Chart observation weights are not representable");
   const basis: (t: number) => number[] = (t: number): number[] => [
     (1 - t) ** 3,

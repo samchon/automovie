@@ -159,7 +159,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           .get(word[i + 1]!)!
           .map((v: number, k: number): number => v - points.get(word[i]!)![k]!),
       );
-      if (!(part > 0 && length + part > length))
+      if (!(part > 0 && part !== Infinity && length + part > length))
         throw new Error(
           "Arc physical polyline length is not strict and finite",
         );
@@ -214,7 +214,7 @@ export function RecoveryChartBoundaryNetworkBindings(
           sum + row.arc.length,
         0,
       );
-      if (!(total > 0))
+      if (!(total > 0) || total === Infinity)
         throw new Error("A composite boundary has no finite physical length");
       const spans: AutoMovieCubicBezierControls3[] = [],
         knots: number[] = [0],
@@ -352,6 +352,10 @@ export function RecoveryChartBoundaryNetworkBindings(
         },
       });
     }
+  if (maximumPointChange === Infinity)
+    throw new Error(
+      "Private-bank point displacement accounting became nonfinite",
+    );
   diagnostics.push(
     `Canonical base-edge subdivision maximumPointChangeMm=${maximumPointChange}; binary64 measurements are not exact PL preservation certificates`,
   );

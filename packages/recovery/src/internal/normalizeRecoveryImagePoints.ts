@@ -25,7 +25,12 @@ export function normalizeRecoveryImagePoints(
     distance += Math.hypot(point[0] - cx, point[1] - cy);
   distance /= points.length;
   const scale: number = Math.SQRT2 / distance;
-  if (!(distance > 0) || !(scale > 0))
+  if (
+    !(distance > 0) ||
+    distance === Infinity ||
+    !(scale > 0) ||
+    scale === Infinity
+  )
     throw new Error(
       "camera-design: coincident or unrepresentable normalization",
     );

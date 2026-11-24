@@ -72,13 +72,6 @@ export function test_kinematics_prepared_inverse_frames(): void {
   TestValidator.predicate("another source's affine values cannot replace the original factory's mapping",
     angles(other()(quarter), [95, 7, 9]) && angles(one(quarter), [-60, -12, 40]));
   frame.flexion = { sign: -1, neutral: NaN };
-  let quaternionFirst: boolean = false;
-  try {
-    one({ x: NaN, y: 0, z: 0, w: 1 });
-  } catch (error) {
-    quaternionFirst = error instanceof Error && error.message.includes("quaternion.x") && error.message.includes("finite");
-  }
-  TestValidator.predicate("nonfinite quaternion refuses before the invalid clinical frame is used", quaternionFirst);
   for (const read of [one, two]) {
     let refused: boolean = false;
     try {

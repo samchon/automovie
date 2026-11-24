@@ -56,18 +56,14 @@ export function sampleAutoMovieContourRing64(
       ...(unsupported === undefined ? {} : { unsupported }),
     };
   } catch (failure: unknown) {
-    const endpoint: unknown =
-      Array.isArray(curve?.spans) && Array.isArray(curve.spans[0])
-        ? curve.spans[0][0]
+    const endpoint: Readonly<AutoMovieVector3Tuple> | undefined =
+      curve.type === "cubicBezier" && curve.unit === "mm"
+        ? curve.spans[0]?.[0]
         : undefined;
-    const trusted: boolean =
-      curve?.type === "cubicBezier" &&
-      curve.unit === "mm" &&
-      Array.isArray(endpoint) &&
-      endpoint.length === 3 &&
-      [0, 1, 2].every((axis: number): boolean => Object.hasOwn(endpoint, axis));
     const knots: IAutoMovieContourLoftCurves64.Knot[] =
-      trusted && Array.isArray(endpoint)
+      endpoint !== undefined &&
+      endpoint.length === 3 &&
+      [0, 1, 2].every((axis: number): boolean => Object.hasOwn(endpoint, axis))
         ? [{ p: [endpoint[0], endpoint[1], endpoint[2]], phase: 0 }]
         : [];
     return {

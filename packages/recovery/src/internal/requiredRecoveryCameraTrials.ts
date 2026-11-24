@@ -28,5 +28,7 @@ export function requiredRecoveryCameraTrials(
   const required: number = Math.ceil(
     Math.log1p(-confidence) / Math.log1p(-success),
   );
-  return required > 0 ? required : Infinity;
+  return required > 0 && required <= Number.MAX_SAFE_INTEGER
+    ? required
+    : Infinity;
 }

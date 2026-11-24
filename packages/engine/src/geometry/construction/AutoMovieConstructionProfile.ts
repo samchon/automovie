@@ -102,8 +102,6 @@ export namespace AutoMovieConstructionProfile {
           !interval(piece.clock) ||
           (piece.direction !== 1 && piece.direction !== -1) ||
           curve === undefined ||
-          typeof curve.point !== "function" ||
-          typeof curve.jet !== "function" ||
           !interval(curve.domain) ||
           !interval(curve.clock) ||
           !inside(
@@ -319,7 +317,7 @@ export namespace AutoMovieConstructionProfile {
  * clocks.
  */
 function interval(value: readonly [number, number]): boolean {
-  return Array.isArray(value) && value.length === 2 && value[1] > value[0];
+  return value[1] > value[0];
 }
 
 /** Check this actual boundary query without claiming whole-domain equivalence. */

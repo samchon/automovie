@@ -57,8 +57,8 @@ export const measureAutoMovieModelContacts: (
   model: IAutoMovieModel,
   options: IAutoMovieMeasureModelContacts.IOptions,
 ): IAutoMovieModelContact[] => {
-  const contact: unknown = options?.contact;
-  if (typeof contact !== "number" || contact < 0)
+  const contact: number = options.contact;
+  if (contact < 0)
     throw new Error(
       "Model contacts need a finite, nonnegative contact distance in metres.",
     );
@@ -198,7 +198,8 @@ const surveyed: (
     areas.push(size);
     area += size;
   }
-  let query: ((point: readonly number[]) => IAutoMovieMeshWinding) | undefined;
+  const query: (point: readonly number[]) => IAutoMovieMeshWinding =
+    createAutoMovieMeshWindingQuery(mesh);
   return {
     id,
     mesh,
@@ -208,10 +209,7 @@ const surveyed: (
     areas,
     area,
     surface: measureAutoMovieMeshGap.surface(mesh, label),
-    winding: (point: readonly number[]): IAutoMovieMeshWinding => {
-      query ??= createAutoMovieMeshWindingQuery(mesh);
-      return query(point);
-    },
+    winding: query,
   };
 };
 

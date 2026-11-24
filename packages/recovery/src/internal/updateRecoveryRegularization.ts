@@ -23,8 +23,11 @@ export function updateRecoveryRegularization(
     reason: "decrease-unsupported",
     previousDamping: damping,
     damping,
-    actualDecrease: actualDecrease,
-    predictedDecrease: predictedDecrease !== null ? predictedDecrease : null,
+    actualDecrease: bounded(actualDecrease) ? actualDecrease : null,
+    predictedDecrease:
+      predictedDecrease !== null && bounded(predictedDecrease)
+        ? predictedDecrease
+        : null,
     ratio: null,
     factor: null,
   };
@@ -38,7 +41,7 @@ export function updateRecoveryRegularization(
   )
     return result;
   const ratio: number = result.actualDecrease / result.predictedDecrease;
-  if (!(ratio > 0)) {
+  if (!(ratio > 0) || ratio === Infinity) {
     result.reason = "ratio-unsupported";
     return result;
   }
@@ -47,7 +50,7 @@ export function updateRecoveryRegularization(
     ratio >= 1 ? 1 / 3 : Math.max(1 / 3, 1 - (2 * ratio - 1) ** 3);
   result.factor = factor;
   const next: number = damping * factor;
-  if (!(next > 0)) {
+  if (!(next > 0) || next === Infinity) {
     result.reason = "damping-unsupported";
     return result;
   }
@@ -55,4 +58,9 @@ export function updateRecoveryRegularization(
   result.reason = "accepted-agreement";
   result.damping = next;
   return result;
+}
+
+/** Whether a decrease is a number rather than an overflow. */
+function bounded(value: number): boolean {
+  return value !== Infinity && value !== -Infinity;
 }

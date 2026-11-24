@@ -86,6 +86,7 @@ export function assembleRecoveryMapCurvature(
         policy.maximumReprojectionErrorPx;
       const robust: number =
         (inverse / policy.lossScalePx / policy.lossScalePx) * inverse * inverse;
+      if (h === Infinity || disk === Infinity || robust === Infinity) return null;
       for (let axis: number = 0; axis < count + 3; axis++)
         for (let other: number = axis; other < count + 3; other++) {
           let value: number = 0,
@@ -112,13 +113,14 @@ export function assembleRecoveryMapCurvature(
               ? scales.cameraScales[start + other]!
               : scales.pointScales[point]![other - count]!;
           value = value / firstScale / secondScale;
-          if (other < count) {
-            camera[start + axis]![start + other]! += value;
-          } else if (axis < count) {
-            points[point]![other - count]![3 + start + axis]! += value;
-          } else {
-            points[point]![axis - count]![other - count]! += value;
-          }
+          if (value === Infinity || value === -Infinity) return null;
+          let total: number;
+          if (other < count)
+            total = camera[start + axis]![start + other]! += value;
+          else if (axis < count)
+            total = points[point]![other - count]![3 + start + axis]! += value;
+          else total = points[point]![axis - count]![other - count]! += value;
+          if (total === Infinity || total === -Infinity) return null;
         }
     }
   }

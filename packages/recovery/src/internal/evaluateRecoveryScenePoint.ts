@@ -112,6 +112,7 @@ export function evaluateRecoveryScenePoint(
     accepted: reasons.size === 0,
     reasons: [...reasons],
     maximumReprojectionPx:
+      maximumReprojectionPx !== Infinity &&
       !reasons.has("nonpositive-depth") &&
       !reasons.has("unregistered-observation")
         ? maximumReprojectionPx

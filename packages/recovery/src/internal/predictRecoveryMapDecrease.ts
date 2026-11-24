@@ -48,5 +48,9 @@ export function predictRecoveryMapDecrease(
     }
   }
   const predicted: number = -linear - 0.5 * quadratic;
-  return predicted;
+  return [linear, quadratic, predicted].some(
+    (value: number): boolean => value === Infinity || value === -Infinity,
+  )
+    ? null
+    : predicted;
 }

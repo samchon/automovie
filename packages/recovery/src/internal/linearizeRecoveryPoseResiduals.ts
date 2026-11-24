@@ -36,7 +36,12 @@ export function linearizeRecoveryPoseResiduals(
     );
     const denominator: number = Math.hypot(l1[0], l1[1], l2[0], l2[1]);
     const incidence: number = y[0]! * l2[0] + y[1]! * l2[1] + l2[2];
-    if (!(denominator > 0))
+    if (
+      !(denominator > 0) ||
+      denominator === Infinity ||
+      incidence === Infinity ||
+      incidence === -Infinity
+    )
       throw new Error("camera-refinement: undefined epipolar normal");
     const residual: number = incidence / denominator;
     const row: number[] = [];

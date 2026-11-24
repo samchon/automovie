@@ -279,6 +279,7 @@ export namespace integrateAirborneRotation {
    * millisecond. The stencil is second order for a sufficiently smooth shape;
    * its error depends on that shape's derivatives and is separate from the
    * orientation integrator's budget. Without a span, the shape is read on `[t0
+   *
    * - DELTA, t1 + DELTA]`.
    */
   export const DELTA: number = 1e-3;
@@ -299,8 +300,8 @@ export namespace integrateAirborneRotation {
   export type ICachedHistory = IAutoMovieIntegrateAirborneRotation.IHistory & {
     /**
      * Release all I/h instants, numeric mass nodes and their rated
-     * tensor/derivative packets, boundary moments and inverse preparation; a new
-     * query recomputes them while completed flights remain valid.
+     * tensor/derivative packets, boundary moments and inverse preparation; a
+     * new query recomputes them while completed flights remain valid.
      */
     clear(): void;
   };

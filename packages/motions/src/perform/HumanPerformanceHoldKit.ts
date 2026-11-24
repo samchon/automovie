@@ -52,9 +52,13 @@ export function HumanPerformanceHoldKit(
         if (times.size === 0) visited.delete(subject);
       }
     }
-    // A held one rides the hand as the performance displays it at the second.
+    // A held one rides the hand as the performance displays it at the second:
+    // its prepared course once the performance is prepared, so no read of the
+    // prop evaluates the holder's live posture.
     if (w.bone === undefined)
-      return HumanPerformanceRead.hand(self, w.subject, w.side, at);
+      return (
+        w.hand?.(at) ?? HumanPerformanceRead.hand(self, w.subject, w.side, at)
+      );
     const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
       self,
       w.subject,

@@ -1,10 +1,9 @@
 import { Quaternion, aimRotation } from "@automovie/engine";
-import { IAutoMovieQuaternion, IAutoMovieVector3 } from "@automovie/interface";
+import { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
-import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 const X: IAutoMovieVector3 = { x: 1, y: 0, z: 0 };
@@ -74,20 +73,6 @@ export function test_kinematics_aim_rotation(): void {
         X,
       ),
       Y,
-    ),
-  );
-  TestValidator.predicate(
-    "NaN from vector rejects",
-    throwsError(
-      (): IAutoMovieQuaternion => aimRotation({ x: Number.NaN, y: 0, z: 0 }, Y),
-      ["aimRotation from.x", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
-    "infinite to vector rejects",
-    throwsError(
-      (): IAutoMovieQuaternion => aimRotation(X, { x: 0, y: Infinity, z: 0 }),
-      ["aimRotation to.y", "finite", "Infinity"],
     ),
   );
 

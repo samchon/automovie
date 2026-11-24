@@ -20,16 +20,15 @@ import { getConstraint } from "./getConstraint";
  * Synchronous joint projection; returned records can alias an unconstrained
  * input.
  */
-type IClamp = (joint: IAutoMovieJointPose) => IAutoMovieJointPose;
+type IClamp = {
+  (joint: IAutoMovieJointPose): IAutoMovieJointPose;
 
-/**
- * Only this owner's actual factory callables have no candidate-retaining
- * closure.
- */
-const BORROWABLE: WeakMap<
-  IClamp,
-  IAutoMovieJointConstraint | null | undefined
-> = new WeakMap();
+  /**
+   * Set only by this owner's factories, whose closures retain no candidate;
+   * carries the constraint the clamp was made under.
+   */
+  owned?: { constraint: IAutoMovieJointConstraint | null | undefined };
+};
 
 /**
  * Clamp one joint using its skeleton override, otherwise the humanoid default
@@ -233,7 +232,7 @@ export namespace clampJointToSkeleton {
    * an input or result joint. Unconstrained projection can return the input
    * itself; copy a selected/retained result before editing that scratch again.
    *
-   * Private weak registration comes only from of/resolved/prepare production.
+   * The private `owned` mark comes only from of/resolved/prepare production.
    * Unknown, wrapped, proxied or bound callbacks return undefined, so their
    * original fresh-input/callback behavior remains the consumer's fallback.
    * This lookup certifies no ROM, matching domain, projection outcome or input
@@ -241,7 +240,7 @@ export namespace clampJointToSkeleton {
    * strongly; release the borrowed function with its owning operation.
    */
   export function borrow(clamp: IClamp): IClamp | undefined {
-    return BORROWABLE.has(clamp) ? clamp : undefined;
+    return clamp.owned !== undefined ? clamp : undefined;
   }
 
   /**
@@ -257,7 +256,7 @@ export namespace clampJointToSkeleton {
     clamp: IClamp,
     constraint: IAutoMovieJointConstraint,
   ): boolean {
-    return BORROWABLE.get(clamp) === constraint;
+    return clamp.owned?.constraint === constraint;
   }
 
   /**
@@ -337,13 +336,12 @@ interface IPair {
 }
 
 /**
- * Register only actual source-only factory closures, without wrapping their
- * calls.
+ * Mark only actual source-only factory closures, without wrapping their calls.
  */
 function ownClamp(
   clamp: IClamp,
   constraint?: IAutoMovieJointConstraint | null,
 ): IClamp {
-  BORROWABLE.set(clamp, constraint);
+  clamp.owned = { constraint };
   return clamp;
 }

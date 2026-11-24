@@ -271,18 +271,14 @@ export function resolveAutoMovieSchedule(
   let duration: number = end;
   for (const entry of walk.entries)
     if (entry.end > duration) duration = entry.end;
-  return Object.freeze({
-    entries: Object.freeze(
-      sorted.map((e: IAutoMovieScheduleEntry) =>
-        Object.freeze(
-          walk.interrupted.has(e.index)
-            ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
-            : e,
-        ),
-      ),
+  return {
+    entries: sorted.map((e: IAutoMovieScheduleEntry) =>
+      walk.interrupted.has(e.index)
+        ? { ...e, interruptedBy: walk.interrupted.get(e.index)! }
+        : e,
     ),
     duration,
-  });
+  };
 }
 
 /**

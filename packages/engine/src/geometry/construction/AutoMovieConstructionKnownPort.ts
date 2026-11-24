@@ -207,7 +207,7 @@ function pullback(
   );
   if (map === null) fail("A known port has unavailable actual chart total2.");
   for (const key of ["p", "u", "v", "uu", "uv", "vv"] as const)
-    if (!Array.isArray(map![key]) || map![key].length !== 2)
+    if (map![key].length !== 2)
       fail("A known port has incomplete or nonfinite actual chart total2.");
   chartPoint(side.field, map!.p);
   const field: IAutoMovieSolidSurface.IJet = side.field.jet(
@@ -258,7 +258,6 @@ function chartPoint(
   point: readonly number[],
 ): void {
   if (
-    !Array.isArray(point) ||
     point.length !== 2 ||
     (field.domain !== undefined &&
       (point[0]! < field.domain[0] || point[0]! > field.domain[1]))
@@ -291,7 +290,7 @@ function regular(
  * zero.
  */
 function vector(value: readonly number[]): void {
-  if (!Array.isArray(value) || value.length !== 3)
+  if (value.length !== 3)
     fail("A known port requires complete finite actual world vectors.");
 }
 

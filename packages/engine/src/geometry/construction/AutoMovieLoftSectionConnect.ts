@@ -127,8 +127,6 @@ export namespace AutoMovieLoftSectionConnect {
     station: number,
   ): IAutoMovieLoftSectionConnect.ISpan | null {
     if (chain.sectionSpans === undefined) return null;
-    if (!Array.isArray(chain.sectionSpans))
-      throw new Error("The present native span list is malformed.");
     for (const span of chain.sectionSpans) {
       const [first, last]: readonly [number, number] = bounds(span);
       if (!(last > first))

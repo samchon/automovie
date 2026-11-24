@@ -24,11 +24,7 @@ export function createAutoMovieEllipticLoftAtlas(
   input: IAutoMovieCreateEllipticLoftAtlas.IInput,
 ): IAutoMovieCreateEllipticLoftAtlas.IResult {
   if (
-    !input ||
-    !input.loft ||
-    !Array.isArray(input.loft.spans) ||
     !input.loft.spans.length ||
-    typeof input.topologyDomain !== "string" ||
     !input.topologyDomain.trim() ||
     input.tolerance <= 0 ||
     input.maxCells <= 0 ||
@@ -50,9 +46,6 @@ export function createAutoMovieEllipticLoftAtlas(
     const previous: IAutoMovieEllipticLoft["spans"][number] | undefined =
       input.loft.spans[index - 1];
     if (
-      !span ||
-      !Array.isArray(span.interval) ||
-      span.interval.length !== 2 ||
       !(span.interval[0] < span.interval[1]) ||
       (previous !== undefined && previous.interval[1] !== span.interval[0])
     )
@@ -60,7 +53,7 @@ export function createAutoMovieEllipticLoftAtlas(
         "Elliptic loft intervals must be finite, increasing and exactly adjacent",
       );
     for (const field of fields) {
-      if (!Array.isArray(span[field]) || span[field].length !== 4)
+      if (span[field].length !== 4)
         throw new Error("Every elliptic profile needs four Bernstein controls");
       for (let control: number = 0; control < 4; control++) {
         const value: number = span[field][control];

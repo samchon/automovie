@@ -113,7 +113,10 @@ export function solveRecoveryFeasibleDirection(
       true,
     );
     arithmeticAllowance = Math.max(arithmeticAllowance, allowance);
+    // An overflowing allowance bounds nothing, so it qualifies no row.
     rowsQualified &&=
+      allowance !== Infinity &&
+      reconstructionAllowance !== Infinity &&
       slack <= tolerance + allowance &&
       Math.abs(solution.weights[at]! * slack) <= tolerance + allowance;
     reconstructionRowsQualified &&=
@@ -155,8 +158,13 @@ export function solveRecoveryFeasibleDirection(
   const roundoffCandidate: boolean =
     solution.termination === "stalled" &&
     solution.gap <= tolerance + reconstruction.gap;
+  const unbounded: (value: number) => boolean = (value: number): boolean =>
+    value === Infinity || value === -Infinity;
   const numericalChecks: boolean =
+    !step.some(unbounded) &&
+    ![gamma, objective, maximumViolation, complementarity].some(unbounded) &&
     Math.abs(sum - 1) <= 64 * Number.EPSILON * rows.length &&
+    stationarityAllowance !== Infinity &&
     stationarityResidual <= tolerance + stationarityAllowance &&
     solution.weights.every((value: number): boolean => value >= 0);
   const gapUpperBound: number = adjacentAutoMovieFloat64(

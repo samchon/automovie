@@ -38,7 +38,13 @@ export function measureRecoveryEpipolarErrors(
         other[0] * line2[0] + other[1] * line2[1] + line2[2];
       const norm1: number = Math.hypot(line1[0], line1[1]);
       const norm2: number = Math.hypot(line2[0], line2[1]);
-      if (!(norm1 > 0) || !(norm2 > 0)) return null;
+      if (
+        !(norm1 > 0) ||
+        !(norm2 > 0) ||
+        incidence === Infinity ||
+        incidence === -Infinity
+      )
+        return null;
       const signedSampsonPx: number = incidence / Math.hypot(norm1, norm2);
       const symmetricPointLinePx: number =
         (Math.abs(incidence) / norm1 + Math.abs(incidence) / norm2) / 2;

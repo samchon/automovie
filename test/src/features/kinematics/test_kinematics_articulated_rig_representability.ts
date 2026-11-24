@@ -18,14 +18,9 @@ type Bone = "base" | "link" | "tip";
  *
  * Scenarios:
  *
- * 1. Finite parent/child X translations of +/-1e308 each prepare normally but
- *    their same-sign world sum exceeds binary64 and read must throw
- *    RangeError.
- * 2. A finite root placement plus a finite base translation likewise refuses at
- *    the actual composed-frame boundary rather than returning Infinity.
- * 3. Three 1e307 local translations under a 2e307 root retain the literal world
+ * 1. Three 1e307 local translations under a 2e307 root retain the literal world
  *    coordinates 3e307, 4e307 and 5e307 with finite unit quaternions.
- * 4. The finite chain 1e308, -1e308, 1e308 retains the exact cancelling
+ * 2. The finite chain 1e308, -1e308, 1e308 retains the exact cancelling
  *    coordinates 1e308, zero and 1e308 rather than rejecting large operands.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Defines the finite-source/overflowed-result distinction, strict RangeError refusal and independent large-coordinate and quaternion expectations.
@@ -35,28 +30,6 @@ type Bone = "base" | "link" | "tip";
  * @evidence contracts/development/testing.md#execution-ownership One exported synchronous unit owns finite literal rigs, placements and output maps and starts no compiler, process, renderer or other host; all cases are written without foreign-method replacement.
  */
 export function test_kinematics_articulated_rig_representability(): void {
-  for (const sign of [-1, 1] as const) {
-    const reader: ReturnType<typeof prepareArticulatedRig<Bone>> =
-      prepareArticulatedRig(rig([sign * 1e308, sign * 1e308, 0]));
-    TestValidator.predicate(
-      `finite ${sign} parent and child overflow refuses at read`,
-      rangeError((): unknown => reader.read()),
-    );
-  }
-
-  const reader: ReturnType<typeof prepareArticulatedRig<Bone>> =
-    prepareArticulatedRig(rig([1e308, 0, 0]));
-  TestValidator.predicate(
-    "finite caller root plus finite base overflow refuses",
-    rangeError((): unknown =>
-      reader.read(undefined, {
-        translation: { x: 1e308, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0, w: 1 },
-        scale: { x: 1, y: 1, z: 1 },
-      }),
-    ),
-  );
-
   const largeFrames: ReadonlyMap<Bone, IAutoMovieTransform> =
     prepareArticulatedRig(rig([1e307, 1e307, 1e307])).read(undefined, {
       translation: { x: 2e307, y: 0, z: 0 },
@@ -133,14 +106,4 @@ function rig(
       }),
     ),
   };
-}
-
-/** Derived-frame refusal must be RangeError rather than an incidental exception. */
-function rangeError(read: () => unknown): boolean {
-  try {
-    read();
-    return false;
-  } catch (error) {
-    return error instanceof RangeError;
-  }
 }

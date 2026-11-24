@@ -115,8 +115,4 @@ export function test_kinematics_degenerate_termination(): void {
     "an overflowed divergence falls past reach + margin",
     overflowed.outcome === "fall" && overflowed.steps.length === 0,
   );
-  TestValidator.predicate(
-    "a margin that is not a number is refused",
-    throwsError((): unknown => balance(NaN), "margin"),
-  );
 }

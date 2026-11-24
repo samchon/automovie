@@ -47,7 +47,12 @@ export function RecoveryChartPhysicalJet(
   const determinantUv: number = ua * vb - va * ub;
   const r11: number = Math.hypot(...a),
     bLength: number = Math.hypot(...b);
-  if (!(determinantUv > 0 && r11 > 0 && bLength > 0))
+  if (
+    !(determinantUv > 0 && r11 > 0 && bLength > 0) ||
+    determinantUv === Infinity ||
+    r11 === Infinity ||
+    bLength === Infinity
+  )
     throw new Error(
       "Positive representable UV orientation and noncollapsed physical edges are required",
     );
@@ -66,7 +71,12 @@ export function RecoveryChartPhysicalJet(
   r12 += correction;
   for (let k: number = 0; k < 3; k++) remainder[k] -= correction * q1[k]!;
   const r22: number = Math.hypot(...remainder);
-  if (!(r22 > Number.EPSILON * bLength))
+  if (
+    !(r22 > Number.EPSILON * bLength) ||
+    r22 === Infinity ||
+    r12 === Infinity ||
+    r12 === -Infinity
+  )
     throw new Error(
       "The physical tangent frame is unresolved at binary64 angular precision",
     );
@@ -138,8 +148,15 @@ export function RecoveryChartPhysicalJet(
   ] = [direction(t00, t10, q1), direction(t01, t11, q2)];
   if (
     !(sourceAreaMm2 > 0 && tangentScaleRatio > 0) ||
+    sourceAreaMm2 === Infinity ||
+    reconstructionErrorMm === Infinity ||
     directions.some(
-      (d: (typeof directions)[number]): boolean => d.du === 0 && d.dv === 0,
+      (d: (typeof directions)[number]): boolean =>
+        (d.du === 0 && d.dv === 0) ||
+        [d.du, d.dv, ...d.targetMm].some(
+          (value: number): boolean =>
+            value === Infinity || value === -Infinity,
+        ),
     )
   )
     throw new Error("The physical tangent observation is not representable");

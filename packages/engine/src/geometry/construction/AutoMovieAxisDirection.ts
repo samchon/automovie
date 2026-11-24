@@ -25,16 +25,21 @@ export namespace AutoMovieAxisDirection {
     tangent: AutoMovieVector3Tuple,
     targetNorm: number = Math.hypot(...up),
   ): IAutoMovieAxisDirection.IProjection {
-    let vector: AutoMovieVector3Tuple = AutoMovieSolidVector.sub(
-      up,
-      AutoMovieSolidVector.scale(
-        tangent,
-        AutoMovieSolidVector.dot(up, tangent),
-      ),
-    );
-    let normalNorm: number = Math.hypot(...vector);
-    if (normalNorm < MINIMUM_NORMAL) {
-      const magnitude: number = Math.max(...up.map(Math.abs));
+    // A component past a quarter of the largest double overflows the
+    // projection's difference, so such a direction is scaled before it.
+    const magnitude: number = Math.max(...up.map(Math.abs));
+    const huge: boolean = magnitude > Number.MAX_VALUE / 4;
+    let vector: AutoMovieVector3Tuple = huge
+      ? up
+      : AutoMovieSolidVector.sub(
+          up,
+          AutoMovieSolidVector.scale(
+            tangent,
+            AutoMovieSolidVector.dot(up, tangent),
+          ),
+        );
+    let normalNorm: number = huge ? 0 : Math.hypot(...vector);
+    if (huge || normalNorm < MINIMUM_NORMAL) {
       if (magnitude > 0) {
         const scaled: AutoMovieVector3Tuple = up.map(
           (value: number): number => value / magnitude,
@@ -68,9 +73,12 @@ export namespace AutoMovieAxisDirection {
     norm: number = Math.hypot(...vector),
   ): AutoMovieVector3Tuple {
     if (!(norm > 0)) return vector;
-    if (norm >= MINIMUM_NORMAL)
-      return AutoMovieSolidVector.scale(vector, 1 / norm);
+
+    // A component past half the largest double overflows the norm, which is
+    // then measured on the scaled vector.
     const magnitude: number = Math.max(...vector.map(Math.abs));
+    if (norm >= MINIMUM_NORMAL && magnitude <= Number.MAX_VALUE / 2)
+      return AutoMovieSolidVector.scale(vector, 1 / norm);
     if (!(magnitude > 0)) return vector;
     const scaled: AutoMovieVector3Tuple = vector.map(
       (value: number): number => value / magnitude,
@@ -87,7 +95,12 @@ export namespace AutoMovieAxisDirection {
     direction: AutoMovieVector3Tuple,
     squaredNorm: number = AutoMovieSolidVector.dot(direction, direction),
   ): AutoMovieVector3Tuple {
-    if (squaredNorm >= MINIMUM_NORMAL)
+    // A component past the root of a third of the largest double overflows
+    // the squared norm, which then reflects through the unit normal.
+    if (
+      squaredNorm >= MINIMUM_NORMAL &&
+      Math.max(...direction.map(Math.abs)) <= Math.sqrt(Number.MAX_VALUE / 3)
+    )
       return AutoMovieSolidVector.sub(
         vector,
         AutoMovieSolidVector.scale(

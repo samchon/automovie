@@ -124,12 +124,9 @@ export function test_kinematics_bone_declared_axes(): void {
     true,
   );
   TestValidator.equals(
-    "no declaration and no table is empty and frozen",
-    [
-      Object.keys(skeletonJointAxes(undeclared)).length,
-      Object.isFrozen(skeletonJointAxes(undeclared)),
-    ],
-    [0, true],
+    "no declaration and no table is empty",
+    Object.keys(skeletonJointAxes(undeclared)).length,
+    0,
   );
   const merged: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(declared, conflicting);

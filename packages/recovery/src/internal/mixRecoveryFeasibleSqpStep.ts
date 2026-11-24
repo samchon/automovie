@@ -29,15 +29,17 @@ export function mixRecoveryFeasibleSqpStep(
       (value: number, at: number): number =>
         (1 - weight) * value + weight * tilted[at]!,
     );
+    if (step.some(overflowed)) return null;
     for (let at: number = 0; at < rows.length; at++) {
       const row: IAutoMovieSimplexAtom = rows[at]!;
       let slope: number = 0;
       for (let entry: number = 0; entry < row.indices.length; entry++)
         slope += row.values[entry]! * step[row.indices[entry]!]!;
       if (
-        at === 0
+        overflowed(slope) ||
+        (at === 0
           ? !(slope < 0)
-          : slope > row.offset || (row.offset === 0 && !(slope < 0))
+          : slope > row.offset || (row.offset === 0 && !(slope < 0)))
       )
         return null;
     }
@@ -73,7 +75,8 @@ export function mixRecoveryFeasibleSqpStep(
       true,
     );
     const difference: number = second - first;
-    if (!(product < 1)) return result;
+    if ([first, second, margin, difference].some(overflowed) || !(product < 1))
+      return result;
     if (difference < 0) {
       if (first > -margin)
         lower = Math.max(
@@ -92,4 +95,9 @@ export function mixRecoveryFeasibleSqpStep(
   result.step = candidate(lower);
   result.numericalSupported = result.step !== null;
   return result;
+}
+
+/** Whether a mixed step entry or slope overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

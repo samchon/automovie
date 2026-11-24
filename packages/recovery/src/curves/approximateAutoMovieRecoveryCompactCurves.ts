@@ -240,7 +240,14 @@ export function approximateAutoMovieRecoveryCompactCurves(
       for (let j: number = 0; j < width; ++j)
         solution[j] += projection * decomposition.rightColumns[k]![j]!;
     }
-    if (solution[0]! <= 0 || solution[1]! <= 0) return undefined;
+    if (
+      solution.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ) ||
+      solution[0]! <= 0 ||
+      solution[1]! <= 0
+    )
+      return undefined;
     const controls: Readonly<AutoMovieVector2Tuple>[] = [
       p,
       [p[0] + solution[0]! * u[0], p[1] + solution[0]! * u[1]],

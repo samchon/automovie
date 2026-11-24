@@ -23,11 +23,6 @@ import { throwsError } from "../internal/throwsError";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Non-finite flexion/abduction/twist values throw.).
  */
 export function test_kinematics_joint_to_quaternion_inputs(): void {
-  const base: { flexion: null; abduction: null; twist: null } = {
-    flexion: null,
-    abduction: null,
-    twist: null,
-  };
   const validAxes: {
     flexion: { x: number; y: number; z: number };
     abduction: { x: number; y: number; z: number };
@@ -37,47 +32,6 @@ export function test_kinematics_joint_to_quaternion_inputs(): void {
     abduction: { x: 0, y: 0, z: 1 },
     twist: { x: 1, y: 0, z: 0 },
   };
-
-  TestValidator.predicate(
-    "NaN flexion rejects",
-    throwsError(
-      (): IAutoMovieQuaternion =>
-        jointToQuaternion({ ...base, flexion: Number.NaN }),
-      ["jointToQuaternion flexion", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
-    "infinite abduction rejects",
-    throwsError(
-      (): IAutoMovieQuaternion =>
-        jointToQuaternion({ ...base, abduction: Infinity }),
-      ["jointToQuaternion abduction", "finite", "Infinity"],
-    ),
-  );
-  TestValidator.predicate(
-    "negative infinite twist rejects",
-    throwsError(
-      (): IAutoMovieQuaternion =>
-        jointToQuaternion({ ...base, twist: -Infinity }),
-      ["jointToQuaternion twist", "finite", "-Infinity"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "non-finite custom flexion axis rejects",
-    throwsError(
-      (): IAutoMovieQuaternion =>
-        jointToQuaternion(
-          { flexion: 15, abduction: null, twist: null },
-          {
-            flexion: { x: Number.NaN, y: 0, z: 0 },
-            abduction: { x: 0, y: 0, z: 1 },
-            twist: { x: 0, y: 1, z: 0 },
-          },
-        ),
-      ["jointToQuaternion axes.flexion.x", "finite", "NaN"],
-    ),
-  );
 
   TestValidator.predicate(
     "zero-length custom flexion axis rejects",

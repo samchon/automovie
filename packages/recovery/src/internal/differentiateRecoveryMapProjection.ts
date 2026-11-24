@@ -40,7 +40,7 @@ export function differentiateRecoveryMapProjection(
   const q: number[] = rotated.map(
     (value: number, axis: number): number => value + pose.translation[axis]!,
   );
-  if (!(q[2]! > 0)) return null;
+  if (!(q[2]! > 0) || q.some(overflowed)) return null;
   const x: number = q[0]! / q[2]!,
     y: number = q[1]! / q[2]!;
   const pixel: [number, number] = [
@@ -102,6 +102,7 @@ export function differentiateRecoveryMapProjection(
           0,
         ),
       );
+      if ([squared, fourth, ...products].some(overflowed)) return null;
       const differential: [number, number, number][] | null =
         differentiateRecoveryMapTangent(pose.translation, tangent);
       if (differential === null) return null;
@@ -176,8 +177,19 @@ export function differentiateRecoveryMapProjection(
         hessian[axis]![other] = value;
       }
     }
+    if (
+      local.some(overflowed) ||
+      hessian.some((row: number[]): boolean => row.some(overflowed))
+    )
+      return null;
     jacobian.push(local);
     hessians.push(hessian);
   }
+  if (pixel.some(overflowed)) return null;
   return { pixel, jacobian, hessians };
+}
+
+/** Whether a derivative entry overflowed binary64. */
+function overflowed(value: number): boolean {
+  return value === Infinity || value === -Infinity;
 }

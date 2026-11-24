@@ -80,6 +80,8 @@ export function RecoveryChartReachableBox(
       shift < 0 && magnitude !== units << BigInt(-shift);
     if (remainder && (negative ? direction < 0 : direction > 0)) units++;
     const value: number = (negative ? -1 : 1) * Number(units) * 2 ** quantum;
+    if (value === Infinity || value === -Infinity)
+      throw new Error("An outward affine-box number view is not representable");
     return value;
   };
   const combined: Map<number, number> = new Map();
@@ -89,6 +91,8 @@ export function RecoveryChartReachableBox(
         "Finite weights and nonnegative original integer IDs are required",
       );
     const weight: number = (combined.get(term.id) ?? 0) + term.weight;
+    if (weight === Infinity || weight === -Infinity)
+      throw new Error("A combined binary64 row weight became nonfinite");
     combined.set(term.id, weight);
   }
   const weights: Dyadic[] = [...combined.values()].map(exact);

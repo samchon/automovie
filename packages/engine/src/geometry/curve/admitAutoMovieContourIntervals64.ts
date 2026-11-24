@@ -11,10 +11,6 @@ export function admitAutoMovieContourIntervals64(
   props: IAutoMoviePlanContourSlabs64Props,
 ): Map<number, IAutoMovieContourLoft64.IInterval> | undefined {
   if (props.intervals === undefined) return undefined;
-  if (!Array.isArray(props.intervals))
-    throw new Error(
-      "Explicit contour intervals require a saved adjacency array",
-    );
   type Interval = IAutoMovieContourLoft64.IInterval;
   type Item = Interval["groups"][number];
   const result: Map<number, Interval> = new Map();
@@ -35,11 +31,9 @@ export function admitAutoMovieContourIntervals64(
     ],
   });
   for (const interval of props.intervals) {
-    const k: number = !interval
-      ? -1
-      : props.slices.findIndex(
-          (section: Slice): boolean => section.y === interval.afterMm,
-        );
+    const k: number = props.slices.findIndex(
+      (section: Slice): boolean => section.y === interval.afterMm,
+    );
     if (k < 1 || props.slices[k - 1].y !== interval.beforeMm)
       throw new Error(
         "Explicit contour interval addresses must select an adjacent saved pair",
@@ -49,13 +43,6 @@ export function admitAutoMovieContourIntervals64(
       result.set(
         k,
         unprocessed(k, "Explicit contour interval is declared more than once"),
-      );
-      continue;
-    }
-    if (!Array.isArray(interval.groups)) {
-      result.set(
-        k,
-        unprocessed(k, "Explicit contour interval has no usable group array"),
       );
       continue;
     }
@@ -76,19 +63,14 @@ export function admitAutoMovieContourIntervals64(
       reasons.push(why);
       const ids: [number[], number[]] = [[], []];
       const seen: [Set<number>, Set<number>] = [new Set(), new Set()];
-      if (
-        !group ||
-        typeof group.supported !== "boolean" ||
-        (group.reason !== null && typeof group.reason !== "string") ||
-        (group.supported === false && !group.reason?.trim())
-      )
+      if (!group || (group.supported === false && !group.reason?.trim()))
         why.add(
           `Explicit contour group ${ordinal} needs a support declaration and reason`,
         );
       for (const side of [0, 1] as const) {
         const raw: readonly number[] | undefined =
           side === 0 ? group?.before : group?.after;
-        if (!Array.isArray(raw)) {
+        if (raw === undefined) {
           why.add(
             `Explicit contour group ${ordinal} has no usable side ${side} incidence`,
           );
@@ -121,7 +103,7 @@ export function admitAutoMovieContourIntervals64(
         before: ids[0],
         after: ids[1],
         supported: group?.supported === true,
-        reason: typeof group?.reason === "string" ? group.reason : null,
+        reason: group?.reason ?? null,
       });
     }
     for (const side of [0, 1] as const)

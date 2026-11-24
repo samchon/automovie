@@ -169,7 +169,12 @@ export function RecoveryChartLeafAssembly(
           : binding.end === 1
             ? master.end
             : (1 - binding.end) * master.start + binding.end * master.end;
-      if (!(start !== end))
+      if (
+        start === end ||
+        [start, end].some(
+          (value: number): boolean => value === Infinity || value === -Infinity,
+        )
+      )
         throw new Error(
           "A positive leaf binding collapses in its public canonical chart",
         );

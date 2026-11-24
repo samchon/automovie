@@ -238,10 +238,15 @@ export function fitRecoveryResectionDesign(
   if (trace) {
     trace.stage = "projection";
     trace.projectionError = projectionError;
-    trace.projectedPose = {
-      rotation: rotation.slice(),
-      translation: [...translation],
-    };
+    if (
+      ![...rotation, ...translation].some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      )
+    )
+      trace.projectedPose = {
+        rotation: rotation.slice(),
+        translation: [...translation],
+      };
   }
   if (
     !(scale > 0) ||

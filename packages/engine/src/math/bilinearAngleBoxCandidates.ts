@@ -93,41 +93,15 @@ function enumerateBox(
     ranges[1].min,
     Math.min(ranges[1].max, raw === undefined ? referenceY : raw.reference[1]),
   );
-  const ends: [number[], number[]] | undefined =
-    prepared === undefined
-      ? undefined
-      : (prepared.ends ?? [endpoints(ranges[0]), endpoints(ranges[1])]);
-  if (
-    prepared !== undefined &&
-    prepared.ends === undefined &&
-    ends !== undefined
-  )
-    prepared.ends = ends;
+  const ends: [number[], number[]] | undefined = prepared?.ends;
   const points: number[] = [];
-  const tight: readonly [boolean, boolean] | undefined =
-    prepared === undefined
-      ? undefined
-      : (prepared.tight ??= [narrow(ranges[0]), narrow(ranges[1])]);
+  const tight: readonly [boolean, boolean] | undefined = prepared?.tight;
   // Only prepared unchanged axes share min/max/reference slots and refusals.
   const aliases: (number | null | undefined)[] | undefined =
     prepared === undefined || (tight?.[0] === true && tight[1])
       ? undefined
       : [];
-  const bounded: readonly [boolean, boolean] | undefined =
-    prepared === undefined
-      ? undefined
-      : (prepared.bounded ?? [
-          Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
-            Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
-          Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
-            Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
-        ]);
-  if (
-    prepared !== undefined &&
-    prepared.bounded === undefined &&
-    bounded !== undefined
-  )
-    prepared.bounded = bounded;
+  const bounded: readonly [boolean, boolean] | undefined = prepared?.bounded;
   let representable: boolean = true;
 
   /** Select the admitted full-turn alias nearest this coordinate's reference. */
@@ -346,20 +320,17 @@ function enumerateBox(
 
 /** Fixed endpoint data owned by one unchanged box operation, never a target. */
 interface IBoxState {
-  /**
-   * Lazy finite/ordered admission, read after this query's matrix and
-   * reference.
-   */
-  admitted?: boolean;
+  /** Finite/ordered admission of the fixed ranges. */
+  admitted: boolean;
 
   /** Whether each finite interval fits the exact bounded-index proof. */
-  bounded?: readonly [boolean, boolean];
+  bounded: readonly [boolean, boolean];
 
   /** Whether each fixed axis proves one possible nearest turn. */
-  tight?: readonly [boolean, boolean];
+  tight: readonly [boolean, boolean];
 
   /** Exact endpoint order; signed-zero endpoints remain distinct. */
-  ends?: [number[], number[]];
+  ends: [number[], number[]];
 
   /** At most two lazy boundary readings for each axis. */
   trigonometry: [Array<IBoundary | undefined>, Array<IBoundary | undefined>];
@@ -392,17 +363,15 @@ interface IFamilyInterval {
   maximum: number;
 }
 
-/** Admit one unchanged prepared box lazily, after actual matrix/reference reads. */
+/** Whether the ranges are ordered, read from the preparation when one exists. */
 function admitRanges(
   ranges: readonly [IAutoMovieAngleRange, IAutoMovieAngleRange],
   prepared: IBoxState | undefined,
 ): boolean {
-  if (prepared?.admitted !== undefined) return prepared.admitted;
-  const admitted: boolean = !ranges.some(
+  if (prepared !== undefined) return prepared.admitted;
+  return !ranges.some(
     (range: IAutoMovieAngleRange): boolean => range.min > range.max,
   );
-  if (prepared !== undefined) prepared.admitted = admitted;
-  return admitted;
 }
 
 /** Original raw whole-turn bounds and their unchanged safe-index admission. */
@@ -502,6 +471,15 @@ export namespace bilinearAngleBoxCandidates {
     ranges: Parameters<typeof bilinearAngleBoxCandidates>[1],
   ): IPrepared {
     const prepared: IBoxState = {
+      admitted: admitRanges(ranges, undefined),
+      bounded: [
+        Math.abs(ranges[0].min) <= Number.MAX_SAFE_INTEGER &&
+          Math.abs(ranges[0].max) <= Number.MAX_SAFE_INTEGER,
+        Math.abs(ranges[1].min) <= Number.MAX_SAFE_INTEGER &&
+          Math.abs(ranges[1].max) <= Number.MAX_SAFE_INTEGER,
+      ],
+      tight: [narrow(ranges[0]), narrow(ranges[1])],
+      ends: [endpoints(ranges[0]), endpoints(ranges[1])],
       trigonometry: [[], []],
       aliasBounds: [[], []],
       familyIntervals: {},

@@ -114,8 +114,7 @@ export function bindPhysicalKinematicFrame(
     if (target.coupledGroup !== undefined && coupled === undefined)
       throw new AutoMoviePhysicalCoupledTargetError({
         step,
-        group:
-          typeof target.coupledGroup === "string" ? target.coupledGroup : "",
+        group: target.coupledGroup ?? "",
         members: [body.id],
         kind: "refused",
         reason: "declaration",

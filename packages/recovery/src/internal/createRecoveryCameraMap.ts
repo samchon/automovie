@@ -354,11 +354,11 @@ export function createRecoveryCameraMap(
         Math.PI,
     );
   }
-  result.maximumReprojectionErrorPx = !result.refusalReasons.includes(
-    "nonpositive-final-depth",
-  )
-    ? maximumError
-    : null;
+  result.maximumReprojectionErrorPx =
+    maximumError !== Infinity &&
+    !result.refusalReasons.includes("nonpositive-final-depth")
+      ? maximumError
+      : null;
   result.minimumPointParallaxDegrees =
     minimumAngle !== Infinity ? minimumAngle : null;
   if (!(maximumError <= input.policy.maximumReprojectionErrorPx))

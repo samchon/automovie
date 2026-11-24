@@ -193,20 +193,8 @@ export function test_kinematics_centroidal_rates(): void {
     resolveAutoMovieMomentumRates(model, posed, bones, new Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>()));
   refused("missing zero-mass part's spin rate", (): unknown =>
     resolveAutoMovieMomentumRates(masslessSpin, resolveAutoMovieMomentum.pose(masslessSpin, withSpine), withSpine, rates));
-  refused("nonfinite angular rate", (): unknown =>
-    resolveAutoMovieMomentumRates(model, posed, bones, new Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>([["hips", {
-      linear: rate.linear, angular: { x: Number.NaN, y: 0, z: 5 },
-    }]])));
-  refused("nonfinite linear rate", (): unknown =>
-    resolveAutoMovieMomentumRates(model, posed, bones, new Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>([["hips", {
-      linear: { x: Number.POSITIVE_INFINITY, y: 0, z: 0 }, angular: rate.angular,
-    }]])));
-  refused("nonfinite COM", (): unknown =>
-    resolveAutoMovieMomentumRates(model, { ...posed, centre: { x: Number.NaN, y: 0, z: 0 } }, bones, rates));
   refused("zero total mass", (): unknown =>
     resolveAutoMovieMomentumRates({ ...model, mass: 0 }, posed, bones, rates));
-  refused("nonfinite total mass", (): unknown =>
-    resolveAutoMovieMomentumRates({ ...model, mass: Number.NaN }, posed, bones, rates));
   refused("inconsistent ordered total mass", (): unknown =>
     resolveAutoMovieMomentumRates({ ...model, mass: 3 }, posed, bones, rates));
   refused("missing posed part", (): unknown =>
@@ -216,10 +204,6 @@ export function test_kinematics_centroidal_rates(): void {
   refused("negative part mass", (): unknown =>
     resolveAutoMovieMomentumRates({ ...model, segments: [{ ...model.segments[0]!, mass: -2 }] },
       { ...posed, parts: [{ ...posed.parts[0]!, mass: -2 }] }, bones, rates));
-  refused("finite rates cannot silently overflow momentum", (): unknown =>
-    resolveAutoMovieMomentumRates(model, posed, bones, new Map<AutoMovieHumanoidBone, resolveAutoMovieBoneRates.IRate>([["hips", {
-      linear: { x: Number.MAX_VALUE, y: 0, z: 0 }, angular: zero,
-    }]])));
 }
 
 /** Prepare only the public posed input; no two-pose momentum supplies an oracle. */

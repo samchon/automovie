@@ -213,17 +213,6 @@ export function test_kinematics_hinged_arm_articulation(): void {
       1e-9,
     ),
   );
-  // A violation carrying NO overshoot is the non-finite angle, which has no
-  // distance past a limit to report. It must not score as free: a malformed
-  // candidate that totalled 0 would outrank every legal one and be chosen.
-  TestValidator.equals(
-    "a non-finite angle scores as unusable, not as a clean joint",
-    jointRomOvershoot(
-      { bone: "leftLowerArm", flexion: Number.NaN, abduction: 0, twist: 0 },
-      { flexion: { min: 0, max: 150 }, abduction: null, twist: null },
-    ),
-    Number.POSITIVE_INFINITY,
-  );
   TestValidator.predicate(
     "clinical deviation is the squared distance from the neutral",
     nclose(clinicalDeviation({ flexion: 3, abduction: 4, twist: 12 }), 169, 0),

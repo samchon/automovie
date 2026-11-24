@@ -234,7 +234,9 @@ export namespace AutoMovieRecoveryOpenContinuation {
                 sum + (x - contour.pts[k - 1]!.p[j]!) * t[j]!,
               0,
             ) * input.sourceOrientationSign;
-          if (sense !== 0) signs[ordinal] = sense > 0 ? 1 : -1;
+          // Only a resolved side, positive or negative, orients the arc.
+          if (sense > 0 && sense !== Infinity) signs[ordinal] = 1;
+          else if (sense < 0 && sense !== -Infinity) signs[ordinal] = -1;
         }
       }
       for (let j: number = 0; j < bundle.reports[i]!.open.length; j++)

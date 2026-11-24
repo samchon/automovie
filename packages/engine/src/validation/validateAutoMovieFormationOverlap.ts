@@ -120,45 +120,24 @@ interface IFormationOverlapPlacement {
 }
 
 /**
- * Memoize rest points by unchanged placement identity; weak-key lifetime is not
- * bounded to one compile.
- */
-const formationOverlapMemberCache: WeakMap<
-  IAutoMovieFormationPlacement,
-  readonly { slot: number; point: IAutoMovieVector3 }[]
-> = new WeakMap<
-  IAutoMovieFormationPlacement,
-  ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }>
->();
-
-/**
- * Enumerate the first min(count,4096) designed slot points and memoize by
- * placement identity.
+ * Enumerate the first min(count,4096) designed slot points.
  *
- * This caps repeated crowd placement work while preserving slot identities.
+ * This caps crowd placement work while preserving slot identities.
  *
- * Counts beyond4096 are sampled incompletely and mutable placement changes are
- * not invalidated.
+ * Counts beyond4096 are sampled incompletely.
  *
  * The returned rows describe rest points, not current cue-transformed
  * positions.
  *
  * At most4096 slot queries/rows are produced per fresh identity.
  *
- * The WeakMap shares rows only under an unchanged placement-data premise.
- *
- * Live placement objects retain bounded cached member rows until their weak
- * keys become collectible.
+ * Rows belong to the one validation that enumerated them.
  */
 const formationOverlapMembers: (
   formation: IAutoMovieFormationPlacement,
 ) => ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> = (
   formation: IAutoMovieFormationPlacement,
 ): ReadonlyArray<{ slot: number; point: IAutoMovieVector3 }> => {
-  const remembered:
-    | readonly { slot: number; point: IAutoMovieVector3 }[]
-    | undefined = formationOverlapMemberCache.get(formation);
-  if (remembered !== undefined) return remembered;
   const members: { slot: number; point: IAutoMovieVector3 }[] = Array.from(
     { length: Math.min(formation.count, FORMATION_OVERLAP_MEMBER_LIMIT) },
     (_: unknown, slot: number): { slot: number; point: IAutoMovieVector3 } => ({
@@ -166,7 +145,6 @@ const formationOverlapMembers: (
       point: formationSlotPosition(formation, slot),
     }),
   );
-  formationOverlapMemberCache.set(formation, members);
   return members;
 };
 

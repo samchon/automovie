@@ -312,6 +312,9 @@ export function createRecoveryFeasibleSqpArc(
     stationarityScale: scale,
   });
   if (
+    [residual, violation, equality, scale].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
     violation > tolerance ||
     equality > tolerance ||
     residual > tolerance * scale

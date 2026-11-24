@@ -68,7 +68,6 @@ export function tessellateAutoMovieContourPath64(
       pair.startP >= p.pointsMm.length ||
       pair.startQ < 0 ||
       pair.startQ >= q.pointsMm.length ||
-      typeof pair.steps !== "string" ||
       /[^PQ]/.test(pair.steps) ||
       pair.steps.length !== p.pointsMm.length + q.pointsMm.length ||
       [...pair.steps].filter((step: string): boolean => step === "P").length !==

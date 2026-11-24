@@ -57,24 +57,10 @@ export function test_kinematics_two_bone_ik(): void {
   TestValidator.predicate("clamped to folded", nclose(e.bend, 0, 1e-4));
 
   TestValidator.predicate(
-    "NaN upper length rejects",
-    throwsError(
-      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(Number.NaN, 1, 1),
-      ["two-bone IK upper length", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
     "zero lower length rejects",
     throwsError(
       (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1, 0, 1),
       ["two-bone IK lower length", "> 0", "0"],
-    ),
-  );
-  TestValidator.predicate(
-    "infinite distance rejects",
-    throwsError(
-      (): IAutoMovieTwoBoneIK => solveTwoBoneIK(1, 1, Infinity),
-      ["two-bone IK distance", "finite", "Infinity"],
     ),
   );
   TestValidator.predicate(

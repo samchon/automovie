@@ -35,16 +35,6 @@ export function realizeAutoMovieBicubicAtlas64(
   input: IAutoMovieBicubicAtlasGeometry,
   options: IAutoMovieRealizeBicubicAtlas64.IOptions = {},
 ): IAutoMovieRealizeBicubicAtlas64.IResult {
-  if (
-    options.retainTriangleParameters !== undefined &&
-    typeof options.retainTriangleParameters !== "boolean"
-  )
-    throw new Error("Triangle parameter retention must be boolean");
-  if (
-    options.retainPatchCoefficients !== undefined &&
-    typeof options.retainPatchCoefficients !== "boolean"
-  )
-    throw new Error("Patch coefficient retention must be boolean");
   let patchCoefficients: IAutoMovieBicubicAtlasTessellation64.Summary["patchCoefficients"] =
     options.retainPatchCoefficients ? [] : undefined;
   const admitted: IAutoMovieAdmitBicubicAtlas.IResult =

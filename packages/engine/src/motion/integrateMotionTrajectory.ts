@@ -156,6 +156,10 @@ export function integrateMotionTrajectory(
 
   // A step so fine that the count passes 2^53 (Infinity for a subnormal
   // step over a whole second) leaves a grid no index counts exactly.
+  if (steps > Number.MAX_SAFE_INTEGER)
+    throw new Error(
+      `integrateMotionTrajectory: the step ${h} makes a count of ${steps} steps over the interval, which is not a safe-integer count`,
+    );
   const times: number[] = [t0];
   const xs: number[][] = [[...props.x0]];
   const qs: (IAutoMovieQuaternion | null)[] = [

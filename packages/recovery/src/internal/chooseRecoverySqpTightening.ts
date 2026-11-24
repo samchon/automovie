@@ -23,7 +23,7 @@ export function chooseRecoverySqpTightening(
     );
   const original: number = mixedNorm ** 2.5;
   const result: IAutoMovieRecoverySqpTightening = {
-    ceiling: original,
+    ceiling: original !== Infinity ? original : null,
     value: null,
     descent: null,
     multiplierPrice: null,
@@ -43,9 +43,10 @@ export function chooseRecoverySqpTightening(
     slope += coefficient * mixed[axis]!;
   }
   const descent: number = -slope;
-  result.descent = descent;
-  if (!(original > 0)) return result;
-  if (!(descent > 0)) {
+  const unbounded: boolean = descent === Infinity || descent === -Infinity;
+  result.descent = unbounded ? null : descent;
+  if (!(original > 0) || original === Infinity) return result;
+  if (!(descent > 0) || unbounded) {
     result.reason = "descent-unresolved";
     return result;
   }
@@ -69,11 +70,20 @@ export function chooseRecoverySqpTightening(
       norm = Math.hypot(norm, coefficient);
     }
     const product: number = multiplier * norm;
-    if (!(norm > 0) || (multiplier > 0 && !(product > 0))) {
+    if (
+      !(norm > 0) ||
+      norm === Infinity ||
+      product === Infinity ||
+      (multiplier > 0 && !(product > 0))
+    ) {
       result.reason = "multiplier-price-unresolved";
       return result;
     }
     price += product;
+    if (price === Infinity) {
+      result.reason = "multiplier-price-unresolved";
+      return result;
+    }
   }
   result.multiplierPrice = price;
   if (price === 0) {
@@ -83,7 +93,12 @@ export function chooseRecoverySqpTightening(
   }
   const available: number = Math.sqrt(sqpNorm) * descent,
     cap: number = available / price;
-  if (!(available > 0) || !(cap > 0)) {
+  if (
+    !(available > 0) ||
+    available === Infinity ||
+    !(cap > 0) ||
+    cap === Infinity
+  ) {
     result.reason = "cap-unresolved";
     return result;
   }

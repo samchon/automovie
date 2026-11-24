@@ -154,6 +154,8 @@ export function RecoveryFeatureChartCutsSubdivide(
     let normUpper: number = 0;
     for (const error of errors)
       if (error > 0) normUpper = nextUp(normUpper + error);
+    if (normUpper === Infinity)
+      fail("a midpoint rounding bound is unrepresentable");
     observationDisplacementUpperMm = Math.max(
       observationDisplacementUpperMm,
       normUpper,
@@ -237,6 +239,8 @@ export function RecoveryFeatureChartCutsSubdivide(
   );
   for (let face: number = 0; face < measuredAreas.length; face++) {
     const difference: number = measuredAreas[face]! - source.areas[face]!;
+    if (difference === Infinity || difference === -Infinity)
+      fail("a measured subdivision area discrepancy is unrepresentable");
     if (difference !== 0)
       diagnostics.push(
         `subdivision-area-difference-mm2:${JSON.stringify({ sourceFace: input.triangleSourceFaces[face], privateTriangle: face, difference })}`,

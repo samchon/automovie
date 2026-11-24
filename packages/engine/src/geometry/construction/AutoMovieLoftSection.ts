@@ -59,8 +59,6 @@ export namespace AutoMovieLoftSection {
         (layer: IAutoMovieLoftChain.ILayer): boolean =>
           layer.curvatures !== undefined,
       );
-    if (chain.sectionSpans !== undefined && !Array.isArray(chain.sectionSpans))
-      throw new Error("The present local generating-law list is malformed.");
     for (let q: number = 0; q + 1 < chain.layers.length; q++) {
       const a: IAutoMovieLoftChain.ILayer = chain.layers[q]!;
       const b: IAutoMovieLoftChain.ILayer = chain.layers[q + 1]!;

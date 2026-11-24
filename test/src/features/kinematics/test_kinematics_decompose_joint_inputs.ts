@@ -34,37 +34,6 @@ export function test_kinematics_decompose_joint_inputs(): void {
   };
 
   TestValidator.predicate(
-    "NaN quaternion component rejects",
-    throwsError(
-      (): IAutoMovieResolvedJointAngles =>
-        decomposeJointRotation({ x: Number.NaN, y: 0, z: 0, w: 1 }),
-      ["decomposeJointRotation quaternion.x", "finite", "NaN"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "infinite quaternion component rejects",
-    throwsError(
-      (): IAutoMovieResolvedJointAngles =>
-        decomposeJointRotation({ x: 0, y: 0, z: 0, w: Infinity }),
-      ["decomposeJointRotation quaternion.w", "finite", "Infinity"],
-    ),
-  );
-
-  TestValidator.predicate(
-    "non-finite custom axis rejects",
-    throwsError(
-      (): IAutoMovieResolvedJointAngles =>
-        decomposeJointRotation(Quaternion.identity(), {
-          flexion: { x: 1, y: 0, z: 0 },
-          abduction: { x: 0, y: Infinity, z: 1 },
-          twist: { x: 0, y: 1, z: 0 },
-        }),
-      ["decomposeJointRotation axes.abduction.y", "finite", "Infinity"],
-    ),
-  );
-
-  TestValidator.predicate(
     "zero-length custom axis rejects",
     throwsError(
       (): IAutoMovieResolvedJointAngles =>

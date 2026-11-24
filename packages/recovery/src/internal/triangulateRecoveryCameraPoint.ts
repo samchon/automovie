@@ -74,7 +74,15 @@ export function triangulateRecoveryCameraPoint(
     rotated[1] + t[1]!,
     rotated[2] + t[2]!,
   ];
-  if (point[2] === 0 || inSecond[2] === 0) return null;
+  // A near-zero homogeneous weight overflows the point it divides.
+  if (
+    [...point, ...inSecond].some(
+      (value: number): boolean => value === Infinity || value === -Infinity,
+    ) ||
+    point[2] === 0 ||
+    inSecond[2] === 0
+  )
+    return null;
   // Direction comparison requires R-transpose, not a camera-centre displacement;
   // translation determines triangulation but does not transform a free ray.
   const backRay: [number, number, number] = AutoMovieMatrix3.apply(
@@ -83,7 +91,13 @@ export function triangulateRecoveryCameraPoint(
   );
   const norm1: number = Math.hypot(...ray1);
   const norm2: number = Math.hypot(...backRay);
-  if (!(norm1 > 0) || !(norm2 > 0)) return null;
+  if (
+    !(norm1 > 0) ||
+    !(norm2 > 0) ||
+    norm1 === Infinity ||
+    norm2 === Infinity
+  )
+    return null;
   const unit1: IAutoMovieVector3 = {
     x: ray1[0] / norm1,
     y: ray1[1] / norm1,
@@ -115,6 +129,8 @@ export function triangulateRecoveryCameraPoint(
     projection2[0] - secondPoint[0],
     projection2[1] - secondPoint[1],
   );
+  if (firstReprojectionPx === Infinity || secondReprojectionPx === Infinity)
+    return null;
   return {
     point,
     firstDepth: point[2],

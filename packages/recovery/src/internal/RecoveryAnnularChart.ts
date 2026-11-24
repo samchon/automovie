@@ -57,7 +57,7 @@ export function RecoveryAnnularChart(
           p[1] - q[1],
           p[2] - q[2],
         );
-        if (!(distance > 0))
+        if (!(distance > 0) || distance === Infinity)
           throw new Error("A private annular chart edge is collapsed");
         adjacency[a]!.set(b, distance);
         adjacency[b]!.set(a, distance);

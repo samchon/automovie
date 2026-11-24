@@ -182,11 +182,8 @@ export function createAutoMovieMeshSeparationQuery(
     if (options.attachment !== undefined) {
       const metadata: IAutoMovieMeshSeparationAttachment = options.attachment;
       if (
-        metadata === null ||
         clearance !== 0 ||
         vertices.length !== 3 ||
-        !Array.isArray(metadata.weights) ||
-        !Array.isArray(metadata.supports) ||
         metadata.supports.length === 0 ||
         !metadata.supports.includes(metadata.triangle)
       )

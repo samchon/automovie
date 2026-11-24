@@ -88,7 +88,7 @@ export namespace AutoMovieLoftCapRead {
       AutoMovieLoftViewRead.jets(chain.nativeSource!.data, station);
     if (typeof inputs === "string")
       throw new AutoMovieLoftAdmissionError(inputs);
-    if (typeof owner.axis.jet !== "function")
+    if (owner.axis.jet === undefined)
       throw new AutoMovieLoftAdmissionError(
         "The original cap axis has no physical2 owner.",
       );
