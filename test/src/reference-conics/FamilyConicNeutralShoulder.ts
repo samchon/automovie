@@ -19,6 +19,8 @@ async function captureNeutralShoulders(
   out: string,
   asset?: string,
   meridianFile?: string,
+  ownerNormals: boolean = false,
+  enginePort: boolean = false,
 ): Promise<void> {
   const source = await Mpfb.load(asset);
   const publicGuide = Armscye.guide(source, Armscye.measure(source));
@@ -35,7 +37,9 @@ async function captureNeutralShoulders(
   const body =
     meridianFile === undefined ? buildHumanNeutralCapture.inspect() : undefined;
   const meridians =
-    meridianFile === undefined ? [] : await readMeridians(meridianFile);
+    meridianFile === undefined
+      ? []
+      : await readMeridians(meridianFile, ownerNormals, enginePort);
   await fs.mkdir(out, { recursive: true });
   NodeCanvasRaster.initialize();
   const reports = [];
@@ -71,9 +75,11 @@ async function captureNeutralShoulders(
         760,
       ),
     ];
+    const candidateName =
+      body !== undefined ? "neutral" : enginePort ? "enginePort" : "physicalLoop";
     for (const camera of cameras)
       for (const [subject, result] of [
-        [body === undefined ? "physicalLoop" : "neutral", neutral],
+        [candidateName, neutral],
         ["reference", reference],
       ] as const)
         for (const guide of [false, true]) {
@@ -106,6 +112,8 @@ async function captureNeutralShoulders(
         topology: body?.topology,
         trianglesByOwner: body?.trianglesByOwner,
         meridianFile,
+        ownerNormals,
+        enginePort,
       },
       null,
       2,
@@ -115,6 +123,14 @@ async function captureNeutralShoulders(
 
 type Side = "left" | "right";
 type Part = { mesh: N.Mesh; guide: N.Point[] };
+type ReportPart = {
+  guide: N.Point[];
+  skin: {
+    positions: number[];
+    indices: number[];
+    report?: { seam?: { vertex: number; normal: N.Point }[] };
+  };
+};
 
 function actual(
   body: ReturnType<typeof buildHumanNeutralCapture.inspect>,
@@ -153,27 +169,41 @@ function actual(
 
 async function readMeridians(
   file: string,
+  ownerNormals: boolean,
+  enginePort: boolean,
 ): Promise<{ side: Side; part: Part }[]> {
   const report = (await fs.readFile(file, "utf8")).trim().split(/\r?\n/u);
   return report.flatMap((line) => {
-    const { side, physicalLoop } = JSON.parse(line) as {
+    const entry = JSON.parse(line) as {
       side: Side;
-      physicalLoop?: {
-        guide: N.Point[];
-        skin: Pick<N.Mesh, "positions" | "indices">;
-      };
+      physicalLoop?: ReportPart;
+      enginePort?: ReportPart;
     };
-    if (physicalLoop === undefined) return [];
+    const part = enginePort ? entry.enginePort : entry.physicalLoop;
+    if (part === undefined) return [];
+    const { side } = entry;
+    const { positions, indices, report } = part.skin;
+    const normals = ownerNormals ? meshOf(positions, indices).normals : null;
+    if (normals !== null) {
+      if (report?.seam === undefined)
+        throw new Error(
+          "The source report does not contain the owner seam normals",
+        );
+      for (const { vertex, normal } of report.seam)
+        normals.splice(3 * vertex, 3, ...normal);
+    }
     return [
       {
         side,
         part: {
           mesh: {
-            id: `ansur.meridians.${side}`,
-            ...physicalLoop.skin,
+            id: `ansur.${enginePort ? "port" : "meridians"}.${side}`,
+            positions,
+            indices,
+            ...(normals === null ? {} : { normals }),
             colour: [0.64, 0.65, 0.67],
           },
-          guide: physicalLoop.guide.map((point) => V.scale(point, 1 / 1000)),
+          guide: part.guide.map((point) => V.scale(point, 1 / 1000)),
         },
       },
     ];
@@ -245,17 +275,21 @@ if (
   const out = process.argv[2];
   if (out === undefined)
     throw new Error(
-      "Usage: FamilyConicNeutralShoulder <output-directory> [exact-hm08-obj] [--meridians=<source-report>]",
+      "Usage: FamilyConicNeutralShoulder <output-directory> [exact-hm08-obj] [--meridians=<source-report>] [--owner-normals] [--engine-port]",
     );
   const inputs = process.argv.slice(3);
   const meridians = inputs
     .find((arg) => arg.startsWith("--meridians="))
     ?.slice("--meridians=".length);
   const asset = inputs.find((arg) => !arg.startsWith("--"));
-  void captureNeutralShoulders(out, asset, meridians).catch(
-    (error: unknown): void => {
-      console.error(error);
-      process.exitCode = 1;
-    },
-  );
+  void captureNeutralShoulders(
+    out,
+    asset,
+    meridians,
+    inputs.includes("--owner-normals"),
+    inputs.includes("--engine-port"),
+  ).catch((error: unknown): void => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 }

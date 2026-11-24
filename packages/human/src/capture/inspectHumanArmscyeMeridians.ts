@@ -1,4 +1,7 @@
-import { AutoMovieSolidVector as V } from "@automovie/engine";
+import {
+  AutoMovieIllinois,
+  AutoMovieSolidVector as V,
+} from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieHumanLimbRootStrip,
@@ -28,8 +31,9 @@ export function inspectHumanArmscyeMeridians(input: {
   mark: number;
   count: number;
   reach: number;
-  materialPhase: (point: Point) => number;
+  materialPhase: (point: Point, clock: number) => number;
   chordDirection: boolean;
+  crest?: { height: number; lateral: number };
   surfaces: {
     host: IAutoMovieSolidSurface & { domain: [number, number] };
     child: IAutoMovieSolidSurface & { domain: [number, number] };
@@ -53,7 +57,7 @@ export function inspectHumanArmscyeMeridians(input: {
     const shear = V.dot(inward, along) / V.dot(along, along);
     const a = ds - shear * q.first[0],
       b = dp - shear * q.first[1];
-    const phase = materialPhase(jet.p);
+    const phase = materialPhase(jet.p, clock);
     phases.push(phase);
     const stock = child.jet(mark, phase);
     end.push({ point: stock.p, first: stock.u, second: stock.uu });
@@ -90,11 +94,12 @@ export function inspectHumanArmscyeMeridians(input: {
     throw new Error(
       `Armscye material clock has winding ${winding} with minimum directed step ${leastStep}`,
     );
-  const material = inspectLines(start, end);
+  const material = inspectLines(start, end, input.crest);
   return {
     count,
     phaseClock: { winding, leastStep },
     registered: material.report,
+    crest: material.crest,
     guide: start.map(({ point }) => point),
     skin: inspectHumanArmscyeSkin({
       ...input.surfaces,
@@ -126,14 +131,34 @@ function crossJet(
 function inspectLines(
   start: IAutoMovieHumanLimbRootStrip.IJet[],
   end: IAutoMovieHumanLimbRootStrip.IJet[],
+  crest?: { height: number; lateral: number },
 ) {
   const count = start.length;
   const ringAt = AutoMovieHumanLimbRootStrip.strip({ start, end }).ring;
+  const crestAt = crest === undefined ? null : acromialCrest(start, end, crest);
   const chords = start.map(({ point: p }, i) => V.sub(end[i]!.point, p));
   const rows = Math.ceil(
     Math.max(...chords.map(V.norm)) / AutoMovieHumanTrunkRows.MAX_GAP,
   );
-  const rings = Array.from({ length: rows + 1 }, (_, i) => ringAt(i / rows));
+  const rings = Array.from({ length: rows + 1 }, (_, i) => {
+    const w = i / rows;
+    const ring = ringAt(w);
+    if (crestAt === null) return ring;
+    const lift = crestWeight(w) * crestAt.coefficient;
+    return ring.map(
+      ([x, y, z], column): Point => [
+        x,
+        y +
+          lift *
+            Math.max(
+              0,
+              Math.cos((2 * Math.PI * (column - crestAt.column)) / count),
+            ) **
+              3,
+        z,
+      ],
+    );
+  });
   let negativeRows: number = 0;
   let crossedNormal: number = 0;
   const reversedStart = start.flatMap(({ first }, k) =>
@@ -172,6 +197,7 @@ function inspectLines(
     }
   return {
     rings,
+    crest: crestAt,
     report: {
       rows,
       negativeRows,
@@ -182,4 +208,60 @@ function inspectLines(
       reversed,
     },
   };
+}
+
+/**
+ * Add the single interior acromial guide to its meridian. Fixing both endpoint
+ * two-jets leaves one scalar direction at degree six, `t³(1-t)³`. The body
+ * supplies the guide's height and breadth. The positive half of the clock's
+ * cosine, cubed, carries the guide over the superior half with zero first and
+ * second derivatives at its edges. This is an estimate of the skin course.
+ */
+function acromialCrest(
+  start: IAutoMovieHumanLimbRootStrip.IJet[],
+  end: IAutoMovieHumanLimbRootStrip.IJet[],
+  crest: { height: number; lateral: number },
+) {
+  const sense = Math.sign(start[0]!.point[2]);
+  const candidates = start.flatMap((first, column) => {
+    const last = end[column]!;
+    const span = sense * (last.point[2] - first.point[2]);
+    if (
+      !(
+        span > 0 &&
+        sense * first.point[2] < crest.lateral &&
+        sense * last.point[2] > crest.lateral
+      )
+    )
+      return [];
+    const line = AutoMovieHumanLimbRootStrip.strip({
+      start: [first],
+      end: [last],
+    }).ring;
+    const at = AutoMovieIllinois.root(
+      (w) => sense * line(w)[0]![2] - crest.lateral,
+      0,
+      1,
+      0.001 / span,
+      64,
+    );
+    return at === null || !(at > 0 && at < 1)
+      ? []
+      : [{ column, at, point: line(at)[0]! }];
+  });
+  const peak = candidates.reduce<(typeof candidates)[number] | null>(
+    (current, candidate) =>
+      current === null || candidate.point[1] > current.point[1]
+        ? candidate
+        : current,
+    null,
+  );
+  if (peak === null)
+    throw new Error("No meridian crosses the measured acromial breadth");
+  const lift = crest.height - peak.point[1];
+  return { ...peak, lift, coefficient: lift / crestWeight(peak.at) };
+}
+
+function crestWeight(w: number): number {
+  return (w * (1 - w)) ** 3;
 }

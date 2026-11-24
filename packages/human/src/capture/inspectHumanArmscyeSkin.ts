@@ -73,12 +73,14 @@ export function inspectHumanArmscyeSkin(input: {
   const levels = hostChart.map(([u]) => u);
   const low = Math.max(host.domain[0], Math.min(...levels) - reach);
   const high = Math.min(host.domain[1], Math.max(...levels) + reach);
+  const stripEnd = mesh.indices.length;
   Mesh.face(mesh, {
     surface: host,
     stations: stations(low, high),
     phases,
     loops: [{ kind: "hole", chart: hostChart, vertices: ids[0]! }],
   });
+  const hostEnd = mesh.indices.length;
   Mesh.face(mesh, {
     surface: child,
     stations: stations(mark, child.domain[1]),
@@ -102,6 +104,14 @@ export function inspectHumanArmscyeSkin(input: {
     }),
   );
   const crossings = measureAutoMovieMeshCrossings(geometry, geometry);
+  const seam = boundaryNormals(
+    mesh,
+    host,
+    hostChart,
+    ids[0]!,
+    stripEnd,
+    hostEnd,
+  );
   return {
     positions: geometry.positions,
     indices: mesh.indices,
@@ -109,8 +119,69 @@ export function inspectHumanArmscyeSkin(input: {
       pieces,
       crossings: crossings.length,
       sampleCrossings: crossings.slice(0, 8),
+      seam,
     },
   };
+}
+
+/** Compare the two indexed faces incident to each exact shared parent edge. */
+function boundaryNormals(
+  mesh: ReturnType<typeof Mesh.create>,
+  host: IAutoMovieSolidSurface,
+  chart: Chart[],
+  rim: number[],
+  stripEnd: number,
+  hostEnd: number,
+) {
+  const count = rim.length;
+  const columns: (number | undefined)[] = [];
+  rim.forEach((vertex, i) => {
+    columns[vertex] = i;
+  });
+  const parent: (Point | undefined)[] = [];
+  const strip: (Point | undefined)[] = [];
+  const point = (index: number): Point => {
+    const i = 3 * index;
+    return [mesh.positions[i]!, mesh.positions[i + 1]!, mesh.positions[i + 2]!];
+  };
+  const unit = (n: Point): Point => V.scale(n, 1 / V.norm(n));
+  const angle = (a: Point, b: Point): number =>
+    (180 / Math.PI) * Math.atan2(V.norm(V.cross(a, b)), V.dot(a, b));
+  for (let i = 0; i < hostEnd; i += 3) {
+    const a = mesh.indices[i]!;
+    const b = mesh.indices[i + 1]!;
+    const c = mesh.indices[i + 2]!;
+    const onRim = [columns[a], columns[b], columns[c]].filter(
+      (column): column is number => column !== undefined,
+    );
+    if (onRim.length < 2) continue;
+    const p = point(a);
+    const normal = unit(V.cross(V.sub(point(b), p), V.sub(point(c), p)));
+    const faces = i < stripEnd ? strip : parent;
+    for (const column of onRim)
+      if (onRim.includes((column + 1) % count)) faces[column] = normal;
+  }
+  const native = chart.map(([station, phase]) => {
+    const { u, v } = host.jet(station, phase);
+    return unit(V.scale(V.cross(u, v), host.orientation));
+  });
+  return rim.map((vertex, i) => {
+    const next = (i + 1) % count;
+    const owner = unit(V.add(native[i]!, native[next]!));
+    return {
+      column: i,
+      vertex,
+      point: point(vertex),
+      normal: native[i]!,
+      ownerTurn: angle(native[i]!, native[next]!),
+      parent: parent[i] === undefined ? null : angle(owner, parent[i]!),
+      strip: strip[i] === undefined ? null : angle(owner, strip[i]!),
+      between:
+        parent[i] === undefined || strip[i] === undefined
+          ? null
+          : angle(parent[i]!, strip[i]!),
+    };
+  });
 }
 
 function stations(low: number, high: number): number[] {

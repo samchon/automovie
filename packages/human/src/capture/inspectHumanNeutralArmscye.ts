@@ -3,6 +3,7 @@ import {
   AutoMovieLoftViewFullSource,
   AutoMovieViewParameter,
   AutoMovieSolidVector as V,
+  bracketedMinimum,
 } from "@automovie/engine";
 import type {
   AutoMovieVector3Tuple,
@@ -17,6 +18,10 @@ import { AutoMovieHumanArmscyePort } from "../generation/conic/AutoMovieHumanArm
 import { AutoMovieHumanJoinLoop } from "../generation/conic/AutoMovieHumanJoinLoop";
 import { AutoMovieHumanNeutralParameters } from "./AutoMovieHumanNeutralParameters";
 import { inspectHumanArmscyeMeridians } from "./inspectHumanArmscyeMeridians";
+import {
+  inspectHumanArmscyePort,
+  inspectHumanArmscyePortCrest,
+} from "./inspectHumanArmscyePort";
 import { inspectHumanArmscyeSlices } from "./inspectHumanArmscyeSlices";
 import { inspectHumanArmscyeSlopeGrid } from "./inspectHumanArmscyeSlopeGrid";
 
@@ -26,6 +31,9 @@ type Options = {
   firstClearRing: boolean;
   slices: boolean;
   slopeGrid: boolean;
+  anatomicalShoulder: boolean;
+  enginePort: boolean;
+  engineCrestRange: boolean;
 };
 
 /**
@@ -71,9 +79,20 @@ function inspect(
     upper: number;
     neck: { suprasternale: number; side: number; cervicale: number };
   },
-  { useDatum, chordDirection, firstClearRing, slices, slopeGrid }: Options,
+  {
+    useDatum,
+    chordDirection: useChordDirection,
+    firstClearRing: useFirstClearRing,
+    slices,
+    slopeGrid,
+    anatomicalShoulder,
+    enginePort,
+    engineCrestRange,
+  }: Options,
 ): void {
   const { lower, upper, neck } = levels;
+  const chordDirection = useChordDirection || anatomicalShoulder;
+  const firstClearRing = useFirstClearRing || anatomicalShoulder;
   const boundary = context.neckBoundary();
   const trunk = AutoMovieHumanBodyLaw.trunkSource(context);
   const sourceSites = [...trunk.sections.keys()];
@@ -83,9 +102,10 @@ function inspect(
     throw new Error(
       `Armscye inspection needs the original trunk and ordered axilla/acromion levels (${lower}, ${upper} mm). Available planes: ${sourceSites.join(", ")}`,
     );
-  const host = useDatum
-    ? shoulderDatum(base, lower, upper, boundary.seat.side)
-    : base;
+  const host =
+    useDatum || anatomicalShoulder
+      ? shoulderDatum(base, lower, upper, boundary.seat.side, anatomicalShoulder)
+      : base;
   const wall = AutoMovieLoftViewFullSource.create(host);
   const contact = neckContact(wall, head, boundary.seat.y, host.samples);
   const rest = context.limbRest(boundary);
@@ -110,11 +130,19 @@ function inspect(
             chordDirection,
             firstClearRing,
             slopeGrid,
+            medialTorso: anatomicalShoulder,
+            crest: anatomicalShoulder
+              ? { height: upper, lateral: context.trunkInputs.biacromial / 2 }
+              : undefined,
+            sideNeck: anatomicalShoulder ? boundary.seat.side : undefined,
+            enginePort,
+            engineCrestRange,
           });
       console.log(
         JSON.stringify({
           side,
-          datum: useDatum,
+          datum: useDatum || anatomicalShoulder,
+          anatomicalShoulder,
           neck,
           contact,
           sourceSites,
@@ -190,6 +218,7 @@ function shoulderDatum(
   lower: number,
   upper: number,
   neck: AutoMovieVector3Tuple,
+  medialTorso: boolean,
 ): IAutoMovieViewPart {
   const change = (
     outline: IAutoMovieViewPart.IOutline,
@@ -224,13 +253,19 @@ function shoulderDatum(
         },
       };
     };
+    // ESTIMATE: the independent torso retains the axillary breadth at the
+    // acromial level. The existing axilla rule already subtracts the person's
+    // upper-arm tape radius from the bony width. The connection can then own
+    // the upper arm's lateral soft-tissue course between both source sheets.
+    // https://mreed.umtri.umich.edu/Anthro/Hotzman_2011_ANSURIII_Measurements_a548497.pdf
+    const breadth = medialTorso ? axilla.value : acromion.value;
     const shoulderLine = author(
-      acromion,
-      (neckRadius - acromion.value) / (neck[1] - upper),
+      { ...acromion, value: breadth },
+      (neckRadius - breadth) / (neck[1] - upper),
     );
     const underarmLine = author(
       axilla,
-      (acromion.value - axilla.value) / (upper - lower),
+      (breadth - axilla.value) / (upper - lower),
     );
     return {
       ...outline,
@@ -293,9 +328,15 @@ function observe(
     chordDirection: boolean;
     firstClearRing: boolean;
     slopeGrid: boolean;
+    medialTorso: boolean;
+    crest?: { height: number; lateral: number };
+    sideNeck?: AutoMovieVector3Tuple;
+    enginePort: boolean;
+    engineCrestRange: boolean;
   },
 ) {
-  const { chordDirection, firstClearRing, slopeGrid } = options;
+  const { chordDirection, firstClearRing, slopeGrid, medialTorso, sideNeck } =
+    options;
   const shaft = AutoMovieLoftViewFullSource.create(arm);
   const mark = arm.front.positive.knots.find(
     ({ site }) => site === "deltoid",
@@ -309,7 +350,6 @@ function observe(
       `The axilla/acromion span ${lower} to ${upper} mm leaves the retained trunk`,
     );
   const markOrigin = arm.axis.at(mark).origin;
-  const middle = (lower + upper) / 2;
   const quarter =
     side === "left"
       ? ([0, Math.PI] as const)
@@ -333,8 +373,42 @@ function observe(
   };
   const apertures = [shaft.point(mark, 0)[0], shaft.point(mark, Math.PI)[0]];
   const reach = Math.abs(apertures[0]! - apertures[1]!) / 2;
-  const height = (upper - lower) / 2;
+  let apex = upper;
+  if (sideNeck !== undefined) {
+    const lateral = side === "left" ? 1 : -1;
+    const original = wall.point(
+      upper,
+      side === "left" ? Math.PI / 2 : (3 * Math.PI) / 2,
+    );
+    const neck: AutoMovieVector3Tuple = [
+      sideNeck[0],
+      sideNeck[1],
+      lateral * sideNeck[2],
+    ];
+    const course = V.sub(neck, original);
+    const length = V.norm(course);
+    if (!(length > reach))
+      throw new Error("The upper seam has no one-fold reach before the neck");
+    apex += (reach * course[1]) / length;
+  }
+  const middle = (lower + apex) / 2;
+  const height = (apex - lower) / 2;
+  const root = medialTorso ? arm.axis.jet?.(shaft.domain[0]) : null;
   const address = (point: AutoMovieVector3Tuple) => {
+    if (root !== undefined && root !== null) {
+      const { value, first } = root;
+      const from = V.sub(point, value.origin);
+      const normal = V.cross(value.v, value.u);
+      const step = V.dot(from, normal) / V.dot(first.origin, normal);
+      if (step < 0 && (sideNeck !== undefined || step >= -reach)) {
+        const q = V.sub(from, V.scale(first.origin, step));
+        return {
+          station: shaft.domain[0] + step,
+          phase: Math.atan2(V.dot(q, value.v), V.dot(q, value.u)),
+          radius: V.norm(q),
+        };
+      }
+    }
     const [station, phase] = AutoMovieHumanJoinLoop.address(
       arm,
       shaft.domain,
@@ -433,17 +507,44 @@ function observe(
       v[0];
     return { point: [s, phase], first: [ds, dp], second: [dds, ddp] };
   };
+  const rim =
+    firstClearRing || sideNeck !== undefined
+      ? Array.from({ length: arm.samples }, (_, i) =>
+          wall.point(...physical((2 * Math.PI * i) / arm.samples).point),
+        )
+      : [];
   const after = firstClearRing
-    ? Math.max(
-        ...Array.from(
-          { length: arm.samples },
-          (_, i) =>
-            address(
-              wall.point(...physical((2 * Math.PI * i) / arm.samples).point),
-            ).station,
-        ),
-      )
+    ? Math.max(...rim.map((point) => address(point).station))
     : null;
+  // Clock the upper meridian by the stock's superior point. Its actual
+  // tangent distinguishes anterior and posterior, even when the local radial
+  // image of the opening is not monotone.
+  const superiorClock = (station: number) => {
+    const point = shaft.pointAt(station);
+    const step = (2 * Math.PI) / arm.samples;
+    const phases = Array.from({ length: arm.samples }, (_, i) => i * step);
+    const highest = phases.reduce(
+      (best, p) => (point(p)[1] > point(best)[1] ? p : best),
+      0,
+    );
+    const top = bracketedMinimum(
+      (p) => -point(p)[1],
+      highest - step,
+      highest + step,
+      0.001 / reach,
+    ).at;
+    const sense = Math.sign(shaft.jet(station, top).v[0]);
+    if (sense === 0)
+      throw new Error("The upper arm outline has no directed anterior tangent");
+    return (clock: number): number => top + sense * clock;
+  };
+  const forwardOriginal = (station: number): boolean => {
+    const phase = superiorClock(station);
+    return rim.every((point, i) => {
+      const stock = shaft.jet(station, phase((2 * Math.PI * i) / arm.samples));
+      return V.dot(stock.u, V.sub(stock.p, point)) > 0;
+    });
+  };
   const outlet =
     after !== null
       ? clearOutlet({
@@ -454,6 +555,7 @@ function observe(
           side,
           phaseAt,
           after,
+          accept: sideNeck === undefined ? undefined : forwardOriginal,
         })
       : mark;
   if (slopeGrid)
@@ -479,11 +581,47 @@ function observe(
         },
       }),
     };
+  const portAt = (top: number, rows: number) => {
+    const station = (lower + top) / 2;
+    const x = centreX(station);
+    return {
+      host,
+      arm,
+      wall,
+      outlet,
+      start: shaft.domain[0],
+      side,
+      centre: [station, phaseAt(station, x)] as [number, number],
+      centreX,
+      radius: depthRadius,
+      height: (top - lower) / 2,
+      phaseExtent:
+        Math.abs(phaseAt(station, x - depthRadius) - phaseAt(station, x + depthRadius)) / 2,
+      rows,
+    };
+  };
+  if (options.engineCrestRange) {
+    if (sideNeck === undefined || options.crest === undefined)
+      throw new Error("The stock crest range needs --anatomical-shoulder");
+    const neck = Math.min(sideNeck[1], wall.domain[1]);
+    const lateral = options.crest.lateral;
+    // Two bisection levels give a coarse measurement of the anatomical range.
+    const crestRange = Array.from({ length: 5 }, (_, i) => {
+      const top = i === 4 ? neck : apex + ((neck - apex) * i) / 4;
+      try {
+        return { top, ...inspectHumanArmscyePortCrest(portAt(top, 1), lateral) };
+      } catch (error) {
+        return { top, error: String(error) };
+      }
+    });
+    return { apex, outlet, crestRange };
+  }
   const elbow = arm.front.positive.knots.find(
     ({ site }) => site === "elbow",
   )?.station;
   if (elbow === undefined || !(elbow > outlet && elbow <= shaft.domain[1]))
     throw new Error("No retained original elbow beyond the armscye outlet");
+  const targetClock = sideNeck === undefined ? null : superiorClock(outlet);
   const physicalLoop = inspectHumanArmscyeMeridians({
     host: wall,
     child: shaft,
@@ -491,8 +629,10 @@ function observe(
     count: arm.samples,
     loop: physical,
     centre: [middle, phaseAt(middle, centreX(middle))],
-    materialPhase: (p) => address(p).phase,
+    materialPhase: (point, clock) =>
+      targetClock === null ? address(point).phase : targetClock(clock),
     chordDirection,
+    crest: options.crest,
     mark: outlet,
     surfaces: {
       host: surface(host, wall, middle),
@@ -504,14 +644,22 @@ function observe(
   });
   const began = performance.now();
   const physicalPort = corrected(physical);
+  const enginePort = options.enginePort
+    ? inspectHumanArmscyePort({
+        ...portAt(apex, physicalLoop.registered.rows),
+        guide: physicalLoop.guide,
+      })
+    : undefined;
   return {
     lower,
     upper,
+    apex,
     mark,
     outlet,
     after,
     physicalLoop,
     physicalPort,
+    enginePort,
     moveMilliseconds: performance.now() - began,
   };
 }
@@ -530,13 +678,14 @@ function clearOutlet(input: {
   after: number;
   limit: number;
   side: "left" | "right";
+  accept?: (station: number) => boolean;
   phaseAt: (
     station: number,
     x: number,
     read: (phase: number) => AutoMovieVector3Tuple,
   ) => number;
 }): number {
-  const { wall, shaft, arm, after, limit, side, phaseAt } = input;
+  const { wall, shaft, arm, after, limit, side, phaseAt, accept } = input;
   const sense = side === "left" ? 1 : -1;
   const phases = Array.from(
     { length: arm.samples },
@@ -546,13 +695,14 @@ function clearOutlet(input: {
     if (!(station > after && station < Math.min(limit, shaft.domain[1])))
       return false;
     const ring = shaft.pointAt(station);
-    return phases.every((phase) => {
+    const separated = phases.every((phase) => {
       const [x, y, z] = ring(phase);
       if (y < wall.domain[0] || y > wall.domain[1]) return false;
       const section = wall.pointAt(y);
       if (x < section(Math.PI)[0] || x > section(0)[0]) return true;
       return sense * (z - section(phaseAt(y, x, section))[2]) > 0.01;
     });
+    return separated && (accept?.(station) ?? true);
   });
   if (clear === undefined)
     throw new Error(
