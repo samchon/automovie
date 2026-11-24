@@ -7,7 +7,6 @@ import type {
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import type { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
 
 /**
  * An arm's course from a read waypoint to the next, as the swept readings take
@@ -39,12 +38,6 @@ export namespace HumanArmTrajectoryHalfStep {
      * the waypoint read left out and the next last.
      */
     path: readonly IStep[];
-
-    /**
-     * The arm's segments' strays within the interval's frame steps
-     * (`HumanArmTrajectoryStray.arm`).
-     */
-    stray: HumanArmTrajectoryStray.IArm;
   }
 
   /**

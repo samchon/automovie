@@ -6,7 +6,7 @@ States which probes are read over which step, the screen before each exact readi
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Trajopt's per-step contact (Schulman et al. 2014, section IV-C): each probe's chord over the step, carried into the shape's frame, is read exactly (`physicalShapeNearest`) less the played cubic's interpolation error toward the shape, an eighth of the second difference about the step's frames along the outward normal at the nearest point; the deepest probe past its allowance is the step's one contact.
+Trajopt's per-step contact (Schulman et al. 2014, section IV-C): each probe's chord over the step, carried into the shape's frame, is read exactly (`physicalShapeNearest`), the step between two poses as trajopt reads it (section IV-B), with no correction for the course between them; the deepest probe past its allowance is the step's one contact. Verdict change: the bend estimate (an eighth of the second difference about each frame) and the stray are removed, as neither bounded the course between the poses, so fewer steps are sweeps.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,11 +14,11 @@ Moved out of `HumanArmTrajectorySweep` unchanged so that file stays under its si
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A probe is left unread only where the shape's bounding sphere less the course's stray shows it within its allowance or no deeper than the deepest so far, branch and bound that changes no answer.
+A probe is left unread only where the shape's bounding sphere shows it within its allowance or no deeper than the deepest so far, branch and bound that changes no answer. Limit, as in trajopt: the course between the two poses is not read, so a course that curves into the shape between frames whose chords clear it passes.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-O(p) screens for the part's p probes and an exact nearest-point query only where a screen fails; two to six carries per probe read.
+O(p) screens for the part's p probes and an exact nearest-point query only where a screen fails; two carries per probe.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

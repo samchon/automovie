@@ -159,9 +159,9 @@ export namespace HumanArmTrajectoryLinks {
   /**
    * Each of a part's solids cast over frames of an interval: the convex hull of
    * its places at those frames, each carried into a shape's frame at the
-   * interval's first waypoint (`HumanArmTrajectoryHalfStep.carry`), widened by
-   * the played course's stray within a frame step: the cast hull of trajopt,
-   * over the whole interval or over one frame step of it.
+   * interval's first waypoint (`HumanArmTrajectoryHalfStep.carry`): the cast
+   * hull of trajopt, the convex hull of consecutive poses (Schulman et al.
+   * 2014, section IV-B), over the whole interval or over one frame step of it.
    *
    * @param c The context.
    * @param a The arm.
@@ -170,7 +170,6 @@ export namespace HumanArmTrajectoryLinks {
    * @param part The part.
    * @param steps The arm's solids at the frames cast over, in order.
    * @param shape The shape, by its index in the frame at `k`.
-   * @param stray The stray, metres.
    * @returns The casts, one per solid the part has at the first frame.
    */
   export function cast(
@@ -180,7 +179,6 @@ export namespace HumanArmTrajectoryLinks {
     part: number,
     steps: readonly IStep[],
     shape: number,
-    stray: number,
   ): physicalShapeGjk.ISolid[] {
     const first: readonly physicalShapeGjk.ISolid[] =
       steps[0]?.solids.get(part) ?? [];
@@ -199,7 +197,7 @@ export namespace HumanArmTrajectoryLinks {
                 .point,
             );
         }
-        return { points, radius: radius + stray };
+        return { points, radius };
       },
     );
   }

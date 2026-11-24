@@ -24,7 +24,7 @@ States each member, its order and what it covers.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The next read waypoint, the arm there and at every frame on the way, and the arm's strays within the frame steps.
+The next read waypoint and the arm there and at every frame on the way.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

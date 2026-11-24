@@ -68,7 +68,7 @@ One pass grouping the probes, one closing each part's sphere and reach.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The reach covers every probe and every shape point, so the strays read at it bound the whole part.
+The reach covers every probe and every shape point, so a bound read at it covers the whole part.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -120,7 +120,7 @@ States the inputs, the frames cast over, the hull and the margin.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The convex hull of the part's places at the frames cast over, carried into the shape's frame at the interval's first waypoint, holds every chord of the course's frame steps among them; widened by the course's stray within a step, it holds the course (trajopt's cast hull). Read over the whole interval, or over one frame step where the whole interval's cast does not certify.
+The convex hull of the part's places at the frames cast over, carried into the shape's frame at the interval's first waypoint, holds every chord of the course's frame steps among them: trajopt's cast hull, the convex hull of consecutive poses (Schulman et al. 2014, section IV-B), with no widening for the course between them. Read over the whole interval, or over one frame step where the whole interval's cast does not certify.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -128,7 +128,7 @@ One union of points per solid.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-The stray is the step's bound in every direction, so a cast certified clear leaves no probe's course to read.
+The cast is the hull of the step's poses and nothing wider, as trajopt's is, so a cast certified clear leaves no probe's chord to read; the course between the poses is not read, as trajopt does not read it.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

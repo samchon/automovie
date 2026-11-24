@@ -10,7 +10,6 @@ import { HumanArmTrajectoryLimits as L } from "./HumanArmTrajectoryLimits";
 import { HumanArmTrajectoryMaterialSweep } from "./HumanArmTrajectoryMaterialSweep";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
@@ -26,8 +25,8 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * pair at the waypoint (`HumanArmTrajectoryPairs.deepest`), and over each
  * interval to the next read waypoint every probe's course through every frame
  * between, each frame step its own sweep (`HumanArmTrajectorySweep`: the axis
- * spheres as capsules, the collider probes under their parts' cast hulls, less
- * the course's stray from its chords): a reading that admits the trajectory
+ * spheres as capsules, the collider probes under their parts' cast hulls,
+ * TrajOpt's hulls of consecutive poses): a reading that admits the trajectory
  * there admits it at every instant between, so no finer reading follows
  * (trajopt reads its timesteps and the casts between them, each subdivided cast
  * its own contact, and nothing finer).
@@ -37,12 +36,11 @@ import { nameArmTrajectoryPair } from "./nameArmTrajectoryPair";
  * leaves some knots as they were) takes the earlier reading's arm placement at
  * every waypoint it does not name, its pairs and crossings at every read
  * waypoint it does not name, and its sweeps over every read interval whose
- * window (the interval's waypoints and the waypoints about them, which the
- * strays read) it does not name: each is a function of the context and the
- * coordinates in its window alone, so they are the same values. Every term is
- * then summed by the same loop in the same order, so the objective, the
- * violation and the worst term are the ones a reading of the whole iterate
- * gives, bit for bit.
+ * window (the interval's waypoints and the waypoints about them) it does not
+ * name: each is a function of the context and the coordinates in its window
+ * alone, so they are the same values. Every term is then summed by the same
+ * loop in the same order, so the objective, the violation and the worst term
+ * are the ones a reading of the whole iterate gives, bit for bit.
  *
  * @param c The context.
  * @param x Each arm's coordinates at each waypoint.
@@ -104,26 +102,11 @@ export function HumanArmTrajectoryEvaluate(
       ),
   );
   // Whether a read interval's sweeps are the earlier reading's: they depend
-  // on its waypoints and the waypoints about them, which its strays and its
-  // second differences read; a material encounter also on the pairs at its
-  // two ends.
+  // on its waypoints and the waypoints about them; a material encounter also
+  // on the pairs at its two ends.
   const sameInterval = (a: number, k: number): boolean =>
     unchanged(k - 1, following[k]! + 1) &&
     ((c.material?.parts[a] ?? -1) < 0 || (same(k) && same(following[k]!)));
-  // Each arm's segments' strays over each read interval, by its first
-  // waypoint (`HumanArmTrajectoryStray`), read once for every reader.
-  const strays: Map<number, HumanArmTrajectoryStray.IArm>[] = x.map(
-    (): Map<number, HumanArmTrajectoryStray.IArm> => new Map(),
-  );
-  const strayOf = (a: number, k: number): HumanArmTrajectoryStray.IArm => {
-    let found: HumanArmTrajectoryStray.IArm | undefined = strays[a]!.get(k);
-    if (found === undefined)
-      strays[a]!.set(
-        k,
-        (found = HumanArmTrajectoryStray.arm(c, placed[a]!, k, following[k]!)),
-      );
-    return found;
-  };
   // The arm on the way from read waypoint `k` to its neighbour `n`: every
   // frame between and the neighbour, the course's swept readings read it by.
   const nearOf = (
@@ -141,7 +124,6 @@ export function HumanArmTrajectoryEvaluate(
       at: n,
       placed: placed[a]![n]!,
       path,
-      stray: strayOf(a, Math.min(k, n)),
     };
   };
   let objective: number = 0;

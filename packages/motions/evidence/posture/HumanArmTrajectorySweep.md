@@ -6,7 +6,7 @@ Each member states its meaning, unit and frame.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One frame step of a probe's course, an axis sphere's or an audit collider probe's: its two frames, its two ends carried into the shape's frame at the interval's first waypoint with the turns that carry directions back, its clearance (a collider probe's less the played course's stray toward the shape), its bound and the shape's nearest-point reading, the facts the violation and its linearisation are made of.
+One frame step of a probe's course, an axis sphere's or an audit collider probe's: its two frames, its two ends carried into the shape's frame at the interval's first waypoint with the turns that carry directions back, its clearance (the chord's, as trajopt reads the step between two poses), its bound and the shape's nearest-point reading, the facts the violation and its linearisation are made of.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -54,7 +54,7 @@ States what is read, in which order the certificates come, what a sweep records 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Trajopt's link-pair cast (Schulman et al. 2014, section IV-C): each audit part's solids cast over the whole interval through every frame, carried into the shape's frame and widened by the played course's stray (`HumanArmTrajectoryLinks.cast`), certify the pair clear of every allowance by one GJK lower bound (`HumanAuditModel.certify`), since two convex solids' distance bounds every probe depth between them and every allowance is no more than zero. Where it does not, each frame step is cast alone, the subdivision trajopt makes of an interval past its longest valid segment, and only a step whose cast fails reads its probes' chords less the cubic's interpolation error toward the shape (an eighth of the second difference about the step's frames, along the shape's outward normal at the nearest point). Each failing step is its own contact, its deepest probe's, so the convex model moves every step of a miss at both its frames. A step after one whose cast certified a clearance is itself certified clear while the part's solids' points have moved less than that clearance since (conservative advancement, Mirtich 1996, PhD thesis, ch. 3): its cast is the hull of the same points at its own two frames, and a hull's distance to a convex shape changes no more than its points move; the points' travel is prepared once per part and shape (`HumanArmTrajectorySweepBound.solids`).
+Trajopt's link-pair cast (Schulman et al. 2014, section IV-C): each audit part's solids cast over the whole interval through every frame, carried into the shape's frame, trajopt's hull of consecutive poses (Schulman et al. 2014, section IV-B; `HumanArmTrajectoryLinks.cast`), certify the pair clear of every allowance by one GJK lower bound (`HumanAuditModel.certify`), since two convex solids' distance bounds every probe depth between them and every allowance is no more than zero. Where it does not, each frame step is cast alone, the subdivision trajopt makes of an interval past its longest valid segment, and only a step whose cast fails reads its probes' chords (`HumanArmTrajectoryDeepestStep`). Verdict change: the casts are no longer widened by the course's stray and the chords no longer less a bend estimate, both estimates and not bounds of the course between the poses, so a step whose poses clear the shape but whose course was estimated to curve into it is no longer a sweep; the planner now reads each step as trajopt does. Each failing step is its own contact, its deepest probe's, so the convex model moves every step of a miss at both its frames. A step after one whose cast certified a clearance is itself certified clear while the part's solids' points have moved less than that clearance since (conservative advancement, Mirtich 1996, PhD thesis, ch. 3): its cast is the hull of the same points at its own two frames, and a hull's distance to a convex shape changes no more than its points move; the points' travel is prepared once per part and shape (`HumanArmTrajectorySweepBound.solids`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -62,7 +62,7 @@ Part by part, shape by shape: the screen, the interval's cast, each step's cast,
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A declared rest touches its shape by design, so it is never certified and its probes are read on every step; the stray is a bound in every direction, so a cast certified clear covers the course played; a probe is left unread only where the shape's bounding sphere less that stray shows it within its allowance or no deeper than the step's deepest so far.
+A declared rest touches its shape by design, so it is never certified and its probes are read on every step; a cast certified clear covers every chord of its step, as trajopt's does; a probe is left unread only where the shape's bounding sphere shows it within its allowance or no deeper than the step's deepest so far.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

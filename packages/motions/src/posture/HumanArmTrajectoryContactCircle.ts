@@ -21,7 +21,6 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmTrajectoryDistal } from "./HumanArmTrajectoryDistal";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
-import type { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel } from "./HumanArmTrajectoryTravel";
@@ -277,7 +276,6 @@ export function HumanArmTrajectoryContactCircle(
         at: interval + 1,
         placed: end,
         path: [{ at: interval + 1, placed: end }],
-        stray: STILL,
       }))
         if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE) return undefined;
     return q;
@@ -362,10 +360,3 @@ interface ICircle {
 function dot(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
   return a.x * b.x + a.y * b.y + a.z * b.z + a.w * b.w;
 }
-
-/** No stray within a frame step: the step is read as its chord. */
-const STILL: HumanArmTrajectoryStray.IArm = {
-  upper: { origin: 0, turn: 0 },
-  lower: { origin: 0, turn: 0 },
-  hand: { origin: 0, turn: 0 },
-};

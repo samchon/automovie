@@ -18,7 +18,6 @@ import { HumanArmTrajectoryDeepestStep } from "./HumanArmTrajectoryDeepestStep";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import { HumanArmTrajectoryLinks } from "./HumanArmTrajectoryLinks";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import { HumanArmTrajectoryStray } from "./HumanArmTrajectoryStray";
 import { HumanArmTrajectorySweepBound } from "./HumanArmTrajectorySweepBound";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanAuditModel } from "./HumanAuditModel";
@@ -76,8 +75,8 @@ export namespace HumanArmTrajectorySweep {
 
     /**
      * The step's signed distance to the shape less the probe's radius, metres
-     * (negative inside); a collider probe's less, too, the played course's
-     * stray from the step's chord toward the shape (`links`).
+     * (negative inside): the chord's, as TrajOpt reads the step between two
+     * poses (Schulman et al. 2014, section IV-B).
      */
     clear: number;
 
@@ -244,22 +243,21 @@ export namespace HumanArmTrajectorySweep {
    * waypoints: the course between the waypoints the pairs read
    * (`HumanArmTrajectoryPairs.deepest`). Each audit part is read against each
    * shape near it first as one link pair over the whole interval, the cast hull
-   * of its solids through every frame of the interval widened by the played
-   * course's stray within a frame step (`HumanArmTrajectoryLinks.cast`,
-   * `HumanAuditModel.certify`); where that cast does not keep the shape clear,
-   * as one cast per frame step, a step an earlier step's certified clearance
-   * still covers by conservative advancement (Mirtich 1996: the part's solids'
-   * points have moved less than it since,
+   * of its solids through every frame of the interval, TrajOpt's hull of the
+   * consecutive poses (Schulman et al. 2014, section IV-B;
+   * `HumanArmTrajectoryLinks.cast`, `HumanAuditModel.certify`); where that cast
+   * does not keep the shape clear, as one cast per frame step, a step an
+   * earlier step's certified clearance still covers by conservative advancement
+   * (Mirtich 1996: the part's solids' points have moved less than it since,
    * `HumanArmTrajectorySweepBound.solids`) left uncast; and only on a step
    * whose cast fails, probe by probe. A probe's step is its chord, carried into
-   * the shape's frame at the interval's first waypoint, less the played cubic's
-   * interpolation error toward the shape: an eighth of the second difference
-   * about each of the step's frames, along the shape's outward normal at the
-   * step's nearest point. Each step a part passes its allowance on is one
-   * sweep, its deepest probe's, as each of trajopt's subdivided casts is one
-   * contact (Schulman et al. 2014, section IV-C): the merit counts each and the
-   * convex model linearises each at both its frames, so a miss that spans
-   * several steps is moved at every one of them.
+   * the shape's frame at the interval's first waypoint, with no correction for
+   * the course between the two poses, as TrajOpt's cast has none. Each step a
+   * part passes its allowance on is one sweep, its deepest probe's, as each of
+   * trajopt's subdivided casts is one contact (Schulman et al. 2014, section
+   * IV-C): the merit counts each and the convex model linearises each at both
+   * its frames, so a miss that spans several steps is moved at every one of
+   * them.
    *
    * Every allowance is no more than zero, so a cast certified clear of the
    * shape lets no probe of it pass its allowance anywhere it covers.
@@ -296,18 +294,6 @@ export namespace HumanArmTrajectorySweep {
       from,
     );
 
-    // Each shape's carrying stray over the interval, a function of the shape
-    // alone, read once for every part (`HumanArmTrajectoryStray.shape`).
-    const carrying: (HumanArmTrajectoryStray.IStray | undefined)[] = [];
-    const carried = (shape: number): HumanArmTrajectoryStray.IStray =>
-      (carrying[shape] ??= HumanArmTrajectoryStray.shape(
-        c,
-        a,
-        k,
-        near.at,
-        shape,
-      ));
-
     // Each frame's solids by part, made on the first cast that reads them and
     // shared by every pair.
     const steps: (HumanArmTrajectoryLinks.IStep | undefined)[] = [];
@@ -327,27 +313,15 @@ export namespace HumanArmTrajectorySweep {
       let travelled: number = 0;
       for (const probe of link.probes)
         travelled = Math.max(travelled, moving.probes[probe]!);
-      const own: number = HumanArmTrajectoryStray.of(
-        near.stray[link.owner],
-        link.reach,
-      );
       for (const shape of c.reachable[a]![k]!) {
         const s: IAutoMovieMotionHumanArmGeometry.IShape = frame.shapes[shape]!;
         if (frame.related[link.part]?.[s.part] === true) continue;
 
-        // The course strays from its chords by the part's stray and the
-        // shape's carrying stray at the part's lever from the shape's origin
-        // (`HumanArmTrajectoryStray`), and the part's sphere screens the
-        // shape's over what either travels on the way.
-        const lever: number =
-          Vector3.distance(link.centre, s.pose.position) +
-          link.radius +
-          travelled;
-        const stray: number =
-          own + HumanArmTrajectoryStray.of(carried(shape), lever);
+        // The part's sphere screens the shape's over what either travels on
+        // the way.
         if (
           Vector3.distance(link.centre, s.centre) - link.radius - s.radius >=
-          T.REACH + travelled + moving.shapes[shape]! + stray
+          T.REACH + travelled + moving.shapes[shape]!
         )
           continue;
 
@@ -367,15 +341,7 @@ export namespace HumanArmTrajectorySweep {
           solid === undefined
             ? -Infinity
             : HumanAuditModel.certify(
-                HumanArmTrajectoryLinks.cast(
-                  c,
-                  a,
-                  k,
-                  link.part,
-                  over,
-                  shape,
-                  stray,
-                ),
+                HumanArmTrajectoryLinks.cast(c, a, k, link.part, over, shape),
                 link.offset,
                 solid,
                 0,
@@ -423,7 +389,6 @@ export namespace HumanArmTrajectorySweep {
             shape,
             frames[i]!,
             frames[i + 1]!,
-            stray,
           );
           if (sweep !== undefined) out.push(sweep);
         }
