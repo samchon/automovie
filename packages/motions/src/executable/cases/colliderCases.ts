@@ -21,6 +21,8 @@ import * as THREE from "three";
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { MotionBodies } from "../MotionBodies";
+import { colliderCaseInside } from "./colliderCaseInside";
+import { colliderCaseNearest } from "./colliderCaseNearest";
 
 /** The alternatives of `ColliderCasesWorstEntry`'s site. */
 type ColliderCasesWorstEntry = "vertex" | "band" | "face" | "digit";
@@ -177,9 +179,9 @@ export function* colliderCases(
       for (const shape of segment.shapes)
         for (const p of samples(segment.neutral, shape))
           if (shape.kind === "hull")
-            note(worst.face, nearest(p, own), shape.id);
-          else if (!inside(p, every))
-            note(worst.digit, nearest(p, every), segment.bone);
+            note(worst.face, colliderCaseNearest(p, own), shape.id);
+          else if (!colliderCaseInside(p, every))
+            note(worst.digit, colliderCaseNearest(p, every), segment.bone);
     }
 
     const verdict = (
@@ -260,36 +262,6 @@ const PRECISION: number = 1e-5;
  * vertices, metres.
  */
 const FIDELITY: number = 3e-3;
-
-/** A fixed direction no drawn edge or face is parallel to, for the parity test. */
-const RAY: THREE.Vector3 = new THREE.Vector3(
-  0.5371,
-  0.7193,
-  0.4402,
-).normalize();
-
-/** Distance from a point to the nearest of some triangles, metres. */
-function nearest(p: THREE.Vector3, triangles: THREE.Triangle[]): number {
-  const at: THREE.Vector3 = new THREE.Vector3();
-  let best: number = Infinity;
-  for (const triangle of triangles)
-    best = Math.min(best, triangle.closestPointToPoint(p, at).distanceTo(p));
-  return best;
-}
-
-/** Whether a point lies inside the closed drawn modules, by ray parity. */
-function inside(p: THREE.Vector3, triangles: THREE.Triangle[]): boolean {
-  const ray: THREE.Ray = new THREE.Ray(p, RAY);
-  const at: THREE.Vector3 = new THREE.Vector3();
-  let hits: number = 0;
-  for (const triangle of triangles)
-    if (
-      ray.intersectTriangle(triangle.a, triangle.b, triangle.c, false, at) !==
-      null
-    )
-      hits++;
-  return hits % 2 === 1;
-}
 
 /**
  * Points on a shape's surface, canonical metres: a hull's face centres, corners

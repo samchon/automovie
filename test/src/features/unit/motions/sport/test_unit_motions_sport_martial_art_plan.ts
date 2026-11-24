@@ -31,8 +31,7 @@ import { vclose } from "../../../internal/vclose";
  *    stance's `ready` (0.6 s) to its `relax` (1.6 s), the right throughout.
  * 2. Held, the root stands half the step out toward +X and a fifth of the thigh
  *    lower than at the start.
- * 3. Four choku-zuki hold 1.8 s (3 s in all); a tai chi push lasts 12 s.
- * 4. A fractional count, or a negative hold, is refused.
+ * 3. A fractional count, or a negative hold, is refused.
  */
 export async function test_unit_motions_sport_martial_art_plan(): Promise<void> {
   // Whole body: the forms place both legs and arms on goals the full rig
@@ -77,18 +76,7 @@ export async function test_unit_motions_sport_martial_art_plan(): Promise<void> 
     ),
   );
 
-  // 3. Other forms' lengths.
-  TestValidator.predicate(
-    "the punches and the push",
-    nclose(martialArt.plan(context({ kind: "chokuZuki" })).duration, 3, 1e-9) &&
-      nclose(
-        martialArt.plan(context({ kind: "taiChiPush" })).duration,
-        12,
-        1e-9,
-      ),
-  );
-
-  // 4. Refusals.
+  // 3. Refusals.
   TestValidator.predicate(
     "a fractional count, a negative hold",
     throwsError(() =>

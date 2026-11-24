@@ -1,3 +1,4 @@
+import { physicalHullFaces } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanColliders,
@@ -6,7 +7,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { physicalHullFaces } from "@automovie/engine";
 import type { HumanArmGeometry } from "./HumanArmGeometry";
 
 /** The alternatives of `MirroredOthersResult`'s site. */
@@ -25,10 +25,10 @@ export namespace HumanArmMirror {
    * The reflections of one mirroring: every segment it reflects whose shape
    * list is one source list gets one reflected list. A frame counts a segment
    * once however many goals read it, by its bone, its pose and the identity of
-   * its shape list (`HumanArmFrame`); the placement owner hands every reading of
-   * a segment the same list, and a fresh list per reflection made the two arms'
-   * readings of one partner two segments in a mirrored problem, the region a
-   * hand is laid on kept as an obstacle in the other reading.
+   * its shape list (`HumanArmFrame`); the placement owner hands every reading
+   * of a segment the same list, and a fresh list per reflection made the two
+   * arms' readings of one partner two segments in a mirrored problem, the
+   * region a hand is laid on kept as an obstacle in the other reading.
    */
   export interface IReflector {
     /**
@@ -190,7 +190,8 @@ export namespace HumanArmMirror {
             externals: base.externals.map(
               (
                 external: IAutoMovieMotionHumanColliders.IExternal,
-              ): IAutoMovieMotionHumanColliders.IExternal => by.framed(external),
+              ): IAutoMovieMotionHumanColliders.IExternal =>
+                by.framed(external),
             ),
           }),
     };
@@ -224,23 +225,22 @@ export namespace HumanArmMirror {
 
   /** A segment's shape list reflected, a fresh list. */
   function reflectShapes(shapes: IShapes): IShapes {
-    return shapes.map(
-      (shape: IShapes[number]): IShapes[number] => ({
-        ...shape,
-        transform: {
-          ...shape.transform,
-          position: flip(shape.transform.position),
-          rotation: turn(shape.transform.rotation),
-        },
-        ...(shape.kind === "hull" ? reflectedHull(shape) : {}),
-      }),
-    ) as IShapes;
+    return shapes.map((shape: IShapes[number]): IShapes[number] => ({
+      ...shape,
+      transform: {
+        ...shape.transform,
+        position: flip(shape.transform.position),
+        rotation: turn(shape.transform.rotation),
+      },
+      ...(shape.kind === "hull" ? reflectedHull(shape) : {}),
+    })) as IShapes;
   }
 
   /** A hull shape's points mirrored with its hull, which is mirrored too. */
-  function reflectedHull(
-    shape: Extract<IShapes[number], { kind: "hull" }>,
-  ): { points: IAutoMovieVector3[]; hull?: IAutoMoviePhysicalHullFaces.IHull } {
+  function reflectedHull(shape: Extract<IShapes[number], { kind: "hull" }>): {
+    points: IAutoMovieVector3[];
+    hull?: IAutoMoviePhysicalHullFaces.IHull;
+  } {
     const points: IAutoMovieVector3[] = flipped(shape.points);
     return shape.hull === undefined
       ? { points }

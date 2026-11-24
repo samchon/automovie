@@ -2,14 +2,22 @@ import { AutoMovieInspectorPlayhead } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * The inspector's playhead is an external store whose snapshot changes identity only when a member changes, keeps its second within the subject, plays at its rate and stops at the end.
+ * The inspector's playhead is an external store whose snapshot changes identity
+ * only when a member changes, keeps its second within the subject, plays at its
+ * rate and stops at the end.
  *
  * Scenarios:
  *
- * 1. Before a duration is set, play does nothing; after `setDuration(2)` a seek past either end lands on 0 or 2, and a seek that does not move keeps the snapshot object and notifies no listener.
- * 2. Playing at rate 0.5, one wall second advances half a subject second; a negative wall time moves nothing; a paused playhead does not move. The two moving seeks counted as jumps and playing did not.
- * 3. Advancing past the end stops at the duration and pauses; play from the end restarts at zero as a third jump.
- * 4. A listener hears each change until it unsubscribes, and a duration or rate that is not positive is refused.
+ * 1. Before a duration is set, play does nothing; after `setDuration(2)` a seek
+ *    past either end lands on 0 or 2, and a seek that does not move keeps the
+ *    snapshot object and notifies no listener.
+ * 2. Playing at rate 0.5, one wall second advances half a subject second; a
+ *    negative wall time moves nothing; a paused playhead does not move. The two
+ *    moving seeks counted as jumps and playing did not.
+ * 3. Advancing past the end stops at the duration and pauses; play from the end
+ *    restarts at zero as a third jump.
+ * 4. A listener hears each change until it unsubscribes, and a duration or rate
+ *    that is not positive is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Drives the public playhead and reads its snapshots and listener calls.
  * @evidence contracts/development/testing.md#independent-expectations Expected seconds are the products of the stated rate and wall times and the clamps of the stated range, worked out in the test.

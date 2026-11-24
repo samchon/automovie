@@ -9,9 +9,12 @@ import { nclose } from "../internal/predicates";
  * Public viewport synchronization preserves CSS units and native projection.
  *
  * Scenarios:
+ *
  * 1. A CSS-only resize updates drawing-buffer dimensions and camera projection.
- * 2. Identical dimensions are idle; DPR-only and externally changed projection are repaired independently.
- * 3. Fractional DPR is retained and invalid/overflowing extents refuse before mutation.
+ * 2. Identical dimensions are idle; DPR-only and externally changed projection are
+ *    repaired independently.
+ * 3. Fractional DPR is retained and invalid/overflowing extents refuse before
+ *    mutation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual public viewport adapter with a declared renderer port and real PerspectiveCamera; observes native-size calls, retained logical dimensions/ratio, aspect and native projection after layout/DPR/projection changes.
  * @evidence contracts/development/testing.md#independent-expectations Authored 1100-by-619 CSS dimensions define aspect and the renderer call independently; a fresh native PerspectiveCamera with those authored dimensions supplies the projection reference. Identical inputs require no resize, and invalid requests require no side effects.

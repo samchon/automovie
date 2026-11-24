@@ -20,9 +20,8 @@ type IViewerCropWindow = NonNullable<IViewerCameraStateSnapshot["view"]>;
  *
  * 1. Perspective and orthographic lenses, cropped views, TRS and layers match
  *    authored values before and after transfer.
- * 2. A changed class or degenerate or invalid restore fields refuse
- *    without changing the resident state; disabled and absent views remain
- *    supported.
+ * 2. A changed class or degenerate or invalid restore fields refuse without
+ *    changing the resident state; disabled and absent views remain supported.
  * 3. Manual matrix ownership, parenting, custom projection and an unsupported
  *    camera class refuse capture or restore.
  *

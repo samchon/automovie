@@ -6,6 +6,7 @@ import { nclose } from "../internal/predicates";
 /**
  * Completed time follows a real synchronous producer, rather than an idle RAF.
  * Scenarios:
+ *
  * 1. Initial zero, an idle request, scoped completion and manual guide redraw.
  * 2. Explicit seek time overrides its surrounding request, including zero.
  * 3. Nested production restores its enclosing request on success or refusal.

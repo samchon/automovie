@@ -25,8 +25,8 @@ export namespace IAutoMovieLoftCapSource {
 
     /**
      * The end layer and native source record the snapshots above were checked
-     * against when the cap was retained. A read that finds the same objects need
-     * not serialise them again; one that finds others checks in full.
+     * against when the cap was retained. A read that finds the same objects
+     * need not serialise them again; one that finds others checks in full.
      */
     prepared?: {
       layer: IAutoMovieLoftChain.ILayer;

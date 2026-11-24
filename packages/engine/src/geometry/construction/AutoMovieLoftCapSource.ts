@@ -45,8 +45,7 @@ export namespace AutoMovieLoftCapSource {
     for (const key of ["pole", "opposite"] as const) {
       const pole: Pole | undefined = copy[key];
       if (pole?.source === undefined) continue;
-      const index: number =
-        pole.end === "bottom" ? 0 : chain.layers.length - 1;
+      const index: number = pole.end === "bottom" ? 0 : chain.layers.length - 1;
       copy[key] = {
         ...pole,
         source: {

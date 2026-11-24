@@ -1,7 +1,6 @@
 import { Transform } from "@automovie/engine";
 import { AutoMovieHumanCanonicalBody } from "@automovie/human";
 import type {
-  AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieBone,
   IAutoMovieHumanCanonicalBody,

@@ -92,10 +92,19 @@ export function createViewerCameraState(camera: THREE.Camera): {
     const determinant: number = new THREE.Matrix4()
       .fromArray(state.projection)
       .determinant();
+    // The rotation squares the quaternion, so one whose length overflows would
+    // turn the world transform into infinities less infinities.
+    const turn: number = Math.hypot(...state.quaternion);
+    // The world determinant is the scales' product; one that overflows or
+    // vanishes leaves no invertible transform.
+    const volume: number = state.scale[0] * state.scale[1] * state.scale[2];
     if (
-      !(Math.hypot(...state.quaternion) > 0) ||
+      !(turn > 0) ||
+      turn === Infinity ||
       !(Math.hypot(...state.up) > 0) ||
-      state.scale.some((value: number): boolean => value === 0) ||
+      volume === 0 ||
+      volume === Infinity ||
+      volume === -Infinity ||
       determinant === 0 ||
       determinant === Infinity ||
       determinant === -Infinity

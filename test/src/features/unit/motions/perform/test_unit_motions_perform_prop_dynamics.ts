@@ -20,8 +20,8 @@ import { nclose } from "../../../internal/nclose";
  *    `a t² / 2` after 2 s.
  * 3. The same push for 1 s and then none: it decelerates at `0.3 g` to a stop at
  *    `1 + v₁ / (0.3 g)` and stays there, `a / 2 + v₁² / (0.6 g)` along.
- * 4. Let go at a declared 1 s, the push's slide is exact at the cut: `a` m/s
- *    and `a / 2` m there, stopping `a² / (0.6 g)` further on.
+ * 4. Let go at a declared 1 s, the push's slide is exact at the cut: `a` m/s and
+ *    `a / 2` m there, stopping `a² / (0.6 g)` further on.
  * 5. A door of 2 kg m² under 1 N m turns `t² / 4` radians; with the torque
  *    switched off at a declared 1 s it turns on at half a radian a second.
  * 6. A 70 kg body with its centre at 1 m pushing 100 N at its hands' 1.2 m leans
