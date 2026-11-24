@@ -17,6 +17,7 @@ export * from "./AutoMovieHumanHeadLane";
 export * from "./AutoMovieHumanHeadLayout";
 export * from "./AutoMovieHumanHeadLipContact";
 export * from "./AutoMovieHumanHeadLipPart";
+export * from "./AutoMovieHumanHeadLipSkin";
 export * from "./AutoMovieHumanHeadMassPart";
 export * from "./AutoMovieHumanHeadMassProfile";
 export * from "./AutoMovieHumanHeadMassSource";

@@ -25,7 +25,9 @@ export function inspectHumanNeutralTopology(
       "head.mass",
       ...AutoMovieHumanLimbSources.names(),
       ...laneSources.map(({ name }): string => name),
-      ...head.map(({ feature }): string => feature.part.name),
+      ...head
+        .filter(({ sectionOwner }) => sectionOwner === undefined)
+        .map(({ feature }): string => feature.part.name),
     ]),
   ];
   if (root === null)
@@ -165,10 +167,21 @@ export function inspectHumanNeutralTopology(
         diagnostics.push(`${name} does not branch from ${parent}`);
     }
   }
-  for (const { feature } of head)
-    if (!connected(feature.material?.name ?? feature.parent, feature.part.name))
+  for (const { feature, sectionOwner } of head) {
+    if (sectionOwner !== undefined) {
+      if (
+        !sources.has(feature.parent) ||
+        sourceParts.get(feature.parent)?.originalSection !== sectionOwner
+      )
+        diagnostics.push(
+          `${feature.part.name} is absent from its parent's original section field`,
+        );
+    } else if (
+      !connected(feature.material?.name ?? feature.parent, feature.part.name)
+    )
       diagnostics.push(
         `${feature.part.name} does not attach to its declared parent face`,
       );
+  }
   return { owners, diagnostics };
 }

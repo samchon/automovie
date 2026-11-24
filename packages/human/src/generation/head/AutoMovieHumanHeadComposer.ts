@@ -14,6 +14,7 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieHumanHeadCanonical } from "./AutoMovieHumanHeadCanonical";
+import { AutoMovieHumanHeadLipSkin } from "./AutoMovieHumanHeadLipSkin";
 import { AutoMovieHumanHeadOriginalSources } from "./AutoMovieHumanHeadOriginalSources";
 import { AutoMovieHumanHeadTree } from "./AutoMovieHumanHeadTree";
 
@@ -151,7 +152,7 @@ export namespace AutoMovieHumanHeadComposer {
       originals?.base ?? prepared ?? prepare(skeleton, ears, neckBase, places);
     const {
       plan,
-      part: massPart,
+      part: originalMass,
     }: IAutoMovieHumanHeadCanonical.IOutput["tape"] = base.closed().tape;
     const definition: IAutoMovieHumanHeadComposer.IDefinition =
       originals ?? define(base, ears, places);
@@ -213,6 +214,60 @@ export namespace AutoMovieHumanHeadComposer {
     };
     const parts: IAutoMovieHumanHeadComposer.IPlaced[] =
       definition.parts.map(place);
+    const upper = parts.find(
+      ({ feature }) => feature.part.name === "lip.upper",
+    );
+    const lower = parts.find(
+      ({ feature }) => feature.part.name === "lip.lower",
+    );
+    const philtrum = parts.find(
+      ({ feature }) => feature.part.name === "philtrum",
+    );
+    const sulcus = parts.find(
+      ({ feature }) => feature.part.name === "sulcus.mentolabial",
+    );
+    const crest: number | undefined =
+      upper?.feature.part.front.positive.knots.find(
+        ({ site }) => site === "crista.philtri.left",
+      )?.station;
+    const massPart: IAutoMovieViewPart =
+      upper === undefined || lower === undefined
+        ? originalMass
+        : AutoMovieHumanHeadLipSkin.of(
+            originalMass,
+            plan,
+            upper.feature.part,
+            lower.feature.part,
+            [
+              philtrum === undefined || crest === undefined
+                ? undefined
+                : {
+                    station: plan.landmarks.subnasale[1],
+                    width: crest + philtrum.feature.size[1],
+                    depth: philtrum.feature.size[0],
+                    crest,
+                  },
+              sulcus === undefined
+                ? undefined
+                : {
+                    station: plan.landmarks.pogonion[1],
+                    width: plan.mouthWidth,
+                    depth: sulcus.feature.size[0],
+                  },
+            ],
+          );
+    if (
+      massPart.originalSection !== undefined &&
+      upper !== undefined &&
+      lower !== undefined
+    ) {
+      upper.sectionOwner = massPart.originalSection;
+      lower.sectionOwner = massPart.originalSection;
+      if (philtrum !== undefined && crest !== undefined)
+        philtrum.sectionOwner = massPart.originalSection;
+      if (sulcus !== undefined)
+        sulcus.sectionOwner = massPart.originalSection;
+    }
 
     const studies: IAutoMovieHumanHeadComposer.IOutput["studies"] =
       definition.studies.map(
@@ -230,7 +285,10 @@ export namespace AutoMovieHumanHeadComposer {
           };
         },
       );
-    const sources: ReadonlyMap<string, IAutoMovieViewPart> = definition.sources;
+    const sources: ReadonlyMap<string, IAutoMovieViewPart> =
+      massPart === originalMass
+        ? definition.sources
+        : new Map(definition.sources).set(massPart.name, massPart);
     return {
       plan,
       definition,
@@ -243,7 +301,9 @@ export namespace AutoMovieHumanHeadComposer {
       studies,
       /** Only explicit raw demand invokes the identical definition's supplier. */
       get mass(): IAutoMovieViewLoft.IResult {
-        return definition.loft(massPart.name);
+        return massPart === originalMass
+          ? definition.loft(massPart.name)
+          : AutoMovieViewLoft.create(massPart);
       },
       /** Reading diagnostics enumerates performed admissions, never unrequested geometry. */
       get diagnostics(): IAutoMovieLoftContract.IDiagnostic[] {

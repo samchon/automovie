@@ -14,10 +14,10 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Original mass contact and both lip borders in one declared level chart.
- * Each border is the signed native-parent chord of its supplied Euclidean
- * height from the resting curve. This reads original scalar functions; it
- * neither projects an emitted mesh nor changes a supplied height.
+ * Original mass contact and both lip borders in one declared level chart. Each
+ * border is the signed native-parent chord of its supplied Euclidean height
+ * from the resting curve. This reads original scalar functions; it neither
+ * projects an emitted mesh nor changes a supplied height.
  *
  * @evidence contracts/common.md#principled-implementation Inverts the actual forward native branch, then differentiates the chord equation and its secant frame from original world total2.
  * @evidence contracts/common.md#clear-and-simple-design One immutable parent admission serves the resting reader and both regional border consumers.
@@ -50,14 +50,20 @@ export namespace AutoMovieHumanHeadLipContact {
       );
     const source: IAutoMovieLoftViewSource.ISource = admitted.source;
     const frame: IAutoMovieLoftSectionFrame = parent.axis.at(height);
+    const scalar: ReturnType<typeof AutoMovieLoftViewRead.prepare> =
+      AutoMovieLoftViewRead.prepare(source);
 
-    /** Read X=F(Y,Z) from the original forward branch, preserving its available total2. */
-    const field: (y: number, z: number) => IField = (
+    /**
+     * Prepare a level's original forward branch. The stomion level remains
+     * fixed for all callers and can share this immutable section geometry.
+     */
+    const level = (
       y: number,
-      z: number,
-    ): IField => {
-      const inputs: IAutoMovieLoftViewRead.IValues | string =
-        AutoMovieLoftViewRead.values(source, y);
+    ): ((z: number) => {
+      phase: number;
+      reading: IAutoMovieHumanHeadLipContact.IReading;
+    }) => {
+      const inputs: IAutoMovieLoftViewRead.IValues | string = scalar.values(y);
       if (typeof inputs === "string")
         throw new Error(`Lip parent field: ${inputs}`);
       const plane: IAutoMovieLoftSectionFrame = parent.axis.at(y);
@@ -75,34 +81,60 @@ export namespace AutoMovieHumanHeadLipContact {
         throw new Error(
           "Lip material parent requires its declared world-level X/Z chart",
         );
-      const { point, phase: phaseJet }: ReturnType<typeof AutoMovieLoftSectionNative.curve> =
+      const {
+        point,
+        phase: phaseJet,
+      }: ReturnType<typeof AutoMovieLoftSectionNative.curve> =
         AutoMovieLoftSectionNative.curve(inputs);
-      const target: number = z - plane.origin[2];
       const lower: number = point(-Math.PI / 2)[1];
       const upper: number = point(Math.PI / 2)[1];
-      if (!(Number.isFinite(target) && target >= lower && target <= upper))
-        throw new Error(
-          `Lip lateral ${z} is outside the original parent at ${y}`,
-        );
-      let low: number = -Math.PI / 2;
-      let high: number = Math.PI / 2;
-      for (let i: number = 0; i < 56; i++) {
-        const middle: number = (low + high) / 2;
-        if (point(middle)[1] < target) low = middle;
-        else high = middle;
-      }
-      const phase: number =
-        target === lower
-          ? -Math.PI / 2
-          : target === upper
-            ? Math.PI / 2
-            : (low + high) / 2;
-      const local: ReturnType<
-        ReturnType<typeof AutoMovieLoftSectionNative.phase>
-      > = phaseJet(phase);
-      const first: number = local.t[0] / local.t[1];
-      const second: number =
-        (local.tt[0] * local.t[1] - local.t[0] * local.tt[1]) / local.t[1] ** 3;
+      return (z) => {
+        const target: number = z - plane.origin[2];
+        if (!(Number.isFinite(target) && target >= lower && target <= upper))
+          throw new Error(
+            `Lip lateral ${z} is outside the original parent at ${y}`,
+          );
+        let low: number = -Math.PI / 2;
+        let high: number = Math.PI / 2;
+        for (let i: number = 0; i < 56; i++) {
+          const middle: number = (low + high) / 2;
+          const value: number = point(middle)[1];
+          if (value === target) {
+            low = middle;
+            high = middle;
+            break;
+          }
+          if (value < target) low = middle;
+          else high = middle;
+        }
+        const phase: number =
+          target === lower
+            ? -Math.PI / 2
+            : target === upper
+              ? Math.PI / 2
+              : (low + high) / 2;
+        const local: ReturnType<typeof phaseJet> = phaseJet(phase);
+        const first: number = local.t[0] / local.t[1];
+        const second: number =
+          (local.tt[0] * local.t[1] - local.t[0] * local.tt[1]) /
+          local.t[1] ** 3;
+        return {
+          phase,
+          reading: {
+            point: [plane.origin[0] + local.p[0], y, z],
+            forwardJet:
+              Number.isFinite(first) && Number.isFinite(second)
+                ? [first, second]
+                : null,
+          },
+        };
+      };
+    };
+    const resting = level(height);
+
+    /** Expand the same inverse into both world-coordinate derivatives. */
+    const field = (y: number, z: number): IField => {
+      const { phase, reading } = (y === height ? resting : level(y))(z);
       const world: ReturnType<typeof AutoMovieLoftViewWorldJet> =
         AutoMovieLoftViewWorldJet(source, parent.axis, y, phase);
       let derivatives: IField["derivatives"] = null;
@@ -125,14 +157,7 @@ export namespace AutoMovieHumanHeadLipContact {
         ];
         if (values.every(Number.isFinite)) derivatives = values;
       }
-      return {
-        point: [plane.origin[0] + local.p[0], y, z],
-        forwardJet:
-          Number.isFinite(first) && Number.isFinite(second)
-            ? [first, second]
-            : null,
-        derivatives,
-      };
+      return { ...reading, derivatives };
     };
 
     return {
@@ -140,7 +165,11 @@ export namespace AutoMovieHumanHeadLipContact {
       source,
       frame,
       at: (lateral: number): IAutoMovieHumanHeadLipContact.IReading =>
-        field(height, lateral),
+        resting(lateral).reading,
+      level(y: number): (z: number) => IAutoMovieHumanHeadLipContact.IReading {
+        const prepared = level(y);
+        return (z): IAutoMovieHumanHeadLipContact.IReading => prepared(z).reading;
+      },
       section: (
         z: number,
         h: number,
@@ -227,7 +256,10 @@ export namespace AutoMovieHumanHeadLipContact {
     };
   }
 
-  /** Differentiate the same native chord equation and secant, never its sampled values. */
+  /**
+   * Differentiate the same native chord equation and secant, never its sampled
+   * values.
+   */
   function differentiate(
     rest: IField,
     border: IField,

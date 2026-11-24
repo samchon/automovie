@@ -6,20 +6,19 @@ import type { IAutoMovieLoftChain } from "@automovie/interface";
  *
  * Every principal layer inside the range is always a station, since it is a
  * shape event. Each remaining interval is split at its midpoint while the
- * section at the midpoint deviates from the straight chord between its two
- * end sections by more than `tolerance` mm at any probe phase; both halves
- * are then examined the same way. The chord deviation is the physical
- * error a flat band of triangles would make there, so the rule refines
- * curved stretches and leaves straight ones coarse. `depth` bounds the
- * recursion, so a pathological interval yields an explicit coarse band
- * instead of unbounded work.
+ * section at the midpoint deviates from the straight chord between its two end
+ * sections by more than `tolerance` mm at any probe phase; both halves are then
+ * examined the same way. The chord deviation is the physical error a flat band
+ * of triangles would make there, so the rule refines curved stretches and
+ * leaves straight ones coarse. `depth` bounds the recursion, so a pathological
+ * interval yields an explicit coarse band instead of unbounded work.
  */
 export namespace AutoMovieHumanLoftStations {
   /**
-   * Default pitch in millimetres. ESTIMATE for the broad body: use the
-   * same starting spacing along the course and around a conic section for approximately
-   * square cells on gently turning surfaces. The chord and turn rules refine
-   * tighter features by geometric deflection.
+   * Default pitch in millimetres. ESTIMATE for the broad body: use the same
+   * starting spacing along the course and around a conic section for
+   * approximately square cells on gently turning surfaces. The chord and turn
+   * rules refine tighter features by geometric deflection.
    */
   export const BODY_PITCH_MM: number = 4;
   /**
@@ -39,13 +38,6 @@ export namespace AutoMovieHumanLoftStations {
     tolerance: number,
     depth: number = 8,
   ): number[] {
-    // Probe phases for the chord test; 48 resolve every harmonic up to the
-    // orders used by the body chains.
-    const probes: number[] = Array.from(
-      { length: 48 },
-      (_: unknown, i: number): number => (2 * Math.PI * i) / 48,
-    );
-
     // Principal layers strictly inside the range split it unconditionally.
     const marks: number[] = [
       from,
@@ -54,12 +46,33 @@ export namespace AutoMovieHumanLoftStations {
         .filter((y: number): boolean => y > from && y < to),
       to,
     ];
+    return bisectRings(
+      marks,
+      (phases) =>
+        (s): Ring =>
+          AutoMovieLoftChain.ring(chain, s, phases),
+      tolerance,
+      depth,
+    );
+  }
 
-    const out: number[] = [from];
+  /** Bisect a prepared station span using its original world-coordinate rings. */
+  export function bisectRings(
+    marks: readonly number[],
+    prepare: (phases: readonly number[]) => (station: number) => Ring,
+    tolerance: number,
+    depth: number = 8,
+  ): number[] {
+    // Probe phases for the chord test; 48 resolve every harmonic up to the
+    // orders used by the body chains.
+    const probes: number[] = Array.from(
+      { length: 48 },
+      (_: unknown, i: number): number => (2 * Math.PI * i) / 48,
+    );
+    const out: number[] = [marks[0]!];
     // Each interval's end sections are handed down to its halves, so every
     // station's section is evaluated once.
-    const at: (s: number) => Ring = (s: number): Ring =>
-      AutoMovieLoftChain.ring(chain, s, probes);
+    const at: (s: number) => Ring = prepare(probes);
     const split = (
       a: number,
       b: number,

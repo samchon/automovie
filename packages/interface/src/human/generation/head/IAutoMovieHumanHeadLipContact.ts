@@ -49,6 +49,8 @@ export namespace IAutoMovieHumanHeadLipContact {
      * Forward resting point at world lateral mm.
      */
     at(lateral: number): IReading;
+    /** Prepare another regular level of the same forward field once. */
+    level(station: number): (lateral: number) => IReading;
     /**
      * Actual signed border at Euclidean height mm; heightJet uses physical lateral mm.
      */

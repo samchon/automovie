@@ -1,6 +1,7 @@
 import type { IAutoMovieConstructionSource } from "../../../construction/IAutoMovieConstructionSource";
 import type { IAutoMovieConstructionView } from "../../../construction/IAutoMovieConstructionView";
 import type { IAutoMovieLoftContract } from "../../../construction/IAutoMovieLoftContract";
+import type { IAutoMovieLoftSectionConnect } from "../../../construction/IAutoMovieLoftSectionConnect";
 import type { IAutoMovieViewLoft } from "../../../construction/IAutoMovieViewLoft";
 import type { IAutoMovieViewPart } from "../../../construction/IAutoMovieViewPart";
 import type { IAutoMovieHumanHeadLayout } from "../IAutoMovieHumanHeadLayout";
@@ -27,7 +28,7 @@ export namespace IAutoMovieHumanHeadComposer {
     /** The same original definition consumed by both this tree and selected raw readers. */
     definition: IDefinition;
 
-    /** Explicit raw demand for the mass; observing definition.base.raw does not create it. */
+    /** Explicit raw demand for the mass used in this composition. */
     readonly mass: IAutoMovieViewLoft.IResult;
 
     /** The head mass's view part, the root of its construction tree (`AutoMovieHumanHeadTree`). */
@@ -169,7 +170,16 @@ export namespace IAutoMovieHumanHeadComposer {
     /** The part. */
     feature: IAutoMovieHumanHeadFeatures.IFeature;
 
-    /** Explicit raw demand in the unchanged generating frame; reading it borrows definition.loft(name). */
+    /**
+     * Exact section owner when this original contributes to its parent's
+     * analytic skin.
+     */
+    sectionOwner?: IAutoMovieLoftSectionConnect.IOriginal;
+
+    /**
+     * Explicit raw demand in the unchanged generating frame; reading it borrows
+     * definition.loft(name).
+     */
     readonly loft: IAutoMovieViewLoft.IResult;
 
     /** Explicit reference to the same evaluated millimetre source in the invocation map. */

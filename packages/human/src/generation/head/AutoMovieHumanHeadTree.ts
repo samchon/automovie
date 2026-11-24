@@ -164,9 +164,14 @@ export namespace AutoMovieHumanHeadTree {
     // Each part's subtree: its own view, joined in order by its inner parts.
     const subtree: Map<string, IAutoMovieConstructionNode> = new Map();
     for (const placed of composed.parts)
-      subtree.set(placed.feature.part.name, placed.view);
+      if (placed.sectionOwner === undefined)
+        subtree.set(placed.feature.part.name, placed.view);
     for (const placed of composed.parts) {
-      if (placed.feature.parent === "head.mass") continue;
+      if (
+        placed.sectionOwner !== undefined ||
+        placed.feature.parent === "head.mass"
+      )
+        continue;
       const parent: IAutoMovieConstructionNode | undefined = subtree.get(
         placed.feature.parent,
       );
@@ -180,7 +185,10 @@ export namespace AutoMovieHumanHeadTree {
     // The head: the mass, every part straight on it joined in turn.
     let root: IAutoMovieConstructionNode = composed.massView;
     for (const placed of composed.parts)
-      if (placed.feature.parent === "head.mass")
+      if (
+        placed.sectionOwner === undefined &&
+        placed.feature.parent === "head.mass"
+      )
         root = join(placed, root, subtree.get(placed.feature.part.name)!);
     return { name: "head", root };
   }

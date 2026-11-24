@@ -24,42 +24,46 @@ import { AutoMovieHumanHeadLipContact } from "./AutoMovieHumanHeadLipContact";
  * supplied vermilion height is a Euclidean distance, not a Y projection.
  *
  * The upper border passes the centre and both crista philtri. Their width
- * relative to mouth width uses FaceBase adult means (women 11.8/48.1,
- * men 13.3/50.9). Their unknown rise is the unique natural cubic of least
- * bending whose derivative vanishes at those two peaks: geometric fairing,
- * not a measured bow depth. The common LS/LI datum supplies each chord's
- * midline independently of section relief. The latter is an explicit
- * shape prior, not a measured clinical peak or a target for that peak.
- * Both lips borrow one complete native parent field. Their resting contact
- * and their borders at other heights read its actual forward branch.
- * Source: docs/sources/weinberg-2016-3d-facial-norms.md.
+ * relative to mouth width uses FaceBase adult means (women 11.8/48.1, men
+ * 13.3/50.9). Their rise uses a frontal bow angle reported in male and female
+ * adult anthropometric studies, checked against the available philtrum span.
+ * The common LS/LI datum supplies each chord's midline independently of section
+ * relief. The latter is an explicit shape prior, not a measured clinical peak
+ * or a target for that peak. Both lips borrow one complete native parent field.
+ * Their resting contact and their borders at other heights read its actual
+ * forward branch. Source: docs/sources/weinberg-2016-3d-facial-norms.md.
  *
  * @evidence contracts/common.md#principled-implementation Owns the original borders, shared contact and section frame from supplied distances plus explicitly stated fairing and attachment conventions.
  * @evidence contracts/common.md#clear-and-simple-design One builder returns one upper or lower view; neither lip reads the sibling's output.
- * @evidence contracts/common.md#prohibited-implementation-shortcuts Each frame follows the original parent field. Geometric fairing estimates the unmeasured bow rise.
+ * @evidence contracts/common.md#prohibited-implementation-shortcuts Each frame follows the original parent field. The frontal population angles estimate the unmeasured bow rise.
  * @evidence contracts/common.md#meaningful-documentation Distinguishes Euclidean chord, anatomical site, population ratio and geometric convention, and states the parallel-plane axis requirement.
  * @evidence contracts/performance.md#efficient-algorithms Fixed-size bow solves precede linear border preparation. One parent admission serves the field; each axis read uses an outline lookup and the contact owner's bounded native chord inverse and world2 queries.
  * @evidence contracts/performance.md#reuse-equivalent-work Each lip uses the same declared contact law and one prepared own border.
  * @evidence contracts/performance.md#bound-retention-and-release-resources Only the returned view and its call-owned spline/axis closure survive.
  */
 export namespace AutoMovieHumanHeadLipPart {
-  /** Hidden depth inside the face, mm; the existing lip-root construction allowance. */
+  /**
+   * Hidden depth inside the face, mm; the existing lip-root construction
+   * allowance.
+   */
   const INSET: number = 3;
 
-  /** Angular intervals in the pole parameter; the named peaks and centre are included independently. */
+  /**
+   * Angular intervals in the pole parameter; the named peaks and centre are
+   * included independently.
+   */
   const INTERVALS: number = 24;
 
   /**
    * Draw one lip; its planes remain parallel while their centres follow the
-   * contact and border. The tree must preserve these actual planes, rather
-   * than reinterpret this axis as a rotation-minimizing course.
+   * contact and border. The tree must preserve these actual planes, rather than
+   * reinterpret this axis as a rotation-minimizing course.
    *
    * @param plan Common border datums and public distances, calibration mm.
    * @param upper Whether to author the upper lip.
    * @param mass The identical original material parent.
    * @param attachment One native contact field borrowed by both lips.
    * @returns The original lip source, retaining its actual parent callback.
-   *
    * @evidence contracts/common.md#principled-implementation Both resting guides evaluate the same native parent curve; each other border reads that same parent's actual height, with the supplied Euclidean midline distance and the declared lateral bow.
    * @evidence contracts/common.md#clear-and-simple-design Original source functions own all four outlines and the axis; the engine performs the loft.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Keeps hidden roots separate from visible borders and uses no emitted mesh, parent-foot translation or person branch.
@@ -77,6 +81,8 @@ export namespace AutoMovieHumanHeadLipPart {
       plan.stomion,
     ),
   ): IAutoMovieViewPart {
+    if (attachment.parent !== mass)
+      throw new Error("Lip contact belongs to a different material parent");
     const half: number = plan.mouthWidth;
     const height: number = upper ? plan.upperLip : plan.lowerLip;
     const relief: number = plan.lips[upper ? 0 : 1];
@@ -84,22 +90,9 @@ export namespace AutoMovieHumanHeadLipPart {
     const peak: number = ratio * half;
     const theta: (s: number) => number = (s: number): number =>
       Math.acos(Math.max(-1, Math.min(1, -s / half)));
-    const xs: number[] = [0, theta(-peak), Math.PI / 2, theta(peak), Math.PI];
-    const base: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
-      xs,
-      [0, 0, height, 0, 0],
-    );
-    const unit: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
-      xs,
-      [0, 1, 0, 1, 0],
-    );
-    const bowHeight: number =
-      -AutoMovieNaturalSpline.derivative(base, xs[3]!)[0] /
-      AutoMovieNaturalSpline.derivative(unit, xs[3]!)[0];
-    const bow: IAutoMovieNaturalCubicSpline = AutoMovieNaturalSpline.create(
-      xs,
-      [0, bowHeight, height, bowHeight, 0],
-    );
+    const upperBorder = upper
+      ? bow(plan, attachment, height, peak, theta(-peak))
+      : null;
     const angles: number[] = Array.from(
       { length: INTERVALS + 1 },
       (_: unknown, i: number): number => (Math.PI * i) / INTERVALS,
@@ -110,13 +103,15 @@ export namespace AutoMovieHumanHeadLipPart {
         i === 0 || i === INTERVALS ? 0 : height * Math.sin(angle),
       ),
     );
-    /** The border height in the engine's two-pole parameter; endpoints are exact shared corners. */
+    /**
+     * The border height in the engine's two-pole parameter; endpoints are exact
+     * shared corners.
+     */
     const border: (s: number) => number = (s: number): number =>
       Math.abs(s) >= half
         ? 0
-        : AutoMovieNaturalSpline.evaluate(upper ? bow : lower, theta(s));
-    if (attachment.parent !== mass)
-      throw new Error("Lip contact belongs to a different material parent");
+        : (upperBorder?.(s, theta(s)) ??
+          AutoMovieNaturalSpline.evaluate(lower, theta(s)));
     const sites: Map<number, string> = new Map();
     for (let i: number = 0; i <= INTERVALS; i++)
       sites.set(
@@ -250,12 +245,65 @@ export namespace AutoMovieHumanHeadLipPart {
   }
 
   /**
+   * Frontal crista philtri controls converted into the original parent chords.
+   * Adult study means estimate the angle on an individual without that input.
+   *
+   * @see https://doi.org/10.1093/asj/sjac057
+   * @see https://doi.org/10.1007/s00266-024-04299-1
+   */
+  function bow(
+    plan: IAutoMovieHumanHeadLayout,
+    attachment: IAutoMovieHumanHeadLipContact.IContact,
+    height: number,
+    peak: number,
+    cornerSpan: number,
+  ): (station: number, angle: number) => number {
+    const degrees: number = plan.sex === 1 ? 141.07 : 138.27;
+    const estimate: number = peak * Math.tan(((180 - degrees) * Math.PI) / 360);
+    const ls: AutoMovieVector3Tuple = attachment.section(
+      0,
+      height,
+      1,
+      null,
+    ).border;
+    const rise: number = Math.min(
+      estimate,
+      Math.max(0, (plan.subnasale - ls[1]) / 2),
+    );
+    const at = attachment.level(ls[1] + rise);
+    const crest = (z: number): number => {
+      const end: AutoMovieVector3Tuple = at(z).point;
+      const start: AutoMovieVector3Tuple = attachment.at(z).point;
+      return Math.hypot(end[0] - start[0], end[1] - start[1]);
+    };
+    const left: number = crest(peak);
+    const right: number = crest(-peak);
+    const middleSpan: number = Math.PI / 2 - cornerSpan;
+    return (z, angle): number => {
+      const reach: number = z < 0 ? angle : Math.PI - angle;
+      const top: number = z < 0 ? right : left;
+      // The corner tangent is the crest chord's secant in the pole angle.
+      // The minimum degree cubic with that tangent and a flat crest retains
+      // the square-root collapse in z and a gradual approach to the corner.
+      if (reach <= cornerSpan) {
+        const t: number = reach / cornerSpan;
+        return top * t * (1 + t * (1 - t));
+      }
+      const t: number = (Math.PI / 2 - reach) / middleSpan;
+      const ease: number = t ** 3 * (10 + t * (-15 + 6 * t));
+      const curvature: number = (-4 * top) / cornerSpan ** 2;
+      const correction: number =
+        (curvature * middleSpan ** 2 * t ** 3 * (1 - t) ** 2) / 2;
+      return height + (top - height) * ease + correction;
+    };
+  }
+
+  /**
    * Borrow the complete native material section at the resting contact.
    *
    * @param parent The identical material source.
    * @param height World-level contact station, calibration mm.
    * @returns One full native source and its forward cross-coordinate reader.
-   *
    * @evidence contracts/common.md#principled-implementation Reads every signed support and effective quarter from the original source and inverts its actual forward conic branch in the parent's own level frame.
    * @evidence contracts/common.md#clear-and-simple-design One immutable field serves both lips, including the same point and available inverse derivatives.
    * @evidence contracts/common.md#prohibited-implementation-shortcuts No corner parabola, output section, positive-side reflection or missing derivative substitutes for the original field.
@@ -272,8 +320,8 @@ export namespace AutoMovieHumanHeadLipPart {
   }
 
   /**
-   * The own source's ls or li at the midline, calibration mm. Its distance
-   * to stomion is the supplied Euclidean vermilion height.
+   * The own source's ls or li at the midline, calibration mm. Its distance to
+   * stomion is the supplied Euclidean vermilion height.
    *
    * @evidence contracts/common.md#principled-implementation Reads the common material-source datum used by the lip builder; the public border chord is independent of clinical peak protrusion and profile residuals.
    * @evidence contracts/common.md#clear-and-simple-design Publishes the generating site to philtrum and sulcus consumers without building or observing the sibling part.
