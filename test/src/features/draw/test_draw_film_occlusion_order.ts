@@ -26,15 +26,19 @@ import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDo
  *    the new raster.
  * 4. A display overlay (`toneMapped: false`) is hidden from the prepass, so it
  *    occludes nothing, and is visible again when the beauty pass runs.
+ * 5. An additive flame and a blended glass of opacity 0.15 are hidden from the
+ *    prepass, so a wall behind a candle flame reads its own occlusion rather
+ *    than the flame's, while an opaque mesh beside them is drawn; both are
+ *    visible again when the beauty pass runs.
  *
  * Pixel equality of the same second captured in different orders is checked on
  * a real GPU under the visual-debugging skill.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the stage over a recording renderer and reads the pass uniforms through the recorded draws; a pass that read an earlier frame's target, a skipped clear target or an unrestored background fails.
- * @evidence contracts/development/testing.md#independent-expectations The expected order is the one the contract states: prepass, search, blur, beauty; equality of A's draws follows from each draw depending only on its inputs.
- * @evidence contracts/development/testing.md#distinguishing-cases Two different seconds between two equal ones, a raster change, and a display overlay; the gate and the patch are owned by `test_draw_film_occlusion_direct`.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the stage over a recording renderer and reads the pass uniforms through the recorded draws; a pass that read an earlier frame's target, a skipped clear target, an unrestored background, or a prepass that draws a flame or a glass as an opaque occluder fails.
+ * @evidence contracts/development/testing.md#independent-expectations The expected order is the one the contract states: prepass, search, blur, beauty; equality of A's draws follows from each draw depending only on its inputs; a blended or additive mesh covers nothing behind it, so it cannot occlude, which is issue #4080's horizon premise.
+ * @evidence contracts/development/testing.md#distinguishing-cases Two different seconds between two equal ones, a raster change, a display overlay, an additive and a blended mesh beside an opaque one; the gate and the patch are owned by `test_draw_film_occlusion_direct`.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit discovered as `test_draw_film_occlusion_order`; the renderer is an in-memory double and no GPU starts.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming the input and the behavior it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each naming the input and the behavior it pins.
  */
 export function test_draw_film_occlusion_order(): void {
   const scene: THREE.Scene = new THREE.Scene();
@@ -198,6 +202,62 @@ export function test_draw_film_occlusion_order(): void {
       restored,
   );
   scene.remove(overlay);
+
+  // 5. A flame's additive glow and a blended glass are left out of the prepass,
+  // an opaque mesh is drawn, and both are visible again for the beauty pass.
+  const flame: THREE.Mesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.1),
+    new THREE.MeshBasicMaterial({
+      blending: THREE.AdditiveBlending,
+      transparent: true,
+      depthWrite: false,
+    }),
+  );
+  const glass: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(),
+    new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.15 }),
+  );
+  const wall: THREE.Mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(),
+    new THREE.MeshStandardMaterial(),
+  );
+  scene.add(flame, glass, wall);
+  const blended: createFilmResponseRendererDouble.IDouble =
+    createFilmResponseRendererDouble({
+      toneMapping: THREE.NoToneMapping,
+      exposure: 1,
+      watched: [flame, glass, wall],
+    });
+  let shown: boolean[] = [];
+  stage.draw(
+    {
+      renderer: blended.renderer,
+      scene,
+      camera: a,
+      shading: { occlusion: { radius: 0.5 } },
+      optics: true,
+      seconds: 1,
+      width: 64,
+      height: 36,
+      sample: 0,
+    },
+    (): void => {
+      shown = [flame, glass, wall].map((object: THREE.Mesh): boolean =>
+        object.layers.test(a.layers),
+      );
+    },
+  );
+  TestValidator.equals(
+    "a flame and a glass are hidden from the prepass, an opaque wall is drawn",
+    blended.renders[0]!.object === scene ? blended.renders[0]!.seen : null,
+    [false, false, true],
+  );
+  TestValidator.equals(
+    "every one is visible again for the beauty pass",
+    shown,
+    [true, true, true],
+  );
+  scene.remove(flame, glass, wall);
   stage.dispose();
 }
 

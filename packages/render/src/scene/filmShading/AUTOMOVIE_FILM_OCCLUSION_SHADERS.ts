@@ -6,16 +6,22 @@
  * `occlusion` is ground-truth-based ambient occlusion (Jimenez, Wu, Pesce and
  * Jarabo 2016, "Practical real-time strategies for accurate indirect
  * occlusion"). Each pixel reconstructs its view-space position from depth and
- * takes four slice directions, rotated by its cell of a 4 × 4 Bayer pattern and
- * by the golden angle times the accumulation sample index. Along each slice it
- * steps eight times per side out to `uRadius` metres projected to the screen,
- * keeps the highest horizon among samples nearer than the radius, and adds the
- * slice's closed-form cosine-weighted visibility, which
- * `autoMovieSliceVisibility` states on the CPU. `blur` averages the 4 × 4 block
- * the pattern repeats over, keeping only neighbours whose view depth lies
- * within 5 % of the pixel's, so every rotation contributes once and edges stay
- * sharp. Every fragment reads only its own block of texels and the uniforms of
- * this draw, never an earlier frame.
+ * takes four slice directions, π/4 apart, rotated by its cell of a 4 × 4 Bayer
+ * pattern and, for accumulation sample `k`, by `k (3 − √5)` slice periods:
+ * 0.600 rad a sample, the golden angle's share of a half turn applied to the
+ * π/4 period. The four slices repeat every π/4, so only the rotation modulo
+ * that period matters, and `k (3 − √5)` modulo one is an additive recurrence
+ * with an irrational step, which spreads the samples' rotations evenly over the
+ * period. The golden angle itself, 2.400 rad, would alias: modulo π/4 it
+ * advances only 0.044 rad a sample. Along each slice it steps eight times per
+ * side out to `uRadius` metres projected to the screen, keeps the highest
+ * horizon among samples nearer than the radius, and adds the slice's
+ * closed-form cosine-weighted visibility, which `autoMovieSliceVisibility`
+ * states on the CPU. `blur` averages the 4 × 4 block the pattern repeats over,
+ * keeping only neighbours whose view depth lies within 5 % of the pixel's, so
+ * every rotation contributes once and edges stay sharp. Every fragment reads
+ * only its own block of texels and the uniforms of this draw, never an earlier
+ * frame.
  */
 export const AUTOMOVIE_FILM_OCCLUSION_SHADERS: {
   /** The horizon search, writing visibility in red. */
