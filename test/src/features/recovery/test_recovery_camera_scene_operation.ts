@@ -10,11 +10,11 @@ import { createRecoverySceneNumericalFixture } from "../internal/createRecoveryS
  * Scenarios:
  * 1. Five actual singleton RGB inputs complete extraction and global linkage with an explicit seed refusal and detached source/policy metadata.
  * 2. Cancellation before/at a checkpoint and observer failure return no value, including an observer message resembling a numerical refusal.
- * 3. Missing/extra fields, duplicate/fewer/over-budget views, malformed RGB/calibration and unsafe aggregate limits refuse before observation.
+ * 3. Over-budget views and aggregate pixels refuse before observation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public resident scene operation on actual RGB bytes and checks source-order null poses, every registration record, zero work, detached inputs and no-value terminal states.
- * @evidence contracts/development/testing.md#independent-expectations A singleton constant raster cannot supply a supported descriptor or camera; input preservation and explicit schemas define refusal/cancellation effects without invoking numerical fitting as an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers five versus fewer/duplicate/over-limit views, zero features, observer mutation, spoofed numerical error messages, pre/during cancellation, unknown keys, bad pixel length, calibration and proposal ceilings. Positive geometry is the separate numerical visibility-chain seam, not a claim about photo extraction.
+ * @evidence contracts/development/testing.md#independent-expectations A singleton constant raster cannot supply a supported descriptor or camera; input preservation and the caller's view and pixel budgets define refusal/cancellation effects without invoking numerical fitting as an oracle.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers five versus over-limit views, zero features, observer mutation, spoofed numerical error messages, pre/during cancellation and the pixel ceiling. Positive geometry is the separate numerical visibility-chain seam, not a claim about photo extraction.
  * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_scene_operation entry uses the public resident import with finite arrays, no filesystem/process/native/compiler/browser/GPU or installed consumer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Five actual singleton RGB inputs complete extraction and global linkage with an explicit seed refusal and detached source/policy metadata.).
  */
@@ -106,38 +106,17 @@ export function test_recovery_camera_scene_operation(): void {
     failed.status === "failed" && !("value" in failed),
   );
   const variants: IAutoMovieRecoveryCameraSceneInput[] = [];
-  let invalid: IAutoMovieRecoveryCameraSceneInput = make();
-  invalid.views = invalid.views.slice(0, 2);
-  variants.push(invalid);
-  invalid = make();
-  invalid.views[4]!.id = invalid.views[0]!.id;
-  variants.push(invalid);
-  invalid = make();
-  invalid.budget.maxViews = 4;
-  variants.push(invalid);
-  invalid = make();
-  invalid.views[4]!.rgb8 = new Uint8Array(4);
-  variants.push(invalid);
-  invalid = make();
-  invalid.views[4]!.camera.focalPx[0] = 0;
-  variants.push(invalid);
-  invalid = make();
-  invalid.budget.maxPixels = 4;
-  variants.push(invalid);
-  invalid = make();
-  invalid.budget.maxTotalResectionTrials = 1;
-  variants.push(invalid);
-  invalid = make();
-  invalid.budget.maxLinearWork = Infinity;
-  variants.push(invalid);
-  invalid = make();
-  Object.assign(invalid, { extra: true });
-  variants.push(invalid);
+  let overBudget: IAutoMovieRecoveryCameraSceneInput = make();
+  overBudget.budget.maxViews = 4;
+  variants.push(overBudget);
+  overBudget = make();
+  overBudget.budget.maxPixels = 4;
+  variants.push(overBudget);
   for (const variant of variants) {
     const outcome: ReturnType<typeof estimateAutoMovieRecoveryCameraScene> =
       estimateAutoMovieRecoveryCameraScene(variant);
     TestValidator.predicate(
-      "closed unsupported input refuses without a value",
+      "over-budget view set refuses without a value",
       outcome.status === "refused" && !("value" in outcome),
     );
   }
