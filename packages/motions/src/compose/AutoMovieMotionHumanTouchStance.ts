@@ -478,22 +478,17 @@ export namespace AutoMovieMotionHumanTouchStance {
   }
 
   /**
-   * Choose among a law's stances, steps, strategies or grips by inverse
-   * reachability (Vahrenkamp, Asfour and Dillmann 2013, "Robot placement based
-   * on reachability inversion", ICRA, pp. 1970-1975).
-   *
-   * Algorithm 1 (§V) tries a base pose, solves the arm's inverse kinematics,
-   * checks it for collision and returns the pose, or nothing; Eq. (2) (§IV.A)
-   * takes the pose of the greatest reachability entry. A law's candidates are a
-   * finite set, so the set is taken whole (the paper's full map, §IV.A), and
-   * each entry is binary, reachable or not (§II.B): a candidate's check
-   * (`reach`) is the law's own closed-form reach and clearance, and a reach
-   * refusal it raises is Algorithm 1's nothing. Every passing candidate then
-   * holds the greatest entry, and the law's declared order settles the tie
-   * (authoring.md, "a declared alternative that reaches"), so the first passing
-   * candidate is the choice, and the candidates after it, which cannot change
-   * it, are not checked. A refusal of another kind, or any other error, is no
-   * reachability entry and propagates.
+   * Choose among a law's stances, steps, strategies or grips as Algorithm 1 of
+   * Vahrenkamp, Asfour and Dillmann 2013 ("Robot placement based on
+   * reachability inversion", ICRA, pp. 1970-1975, §V) tests base poses: each
+   * pose is tried by solving the arm's inverse kinematics and checking the
+   * solution for collision, and the first that passes is returned. The poses
+   * tried here are the candidates the law declares, in its order (authoring.md,
+   * "a declared alternative that reaches"); no reachability map is built or
+   * sampled. A candidate's check (`reach`) is the law's own reach and
+   * clearance, and a reach refusal it raises is a failed try; the first passing
+   * candidate is the choice, and the candidates after it are not tried. A
+   * refusal of another kind, or any other error, propagates.
    *
    * @param props The candidates in the law's order and the check of one.
    * @returns The first candidate's stance that reaches.
@@ -525,7 +520,7 @@ export namespace AutoMovieMotionHumanTouchStance {
   }
 
   /**
-   * Algorithm 1's try of one base (Vahrenkamp et al. 2013, §V): the candidate's
+   * Algorithm 1's try of one pose (Vahrenkamp et al. 2013, §V): the candidate's
    * stance when its check passes, nothing when it refuses the reach, for a law
    * whose later candidates build on whether this one reached.
    *
@@ -542,9 +537,8 @@ export namespace AutoMovieMotionHumanTouchStance {
   }
 
   /**
-   * One candidate's binary reachability entry (Vahrenkamp et al. 2013, §II.B
-   * and Algorithm 1): whether its check passes, for a law whose own search asks
-   * a yes or no of each place it tries.
+   * Whether one candidate passes Algorithm 1's try (Vahrenkamp et al. 2013,
+   * §V), for a law whose own search asks a yes or no of each place it tries.
    *
    * @param reach The check of one candidate.
    * @param candidate The candidate.
@@ -576,7 +570,7 @@ export namespace AutoMovieMotionHumanTouchStance {
     }
   }
 
-  /** A law's finite candidate set and the reachability check of one. */
+  /** A law's declared candidates and the check of one. */
   export interface IChoice<Candidate, Stance> {
     /** The candidates, in the law's declared order of preference. */
     candidates: readonly Candidate[];

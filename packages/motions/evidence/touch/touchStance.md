@@ -6,7 +6,7 @@ States the choice, its premises, the step's owner and time windows, and the refu
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The stance is chosen by inverse reachability between the existing base and one step, in that order (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013): the step moves the performer toward the unchanged work point only where the base's shoulder, heel and lean do not reach, its landed stance accepted by the binary entry (`reaches`). The same foot course and plant windows serve pick-up and touch.
+The stance is chosen between the existing base and one step, in that order, as Vahrenkamp et al. 2013's Algorithm 1 tries the law's declared candidates (`AutoMovieMotionHumanTouchStance.choose`): the step moves the performer toward the unchanged work point only where the base's shoulder, heel and lean do not reach, its landed stance accepted when its try passes (`reaches`). The same foot course and plant windows serve pick-up and touch.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

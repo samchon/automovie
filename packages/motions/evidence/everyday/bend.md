@@ -14,7 +14,7 @@ The chosen lowering writes root, trunk, gaze and legs. Two arm goals and the fin
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A self target's lowerings are the law's candidates, chosen by inverse reachability (`AutoMovieMotionHumanTouchStance.choose`): the first whose whole arm course admits; the automatic squat follows the semi-squat as a declared candidate. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
+A self target's lowerings are the law's candidates, tried in order as Vahrenkamp et al. 2013's Algorithm 1 tries base poses (`AutoMovieMotionHumanTouchStance.choose`): the first whose whole arm course admits; the automatic squat follows the semi-squat as a declared candidate. The reached point stays where authored. The hold and the reaching elbow hint are provisional.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -36,7 +36,7 @@ States the choice, the solve and the declared squat candidate.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The campaign's strategy rule (`choose`); an `auto` semi-squat that cannot reach declares the squat after it, chosen by Vahrenkamp et al. 2013's Algorithm 1 and Eq. (2) with binary entries (`AutoMovieMotionHumanTouchStance.choose`).
+The campaign's strategy rule (`choose`); an `auto` semi-squat that cannot reach declares the squat after it, chosen as Vahrenkamp et al. 2013's Algorithm 1 tries the law's declared candidates (`AutoMovieMotionHumanTouchStance.choose`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

@@ -14,12 +14,16 @@ import { pickUpAdjust } from "../handling/pickUpAdjust";
 import type { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 
+/** The alternatives of `TouchStanceContext`'s site. */
+type TouchStanceContext = "carrier" | "entry";
+
 /**
- * A touch's stance, chosen by inverse reachability between two candidates in
- * this order (`AutoMovieMotionHumanTouchStance.choose`): the existing base,
- * and, for a grounded performer with an external target, one step. The arm
- * keeps the very same target and the step uses the pick-up's reach adjustment,
- * on the reach and return portions of the touch's clock.
+ * A touch's stance, chosen between two candidates in this order as Vahrenkamp
+ * et al. 2013's Algorithm 1 tries base poses
+ * (`AutoMovieMotionHumanTouchStance.choose`): the existing base, and, for a
+ * grounded performer with an external target, one step. The arm keeps the very
+ * same target and the step uses the pick-up's reach adjustment, on the reach
+ * and return portions of the touch's clock.
  *
  * @param props The touch's standing reach and wrist goal.
  * @param mayStep Whether both feet bear the touch and the target is external.
@@ -47,8 +51,6 @@ export function touchStance(
         : stepped(props, feet!),
   });
 }
-/** The alternatives of `TouchStanceContext`'s site. */
-type TouchStanceContext = "carrier" | "entry";
 
 /** Types shared by the touch and its base selection. */
 export namespace touchStance {

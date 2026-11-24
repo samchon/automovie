@@ -84,7 +84,7 @@ States what is lowered, toward what and the refusals.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers. The lowering is chosen between the automatic strategy and the squat, in that order, by inverse reachability (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013 Algorithm 1): a candidate passes when its arm reaches the grip and its key keeps the trunk out of the thighs within the tangle audit's skin (`bendLower.fold`), the collision check of the algorithm; a squat lowers the trunk on the knees and hips rather than folding the lumbar spine (Kingma et al. 2010).
+The bend law's choice and solve (`bend.lowering`) and its lowered posture (`bendLower.lower`), the trunk's inclination and the hips' shift both taken a share of the way at each instant, as the bend lowers. The lowering is chosen between the automatic strategy and the squat, in that order, as Vahrenkamp et al. 2013's Algorithm 1 tries the law's declared candidates (`AutoMovieMotionHumanTouchStance.choose`): a candidate passes when its arm reaches the grip and its key keeps the trunk out of the thighs within the tangle audit's skin (`bendLower.fold`), the collision check of the algorithm; a squat lowers the trunk on the knees and hips rather than folding the lumbar spine (Kingma et al. 2010).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

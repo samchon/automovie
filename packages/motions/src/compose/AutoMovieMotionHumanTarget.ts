@@ -256,11 +256,10 @@ export namespace AutoMovieMotionHumanTarget {
 
   /**
    * The first feasible of a law's candidate sites or grips (Miller and Allen
-   * 2004, "GraspIt! A versatile simulator for robotic grasping", IEEE Robotics
-   * and Automation Magazine 11(4):110-122, "Future Directions", p. 122: each
-   * candidate grasp "is tested ... and if the grasp is feasible (there is no
-   * conflict with the arm kinematics and the hand or arm is not blocked by an
-   * obstacle), it is evaluated").
+   * 2004, IEEE Robotics and Automation Magazine 11(4):110-122, "Future
+   * Directions", p. 122: each candidate grasp "is tested ... and if the grasp
+   * is feasible (there is no conflict with the arm kinematics and the hand or
+   * arm is not blocked by an obstacle), it is evaluated").
    *
    * Feasibility is the whole test here: a candidate's `test` is the law's own
    * reach and clearance of the hand and arm, and a reach refusal it raises

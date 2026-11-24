@@ -32,11 +32,11 @@ The returned stance owns props, fixed solved angles/feet and lean metadata until
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the paper, the sections used, why the first passing candidate is the argmax, the boundary of the refusals it reads and the refusal it raises.
+States the paper's algorithm used, that the candidates are the law's own, the boundary of the refusals it reads and the refusal it raises.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Vahrenkamp, Asfour and Dillmann 2013, "Robot placement based on reachability inversion", ICRA pp. 1970-1975: §V Algorithm 1 tries a base, solves the arm and checks collision, returning the pose or nothing; §IV.A Eq. (2) takes the base of the greatest entry over the full map. A law's candidates are finite and each entry is binary (§II.B), so every passing candidate holds the greatest entry and the law's declared order settles the tie: the first passing candidate is the argmax, and computing the candidates after it, which cannot change it, is not done (the user's rule, compute only as needed).
+Vahrenkamp, Asfour and Dillmann 2013, "Robot placement based on reachability inversion", ICRA pp. 1970-1975, §V Algorithm 1: each base pose is tried by solving the arm and checking the solution for collision, and the first that passes is returned. The poses tried are the candidates the law declares, in its order; no reachability map is built or sampled. The first passing candidate is the choice, and the candidates after it are not tried (the user's rule, compute only as needed).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -92,11 +92,11 @@ Retains nothing.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the binary entry it returns.
+States what it returns: whether the candidate passes.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Vahrenkamp et al. 2013, §II.B binary reachability of one candidate, through Algorithm 1's try (`attempt`).
+Vahrenkamp et al. 2013, §V Algorithm 1's try of one candidate (`attempt`), read as pass or fail.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -134,7 +134,7 @@ Two members: the candidates and the check.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No score or tie rule beyond the declared order, which the binary entry leaves as the only one.
+No score or tie rule beyond the declared order: the code computes no reachability quality.
 
 # src/compose/AutoMovieMotionHumanTouchStance.ts#AutoMovieMotionHumanTouchStance.IChoice.reach
 

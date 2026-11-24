@@ -89,15 +89,16 @@ interface IStance {
  * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
  * the loop's inner half-breadth is checked against the partner's head radius,
  * and the hands' highest places, above the crown, against the arm's reach from
- * each shoulder, from the dresser's stance: chosen by inverse reachability
- * (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp, Asfour and Dillmann
- * 2013) between standing where it entered and one adjustment step toward the
- * hands' place at the crown (`pickUpAdjust.stepped`), the first that clears it.
- * A loop too narrow for the head, or a crown neither stance clears (a standing
- * tall partner), is refused with the measure, so the partner bows or kneels.
- * Down past the crown to a seated partner's nape and chest the dresser hinges
- * at the hips by the least angle that keeps both wrists within their arms along
- * the path (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
+ * each shoulder, from the dresser's stance: chosen as Vahrenkamp, Asfour and
+ * Dillmann 2013's Algorithm 1 tries base poses
+ * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
+ * and one adjustment step toward the hands' place at the crown
+ * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
+ * head, or a crown neither stance clears (a standing tall partner), is refused
+ * with the measure, so the partner bows or kneels. Down past the crown to a
+ * seated partner's nape and chest the dresser hinges at the hips by the least
+ * angle that keeps both wrists within their arms along the path
+ * (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the path's owner, who carries the loop, the custody change, the course and both refusals.
  */
@@ -303,8 +304,8 @@ function planPlaceOverHead(
       ? context
       : { ...context, entry: { ...context.entry, posture: stance } };
 
-  // The dresser's stance is chosen by inverse reachability
-  // (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp et al. 2013)
+  // The dresser's stance is chosen as Vahrenkamp et al. 2013's Algorithm 1
+  // tries base poses (`AutoMovieMotionHumanTouchStance.choose`)
   // between the law's two candidates in this order: standing where it
   // entered, then one adjustment step toward the hand's place at the
   // path's apex (`pickUpAdjust.stepped`: Tomita et al. 2024's step
@@ -605,15 +606,16 @@ function planPlaceOverHead(
  * arms are laid in one course (`courseArmGoal` with `with`). Before any of it,
  * the loop's inner half-breadth is checked against the partner's head radius,
  * and the hands' highest places, above the crown, against the arm's reach from
- * each shoulder, from the dresser's stance: chosen by inverse reachability
- * (`AutoMovieMotionHumanTouchStance.choose`, Vahrenkamp, Asfour and Dillmann
- * 2013) between standing where it entered and one adjustment step toward the
- * hands' place at the crown (`pickUpAdjust.stepped`), the first that clears it.
- * A loop too narrow for the head, or a crown neither stance clears (a standing
- * tall partner), is refused with the measure, so the partner bows or kneels.
- * Down past the crown to a seated partner's nape and chest the dresser hinges
- * at the hips by the least angle that keeps both wrists within their arms along
- * the path (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
+ * each shoulder, from the dresser's stance: chosen as Vahrenkamp, Asfour and
+ * Dillmann 2013's Algorithm 1 tries base poses
+ * (`AutoMovieMotionHumanTouchStance.choose`) between standing where it entered
+ * and one adjustment step toward the hands' place at the crown
+ * (`pickUpAdjust.stepped`), the first that clears it. A loop too narrow for the
+ * head, or a crown neither stance clears (a standing tall partner), is refused
+ * with the measure, so the partner bows or kneels. Down past the crown to a
+ * seated partner's nape and chest the dresser hinges at the hips by the least
+ * angle that keeps both wrists within their arms along the path
+ * (`HumanTrunkLean`), as `dressPartner` reaches a kneeling crown.
  */
 export const placeOverHead: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanPlaceOverHead> =
   {

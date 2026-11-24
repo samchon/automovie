@@ -184,7 +184,7 @@ States the paper and its passage, that feasibility is the whole test, the order 
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Miller and Allen 2004, "GraspIt! A versatile simulator for robotic grasping", IEEE Robotics and Automation Magazine 11(4):110-122, "Future Directions" (p. 122): each candidate grasp is tested and evaluated only if feasible, no conflict with the arm kinematics and the hand or arm not blocked. The grasp quality (the ε1 of "Quality Measures") is not read, so the feasible candidates tie and the law's order decides.
+Miller and Allen 2004, IEEE Robotics and Automation Magazine 11(4):110-122, "Future Directions" (p. 122): each candidate grasp is tested and evaluated only if feasible, no conflict with the arm kinematics and the hand or arm not blocked. The grasp quality (the ε1 of "Quality Measures") is not read, so the feasible candidates tie and the law's order decides.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

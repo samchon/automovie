@@ -157,14 +157,13 @@ interface IPlaced extends ISolved {
  * shoulder's region, and the chest on the partner's back, each contact collider
  * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
  * 2012's contact violation), the bodies kept within the skin by trajopt's
- * collision term; the stance by inverse reachability (Vahrenkamp, Asfour and
- * Dillmann 2013, §III.A), the root's advance and shift on the planted feet (the
- * kiss's lean model, `kissBody`), with the knees' sink (up to `SINK`), the
- * lean's pitch and roll (the kiss's), the heels' raise (the kiss's `RAISE`) and
- * the neck's flexion, side bend, turn and protraction (the neck's and head's
- * ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A chin left
- * farther than `NEAR` from the shoulder, a chest farther than `NEAR` from the
- * back, or bodies deeper in each other than the skin through the hold
+ * collision term; the stance by the root's advance and shift on the planted
+ * feet (the kiss's lean model, `kissBody`), with the knees' sink (up to
+ * `SINK`), the lean's pitch and roll (the kiss's), the heels' raise (the kiss's
+ * `RAISE`) and the neck's flexion, side bend, turn and protraction (the neck's
+ * and head's ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A
+ * chin left farther than `NEAR` from the shoulder, a chest farther than `NEAR`
+ * from the back, or bodies deeper in each other than the skin through the hold
  * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
  * partner's abdomen, one placement for both: each palm on the partner's own
  * surface on its side of the midline (a ray onto the colliders), the fingers
@@ -354,7 +353,7 @@ function planEmbraceFromBehind(
     p.partner,
     embraceTrunkClear(body, partner, held),
   );
-  const pose: ReturnType<typeof poseBones.of> = poseBones.of(
+  const pose: ReturnType<typeof poseBones> = poseBones(
     body,
     context.entry.pose,
   );
@@ -497,7 +496,7 @@ function planEmbraceFromBehind(
       return { ...shown, limbs };
     },
   };
-  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal.of({
+  const coursed: IAutoMovieMotionHumanActionPlan = courseArmGoal({
     context,
     plan: encircled,
     side: "left",
@@ -564,14 +563,13 @@ function planEmbraceFromBehind(
  * shoulder's region, and the chest on the partner's back, each contact collider
  * on collider as the audit reads two bodies (Mordatch, Todorov and Popović
  * 2012's contact violation), the bodies kept within the skin by trajopt's
- * collision term; the stance by inverse reachability (Vahrenkamp, Asfour and
- * Dillmann 2013, §III.A), the root's advance and shift on the planted feet (the
- * kiss's lean model, `kissBody`), with the knees' sink (up to `SINK`), the
- * lean's pitch and roll (the kiss's), the heels' raise (the kiss's `RAISE`) and
- * the neck's flexion, side bend, turn and protraction (the neck's and head's
- * ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A chin left
- * farther than `NEAR` from the shoulder, a chest farther than `NEAR` from the
- * back, or bodies deeper in each other than the skin through the hold
+ * collision term; the stance by the root's advance and shift on the planted
+ * feet (the kiss's lean model, `kissBody`), with the knees' sink (up to
+ * `SINK`), the lean's pitch and roll (the kiss's), the heels' raise (the kiss's
+ * `RAISE`) and the neck's flexion, side bend, turn and protraction (the neck's
+ * and head's ranges), by sco's trust-region SQP (`HumanSequentialConvex`). A
+ * chin left farther than `NEAR` from the shoulder, a chest farther than `NEAR`
+ * from the back, or bodies deeper in each other than the skin through the hold
  * (`embraceTrunkClear`) is refused with the measure. The hands meet on the
  * partner's abdomen, one placement for both: each palm on the partner's own
  * surface on its side of the midline (a ray onto the colliders), the fingers
@@ -645,12 +643,10 @@ interface ISurfaces {
  * problem: the head on the partner's shoulder, the chest on the partner's back,
  * the two bodies clear of each other, or the refusal.
  *
- * The stance is chosen by inverse reachability (Vahrenkamp, Asfour and Dillmann
- * 2013, §III.A: the base placed by the target composed with the inverse of the
- * base-to-effector transform): the root's advance and shift on the planted feet
- * (the kiss's own supported root, `kissBody`) are variables of the solve, with
- * the knees' sink, the lean's pitch and roll, the heels' raise and the neck's
- * flexion, side bend, turn and protraction. The solve is sco's
+ * The stance is solved with the head: the root's advance and shift on the
+ * planted feet (the kiss's own supported root, `kissBody`) are variables of the
+ * solve, with the knees' sink, the lean's pitch and roll, the heels' raise and
+ * the neck's flexion, side bend, turn and protraction. The solve is sco's
  * `BasicTrustRegionSQP` (`HumanSequentialConvex`, the trajopt port), its
  * variables in metres and radians, the units sco's parameters hold:
  *
@@ -685,8 +681,8 @@ function solve(
   partner: string,
   depth: (posture: IAutoMovieMotionHumanPosture, head: boolean) => number,
 ): IPlaced {
-  const resolution: ReturnType<typeof prepareHumanPoseResolution.of> =
-    prepareHumanPoseResolution.of();
+  const resolution: ReturnType<typeof prepareHumanPoseResolution> =
+    prepareHumanPoseResolution();
   const leaned: ReturnType<typeof kissPose> = kissPose(
     body,
     entry,
@@ -851,7 +847,7 @@ function contact(
 ): IAutoMovieMotionHumanColliders.IDistance {
   const frame: HumanAuditModel.IFrame = HumanAuditModel.frame(
     body,
-    poseBones.of(body, resolveHumanPosture.of(body, posture)),
+    poseBones(body, resolveHumanPosture(body, posture)),
   );
   let least: IAutoMovieMotionHumanColliders.IDistance | undefined;
   frame.model.parts.forEach(
