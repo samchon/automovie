@@ -204,7 +204,7 @@ export class AutoMovieXpbdWorld {
     const dynamic: AutoMovieXpbdBody[] = this.bodies.filter(
       (body: AutoMovieXpbdBody): boolean => body.dynamic,
     );
-    solveXpbdJoints.positions(this.joints);
+    solveXpbdJoints.positions(this.joints, h);
     // The contacts' corrections move each jointed body's whole tree along
     // its joints' free axes (`solveXpbdArticulation.responder`), so a contact
     // no longer pulls a body off its joints after the joints' pass.

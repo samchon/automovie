@@ -298,8 +298,9 @@ export namespace solveXpbdContacts {
           y: -tangent.y / length,
           z: -tangent.z / length,
         };
-        const along: IPair = pair(trees, first, second, back, armA, armB);
-        if (along.weight > 0) {
+        for (;;) {
+          const along: IPair = pair(trees, first, second, back, armA, armB);
+          if (!(along.weight > 0)) break;
           const wanted: IAutoMovieVector3 = Vector3.add(
             head.tangentLambda,
             Vector3.scale(back, length / along.weight),
@@ -312,11 +313,12 @@ export namespace solveXpbdContacts {
             next,
             head.tangentLambda,
           );
-          head.tangentLambda = next;
           // The step along the slip moves the pair as the slip's own row; a
           // part of it off the slip (the cone's projection keeps it along
           // `back` here) moves them rigidly, as before.
           const amount: number = Vector3.dot(step, back);
+          if (along.limit(amount)) continue;
+          head.tangentLambda = next;
           along.apply(amount);
           const rest: IAutoMovieVector3 = Vector3.addScaled(
             step,
@@ -325,6 +327,7 @@ export namespace solveXpbdContacts {
           );
           if (Vector3.length(rest) > 0)
             AutoMovieXpbdMath.apply(first, second, rest, armA, armB);
+          break;
         }
       }
     }
@@ -371,6 +374,7 @@ export namespace solveXpbdContacts {
         (response?.weight ?? 0) +
         (rigidFirst ? AutoMovieXpbdMath.weight(first, direction, armA) : 0) +
         (rigidSecond ? AutoMovieXpbdMath.weight(second, direction, armB) : 0),
+      limit: (scale: number): boolean => response?.limit(scale) === true,
       apply: (scale: number): void => {
         response?.apply(scale);
         const p: IAutoMovieVector3 = Vector3.scale(direction, scale);
@@ -393,6 +397,16 @@ export namespace solveXpbdContacts {
     weight: number;
 
     /**
+     * Hold the joint axes the move by a multiplier would carry onto or past a
+     * bound (`solveXpbdArticulation.IPointResponse.limit`); the row is then
+     * read again.
+     *
+     * @param scale The multiplier, newton seconds squared.
+     * @returns Whether any axis was newly held.
+     */
+    limit(scale: number): boolean;
+
+    /**
      * Move the pair by a multiplier along the row.
      *
      * @param scale The multiplier, newton seconds squared.
@@ -404,7 +418,9 @@ export namespace solveXpbdContacts {
    * A contact's positional correction (Mueller et al. 2020, section 3.3.1)
    * through the pair's row (`pair`): `dlambda = (c - alphaTilde lambda) / (w +
    * alphaTilde)`, the spring's compliance `w / omega^2` so the contact keeps
-   * its natural frequency against the inertia it really moves.
+   * its natural frequency against the inertia it really moves. A correction
+   * that would carry a joint axis onto or past a bound holds that axis and is
+   * solved again (`IPair.limit`), at most once more per newly held axis.
    */
   function correct(
     trees: solveXpbdArticulation.IResponder | undefined,
@@ -418,13 +434,16 @@ export namespace solveXpbdContacts {
     h: number,
     lambda: number,
   ): number {
-    const row: IPair = pair(trees, first, second, away, armA, armB);
-    const tilde: number = row.weight / (omega * omega) / (h * h);
-    const total: number = row.weight + tilde;
-    if (!(total > 0)) return 0;
-    const delta: number = (c - tilde * lambda) / total;
-    row.apply(delta);
-    return delta;
+    for (;;) {
+      const row: IPair = pair(trees, first, second, away, armA, armB);
+      const tilde: number = row.weight / (omega * omega) / (h * h);
+      const total: number = row.weight + tilde;
+      if (!(total > 0)) return 0;
+      const delta: number = (c - tilde * lambda) / total;
+      if (row.limit(delta)) continue;
+      row.apply(delta);
+      return delta;
+    }
   }
 
   /**

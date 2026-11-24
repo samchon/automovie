@@ -1,4 +1,5 @@
 import type {
+  IAutoMoviePhysicalJointAxis,
   IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
@@ -7,72 +8,68 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { prepareLinearSystem } from "../math/prepareLinearSystem";
-import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import { AutoMovieXpbdMath } from "./AutoMovieXpbdMath";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { limitPhysicalSwingTwist } from "./limitPhysicalSwingTwist";
 import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
-import type { solveXpbdArticulation } from "./solveXpbdArticulation";
+import { solveXpbdArticulation } from "./solveXpbdArticulation";
 
 /**
  * The joints' position pass over one articulation at once: every joint's anchor
- * rows and, for a joint outside its admitted rotations, its limit row are
- * solved together as one constrained projection, the least mass-weighted
- * displacement `min 1/2 dx^T M dx` with `J dx = -C`, by Baraff's linear-time
- * elimination of `[M J^T; J 0]` over the tree whose nodes are the bodies (6
- * rows: translation of the centre, rotation) and the joints (3 anchor rows, and
- * one limit row while the joint is past its limit), eliminated leaves first
- * with no fill-in (Baraff 1996, "Linear-time dynamics using Lagrange
- * multipliers", SIGGRAPH; the direct tree solve of position constraints, Deul,
- * Kugelstadt, Weiler and Bender 2018, "Direct position-based solver for stiff
- * rods"). A light segment between heavy ones (the neck between the chest and
- * the head, a forearm, a digit) is no longer moved again by each neighbour's
- * own correction, as one sweep joint by joint leaves it. The rows are
- * linearised at the present poses and the projection repeated (Newton's method,
- * quadratically convergent near the solution: Dennis and Schnabel 1983,
- * "Numerical Methods for Unconstrained Optimization and Nonlinear Equations",
- * theorem 5.2.1) to the joints' tolerance (`ROM_TOLERANCE`, the resolution to
- * which a solver need resolve a joint's angle) for a limit's turn, and for an
- * anchor's gap to the float64 rounding the return's anchor check allows, 64
- * ulps of its scale (`assertPhysicalReturnPath`), as the hand-back's
- * post-stabilization projects each joint exactly. The loop ends as MuJoCo's
- * constraint solver ends its own (google-deepmind/mujoco,
- * `src/engine/engine_solver.c`, Apache-2.0, Copyright 2021 DeepMind
- * Technologies Limited): once every row is within its tolerance, once a step no
- * longer lowers the worst row, or at its default iteration cap
- * (`opt.iterations`, 100), a bound on the cost and not a convergence rule. A
- * joint's limit row is active while the joint is outside its admitted set at
- * all, the projection's own membership test.
+ * rows and its coordinate rows (each locked coordinate, each free one past a
+ * bound) are solved together as one constrained projection, the least
+ * mass-weighted displacement `min 1/2 dx^T M dx` with `J dx = -C`, by Baraff's
+ * linear-time elimination of `[M J^T; J 0]` over the tree whose nodes are the
+ * bodies (6 rows: translation of the centre, rotation) and the joints (3 anchor
+ * rows and the coordinate rows), eliminated leaves first with no fill-in
+ * (Baraff 1996, "Linear-time dynamics using Lagrange multipliers", SIGGRAPH;
+ * the direct tree solve of position constraints, Deul, Kugelstadt, Weiler and
+ * Bender 2018, "Direct position-based solver for stiff rods"). A light segment
+ * between heavy ones (the neck between the chest and the head, a forearm, a
+ * digit) is no longer moved again by each neighbour's own correction, as one
+ * sweep joint by joint leaves it. The rows are linearised at the present poses
+ * and the projection repeated (Newton's method), each step's rows read at the
+ * poses the last one left: the anchors always, a joint's limit row while the
+ * joint lies outside its admitted set, as MuJoCo instantiates a joint limit
+ * only while its distance is below its margin, zero by default
+ * (google-deepmind/mujoco, `src/engine/engine_core_constraint.c`,
+ * `mj_instantiateLimit`, lines 1312-1325 at commit
+ * c6ac13326758a41e3c04c07ef7e7afb38d50b1ea, Apache-2.0, Copyright 2021 DeepMind
+ * Technologies Limited). The loop ends by MuJoCo's Newton termination
+ * (`src/engine/engine_solver.c`, lines 508-517, 3961-3962 and 4068-4080 at the
+ * same commit): once the step's Newton decrement, `1/2 scale a^T M a` with
+ * `scale` the inverse trace of the inertia (`inertiaScale`), falls below the
+ * solver tolerance (`opt.tolerance`, 1e-8, `src/engine/engine_init.c` line 60),
+ * or after the iteration cap (`opt.iterations`, 100, line 95). A position step
+ * `dx` over the substep `h` is the acceleration `a = dx / h^2`, as a positional
+ * multiplier is the force `f = lambda n / h^2` (Mueller, Macklin, Chentanez,
+ * Jeschke and Kim 2020, section 3.3).
  *
  * Anchor row: `C = (c_p + r_p) - (c_c + r_c)`, `J_p = [E | -[r_p]x]`, `J_c =
- * [-E | [r_c]x]` on `(dx, dtheta)`. Limit row: the turn `e` that carries the
- * child's anchor frame into its nearest admitted rotation relative to the
- * parent's (`projectPhysicalJointRotation`, then the clinical swing-twist
- * limit), `n = e / |e|`, `n . (dtheta_c - dtheta_p) = |e|`.
+ * [-E | [r_c]x]` on `(dx, dtheta)`. Coordinate row: with `e` the turn that
+ * carries the child's anchor frame into its admitted rotation relative to the
+ * parent's (`projectPhysicalJointRotation`) and `d_i` the dual of the joint's
+ * motion-subspace basis (`rowsOf`), `d_i . (dtheta_c - dtheta_p) = d_i . e`.
  */
 export namespace solveXpbdJointTree {
   /**
    * Project one tree's joints onto their anchors and admitted rotations.
    *
    * @param top The tree's root node (`solveXpbdArticulation.forest`).
+   * @param h The substep, seconds.
    */
-  export function project(top: solveXpbdArticulation.INode): void {
+  export function project(top: solveXpbdArticulation.INode, h: number): void {
     const order: IVisit[] = visit(top);
     if (order.length === 0) return;
-    let previous: number = Infinity;
-    for (let step: number = 0; step < ITERATIONS; ++step) {
-      const rows: IJointRows[] = order.map(rowsOf);
-      const worst: number = Math.max(
-        ...rows.map((r: IJointRows): number => r.worst),
-      );
-      if (!(worst > 1) || (step !== 0 && !(worst < previous))) return;
-      previous = worst;
-      if (!solve(top, order, rows)) return;
+    for (let iteration: number = 0; iteration < ITERATIONS; ++iteration) {
+      const step: IStep | null = solve(top, order, order.map(rowsOf));
+      if (step === null) return;
+      if (step.decrement / h ** 4 < TOLERANCE) return;
+      step.apply();
     }
   }
-
   /** A joint of the tree with its parent and child nodes. */
   export interface IVisit {
     /** The joint. */
@@ -95,9 +92,18 @@ export namespace solveXpbdJointTree {
 
     /** The rows' right-hand side, `-C`. */
     right: number[];
+  }
 
-    /** The worst row's error over its tolerance. */
-    worst: number;
+  /** One Newton step, solved and not yet taken. */
+  export interface IStep {
+    /**
+     * Its Newton decrement in position units, `1/2 dx^T M dx` over the trace of
+     * `M`; over `h^4` it is MuJoCo's acceleration decrement.
+     */
+    decrement: number;
+
+    /** Take the step: displace every dynamic body of the tree. */
+    apply(): void;
   }
 }
 
@@ -115,7 +121,19 @@ function visit(top: solveXpbdArticulation.INode): solveXpbdJointTree.IVisit[] {
   return out;
 }
 
-/** A joint's rows at the present poses. */
+/**
+ * A joint's rows at the present poses: the three anchor rows; one row per
+ * locked coordinate, always; one per free coordinate while it lies past one of
+ * its bounds, MuJoCo's per-degree-of-freedom joint limit
+ * (`mj_instantiateLimit`: the distance `side (range - q)`, instantiated below
+ * its zero margin); and, for a swing-twist gate or a clinical swing-twist
+ * limit, one row along the turn into it, as MuJoCo's ball-joint limit is one
+ * row along the rotation's axis (the same function, lines 1349-1363). A
+ * coordinate's row is its gradient in the joint's motion subspace: the dual of
+ * the basis of its free directions (`solveXpbdArticulation.directions`)
+ * completed by the locked ones, so a step moves each coordinate by its own
+ * error and no other.
+ */
 function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
   const { joint, parent, child } = v;
   const pf: IAutoMovieRigidTransform = joint.parentFrame();
@@ -126,13 +144,6 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     Vector3.add(parent.center, rp),
     Vector3.add(child.center, rc),
   );
-  // The anchor's tolerance: the float64 rounding of the products that place
-  // it, 64 ulps of its scale, the rounding the return's anchor check allows
-  // (`assertPhysicalReturnPath`).
-  const reach: number =
-    64 *
-    Number.EPSILON *
-    Math.max(1, Vector3.length(parent.center), Vector3.length(child.center));
   const parentRows: number[][] = [
     [1, 0, 0, 0, rp.z, -rp.y],
     [0, 1, 0, -rp.z, 0, rp.x],
@@ -144,48 +155,105 @@ function rowsOf(v: solveXpbdJointTree.IVisit): solveXpbdJointTree.IJointRows {
     [0, 0, -1, -rc.y, rc.x, 0],
   ];
   const right: number[] = [-gap.x, -gap.y, -gap.z];
-  const separation: number = Vector3.length(gap);
-  let worst: number = separation > reach ? separation / reach : 0;
   const base: IAutoMovieQuaternion = Quaternion.multiply(
     parent.orientation,
     pf.rotation,
   );
-  const relative: IAutoMovieQuaternion = Quaternion.multiply(
-    Quaternion.inverse(base),
-    Quaternion.multiply(child.orientation, cf.rotation),
+  const relative: IAutoMovieQuaternion = Quaternion.normalize(
+    Quaternion.multiply(
+      Quaternion.inverse(base),
+      Quaternion.multiply(child.orientation, cf.rotation),
+    ),
   );
-  let admitted: IAutoMovieQuaternion = projectPhysicalJointRotation(
+  // A row on the relative turn: n . (dtheta_c - dtheta_p) = value, with n
+  // given in the parent's anchor frame.
+  const push: (local: IAutoMovieVector3, value: number) => void = (
+    local: IAutoMovieVector3,
+    value: number,
+  ): void => {
+    const n: IAutoMovieVector3 = Quaternion.rotateVector(base, local);
+    parentRows.push([0, 0, 0, -n.x, -n.y, -n.z]);
+    childRows.push([0, 0, 0, n.x, n.y, n.z]);
+    right.push(value);
+  };
+  const boxed: IAutoMovieQuaternion = projectPhysicalJointRotation(
     joint.joint,
     relative,
   );
-  if (joint.joint.swingTwist !== undefined)
-    admitted = limitPhysicalSwingTwist(joint.joint.swingTwist, admitted);
-  const e: IAutoMovieVector3 = Quaternion.rotateVector(
-    base,
-    PhysicalRotationVector.log(
-      Quaternion.multiply(admitted, Quaternion.inverse(relative)),
-    ),
+  const e: IAutoMovieVector3 = PhysicalRotationVector.log(
+    Quaternion.multiply(boxed, Quaternion.inverse(relative)),
   );
-  const turn: number = Vector3.length(e);
-  if (turn > 0) {
-    const n: IAutoMovieVector3 = Vector3.scale(e, 1 / turn);
-    parentRows.push([0, 0, 0, -n.x, -n.y, -n.z]);
-    childRows.push([0, 0, 0, n.x, n.y, n.z]);
-    right.push(turn);
-    worst = Math.max(worst, turn / TOLERANCE);
+  if (joint.joint.range !== undefined) {
+    const turn: number = Vector3.length(e);
+    if (turn > 0) push(Vector3.scale(e, 1 / turn), turn);
+  } else {
+    const basis: IAutoMovieVector3[] = solveXpbdArticulation.directions(
+      joint.joint,
+      relative,
+    );
+    const dual: IAutoMovieVector3[] | null = inverse(basis);
+    if (dual !== null)
+      basis.forEach((_: IAutoMovieVector3, i: number): void => {
+        const declared: IAutoMoviePhysicalJointAxis | undefined =
+          joint.joint.axes[i];
+        if (declared !== undefined) {
+          const q: number | null = solveXpbdArticulation.coordinate(
+            joint,
+            relative,
+            declared,
+          );
+          if (q === null || !(q < declared.minimum || q > declared.maximum))
+            return;
+        }
+        push(dual[i]!, Vector3.dot(dual[i]!, e));
+      });
   }
-  return { parent: parentRows, child: childRows, right, worst };
+  if (joint.joint.swingTwist !== undefined) {
+    const turned: IAutoMovieVector3 = PhysicalRotationVector.log(
+      Quaternion.multiply(
+        limitPhysicalSwingTwist(joint.joint.swingTwist, boxed),
+        Quaternion.inverse(boxed),
+      ),
+    );
+    const turn: number = Vector3.length(turned);
+    if (turn > 0) push(Vector3.scale(turned, 1 / turn), turn);
+  }
+  return { parent: parentRows, child: childRows, right };
 }
 
 /**
- * One projection: the KKT system over the tree eliminated leaves first, then
- * the displacements applied. False when a block is singular.
+ * The dual basis of three directions: the rows of the inverse of the matrix
+ * whose columns they are; none when they are dependent.
+ */
+function inverse(
+  basis: readonly IAutoMovieVector3[],
+): IAutoMovieVector3[] | null {
+  const solve: ((right: readonly number[]) => number[]) | null =
+    prepareLinearSystem([
+      [basis[0]!.x, basis[0]!.y, basis[0]!.z],
+      [basis[1]!.x, basis[1]!.y, basis[1]!.z],
+      [basis[2]!.x, basis[2]!.y, basis[2]!.z],
+    ]);
+  if (solve === null) return null;
+  // Rows of B^-1 are the columns of B^-T, B^T's rows being the directions.
+  return [0, 1, 2].map((i: number): IAutoMovieVector3 => {
+    const column: number[] = solve([
+      i === 0 ? 1 : 0,
+      i === 1 ? 1 : 0,
+      i === 2 ? 1 : 0,
+    ]);
+    return { x: column[0]!, y: column[1]!, z: column[2]! };
+  });
+}
+/**
+ * One Newton step: the KKT system over the tree eliminated leaves first and
+ * back-substituted, with its decrement; none when a block is singular.
  */
 function solve(
   top: solveXpbdArticulation.INode,
   order: readonly solveXpbdJointTree.IVisit[],
   rows: readonly solveXpbdJointTree.IJointRows[],
-): boolean {
+): solveXpbdJointTree.IStep | null {
   // The nodes: each dynamic body (6) and each joint (its rows), with its
   // parent node and the block coupling it there; a joint's parent is its
   // parent body when that is dynamic, else none (the fixed base).
@@ -193,12 +261,14 @@ function solve(
   const bodies: Map<AutoMovieXpbdBody, number> = new Map();
   const bodyNode = (body: AutoMovieXpbdBody, parent: number): number => {
     const index: number = nodes.length;
+    const block: number[][] = mass(body);
     nodes.push({
-      matrix: mass(body),
+      matrix: block.map((row: number[]): number[] => [...row]),
       right: [0, 0, 0, 0, 0, 0],
       parent,
       coupling: [],
       body,
+      mass: block,
     });
     bodies.set(body, index);
     return index;
@@ -227,7 +297,7 @@ function solve(
     const node: INode = nodes[i]!;
     const factor: ((right: readonly number[]) => number[]) | null =
       prepareLinearSystem(node.matrix);
-    if (factor === null) return false;
+    if (factor === null) return null;
     solves[i] = factor;
     if (node.parent < 0) continue;
     const up: INode = nodes[node.parent]!;
@@ -267,16 +337,31 @@ function solve(
           );
     x[i] = solves[i]!(known);
   });
+  // The decrement 1/2 dx^T M dx over trace(M), MuJoCo's `inertiaScale`.
+  let energy: number = 0;
+  let trace: number = 0;
   nodes.forEach((node: INode, i: number): void => {
     if (node.body === undefined) return;
     const d: number[] = x[i]!;
-    AutoMovieXpbdMath.displace(
-      node.body,
-      { x: d[0]!, y: d[1]!, z: d[2]! },
-      { x: d[3]!, y: d[4]!, z: d[5]! },
-    );
+    for (let a: number = 0; a < 6; ++a) {
+      trace += node.mass![a]![a]!;
+      for (let b: number = 0; b < 6; ++b)
+        energy += d[a]! * node.mass![a]![b]! * d[b]!;
+    }
   });
-  return true;
+  return {
+    decrement: trace > 0 ? (0.5 * energy) / trace : 0,
+    apply: (): void =>
+      nodes.forEach((node: INode, i: number): void => {
+        if (node.body === undefined) return;
+        const d: number[] = x[i]!;
+        AutoMovieXpbdMath.displace(
+          node.body,
+          { x: d[0]!, y: d[1]!, z: d[2]! },
+          { x: d[3]!, y: d[4]!, z: d[5]! },
+        );
+      }),
+  };
 }
 
 /** One node of the elimination: a body or a joint. */
@@ -295,6 +380,9 @@ interface INode {
 
   /** The body a body node moves; absent for a joint. */
   body?: AutoMovieXpbdBody;
+
+  /** A body node's own mass block, before elimination; absent for a joint. */
+  mass?: number[][];
 }
 
 /**
@@ -351,14 +439,14 @@ function arm(
 }
 
 /**
- * The joints' tolerance (`ROM_TOLERANCE`), radians: the resolution to which a
- * solver need resolve a joint's angle.
+ * MuJoCo's default solver tolerance (`opt.tolerance`, google-deepmind/mujoco,
+ * `src/engine/engine_init.c` line 60 at
+ * c6ac13326758a41e3c04c07ef7e7afb38d50b1ea, Apache-2.0).
  */
-const TOLERANCE: number = (ROM_TOLERANCE * Math.PI) / 180;
+const TOLERANCE: number = 1e-8;
 
 /**
- * MuJoCo's default solver iteration cap (`opt.iterations`,
- * google-deepmind/mujoco, Apache-2.0): a bound on the cost, never reached by a
- * converging step.
+ * MuJoCo's default solver iteration cap (`opt.iterations`, the same file, line
+ * 95): a bound on the cost, not a convergence rule.
  */
 const ITERATIONS: number = 100;

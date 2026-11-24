@@ -46,13 +46,17 @@ export namespace solveXpbdJoints {
    * by its own block correction.
    *
    * @param joints The joints, in creation order.
+   * @param h The substep, seconds.
    */
-  export function positions(joints: readonly AutoMovieXpbdJoint[]): void {
+  export function positions(
+    joints: readonly AutoMovieXpbdJoint[],
+    h: number,
+  ): void {
     const kept: solveXpbdArticulation.IForest =
       solveXpbdArticulation.forest(joints);
     for (const node of kept.nodes.values())
       if (node.parent === undefined && node.children.length !== 0)
-        solveXpbdJointTree.project(node);
+        solveXpbdJointTree.project(node, h);
     for (const joint of kept.loops) {
       const parent: AutoMovieXpbdBody = joint.parent;
       const child: AutoMovieXpbdBody = joint.child;
