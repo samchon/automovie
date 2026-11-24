@@ -5,7 +5,6 @@ import {
   Vector3,
   physicalShapeBounds,
   physicalStanceBalance,
-  physicalSupportPoint,
 } from "@automovie/engine";
 import { fitHumanPhysicalStandingPose } from "@automovie/human";
 import type {
@@ -25,35 +24,24 @@ import { createHash } from "node:crypto";
 import { PhysicalSupportFixtures } from "./PhysicalSupportFixtures";
 import { createPhysicalBalanceInput } from "./createPhysicalBalanceInput";
 
-/**
- * The run lengths a disturbance is simulated to, seconds, each resuming the
- * last: whole numbers of 120 Hz steps, up to 2.5 s, which a step landing by
- * 0.75 s needs to settle, t_land + 5 / omega (the review's run length).
- */
-const CHUNKS: readonly number[] = [
-  0.375, 0.5, 0.625, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5,
-];
-
-/** The longest run, seconds: the standing body's targets cover it. */
-const DURATION: number = 2.5;
-
 /** The simulation's step rate, per second (`createPhysicalBalanceInput`). */
 const RATE: number = 120;
 
-/** Steps between the checkpoints a longer run resumes from. */
+/**
+ * Steps between checkpoints, and the steps each resumed chunk adds: a chunk
+ * ends on a checkpoint, so the next one resumes exactly where it ended.
+ */
 const CHECKPOINT: number = 6;
 
 /**
- * The steps the capture point must stay outside before a step starts
- * (`advancePhysicalBalance`).
+ * The steps of quiet stance before the push, a tenth of a second, within
+ * which the stance settles (`test_physical_human_quiet_support`); a checkpoint
+ * falls on its last step.
  */
-const TRIGGER: number = 2;
+const PREFIX: number = 12;
 
-/**
- * The fixed step at which the push starts, after a fifth of a second of quiet
- * stance.
- */
-const PUSH_STEP: number = 24;
+/** The step at which the push starts, the first after the quiet prefix. */
+const PUSH_STEP: number = PREFIX + 1;
 
 /**
  * How long the push lasts, seconds: a rectangular force at the root through the
@@ -62,18 +50,28 @@ const PUSH_STEP: number = 24;
  */
 const PUSH_SECONDS: number = 0.1;
 
+/** The push's steps. */
+const PUSH_STEPS: number = Math.round(PUSH_SECONDS * RATE);
+
+/** The last step the push acts on. */
+const PUSH_END: number = PUSH_STEP + PUSH_STEPS - 1;
+
+/** The step budget every run states, so each chunk resumes the last. */
+const BUDGET: number = 300;
+
 /**
- * How far the floor load may stand from the weight once a body stands again, as
- * a share of it.
+ * How far the floor load may stand from the weight, as a share of it: #3092's
+ * strict floor-load bound, here applied to the body's vertical momentum over
+ * every window of the run.
  */
 const LOAD: number = 0.02;
 
-/** The late window in which a standing body's floor load is read, seconds. */
+/** The window the vertical momentum balance is read over, seconds. */
 const WINDOW: number = 0.15;
 
 /**
- * The margin the centre of pressure keeps from the supports' edges, metres: the
- * in-place bound is m omega (b - margin) (Pratt et al., M2V2, footnote 2).
+ * The margin the centre of pressure keeps from the supports' edges, metres
+ * (Pratt et al., M2V2, footnote 2).
  */
 const MARGIN: number = 0.02;
 
@@ -107,21 +105,27 @@ const FALLEN: number = 0.6;
  * - In place: a push below m omega (b - margin), b the distance from the centre
  *   of mass to the supports' edge along the push, keeps the extrapolated centre
  *   of mass within the base of support (Hof, Gazendam and Sinke 2005, Eqs. 5,
- *   8).
+ *   8); held at the edge through the whole pulse the centre of pressure absorbs
+ *   at most m omega b (omega T) / (1 - e^(-omega T)), T the pulse, which no
+ *   controller exceeds without a step or the hip.
  * - One step: the leading limb steps after the reaction, its unloading ramp
- *   (`physicalStanceBalance.FADE`) and its quickest swing to its reach l, a
- *   minimum-jerk transfer at the leg's peak acceleration a, sqrt(5.77 l / a), T
- *   in all (Khadiv et al. 2017, Section III-B), while the remaining supports
- *   hold the centre of pressure at their edge p. The capture point there grows
- *   as p + (xi - p) e^(omega T) (Hof et al. 2005, Eq. 3), so a push is
- *   capturable while that stays within the leading limb's reach l.
+ *   (`physicalStanceBalance.FADE`) and its quickest swing to its reach l, T in
+ *   all (Khadiv et al. 2017, Section III-B), while the remaining supports hold
+ *   the centre of pressure at their edge p. The capture point there grows as p
+ *   + (xi - p) e^(omega T) (Hof et al. 2005, Eq. 3), so a push is capturable
+ *   while that stays within the leading limb's reach l.
  * - Any steps: repeated steps of reach l every T capture at most l e^(-omega T) /
- *   (1 - e^(-omega T)) beyond the edge. The pushes are half the in-place bound,
- *   the middle of the one-step window and one and a half times the any-step
- *   bound, forward or sideways, the first directions SIMBICON's evaluation
- *   lists (Yin, Loken and van de Panne 2007, Section 7.2). Sideways the same
- *   bounds leave the canonical Human no one-step window: its trailing foot
- *   holds the centre of pressure a stance width away from the stepping one.
+ *   (1 - e^(-omega T)) beyond the edge (Koolen et al., Eq. 26). The pushes are
+ *   half the in-place bound, the middle of the one-step window and one and a
+ *   half times the any-step bound, forward or sideways (Yin, Loken and van de
+ *   Panne 2007, Section 7.2). Sideways the same bounds leave the canonical
+ *   Human no one-step window: its trailing foot holds the centre of pressure a
+ *   stance width away from the stepping one.
+ *
+ * A run starts from the standing pose, holds a tenth of a second of quiet
+ * stance, is pushed, and is simulated in checkpoint-aligned chunks, each
+ * resuming the last, only until its verdict is decided (`judge`); the record
+ * of the decided run is then audited once (`audit`).
  */
 export namespace PhysicalDisturbance {
   /** A standing body ready to be pushed. */
@@ -149,6 +153,14 @@ export namespace PhysicalDisturbance {
 
   /** A push's direction: forward along +z or sideways along +x. */
   export type Axis = "x" | "z";
+
+  /** A run's verdict so far: whether it is decided, and what failed. */
+  export interface IVerdict {
+    /** Whether the outcome is decided, passed or failed. */
+    decided: boolean;
+    /** What failed, empty when it passed or is undecided. */
+    failures: string[];
+  }
 
   /** The canonical Human in its public Stand, handed over to physics. */
   export function standing(human: IAutoMovieMotionHumanBody): ISubject {
@@ -194,7 +206,7 @@ export namespace PhysicalDisturbance {
       targets: structuredClone(fit.targets),
       body: (): IAutoMoviePhysicalSimulationInput.IBody => {
         const body: IAutoMoviePhysicalSimulationInput.IBody =
-          PhysicalSupportFixtures.canonical(profile, DURATION);
+          PhysicalSupportFixtures.canonical(profile, BUDGET / RATE);
         for (const target of body.targets)
           target.segments = structuredClone(fit.targets);
         return body;
@@ -217,35 +229,45 @@ export namespace PhysicalDisturbance {
         ),
       ),
       body: (): IAutoMoviePhysicalSimulationInput.IBody =>
-        PhysicalSupportFixtures.body(profile, DURATION),
+        PhysicalSupportFixtures.body(profile, BUDGET / RATE),
     };
   }
 
-  /** Push a body by an outcome's impulse along an axis and check that outcome. */
+  /**
+   * Push a body by an outcome's impulse along an axis, run it only until the
+   * outcome is decided, and check it: the verdict, then the decided run's
+   * record (`audit`).
+   */
   export async function verify(
     subject: ISubject,
     name: Outcome,
     axis: Axis,
     failures: string[],
   ): Promise<void> {
-    const pushes: IPushes = bounds(subject, axis);
-    if (name === "recover" && !(pushes.step > pushes.place))
-      failures.push(
-        `${subject.profile.id}/${axis}: no one-step window ${JSON.stringify(pushes)}`,
+    const full: IAutoMoviePhysicalSimulationInput.IBody = subject.body();
+    const value: number = impulse(subject, name, axis);
+    const cap: number = capOf(subject, name);
+    const label: string = `${subject.profile.id}/${name} ${axis} ${value.toFixed(1)} N s`;
+    let run: IAutoMoviePhysicalSimulation = await AutoMoviePhysicalSimulation.compute(
+      inputOf(subject, full, axis, value, PREFIX),
+    );
+    let verdict: IVerdict = { decided: false, failures: [] };
+    for (let steps: number = PREFIX + CHECKPOINT; ; steps += CHECKPOINT) {
+      run = await AutoMoviePhysicalSimulation.compute(
+        inputOf(subject, full, axis, value, steps),
+        run,
       );
-    // The independent anchor: the controller's one-step bound lies within
-    // Koolen et al.'s Eq. 25 for the step times the literature reports, 0.3
-    // to 0.6 s (Khadiv et al. 2017, Section V; Pratt et al., M2V2, IX-B).
-    if (name === "recover") {
-      const slow: number = window(subject, axis, 0.6).step;
-      const fast: number = window(subject, axis, 0.3).step;
-      if (!(pushes.step >= slow - 1e-9 && pushes.step <= fast + 1e-9))
-        failures.push(
-          `${subject.profile.id}/${axis}: one-step bound ${pushes.step} N s lies outside Koolen's Eq. 25 at 0.3-0.6 s, [${slow}, ${fast}]`,
-        );
+      verdict = judge(subject, name, run.cache, full.id, steps >= cap);
+      if (verdict.decided) break;
     }
-    await push(subject, name, axis, impulse(subject, name, axis), failures);
+    failures.push(
+      ...verdict.failures.map((failure: string): string => `${label}: ${failure}`),
+      ...audit(subject, run.cache, full.id, full.maximumRootForce).map(
+        (failure: string): string => `${label}: ${failure}`,
+      ),
+    );
   }
+
   /** The impulse each outcome is checked with along an axis. */
   export function impulse(
     subject: ISubject,
@@ -261,32 +283,68 @@ export namespace PhysicalDisturbance {
   }
 
   /**
+   * The step by which an outcome must be decided: the push's end, the
+   * controller's own step time and two pendulum time constants 1 / omega, in
+   * which a captured capture point is back inside and a falling one has grown
+   * e^2 times, a step's settling and the capture dwell (`judge`) with it; a
+   * sustained push takes no step.
+   */
+  export function capOf(subject: ISubject, name: Outcome): number {
+    const omega: number = omegaOf(subject);
+    const seconds: number =
+      (name === "sustained" ? 0 : timing(subject)) +
+      (name === "recover" ? 3 : 2) / omega;
+    return (
+      Math.ceil((PUSH_END + seconds * RATE) / CHECKPOINT) * CHECKPOINT
+    );
+  }
+
+  /** The standing pendulum's rate, sqrt(g / h), per second. */
+  export function omegaOf(subject: ISubject): number {
+    return Math.sqrt(9.81 / centerOf(subject.profile, subject.targets).y);
+  }
+
+  /**
    * State each outcome's bound for a push along an axis from the body's own
-   * pendulum, with the controller's own pure functions (the review's derived
-   * procedure). The linear inverted pendulum is integrated through the 0.1 s
-   * pulse under the centre-of-pressure law clamped to the support polygon the
-   * controller holds it within (`physicalStanceBalance.polygon`, `.law`):
+   * pendulum, with the controller's own step time (`timing`). The linear
+   * inverted pendulum is integrated through the 0.1 s pulse under the
+   * centre-of-pressure law clamped to the support polygon
+   * (`physicalStanceBalance.polygon`, `.GAIN`):
    *
    * - In place: the largest pulse whose capture point stays on the polygon (Hof
    *   et al. 2005, Eqs. 7-8);
    * - One step: the capture point at the trigger, two steps after the pulse,
-   *   within the reach's e^(-omega T) of the remaining supports' shrunken edge
-   *   (Koolen et al., Eq. 25), T the controller's own step time;
+   *   within the reach's e^(-omega T) of the remaining supports' edge (Koolen et
+   *   al., Eq. 25);
    * - Any steps: Koolen et al., Eq. 26 with that T.
    */
   export function bounds(subject: ISubject, axis: Axis): IPushes {
     return window(subject, axis, timing(subject));
   }
 
-  /** The bounds for a push along an axis with a given step time, seconds. */
-  export function window(subject: ISubject, axis: Axis, time: number): IPushes {
+  /**
+   * The body's pendulum along an axis: its mass, omega, the standing centre of
+   * mass's coordinate, the support polygon's edges either way, the remaining
+   * supports' far edge when the leading limb steps, and the reach.
+   */
+  export function pendulum(
+    subject: ISubject,
+    axis: Axis,
+  ): {
+    mass: number;
+    omega: number;
+    from: number;
+    low: number;
+    high: number;
+    rest: number;
+    reach: number;
+  } {
     const policy = subject.body().balance!;
     const limbs = policy.pattern.limbs;
     const center: IAutoMovieVector3 = centerOf(
       subject.profile,
       subject.targets,
     );
-    const omega: number = Math.sqrt(9.81 / center.y);
     const along = (sign: number): IAutoMovieVector3 => ({
       x: axis === "x" ? sign : 0,
       y: 0,
@@ -299,12 +357,6 @@ export namespace PhysicalDisturbance {
       0,
     );
     const from: number = center[axis];
-    const high: number =
-      from +
-      physicalStanceBalance.reach(polygon, { ...center, y: 0 }, along(1));
-    const low: number =
-      from -
-      physicalStanceBalance.reach(polygon, { ...center, y: 0 }, along(-1));
     const middles = limbs.map((limb) => {
       const at: number[] = physicalStanceBalance
         .polygon(subject.profile, subject.targets, [limb], 0)
@@ -312,18 +364,36 @@ export namespace PhysicalDisturbance {
       return { limb, middle: (Math.min(...at) + Math.max(...at)) / 2 };
     });
     const lead = middles.reduce((a, b) => (b.middle > a.middle ? b : a));
-    const rest: number = Math.max(
-      ...physicalStanceBalance
-        .polygon(
-          subject.profile,
-          subject.targets,
-          limbs.filter((limb) => limb !== lead.limb),
-          0,
-        )
-        .map((point: IAutoMovieVector3): number => point[axis]),
+    return {
+      mass: subject.profile.mass,
+      omega: omegaOf(subject),
+      from,
+      high:
+        from +
+        physicalStanceBalance.reach(polygon, { ...center, y: 0 }, along(1)),
+      low:
+        from -
+        physicalStanceBalance.reach(polygon, { ...center, y: 0 }, along(-1)),
+      rest: Math.max(
+        ...physicalStanceBalance
+          .polygon(
+            subject.profile,
+            subject.targets,
+            limbs.filter((limb) => limb !== lead.limb),
+            0,
+          )
+          .map((point: IAutoMovieVector3): number => point[axis]),
+      ),
+      reach: policy.maximumStep,
+    };
+  }
+
+  /** The bounds for a push along an axis with a given step time, seconds. */
+  export function window(subject: ISubject, axis: Axis, time: number): IPushes {
+    const { mass, omega, from, low, high, rest, reach } = pendulum(
+      subject,
+      axis,
     );
-    const reach: number = policy.maximumStep;
-    const mass: number = subject.profile.mass;
     // The pendulum through the pulse and on to the trigger, the centre of
     // pressure following the law within [low, high]: the capture point's
     // peak and its value at the trigger.
@@ -333,7 +403,7 @@ export namespace PhysicalDisturbance {
       let x: number = from;
       let v: number = 0;
       let peak: number = from;
-      const until: number = PUSH_SECONDS + TRIGGER / RATE;
+      const until: number = PUSH_SECONDS + 2 / RATE;
       for (let t: number = 0; t < until; t += dt) {
         const xi: number = x + v / omega;
         const u: number = Math.max(
@@ -416,9 +486,9 @@ export namespace PhysicalDisturbance {
 
   /**
    * The controller's own step time for a full-reach step, seconds: the
-   * unloading ramp and the quickest swing the hip allows
-   * (`physicalStanceBalance.swingBound`), no shorter than Khadiv's 0.3 s, as
-   * `advancePhysicalBalance` states it at the standing pose.
+   * reaction, the unloading ramp and the quickest swing the hip allows
+   * (`physicalStanceBalance.swingBound`), as `advancePhysicalBalance` states
+   * it at the standing pose.
    */
   export function timing(subject: ISubject): number {
     const policy = subject.body().balance!;
@@ -455,128 +525,302 @@ export namespace PhysicalDisturbance {
       physicalStanceBalance.FADE +
       AutoMoviePhysicalBalance.duration(reach, 0, peak)
     );
-  } /**
-   * The coordinates along an axis of the named carriers' bearing face projected
-   * to the floor: the shape points within the foot-lift bound of their lowest,
-   * so a side or a toe held off the floor is not support.
-   */
-  function outline(
-    subject: ISubject,
-    carriers: readonly string[],
-    axis: Axis,
-  ): number[] {
-    const points: IAutoMovieVector3[] = [];
-    for (const segment of subject.profile.segments) {
-      if (!carriers.includes(segment.bone)) continue;
-      const pose: IAutoMovieRigidTransform = subject.targets[segment.bone]!;
-      for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])])
-        if (shape.kind === "hull")
-          for (const point of shape.points)
-            points.push(
-              physicalSupportPoint(
-                pose,
-                physicalSupportPoint(shape.transform, point),
-              ),
-            );
-        else if (shape.kind === "box")
-          for (const x of [-1, 1])
-            for (const y of [-1, 1])
-              for (const z of [-1, 1])
-                points.push(
-                  physicalSupportPoint(
-                    pose,
-                    physicalSupportPoint(shape.transform, {
-                      x: x * shape.halfExtents.x,
-                      y: y * shape.halfExtents.y,
-                      z: z * shape.halfExtents.z,
-                    }),
-                  ),
-                );
-        else {
-          const box = physicalShapeBounds(pose, shape);
-          for (const x of [box.min.x, box.max.x])
-            for (const z of [box.min.z, box.max.z])
-              points.push({ x, y: box.min.y, z });
-        }
-    }
-    const lowest: number = Math.min(...points.map((point) => point.y));
-    return points
-      .filter((point: IAutoMovieVector3): boolean => point.y <= lowest + LIFT)
-      .map((point: IAutoMovieVector3): number => point[axis]);
-  }
-  /**
-   * Push the standing body at its root through its centre of mass, as a
-   * rectangular force, and run it only until its outcome is decided: each
-   * longer run resumes the last from its checkpoint, and the run stops once the
-   * outcome holds on a settled body or has plainly failed.
-   */
-  async function push(
-    subject: ISubject,
-    name: Outcome,
-    axis: Axis,
-    impulse: number,
-    failures: string[],
-  ): Promise<void> {
-    const full: IAutoMoviePhysicalSimulationInput.IBody = subject.body();
-    const root: string = rootOf(subject.profile);
-    const start: number = centerOf(subject.profile, subject.targets).y;
-    let run: IAutoMoviePhysicalSimulation | undefined;
-    let last: string[] = [];
-    for (const duration of CHUNKS) {
-      run = await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, duration),
-        run,
-      );
-      const outcome = { run, id: full.id, maximum: full.maximumRootForce };
-      const trial: string[] = [];
-      check(subject, name, axis, impulse, outcome, trial);
-      const frames = run.cache.frames;
-      const now = centerOf(subject.profile, frames.at(-1)!.bodies[full.id]!);
-      const recovery = run.cache.recovery[full.id];
-      // A fall is decided once the body is down; otherwise the run goes on
-      // to its end, never captured.
-      if (
-        trial.length === 0 &&
-        (name === "fall"
-          ? now.y < start * 0.6
-          : captured(subject, run, full.id))
-      )
-        return;
-      const lost: boolean =
-        name === "fall"
-          ? trial.length > 0
-          : now.y < start * 0.6 ||
-            (name === "sustained" &&
-              ((recovery?.steps.length ?? 0) > 0 ||
-                Math.max(
-                  ...frames.map((frame): number =>
-                    turn(
-                      frame.bodies[full.id]![root]!.rotation,
-                      subject.targets[root]!.rotation,
-                    ),
-                  ),
-                ) > TIPPED));
-      last = trial;
-      if (lost) break;
-    }
-    failures.push(...last);
   }
 
   /**
-   * Run one push unbroken, then in two chunks the second resuming the first
-   * from its checkpoint, then unbroken again, and compare the three runs'
-   * frames bit for bit: every segment's transform at every step, the root's
-   * trajectory with them. A controller state kept outside the checkpoint shows
-   * as a resumed run that parts from the unbroken one.
+   * Judge a run so far against its outcome, from its record alone: whether the
+   * outcome is decided, and what failed. `final` marks the outcome's cap, by
+   * which an undecided run has failed.
+   *
+   * - Sustained: never a step, the root never tipped, every support flat and
+   *   only supports on the floor throughout; decided once, after the push, the
+   *   capture point is inside the support and coming back.
+   * - Recover: never down, at most one landed swing phase, no failed landing,
+   *   one swing phase at a time and only supports on the floor; decided once
+   *   every step resolved and the capture point stayed inside the support for
+   *   1 / omega, the time in which a diverging one grows e times, with the
+   *   root upright, the supports flat and the height kept.
+   * - Fall: never captured after the push; decided once the body is down or
+   *   tipped, or at the cap still diverging from landing to landing.
+   */
+  export function judge(
+    subject: ISubject,
+    name: Outcome,
+    cache: IAutoMoviePhysicalSimulation["cache"],
+    id: string,
+    final: boolean,
+  ): IVerdict {
+    const frames = cache.frames;
+    const index: number = frames.length - 1;
+    const recovery = cache.recovery[id];
+    const steps: IAutoMoviePhysicalRecoveryState["steps"] =
+      recovery?.steps ?? [];
+    const start: number = centerOf(subject.profile, subject.targets).y;
+    const root: string = rootOf(subject.profile);
+    const height = (i: number): number =>
+      centerOf(subject.profile, frames[i]!.bodies[id]!).y;
+    const tilt = (i: number): number =>
+      turn(
+        frames[i]!.bodies[id]![root]!.rotation,
+        subject.targets[root]!.rotation,
+      );
+    const fail = (failure: string): IVerdict => ({
+      decided: true,
+      failures: [failure],
+    });
+    if (name === "fall") {
+      for (let i: number = PUSH_END + 1; i <= index; i++)
+        if (captured(subject, cache, id, i))
+          return fail(
+            `captured at ${frames[i]!.seconds} s (${recovery?.last}, height ${height(i)} of ${start})`,
+          );
+      if (height(index) < FALLEN * start || tilt(index) > TIPPED)
+        return { decided: true, failures: [] };
+      if (!final) return { decided: false, failures: [] };
+      const excesses: number[] = landedExcesses(subject, cache, id);
+      return diverging(excesses)
+        ? { decided: true, failures: [] }
+        : fail(
+            `still up at the cap, the capture point past the support at its landings ${excesses.map((e) => e.toFixed(3))} not growing`,
+          );
+    }
+    const strays: string[] = touched(cache, id).filter(
+      (bone: string): boolean => !supportsOf(subject).has(bone),
+    );
+    if (strays.length !== 0) return fail(`non-support bones touched the floor: ${strays}`);
+    if (name === "sustained") {
+      if (steps.length !== 0) return fail(`stepped ${steps.length} times`);
+      for (let i: number = 0; i <= index; i++) {
+        if (tilt(i) > TIPPED)
+          return fail(`root tipped ${tilt(i).toFixed(1)} deg at ${frames[i]!.seconds} s`);
+        const raised: number = lift(subject, frames[i]!.bodies[id]!);
+        if (raised > LIFT)
+          return fail(`a support lifted ${(raised * 1000).toFixed(1)} mm at ${frames[i]!.seconds} s`);
+      }
+      if (index >= PUSH_END + CHECKPOINT) {
+        const now = captureAt(subject, cache, id, index);
+        const before = captureAt(subject, cache, id, index - CHECKPOINT);
+        if (
+          now.polygon.length >= 3 &&
+          now.beyond < 1e-9 &&
+          now.offset < before.offset &&
+          recovery?.last === "supported"
+        )
+          return { decided: true, failures: [] };
+      }
+      return final
+        ? fail(`not back inside the support by the cap (${recovery?.last})`)
+        : { decided: false, failures: [] };
+    }
+    // Recover.
+    if (height(index) < FALLEN * start)
+      return fail(`down at ${frames[index]!.seconds} s, ${steps.length} steps`);
+    if (landed(steps) > 1) return fail(`landed ${landed(steps)} swing phases`);
+    if (steps.some((step): boolean => step.resolved?.status === "failed"))
+      return fail("a landing failed");
+    if (overlaps(steps).length !== 0)
+      return fail(`swing phases ${overlaps(steps)} armed before the one ahead resolved`);
+    const dwell: number = Math.ceil(RATE / omegaOf(subject));
+    const settled: number = Math.max(
+      PUSH_END + 1,
+      ...steps.map((step): number =>
+        Math.round((step.resolved?.seconds ?? Infinity) * RATE),
+      ),
+    );
+    let inside: boolean =
+      steps.every((step): boolean => step.resolved !== undefined) &&
+      recovery?.last === "supported" &&
+      index - dwell >= settled;
+    for (let i: number = index; inside && i > index - dwell; i--) {
+      const at = captureAt(subject, cache, id, i);
+      inside = at.polygon.length >= 3 && at.beyond < 1e-9;
+    }
+    if (inside) {
+      const raised: number = lift(subject, frames[index]!.bodies[id]!);
+      return tilt(index) > TIPPED || raised > LIFT || !(height(index) > start * 0.9)
+        ? fail(
+            `captured with the root tilted ${tilt(index).toFixed(1)} deg, a support lifted ${(raised * 1000).toFixed(1)} mm, height ${height(index)} of ${start}`,
+          )
+        : { decided: true, failures: [] };
+    }
+    return final
+      ? fail(
+          `not captured by the cap: ${recovery?.last}, ${steps.length} steps (landed ${landed(steps)})`,
+        )
+      : { decided: false, failures: [] };
+  }
+
+  /**
+   * Audit a decided run's record, whatever the outcome:
+   *
+   * - Floor load: over every window the body's vertical momentum changes by
+   *   the floor's recorded normal impulse less its weight's, within #3092's 2
+   *   percent of the weight (Newton's second law): an external force holding
+   *   the body, or a floor load left out of the record, breaks it.
+   * - Contact provenance: every solver sample of the floor's contact with the
+   *   body lies at the floor and on the bone it names, within the margin.
+   * - Bounded effort: no support wrench exceeds the body's force bound.
+   * - Honest steps: every landed step's limb left the floor after the step
+   *   began and touched it again by its landing.
+   */
+  export function audit(
+    subject: ISubject,
+    cache: IAutoMoviePhysicalSimulation["cache"],
+    id: string,
+    maximum: number,
+  ): string[] {
+    const failures: string[] = [];
+    const frames = cache.frames;
+    const weight: number = subject.profile.mass * 9.81;
+    const loads: number[] = frames.map((): number => 0);
+    const loaded: Map<string, Set<number>> = new Map();
+    const bounds: Map<string, { min: IAutoMovieVector3; max: IAutoMovieVector3 }> =
+      new Map();
+    for (const receipt of cache.contacts) {
+      const end: "a" | "b" | undefined =
+        receipt.a.body === id && receipt.b.body === "floor"
+          ? "a"
+          : receipt.b.body === id && receipt.a.body === "floor"
+            ? "b"
+            : undefined;
+      if (!end || receipt.source !== "solver") continue;
+      const bone: string = receipt[end].bone;
+      const segment: IAutoMoviePhysicalSegment | undefined =
+        subject.profile.segments.find(
+          (candidate: IAutoMoviePhysicalSegment): boolean =>
+            candidate.bone === bone,
+        );
+      if (!segment) {
+        failures.push(`a floor receipt names ${bone}, no segment of the body`);
+        continue;
+      }
+      for (const sample of receipt.samples ?? []) {
+        const step: number = Math.round(sample.seconds * RATE);
+        if (step < 1 || step >= frames.length) continue;
+        loads[step]! +=
+          (sample.appliedImpulse?.[end] ?? sample.impulse) *
+          (end === "a" ? -sample.normal.y : sample.normal.y);
+        let set: Set<number> | undefined = loaded.get(bone);
+        if (!set) loaded.set(bone, (set = new Set()));
+        set.add(step);
+        const key: string = `${bone}@${step}`;
+        let box = bounds.get(key);
+        if (!box) {
+          const pose: IAutoMovieRigidTransform = frames[step]!.bodies[id]![bone]!;
+          const boxes = [...segment.shapes, ...(segment.contactShapes ?? [])].map(
+            (shape) => physicalShapeBounds(pose, shape),
+          );
+          box = {
+            min: {
+              x: Math.min(...boxes.map((b) => b.min.x)),
+              y: Math.min(...boxes.map((b) => b.min.y)),
+              z: Math.min(...boxes.map((b) => b.min.z)),
+            },
+            max: {
+              x: Math.max(...boxes.map((b) => b.max.x)),
+              y: Math.max(...boxes.map((b) => b.max.y)),
+              z: Math.max(...boxes.map((b) => b.max.z)),
+            },
+          };
+          bounds.set(key, box);
+        }
+        const p: IAutoMovieVector3 = sample.point;
+        if (
+          Math.abs(p.y) > MARGIN ||
+          p.x < box.min.x - MARGIN ||
+          p.x > box.max.x + MARGIN ||
+          p.y < box.min.y - MARGIN ||
+          p.y > box.max.y + MARGIN ||
+          p.z < box.min.z - MARGIN ||
+          p.z > box.max.z + MARGIN
+        ) {
+          failures.push(
+            `a floor sample at ${sample.seconds} s, ${JSON.stringify(p)}, lies off the floor or off ${bone}`,
+          );
+          break;
+        }
+      }
+    }
+    // The vertical momentum balance, window by window.
+    const momentum: number[] = frames.map((frame): number =>
+      subject.profile.segments.reduce(
+        (sum: number, segment: IAutoMoviePhysicalSegment): number => {
+          const state = frame.bodies[id]![segment.bone]!;
+          const arm: IAutoMovieVector3 = Quaternion.rotateVector(
+            state.rotation,
+            segment.centerOfMass,
+          );
+          return (
+            sum +
+            segment.mass *
+              (state.velocity.y + Vector3.cross(state.angularVelocity, arm).y)
+          );
+        },
+        0,
+      ),
+    );
+    const span: number = Math.round(WINDOW * RATE);
+    for (let from: number = 0; from + span < frames.length; from += span) {
+      let impulse: number = 0;
+      for (let k: number = from + 1; k <= from + span; k++) impulse += loads[k]!;
+      const residual: number =
+        momentum[from + span]! - momentum[from]! - (impulse - weight * WINDOW);
+      if (Math.abs(residual) > LOAD * weight * WINDOW) {
+        failures.push(
+          `from ${frames[from]!.seconds} s the vertical momentum moved ${residual.toFixed(2)} N s more than the recorded floor load and gravity allow`,
+        );
+        break;
+      }
+    }
+    const excess: number = Math.max(
+      0,
+      ...cache.supportWrenches
+        .filter((wrench): boolean => wrench.body === id)
+        .map(
+          (wrench): number => Vector3.length(wrench.allocated.force) - maximum,
+        ),
+    );
+    if (excess > 1e-6)
+      failures.push(`a support wrench exceeded its bound by ${excess} N`);
+    const limbs = limbsOf(subject);
+    for (const step of cache.recovery[id]?.steps ?? []) {
+      if (step.resolved?.status !== "landed") continue;
+      const limb = limbs.find((candidate) => candidate.bone === step.bone);
+      const bones: string[] = limb
+        ? [limb.bone, ...(limb.contacts ?? [])]
+        : [step.bone];
+      const on = (k: number): boolean =>
+        bones.some((bone: string): boolean => loaded.get(bone)?.has(k) ?? false);
+      const from: number = Math.ceil(step.start * RATE);
+      const to: number = Math.round(step.resolved.seconds * RATE);
+      let left: number = -1;
+      for (let k: number = from; k < to && left < 0; k++) if (!on(k)) left = k;
+      let back: boolean = false;
+      for (let k: number = Math.max(left, from); left >= 0 && k <= to + 1; k++)
+        back ||= on(k);
+      if (left < 0 || !back)
+        failures.push(
+          `${step.bone}'s step from ${step.start} s landed at ${step.resolved.seconds} s ${left < 0 ? "without leaving the floor" : "with no floor contact"}`,
+        );
+    }
+    return failures;
+  }
+
+  /**
+   * Run one push in checkpoint-aligned chunks, each resuming the last from its
+   * checkpoint, and once unbroken to the same length, and compare the two
+   * runs' frames bit for bit: every segment's transform at every step. A
+   * controller state kept outside the checkpoint shows as a resumed run that
+   * parts from the unbroken one at a chunk's boundary.
    */
   export async function resume(
     subject: ISubject,
     axis: Axis,
     impulse: number,
-    durations: readonly [number, number],
+    seconds: number,
   ): Promise<string[]> {
     const full: IAutoMoviePhysicalSimulationInput.IBody = subject.body();
-    const [early, late] = durations;
+    const last: number = Math.round(seconds * RATE);
     const digest = (run: IAutoMoviePhysicalSimulation): string =>
       createHash("sha256")
         .update(
@@ -599,100 +843,82 @@ export namespace PhysicalDisturbance {
           ),
         )
         .digest("hex");
-    const unbroken: string = digest(
+    let chunked: IAutoMoviePhysicalSimulation =
       await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, late),
-      ),
-    );
-    const chunked: string = digest(
+        inputOf(subject, full, axis, impulse, PREFIX),
+      );
+    for (let steps: number = PREFIX + CHECKPOINT; steps <= last; steps += CHECKPOINT)
+      chunked = await AutoMoviePhysicalSimulation.compute(
+        inputOf(subject, full, axis, impulse, steps),
+        chunked,
+      );
+    const unbroken: IAutoMoviePhysicalSimulation =
       await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, late),
-        await AutoMoviePhysicalSimulation.compute(
-          inputOf(subject, full, axis, impulse, early),
-        ),
-      ),
-    );
-    const again: string = digest(
-      await AutoMoviePhysicalSimulation.compute(
-        inputOf(subject, full, axis, impulse, late),
-      ),
-    );
-    const label: string = `${subject.profile.id}/${axis} ${impulse.toFixed(1)} N s`;
-    return [
-      ...(chunked === unbroken
-        ? []
-        : [
-            `${label}: the run resumed at ${early} s parts from the unbroken one`,
-          ]),
-      ...(again === unbroken ? [] : [`${label}: two unbroken runs differ`]),
-    ];
+        inputOf(subject, full, axis, impulse, last),
+      );
+    return digest(chunked) === digest(unbroken)
+      ? []
+      : [
+          `${subject.profile.id}/${axis} ${impulse.toFixed(1)} N s: the run resumed every ${CHECKPOINT} steps parts from the unbroken one by ${seconds} s`,
+        ];
   }
 
   /**
-   * The simulation input of one push run to a duration: the body's targets cut
+   * The simulation input of one push run to a step: the body's targets cut
    * there, the push a rectangular force through the standing centre of mass at
-   * the root. Every run states the longest one's step budget, so a longer run's
-   * settings match the last and it resumes from its checkpoint.
+   * the root over the steps the run reaches. Every run states the same step
+   * budget, checkpoint interval and floor, so a longer run's settings match the
+   * last and it resumes from its checkpoint.
    */
   function inputOf(
     subject: ISubject,
     full: IAutoMoviePhysicalSimulationInput.IBody,
     axis: Axis,
     impulse: number,
-    duration: number,
+    steps: number,
   ): IAutoMoviePhysicalSimulationInput.IInput {
     const input: IAutoMoviePhysicalSimulationInput.IInput =
-      createPhysicalBalanceInput(
-        subject.profile,
-        "internal",
-        impulse,
-        duration,
-        {
-          ...full,
-          targets: full.targets.slice(0, Math.round(duration * RATE) + 1),
-        },
-      );
+      createPhysicalBalanceInput(subject.profile, "internal", 0, steps / RATE, {
+        ...full,
+        targets: full.targets.slice(0, steps + 1),
+      });
     input.checkpointEvery = CHECKPOINT;
-    input.maximumSteps = Math.round(DURATION * RATE);
+    input.maximumSteps = BUDGET;
     const template = input.impulses[0]!;
-    const steps: number = Math.round(PUSH_SECONDS * input.rate);
-    input.impulses = Array.from({ length: steps }, (_, index: number) => ({
+    input.impulses = Array.from({ length: PUSH_STEPS }, (_, index: number) => ({
       ...structuredClone(template),
       step: PUSH_STEP + index,
       impulse: {
-        x: axis === "x" ? impulse / steps : 0,
+        x: axis === "x" ? impulse / PUSH_STEPS : 0,
         y: 0,
-        z: axis === "z" ? impulse / steps : 0,
+        z: axis === "z" ? impulse / PUSH_STEPS : 0,
       },
       bone: rootOf(subject.profile),
       point: centerOf(subject.profile, subject.targets),
-    }));
+    })).filter((push): boolean => impulse !== 0 && push.step <= steps);
     return input;
   }
 
-  /** Check one outcome against what its push requires. */
-  function check(
-    subject: ISubject,
-    name: Outcome,
-    axis: Axis,
-    impulse: number,
-    outcome: { run: IAutoMoviePhysicalSimulation; id: string; maximum: number },
-    failures: string[],
-  ): void {
-    const { run, id } = outcome;
-    const label: string = `${subject.profile.id}/${name} ${axis} ${impulse.toFixed(1)} N s`;
-    const recovery = run.cache.recovery[id];
-    const start: number = centerOf(subject.profile, subject.targets).y;
-    const last: Readonly<Record<string, IAutoMovieRigidTransform>> =
-      run.cache.frames.at(-1)!.bodies[id]!;
-    const end: number = centerOf(subject.profile, last).y;
-    const limbs = subject.body().balance!.pattern.limbs;
-    const supports: Set<string> = new Set(
-      limbs.flatMap((limb) => [limb.bone, ...(limb.contacts ?? [])]),
+  /** The body's support limbs. */
+  function limbsOf(subject: ISubject) {
+    return subject.body().balance!.pattern.limbs;
+  }
+
+  /** The bones the body's supports touch the floor with. */
+  function supportsOf(subject: ISubject): Set<string> {
+    return new Set(
+      limbsOf(subject).flatMap((limb) => [limb.bone, ...(limb.contacts ?? [])]),
     );
-    const touched: string[] = [
+  }
+
+  /** The body's bones the solver recorded on the floor. */
+  function touched(
+    cache: IAutoMoviePhysicalSimulation["cache"],
+    id: string,
+  ): string[] {
+    return [
       ...new Set(
-        run.cache.contacts
+        cache.contacts
           .filter((receipt): boolean => receipt.source === "solver")
           .flatMap((receipt): string[] =>
             receipt.a.body === id && receipt.b.body === "floor"
@@ -703,124 +929,61 @@ export namespace PhysicalDisturbance {
           ),
       ),
     ];
-    const strays: string[] = touched.filter(
-      (bone: string): boolean => !supports.has(bone),
-    );
-    if (name === "fall") {
-      // Past the any-step bound the body cannot be captured: never, after the
-      // push, its capture point inside the support with its speed settled,
-      // whether it falls or keeps stepping.
-      const after: number = Math.round(
-        (PUSH_STEP / RATE + PUSH_SECONDS) * RATE,
-      );
-      const caught: number = run.cache.frames.findIndex(
-        (_, index: number): boolean =>
-          index > after && captured(subject, run, id, index),
-      );
-      if (caught >= 0)
-        failures.push(
-          `${label}: captured at ${run.cache.frames[caught]!.seconds} s (${recovery?.last}, height ${end} of ${start}, touched ${touched})`,
+  }
+
+  /**
+   * How far the supports' sole edges stand off their plants, metres: each
+   * support's span times the sine of its tilt from its plant.
+   */
+  function lift(
+    subject: ISubject,
+    poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
+  ): number {
+    return Math.max(
+      ...[...supportsOf(subject)].map((bone: string): number => {
+        const xs: number[] = outline(subject, [bone], "x");
+        const zs: number[] = outline(subject, [bone], "z");
+        const span: number = Math.hypot(
+          Math.max(...xs) - Math.min(...xs),
+          Math.max(...zs) - Math.min(...zs),
         );
-      // A body still up and upright at the run's end diverges: the capture
-      // point lies further past the support at each landed swing phase than
-      // at the one before (Koolen et al., Eq. 25 beyond d_inf;
-      // design-4017-landing, 8), so the run did not just end while a
-      // capturable body was stepping. A body tipped past the hip strategy's
-      // range is down whatever its height.
-      const upright: boolean =
-        !(end < FALLEN * start) &&
-        turn(
-          run.cache.frames.at(-1)!.bodies[id]![rootOf(subject.profile)]!.rotation,
-          subject.targets[rootOf(subject.profile)]!.rotation,
-        ) <= TIPPED;
-      const excesses: number[] = landedExcesses(subject, run, id);
-      if (upright && !diverging(excesses))
-        failures.push(
-          `${label}: the capture point past the support at its landings, ${excesses.map((e) => e.toFixed(3))}, does not grow`,
-        );
-      const excess: number = Math.max(
-        0,
-        ...run.cache.supportWrenches
-          .filter((wrench): boolean => wrench.body === id)
-          .map(
-            (wrench): number =>
-              Vector3.length(wrench.allocated.force) - outcome.maximum,
-          ),
-      );
-      if (excess > 1e-6)
-        failures.push(
-          `${label}: a support wrench exceeded its bound by ${excess} N`,
-        );
-      return;
-    }
-    // A body that tipped over is not supported, whatever its recovery state
-    // says; a sustained push also keeps every support flat throughout, and
-    // a recovered body stands on flat supports at the end.
-    const root: string = rootOf(subject.profile);
-    // A sustained push keeps the root up throughout; a recovered body is
-    // judged settled, at the end, landing transients left out.
-    const tilt: number = Math.max(
-      ...(name === "sustained"
-        ? run.cache.frames
-        : [run.cache.frames.at(-1)!]
-      ).map((frame): number =>
-        turn(
-          frame.bodies[id]![root]!.rotation,
-          subject.targets[root]!.rotation,
-        ),
-      ),
-    );
-    const lift = (poses: Readonly<Record<string, IAutoMovieRigidTransform>>) =>
-      Math.max(
-        ...[...supports].map((bone: string): number => {
-          const xs: number[] = outline(subject, [bone], "x");
-          const zs: number[] = outline(subject, [bone], "z");
-          const span: number = Math.hypot(
-            Math.max(...xs) - Math.min(...xs),
-            Math.max(...zs) - Math.min(...zs),
-          );
-          return (
-            span *
-            Math.sin(
-              (lean(poses[bone]!.rotation, subject.targets[bone]!.rotation) *
-                Math.PI) /
-                180,
-            )
-          );
-        }),
-      );
-    const raised: number =
-      name === "sustained"
-        ? Math.max(
-            ...run.cache.frames.map((frame): number => lift(frame.bodies[id]!)),
+        return (
+          span *
+          Math.sin(
+            (lean(poses[bone]!.rotation, subject.targets[bone]!.rotation) *
+              Math.PI) /
+              180,
           )
-        : lift(last);
-    const weight: number = subject.profile.mass * 9.81;
-    const load: number = floorLoad(run, id, run.cache.duration - WINDOW);
-    // One swing phase at a time: a phase starts only once the one before it
-    // resolved, so no two are ever armed together; a diagonal pair's feet
-    // lift together as one phase.
-    const ordered = phases(recovery?.steps ?? []);
-    for (const index of overlaps(recovery?.steps ?? []))
-      failures.push(
-        `: swing phase ${index} armed at ${ordered[index]![0]!.start} before phase ${index - 1} resolved`,
-      );
-    const landed: number = PhysicalDisturbance.landed(recovery?.steps ?? []);
-    if (
-      recovery?.last !== "supported" ||
-      tilt > TIPPED ||
-      raised > LIFT ||
-      !(end > start * 0.9) ||
-      Math.abs(load - weight) > weight * LOAD ||
-      strays.length !== 0 ||
-      // A 0.1 s push held by an active centre of pressure raises the in-place
-      // bound by about a quarter, past the one-step window's lower part, so a
-      // recovered body may stand in place or after one step (the review).
-      (name === "sustained" ? (recovery?.steps.length ?? 0) !== 0 : landed > 1)
-    )
-      failures.push(
-        `${label}: ${recovery?.last}, root tilt ${tilt.toFixed(1)} deg, support lift ${(raised * 1000).toFixed(1)} mm, ${recovery?.steps.length ?? 0} steps (landed ${landed}), height ${end} of ${start}, floor load ${load} of ${weight} N, strays ${strays}`,
-      );
+        );
+      }),
+    );
+  }
+
+  /**
+   * The coordinates along an axis of the named carriers' bearing face projected
+   * to the floor: the shape points within the foot-lift bound of their lowest,
+   * so a side or a toe held off the floor is not support.
+   */
+  function outline(
+    subject: ISubject,
+    carriers: readonly string[],
+    axis: Axis,
+  ): number[] {
+    const points: IAutoMovieVector3[] = [];
+    for (const segment of subject.profile.segments) {
+      if (!carriers.includes(segment.bone)) continue;
+      const pose: IAutoMovieRigidTransform = subject.targets[segment.bone]!;
+      for (const shape of [...segment.shapes, ...(segment.contactShapes ?? [])]) {
+        const box = physicalShapeBounds(pose, shape);
+        for (const x of [box.min.x, box.max.x])
+          for (const z of [box.min.z, box.max.z])
+            points.push({ x, y: box.min.y, z });
+      }
+    }
+    const lowest: number = Math.min(...points.map((point) => point.y));
+    return points
+      .filter((point: IAutoMovieVector3): boolean => point.y <= lowest + LIFT)
+      .map((point: IAutoMovieVector3): number => point[axis]);
   }
 
   /**
@@ -836,6 +999,7 @@ export namespace PhysicalDisturbance {
       Math.PI
     );
   }
+
   /** The angle between two orientations, degrees. */
   function turn(a: IAutoMovieQuaternion, b: IAutoMovieQuaternion): number {
     const q: IAutoMovieQuaternion = Quaternion.multiply(
@@ -846,18 +1010,17 @@ export namespace PhysicalDisturbance {
   }
 
   /**
-   * Whether a body has been captured at a run's end: its capture point inside
-   * the shrunken support polygon its limbs stand on and its horizontal speed
-   * within omega times the margin (Koolen et al., Corollary 3; Hof et al. 2005,
-   * Eq. 7).
+   * Whether a body is captured at a frame: its capture point inside the
+   * shrunken support polygon its limbs stand on and its horizontal speed within
+   * omega times the margin (Koolen et al., Corollary 3; Hof et al. 2005, Eq. 7).
    */
   function captured(
     subject: ISubject,
-    run: IAutoMoviePhysicalSimulation,
+    cache: IAutoMoviePhysicalSimulation["cache"],
     id: string,
-    index: number = run.cache.frames.length - 1,
+    index: number,
   ): boolean {
-    const at = captureAt(subject, run, id, index);
+    const at = captureAt(subject, cache, id, index);
     return (
       at.polygon.length >= 3 && at.beyond < 1e-9 && at.speed <= at.omega * MARGIN
     );
@@ -865,15 +1028,22 @@ export namespace PhysicalDisturbance {
 
   /**
    * A frame's capture point against the support its limbs stand on: how far
-   * past it, metres, the polygon, the horizontal speed and omega.
+   * past it, metres, its distance from the standing centre of mass's ground
+   * point, the polygon, the horizontal speed and omega.
    */
   function captureAt(
     subject: ISubject,
-    run: IAutoMoviePhysicalSimulation,
+    cache: IAutoMoviePhysicalSimulation["cache"],
     id: string,
     index: number,
-  ): { beyond: number; polygon: IAutoMovieVector3[]; speed: number; omega: number } {
-    const frames = run.cache.frames;
+  ): {
+    beyond: number;
+    offset: number;
+    polygon: IAutoMovieVector3[];
+    speed: number;
+    omega: number;
+  } {
+    const frames = cache.frames;
     const poses = frames[index]!.bodies[id]!;
     const now: IAutoMovieVector3 = centerOf(subject.profile, poses);
     const before: IAutoMovieVector3 = centerOf(
@@ -885,9 +1055,7 @@ export namespace PhysicalDisturbance {
       frames[index]!.seconds - frames[Math.max(0, index - 1)]!.seconds,
     );
     const velocity = { x: (now.x - before.x) / dt, z: (now.z - before.z) / dt };
-    const omega: number = Math.sqrt(
-      9.81 / centerOf(subject.profile, subject.targets).y,
-    );
+    const omega: number = omegaOf(subject);
     const capture: IAutoMovieVector3 = {
       x: now.x + velocity.x / omega,
       y: 0,
@@ -896,15 +1064,20 @@ export namespace PhysicalDisturbance {
     const polygon: IAutoMovieVector3[] = physicalStanceBalance.polygon(
       subject.profile,
       poses,
-      subject.body().balance!.pattern.limbs,
+      limbsOf(subject),
       0,
     );
     const nearest: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
       polygon,
       capture,
     );
+    const standing: IAutoMovieVector3 = centerOf(
+      subject.profile,
+      subject.targets,
+    );
     return {
       beyond: Math.hypot(nearest.x - capture.x, nearest.z - capture.z),
+      offset: Math.hypot(capture.x - standing.x, capture.z - standing.z),
       polygon,
       speed: Math.hypot(velocity.x, velocity.z),
       omega,
@@ -917,11 +1090,11 @@ export namespace PhysicalDisturbance {
    */
   export function landedExcesses(
     subject: ISubject,
-    run: IAutoMoviePhysicalSimulation,
+    cache: IAutoMoviePhysicalSimulation["cache"],
     id: string,
   ): number[] {
-    const frames = run.cache.frames;
-    return phases(run.cache.recovery[id]?.steps ?? []).flatMap(
+    const frames = cache.frames;
+    return phases(cache.recovery[id]?.steps ?? []).flatMap(
       (phase): number[] => {
         const times: number[] = phase.flatMap((step): number[] =>
           step.resolved?.status === "landed" ? [step.resolved.seconds] : [],
@@ -930,7 +1103,7 @@ export namespace PhysicalDisturbance {
         const index: number = frames.findIndex(
           (frame): boolean => frame.seconds >= Math.max(...times) - 1e-9,
         );
-        return index > 0 ? [captureAt(subject, run, id, index).beyond] : [];
+        return index > 0 ? [captureAt(subject, cache, id, index).beyond] : [];
       },
     );
   }
@@ -947,6 +1120,7 @@ export namespace PhysicalDisturbance {
         i === 0 || excess > excesses[i - 1]!,
     );
   }
+
   /** The profile's root segment: the one no joint moves. */
   function rootOf(profile: IAutoMoviePhysicalProfile): string {
     return profile.segments.find(
@@ -955,37 +1129,8 @@ export namespace PhysicalDisturbance {
     )!.bone;
   }
 
-  /**
-   * Mean upward floor load on a body from the window's start to the run's end,
-   * newtons.
-   */
-  function floorLoad(
-    run: IAutoMoviePhysicalSimulation,
-    id: string,
-    from: number,
-  ): number {
-    let total: number = 0;
-    for (const receipt of run.cache.contacts) {
-      if (receipt.source !== "solver") continue;
-      const end: "a" | "b" | undefined =
-        receipt.a.body === id && receipt.b.body === "floor"
-          ? "a"
-          : receipt.b.body === id && receipt.a.body === "floor"
-            ? "b"
-            : undefined;
-      if (!end) continue;
-      for (const sample of receipt.samples ?? [])
-        if (sample.seconds > from)
-          total +=
-            ((sample.appliedImpulse?.[end] ?? sample.impulse) *
-              (end === "a" ? -sample.normal.y : sample.normal.y)) /
-            (run.cache.duration - from);
-    }
-    return total;
-  }
-
   /** The mass centre of a set of segment frames, world metres. */
-  function centerOf(
+  export function centerOf(
     profile: IAutoMoviePhysicalProfile,
     poses: Readonly<Record<string, IAutoMovieRigidTransform>>,
   ): IAutoMovieVector3 {

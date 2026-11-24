@@ -5,15 +5,23 @@ import { motionHumanBody } from "../internal/motionHumanBody";
 
 /**
  * The canonical Human, standing in its public Stand under internal actuation
- * only, meets a 0.1 s push half the in-place bound, forward and sideways: no
- * step, still supported and not tipped, every sole flat throughout, the height
- * kept and the floor load back at the weight within 2 percent. The push is
- * stated from the body's own inverted pendulum (`PhysicalDisturbance`).
+ * only, meets a 0.1 s push half the in-place bound, forward and sideways, and
+ * holds it without a step: the root never tipped, every sole flat and only the
+ * feet on the floor throughout, until the capture point is back inside the
+ * support and coming back. The run records the body's momentum against the
+ * floor's load, the contacts' provenance and the support wrenches' bound
+ * (`PhysicalDisturbance.verify`, `.judge`, `.audit`). The push is stated from
+ * the body's own inverted pendulum.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the push and every condition the outcome must meet.
- * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` on the public Stand handed over through `fitHumanPhysicalStandingPose` and reads the recovery record, cache frames, contact receipts and support wrenches.
- * @evidence contracts/development/testing.md#independent-expectations The push comes from the inverted pendulum (Hof, Gazendam and Sinke 2005) with the body's own mass, height and sole outlines and the declared step reach and timing, not from the controller's assessment.
- * @evidence contracts/development/testing.md#distinguishing-cases Its sibling tests push on the other sides of the in-place and stepping bounds, so a controller that steps needlessly, never steps, does not land or claims recovery while falling fails one of them.
+ * Scenarios:
+ *
+ * 1. Forward, z: no step, decided once the capture point returns inside.
+ * 2. Sideways, x: the same across the stance width.
+ *
+ * @evidence contracts/development/common.md#meaningful-documentation States the push, the verdict and the audit each run must pass.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `AutoMoviePhysicalSimulation.compute` from a 0.1 s quiet prefix in checkpoint-aligned chunks until the verdict is decided, and reads the recovery record, frames, floor receipts and support wrenches.
+ * @evidence contracts/development/testing.md#independent-expectations The push comes from the inverted pendulum (Hof, Gazendam and Sinke 2005) with the body's own mass, height and sole outlines; the floor load is checked by Newton's second law against the body's momentum within #3092's 2 percent, not from the controller's assessment.
+ * @evidence contracts/development/testing.md#distinguishing-cases A controller that steps needlessly fails here; its siblings push past the in-place bound (`test_physical_disturbance_human_recover`) and past the any-step bound (`test_physical_disturbance_human_fall`); the verdict's own cases are `test_physical_disturbance_verdicts`.
  * @evidence contracts/development/testing.md#execution-ownership Builds the performance in memory and runs two short native simulations with no viewer or file host.
  */
 export async function test_physical_disturbance_human_sustained(): Promise<void> {
