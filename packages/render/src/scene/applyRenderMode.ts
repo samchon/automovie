@@ -26,9 +26,9 @@ import { hideAutoMovieSurfaceGraphics } from "./surfaceGraphic/hideAutoMovieSurf
 const isNonMeshRenderable: (object: THREE.Object3D) => boolean = (
   object: THREE.Object3D,
 ): boolean =>
-  (object as THREE.Line).isLine === true ||
-  (object as THREE.Points).isPoints === true ||
-  (object as THREE.Sprite).isSprite === true;
+  AutoMovieThreeKind.isLine(object) ||
+  AutoMovieThreeKind.isPoints(object) ||
+  AutoMovieThreeKind.isSprite(object);
 
 /**
  * Hide every currently-visible non-mesh renderable in the scene (grids and

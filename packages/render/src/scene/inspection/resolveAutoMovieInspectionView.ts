@@ -341,11 +341,9 @@ function record(
     position: { x: position.x, y: position.y, z: position.z },
     target: target ?? { x: ahead.x, y: ahead.y, z: ahead.z },
     up: { x: up.x, y: up.y, z: up.z },
-    fovDeg: orthographic ? null : (camera as THREE.PerspectiveCamera).fov,
-    metresPerPixel: orthographic
-      ? ((camera as THREE.OrthographicCamera).top -
-          (camera as THREE.OrthographicCamera).bottom) /
-        height
+    fovDeg: AutoMovieThreeKind.isPerspectiveCamera(camera) ? camera.fov : null,
+    metresPerPixel: AutoMovieThreeKind.isOrthographicCamera(camera)
+      ? (camera.top - camera.bottom) / height
       : null,
     near: camera.near,
     far: camera.far,

@@ -136,7 +136,9 @@ export namespace useToolTarget {
 
   /**
    * The cycle's knots: the phases where its sinusoid is at an extreme or an
-   * inflection, the quarter phases, at which the bend is solved once.
+   * inflection, the quarter phases, at which the bend is solved once. These are
+   * the sinusoid's analytic branch points, exact in closed form, so no adaptive
+   * placement (`prepareHumanAdaptiveKnots`) has a knot to add between them.
    */
   export const KNOTS: number = 4;
 

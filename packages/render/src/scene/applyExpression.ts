@@ -7,6 +7,7 @@ import type {
   IAutoMovieHumanVisemeWeights,
 } from "@automovie/interface";
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import { AUTOMOVIE_EXPRESSION_PRESET_CHANNELS } from "./AUTOMOVIE_EXPRESSION_PRESET_CHANNELS.js";
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
@@ -101,17 +102,9 @@ const applyMorphTargets: (
   weights: ReadonlyMap<string, number>,
 ): void => {
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const mesh: THREE.Mesh<
-      THREE.BufferGeometry<
-        THREE.NormalBufferAttributes,
-        THREE.BufferGeometryEventMap
-      >,
-      | THREE.Material<THREE.MaterialEventMap>
-      | THREE.Material<THREE.MaterialEventMap>[],
-      THREE.Object3DEventMap
-    > = object as THREE.Mesh;
+    if (!AutoMovieThreeKind.isMesh(object)) return;
+    const mesh: THREE.Mesh = object;
     if (
-      mesh.isMesh !== true ||
       mesh.morphTargetDictionary === undefined ||
       mesh.morphTargetInfluences === undefined
     )

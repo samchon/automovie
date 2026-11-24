@@ -38,11 +38,14 @@ export const resetAutoMovieSceneShadowTargets: (
   const shadows: Array<THREE.LightShadow> = [];
   const targets: Set<THREE.RenderTarget> = new Set<THREE.RenderTarget>();
   scene.traverse((object: THREE.Object3D): void => {
-    if ((object as THREE.Light).isLight !== true) return;
-    const shadow: THREE.DirectionalLight["shadow"] | undefined = (
-      object as THREE.DirectionalLight
-    ).shadow;
-    if (shadow === undefined) return;
+    // The lights that own a shadow: directional, point and spot.
+    if (
+      !AutoMovieThreeKind.isDirectionalLight(object) &&
+      !AutoMovieThreeKind.isPointLight(object) &&
+      !AutoMovieThreeKind.isSpotLight(object)
+    )
+      return;
+    const shadow: THREE.LightShadow = object.shadow;
     shadows.push(shadow);
     for (const target of [shadow.map, shadow.mapPass])
       if (target !== null) {

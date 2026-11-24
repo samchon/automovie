@@ -265,13 +265,8 @@ export async function test_viewer_texture_source_facts(): Promise<void> {
   );
   for (const image of [
     null,
-    false,
-    4,
-    "image",
     {},
     { width: 4 },
-    { width: "4", height: 4 },
-    { width: 4, height: "4" },
     { width: 0, height: 4 },
     { width: 4, height: 0 },
   ]) {

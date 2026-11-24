@@ -231,7 +231,9 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
       (candidate: IAutoMovieModelPart): boolean => candidate.id === id,
     )!;
     const half: number =
-      part.geometry.type === "primitive" && "height" in part.geometry.shape
+      part.geometry.type === "primitive" &&
+      part.geometry.shape.type !== "sphere" &&
+      part.geometry.shape.type !== "plane"
         ? part.geometry.shape.height / 2
         : 0;
     return Vector3.add(

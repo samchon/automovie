@@ -270,7 +270,8 @@ export namespace EquineLateral {
       );
       if (
         part?.geometry.type !== "primitive" ||
-        !("radius" in part.geometry.shape)
+        part.geometry.shape.type === "box" ||
+        part.geometry.shape.type === "plane"
       )
         throw new RangeError(`The ${limb} pastern has no radius`);
       return part.geometry.shape.radius;

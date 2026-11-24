@@ -115,8 +115,8 @@ export function braceBody(scope: braceBody.IScope): braceBody.BodyAt {
       : minimumJerk.share(Math.max(0, t - swing[1]) / transfer);
   // Its heel's rise, the one search of a read, solved at knots AutoKnots
   // places (Vitenti et al. 2024, arXiv:2412.13423) to the rise's angular
-  // resolution (`ROM_TOLERANCE`), split where the foot leaves and lands and
-  // where the landing's transfer ends, and read from their course.
+  // resolution (`ROM_TOLERANCE`), knots forced where the foot leaves and
+  // lands, and read from their course.
   const rise: (seconds: number) => number[] = ((): ((
     seconds: number,
   ) => number[]) => {

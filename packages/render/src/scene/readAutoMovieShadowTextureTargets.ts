@@ -4,6 +4,7 @@ import type {
   IAutoMovieSceneEnvironment,
 } from "@automovie/interface";
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import type { IAutoMovieShadowTextureHost } from "./IAutoMovieShadowTextureHost.js";
 import { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
@@ -74,12 +75,18 @@ export const readAutoMovieShadowTextureTargets: (
     );
   const rows: IAutoMovieRenderTextureTarget[] = [];
   for (const { id, light, source } of records) {
+    // A recorded source is a point, directional or spot light, the lights
+    // that own a shadow.
+    if (
+      !AutoMovieThreeKind.isDirectionalLight(light) &&
+      !AutoMovieThreeKind.isSpotLight(light) &&
+      !AutoMovieThreeKind.isPointLight(light)
+    )
+      continue;
     const shadow:
       | THREE.DirectionalLight["shadow"]
       | THREE.SpotLight["shadow"]
-      | THREE.PointLight["shadow"] = (
-      light as THREE.DirectionalLight | THREE.SpotLight | THREE.PointLight
-    ).shadow;
+      | THREE.PointLight["shadow"] = light.shadow;
     const retained: Map<"map" | "blur", IAutoMovieRenderTextureTarget> =
       new Map<"map" | "blur", IAutoMovieRenderTextureTarget>();
     for (const [role, target] of [

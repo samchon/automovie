@@ -38,7 +38,7 @@ export const readAutoMovieCubeShadowDepth: (
   let handle: WebGLTexture | null = null;
   let failure: { error: unknown } | undefined;
   try {
-    renderer.setRenderTarget(target as THREE.WebGLRenderTarget, 0, 0);
+    renderer.setRenderTarget(target, 0, 0);
     if (
       gl.getFramebufferAttachmentParameter(
         gl.FRAMEBUFFER,

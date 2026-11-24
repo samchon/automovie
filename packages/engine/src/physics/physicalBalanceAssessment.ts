@@ -1,21 +1,17 @@
 import type {
-  IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,
-  IAutoMoviePhysicalSupportPatch,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Vector3 } from "../math/Vector3";
-import { convexHull2D } from "../math/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
-import { physicalBalanceAssessment as Assessment } from "./physicalBalanceAssessment";
 import { physicalStanceSupport } from "./physicalStanceSupport";
 
 /**
- * One capture-point assessment's shared state (`AutoMoviePhysicalBalance.assess`):
- * the readings it was asked about, the capture point and its rate, the support's
- * centroid and the capture point's direction from it, and the swing's timing;
- * with the support outline, timing and convergence rules its steps share.
+ * One capture-point assessment's shared state
+ * (`AutoMoviePhysicalBalance.assess`): the readings it was asked about, the
+ * capture point and its rate, the support's centroid and the capture point's
+ * direction from it, and the swing's timing; with the support outline, timing
+ * and convergence rules its steps share.
  */
 export namespace physicalBalanceAssessment {
   /** The assessment's shared state. */
@@ -51,11 +47,11 @@ export namespace physicalBalanceAssessment {
     spent: number;
   }
 
-
   /** The most passes the step's place and time take to agree. */
   export const PASSES: number = 20;
 
   /** The step target's change, metres, below which its place and time agree. */
+  export const SETTLED: number = 1e-4;
 
   /**
    * The outline the stance holds its centre of pressure inside: the support
@@ -100,11 +96,10 @@ export namespace physicalBalanceAssessment {
     );
   }
 
-
   /**
    * How far a point lies outside a convex floor polygon, metres: zero inside,
-   * else its distance to the nearest edge; a polygon of fewer than three vertices
-   * has no inside.
+   * else its distance to the nearest edge; a polygon of fewer than three
+   * vertices has no inside.
    */
   export function excess(
     polygon: readonly IAutoMovieVector3[],
@@ -136,5 +131,4 @@ export namespace physicalBalanceAssessment {
     }
     return inside ? 0 : outside;
   }
-
 }

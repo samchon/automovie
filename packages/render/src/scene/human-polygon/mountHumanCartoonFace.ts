@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 import type { AutoMovieHumanPolygon } from "./AutoMovieHumanPolygon.js";
 
@@ -9,12 +11,15 @@ export function mountHumanCartoonFace(
 ): void {
   const centreZ: number = (head.min[2] + head.max[2]) / 2;
   for (const child of object.children) {
-    const part: THREE.Mesh = child as THREE.Mesh;
+    if (!AutoMovieThreeKind.isMesh(child))
+      throw new Error("A cartoon face part must be a mesh");
+    const part: THREE.Mesh = child;
     part.updateMatrix();
     part.geometry.applyMatrix4(part.matrix);
-    const positions: THREE.BufferAttribute = part.geometry.getAttribute(
+    const positions: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+      part.geometry,
       "position",
-    ) as THREE.BufferAttribute;
+    );
     for (let i: number = 0; i < positions.count; i++) {
       const y: number = THREE.MathUtils.clamp(
         positions.getY(i),

@@ -9,6 +9,7 @@ export * from "./reportAutoMovieResourceRetirement.js";
 export { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRetirement.js";
 export { guardAutoMovieSceneShadowRetirement } from "./guardAutoMovieSceneShadowRetirement.js";
 export * from "./readAutoMovieTextureSource.js";
+export * from "./AutoMovieThreeKind.js";
 export * from "./IAutoMovieTextureLoader.js";
 export * from "./IAutoMovieTextureResolver.js";
 export * from "./buildGeometry.js";

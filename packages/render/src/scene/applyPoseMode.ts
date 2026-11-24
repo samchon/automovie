@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import type { AutoMovieRenderModeMesh } from "./AutoMovieRenderModeMesh.js";
 import type { IAutoMovieRenderModeHandle } from "./IAutoMovieRenderModeHandle.js";
@@ -56,11 +57,10 @@ export const applyPoseMode: (
     position: THREE.BufferAttribute;
   }[] = [];
   scene.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    const bone: THREE.Bone<THREE.Object3DEventMap> = object as THREE.Bone;
-    if (bone.isBone !== true) return;
-    const parent: THREE.Bone<THREE.Object3DEventMap> | null =
-      bone.parent as THREE.Bone | null;
-    if (parent === null || parent.isBone !== true) return;
+    if (!AutoMovieThreeKind.isBone(object)) return;
+    const bone: THREE.Bone = object;
+    const parent: THREE.Object3D | null = bone.parent;
+    if (parent === null || !AutoMovieThreeKind.isBone(parent)) return;
     const position: THREE.BufferAttribute = new THREE.BufferAttribute(
       new Float32Array(6),
       3,
@@ -102,7 +102,7 @@ export const applyPoseMode: (
             ...overlay.children.map(
               (child: THREE.Object3D): (() => void) =>
                 (): void => {
-                  (child as THREE.Line).geometry.dispose();
+                  if (AutoMovieThreeKind.isLine(child)) child.geometry.dispose();
                 },
             ),
             (): void => {

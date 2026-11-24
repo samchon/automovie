@@ -1,5 +1,4 @@
 import type {
-  IAutoMovieFootfallPattern,
   IAutoMoviePhysicalBalance,
   IAutoMoviePhysicalSupportPatch,
   IAutoMovieVector3,
@@ -102,7 +101,8 @@ export namespace AutoMoviePhysicalBalance {
     const beyond: number = Assessment.excess(
       Assessment.held({ inset }, polygon),
       capturePoint,
-    );    const result: IAutoMoviePhysicalBalance.IResult = {
+    );
+    const result: IAutoMoviePhysicalBalance.IResult = {
       state: "unrecoverable",
       capturePoint,
       polygon,
@@ -150,7 +150,7 @@ export namespace AutoMoviePhysicalBalance {
       denominator,
       timing,
       spent: Math.max(0, timing?.elapsed ?? 0),
-    };    // A pair under way is planned again as that pair.
+    }; // A pair under way is planned again as that pair.
     if (input.pair) {
       const lead: IAutoMoviePhysicalSupportPatch | undefined =
         input.supports.find(
@@ -163,13 +163,14 @@ export namespace AutoMoviePhysicalBalance {
             support.bone === input.pair![1],
         );
       return lead && partner && lead !== partner
-        ? paired(lead, partner, pair(lead, partner))
+        ? Pair.paired(scope, lead, partner, Pair.pair(scope, lead, partner))
         : result;
     }
     const candidates: Candidate.ICandidate[] = input.supports.flatMap(
       (support: (typeof input.supports)[number]): Candidate.ICandidate[] =>
         Candidate.candidate(scope, support),
-    );    candidates.sort(
+    );
+    candidates.sort(
       (
         a: (typeof candidates)[number],
         b: (typeof candidates)[number],
@@ -235,13 +236,13 @@ export namespace AutoMoviePhysicalBalance {
             b: IAutoMoviePhysicalSupportPatch,
           ): number => across(a) - across(b),
         )[0];
-      const planned: ReturnType<typeof pair> | undefined = partner
-        ? pair(chosen.support, partner)
+      const planned: Pair.IPair | undefined = partner
+        ? Pair.pair(scope, chosen.support, partner)
         : undefined;
       if (partner && planned?.viable)
         return planned.distance < (input.inset ?? 0)
           ? { ...result, state: "supported" }
-          : paired(chosen.support, partner, planned);
+          : Pair.paired(scope, chosen.support, partner, planned);
       // With no step capturing, the pair is taken when it leaves the capture
       // point less past its new support than the best single step (Khadiv et
       // al. 2017, Section III-B).
@@ -251,7 +252,7 @@ export namespace AutoMoviePhysicalBalance {
         !chosen.viable &&
         planned.violation < chosen.violation
       )
-        return paired(chosen.support, partner, planned);
+        return Pair.paired(scope, chosen.support, partner, planned);
     }
     // A capturing step shorter than the margin is no step: the margin is the
     // centre-of-pressure law's buffer, so the body holds in double support

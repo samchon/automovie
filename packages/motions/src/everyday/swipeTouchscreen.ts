@@ -2,7 +2,6 @@ import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
-  IAutoMovieAffordance,
   IAutoMovieMotionClock,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -10,10 +9,7 @@ import type {
   IAutoMovieMotionHumanArmTarget,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSwipeTouchscreen,
-  IAutoMovieQuaternion,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -28,6 +24,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
+import { swipeTouchscreenScreen } from "./swipeTouchscreenScreen";
 
 /**
  * The mean touch-in to touch-out time in seconds for a single-finger swipe
@@ -70,70 +67,23 @@ function planSwipeTouchscreen(
           : `The ${side} hand already holds ${held}`,
       fix: "release the hand contact before the swipe or choose the other hand",
     });
-  const from: number = HumanBound.within("from", params.from, -0.5, 0.5);
-  const to: number = HumanBound.within("to", params.to, -0.5, 0.5);
-  HumanBound.above("swipe distance", Math.abs(from - to), 0, "width");
   const seconds: number = HumanBound.above(
     "duration",
     params.duration ?? SWIPE_SECONDS,
     0,
     "s",
   );
-  const read: IAutoMovieMotionHumanPropReader = context.prop(params.prop);
-  const screen: IAutoMovieAffordance | undefined = read.prop.affordances?.find(
-    (a: IAutoMovieAffordance): boolean => a.id === params.screen,
+  const {
+    center,
+    first,
+    last,
+    normal,
+    forward,
+  }: swipeTouchscreenScreen.IScreen = swipeTouchscreenScreen(
+    context.prop(params.prop),
+    params,
+    start,
   );
-  if (
-    screen?.kind !== "surface" ||
-    screen.width === undefined ||
-    !(screen.width > 0) ||
-    screen.rides !== undefined ||
-    screen.frame.scale.x !== 1 ||
-    screen.frame.scale.y !== 1 ||
-    screen.frame.scale.z !== 1 ||
-    read.prop.fixed !== true ||
-    read.prop.motion !== undefined ||
-    read.prop.soft !== undefined ||
-    read.prop.worn !== undefined ||
-    read.prop.mounted !== undefined
-  )
-    throw new HumanRefusal({
-      kind: "affordance",
-      axis: "screen",
-      value: `${params.prop}.${params.screen}`,
-      reason:
-        "a swipe needs a stationary fixture with an unscaled rigid surface of positive width",
-      fix: "stage a fixed touchscreen with a unit-scale surface affordance and width",
-    });
-
-  const width: number = screen.width;
-  const frame: IAutoMovieRigidTransform = read.frame(start);
-  const screenRotation: IAutoMovieQuaternion = Quaternion.multiply(
-    frame.rotation,
-    screen.frame.rotation,
-  );
-  const center: IAutoMovieVector3 = world(frame, screen.frame.translation);
-  const site = (share: number): IAutoMovieVector3 =>
-    Vector3.add(
-      center,
-      Quaternion.rotateVector(screenRotation, {
-        x: share * width,
-        y: 0,
-        z: 0,
-      }),
-    );
-  const first: IAutoMovieVector3 = site(from);
-  const last: IAutoMovieVector3 = site(to);
-  const normal: IAutoMovieVector3 = Quaternion.rotateVector(screenRotation, {
-    x: 0,
-    y: 1,
-    z: 0,
-  });
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(screenRotation, {
-    x: 0,
-    y: 0,
-    z: 1,
-  });
   const bones: ReturnType<typeof poseBones> = poseBones(body, entry.pose);
   const tip: IAutoMovieVector3 = HumanHand.frame(
     body,
@@ -366,14 +316,3 @@ export const swipeTouchscreen: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHu
     },
     plan: planSwipeTouchscreen,
   };
-
-/** Put a prop-local point, in metres, into its displayed world frame. */
-function world(
-  frame: IAutoMovieRigidTransform,
-  point: IAutoMovieVector3,
-): IAutoMovieVector3 {
-  return Vector3.add(
-    frame.position,
-    Quaternion.rotateVector(frame.rotation, point),
-  );
-}

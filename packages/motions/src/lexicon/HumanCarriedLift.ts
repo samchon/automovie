@@ -201,7 +201,6 @@ export namespace HumanCarriedLift {
         ): HumanCarriedLiftKnots.IReading =>
           HumanCarriedLiftKnots.read(
             course,
-            body,
             at,
             (seconds: number): IAutoMovieMotionHumanPosture =>
               GymnasticsFlight.frozen(

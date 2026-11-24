@@ -1,4 +1,5 @@
 import type * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import { SPACE_GROUP_NAME } from "./buildSpace.js";
 
@@ -59,13 +60,12 @@ export const applyAutoMovieShadowParticipation: (
     // `isMesh` covers `SkinnedMesh` and `InstancedMesh`, which is what makes a
     // compact population of several thousand members participate as one object
     // rather than not at all.
-    if ((object as THREE.Mesh).isMesh !== true) return;
+    if (!AutoMovieThreeKind.isMesh(object)) return;
     const patch: boolean = ground.has(object);
     // A blended surface (a lantern's glass globe, a flame, a screen's graphic)
     // would cast a fully opaque shadow, because the shadow map ignores
     // opacity, and would shut its own light in; it casts none.
-    const material: THREE.Material | THREE.Material[] = (object as THREE.Mesh)
-      .material;
+    const material: THREE.Material | THREE.Material[] = object.material;
     const blended: boolean = [material]
       .flat()
       .some((entry: THREE.Material): boolean => entry.transparent);

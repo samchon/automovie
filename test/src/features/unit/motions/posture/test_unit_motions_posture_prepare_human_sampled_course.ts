@@ -14,22 +14,25 @@ const TOLERANCE: number = 1e-4;
 
 /**
  * `prepareHumanSampledCourse` knots a value over an interval by AutoKnots
- * (Vitenti et al. 2024, arXiv:2412.13423) between its marks, and joins each
- * piece's knots by the minimum-jerk path through them (Flash and Hogan 1985):
- * every evaluation is a knot the course passes, each piece starts and ends at
- * rest, so the course is at rest at a mark, and the course holds its end values
- * outside the interval. No piece is knotted finer than its step allows, an
- * interval no longer than `GAP` holds the value at its start, and `through`
- * joins given knots, dropping one within `GAP` of the one before.
+ * (Vitenti et al. 2024, arXiv:2412.13423) between its forced knots, and joins
+ * each piece's knots by the minimum-jerk path through them (Flash and Hogan
+ * 1985): every evaluation is a knot the course passes, a piece starts and ends
+ * at rest, so the course rests at a break and passes a mark on the move, and
+ * the course holds its end values outside the interval. No stretch is knotted
+ * finer than its step allows, an interval no longer than `GAP` holds the value
+ * at its start, and `through` joins given knots, dropping one within `GAP` of
+ * the one before.
  *
  * Scenarios:
  *
- * 1. `sin t` over 0 to 2 s with a mark at 1 s, to 1e-4: the course passes the
+ * 1. `sin t` over 0 to 2 s with a break at 1 s, to 1e-4: the course passes the
  *    value at every second it was read, each piece's six uniform starting knots
  *    (0, 0.2, ..., 1 s and 1, 1.2, ..., 2 s) among them.
  * 2. Every read second lies in the interval, and between knots the course stays
  *    within twice the tolerance of `sin t` over a grid of hundredths.
- * 3. The course is at rest at the mark and at both ends.
+ * 3. The course is at rest at the break and at both ends; with a mark at 1 s in
+ *    its place it passes 1 s at the rate of `sin t` there, `cos 1`, within a
+ *    hundredth.
  * 4. Before and after the interval it holds `sin 0` and `sin 2`.
  * 5. A value that steps at 1 s, with no mark there, over 0 to 2 s on a step of a
  *    quarter second, is read only at its six starting knots: the most knots a
@@ -44,7 +47,7 @@ export function test_unit_motions_posture_prepare_human_sampled_course(): void {
   const course: (seconds: number) => number[] = prepareHumanSampledCourse({
     from: 0,
     to: 2,
-    marks: [1],
+    breaks: [1],
     sample: (t: number): number[] => {
       reads.push(t);
       return [Math.sin(t)];
@@ -87,6 +90,19 @@ export function test_unit_motions_posture_prepare_human_sampled_course(): void {
       rate(1 - DT) < 1e-3 &&
       rate(1) < 1e-3 &&
       rate(2 - DT) < 1e-3,
+  );
+
+  const passing: (seconds: number) => number[] = prepareHumanSampledCourse({
+    from: 0,
+    to: 2,
+    marks: [1],
+    sample: (t: number): number[] => [Math.sin(t)],
+    tolerance: { kind: "absolute", absolute: TOLERANCE },
+    step: 1e-3,
+  });
+  TestValidator.predicate(
+    "on the move at the mark",
+    Math.abs((passing(1 + DT)[0]! - passing(1)[0]!) / DT - Math.cos(1)) < 0.01,
   );
 
   // 4. Held outside.

@@ -15,15 +15,7 @@ export const readAutoMovieShadowLightSource: (
   id: string,
   object: THREE.Object3D,
 ): Pick<IAutoMovieLight, "id" | "type" | "castShadow"> | null => {
-  const light: THREE.Light & {
-    isPointLight?: boolean;
-    isDirectionalLight?: boolean;
-    isSpotLight?: boolean;
-  } = object as THREE.Light & {
-    isPointLight?: boolean;
-    isDirectionalLight?: boolean;
-    isSpotLight?: boolean;
-  };
+  const light: THREE.Object3D = object;
   const type: "point" | "directional" | "spot" | null =
     light.isPointLight === true
       ? "point"

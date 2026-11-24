@@ -442,7 +442,7 @@ export namespace physicalStanceDemand {
 
     // The controllers' pivots are not bounded, so their force is held within
     // the body's maximum root force, as the root's other tasks hold theirs
-    // (`physicalRootDemand.external`, `physicalCentroidalTask`).
+    // (`physicalRootExternal`, `physicalCentroidalTask`).
     const most: number = body.maximumRootForce * input.strength;
     const force: IAutoMovieVector3 =
       icp && Vector3.length(aimed) > most

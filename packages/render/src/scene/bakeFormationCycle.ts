@@ -142,7 +142,7 @@ export const bakeFormationCycle: (
               input.parts.length * 3 * samples * 4,
             );
             const tracks: THREE.Vector3[][] = input.parts.map(
-              (): THREE.Vector3[] => [] as THREE.Vector3[],
+              (): THREE.Vector3[] => [],
             );
             const posed: THREE.Matrix4 = new THREE.Matrix4();
             for (let sample: number = 0; sample < samples; ++sample) {

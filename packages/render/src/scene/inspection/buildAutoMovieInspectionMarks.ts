@@ -111,7 +111,7 @@ export function buildAutoMovieInspectionMarks(
         for (const object of [entry.strokes, entry.points])
           if (object !== null) {
             object.geometry.dispose();
-            (object.material as THREE.Material).dispose();
+            for (const material of [object.material].flat()) material.dispose();
           }
     },
   };

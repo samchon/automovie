@@ -33,8 +33,8 @@ type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
  * A stepping gait's root lowering solved in preparation: the lowering that asks
  * for itself (`walkReachGround`) is the one quantity a read would search for,
  * so it is solved exactly at knots AutoKnots places (Vitenti et al. 2024,
- * arXiv:2412.13423; `prepareHumanSampledCourse`) between every swing's toe-off
- * and heel strike, where the stances it stands on change, and read between
+ * arXiv:2412.13423; `prepareHumanSampledCourse`) with every swing's toe-off and
+ * heel strike, where the stances it stands on change, a knot, and read between
  * those knots from a knot course (`prepareHumanKnotCourse`, a minimum-jerk path
  * after Flash and Hogan 1985, J. Neurosci. 5(7):1688). A read then places the
  * stances under the lowered hips with no root search.
@@ -69,7 +69,8 @@ export namespace walkLocomoteLowering {
   }
 
   /**
-   * Prepare a lowering's knot course, split at every toe-off and heel strike.
+   * Prepare a lowering's knot course, every toe-off and heel strike a knot it
+   * passes.
    *
    * @param duration The take's duration, seconds.
    * @param swings Every swing of the plan.
@@ -94,10 +95,10 @@ export namespace walkLocomoteLowering {
   /**
    * Prepare each foot's stance pitch as courses: the pitch its stance rule
    * reaches (`walkReachStance`, a heel-rise search under the settled hip) is
-   * solved exactly at knots AutoKnots places, each foot's course split at its
-   * own toe-offs and heel strikes, so a stance's course never reaches across
-   * the swing where its pivot changes. A read then places each foot at its
-   * course's pitch with no search.
+   * solved exactly at knots AutoKnots places, every contact event a knot, each
+   * foot's course split at its own toe-offs and heel strikes, so a stance's
+   * course never reaches across the swing where its pivot changes. A read then
+   * places each foot at its course's pitch with no search.
    *
    * @param duration The take's duration, seconds.
    * @param swings Every swing of the plan.
@@ -117,7 +118,8 @@ export namespace walkLocomoteLowering {
       prepareHumanSampledCourse({
         from: 0,
         to: duration,
-        marks: marks(
+        marks: marks(swings),
+        breaks: marks(
           swings.filter(
             (s: walkLocomoteSwings.ISwing): boolean => s.side === side,
           ),

@@ -1,43 +1,32 @@
 import type {
   IAutoMovieAdvancePhysicalBalance,
   IAutoMovieCollectPhysicalSupports,
-  IAutoMovieConfigurePhysicalJointMotor,
   IAutoMovieContactReceipt,
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalGravityTorques,
-  IAutoMoviePhysicalRecoveryPolicy,
   IAutoMoviePhysicalRecoveryState,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalSimulationInput,
   IAutoMovieRigidTransform,
   IAutoMovieSamplePhysicalTarget,
-  IAutoMovieStepPlanner,
   IAutoMovieTrackPhysicalBalanceTargets,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
-import { advancePhysicalBalance as AdvanceBalance } from "./advancePhysicalBalance";
 import { advancePhysicalOwnership } from "./advancePhysicalOwnership";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
-import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
-import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import { physicalGravityTorques } from "./physicalGravityTorques";
 import { physicalIcpController } from "./physicalIcpController";
-import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalRecoveryLifted } from "./physicalRecoveryLifted";
-import { physicalRecoveryLimbSwing } from "./physicalRecoveryLimbSwing";
 import { physicalRecoveryRequested } from "./physicalRecoveryRequested";
 import { physicalSpanPose } from "./physicalSpanPose";
-import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
 import { physicalSupportPoint } from "./physicalSupportPoint";
-import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import type { preparePhysicalDisturbanceSpan } from "./preparePhysicalDisturbanceSpan";
 import { readPhysicalScene } from "./readPhysicalScene";
@@ -49,6 +38,8 @@ import { trackPhysicalContactTargets } from "./trackPhysicalContactTargets";
 import { trackPhysicalRoot } from "./trackPhysicalRoot";
 import { trackPhysicalRootSupportTargets } from "./trackPhysicalRootSupportTargets";
 import { trackPhysicalSupports } from "./trackPhysicalSupports";
+import { trackPhysicalWorldBalance } from "./trackPhysicalWorldBalance";
+import { trackPhysicalWorldJoints } from "./trackPhysicalWorldJoints";
 
 /**
  * Apply bounded PD forces and equal-opposite joint torques before the fixed
@@ -218,105 +209,23 @@ export function trackPhysicalWorld(
       ? endpointSupports
       : balanceSupports;
 
-    // The authored command the plan phases follow where IHMC follows its
-    // planner (`physicalAuthoredCapture`): its centre of mass and velocity;
-    // their acceleration is the authored velocity differentiated over the
-    // controller period, sampled again a substep earlier within the cache
-    // interval: a derivative of the input, not a control rule.
-    const authored:
-      | NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]>
-      | undefined = body.balance
-      ? ((): NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]> => {
-          const now: ReturnType<typeof physicalAuthoredCenter> =
-            physicalAuthoredCenter(body.profile, authoredGoals);
-          const before: ReturnType<typeof physicalAuthoredCenter> =
-            physicalAuthoredCenter(
-              body.profile,
-              samplePhysicalAuthoredTargets(
-                body,
-                target,
-                bound,
-                step,
-                seconds - dt,
-                input.rate,
-              ),
-            );
-          return {
-            center: now.center,
-            velocity: now.velocity,
-            acceleration: Vector3.scale(
-              Vector3.subtract(now.velocity, before.velocity),
-              1 / dt,
-            ),
-          };
-        })()
-      : undefined;
     const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
-      rootDynamic && body.balance && target.strength > 0
-        ? AdvanceBalance({
-            world,
-            body: body.id,
-            profile: body.profile,
-            segments: bound.segments.get(body.id)!,
-            colliders: bound.colliders,
-            contacts,
-            policy: body.balance,
-            ...(authored ? { command: authored } : {}),
-            state: (recovery[body.id] ??= {
-              last: "supported",
-              steps: [],
-              offsets: Object.create(null),
-            }),
-            targets: Object.fromEntries(
-              Object.entries(authoredGoals).map(
-                ([bone, goal]: [
-                  string,
-                  IAutoMovieSamplePhysicalTarget.IResult,
-                ]): [string, IAutoMovieRigidTransform] => [bone, goal.pose],
-              ),
-            ),
-            velocities: Object.fromEntries(
-              body.balance.pattern.limbs.map(
-                (
-                  limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-                ): [string, IAutoMovieVector3] => {
-                  const goal: IAutoMovieSamplePhysicalTarget.IResult =
-                    authoredGoals[limb.bone]!;
-                  return [
-                    limb.bone,
-                    Vector3.add(
-                      goal.velocity,
-                      Vector3.cross(
-                        goal.angularVelocity,
-                        Quaternion.rotateVector(
-                          goal.pose.rotation,
-                          limb.localPoint ?? { x: 0, y: 0, z: 0 },
-                        ),
-                      ),
-                    ),
-                  ];
-                },
-              ),
-            ),
-            unavailable: [
-              ...new Set([
-                ...(target.unavailableSupports ?? []),
-                ...Object.entries(target.supportStrength ?? {})
-                  .filter((entry: [string, number]): boolean => entry[1] === 0)
-                  .map((entry: [string, number]): string => entry[0]),
-              ]),
-            ],
-            seconds,
-            dt,
-            gravity:
-              Math.abs(input.gravity.y) *
-              (body.mode.kind === "exaggerated" ? body.mode.gravity : 1),
-            floor: input.floor,
-            actuation,
-            supports: balanceSupports,
-            ...disturbance(input, body, seconds),
-          })
-        : undefined;
+      trackPhysicalWorldBalance({
+        world,
+        input,
+        bound,
+        step,
+        recovery,
+        contacts,
+        seconds,
+        dt,
+        body,
+        target,
+        authoredGoals,
+        rootDynamic,
+        actuation,
+        balanceSupports,
+      });
     const balance: number = assessment?.rootStrength ?? 1;
     const effort: IAutoMoviePhysicalSimulationInput.ITarget = {
       ...target,
@@ -523,179 +432,26 @@ export function trackPhysicalWorld(
         assessment?.state,
         { contacts, recovery },
       );
-    for (const joint of body.profile.joints) {
-      if (!dynamic.has(joint.child)) continue;
-      const parent: AutoMovieXpbdBody = bound.bodies.get(
-        `${body.id}/${joint.parent}`,
-      )!;
-      const child: AutoMovieXpbdBody = bound.bodies.get(
-        `${body.id}/${joint.child}`,
-      )!;
-      const parentFrame: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(parent.rotation(), joint.parentFrame.rotation);
-      const childFrame: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.multiply(child.rotation(), joint.childFrame.rotation);
-      // Under internal actuation a stance limb, any limb not lifted for a
-      // swing, sets its joints' references by their role
-      // (`physicalStanceJointTarget`): a planted foot holds the world
-      // orientation latched when its stance began, against the actual parent,
-      // so a leaning shank does not tip it onto an edge; the leg's first joint
-      // holds the trunk at its intended world orientation over the actual
-      // thigh (Yin, Loken and van de Panne 2007, Section 3.2); the rest keep
-      // the goal posture refit to the present footholds.
-      const swinging: readonly string[] = physicalRecoveryLifted(
-        recovery[body.id],
-      );
-      const stance:
-        | IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number]
-        | undefined = actuation
-        ? body.balance?.pattern.limbs.find(
-            (
-              limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-            ): boolean =>
-              !swinging.includes(limb.bone) &&
-              (limb.chain.includes(joint.child) ||
-                (limb.contacts?.includes(joint.child) ?? false)),
-          )
-        : undefined;
-      const planted: boolean =
-        !!stance &&
-        (stance.bone === joint.child ||
-          (stance.contacts?.includes(joint.child) ?? false));
-      // A swinging foot is held at its authored world orientation, level,
-      // apart from its path, so a toe or heel neither drags nor strikes first
-      // (Pratt et al., M2V2, Section VII-D1).
-      const level: boolean =
-        !!actuation &&
-        (body.balance?.pattern.limbs.some(
-          (
-            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-          ): boolean =>
-            swinging.includes(limb.bone) &&
-            (limb.bone === joint.child ||
-              (limb.contacts?.includes(joint.child) ?? false)),
-        ) ??
-          false);
-      const reference: physicalStanceJointTarget.IResult =
-        physicalStanceJointTarget({
-          parentFrame: joint.parentFrame.rotation,
-          childFrame: joint.childFrame.rotation,
-          actual: {
-            parent: parent.rotation(),
-            child: child.rotation(),
-            parentSpin: parent.angvel(),
-            childSpin: child.angvel(),
-          },
-          goal: {
-            parent: goals[joint.parent]!.pose.rotation,
-            child: goals[joint.child]!.pose.rotation,
-            parentSpin: goals[joint.parent]!.angularVelocity,
-            childSpin: goals[joint.child]!.angularVelocity,
-          },
-          ...(planted || level
-            ? {
-                role: "planted" as const,
-                latched:
-                  (planted
-                    ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
-                    : undefined) ?? authoredGoals[joint.child]!.pose.rotation,
-              }
-            : stance !== undefined && stance.chain[0] === joint.child
-              ? {
-                  role: "hip" as const,
-                  intended: {
-                    rotation: authoredGoals[joint.parent]!.pose.rotation,
-                    spin: authoredGoals[joint.parent]!.angularVelocity,
-                  },
-                  // The hip strategy's axis, along which the stance hips
-                  // release the trunk (design-4017-edge, E2).
-                  ...(rooted.release ? { release: rooted.release } : {}),
-                }
-              : { role: "posture" as const }),
-        });
-      const inv: IAutoMovieRigidTransform["rotation"] =
-        Quaternion.inverse(parentFrame);
-      const rate: IAutoMovieVector3 = Quaternion.rotateVector(
-        inv,
-        Vector3.subtract(child.angvel(), parent.angvel()),
-      );
-      // A lifted swing starts from the leg's present state, its rates as
-      // well as its angles: through the fade its joints' reference rates are
-      // drawn from their actual rates toward the path's, as their angles are
-      // (`physicalSwingReference`; design-4017-edge, S1), since a swing
-      // trajectory is planned from the foot's present position and velocity
-      // (Khadiv et al. 2017, Section III-B; TSID `remove_contact`). A rate
-      // reference left at the path's first, near rest, would have the joints'
-      // damping hold back a leg the advancing pelvis is turning, pressing the
-      // lifted foot back into the floor.
-      const own:
-        | IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number]
-        | undefined = body.balance?.pattern.limbs.find(
-        (
-          limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-        ): boolean =>
-          swinging.includes(limb.bone) &&
-          (limb.chain.includes(joint.child) ||
-            (limb.contacts?.includes(joint.child) ?? false)),
-      );
-      const swing: IAutoMovieStepPlanner.IStep | undefined = own
-        ? physicalRecoveryLimbSwing(recovery[body.id], own.bone)
-        : undefined;
-      const targetVelocity: IAutoMovieVector3 = swing
-        ? physicalSwingReference.rate({
-            actual: rate,
-            path: reference.velocity,
-            elapsed: seconds - swing.start,
-          })
-        : reference.velocity;
-      const moving: boolean =
-        body.balance?.pattern.limbs.some(
-          (
-            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-          ): boolean =>
-            (physicalRecoveryLimbSwing(recovery[body.id], limb.bone) !==
-              undefined ||
-              recovery[body.id]?.offsets[limb.bone] !== undefined) &&
-            limb.chain.includes(joint.child),
-        ) ?? false;
-      const strength: number = physicalJointEffort({
-        effort: effort.strength,
-        override:
-          target.jointStrength && Object.hasOwn(target.jointStrength, joint.id)
-            ? target.jointStrength[joint.id]!
-            : undefined,
-        recovery: moving ? (body.balance!.jointStrength ?? 1) : undefined,
-        softenedUntil: softened.get(`${body.id}/${joint.child}`),
-        seconds,
-        compliance: body.complianceStrength,
-      });
-      const result: IAutoMovieConfigurePhysicalJointMotor.IResult =
-        configurePhysicalJointMotor({
-          world,
-          native: bound.joints.get(`${body.id}/${joint.id}`)!,
-          joint,
-          current: Quaternion.multiply(inv, childFrame),
-          target: reference.target,
-          velocity: rate,
-          targetVelocity,
-          strength,
-          feedForward: Vector3.add(
-            gravity.joints.get(joint.id) ?? { x: 0, y: 0, z: 0 },
-            actuation?.get(joint.id) ?? { x: 0, y: 0, z: 0 },
-          ),
-        });
-      if (
-        result.saturated.length > 0 &&
-        Math.abs(seconds * input.rate - step) < 1e-7
-      )
-        diagnostics.push({
-          seconds,
-          body: body.id,
-          joint: joint.id,
-          error: result.error,
-          saturated: result.saturated,
-        });
-    }
+    trackPhysicalWorldJoints({
+      world,
+      input,
+      bound,
+      step,
+      softened,
+      diagnostics,
+      recovery,
+      seconds,
+      body,
+      target,
+      effort,
+      authoredGoals,
+      goals,
+      dynamic,
+      actuation,
+      assessment,
+      rooted,
+      gravity,
+    });
   }
 }
 
@@ -725,43 +481,3 @@ function plantedPoses(
 
 /** No balance posture is excluded when that controller is inactive. */
 const NO_POSTURE: ReadonlySet<string> = new Set();
-
-/**
- * On the substep after one of a body's stated pushes, the pushes after it, each
- * its instant and the centre of mass's velocity jump, the impulse over the mass
- * (`preparePhysicalDisturbanceSpan`); a push is applied on its cache interval's
- * first substep, so its effect is first read on the second.
- */
-function disturbance(
-  input: IAutoMoviePhysicalSimulationInput.IInput,
-  body: IAutoMoviePhysicalSimulationInput.IBody,
-  seconds: number,
-): { disturbance?: { pushes: preparePhysicalDisturbanceSpan.IPush[] } } {
-  const substeps: number = input.substeps!;
-  const rate: number = input.rate * substeps;
-  const tick: number = Math.round(seconds * rate);
-  const scale: number =
-    body.mode.kind === "exaggerated" ? body.mode.impulse : 1;
-  const pushes = input.impulses.filter(
-    (impulse: (typeof input.impulses)[number]): boolean =>
-      impulse.body === body.id && Vector3.length(impulse.impulse) > 0,
-  );
-  const read = (impulse: (typeof pushes)[number]): number =>
-    (impulse.step - 1) * substeps + 2;
-  const now = pushes.find(
-    (impulse: (typeof pushes)[number]): boolean => read(impulse) === tick,
-  );
-  if (!now) return {};
-  return {
-    disturbance: {
-      pushes: pushes
-        .filter(
-          (impulse: (typeof pushes)[number]): boolean => read(impulse) > tick,
-        )
-        .map((impulse: (typeof pushes)[number]) => ({
-          seconds: read(impulse) / rate,
-          velocity: Vector3.scale(impulse.impulse, scale / body.profile.mass),
-        })),
-    },
-  };
-}

@@ -1,5 +1,6 @@
 import type { IAutoMovieMeshSkin } from "@automovie/interface";
 import * as THREE from "three";
+import { readAutoMovieBufferAttribute } from "./readAutoMovieBufferAttribute.js";
 
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
 import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
@@ -144,11 +145,11 @@ export class AutoMovieSkinnedMesh<
     if (this.method !== "dual-quaternion")
       return super.applyBoneTransform(index, target);
     _index.fromBufferAttribute(
-      this.geometry.attributes.skinIndex as THREE.BufferAttribute,
+      readAutoMovieBufferAttribute(this.geometry, "skinIndex"),
       index,
     );
     _weight.fromBufferAttribute(
-      this.geometry.attributes.skinWeight as THREE.BufferAttribute,
+      readAutoMovieBufferAttribute(this.geometry, "skinWeight"),
       index,
     );
     for (let k: number = 0; k < 4; ++k)

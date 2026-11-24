@@ -63,7 +63,7 @@ export function climbStairsToes(
     prepareHumanSampledCourse({
       from: 0,
       to: duration,
-      marks: steps.flatMap(
+      breaks: steps.flatMap(
         (step: { side: AutoMovieHumanSide }, j: number): number[] =>
           step.side === side
             ? [clock.at(`toeOff${j + 1}`), clock.at(`treadContact${j + 1}`)]

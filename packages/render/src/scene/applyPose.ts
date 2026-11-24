@@ -9,6 +9,7 @@ import {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import type * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 import type { IAutoMovieModelObject } from "./IAutoMovieModelObject.js";
 import { applyTransform } from "./applyTransform.js";
@@ -75,9 +76,9 @@ export const applyPose: (
     const drivers:
       | readonly Pick<IAutoMovieMeshMorphTarget, "name" | "driver">[]
       | null = morphTargetDriversOf(object);
-    const mesh: THREE.Mesh = object as THREE.Mesh;
+    if (drivers === null || !AutoMovieThreeKind.isMesh(object)) return;
+    const mesh: THREE.Mesh = object;
     if (
-      drivers === null ||
       mesh.morphTargetDictionary === undefined ||
       mesh.morphTargetInfluences === undefined
     )

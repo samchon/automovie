@@ -39,7 +39,7 @@ export function test_unit_motions_ensemble_human_queue_marks(): void {
     detail: IAutoMovieMotionHumanEnsemble.Detail = "full",
   ): humanQueueMarks.IMember => ({
     subject,
-    place: { index: 0, role: null, at, yaw: 0 },
+    place: { at, yaw: 0 },
     detail,
     body: { measure: { shoulderHalfWidth: SHOULDER, upperArmRadius: ARM } },
   });

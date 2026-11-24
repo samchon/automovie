@@ -19,6 +19,7 @@ import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBin
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
 import { physicalIcpController } from "./physicalIcpController";
 import { physicalRootDemand } from "./physicalRootDemand";
+import { physicalRootExternal } from "./physicalRootExternal";
 import { physicalRootServo } from "./physicalRootServo";
 import { physicalRootTransitions } from "./physicalRootTransitions";
 import type { physicalStanceBalance } from "./physicalStanceBalance";
@@ -141,7 +142,7 @@ export function trackPhysicalRoot(
   }
   if (rootDynamic && !actuation) {
     const wrench: { force: IAutoMovieVector3; torque: IAutoMovieVector3 } =
-      physicalRootDemand.external({
+      physicalRootExternal({
         settings: input.settings,
         body,
         base,

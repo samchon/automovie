@@ -4,6 +4,7 @@ import type {
   IAutoMovieMeasureFeatureEdges,
 } from "@automovie/interface";
 import * as THREE from "three";
+import { readAutoMovieBufferAttribute } from "../readAutoMovieBufferAttribute.js";
 
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
 import { AUTOMOVIE_PROCEDURAL_NOISE_GLSL } from "../proceduralShading/AUTOMOVIE_PROCEDURAL_NOISE_GLSL.js";
@@ -48,9 +49,10 @@ export const applyMaterialWear: (
   material: THREE.MeshStandardMaterial,
   wear: IAutoMovieMaterialWear,
 ): { geometry: THREE.BufferGeometry; texture: THREE.DataTexture } => {
-  const position: THREE.BufferAttribute = geometry.getAttribute(
+  const position: THREE.BufferAttribute = readAutoMovieBufferAttribute(
+    geometry,
     "position",
-  ) as THREE.BufferAttribute;
+  );
   const indices: ArrayLike<number> =
     geometry.index?.array ??
     Array.from(

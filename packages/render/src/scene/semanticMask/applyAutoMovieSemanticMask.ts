@@ -4,6 +4,7 @@ import type {
   IAutoMovieSemanticMaskEntry,
 } from "@automovie/interface";
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 import {
   applyDualQuaternionSkinning,
@@ -184,9 +185,9 @@ export const applyAutoMovieSemanticMask: (props: {
     scene.traverse((object: THREE.Object3D): void => {
       if (!object.visible) return;
       if (
-        (object as THREE.Line).isLine === true ||
-        (object as THREE.Points).isPoints === true ||
-        (object as THREE.Sprite).isSprite === true
+        AutoMovieThreeKind.isLine(object) ||
+        AutoMovieThreeKind.isPoints(object) ||
+        AutoMovieThreeKind.isSprite(object)
       ) {
         hidden.push(object);
         object.visible = false;
@@ -194,8 +195,8 @@ export const applyAutoMovieSemanticMask: (props: {
     });
     scene.background = new THREE.Color(0x000000);
     scene.traverse((object: THREE.Object3D): void => {
-      const mesh: THREE.Mesh = object as THREE.Mesh;
-      if (mesh.isMesh !== true) return;
+      if (!AutoMovieThreeKind.isMesh(object)) return;
+      const mesh: THREE.Mesh = object;
       const entry: IAutoMovieSemanticMaskEntry | undefined = nearest(
         mesh,
         roots,
@@ -217,11 +218,11 @@ export const applyAutoMovieSemanticMask: (props: {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
-      const instanced: THREE.InstancedMesh = mesh as THREE.InstancedMesh;
-      if (instanced.isInstancedMesh !== true) {
+      if (!AutoMovieThreeKind.isInstancedMesh(mesh)) {
         mesh.material = materialOf(entry.color, cycle, dual);
         return;
       }
+      const instanced: THREE.InstancedMesh = mesh;
       const slots: number[] | undefined = instanced.userData.automovieSlots as
         | number[]
         | undefined;

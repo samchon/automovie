@@ -181,9 +181,6 @@ export namespace staggerBounds {
    */
   export const TRACKING: number = 1;
 
-  /** Samples per second a swing's bow reads its curve at (`staggerSwingBow`). */
-  export const KNOTS: number = 48;
-
   /**
    * The share of the way back toward the stance foot a shortened landing is
    * bisected to (`staggerStep`), the model's resolution (provisional): 1/64,

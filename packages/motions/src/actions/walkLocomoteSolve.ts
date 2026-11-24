@@ -106,7 +106,7 @@ export namespace walkLocomoteSolve {
     // Each swing's floor-clearing lift, the one search of a swing's read,
     // solved at knots AutoKnots places over the swing's share (Vitenti et
     // al. 2024, arXiv:2412.13423) to the lowering's millimetre
-    // (`walkLocomoteLowering.TOLERANCE`), split at the edges of the reach
+    // (`walkLocomoteLowering.TOLERANCE`), knots forced at the edges of the reach
     // ranges' fades (`walkReach.FADE`), where the ranges' rule changes, and
     // read between them from a knot course (`prepareHumanSampledCourse`); a
     // read then raises the foot only by what still sinks (closed form).

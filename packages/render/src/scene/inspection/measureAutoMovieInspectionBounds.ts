@@ -37,8 +37,8 @@ export function measureAutoMovieInspectionBounds(
     if (object.layers.mask === 0) return;
 
     // A screen-space line is a mesh of one widened quad per segment; its segments are its two instanced end attributes.
-    if ((object as { isLineSegments2?: boolean }).isLineSegments2 === true) {
-      const geometry: THREE.BufferGeometry = (object as THREE.Mesh).geometry;
+    if (AutoMovieThreeKind.isLineSegments2(object)) {
+      const geometry: THREE.BufferGeometry = object.geometry;
       for (const end of ["instanceStart", "instanceEnd"])
         if (geometry.hasAttribute(end)) {
           const ends: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
@@ -51,8 +51,7 @@ export function measureAutoMovieInspectionBounds(
       return;
     }
     if (AutoMovieThreeKind.isMesh(object)) {
-      if ((object as { isBatchedMesh?: boolean }).isBatchedMesh === true)
-        return;
+      if (AutoMovieThreeKind.isBatchedMesh(object)) return;
       if (!object.geometry.hasAttribute("position")) return;
       const count: number = object.geometry.getAttribute("position").count;
       if (!AutoMovieThreeKind.isInstancedMesh(object)) {
