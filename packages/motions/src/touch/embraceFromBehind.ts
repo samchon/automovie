@@ -821,7 +821,13 @@ function solve(
       `the chest lies ${(chest.distance * 1000).toFixed(0)} mm ${chest.distance > 0 ? "off" : "into"} the partner's back with the head on the shoulder`,
       "stand behind the partner, nearer or farther by that much",
     );
-  if (into > AutoMovieMotionHumanAuditSkin.BUILT)
+  // Within the skin to the solve's own constraint tolerance (sco's
+  // `cntTolerance`).
+  if (
+    into >
+    AutoMovieMotionHumanAuditSkin.BUILT +
+      HumanSequentialConvex.DEFAULTS.cntTolerance
+  )
     throw refusal(
       partner,
       `the bodies lie ${(into * 1000).toFixed(1)} mm into each other with the head on the shoulder and the chest on the back`,
