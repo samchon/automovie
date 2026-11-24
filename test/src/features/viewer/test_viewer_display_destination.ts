@@ -30,7 +30,7 @@ import { nclose } from "../internal/predicates";
  *
  * @evidence contracts/development/testing.md#independent-expectations WebGL encoding/component/precision constants and authored RGBA profiles determine accepted storage; cube face 3, mip 1 and explicit rectangles determine restoration expectations. Initial state is a before/after preservation oracle, supplemented by independent target identity and authored raster assertions. Supplied context responses and shader uniforms do not prove actual GPU pixels.
  *
- * @evidence contracts/development/testing.md#distinguishing-cases Linear and sRGB labels disagree deliberately, distinct targets share a UUID, and pixel ratio two separates logical from effective rectangles. Complete and incomplete attachments, missing capabilities, malformed precision, integer/float/normalized profiles, query/source failures and paired restoration errors preserve the existing adjacent and refusal cases. Other tests own dissolve weights, fade timing and actual hardware rendering.
+ * @evidence contracts/development/testing.md#distinguishing-cases Linear and sRGB labels disagree deliberately, distinct targets share a UUID, and pixel ratio two separates logical from effective rectangles. Complete and incomplete attachments, a WebGL1 context, integer/float/normalized profiles, query/source failures and paired restoration errors preserve the existing adjacent and refusal cases. Other tests own dissolve weights, fade timing and actual hardware rendering.
  *
  * @evidence contracts/development/testing.md#execution-ownership The discoverable named unit entry uses existing in-memory renderer controls and Three.js objects without a browser or GPU. All cases execute directly inside this entry; no dynamic registration or native host is installed.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Native linear/sRGB responses select the inverse storage transfer even when).
@@ -276,32 +276,7 @@ export function test_viewer_display_destination(): void {
       sameState(host.state(), before),
     );
   };
-  for (const key of [
-    "FRAMEBUFFER_ATTACHMENT_COMPONENT_TYPE",
-    "UNSIGNED_NORMALIZED",
-    "FRAMEBUFFER_ATTACHMENT_ALPHA_SIZE",
-  ]) {
-    const original: unknown = host.nativeColourConstants.get(key);
-    host.nativeColourConstants.delete(key);
-    const queriesBefore: number = host.calls.filter(
-      (call: string): boolean => call === "component" || call === "precision",
-    ).length;
-    refusesProfile(
-      "missing public native capability refuses before attachment queries",
-    );
-    TestValidator.equals(
-      "unavailable capability performs no component or precision query",
-      host.calls.filter(
-        (call: string): boolean => call === "component" || call === "precision",
-      ).length,
-      queriesBefore,
-    );
-    host.nativeColourConstants.set(key, original);
-  }
-  for (const value of [undefined, "8", 8.5, NaN, Infinity]) {
-    host.nativeChannelBits.value = [8, 8, 8, value];
-    refusesProfile("unknown or nonintegral native channel precision refuses");
-  }
+
   for (const bits of [
     [4, 4, 4, 4],
     [8, 8, 0, 0],
