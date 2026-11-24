@@ -21,6 +21,8 @@ type Point = readonly [number, number];
  * Scenarios:
  * 1. Convex trapezoids at three station units, exact/one-ULP/plainly unequal
  *    diagonal lengths and four cyclic starts retain a prescribed ID diagonal.
+ *    A measured grid roundoff sliver uses the alternate diagonal when the
+ *    original fourth point permits it and remains admissible on its own.
  * 2. A hexagon prefers an original two-edge arc over the next smaller tip ID,
  *    distinguishing occurrence locality from a pure-ID fan.
  * 3. A centered square hole retains its independent normalized chart area,
@@ -41,6 +43,7 @@ type Point = readonly [number, number];
 export function test_construction_mesh_selection(): void {
   const failures: string[] = [];
   ears(failures);
+  roundedEar(failures);
   ConstructionMeshSelectionGeometry.occupied(failures);
   holes(failures);
   ConstructionMeshSelectionGeometry.concave(failures);
@@ -49,6 +52,41 @@ export function test_construction_mesh_selection(): void {
   ConstructionGridAuthorities(failures);
   if (failures.length !== 0)
     throw new Error(`Native selection findings:\n${failures.join("\n")}`);
+}
+
+/** Three incident grid samples have a positive area only at rounding scale. */
+function roundedEar(failures: string[]): void {
+  const a: Point = [1613.9307076463947, 4.614214209960009];
+  const b: Point = [1615.7841897053288, 4.565126824747668];
+  const c: Point = [1619.4911538231972, 4.466952054322987];
+  const vertices: Map<number, Point> = new Map([
+    [1, a],
+    [0, b],
+    [2, c],
+    [3, [a[0], a[1] + 0.25]],
+  ]);
+  const before: string = JSON.stringify([...vertices]);
+  const alternate: IAutoMovieSolidMeshPlan.ITriangle[] | string =
+    triangulateAutoMovieSolidBoundary(vertices, {
+      vertices: [1, 0, 2, 3],
+      lifts: [0, 0, 0, 0],
+      winding: 0,
+    });
+  if (
+    typeof alternate === "string" ||
+    ConstructionMeshSelectionGeometry.keys(alternate) !== "0/2/3;0/3/1"
+  )
+    failures.push("roundoff-scale ear was chosen over the ample alternate cut");
+  const unavoidable: IAutoMovieSolidMeshPlan.ITriangle[] | string =
+    triangulateAutoMovieSolidBoundary(vertices, {
+      vertices: [1, 0, 2],
+      lifts: [0, 0, 0],
+      winding: 0,
+    });
+  if (typeof unavoidable === "string" || unavoidable.length !== 1)
+    failures.push("a positive represented boundary ear was refused");
+  if (JSON.stringify([...vertices]) !== before)
+    failures.push("ear conditioning moved a declared source vertex");
 }
 
 /** Literal admitted cuts pin integer policy without moving the geometric inputs. */

@@ -30,15 +30,18 @@ interface Corner {
  * represented-point signs, rather than the free-form region's absolute area
  * tolerance. No free-form geometry predicate or caller is changed.
  *
- * Every ear uses the shorter original occurrence arc, tip ID and lift as its
- * integer key. A periodic cut additionally stays within the maximum phase
- * travel of two adjacent primitives in the supplied original walk, including
- * its bridges. This sampling-locality limit prevents unconstrained long fans;
- * it neither changes a coordinate nor ranks near-equal coordinate groups.
- * Equal keys retain the first occurrence in the supplied linear walk, so
- * arbitrary weak-walk rotation is not promised. Identical occurrence order,
- * IDs/lifts and all admission decisions imply identical integer selections
- * at every length unit. Rounded geometric admission can still differ.
+ * An ear whose signed area survives the coordinates' binary64 rounding is
+ * preferred to one whose positive area may be created by rounding nearly
+ * collinear samples. Within each group the key is the shorter original
+ * occurrence arc, tip ID and lift. Exact represented signs still decide
+ * admission, including an unavoidable thin ear. A periodic cut also stays
+ * within the maximum phase travel of two adjacent primitives in the supplied
+ * original walk, including its bridges. This sampling-locality limit prevents
+ * unconstrained long fans; it neither changes a coordinate nor ranks near-equal
+ * coordinate groups. Equal keys retain the first occurrence in the supplied
+ * linear walk, so arbitrary weak-walk rotation is not promised. The ordering
+ * carries no physical length constant. Coordinates represented at a different
+ * precision can change both conditioning and admission.
  *
  * Locality remains a bounded heuristic: long primitives/bridges can make it
  * loose, and a valid walk needing a longer diagonal can be refused. It is
@@ -118,13 +121,24 @@ export function triangulateAutoMovieSolidBoundary(
     let at: number = -1;
     let best: readonly number[] | undefined;
     for (let index: number = 0; index < working.length; index++) {
+      const previous: number =
+        working[(index + working.length - 1) % working.length]!;
+      const next: number = working[(index + 1) % working.length]!;
       const b: Corner = corners[working[index]!]!;
-      const gap: number = Math.abs(
-        working[(index + working.length - 1) % working.length]! -
-          working[(index + 1) % working.length]!,
-      );
+      const gap: number = Math.abs(previous - next);
       const arc: number = Math.min(gap, corners.length - gap);
-      const score: readonly number[] = [arc, b.id, b.lift];
+      const score: readonly number[] = [
+        Number(
+          uncertainArea(
+            corners[previous]!.point,
+            b.point,
+            corners[next]!.point,
+          ),
+        ),
+        arc,
+        b.id,
+        b.lift,
+      ];
       if (
         (best !== undefined && !precedes(score, best)) ||
         !ear(
@@ -188,6 +202,46 @@ export function triangulateAutoMovieSolidBoundary(
     if (working.length < 3) break;
   }
   return triangles;
+}
+
+/**
+ * Could independently rounding the three input coordinates create this area?
+ * Propagate one binary64 rounding per endpoint through edge subtraction and the
+ * determinant's two products. This grades an ear's input resolution separately
+ * from the exact represented-point sign used for admission.
+ *
+ * @see https://www.cs.cmu.edu/~quake/robust.html Shewchuk 1997 distinguishes a determinant's rounding error from its exact represented sign.
+ * @see https://arxiv.org/abs/1911.03424 Khoury and Shewchuk 2019 analyze triangle interpolation and normal error on curved surfaces.
+ */
+function uncertainArea(
+  a: Readonly<AutoMovieVector2Tuple>,
+  b: Readonly<AutoMovieVector2Tuple>,
+  c: Readonly<AutoMovieVector2Tuple>,
+): boolean {
+  const u: number = b[0] - a[0];
+  const v: number = b[1] - a[1];
+  const x: number = c[0] - a[0];
+  const y: number = c[1] - a[1];
+  // Unit roundoff covers one normal binary64 coordinate rounding. The
+  // additional subtraction uses the rounded edge magnitude at its own scale.
+  const edgeError = (first: number, last: number, edge: number): number =>
+    (Number.EPSILON / 2) * (Math.abs(first) + Math.abs(last) + Math.abs(edge));
+  const du: number = edgeError(a[0], b[0], u);
+  const dv: number = edgeError(a[1], b[1], v);
+  const dx: number = edgeError(a[0], c[0], x);
+  const dy: number = edgeError(a[1], c[1], y);
+  const left: number = u * y;
+  const right: number = v * x;
+  const propagated: number =
+    Math.abs(u) * dy +
+    Math.abs(y) * du +
+    du * dy +
+    Math.abs(v) * dx +
+    Math.abs(x) * dv +
+    dv * dx;
+  const arithmetic: number =
+    Number.EPSILON * (Math.abs(left) + Math.abs(right));
+  return !(Math.abs(left - right) > propagated + arithmetic);
 }
 
 /** A positive ear retains every other original boundary occurrence on or inside its triangle. */
