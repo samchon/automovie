@@ -25,10 +25,6 @@ It adds no approval step of its own for routine work. Approvals the project's ru
 
 ## Subagents
 
-Give each subagent its own files.
-
-No subagent waits for another subagent or a run.
-
 A Claude Code subagent stops mid-task with a message like this:
 
 > My context is nearly full. I'll stop here; a fresh agent can pick this up from my notes.
