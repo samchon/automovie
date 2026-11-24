@@ -335,12 +335,13 @@ export namespace HumanArmOptimiser {
 
 /**
  * TrajOpt's merit schedule, its sco defaults (`BasicTrustRegionSQP::
- * initParameters`, trajopt's src/sco/optimizers.cpp): the penalty starts at
- * `merit_error_coeff_` 10 and is raised by `merit_coeff_increase_ratio_` 10 at
- * most `max_merit_coeff_increases_` 5 times, its outer loop solving at each
- * coefficient in turn, so the coefficients solved at are 10 to 10^5 by tens. A
- * problem still infeasible at the last is the caller's to refuse, not the
- * penalty's to force.
+ * initParameters`, github.com/joschu/trajopt src/sco/optimizers.cpp at commit
+ * 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c, BSD-2-Clause, Copyright (c) 2013
+ * John Schulman): the penalty starts at `merit_error_coeff_` 10 and is raised
+ * by `merit_coeff_increase_ratio_` 10 at most `max_merit_coeff_increases_` 5
+ * times, its outer loop solving at each coefficient in turn, so the
+ * coefficients solved at are 10 to 10^5 by tens. A problem still infeasible at
+ * the last is the caller's to refuse, not the penalty's to force.
  */
 const MERIT: Readonly<IMerit> = {
   first: 10,
@@ -368,11 +369,12 @@ const PENALTIES: readonly number[] = Array.from(
 
 /**
  * A constraint met, millimetres: sco's `cnt_tolerance_` (1e-4,
- * `BasicTrustRegionSQP::initParameters` in trajopt's src/sco/optimizers.cpp),
- * below which its outer loop stops raising the penalty, read in sco's units,
- * metres, and converted to this model's rows, millimetres: 1e-4 m times 1000.
- * The solve stops there; the admission still accepts a course within the
- * model's own `TOLERANCE`.
+ * `BasicTrustRegionSQP::initParameters` in github.com/joschu/trajopt
+ * src/sco/optimizers.cpp at commit 8da5bb00b690647318a12fa4f5dd7e6c8a0f501c,
+ * BSD-2-Clause), below which its outer loop stops raising the penalty, read in
+ * sco's units, metres, and converted to this model's rows, millimetres: 1e-4 m
+ * times 1000. The solve stops there; the admission still accepts a course
+ * within the model's own `TOLERANCE`.
  */
 const CONSTRAINT: number = 1e-4 * 1000;
 
