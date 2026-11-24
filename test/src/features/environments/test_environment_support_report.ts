@@ -12,12 +12,12 @@ import {
   createEnvironment,
   createEnvironmentProp,
   createFurnishedRoom,
+  createGymKit,
   createTerrain,
 } from "@automovie/archetypes/environments";
 import {
   builtEnvironmentSupportSweep,
   computeModelRestExtent,
-  environmentSupportReport,
 } from "@automovie/engine";
 import type {
   IAutoMovieBuiltElement,
@@ -26,7 +26,6 @@ import type {
   IAutoMovieBuiltSupportSweepReport,
   IAutoMovieEnvironment,
   IAutoMovieEnvironmentItem,
-  IAutoMovieEnvironmentSupportReport,
   IAutoMovieModel,
   IAutoMoviePropBox,
   IAutoMovieSetPieceSupport,
@@ -35,7 +34,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts, nclose } from "../internal/predicates";
+import { frozenSupportReport } from "../internal/frozenSupportReport";
+import { namedFacts, nclose, vclose } from "../internal/predicates";
 
 /**
  * A composed environment reports how every staged set piece is supported,
@@ -57,16 +57,19 @@ import { namedFacts, nclose } from "../internal/predicates";
  * 7. A composed building's bodies each appear once, with the verdict
  *    `builtEnvironmentSupportSweep` gives that building alone.
  * 8. Every node appears exactly once, in stage order.
- * 9. The report is a pure function of the other outputs: recomputing it from the
- *    environment's own stage and runtime gives the same findings, and the same
- *    recipe repeats every output byte for byte.
+ * 9. The report changes nothing else. Recomputed over the deep-frozen stage,
+ *    runtime, space and building records of the cafe set, and of a gym kit and
+ *    a tree disk on rolling terrain, it writes none of them and repeats the
+ *    findings `createEnvironment` returned; the floating and sunk crates keep
+ *    their authored positions; and the same recipe repeats every output byte
+ *    for byte.
  * 10. A furnished interior with a sofa, a coffee table and a hung wall mirror, and
  *     an outdoor set of a wood, a trail, a rock and a bench on level ground,
  *     report no `floating` or `sunk` piece; the mirror is `wall-borne`.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Builds environments through the public producers and reads `support`, which catches a floating or sunk piece reported resting, a tucked or attached piece judged against the wrong support, a hung piece not judged against its wall, a declared prop measured again, a building body judged differently from its own sweep and a duplicated or missing node.
- * @evidence contracts/development/testing.md#independent-expectations The 0.8 m and -0.3 m gaps are the authored placements plus the crate's rest-box underside measured through the engine; the building verdicts come from the building sweep run separately; the wall and table ids are the producers' documented names.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs a floating and a sunk crate, an attached and a declared cup, a mirror on its wall and 0.1 m off it, and furnished pieces against building bodies; `test_architecture_built_environment_placement` owns the building sweep's own cases.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds environments through the public producers and reads `support`, which catches a floating or sunk piece reported resting, a tucked or attached piece judged against the wrong support, a hung piece not judged against its wall, a declared prop measured again, a building body judged differently from its own sweep, a duplicated or missing node, and a report that writes into the records it reads or moves a piece it flags.
+ * @evidence contracts/development/testing.md#independent-expectations The 0.8 m and -0.3 m gaps are the authored placements plus the crate's rest-box underside measured through the engine; the building verdicts come from the building sweep run separately; the wall and table ids are the producers' documented names; the crates' staged positions are their authored `at`. Byte identity with the records composed before the report existed is not recorded, because the testing contract bars a snapshot of earlier output and #4061 already moved the cafe counter within its last float bits; the report runs last over the composed records, so it can change another output only by writing into them, which the frozen records refuse.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs a floating and a sunk crate, an attached and a declared cup, a mirror on its wall and 0.1 m off it, and furnished pieces against building bodies, and freezes the cafe, gym, rolling-terrain and tree-disk outputs; `test_architecture_built_environment_placement` owns the building sweep's own cases and `test_environment_support_relief` support on noise relief.
  * @evidence contracts/development/testing.md#execution-ownership A CPU-only feature scenario over in-memory environments; it starts no renderer or host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists its ten scenarios with the input and expected behavior of each.
  */
@@ -166,27 +169,52 @@ export function test_environment_support_report(): void {
       (entry: IAutoMovieSetPieceSupport): boolean => entry.node === node,
     );
 
-  // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
-  // 0.1 m off that wall by coordinates.
-  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, "mirror");
-  const hung: IAutoMovieEnvironment = createEnvironment({
-    id: "home",
+  // Scenario 9: the other existing outputs, a gym kit and a tree disk on
+  // rolling terrain.
+  const grounds: IAutoMovieEnvironment = createEnvironment({
+    id: "grounds",
     seed: 5,
     items: {
-      land: level(),
-      room: {
-        use: createFurnishedRoom({
-          room: [4, 3.2],
-          pieces: {
-            mirror: {
-              model: mirror,
-              place: { kind: "wall", wall: "+x", offset: 1 },
-            },
+      land: {
+        at: { x: -10, y: 0, z: -10 },
+        use: createTerrain({
+          size: [20, 20],
+          relief: { kind: "rolling", amplitude: 0.5, wavelength: 12 },
+          trees: {
+            grove: { center: [15, 15], radius: 2, count: 8, scale: 0.2 },
           },
         }),
       },
+      gym: {
+        at: { x: -4, y: 0, z: -4 },
+        use: createGymKit({ room: [6, 5], stations: 2 }),
+      },
     },
   });
+
+  // Scenario 6: a mirror on wall +x of a furnished room, and the same mirror
+  // 0.1 m off that wall by coordinates.
+  const mirror: IAutoMovieModel = createMirror({ kind: "wall" }, "mirror");
+  const hanging: () => IAutoMovieEnvironment = (): IAutoMovieEnvironment =>
+    createEnvironment({
+      id: "home",
+      seed: 5,
+      items: {
+        land: level(),
+        room: {
+          use: createFurnishedRoom({
+            room: [4, 3.2],
+            pieces: {
+              mirror: {
+                model: mirror,
+                place: { kind: "wall", wall: "+x", offset: 1 },
+              },
+            },
+          }),
+        },
+      },
+    });
+  const hung: IAutoMovieEnvironment = hanging();
   const frame: IAutoMovieTransform = hung.anchors["room/mirror"]!;
   const loose: IAutoMovieEnvironment = createEnvironment({
     id: "home",
@@ -417,48 +445,26 @@ export function test_environment_support_report(): void {
         ),
     ],
     [
-      "the report is recomputed from the other outputs, and a rebuild repeats them all",
-      (): boolean => {
-        const again: IAutoMovieEnvironment = createEnvironment({
-          id: "home",
-          seed: 5,
-          items: {
-            land: level(),
-            room: {
-              use: createFurnishedRoom({
-                room: [4, 3.2],
-                pieces: {
-                  mirror: {
-                    model: mirror,
-                    place: { kind: "wall", wall: "+x", offset: 1 },
-                  },
-                },
-              }),
-            },
-          },
-        });
-        const recomputed: IAutoMovieSetPieceSupport[] =
-          environmentSupportReport({
-            set: set.stage.set,
-            models: set.runtime.models,
-            props: set.runtime.props,
-            ...(set.stage.space !== undefined
-              ? { space: set.stage.space }
-              : {}),
-            buildings: set.builtEnvironments.map(
-              (
-                environment: IAutoMovieBuiltEnvironment,
-              ): IAutoMovieEnvironmentSupportReport.IBuilding => ({
-                environment,
-                groundY: 0,
-              }),
-            ),
-          });
-        return (
-          JSON.stringify(recomputed) === JSON.stringify(set.support) &&
-          JSON.stringify(again) === JSON.stringify(hung)
-        );
-      },
+      "the report writes none of the records it reads and moves no piece",
+      (): boolean =>
+        // Recomputed over frozen records, a report that wrote into one throws;
+        // the crates stand at their item frames, the authored `at`.
+        [set, grounds].every(
+          (environment: IAutoMovieEnvironment): boolean =>
+            JSON.stringify(frozenSupportReport(environment)) ===
+            JSON.stringify(environment.support),
+        ) &&
+        ["floatingCrate", "sunkCrate"].every((key: string): boolean =>
+          vclose(
+            set.stage.set.find(
+              (piece: IAutoMovieStageSetPiece): boolean =>
+                piece.node === `set/${key}`,
+            )!.position,
+            set.anchors[key]!.translation,
+            1e-12,
+          ),
+        ) &&
+        JSON.stringify(hanging()) === JSON.stringify(hung),
     ],
     [
       "the furnished interior and the outdoor set have no floating or sunk piece",
