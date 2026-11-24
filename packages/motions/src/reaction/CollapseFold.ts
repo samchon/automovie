@@ -52,12 +52,14 @@ export namespace CollapseFold {
    * @param sag The sag's share.
    * @param drop The drop onto the knees' share.
    * @param lay The lay onto the floor's share.
+   * @param fittedKnee The forward lie's knee angle fitted to this body's
+   *   distal and trunk support geometry, when requested.
    * @returns The fold.
    *
    * @evidence contracts/development/common.md#meaningful-documentation States the inputs and the result.
    * @evidence contracts/development/implementation.md#principled-implementation Linear blends of each direction's knee, trunk and lying angles by the shares, the profiles' minimum-jerk shape coming from the caller's clock.
    * @evidence contracts/development/implementation.md#clear-and-simple-structure One branch per direction, then the tone's arms.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The angles are named provisional readings, not fitted to a check.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The named provisional angles remain with the fold. A supplied terminal knee comes from the person's physical support fit.
    * @evidenceExclude contracts/development/implementation.md#efficient-algorithms Constant arithmetic.
    * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work A pure evaluator with nothing to share.
    * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources Retains nothing.
@@ -69,6 +71,7 @@ export namespace CollapseFold {
     sag: number,
     drop: number,
     lay: number,
+    fittedKnee?: number,
   ): IFold {
     const soft: number = SAG.knee * sag * (1 - drop);
     const sway: number = SAG.pitch * sag * (1 - drop);
@@ -76,7 +79,8 @@ export namespace CollapseFold {
     const toward: number = side === "left" ? -1 : 1;
     const shape: IShape = SHAPES[direction];
     const hip: number = shape.hip * held + shape.lyingHip * lay;
-    const knee: number = soft + shape.knee * held + shape.lyingKnee * lay;
+    const knee: number =
+      soft + shape.knee * held + (fittedKnee ?? shape.lyingKnee) * lay;
     const pitch: number = sway + shape.pitch * drop + shape.lyingPitch * lay;
     const roll: number = toward * shape.roll * lay;
     const protective: boolean = tone === "protective";

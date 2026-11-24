@@ -1,8 +1,10 @@
+import { physicalShapeBounds } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCollapse,
   IAutoMovieMotionTarget,
+  IAutoMoviePhysicalSegment,
   IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -124,7 +126,7 @@ export function test_motion_fall_collapse_directions(): void {
         const check = (what: string, ok: boolean): void => {
           if (!ok)
             failures.push(
-              `${label}: ${what} (hips ${hips.x.toFixed(2)} ${hips.y.toFixed(2)} ${hips.z.toFixed(2)}, head ${head.x.toFixed(2)} ${head.y.toFixed(2)} ${head.z.toFixed(2)})`,
+              `${label}: ${what} (hips ${hips.x.toFixed(2)} ${hips.y.toFixed(2)} ${hips.z.toFixed(2)}, head ${head.x.toFixed(2)} ${head.y.toFixed(2)} ${head.z.toFixed(2)}, lowest colliders ${floorWitnesses(body, last)})`,
             );
         };
         // Lying on the front or the back, the pelvis is within a trunk's
@@ -201,4 +203,26 @@ export function test_motion_fall_collapse_directions(): void {
     }
   }
   TestValidator.equals("collapse findings", failures, []);
+}
+
+/** Name the closest final colliders and their heights above the floor in mm. */
+function floorWitnesses(body: IAutoMovieMotionHumanBody, bones: Bones): string {
+  return body.profile.segments
+    .flatMap((segment: IAutoMoviePhysicalSegment): { name: string; y: number }[] => {
+      const bone: IAutoMovieResolvedBone | undefined = bones.get(
+        segment.bone as AutoMovieHumanoidBone,
+      );
+      if (bone === undefined) return [];
+      return segment.shapes.map((shape) => ({
+        name: shape.id,
+        y: physicalShapeBounds(
+          { position: bone.worldPosition, rotation: bone.worldRotation },
+          shape,
+        ).min.y,
+      }));
+    })
+    .sort((a, b) => a.y - b.y)
+    .slice(0, 4)
+    .map(({ name, y }): string => `${name} ${(1000 * y).toFixed(2)} mm`)
+    .join(", ");
 }

@@ -168,6 +168,13 @@ export namespace collapse {
       direction === "forward"
         ? angle((Math.atan2(away.x, away.z) * 180) / Math.PI - entry.yaw)
         : 0;
+    const fittedKnee: number | undefined =
+      direction === "forward"
+        ? KnockdownFloor.fitProneKnee(
+            body,
+            CollapseFold.of(direction, tone, side, 1, 1, 1),
+          )
+        : undefined;
     const fold = (seconds: number): CollapseFold.IFold =>
       CollapseFold.of(
         direction,
@@ -176,6 +183,7 @@ export namespace collapse {
         sagging(seconds),
         drop(seconds),
         lay(seconds),
+        fittedKnee,
       );
     const rest: ReturnType<typeof knockdown.prepareRest> =
       knockdown.prepareRest(body);
