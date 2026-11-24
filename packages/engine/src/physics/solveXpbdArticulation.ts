@@ -6,11 +6,14 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { AutoMoviePhysicalJointChart } from "./AutoMoviePhysicalJointChart";
 import { AutoMovieXpbdArticulation } from "./AutoMovieXpbdArticulation";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import type { AutoMovieXpbdJoint } from "./AutoMovieXpbdJoint";
 import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
+import { PhysicalRotationVector } from "./PhysicalRotationVector";
+import { projectPhysicalJointRotation } from "./projectPhysicalJointRotation";
 import { solveXpbdArticulationContacts } from "./solveXpbdArticulationContacts";
 import type { solveXpbdContacts } from "./solveXpbdContacts";
 import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
@@ -31,8 +34,12 @@ import type { solveXpbdSupportCascade } from "./solveXpbdSupportCascade";
  * attachment's velocity is kept. A tree pressed onto something that is not
  * dynamic is held at those supports in the same solve
  * (`solveXpbdArticulationContacts`). A motor whose impulse exceeds its cap `tau
- * h` is held at the cap and the tree solved again, at most once more per
- * motor.
+ * h` is held at the cap and the tree solved again, at most once more per motor.
+ * An axis whose rate after the solve carries its joint out of the joint's
+ * admitted set over the substep is locked, its rate prescribed to zero
+ * (Featherstone 2008, section 7.3), and the tree solved again the same way, so
+ * a limit is held in the velocity pass rather than only restored by the
+ * position pass after the prediction has stepped past it.
  */
 export namespace solveXpbdArticulation {
   /**
@@ -54,10 +61,9 @@ export namespace solveXpbdArticulation {
     contacts: readonly solveXpbdContacts.IContact[],
     tasks: ReadonlyMap<AutoMovieXpbdBody, AutoMovieXpbdWorld.IRootTask>,
     warm: Map<AutoMovieXpbdBody, solveXpbdSupportCascade.IWarm>,
-  ): AutoMovieXpbdJoint[] {
-    const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
-    const loops: AutoMovieXpbdJoint[] = forest(joints, nodes);
-    for (const node of nodes.values())
+  ): readonly AutoMovieXpbdJoint[] {
+    const kept: IForest = forest(joints);
+    for (const node of kept.nodes.values())
       if (node.parent === undefined) {
         const task: AutoMovieXpbdWorld.IRootTask | undefined = tasks.get(
           node.body,
@@ -71,7 +77,7 @@ export namespace solveXpbdArticulation {
         }
         solveTree(node, h, contacts, task, start);
       }
-    return loops;
+    return kept.loops;
   }
 
   /**
@@ -99,10 +105,9 @@ export namespace solveXpbdArticulation {
     impulse: IAutoMovieVector3,
   ): void {
     if (!body.dynamic) return;
-    const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
-    forest(joints, nodes);
+    const kept: IForest = forest(joints);
     const tree: AutoMovieXpbdArticulation.ITree = build(
-      root(nodeOf(nodes, body)),
+      root(kept.nodes.get(body) ?? { body, children: [] }),
     );
     // An instant's impulse: no motor's damping acts over it.
     const factored: AutoMovieXpbdArticulation.IFactor | null =
@@ -125,15 +130,26 @@ export namespace solveXpbdArticulation {
   }
 
   /**
+   * The world's forest: its bodies' nodes and the joints outside it, the
+   * model's connectivity (its parent array, Featherstone 2008, section 4.1.2).
+   */
+  export interface IForest {
+    /** Every jointed body's node. */
+    nodes: ReadonlyMap<AutoMovieXpbdBody, INode>;
+
+    /** The joints outside the forest, in creation order. */
+    loops: readonly AutoMovieXpbdJoint[];
+  }
+
+  /**
    * The world's forest: each joint whose child is dynamic, has no parent edge
    * yet and lies in another tree than its parent becomes a tree edge.
    *
-   * @returns The joints outside the forest, in creation order.
+   * @param joints The world's joints, in creation order.
+   * @returns The forest's nodes and the joints outside it.
    */
-  function forest(
-    joints: readonly AutoMovieXpbdJoint[],
-    nodes: Map<AutoMovieXpbdBody, INode>,
-  ): AutoMovieXpbdJoint[] {
+  export function forest(joints: readonly AutoMovieXpbdJoint[]): IForest {
+    const nodes: Map<AutoMovieXpbdBody, INode> = new Map();
     const loops: AutoMovieXpbdJoint[] = [];
     for (const joint of joints) {
       const child: INode = nodeOf(nodes, joint.child);
@@ -150,7 +166,7 @@ export namespace solveXpbdArticulation {
       child.parent = parent;
       parent.children.push(child);
     }
-    return loops;
+    return { nodes, loops };
   }
 
   /** Add a propagation's velocity changes to every dynamic body of its tree. */
@@ -180,7 +196,8 @@ export namespace solveXpbdArticulation {
   }
 
   /** One body of the forest. */
-  interface INode {
+  export interface INode {
+    /** The world's body. */
     body: AutoMovieXpbdBody;
 
     /** The joint to its parent; absent at a root. */
@@ -188,6 +205,8 @@ export namespace solveXpbdArticulation {
 
     /** Its parent node; absent at a root. */
     parent?: INode;
+
+    /** Its child nodes, in joint creation order. */
     children: INode[];
   }
 
@@ -225,7 +244,8 @@ export namespace solveXpbdArticulation {
     task: AutoMovieXpbdWorld.IRootTask | undefined,
     warm: solveXpbdSupportCascade.IWarm | undefined,
   ): void {
-    const tree: AutoMovieXpbdArticulation.ITree = build(top);
+    const joints: AutoMovieXpbdJoint[] = [];
+    const tree: AutoMovieXpbdArticulation.ITree = build(top, joints);
     if (
       !tree.edges.some((edge: AutoMovieXpbdArticulation.IEdge): boolean =>
         edge.axes.some(
@@ -249,7 +269,10 @@ export namespace solveXpbdArticulation {
         task,
         warm,
       );
-    } while (clamp(tree, factored, held.response, h));
+    } while (
+      clamp(tree, factored, held.response, h) ||
+      lock(tree, joints, held.response, h)
+    );
     solveXpbdArticulationContacts.commit(held);
     apply(tree, held.response);
   }
@@ -258,7 +281,10 @@ export namespace solveXpbdArticulation {
    * A tree's states and edges, depth-first from its root so every edge follows
    * its parent's.
    */
-  function build(top: INode): AutoMovieXpbdArticulation.ITree {
+  function build(
+    top: INode,
+    joints?: AutoMovieXpbdJoint[],
+  ): AutoMovieXpbdArticulation.ITree {
     const origin: IAutoMovieVector3 = top.body.center;
     const tree: AutoMovieXpbdArticulation.ITree = {
       origin,
@@ -277,6 +303,7 @@ export namespace solveXpbdArticulation {
           child,
           axes: axes(next.edge!, origin),
         });
+        joints?.push(next.edge!);
         stack.push({ node: next, state: child });
       }
     }
@@ -382,7 +409,12 @@ export namespace solveXpbdArticulation {
         const f: AutoMovieXpbdArticulation.IEdgeFactor = factored.edges[e]!;
         edge.axes.forEach(
           (axis: AutoMovieXpbdArticulation.IAxis, k: number): void => {
-            if (axis.motor === undefined || axis.fixed !== undefined) return;
+            if (
+              axis.motor === undefined ||
+              axis.fixed !== undefined ||
+              axis.locked === true
+            )
+              return;
             const mu: number =
               f.impulse[k]! - f.damping[k]! * response.rates[e]![k]!;
             const cap: number = axis.motor.maximumTorque * h;
@@ -396,6 +428,94 @@ export namespace solveXpbdArticulation {
     );
     return clamped;
   }
+
+  /**
+   * Lock every free axis whose rate after the solve carries its joint out of
+   * its admitted set over the substep: the joint's relative rotation turned
+   * about the axis by the rate times `h` is projected back by the joint's own
+   * admission (`projectPhysicalJointRotation`: box, chart or swing-twist gate),
+   * so an axis on its limit and moving outward is held at zero rate (a joint
+   * limit enforced as a constraint once the joint reaches it moving outward,
+   * Kokkevis 2004, "Practical physics for articulated characters", Game
+   * Developers Conference; prescribed motion, Featherstone 2008, section 7.3)
+   * and the tree solved again, at most once more per newly locked axis (the
+   * caps' loop). The turn the projection removes counts when it exceeds the
+   * joints' tolerance (`ROM_TOLERANCE`), the resolution to which a solver need
+   * resolve a joint's angle. True when any axis was newly locked.
+   */
+  function lock(
+    tree: AutoMovieXpbdArticulation.ITree,
+    joints: readonly AutoMovieXpbdJoint[],
+    response: AutoMovieXpbdArticulation.IResponse,
+    h: number,
+  ): boolean {
+    let locked: boolean = false;
+    tree.edges.forEach(
+      (edge: AutoMovieXpbdArticulation.IEdge, e: number): void => {
+        const joint: AutoMovieXpbdJoint = joints[e]!;
+        const frame: IAutoMovieQuaternion = Quaternion.multiply(
+          joint.parent.orientation,
+          joint.parentFrame().rotation,
+        );
+        const relative: IAutoMovieQuaternion = Quaternion.multiply(
+          Quaternion.inverse(frame),
+          Quaternion.multiply(
+            joint.child.orientation,
+            joint.childFrame().rotation,
+          ),
+        );
+        edge.axes.forEach(
+          (axis: AutoMovieXpbdArticulation.IAxis, k: number): void => {
+            if (axis.locked === true || axis.fixed !== undefined) return;
+            const rate: number = axis.present + response.rates[e]![k]!;
+            if (removed(joint, frame, relative, axis, rate * h) > TOLERANCE) {
+              axis.locked = true;
+              locked = true;
+            }
+          },
+        );
+      },
+    );
+    return locked;
+  }
+
+  /**
+   * How much of a turn about an axis the joint's admission removes: the joint's
+   * relative rotation turned about the axis by `angle` and projected back
+   * (`projectPhysicalJointRotation`: box, chart or swing-twist gate).
+   */
+  function removed(
+    joint: AutoMovieXpbdJoint,
+    frame: IAutoMovieQuaternion,
+    relative: IAutoMovieQuaternion,
+    axis: AutoMovieXpbdArticulation.IAxis,
+    angle: number,
+  ): number {
+    const local: IAutoMovieVector3 = Quaternion.rotateVector(
+      Quaternion.inverse(frame),
+      { x: axis.column[0]!, y: axis.column[1]!, z: axis.column[2]! },
+    );
+    const stepped: IAutoMovieQuaternion = Quaternion.normalize(
+      Quaternion.multiply(
+        PhysicalRotationVector.exp(Vector3.scale(local, angle)),
+        relative,
+      ),
+    );
+    return Vector3.length(
+      PhysicalRotationVector.log(
+        Quaternion.multiply(
+          projectPhysicalJointRotation(joint.joint, stepped),
+          Quaternion.inverse(stepped),
+        ),
+      ),
+    );
+  }
+
+  /**
+   * The joints' tolerance (`ROM_TOLERANCE`), radians: the resolution to which a
+   * solver need resolve a joint's angle.
+   */
+  const TOLERANCE: number = (ROM_TOLERANCE * Math.PI) / 180;
 
   /** Each joint-frame axis by name. */
   const UNIT: Readonly<Record<string, IAutoMovieVector3>> = {

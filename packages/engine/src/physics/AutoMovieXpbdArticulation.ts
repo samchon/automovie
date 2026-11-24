@@ -75,6 +75,14 @@ export namespace AutoMovieXpbdArticulation {
 
     /** The impulse once its cap holds the motor; absent while free. */
     fixed?: number;
+
+    /**
+     * Whether the axis is held at its limit: its relative rate after the pass
+     * is zero, a prescribed motion of the joint rather than a free axis of `S`
+     * (Featherstone 2008, section 7.3, prescribed joint motion). Distinct from
+     * `fixed`, which holds a motor's impulse at its cap.
+     */
+    locked?: boolean;
   }
 
   /** The matrix part of the inward sweep. */
@@ -88,8 +96,14 @@ export namespace AutoMovieXpbdArticulation {
 
   /** One edge's factor. */
   export interface IEdgeFactor {
-    /** `U = I^A S` per axis. */
+    /** `U = I^A S` per free axis; zero for a locked one. */
     u: number[][];
+
+    /**
+     * `I^A s` per locked axis, the child's articulated momentum per unit of its
+     * prescribed rate; zero for a free one.
+     */
+    held: number[][];
 
     /** Rows of `D^-1 U^T` per axis. */
     gain: number[][];
@@ -158,30 +172,42 @@ export namespace AutoMovieXpbdArticulation {
     for (let index: number = tree.edges.length - 1; index >= 0; --index) {
       const edge: IEdge = tree.edges[index]!;
       const child: number[] = inertia[edge.child]!;
+      // A locked axis leaves `S`: its column carries no articulated inertia
+      // (`U` zero), its row of `D` is the identity, so `D^-1` returns its
+      // prescribed rate, and the child's momentum along it is `held`.
       const u: number[][] = edge.axes.map((axis: IAxis): number[] =>
-        multiply(child, axis.column),
+        axis.locked === true ? ZERO : multiply(child, axis.column),
+      );
+      const held: number[][] = edge.axes.map((axis: IAxis): number[] =>
+        axis.locked === true ? multiply(child, axis.column) : ZERO,
       );
       const damping: number[] = edge.axes.map((axis: IAxis): number =>
-        axis.motor !== undefined && axis.fixed === undefined
+        axis.motor !== undefined &&
+        axis.fixed === undefined &&
+        axis.locked !== true
           ? h * axis.motor.damping
           : 0,
       );
-      const impulse: number[] = edge.axes.map(
-        (axis: IAxis): number =>
-          axis.fixed ??
-          (axis.motor !== undefined
-            ? h * axis.motor.damping * (axis.motor.speed - axis.present)
-            : 0),
+      // A locked axis's prescribed rate change brings its rate to zero.
+      const impulse: number[] = edge.axes.map((axis: IAxis): number =>
+        axis.locked === true
+          ? -axis.present
+          : (axis.fixed ??
+            (axis.motor !== undefined
+              ? h * axis.motor.damping * (axis.motor.speed - axis.present)
+              : 0)),
       );
       const solve: Solve | null =
         edge.axes.length === 0
           ? (right: readonly number[]): number[] => [...right]
           : prepareLinearSystem(
               edge.axes.map((row: IAxis, k: number): number[] =>
-                u.map(
-                  (column: number[], l: number): number =>
-                    dot(row.column, column) + (k === l ? damping[k]! : 0),
-                ),
+                row.locked === true
+                  ? u.map((_: number[], l: number): number => (k === l ? 1 : 0))
+                  : u.map(
+                      (column: number[], l: number): number =>
+                        dot(row.column, column) + (k === l ? damping[k]! : 0),
+                    ),
               ),
             );
       if (solve === null) return null;
@@ -192,7 +218,7 @@ export namespace AutoMovieXpbdArticulation {
       const gain: number[][] = edge.axes.map((_: IAxis, k: number): number[] =>
         columns.map((column: number[]): number => column[k]!),
       );
-      edges[index] = { u, gain, solve, damping, impulse };
+      edges[index] = { u, held, gain, solve, damping, impulse };
       inertia[edge.parent] = inertia[edge.parent]!.map(
         (value: number, cell: number): number => {
           const r: number = Math.floor(cell / 6);
@@ -237,15 +263,30 @@ export namespace AutoMovieXpbdArticulation {
     for (let index: number = tree.edges.length - 1; index >= 0; --index) {
       const edge: IEdge = tree.edges[index]!;
       const f: IEdgeFactor = factored.edges[index]!;
-      const child: number[] = bias[edge.child]!;
+      // A locked axis moves by its prescribed rate change (with the motors'
+      // impulses, else none): the child's articulated momentum gains `I^A s`
+      // times it before the free axes and the parent read it.
+      const prescribed: number[] = edge.axes.map(
+        (axis: IAxis, k: number): number =>
+          axis.locked === true && drive ? f.impulse[k]! : 0,
+      );
+      const child: number[] = bias[edge.child]!.map(
+        (value: number, r: number): number => {
+          let sum: number = value;
+          for (let k: number = 0; k < prescribed.length; ++k)
+            sum += f.held[k]![r]! * prescribed[k]!;
+          return sum;
+        },
+      );
       const d: number[] = f.solve(
-        edge.axes.map(
-          (axis: IAxis, k: number): number =>
-            (drive ? f.impulse[k]! : 0) +
-            (joint !== undefined && joint.edge === index && joint.axis === k
-              ? joint.impulse
-              : 0) -
-            dot(axis.column, child),
+        edge.axes.map((axis: IAxis, k: number): number =>
+          axis.locked === true
+            ? prescribed[k]!
+            : (drive ? f.impulse[k]! : 0) +
+              (joint !== undefined && joint.edge === index && joint.axis === k
+                ? joint.impulse
+                : 0) -
+              dot(axis.column, child),
         ),
       );
       drives[index] = d;

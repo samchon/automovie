@@ -279,6 +279,25 @@ export namespace AutoMovieXpbdMath {
     };
   }
 
+  /**
+   * Move a dynamic body by a small displacement: its centre by `linear` and its
+   * rotation by the rotation vector `angular`, `q <- normalize(q + 1/2 [w, 0]
+   * q)`, the update every position correction applies.
+   *
+   * @param body The body; a kinematic one is left as it is.
+   * @param linear World translation of its centre, metres.
+   * @param angular World rotation vector, radians.
+   */
+  export function displace(
+    body: AutoMovieXpbdBody,
+    linear: IAutoMovieVector3,
+    angular: IAutoMovieVector3,
+  ): void {
+    if (!body.dynamic) return;
+    body.center = Vector3.add(body.center, linear);
+    turn(body, angular, 1);
+  }
+
   /** Move a body's centre and rotation by a positional impulse at an arm. */
   function move(
     body: AutoMovieXpbdBody,

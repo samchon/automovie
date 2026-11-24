@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the attachment and both limit forms.
+States the tree solve per articulation and the block correction of the loop joints.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Block point and rotation corrections toward the anchor and the admitted rotation (projectPhysicalJointRotation, limitPhysicalSwingTwist).
+Each articulation's joints projected together by the tree's direct Newton solve (`solveXpbdJointTree`, Baraff 1996); each loop joint by block point and rotation corrections toward the anchor and the admitted rotation (projectPhysicalJointRotation, limitPhysicalSwingTwist).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One loop over joints: anchor, then rotation.
+Build the joints' forest; its trees, then one loop over the loop joints: anchor, then rotation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ Joints between two kinematic bodies are skipped; limits are the profile's.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Linear in joints per pass.
+Linear in joints per Newton step and per pass.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
