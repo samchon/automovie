@@ -264,7 +264,7 @@ export async function test_render_surface_graphics(): Promise<void> {
     const red: THREE.Mesh = key.children[1] as THREE.Mesh;
     TestValidator.predicate(
       "the face sorts before its layer, and both before a flame at -1 and a blended mesh at 0",
-      face.renderOrder < red.renderOrder && red.renderOrder < -1,
+      face.renderOrder < red.renderOrder && -1 > red.renderOrder,
     );
   }
 
