@@ -313,8 +313,19 @@ export function planBendStrategy(
   );
   const placeShins: ReturnType<typeof HumanColliders.preparePlaced> =
     HumanColliders.preparePlaced(body, lowerLegs);
-  let contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined;
-  let readContact: ReturnType<typeof poseBones.prepare> | undefined;
+  // The contact read's bones and their reader, prepared once with the plan.
+  const contactBones: ReadonlySet<AutoMovieHumanoidBone> | undefined =
+    region === undefined
+      ? undefined
+      : new Set<AutoMovieHumanoidBone>([
+          ...lowerLegs,
+          region.bone,
+          `${side}UpperArm`,
+        ]);
+  const readContact: ReturnType<typeof poseBones.prepare> | undefined =
+    contactBones === undefined
+      ? undefined
+      : poseBones.prepare(body, contactBones);
   const reach: IAutoMovieMotionHumanPrimitive = AutoMovieMotionHumanArm.carried(
     {
       body,
@@ -338,15 +349,12 @@ export function planBendStrategy(
         if (
           strategy !== "stoop" &&
           region !== undefined &&
+          contactBones !== undefined &&
+          readContact !== undefined &&
           createHumanBody.owns(body) &&
           prepareHumanPoseResolution.isNativeSource(source) &&
           (projection === undefined || projection === body.projection)
         ) {
-          contactBones ??= new Set<AutoMovieHumanoidBone>([
-            ...lowerLegs,
-            region.bone,
-            `${side}UpperArm`,
-          ]);
           const read: ReturnType<typeof prepareHumanPoseResolution> =
             prepareHumanPoseResolution(source);
           const frame: ReturnType<typeof resolveHumanPosture.seeded> =
@@ -359,7 +367,7 @@ export function planBendStrategy(
               contactBones,
               projection,
             );
-          readContact ??= poseBones.prepare(body, contactBones);
+
           const placed: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
             readContact(frame.pose, read());
           return {

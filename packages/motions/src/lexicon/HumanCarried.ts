@@ -118,8 +118,9 @@ export namespace HumanCarried {
           };
         };
 
-        // The carrier's bones may be read only once a posture is asked.
-        let origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame | undefined;
+        // The carrier's frame at the start, read once as the plan is made: the
+        // read places the carrier first in the schedule's demand order.
+        const origin: IAutoMovieMotionHumanCarryHumanPosture.IFrame = frame(0);
         return {
           duration: seconds,
           events: [],
@@ -133,7 +134,6 @@ export namespace HumanCarried {
             },
           ],
           posture: (at: number): IAutoMovieMotionHumanPosture => {
-            origin ??= frame(0);
             return carryHumanPosture(
               held,
               origin,

@@ -6,7 +6,7 @@ States the shared gait plan, author context and caller-owned pace; the namespace
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Planned footprints, a pelvis lowered by its fixed-point reach, constrained swings and a hip-pivoted trunk; explicit channel demand computes only the consumed leg goals and arm carriage.
+Planned footprints, a pelvis lowered by its fixed-point reach, constrained swings and a hip-pivoted trunk; explicit channel demand computes only the consumed leg goals and arms.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -18,11 +18,11 @@ Every footprint, event, authored parameter and solver bound comes from its owner
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Step lookup is logarithmic in footfalls; each query does bounded pelvis/foot work for its demanded channels. A swing's endpoints, its descent or flight claims and its scheduled and reached swing readers are prepared once per swing, at its first read.
+Step lookup is logarithmic in footfalls; each query does bounded pelvis/foot work for its demanded channels. A swing's endpoints, its descent or flight claims, its departure excess and its scheduled and reached swing readers are prepared once per swing as the walk is planned (`walkLocomoteSwings`, `walkLocomoteGround`, `walkLocomoteSolve`), and the arms' carriage once for the plan.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-A swing's endpoints are fixed by its foot and toe-off, so its settled endpoints, its descent or flight and its two prepared swing readers are kept per swing, keyed by foot and toe-off; root-only pacing omits unread carriage/swing goals, and queries share only FK workspaces, which change no result.
+A swing's endpoints are fixed by its foot and toe-off, so its settled endpoints, its descent or flight and its two prepared swing readers are prepared per swing, keyed by foot and toe-off; root-only pacing omits unread swing goals, and queries share only FK workspaces, which change no result.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

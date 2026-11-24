@@ -10,7 +10,7 @@ A declared landing meets the target where it is at contact; the difference from 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One read of the target at the contact, one superposed unit, a re-entrancy guard and a settle.
+One read of the target at the contact, made as the plan is made, and one superposed unit; no re-entrancy guard is needed, since no sample reads the partner.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,12 +18,12 @@ A stationary target gives a zero unit and the planned landing unchanged; a point
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One target read per settled plan, then constant work per second.
+One target read per plan, then constant work per second.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the engine's surface placement and superposed minimum-jerk reader; the contact read is kept until the plan settles.
+Reuses the engine's surface placement and superposed minimum-jerk reader; the contact read is made once with the plan.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The follower retains one unit at most, dropped on settle and released with the plan.
+The follower retains one unit, released with the plan; settle drops nothing.

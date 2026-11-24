@@ -20,7 +20,6 @@ import type {
 } from "@automovie/interface";
 
 import { stand } from "../actions/stand";
-import { walkRoot } from "../actions/walkRoot";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -38,6 +37,7 @@ import { braceOnThigh } from "./braceOnThigh";
 import { kneelContacts } from "./kneelContacts";
 import { kneelKeys } from "./kneelKeys";
 import { kneelLiftedFoot } from "./kneelLiftedFoot";
+import { kneelPhaseTable } from "./kneelPhaseTable";
 import { prepareKneelBalance } from "./prepareKneelBalance";
 import { prepareKneelClock } from "./prepareKneelClock";
 import { prepareKneelFoot } from "./prepareKneelFoot";
@@ -205,47 +205,20 @@ export namespace kneel {
     );
 
     // Phases: down through the keys, a hold, and back up when rising.
-    const scale: number = Math.sqrt(m.hipHeight / walkRoot.REFERENCE_HIP);
-    const downNames: readonly [string, number][] = [
-      ["stepBack", PHASES.step],
-      ["lowering", PHASES.lower],
-      ["kneeContact", PHASES.second],
-      ["secondKnee", PHASES.sit],
-    ];
-    const phases: IPhase[] = [];
-    for (let i: number = 0; i + 1 < keys.length; i++)
-      phases.push({
-        name: downNames[i]![0],
-        seconds: downNames[i]![1] * scale,
-        from: i,
-        to: i + 1,
-      });
-    const bottom: number = keys.length - 1;
     const marks: string[] =
       kind === "one"
         ? ["kneeContact"]
         : kind === "both"
           ? ["secondKnee"]
           : ["seatOnHeels"];
-    for (const mark of marks)
-      phases.push({ name: mark, seconds: 0, from: bottom, to: bottom });
-    phases.push({ name: "settled", seconds: hold, from: bottom, to: bottom });
-    if (rise) {
-      const upNames: readonly string[] =
-        kind === "one"
-          ? ["kneeOff", "stepForward"]
-          : kind === "both"
-            ? ["kneeOff", "frontUp", "stepForward"]
-            : ["seatOff", "kneeOff", "frontUp", "stepForward"];
-      for (let i: number = bottom; i > 0; i--)
-        phases.push({
-          name: upNames[bottom - i]!,
-          seconds: phases[i - 1]!.seconds,
-          from: i,
-          to: i - 1,
-        });
-      phases.push({ name: "stood", seconds: 0, from: 0, to: 0 });
-    }
+    const phases: IPhase[] = kneelPhaseTable(
+      m,
+      keys.length,
+      kind,
+      marks,
+      hold,
+      rise,
+    );
     const display: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(
         phases.map(
@@ -673,10 +646,5 @@ export namespace kneel {
   }
 
   /** A phase between two key states. */
-  interface IPhase {
-    name: string;
-    seconds: number;
-    from: number;
-    to: number;
-  }
+  type IPhase = kneelPhaseTable.IPhase;
 }

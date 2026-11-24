@@ -14,12 +14,8 @@ interface ISupport {
   /** The scheduled horizontal path at its contact-constrained height. */
   root: IAutoMovieMotionHumanWalkSteps.IPlan["root"];
 
-  /** A footfall's residual lowering under that root, in metres. */
-  landing: (
-    side: AutoMovieHumanSide,
-    seconds: number,
-    read: Parameters<typeof walkReach.pelvis>[5],
-  ) => number;
+  /** A footfall's residual lowering under that root at its heel strike, metres. */
+  landing: (side: AutoMovieHumanSide, seconds: number) => number;
 }
 
 /**
@@ -51,7 +47,7 @@ export function walkSupportHeight(
     .sort((a: number, b: number): number => a - b);
   times.unshift(0);
   times.push(plan.duration);
-  const heights: (number | undefined)[] = [];
+
   // Perry and Burnfield report a 4–5 cm whole-body vertical excursion.
   const rise: number =
     (0.04 + 0.05) / 2 -
@@ -80,6 +76,9 @@ export function walkSupportHeight(
       walkLeg.ROCKER * plan.amount(seconds),
     ).root.y;
   };
+  // Each double-support height is a constant of the schedule, settled once
+  // as the walk is planned.
+  const heights: readonly number[] = times.map(support);
   const rootAt: ISupport["root"] = (t: number): IAutoMovieVector3 => {
     const root: IAutoMovieVector3 = plan.root(t);
     const amount: number = plan.amount(t);
@@ -91,50 +90,52 @@ export function walkSupportHeight(
       if (times[middle]! <= t) low = middle;
       else high = middle;
     }
-    const begin: number = (heights[low] ??= support(times[low]!));
+    const begin: number = heights[low]!;
     const u: number = (t - times[low]!) / (times[high]! - times[low]!);
     if (u === 0)
       return { ...root, y: root.y - amount * Math.max(0, root.y - begin) };
-    const end: number = (heights[high] ??= support(times[high]!));
+    const end: number = heights[high]!;
     const through: number = u * u * (3 - 2 * u);
     const limit: number =
       begin + (end - begin) * through + rise * Math.sin(Math.PI * u) ** 2;
     return { ...root, y: root.y - amount * Math.max(0, root.y - limit) };
   };
-  /**
-   * Read the heel-strike ankle directly from the stance it lands in. A swing's
-   * departure velocity, clearance and middle path cannot affect that endpoint.
-   * The plan retains one scalar per used footfall.
-   */
+  // Each footfall's residual lowering is read directly from the stance it
+  // lands in at its heel strike, which a swing's departure velocity,
+  // clearance and middle path cannot affect: one scalar per footfall,
+  // settled once as the walk is planned.
   const landings: Record<AutoMovieHumanSide, Map<number, number>> = {
     left: new Map(),
     right: new Map(),
   };
-  function landing(
-    side: AutoMovieHumanSide,
-    seconds: number,
-    read: Parameters<typeof walkReach.pelvis>[5],
-  ): number {
-    const retained: number | undefined = landings[side].get(seconds);
-    if (retained !== undefined) return retained;
+  for (const stance of plan.stances) {
+    if (!(stance.from > 0)) continue;
     const feet: Parameters<typeof walkReach.pelvis>[4] = {
-      left: plan.foot("left", seconds),
-      right: plan.foot("right", seconds),
+      left: plan.foot("left", stance.from),
+      right: plan.foot("right", stance.from),
     };
     const frame: walkReach.IPelvis = walkReach.pelvis(
       body,
-      rootAt(seconds),
-      plan.yaw(seconds),
-      pelvis(seconds),
+      rootAt(stance.from),
+      plan.yaw(stance.from),
+      pelvis(stance.from),
       feet,
-      read,
     );
-    const lowering: number = claim(
-      frame.hips[side],
-      feet[side].placement.ankle,
+    landings[stance.side].set(
+      stance.from,
+      claim(frame.hips[stance.side], feet[stance.side].placement.ankle),
     );
-    landings[side].set(seconds, lowering);
-    return lowering;
   }
+  const landing: ISupport["landing"] = (
+    side: AutoMovieHumanSide,
+    seconds: number,
+  ): number => {
+    const lowering: number | undefined = landings[side].get(seconds);
+    if (lowering === undefined)
+      throw new Error(
+        `walkSupportHeight: no ${side} footfall lands at ${seconds} s.`,
+      );
+    return lowering;
+  };
   return { root: rootAt, landing };
 }

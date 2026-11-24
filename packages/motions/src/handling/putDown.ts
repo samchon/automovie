@@ -13,7 +13,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanEntryState,
-  IAutoMovieMotionHumanHand,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPutDown,
   IAutoMovieMotionHumanStrikingHeld,
@@ -23,12 +22,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmReach } from "../compose/AutoMovieMotionHumanArmReach";
-import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionInterval } from "../compose/AutoMovieMotionInterval";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanLimbFit } from "../posture/HumanLimbFit";
@@ -37,13 +33,13 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { HumanCarriedHand } from "./HumanCarriedHand";
-import { HumanGrasp } from "./HumanGrasp";
 import { HumanGrip } from "./HumanGrip";
 import { HumanPrehension } from "./HumanPrehension";
 import { pickUp } from "./pickUp";
 import { putDownRestingDemand } from "./putDownRestingDemand";
 import { putDownTarget } from "./putDownTarget";
 import { putDownTravel } from "./putDownTravel";
+import { putDownWrist } from "./putDownWrist";
 
 /**
  * Setting a held prop down at a place and letting go.
@@ -147,158 +143,15 @@ export namespace putDown {
     const body: IAutoMovieMotionHumanBody = context.body;
     const held: IAutoMovieMotionHumanPosture = context.entry.posture;
 
-    // The hand-to-prop offset the grip keeps, from the displayed frames now.
-    const hand: IAutoMovieResolvedBone = poseBones(
-      body,
-      context.entry.pose,
-      undefined,
-      new Set<AutoMovieHumanoidBone>([`${side}Hand`]),
-    ).get(`${side}Hand`)!;
-    const prop: IAutoMovieRigidTransform = context
-      .prop(context.params.prop)
-      .frame(context.start);
-    const inverse: IAutoMovieQuaternion = Quaternion.inverse(
-      hand.worldRotation,
-    );
-    const offset: IAutoMovieRigidTransform = {
-      position: Quaternion.rotateVector(
-        inverse,
-        Vector3.subtract(prop.position, hand.worldPosition),
-      ),
-      rotation: Quaternion.multiply(inverse, prop.rotation),
-    };
-
-    // The prop's resting frame, then the hand that holds it there.
-    const heading = (q: IAutoMovieQuaternion): number => {
-      const f: IAutoMovieVector3 = Quaternion.rotateVector(q, {
-        x: 0,
-        y: 0,
-        z: 1,
-      });
-      return (Math.atan2(f.x, f.z) * 180) / Math.PI;
-    };
-    // Turn the prop's declared rest attitude to the requested heading.
-    const authored: IAutoMovieQuaternion = context.prop(context.params.prop)
-      .prop.frame.rotation;
-    const declaredHeading: number = heading(authored);
-    const unhold: IAutoMovieQuaternion = Quaternion.inverse(offset.rotation);
-    const holding: (yaw: number) => IAutoMovieMotionHumanHand.IWrist = (
-      yaw: number,
-    ): IAutoMovieMotionHumanHand.IWrist => {
-      const rest: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(
-          Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw - declaredHeading),
-          authored,
-        ),
-      );
-      const r: IAutoMovieQuaternion = Quaternion.normalize(
-        Quaternion.multiply(rest, unhold),
-      );
-      return {
-        point: Vector3.subtract(
-          context.params.to!,
-          Quaternion.rotateVector(r, offset.position),
-        ),
-        rotation: r,
-      };
-    };
-
-    // An authored heading is kept; otherwise the prop may rest at whichever
-    // heading the arm can lay it down at exactly.
-    const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-      body,
-      held,
-      side,
-    );
-    const on = context.params.on;
-    const onto: IAutoMovieMotionHumanPutDown.IParams["onto"] =
-      context.params.onto;
-    const wearing: IAutoMovieRigidTransform | undefined = putDownTarget.of(
-      context,
-      context.entry.pose,
-    );
-    if (wearing === undefined && context.params.to === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "to",
-        value: "absent",
-        feasible: { kind: "alternatives", values: ["at", "on", "onto"] },
-        reason:
-          "a put down names where the prop goes: a place, a bone or another prop's socket",
-        fix: "give `at`, a world point, `on`, a bone of the performer and the prop's frame on it, or `onto`, another prop's socket",
-      });
-    // A declared resting attitude is laid exactly, through the same grip.
-    const attitude: IAutoMovieQuaternion | undefined =
-      wearing === undefined ? context.params.rotation : undefined;
-    const chosen: IAutoMovieMotionHumanHand.IWrist =
-      attitude !== undefined
-        ? ((): IAutoMovieMotionHumanHand.IWrist => {
-            const asked: IAutoMovieQuaternion = Quaternion.normalize(
-              Quaternion.multiply(Quaternion.normalize(attitude), unhold),
-            );
-            const at: (r: IAutoMovieQuaternion) => IAutoMovieVector3 = (
-              r: IAutoMovieQuaternion,
-            ): IAutoMovieVector3 =>
-              Vector3.subtract(
-                context.params.to!,
-                Quaternion.rotateVector(r, offset.position),
-              );
-            // An authored resting attitude with no authored heading rests
-            // alike at any heading about the vertical (a card face up): the
-            // hand takes the heading nearest the asked one at which the arm
-            // meets the attitude, or the placement is refused
-            // (`AutoMovieMotionHumanArmReach`). An authored heading is laid
-            // exactly.
-            const r: IAutoMovieQuaternion =
-              context.params.yaw !== undefined
-                ? asked
-                : AutoMovieMotionHumanArmReach.attitude({
-                    body,
-                    posture: held,
-                    side,
-                    bend: AutoMovieMotionHumanBend.hang(body, held, side),
-                    requested: asked,
-                    axis: { x: 0, y: 1, z: 0 },
-                    wrist: at,
-                    name: "rotation",
-                  }).rotation;
-            return { point: at(r), rotation: r };
-          })()
-        : wearing !== undefined
-          ? ((): IAutoMovieMotionHumanHand.IWrist => {
-              const r: IAutoMovieQuaternion = Quaternion.normalize(
-                Quaternion.multiply(
-                  wearing.rotation,
-                  Quaternion.inverse(offset.rotation),
-                ),
-              );
-              return {
-                point: Vector3.subtract(
-                  wearing.position,
-                  Quaternion.rotateVector(r, offset.position),
-                ),
-                rotation: r,
-              };
-            })()
-          : context.params.yaw === undefined
-            ? HumanGrasp.reachable(
-                body,
-                held,
-                side,
-                bend,
-                (turn: number): IAutoMovieMotionHumanHand.IWrist =>
-                  holding(heading(prop.rotation) + turn),
-                undefined,
-                undefined,
-                // The heading is free the whole way round, so every one is
-                // the arm's to choose from, nearest the prop's own first.
-                HEADINGS,
-                undefined,
-                // A turn that puts the wrist beyond the arm, which the reach
-                // below refuses, is tried only when every turn does.
-                pickUp.reaches(context, side),
-              ).wrist
-            : holding(context.params.yaw);
+    const {
+      hand,
+      offset,
+      bend,
+      on,
+      onto,
+      attitude,
+      chosen,
+    }: putDownWrist.IWrist = putDownWrist(context, side, body, held);
 
     // The arm keeps the configuration it carried the prop in.
     const reference: IAutoMovieHumanLimbReference = HumanLimbFit.reference(

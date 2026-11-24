@@ -34,63 +34,9 @@ import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticPosture } from "../sport/AquaticPosture";
+import { HumanFloatBesideForm } from "./HumanFloatBesideForm";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
-
-/**
- * The trunk's forward pitch while floating, degrees: provisional, the body
- * trailing 20 degrees below the horizontal, near the front crawl's 80 of
- * `AquaticRescue`.
- */
-const PITCH: number = 70;
-
-/**
- * The neck's extension that lifts the face toward the horse's head, degrees:
- * provisional.
- */
-const NECK: number = -30;
-
-/**
- * The mouth's height above the surface, metres: the towed victim's clearance in
- * `AquaticRescue`.
- */
-const CLEAR: number = 0.08;
-
-/** Seconds of one flutter-kick cycle: provisional. */
-const KICK: number = 0.8;
-
-/** The hips' mean flexion and its flutter amplitude, degrees: provisional. */
-const HIP: readonly [number, number] = [10, 15];
-
-/** The knees' mean flexion and its flutter amplitude, degrees: provisional. */
-const KNEE: readonly [number, number] = [25, 15];
-
-/**
- * The share of the near arm's length from shoulder to palm the float keeps
- * between the shoulder and the held part: provisional, a bent but working arm.
- */
-const REACH_SHARE: number = 0.75;
-
-/**
- * Degrees the near shoulder sits behind the held part's lateral line:
- * provisional, the body trailing along the horse.
- */
-const TRAIL: number = 20;
-
-/**
- * Metres the slide-off path rises at its middle, clearing the saddle's side:
- * provisional.
- */
-const ARC: number = 0.15;
-
-/**
- * The displayed palm skin's largest admitted miss of the held part's skin,
- * metres: the lead's and the handles' contact tolerance.
- */
-const REACH: number = 0.01;
-
-/** The root of the float shape measured once, before it is placed. */
-const ORIGIN: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
 /**
  * Place the floating body beside the horse's moving held part and verify the
@@ -184,12 +130,22 @@ function planHumanFloatBeside(
       entry,
       ExerciseKey.from(
         body,
-        { pitch: PITCH, neck: NECK },
+        { pitch: HumanFloatBesideForm.PITCH, neck: HumanFloatBesideForm.NECK },
         { shoulder: 40, raise: 20, elbow: 30 },
-        { hip: HIP[0] + HIP[1] * swing, knee: KNEE[0] + KNEE[1] * swing },
-        { hip: HIP[0] - HIP[1] * swing, knee: KNEE[0] - KNEE[1] * swing },
+        {
+          hip:
+            HumanFloatBesideForm.HIP[0] + HumanFloatBesideForm.HIP[1] * swing,
+          knee:
+            HumanFloatBesideForm.KNEE[0] + HumanFloatBesideForm.KNEE[1] * swing,
+        },
+        {
+          hip:
+            HumanFloatBesideForm.HIP[0] - HumanFloatBesideForm.HIP[1] * swing,
+          knee:
+            HumanFloatBesideForm.KNEE[0] - HumanFloatBesideForm.KNEE[1] * swing,
+        },
       ),
-      ORIGIN,
+      HumanFloatBesideForm.ORIGIN,
     ),
     yaw: 0,
   });
@@ -215,9 +171,11 @@ function planHumanFloatBeside(
   );
   const height: number = Math.max(
     trim ?? -Infinity,
-    water + CLEAR - HumanTrunk.region(body, still, "mouth").point.y,
+    water +
+      HumanFloatBesideForm.CLEAR -
+      HumanTrunk.region(body, still, "mouth").point.y,
   );
-  const reach: number = REACH_SHARE * length;
+  const reach: number = HumanFloatBesideForm.REACH_SHARE * length;
   const rise: number =
     gripsAt(context.start, first)[near]!.point.y - (height + shoulder.y);
   if (!(Math.abs(rise) < reach))
@@ -236,9 +194,9 @@ function planHumanFloatBeside(
     });
   const out: number = Math.sqrt(reach * reach - rise * rise);
   const beside: IAutoMovieVector3 = {
-    x: sign * out * Math.cos((TRAIL * Math.PI) / 180),
+    x: sign * out * Math.cos((HumanFloatBesideForm.TRAIL * Math.PI) / 180),
     y: 0,
-    z: -out * Math.sin((TRAIL * Math.PI) / 180),
+    z: -out * Math.sin((HumanFloatBesideForm.TRAIL * Math.PI) / 180),
   };
   const slide: ReturnType<typeof prepareHumanShapeBlend> =
     prepareHumanShapeBlend(entry.joints, still.joints);
@@ -289,7 +247,7 @@ function planHumanFloatBeside(
       beside,
     );
     const offset: IAutoMovieVector3 = HumanFrame.point(
-      { origin: ORIGIN, yaw },
+      { origin: HumanFloatBesideForm.ORIGIN, yaw },
       shoulder,
     );
     return {
@@ -343,7 +301,7 @@ function planHumanFloatBeside(
           ...to,
           root: Vector3.add(Vector3.lerp(from.root, to.root, u), {
             x: 0,
-            y: 4 * ARC * u * (1 - u),
+            y: 4 * HumanFloatBesideForm.ARC * u * (1 - u),
             z: 0,
           }),
           yaw: from.yaw + (to.yaw - from.yaw) * u,
@@ -368,8 +326,8 @@ function planHumanFloatBeside(
         torso = float(
           frame,
           grip.point,
-          minimumJerk.share(Math.min(1, kicking / KICK)) *
-            Math.sin((2 * Math.PI * kicking) / KICK),
+          minimumJerk.share(Math.min(1, kicking / HumanFloatBesideForm.KICK)) *
+            Math.sin((2 * Math.PI * kicking) / HumanFloatBesideForm.KICK),
         );
       }
       // The hold seats its palm station (`CENTRE` hand lengths along the fingers) on the part; the grip it is given is moved round the part so this hand's own palm socket lands there instead.
@@ -449,7 +407,7 @@ function planHumanFloatBeside(
         Vector3.distance(skin, Vector3.addScaled(grip.point, axis, along)) -
           part.aperture! / 2,
       );
-      if (!(miss <= REACH))
+      if (!(miss <= HumanFloatBesideForm.REACH))
         throw new HumanRefusal({
           kind: "affordance",
           axis: "holdReach",
@@ -457,7 +415,7 @@ function planHumanFloatBeside(
           feasible: {
             kind: "range",
             minimum: 0,
-            maximum: REACH,
+            maximum: HumanFloatBesideForm.REACH,
             unit: "m",
           },
           reason: `the displayed ${near} hand misses ${on}.${hold} by ${miss} m at film second ${film}`,

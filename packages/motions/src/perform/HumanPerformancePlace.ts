@@ -14,16 +14,11 @@ import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPerformanceTrial,
-  IAutoMovieMotionHumanPerformerReader,
   IAutoMovieMotionHumanPlacedAction,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanProp,
-  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanRefusal,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionPropLaunch,
   IAutoMovieMotionTarget,
-  IAutoMovieRigidTransform,
   IAutoMovieScheduleCue,
   IAutoMovieScheduleEntry,
 } from "@automovie/interface";
@@ -38,22 +33,17 @@ import { HumanForce } from "./HumanForce";
 import { HumanPerformanceAhead } from "./HumanPerformanceAhead";
 import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
-import { HumanPerformanceHold } from "./HumanPerformanceHold";
 import { HumanPerformanceLayers } from "./HumanPerformanceLayers";
 import { HumanPerformanceMeeting } from "./HumanPerformanceMeeting";
-import { HumanPerformanceObject } from "./HumanPerformanceObject";
 import { HumanPerformanceOverlays } from "./HumanPerformanceOverlays";
+import { HumanPerformancePlacePerformer } from "./HumanPerformancePlacePerformer";
+import { HumanPerformancePlaceProp } from "./HumanPerformancePlaceProp";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPerformanceTempo } from "./HumanPerformanceTempo";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
-import { HumanPropFlight } from "./HumanPropFlight";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
-import { HumanSegmentShown } from "./HumanSegmentShown";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
-
-/** The alternatives of `PlaceDraftedResult`'s site. */
-type PlaceDraftedResult = "prop" | "point";
 
 /** The record of `IPlaceDraftedResult`'s site. */
 type IPlaceDraftedResult = {
@@ -245,19 +235,18 @@ export namespace HumanPerformancePlace {
     const laid: number = person.overlays.length;
 
     // The performer's own bones are those of the entry pose, fixed for the
-    // action: admitted once, at the first read, and every read takes fresh
+    // action: admitted once, as the action is placed, and every read takes fresh
     // bones of that one reading (`poseBones.read`), as a kept displayed pose
     // gives its readers (`HumanSegmentShown.bones`).
-    let entered: ReturnType<typeof poseBones.read> | undefined;
+    const entered: ReturnType<typeof poseBones.read> = poseBones.read(
+      body,
+      entry.pose,
+    );
     const ownBones: (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
     ) => ReturnType<typeof poseBones> = (
       requested?: ReadonlySet<AutoMovieHumanoidBone>,
-    ): ReturnType<typeof poseBones> =>
-      (entered ??= poseBones.read(body, entry.pose)).map(requested);
-    let performers:
-      | Map<string, IAutoMovieMotionHumanPerformerReader>
-      | undefined;
+    ): ReturnType<typeof poseBones> => entered.map(requested);
     // Each partner of this action's own parallel group
     // (`IAutoMovieScheduleContext.meeting`) whose part still waits is read
     // no later than the end of their placed actions, recorded as this action
@@ -395,112 +384,21 @@ export namespace HumanPerformancePlace {
         return cues;
       },
       obstacles: (): readonly IAutoMovieMotionHumanObstacle[] => self.obstacles,
-      performer: (subject: string): IAutoMovieMotionHumanPerformerReader => {
-        if (!self.people.has(subject))
-          throw HumanPerformanceRead.missing(
-            "performer",
-            subject,
-            [...self.people.keys()],
-            named(subject, "performer"),
-          );
-        const cached: IAutoMovieMotionHumanPerformerReader | undefined =
-          performers?.get(subject);
-        if (cached !== undefined) return { ...cached };
-        const axis: () => string = (): string => named(subject, "performer");
-        const reader: IAutoMovieMotionHumanPerformerReader = {
-          body: HumanPerformanceRead.person(self, subject).performer.body,
-          // The performer's own body is read as it entered the action, as
-          // a `self` target is: its displayed bones at an instant of this
-          // action are the posture still being solved.
-          bones: (
-            seconds: number,
-            requested?: ReadonlySet<AutoMovieHumanoidBone>,
-          ): ReturnType<typeof poseBones> =>
-            subject === intent.subject
-              ? ownBones(requested)
-              : HumanPerformanceRead.bones(
-                  self,
-                  subject,
-                  seconds,
-                  requested,
-                  axis,
-                  meetings.get(subject),
-                ),
-          root: (seconds: number): IAutoMovieMotionHumanActionContext.IRoot =>
-            HumanPerformanceRead.root(
-              self,
-              subject,
-              seconds,
-              axis,
-              meetings.get(subject),
-            ),
-          posture: (seconds: number): IAutoMovieMotionHumanPosture =>
-            HumanPerformanceRead.posture(
-              self,
-              subject,
-              seconds,
-              undefined,
-              axis,
-              meetings.get(subject),
-            ),
-        };
-        (performers ??= new Map()).set(subject, reader);
-        return { ...reader };
-      },
-      prop: (subject: string): IAutoMovieMotionHumanPropReader => {
-        const prop: IAutoMovieMotionHumanProp | undefined =
-          self.props.get(subject);
-        if (prop === undefined)
-          throw HumanPerformanceRead.missing(
-            "prop",
-            subject,
-            [...self.props.keys()],
-            named(subject, "prop"),
-          );
-        return {
-          prop,
-          // Over a carrier, a prop this performer carries is read on the
-          // pose this action is laid on, never through its own posture.
-          frame: (seconds: number): IAutoMovieRigidTransform =>
-            HumanPerformanceRead.prop(
-              self,
-              subject,
-              seconds,
-              over
-                ? {
-                    subject: intent.subject,
-                    bones: (
-                      requested?: ReadonlySet<AutoMovieHumanoidBone>,
-                    ): ReturnType<typeof poseBones> =>
-                      HumanSegmentShown.laid(
-                        person,
-                        laid,
-                        (): ReturnType<typeof poseBones> =>
-                          HumanSegmentShown.bones(person, seconds, requested),
-                      ),
-                  }
-                : undefined,
-            ),
-          launchAt: (seconds: number): IAutoMovieMotionPropLaunch | undefined =>
-            HumanPropFlight.active(self, subject, seconds)?.published,
-          flightApproach: (
-            seconds: number,
-            before: number,
-          ): IAutoMovieMotionHumanPropReader.IFlightApproach | undefined =>
-            HumanPropFlight.approach(self, subject, seconds, before),
-          mountAt: (
-            seconds: number,
-          ):
-            | Pick<IAutoMovieMotionHumanProp.IMounted, PlaceDraftedResult>
-            | undefined => HumanPerformanceHold.mount(self, subject, seconds),
-          holderAt: (
-            seconds: number,
-          ): IAutoMovieMotionHumanPropReader.IHolder | undefined =>
-            HumanPerformanceHold.holder(self, subject, seconds),
-          state: (seconds: number): Readonly<Record<string, number>> =>
-            HumanPerformanceObject.state(self, prop, seconds),
-        };
-      },
+      performer: HumanPerformancePlacePerformer(
+        self,
+        intent.subject,
+        ownBones,
+        meetings,
+        named,
+      ),
+      prop: HumanPerformancePlaceProp(
+        self,
+        intent.subject,
+        over,
+        person,
+        laid,
+        named,
+      ),
       meeting: HumanPerformanceMeeting.reader(
         self,
         intent.subject,
@@ -652,7 +550,7 @@ export namespace HumanPerformancePlace {
       law,
       context,
       plan,
-      legSeeds: readHumanSegmentLegs.chain(plan, person.performer.body),
+      legSeeds: readHumanSegmentLegs.cold,
       start: context.start,
       entryTime: start,
       end: start + active,

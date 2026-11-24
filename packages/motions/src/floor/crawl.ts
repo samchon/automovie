@@ -11,7 +11,6 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanCrawl,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPrimitive,
@@ -25,19 +24,29 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { kneel } from "../everyday/kneel";
-import { kneelKeys } from "../everyday/kneelKeys";
 import { prepareBearingTrunkBalance } from "../everyday/prepareBearingTrunkBalance";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
+import { crawlContacts } from "./crawlContacts";
 import { crawlCourse } from "./crawlCourse";
+import { crawlCrawling } from "./crawlCrawling";
 import { crawlDown } from "./crawlDown";
 import { crawlFeet } from "./crawlFeet";
+import { crawlFootPlacing } from "./crawlFootPlacing";
 import { crawlFrame } from "./crawlFrame";
 import { crawlInchworm } from "./crawlInchworm";
+import { crawlKneeling } from "./crawlKneeling";
+import { crawlLanded } from "./crawlLanded";
+import { crawlNominal } from "./crawlNominal";
 import { crawlPitch } from "./crawlPitch";
+import { crawlPosed } from "./crawlPosed";
+import { crawlPrint } from "./crawlPrint";
+import { crawlSolvedPitch } from "./crawlSolvedPitch";
+import { crawlUnder } from "./crawlUnder";
+import { crawlWayDown } from "./crawlWayDown";
+import { crawlWhole } from "./crawlWhole";
 import { floorEntry } from "./floorEntry";
 
 /**
@@ -194,12 +203,7 @@ export namespace crawl {
       share: number,
       degrees: number,
       hike?: number,
-    ) => IAutoMovieMotionHumanPosture = (
-      share: number,
-      degrees: number,
-      hike: number = 0,
-    ): IAutoMovieMotionHumanPosture =>
-      crawlFrame.posed(body, yaw, share, degrees, hike, -40);
+    ) => IAutoMovieMotionHumanPosture = crawlPosed({ body, yaw });
     const rootFor: (
       tilted: IAutoMovieMotionHumanPosture,
       hips: IAutoMovieVector3,
@@ -215,12 +219,13 @@ export namespace crawl {
     const hipY: number = knee + m.thigh;
     const shoulderY: number =
       (wrists.left.y + wrists.right.y) / 2 + ARM * (m.upperArm + m.forearm);
-    const solved: ReturnType<typeof crawlPitch> = crawlPitch(
+    const solved: ReturnType<typeof crawlPitch> = crawlSolvedPitch({
       body,
-      HumanFrame.point(measured, { x: 0, y: hipY, z: 0 }),
+      measured,
+      hipY,
       shoulderY,
-      posed(1, 0),
-    );
+      posed,
+    });
     const pitch: number = solved.pitch;
     const bones: ReturnType<typeof crawlPitch>["bones"] = solved.bones;
     const local: (bone: AutoMovieHumanoidBone) => IAutoMovieVector3 = (
@@ -231,23 +236,12 @@ export namespace crawl {
     // Nominal limb places relative to the hips' travel, floor frame: each
     // palm where its wrist stands under the shoulder, each knee under its
     // hip joint.
-    const under: (side: AutoMovieHumanSide) => IAutoMovieVector3 = (
-      side: AutoMovieHumanSide,
-    ): IAutoMovieVector3 => {
-      const shoulder: IAutoMovieVector3 = local(`${side}UpperArm`);
-      return {
-        x: shoulder.x - wrists[side].x,
-        y: 0,
-        z: shoulder.z - wrists[side].z,
-      };
-    };
+    const under: (side: AutoMovieHumanSide) => IAutoMovieVector3 = crawlUnder({
+      local,
+      wrists,
+    });
     const nominal: Record<IAutoMovieMotionHumanCrawl.Limb, IAutoMovieVector3> =
-      {
-        leftHand: under("left"),
-        rightHand: under("right"),
-        leftKnee: { ...local("leftUpperLeg"), y: knee },
-        rightKnee: { ...local("rightUpperLeg"), y: knee },
-      };
+      crawlNominal({ under, local, knee });
 
     // The gait: the cycle, the stride, the swing.
     const period: number =
@@ -271,37 +265,27 @@ export namespace crawl {
       j: number,
     ) => number = (limb: IAutoMovieMotionHumanCrawl.Limb, j: number): number =>
       j + PHASES[limb] - DUTY / 2;
-    const landed: number =
-      limbs
-        .map((limb: IAutoMovieMotionHumanCrawl.Limb): number =>
-          centred(limb, 0),
-        )
-        .reduce((a: number, b: number): number => a + b, 0) / limbs.length;
+    const landed: number = crawlLanded({ limbs, centred });
 
     // Each foot tucked on its toes behind its knee, solved once and carried
     // with the knee, the crawl standing where the tucked balls are the
     // standing ones, so the feet stay where they stood as the body gets down.
-    const { frame, tucks } = crawlFeet.planted(
-      body,
-      standing,
-      measured,
-      { left: nominal.leftKnee, right: nominal.rightKnee },
-      stride * landed,
-    );
+    const { frame, tucks }: ReturnType<typeof crawlFeet.planted> =
+      crawlFeet.planted(
+        body,
+        standing,
+        measured,
+        { left: nominal.leftKnee, right: nominal.rightKnee },
+        stride * landed,
+      );
 
     // Only the contact point changes as each tucked foot follows its knee.
     const placing: (
       side: AutoMovieHumanSide,
-    ) => ReturnType<typeof HumanFoot.prepareAt> = (
-      side: AutoMovieHumanSide,
-    ): ReturnType<typeof HumanFoot.prepareAt> =>
-      HumanFoot.prepareAt(
-        body,
-        side,
-        "mtp",
-        tucks[side].foot.heading,
-        tucks[side].foot.pitch,
-      );
+    ) => ReturnType<typeof HumanFoot.prepareAt> = crawlFootPlacing({
+      body,
+      tucks,
+    });
     const placements: Record<AutoMovieHumanSide, ReturnType<typeof placing>> = {
       left: placing("left"),
       right: placing("right"),
@@ -313,18 +297,13 @@ export namespace crawl {
     const print: (
       limb: IAutoMovieMotionHumanCrawl.Limb,
       j: number,
-    ) => IAutoMovieVector3 = (
-      limb: IAutoMovieMotionHumanCrawl.Limb,
-      j: number,
-    ): IAutoMovieVector3 =>
-      HumanFrame.point(
-        frame,
-        Vector3.add(nominal[limb], {
-          x: 0,
-          y: 0,
-          z: stride * (j === 0 ? landed : centred(limb, j)),
-        }),
-      );
+    ) => IAutoMovieVector3 = crawlPrint({
+      frame,
+      nominal,
+      stride,
+      landed,
+      centred,
+    });
 
     // The posture on hands and knees with each limb at a place and the hips'
     // middle `level` metres along, each hip joint a thigh from its knee
@@ -340,88 +319,37 @@ export namespace crawl {
       back: number,
       lean: number,
       palms?: boolean,
-    ) => IAutoMovieMotionHumanPosture = (
-      posture: IAutoMovieMotionHumanPosture,
-      at: (limb: IAutoMovieMotionHumanCrawl.Limb) => IAutoMovieVector3,
-      level: number,
-      back: number,
-      lean: number,
-      palms: boolean = true,
-    ): IAutoMovieMotionHumanPosture => {
-      const knees: Record<AutoMovieHumanSide, IAutoMovieVector3> = {
-        left: at("leftKnee"),
-        right: at("rightKnee"),
-      };
-      const hips: ReturnType<typeof crawlFrame.over> = crawlFrame.over(
-        m.thigh,
-        HumanFrame.point(frame, { x: 0, y: 0, z: level - back }),
-        forward,
-        knees,
-        { left: nominal.leftKnee.z, right: nominal.rightKnee.z },
-        separation,
-        lean * pitch,
-      );
-      const target: IAutoMovieMotionHumanPosture = posed(
-        lean,
-        pitch,
-        hips.hike,
-      );
-      const legged: IAutoMovieMotionHumanPosture = {
-        ...target,
-        root: rootFor(target, hips.point),
-        limbs: {},
-        joints: { ...posture.joints, ...target.joints },
-      };
-      for (const side of sides) {
-        const kneeAt: IAutoMovieVector3 = knees[side];
-        const foot: kneelKeys.IFoot = tucks[side].foot;
-        const placement: IAutoMovieMotionHumanFoot.IPlacement = placements[
-          side
-        ](Vector3.add(kneeAt, tucks[side].offset));
-        legged.limbs[`${side}Leg`] = {
-          point: placement.ankle,
-          rotation: placement.rotation,
-          bend: kneeAt,
-          contact: { ...footContacts[side] },
-        };
-        legged.joints[`${side}Toes`] = [foot.toes, 0, 0];
-      }
-      if (!palms) return legged;
-      return laid(
-        legged,
-        (side: AutoMovieHumanSide): IAutoMovieVector3 => at(`${side}Hand`),
-      );
-    };
+    ) => IAutoMovieMotionHumanPosture = crawlKneeling({
+      m,
+      frame,
+      forward,
+      nominal,
+      separation,
+      pitch,
+      posed,
+      rootFor,
+      sides,
+      tucks,
+      placements,
+      footContacts,
+      laid,
+    });
 
     // From standing the supports take the body in turn, each foot rolling
     // onto its tucked place; the sit lowers the hips onto the knees and back
     // over the heels, the kneel's lowering and sitting back.
-    const down: crawlDown.IDown | null =
-      entered !== null
-        ? null
-        : crawlDown.of({
-            body,
-            standing,
-            entry: context.entry.pose,
-            sit: ((kneel.PHASES.lower + kneel.PHASES.sit) * period) / CYCLE,
-            kneeling: (
-              posture: IAutoMovieMotionHumanPosture,
-              back: number,
-              lean: number,
-              palms?: boolean,
-            ): IAutoMovieMotionHumanPosture =>
-              kneeling(
-                posture,
-                (limb: IAutoMovieMotionHumanCrawl.Limb) => print(limb, 0),
-                0,
-                back,
-                lean,
-                palms,
-              ),
-            pitch,
-            tucks,
-            hover: bear,
-          });
+    const down: crawlDown.IDown | null = crawlWayDown({
+      entered,
+      body,
+      standing,
+      context,
+      period,
+      kneeling,
+      print,
+      pitch,
+      tucks,
+      bear,
+    });
     const downAt: number = down?.seconds ?? DOWN;
     const handsDown: number = down?.hands ?? DOWN;
 
@@ -473,110 +401,36 @@ export namespace crawl {
     const crawling: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
-    ) => IAutoMovieMotionHumanPosture = (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-    ): IAutoMovieMotionHumanPosture =>
-      kneeling(
-        posture,
-        (limb: IAutoMovieMotionHumanCrawl.Limb) => place(limb, seconds),
-        speed * Math.min(cycles * period, Math.max(0, seconds - downAt)),
-        0,
-        1,
-      );
+    ) => IAutoMovieMotionHumanPosture = crawlCrawling({
+      kneeling,
+      place,
+      speed,
+      cycles,
+      period,
+      downAt,
+    });
 
-    const whole: IAutoMovieMotionHumanPrimitive = {
-      channels: [
-        "root",
-        "trunk",
-        "head",
-        "leftLeg",
-        "rightLeg",
-        "leftHand",
-        "rightHand",
-        "leftArm",
-        "rightArm",
-      ],
-      from: 0,
-      to: duration,
-      write:
-        down !== null
-          ? (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-            ): IAutoMovieMotionHumanPosture =>
-              seconds < downAt
-                ? down.write(
-                    posture,
-                    seconds,
-                    window?.by === "hips"
-                      ? HumanPhysics.weightAt(window, seconds)
-                      : 0,
-                  )
-                : crawling(posture, seconds)
-          : floorEntry.down(
-              body,
-              entered,
-              DOWN,
-              (seconds: number): number =>
-                clock.progress("start", "down", seconds),
-              crawling,
-            ),
-    };
-    // The hands bear from landing. Each foot keeps its standing contact
-    // through the descent, then bears while its knee is in stance, in both
-    // the kneeling and the bear crawl: rolling onto the toes does not unload
-    // it, and the roll turns about the toes' tip (`crawlFeet.prepareRoll`).
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    const bearing: (readonly [
-      IAutoMovieMotionHumanContactWindow["part"],
-      IAutoMovieMotionHumanCrawl.Limb,
-    ])[] = [
-      ["leftHand", "leftHand"],
-      ["rightHand", "rightHand"],
-      ["leftFoot", "leftKnee"],
-      ["rightFoot", "rightKnee"],
-    ];
-    for (const [part, limb] of bearing)
-      for (let k: number = 0; k <= cycles; k++) {
-        const from: number =
-          k === 0
-            ? part.endsWith("Foot")
-              ? 0
-              : handsDown
-            : lift(limb, k) + swing;
-        const to: number = k === cycles ? duration : lift(limb, k + 1);
-        contacts.push({
-          part,
-          kind: "plant",
-          from: from / duration,
-          to: to / duration,
-          support: { kind: "ground" },
-        });
-      }
-
-    // On the hands and knees each knee bears on the floor from the instant
-    // it lands, as its foot does, while it is in stance; a bear crawl holds
-    // its knees over the floor, so they bear nothing. Entered kneeling, the
-    // knees already bear; entered crouched, they land with the blend's end.
+    const whole: IAutoMovieMotionHumanPrimitive = crawlWhole({
+      duration,
+      down,
+      downAt,
+      window,
+      crawling,
+      body,
+      entered,
+      clock,
+    });
     const kneesDown: number =
       down?.knees ?? (context.entry.base.kind === "kneeling" ? 0 : DOWN);
-    if (!bear)
-      for (const side of ["left", "right"] as const)
-        for (let k: number = 0; k <= cycles; k++) {
-          const limb: IAutoMovieMotionHumanCrawl.Limb = `${side}Knee`;
-          const from: number = k === 0 ? kneesDown : lift(limb, k) + swing;
-          const to: number = k === cycles ? duration : lift(limb, k + 1);
-          if (to > from)
-            contacts.push({
-              part: `${side}LowerLeg`,
-              kind: "bear",
-              region: side === "left" ? "kneeLeft" : "kneeRight",
-              from: from / duration,
-              to: to / duration,
-              support: { kind: "ground" },
-            });
-        }
+    const contacts: IAutoMovieMotionHumanContactWindow[] = crawlContacts({
+      cycles,
+      handsDown,
+      lift,
+      swing,
+      duration,
+      kneesDown,
+      bear,
+    });
 
     const adjust: ReturnType<typeof prepareBearingTrunkBalance> =
       prepareBearingTrunkBalance(body, window, duration, contacts);

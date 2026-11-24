@@ -91,7 +91,7 @@ export namespace HumanPerformanceOverlays {
       law,
       context,
       plan,
-      legSeeds: readHumanSegmentLegs.chain(plan, person.performer.body),
+      legSeeds: readHumanSegmentLegs.cold,
       start,
       entryTime: start,
       end,

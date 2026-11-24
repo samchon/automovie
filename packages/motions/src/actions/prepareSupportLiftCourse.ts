@@ -12,46 +12,31 @@ import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
  * wherever the bound is active or idle, and kinked where it switches, which the
  * split resolves to the grid). A knot reads its own fit exactly, so a held leg
  * reads at most that millimetre under its bound at a judged middle, far inside
- * the floor audit's 5 mm. Knots are fitted on first demand, judged along the
- * path a read descends, and kept until the schedule settles.
+ * the floor audit's 5 mm. Every knot is fitted as the course is prepared, the
+ * whole interval tessellated at once, and a read descends the prepared tree.
  *
  * @param least The shortest share an interval is split to: the frame grid's
  *   interval over the interval's seconds.
- * @returns The course's reader and its release.
+ * @param exact The exact root lift at a share.
+ * @returns The course's reader.
  */
 export function prepareSupportLiftCourse(
   least: number,
+  exact: prepareSupportLiftCourse.Exact,
 ): prepareSupportLiftCourse.ICourse {
-  let whole: prepareSupportLiftCourse.IInterval | undefined;
+  const whole: prepareSupportLiftCourse.IInterval = split(
+    { share: 0, lift: exact(0) },
+    { share: 1, lift: exact(1) },
+    least,
+    exact,
+  );
   return {
-    read: (share: number, exact: prepareSupportLiftCourse.Exact): number => {
+    read: (share: number): number => {
       const at: number = Math.min(1, Math.max(0, share));
-      whole ??= {
-        a: { share: 0, lift: exact(0) },
-        b: { share: 1, lift: exact(1) },
-      };
       let piece: prepareSupportLiftCourse.IInterval = whole;
       for (;;) {
         if (at === piece.a.share) return piece.a.lift;
         if (at === piece.b.share) return piece.b.lift;
-        if (piece.halves === undefined) {
-          const { a, b }: prepareSupportLiftCourse.IInterval = piece;
-          if (!(b.share - a.share > least)) piece.halves = null;
-          else {
-            const middle: prepareSupportLiftCourse.IKnot = {
-              share: (a.share + b.share) / 2,
-              lift: exact((a.share + b.share) / 2),
-            };
-            piece.halves =
-              Math.abs(middle.lift - (a.lift + b.lift) / 2) >
-              prepareSupportLiftCourse.TOLERANCE
-                ? [
-                    { a, b: middle },
-                    { a: middle, b },
-                  ]
-                : null;
-          }
-        }
         if (piece.halves === null) break;
         piece =
           at < piece.halves[0].b.share ? piece.halves[0] : piece.halves[1];
@@ -61,12 +46,41 @@ export function prepareSupportLiftCourse(
         a.lift + ((b.lift - a.lift) * (at - a.share)) / (b.share - a.share)
       );
     },
-    clear: (): void => {
-      whole = undefined;
-    },
   };
 }
 
+/**
+ * Tessellate an interval between two fitted knots: split at its middle while
+ * the middle's lift departs from their line by more than the tolerance and the
+ * halves stay no shorter than the least share.
+ *
+ * @param a The knot at its start.
+ * @param b The knot at its end.
+ * @param least The shortest share an interval is split to.
+ * @param exact The exact root lift at a share.
+ * @returns The tessellated interval.
+ */
+function split(
+  a: prepareSupportLiftCourse.IKnot,
+  b: prepareSupportLiftCourse.IKnot,
+  least: number,
+  exact: prepareSupportLiftCourse.Exact,
+): prepareSupportLiftCourse.IInterval {
+  if (!(b.share - a.share > least)) return { a, b, halves: null };
+  const share: number = (a.share + b.share) / 2;
+  const middle: prepareSupportLiftCourse.IKnot = { share, lift: exact(share) };
+  return Math.abs(middle.lift - (a.lift + b.lift) / 2) >
+    prepareSupportLiftCourse.TOLERANCE
+    ? {
+        a,
+        b,
+        halves: [
+          split(a, middle, least, exact),
+          split(middle, b, least, exact),
+        ],
+      }
+    : { a, b, halves: null };
+}
 /** Companion types and the tolerance of {@link prepareSupportLiftCourse}. */
 export namespace prepareSupportLiftCourse {
   /**
@@ -78,16 +92,10 @@ export namespace prepareSupportLiftCourse {
   /** The exact root lift at a share of the interval, metres. */
   export type Exact = (share: number) => number;
 
-  /** A planned lift: its reader and its release. */
+  /** A planned lift: its reader. */
   export interface ICourse {
-    /**
-     * The lift at a share, metres, fitted through `exact` where a knot is
-     * needed.
-     */
-    read(share: number, exact: Exact): number;
-
-    /** Drop every knot, for observations that changed. */
-    clear(): void;
+    /** The lift at a share, metres, read from the prepared knots. */
+    read(share: number): number;
   }
 
   /** One exact lift. */
@@ -99,10 +107,7 @@ export namespace prepareSupportLiftCourse {
     lift: number;
   }
 
-  /**
-   * An interval between two knots, its halves undefined until judged and null
-   * for a leaf.
-   */
+  /** An interval between two knots, its halves null for a leaf. */
   export interface IInterval {
     /** The knot at its start. */
     a: IKnot;
@@ -111,7 +116,7 @@ export namespace prepareSupportLiftCourse {
     b: IKnot;
 
     /** Its halves, where it was split. */
-    halves?: Halves;
+    halves: Halves;
   }
 
   /** An interval's halves, or null for a leaf. */

@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, minimumJerk } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -23,7 +23,6 @@ import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { prepareHumanShapeBlend } from "../handling/prepareHumanShapeBlend";
 import { HumanBound } from "../law/HumanBound";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFoot } from "../posture/HumanFoot";
@@ -37,17 +36,23 @@ import { StrikingBody } from "../striking/StrikingBody";
 import { floorArmRoom } from "./floorArmRoom";
 import { floorEntry } from "./floorEntry";
 import { floorSeat } from "./floorSeat";
+import { lieDownBearing } from "./lieDownBearing";
+import { lieDownBlend } from "./lieDownBlend";
+import { lieDownContacts } from "./lieDownContacts";
+import { lieDownFeetBones } from "./lieDownFeetBones";
+import { lieDownHips } from "./lieDownHips";
+import { lieDownKeys } from "./lieDownKeys";
+import { lieDownLying } from "./lieDownLying";
+import { lieDownPelvis } from "./lieDownPelvis";
+import { lieDownPhases } from "./lieDownPhases";
+import { lieDownPins } from "./lieDownPins";
+import { lieDownPosedAt } from "./lieDownPosedAt";
 import { lieDownPoses } from "./lieDownPoses";
-import { prepareLieDownFootPins } from "./prepareLieDownFootPins";
-
-/** The raw feet and knee-pole frames used by the first descent. */
-type Feet = ReturnType<ReturnType<typeof StrikingBody.prepareTrunk>>;
-
-/** The pivot writer for the standing route. */
-type Pins = ReturnType<typeof prepareLieDownFootPins> | undefined;
-
-/** The first unplanted phase begins at its actual released joints. */
-type Release = ReturnType<typeof floorEntry.between> | undefined;
+import { lieDownProgress } from "./lieDownProgress";
+import { lieDownRelease } from "./lieDownRelease";
+import { lieDownRollSide } from "./lieDownRollSide";
+import { lieDownRoutes } from "./lieDownRoutes";
+import { lieDownShift } from "./lieDownShift";
 
 /**
  * Lying down on the floor from standing into a position: supine, prone, or on
@@ -110,41 +115,7 @@ export namespace lieDown {
    * The route of postures to each position, after standing, with each arrival's
    * event.
    */
-  export const ROUTES: Readonly<
-    Record<IAutoMovieMotionHumanLieDown.Position, readonly [string, string][]>
-  > = {
-    supine: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-    ],
-    prone: [
-      ["kneel", "kneeContact"],
-      ["quadruped", "handsDown"],
-      ["prone", "prone"],
-    ],
-    lateralLeft: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-      ["lateralLeft", "lateral"],
-    ],
-    lateralRight: [
-      ["sit", "seatContact"],
-      ["supine", "supine"],
-      ["lateralRight", "lateral"],
-    ],
-    sitLong: [
-      ["sit", "seatContact"],
-      ["sitLong", "seated"],
-    ],
-    sitCrossed: [
-      ["sit", "seatContact"],
-      ["sitCrossed", "seated"],
-    ],
-    sitSide: [
-      ["sit", "seatContact"],
-      ["sitSide", "seated"],
-    ],
-  };
+  export const ROUTES: typeof lieDownRoutes = lieDownRoutes;
 
   /**
    * Plan a lie down.
@@ -182,35 +153,18 @@ export namespace lieDown {
     const folds: floorSeat.Kind | undefined = FOLDED[position];
     const stoodPose: IAutoMovieMotionHumanPosture =
       entered ?? GymnasticsFlight.frozen(body, standing);
-    const keys: IAutoMovieMotionHumanLieDown.IPose[] = [
-      entered === null
-        ? {
-            pitch: stoodPose.pitch,
-            roll: stoodPose.roll,
-            joints: stoodPose.joints,
-          }
-        : { pitch: entered.pitch, roll: entered.roll, joints: entered.joints },
-      ...route.map(([key]) => POSES[key as keyof typeof POSES]),
-    ];
+    const keys: IAutoMovieMotionHumanLieDown.IPose[] = lieDownKeys({
+      entered,
+      stoodPose,
+      route,
+    });
     const blend: ((
       weight: number,
-    ) => IAutoMovieMotionHumanPosture["joints"])[] = keys
-      .slice(1)
-      .map(
-        (
-          key: IAutoMovieMotionHumanLieDown.IPose,
-          i: number,
-        ): ((weight: number) => IAutoMovieMotionHumanPosture["joints"]) =>
-          prepareHumanShapeBlend(keys[i]!.joints, key.joints),
-      );
-    const phases: IAutoMovieMotionClockPhase[] = [
-      { name: "getDown", seconds: PHASE },
-      ...route
-        .slice(0, -1)
-        .map(([, event]) => ({ name: event, seconds: PHASE })),
-      { name: route.at(-1)![1], seconds: 0 },
-      { name: "settled", seconds: hold },
-    ];
+    ) => IAutoMovieMotionHumanPosture["joints"])[] = lieDownBlend({ keys });
+    const phases: IAutoMovieMotionClockPhase[] = lieDownPhases({
+      route,
+      hold,
+    });
     const clock: IAutoMovieMotionClock = AutoMovieMotionManner.time(
       AutoMovieMotionClock.sequence(phases),
       modifiers,
@@ -218,31 +172,16 @@ export namespace lieDown {
     );
     const duration: number = clock.duration;
     const progress: ReturnType<typeof AutoMovieMotionClock.prepare>[] =
-      route.map(
-        (
-          _: unknown,
-          index: number,
-        ): ReturnType<typeof AutoMovieMotionClock.prepare> =>
-          AutoMovieMotionClock.prepare(
-            clock,
-            phases[index]!.name,
-            phases[index + 1]!.name,
-          ),
-      );
+      lieDownProgress({ route, clock, phases });
 
     // The pelvis's place over the floor, kept as the body goes down.
     const from: IAutoMovieMotionHumanPosture = entered ?? standing;
-    const hips: IAutoMovieVector3 = Vector3.add(
-      from.root,
-      Quaternion.rotateVector(
-        humanPostureHeading(from),
-        body.rest.get("hips")!,
-      ),
-    );
+    const hips: IAutoMovieVector3 = lieDownHips({ from, body });
     const lower: ReturnType<typeof lowerHumanPosture.prepare> =
       lowerHumanPosture.prepare(body);
     let held: IAutoMovieMotionHumanPosture | undefined;
-    let floor: ReturnType<typeof knockdown.prepareRest> | undefined;
+    const floor: ReturnType<typeof knockdown.prepareRest> =
+      knockdown.prepareRest(body);
     const folded: ReturnType<typeof floorSeat.prepare> | undefined =
       folds === undefined ? undefined : floorSeat.prepare(body, folds);
 
@@ -250,167 +189,98 @@ export namespace lieDown {
     // down to the route's first posture, as knockdown keeps them until the
     // seat lands: the root moves so the bearing sockets keep their place, and
     // the pelvis then stays where that first phase set it down.
-    const feetBones: ReadonlySet<AutoMovieHumanoidBone> =
-      new Set<AutoMovieHumanoidBone>([
-        "leftFoot",
-        "rightFoot",
-        "leftLowerLeg",
-        "rightLowerLeg",
-        ...(["heel", "ball", "toe"] as const).flatMap(
-          (
-            socket: IAutoMovieMotionHumanFoot.Socket,
-          ): AutoMovieHumanoidBone[] => [
-            body.surfaces.sockets[`${socket}Left`].bone,
-            body.surfaces.sockets[`${socket}Right`].bone,
-          ],
-        ),
-      ]);
-    let readFeet: ReturnType<typeof StrikingBody.prepareTrunk> | undefined;
-    let bearing:
-      | Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.Socket>
-      | undefined;
-    let plants: Pins;
-    let release: Release;
+    const feetBones: ReadonlySet<AutoMovieHumanoidBone> = lieDownFeetBones({
+      body,
+    });
+    const readFeet: ReturnType<typeof StrikingBody.prepareTrunk> =
+      StrikingBody.prepareTrunk(body, feetBones);
     const arms: ReturnType<typeof floorArmRoom.prepare> =
       floorArmRoom.prepare(body);
-    const rollSide: AutoMovieHumanSide | undefined =
-      position === "lateralLeft"
-        ? "left"
-        : position === "lateralRight"
-          ? "right"
-          : undefined;
-    const posedAt: (
-      index: number,
-      u: number,
-    ) => IAutoMovieMotionHumanPosture = (
-      index: number,
-      u: number,
-    ): IAutoMovieMotionHumanPosture => ({
-      root: { x: 0, y: 0, z: 0 },
-      yaw: standing.yaw,
-      pitch:
-        keys[index]!.pitch + (keys[index + 1]!.pitch - keys[index]!.pitch) * u,
-      roll: keys[index]!.roll + (keys[index + 1]!.roll - keys[index]!.roll) * u,
-      // From supine, turn around the body's longitudinal axis. In the
-      // Ry Rx Rz chart this is Rx(-90) Ry(turn), with the horizontal
-      // projection of the chest normal pointing left or right throughout.
-      ...(rollSide !== undefined && index === route.length - 1 && u > 0
-        ? {
-            yaw: standing.yaw + (rollSide === "left" ? 90 : -90),
-            pitch: -90 + Math.abs(keys[index + 1]!.roll) * u,
-            roll: rollSide === "left" ? -90 : 90,
-          }
-        : {}),
-      joints: blend[index]!(u),
-      limbs: {},
+    const rollSide: AutoMovieHumanSide | undefined = lieDownRollSide({
+      position,
     });
+    const posedAt: (index: number, u: number) => IAutoMovieMotionHumanPosture =
+      lieDownPosedAt({ standing, keys, rollSide, route, blend });
+
+    // The route's time-independent places are prepared once, here, each only
+    // where a query reads it: read through a fresh exact FK reader and the
+    // body's own projection, which give the values a query's loaned reader
+    // gives (`prepareHumanPoseResolution`, `prepareHumanPostureProjection`).
+    // The reader serves this synchronous preparation only.
+    const readAtPlan: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(undefined);
+    const projectAtPlan: ReturnType<typeof prepareHumanPostureProjection> =
+      prepareHumanPostureProjection(body);
+
+    // The sole socket each foot bears on at the first phase's end, the lowest
+    // there (the heels sitting down, the toes kneeling), chosen once so the
+    // held point never switches; read only for a standing entry.
+    const bearingOf: () => Record<
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanFoot.Socket
+    > = lieDownBearing({
+      readFeet,
+      posedAt,
+      readAtPlan,
+      projectAtPlan,
+      body,
+    });
+    const bearing:
+      | Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.Socket>
+      | undefined = entered === null ? bearingOf() : undefined;
     const pelvisOf: (
       posed: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,
       project: ReturnType<typeof prepareHumanPostureProjection>,
-      current?: Feet,
-    ) => IAutoMovieVector3 = (
-      posed: IAutoMovieMotionHumanPosture,
-      read: ReturnType<typeof prepareHumanPoseResolution>,
-      project: ReturnType<typeof prepareHumanPostureProjection>,
-      current?: Feet,
-    ): IAutoMovieVector3 => {
-      readFeet ??= StrikingBody.prepareTrunk(body, feetBones);
-      // The sole socket each foot bears on at the first phase's end, the
-      // lowest there (the heels sitting down, the toes kneeling), chosen once
-      // so the held point never switches.
-      if (bearing === undefined) {
-        const end: ReturnType<ReturnType<typeof StrikingBody.prepareTrunk>> =
-          readFeet(posedAt(0, 1), read, project);
-        const lowest: (
-          side: AutoMovieHumanSide,
-        ) => IAutoMovieMotionHumanFoot.Socket = (
-          side: AutoMovieHumanSide,
-        ): IAutoMovieMotionHumanFoot.Socket =>
-          HumanFoot.sockets(body, end, side).reduce(
-            (
-              a: IAutoMovieMotionHumanFoot.ISocket,
-              b: IAutoMovieMotionHumanFoot.ISocket,
-            ): IAutoMovieMotionHumanFoot.ISocket =>
-              b.point.y < a.point.y ? b : a,
-          ).socket;
-        bearing = { left: lowest("left"), right: lowest("right") };
-      }
-      const bearer: Record<
-        AutoMovieHumanSide,
-        IAutoMovieMotionHumanFoot.Socket
-      > = bearing;
-      const bones: Feet = current ?? readFeet(posed, read, project);
-      const contact: IAutoMovieVector3 = Vector3.scale(
-        Vector3.add(
-          ...((["left", "right"] as const).map(
-            (side: AutoMovieHumanSide): IAutoMovieVector3 =>
-              HumanFoot.sockets(body, bones, side).find(
-                (s: IAutoMovieMotionHumanFoot.ISocket): boolean =>
-                  s.socket === bearer[side],
-              )!.point,
-          ) as [IAutoMovieVector3, IAutoMovieVector3]),
-        ),
-        0.5,
-      );
-      // The bearing sockets' mean less the pelvis's offset, both at root zero.
-      return Vector3.subtract(
-        contact,
-        Quaternion.rotateVector(
-          humanPostureHeading(posed),
-          body.rest.get("hips")!,
-        ),
-      );
-    };
-    let stood: IAutoMovieVector3 | undefined, stoodOffset: number | undefined;
-    let landed: IAutoMovieVector3 | undefined;
-    let rollHeel: IAutoMovieVector3 | undefined;
+      current?: lieDownPelvis.Feet,
+    ) => IAutoMovieVector3 = lieDownPelvis({ bearing, readFeet, body });
+    // A standing entry's pelvis where the first phase begins and where it
+    // ends, prepared once (`pelvisOf`).
+    const stood: IAutoMovieVector3 | undefined =
+      entered === null
+        ? pelvisOf(posedAt(0, 0), readAtPlan, projectAtPlan)
+        : undefined;
+    const landed: IAutoMovieVector3 | undefined =
+      entered === null
+        ? pelvisOf(posedAt(0, 1), readAtPlan, projectAtPlan)
+        : undefined;
     const shift: (
       index: number,
       posed: IAutoMovieMotionHumanPosture,
       read: ReturnType<typeof prepareHumanPoseResolution>,
       project: ReturnType<typeof prepareHumanPostureProjection>,
-      current?: Feet,
-    ) => IAutoMovieVector3 = (
-      index: number,
-      posed: IAutoMovieMotionHumanPosture,
-      read: ReturnType<typeof prepareHumanPoseResolution>,
-      project: ReturnType<typeof prepareHumanPostureProjection>,
-      current?: Feet,
-    ): IAutoMovieVector3 => {
-      if (entered !== null) return { x: 0, y: 0, z: 0 };
-      stood ??= pelvisOf(posedAt(0, 0), read, project);
-      const now: IAutoMovieVector3 =
-        index === 0
-          ? pelvisOf(posed, read, project, current)
-          : (landed ??= pelvisOf(posedAt(0, 1), read, project));
-      return { x: stood.x - now.x, y: 0, z: stood.z - now.z };
-    };
+      current?: lieDownPelvis.Feet,
+    ) => IAutoMovieVector3 = lieDownShift({
+      entered,
+      pelvisOf,
+      landed,
+      stood,
+    });
     /**
      * Place one raw route key and pin each foot only on the first descending
      * phase.
      */
-    function placed(
+    const placed: (
       index: number,
       u: number,
       read: ReturnType<typeof prepareHumanPoseResolution>,
       project: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture {
+    ) => IAutoMovieMotionHumanPosture = (
+      index: number,
+      u: number,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture => {
       if (entered === null && index === 0 && u <= 0) return stoodPose;
       const posed: IAutoMovieMotionHumanPosture = posedAt(index, u);
       const offset: IAutoMovieVector3 = Quaternion.rotateVector(
         humanPostureHeading(posed),
         body.rest.get("hips")!,
       );
-      floor ??= knockdown.prepareRest(body);
-      type Current = Feet | undefined;
+      type Current = lieDownPelvis.Feet | undefined;
       const current: Current =
         entered === null && index === 0
-          ? (readFeet ??= StrikingBody.prepareTrunk(body, feetBones))(
-              posed,
-              read,
-              project,
-            )
+          ? readFeet(posed, read, project)
           : undefined;
       const moved: IAutoMovieVector3 = shift(
         index,
@@ -420,11 +290,7 @@ export namespace lieDown {
         current,
       );
       const decay: number =
-        current === undefined
-          ? 0
-          : (1 - minimumJerk.share(u)) *
-            (stoodOffset ??=
-              stoodPose.root.y - floor(posedAt(0, 0), read, project)); // Entered standing, the entry's root height decays to the rest on the bounds over the first phase (an inertialized offset, Bollo 2018).
+        current === undefined ? 0 : (1 - minimumJerk.share(u)) * stoodOffset!; // Entered standing, the entry's root height decays to the rest on the bounds over the first phase (an inertialized offset, Bollo 2018).
       const rooted: IAutoMovieMotionHumanPosture = {
         ...posed,
         root: {
@@ -436,32 +302,65 @@ export namespace lieDown {
       if (index === route.length - 1 && rollSide !== undefined) {
         // During the roll the lower heel bears along with the trunk. Turning
         // about the pelvis alone would drag that heel across the ground.
-        const feet: ReturnType<typeof StrikingBody.prepareTrunk> = (readFeet ??=
-          StrikingBody.prepareTrunk(body, feetBones));
-        const heel = (
-          posture: IAutoMovieMotionHumanPosture,
-        ): IAutoMovieVector3 =>
-          HumanFoot.sockets(body, feet(posture, read, project), rollSide)[0]!
-            .point;
-        rollHeel ??= heel(placed(index - 1, 1, read, project));
-        const now: IAutoMovieVector3 = heel(rooted);
+        const now: IAutoMovieVector3 = rollHeelOf(rooted, read, project);
         return {
           ...rooted,
           root: {
-            x: rooted.root.x + rollHeel.x - now.x,
+            x: rooted.root.x + rollHeel!.x - now.x,
             y: rooted.root.y,
-            z: rooted.root.z + rollHeel.z - now.z,
+            z: rooted.root.z + rollHeel!.z - now.z,
           },
         };
       }
       if (current === undefined) return rooted;
-      plants ??= prepareLieDownFootPins(
+      return lower(plants!(rooted, current), read);
+    };
+
+    /** The rolling side's heel of a posture (`rollSide`'s first sole socket). */
+    function rollHeelOf(
+      posture: IAutoMovieMotionHumanPosture,
+      read: ReturnType<typeof prepareHumanPoseResolution>,
+      project: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieVector3 {
+      return HumanFoot.sockets(
         body,
-        readFeet!(stoodPose, read, project),
-        readFeet!(posedAt(0, 1), read, project),
-      );
-      return lower(plants(rooted, current), read);
+        readFeet(posture, read, project),
+        rollSide!,
+      )[0]!.point;
     }
+
+    // A standing entry's root height over its rest at the first phase's start,
+    // and its feet's pins between the stand and the first phase's end; the
+    // rolling heel where the roll begins; the release from the first phase
+    // into the second. Each is prepared once, where a query reads it.
+    const stoodOffset: number | undefined =
+      entered === null
+        ? stoodPose.root.y - floor(posedAt(0, 0), readAtPlan, projectAtPlan)
+        : undefined;
+    const plants: lieDownPins.Pins | undefined = lieDownPins({
+      entered,
+      body,
+      readFeet,
+      stoodPose,
+      readAtPlan,
+      projectAtPlan,
+      posedAt,
+    });
+    const rollHeel: IAutoMovieVector3 | undefined =
+      rollSide === undefined
+        ? undefined
+        : rollHeelOf(
+            placed(route.length - 2, 1, readAtPlan, projectAtPlan),
+            readAtPlan,
+            projectAtPlan,
+          );
+    const release: lieDownRelease.Release | undefined = lieDownRelease({
+      entered,
+      body,
+      placed,
+      readAtPlan,
+      projectAtPlan,
+    });
     const at: (
       seconds: number,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
@@ -488,16 +387,7 @@ export namespace lieDown {
         u,
         (w: number): IAutoMovieMotionHumanPosture =>
           entered === null && index === 1 && w < 1
-            ? (release ??= floorEntry.between(
-                body,
-                GymnasticsFlight.frozen(
-                  body,
-                  placed(0, 1, read, project),
-                  read,
-                  project,
-                ),
-                placed(1, 1, read, project),
-              ))(w, read, project)
+            ? release!(w, read, project)
             : placed(index, w, read, project),
         read,
         project,
@@ -512,49 +402,19 @@ export namespace lieDown {
       return out;
     };
 
-    const lying: IAutoMovieMotionHumanPrimitive = {
-      channels: [
-        "root",
-        "trunk",
-        "head",
-        "leftLeg",
-        "rightLeg",
-        "leftArm",
-        "rightArm",
-      ],
-      reads: [],
-      from: 0,
-      to: duration,
-      write: (
-        _: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        _before?: IAutoMovieMotionHumanPrimitive.Reader,
-        resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-        projection?: ReturnType<typeof prepareHumanPostureProjection>,
-      ): IAutoMovieMotionHumanPosture => at(seconds, resolution, projection),
-    };
+    // The arrived posture is rested on the floor once, here, and held: every
+    // query from the arrival on reads it.
+    held = at(duration);
+    const lying: IAutoMovieMotionHumanPrimitive = lieDownLying({
+      duration,
+      at,
+    });
     const settled: number = clock.at("settled") / duration;
     const sitting: boolean = position.startsWith("sit");
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [
-      sitting
-        ? {
-            // Seated on the floor, the seat bears, and the base the next action is entered on is a seated one.
-            part: "seat",
-            kind: "seat",
-            from: settled,
-            to: 1,
-            support: { kind: "ground" },
-          }
-        : {
-            // The contact parts have no chest or side; the trunk's window is
-            // named by the back for every lying position.
-            part: "back",
-            kind: "lie",
-            from: settled,
-            to: 1,
-            support: { kind: "ground" },
-          },
-    ];
+    const contacts: IAutoMovieMotionHumanContactWindow[] = lieDownContacts({
+      sitting,
+      settled,
+    });
     if (entered === null) {
       const releaseShare: number = clock.at(phases[1]!.name) / duration;
       for (const part of ["leftFoot", "rightFoot"] as const)

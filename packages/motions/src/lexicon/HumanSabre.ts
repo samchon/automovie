@@ -32,42 +32,12 @@ import { StrikingBlade } from "../striking/StrikingBlade";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
+import { HumanSabreForm } from "./HumanSabreForm";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanUnseatPose } from "./HumanUnseatPose";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
-
-/**
- * The longest a gallop stride lasts, seconds, the most a charge may take to
- * come to the engage (provisional: a gallop of about two strides a second).
- */
-const STRIDE: number = 0.5;
-
-/**
- * The share of the arm's full length the engage reaches forward, short of the
- * straight elbow's singular reach (provisional).
- */
-const REACHED: number = 0.95;
-
-/**
- * How far ahead along the seat's forward the engage points when no target is
- * named, metres: far enough that the shoulder's own offset leaves the line
- * level and straight ahead.
- */
-const FAR: number = 10;
-
-/**
- * Seconds the arms take from the entry to the bridle and the carriage
- * (provisional).
- */
-const REACH: number = 0.5;
-
-/**
- * How far in front of the shoulder joint the slope's blade lies, metres: the
- * shoulder's skin, which the back of the blade rests on (provisional).
- */
-const SKIN: number = 0.06;
 
 /**
  * A carriage's station in the seat frame: the grip's place, the way the blade
@@ -83,6 +53,7 @@ interface IStation {
   /** The way the true edge faces. */
   edge: IAutoMovieVector3;
 }
+
 /** The alternatives of `StationsEntryItem`'s site. */
 type StationsEntryItem = "slope" | "engage";
 
@@ -111,14 +82,19 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     });
   HumanBound.above("duration", params.duration, 0, "s");
   HumanBound.above("transition", params.transition, 0, "s");
-  if (params.transition > STRIDE)
+  if (params.transition > HumanSabreForm.STRIDE)
     throw new HumanRefusal({
       kind: "parameter",
       axis: "transition",
       value: params.transition,
-      feasible: { kind: "range", minimum: 0, maximum: STRIDE, unit: "s" },
+      feasible: {
+        kind: "range",
+        minimum: 0,
+        maximum: HumanSabreForm.STRIDE,
+        unit: "s",
+      },
       reason: "a charge comes to the engage within one gallop stride",
-      fix: `take the engage in at most ${STRIDE} s`,
+      fix: `take the engage in at most ${HumanSabreForm.STRIDE} s`,
     });
   const support = context.prop(params.on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame.of(
@@ -221,7 +197,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   const aimed: IAutoMovieRigidTransform = carrier(engagedAt);
   const ahead: IAutoMovieVector3 =
     params.target === undefined
-      ? Vector3.add(shoulder, { x: 0, y: 0, z: FAR })
+      ? Vector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.FAR })
       : Quaternion.rotateVector(
           Quaternion.inverse(aimed.rotation),
           Vector3.subtract(
@@ -235,7 +211,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       local.root,
       "right",
       ahead,
-      REACHED * (m.upperArm + m.forearm + 0.5 * m.hand),
+      HumanSabreForm.REACHED * (m.upperArm + m.forearm + 0.5 * m.hand),
       "target",
     );
   // The engage: the ox's raised hilt (`HumanSwordGuard.GUARDS.ox`) about the shoulder turned toward the line, the point leading along it.
@@ -280,7 +256,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   // The slope: the historical slope rests the back of the blade on the right shoulder with the grip loosened, the hilt pivoting in the palm between the thumb and the fingers. The hand holds the carry, and the blade turns in the hand about the grip until its back lies along the front of the shoulder; it turns back as the fingers close to the full grip over the first half of the charge's transition, before the engage.
   const rested: IAutoMovieVector3 = Vector3.normalize(
     Vector3.subtract(
-      Vector3.add(shoulder, { x: 0, y: 0, z: SKIN }),
+      Vector3.add(shoulder, { x: 0, y: 0, z: HumanSabreForm.SKIN }),
       stations.slope.grip,
     ),
   );
@@ -315,7 +291,9 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
     "grip",
   ).point;
   const loose = (t: number): number =>
-    minimumJerk.share(Math.min(1, t / Math.min(REACH, duration))) *
+    minimumJerk.share(
+      Math.min(1, t / Math.min(HumanSabreForm.REACH, duration)),
+    ) *
     (from === undefined
       ? 1
       : 1 -
@@ -445,7 +423,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
           bend: AutoMovieMotionHumanBend.hang(context.body, shown, "right"),
           reference: {
             ...decisive(),
-            weight: Math.min(1, t / Math.min(REACH, duration)),
+            weight: Math.min(1, t / Math.min(HumanSabreForm.REACH, duration)),
           },
         },
       };
@@ -462,7 +440,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   // Both arms are laid as planned courses on these goals, the reach to the bridle and the sabre's carriage over the first `REACH` seconds and the hold after, so no instant refits them afresh.
   const span: IAutoMovieMotionHumanArmPlanned.ISpan = {
     start: 0,
-    ready: Math.min(REACH, duration),
+    ready: Math.min(HumanSabreForm.REACH, duration),
     relax: duration,
     end: duration,
   };

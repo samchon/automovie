@@ -6,14 +6,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanBalance } from "../everyday/HumanBalance";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
-import { StrikingTarget } from "../striking/StrikingTarget";
-import { staggerBounds } from "./staggerBounds";
-import { staggerKnots } from "./staggerKnots";
 import { staggerNearest } from "./staggerNearest";
 import { staggerPendulumCourses } from "./staggerPendulumCourses";
+import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import type { staggerRecover } from "./staggerRecover";
 import { staggerTransfer } from "./staggerTransfer";
 
@@ -25,18 +21,6 @@ type IFootprintResult = {
 
 /** The alternatives of `OfEntryItem`'s site. */
 type OfEntryItem = "forward" | "side" | "backward";
-
-/** The alternatives of `PrepareResult`'s site. */
-type PrepareResult =
-  | "w"
-  | "centre"
-  | "root"
-  | "forward"
-  | "across"
-  | "entered"
-  | "width"
-  | "length"
-  | "bend";
 
 /** The record of `IFootprintsEntryItem`'s site. */
 type IFootprintsEntryItem = {
@@ -156,10 +140,9 @@ export class StaggerPendulum {
     entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     speed: number,
-    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
-      body,
-      entry,
-    ),
+    fixed: ReturnType<
+      typeof staggerPendulumEntry.prepare
+    > = staggerPendulumEntry.prepare(body, entry),
   ) {
     this.body = body;
     this.entry = entry;
@@ -176,45 +159,6 @@ export class StaggerPendulum {
     this.width = fixed.width;
     this.length = fixed.length;
     this.bend = fixed.bend;
-  }
-
-  /**
-   * The entry's geometry a pendulum starts from, which depends on the body and
-   * the entry alone: the frequency, the whole-body centre of mass (one full
-   * forward-kinematics read), the root, the heading's axes, the feet, the
-   * soles' narrowest side-by-side width and length, and the trunk's shift of
-   * the centre of mass per sine of its tilt (`staggerKnots.bending`, three more
-   * centre-of-mass reads).
-   *
-   * @param body The body.
-   * @param entry The posture the push meets.
-   * @returns The fixed geometry, shared by every pendulum of one search over
-   *   speeds and foot orders.
-   */
-  public static prepare(
-    body: IAutoMovieMotionHumanActionContext["body"],
-    entry: IAutoMovieMotionHumanActionContext["entry"],
-  ): Pick<StaggerPendulum, PrepareResult> {
-    const forward: IAutoMovieVector3 = HumanFrame.point(
-      { origin: { x: 0, y: 0, z: 0 }, yaw: entry.posture.yaw },
-      { x: 0, y: 0, z: 1 },
-    );
-    const across: IAutoMovieVector3 = { x: forward.z, y: 0, z: -forward.x };
-    const entered: Record<
-      AutoMovieHumanSide,
-      IAutoMovieMotionHumanFoot.IPlacement
-    > = StrikingTarget.feet(entry);
-    return {
-      w: staggerBounds.omega(body),
-      centre: HumanBalance.centre(body, entry.posture),
-      root: entry.posture.root,
-      forward,
-      across,
-      entered,
-      width: StaggerPendulum.extent(body, entered, across),
-      length: StaggerPendulum.extent(body, entered, forward),
-      bend: staggerKnots.bending(body, entry),
-    };
   }
 
   /** A point on the floor. */
@@ -509,26 +453,4 @@ export class StaggerPendulum {
    * the bound only guards a degenerate span.
    */
   private static readonly PASSES: number = 64;
-
-  /**
-   * Each entry sole's ankle-relative extent along an axis, the larger of the
-   * two.
-   */
-  private static extent(
-    body: IAutoMovieMotionHumanActionContext["body"],
-    entered: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement>,
-    axis: IAutoMovieVector3,
-  ): number {
-    return Math.max(
-      ...(["left", "right"] as const).map(
-        (side: AutoMovieHumanSide): number => {
-          const along: number[] = HumanFoot.sole(body, side, entered[side]).map(
-            (q: IAutoMovieVector3): number =>
-              Vector3.dot(Vector3.subtract(q, entered[side].ankle), axis),
-          );
-          return Math.max(...along) - Math.min(...along);
-        },
-      ),
-    );
-  }
 }

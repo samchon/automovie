@@ -12,9 +12,9 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { ReactionSource } from "./ReactionSource";
-import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerLimit } from "./staggerLimit";
+import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerRecover } from "./staggerRecover";
 
 /**
@@ -28,8 +28,8 @@ import { staggerRecover } from "./staggerRecover";
  * fastest push this body catches that way, while `perturb` reads it as a fall.
  */
 export namespace staggerRecovery {
-  /** The prepared entry geometry `StaggerPendulum.prepare` returns. */
-  export type Fixed = ReturnType<typeof StaggerPendulum.prepare>;
+  /** The prepared entry geometry `staggerPendulumEntry.prepare` returns. */
+  export type Fixed = ReturnType<typeof staggerPendulumEntry.prepare>;
 
   /** A stagger's push, its prepared entry geometry and its recovery. */
   export interface IAdmitted {
@@ -81,7 +81,10 @@ export namespace staggerRecovery {
       ),
       y: 0,
     });
-    const fixed: Fixed = StaggerPendulum.prepare(context.body, context.entry);
+    const fixed: Fixed = staggerPendulumEntry.prepare(
+      context.body,
+      context.entry,
+    );
     const recovery: staggerRecover.IRecovery | null = staggerRecover.recover(
       context.body,
       context.entry,

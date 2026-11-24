@@ -53,6 +53,7 @@ import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
+import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
 /** The alternatives of `HumanPerformanceStateLayer2`'s site. */
@@ -556,6 +557,15 @@ export class HumanPerformanceState {
     // so the poses read while preparing it are forgotten.
     HumanPerformanceFlight.flights(this, this.people.values(), observation);
     for (const person of this.people.values()) HumanSegment.settle(person);
+    // Every action is placed and settled: each plan's leg chain is prepared
+    // once, its knots fitted in order from the plan's start
+    // (`readHumanSegmentLegs.chain`).
+    for (const person of this.people.values())
+      for (const segment of [...person.segments, ...person.overlays])
+        segment.legSeeds = readHumanSegmentLegs.chain(
+          segment.plan,
+          person.performer.body,
+        );
     this.handovers.clear();
     this.resolving = false;
     for (const entry of this.schedule.entries) {

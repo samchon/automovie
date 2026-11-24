@@ -93,7 +93,7 @@ export namespace AutoMovieMotionHumanArmPlayed {
         ...(Object.keys(a) as AutoMovieHumanoidBone[]),
         ...(Object.keys(b) as AutoMovieHumanoidBone[]),
       ])) {
-        const from: Angles = a[bone] ?? b[bone]!;
+        const from: Angles = (a[bone] ?? b[bone])!;
         const to: Angles = b[bone] ?? from;
         out[bone] = [
           from[0] + (to[0] - from[0]) * s,

@@ -31,23 +31,15 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
 import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
+import { athleticsSetPrimitives } from "./athleticsSetPrimitives";
 import { sprintStartBlocks } from "./sprintStartBlocks";
 import { sprintStartSet } from "./sprintStartSet";
 
 /** The alternatives of `PlanFlexedBone2`'s site. */
 type PlanFlexedBone2 = "spine" | "chest";
 
-/** The alternatives of `PlanFlexedBone`'s site. */
-type PlanFlexedBone = "spine" | "chest";
-
 /** The alternatives of `PlanFlexionsEntry`'s site. */
 type PlanFlexionsEntry = "spine" | "chest";
-
-/** The alternatives of `SetSex`'s site. */
-type SetSex = "female" | "male";
-
-/** The alternatives of `SetContext`'s site. */
-type SetContext = "body" | "entry";
 
 /** The alternatives of `CENTREEntryItem`'s site. */
 type CENTREEntryItem = "female" | "male";
@@ -156,25 +148,6 @@ export namespace athletics {
   export const CROUCH: number = 1.5;
 
   /**
-   * The set position's hips, pitch and feet for a body in front of a line.
-   *
-   * @param context The body.
-   * @param entry The standing posture; the line is a hand's length ahead of its
-   *   feet.
-   * @param front The front foot.
-   * @param sex The measured centre-of-mass stratum.
-   * @returns The hips' world point, the trunk's pitch, each palm's place on the
-   *   floor and each foot's placement.
-   */
-  export function set(
-    context: Pick<IAutoMovieMotionHumanActionContext, SetContext>,
-    entry: IAutoMovieMotionHumanPosture,
-    front: AutoMovieHumanSide,
-    sex: SetSex = "male",
-  ): ReturnType<typeof sprintStartSet.of> {
-    return sprintStartSet.of(context, entry, front, sex);
-  }
-  /**
    * Plan a sprint start.
    *
    * @param context The action's context.
@@ -200,7 +173,7 @@ export namespace athletics {
     const front: AutoMovieHumanSide = blocks?.front ?? p.front ?? "left";
     const rear: AutoMovieHumanSide = front === "left" ? "right" : "left";
     const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-    const target: ReturnType<typeof set> = sprintStartSet.of(
+    const target: ReturnType<typeof sprintStartSet.of> = sprintStartSet.of(
       context,
       entry,
       front,
@@ -272,7 +245,7 @@ export namespace athletics {
     const pitchDelta: number = target.pitch - entry.pitch;
     const flexed: (
       joints: IAutoMovieMotionHumanPosture["joints"],
-      bone: PlanFlexedBone,
+      bone: athleticsSetPrimitives.PlanFlexedBone,
       share: number,
     ) => readonly [number, number, number] = (
       joints: IAutoMovieMotionHumanPosture["joints"],
@@ -282,42 +255,19 @@ export namespace athletics {
       const was: readonly [number, number, number] = joints[bone] ?? [0, 0, 0];
       return [was[0] + flexions[bone] * share, was[1], was[2]];
     };
-    const primitives: IAutoMovieMotionHumanPrimitive[] = [
+    const primitives: IAutoMovieMotionHumanPrimitive[] = athleticsSetPrimitives(
       {
-        channels: ["root", "trunk"],
-        reads: ["root", "trunk"],
-        from: 0,
-        to: clock.duration,
-        write: (
-          posture: IAutoMovieMotionHumanPosture,
-          seconds: number,
-        ): IAutoMovieMotionHumanPosture => {
-          const w: number = into(seconds);
-          const t: number = drive(seconds);
-          // The spine's share of the trunk's tilt comes in with the pelvis's.
-          const pitched: IAutoMovieMotionHumanPosture = {
-            ...posture,
-            pitch: posture.pitch + pitchDelta * w - 0.25 * target.pitch * t * t,
-            joints: {
-              ...posture.joints,
-              spine: flexed(posture.joints, "spine", w - 0.2 * t * t),
-              chest: flexed(posture.joints, "chest", w - 0.2 * t * t),
-            },
-          };
-          const hips: IAutoMovieVector3 = Vector3.add(
-            hipsAt(w),
-            Vector3.scale(push, t * t),
-          );
-          return {
-            ...pitched,
-            root: Vector3.subtract(
-              hips,
-              Quaternion.rotateVector(humanPostureHeading(pitched), hipsRest),
-            ),
-          };
-        },
+        clock,
+        into,
+        drive,
+        pitchDelta,
+        target,
+        flexed,
+        hipsAt,
+        push,
+        hipsRest,
       },
-    ];
+    );
     for (const [side, from, to] of [
       [front, "start", "half"],
       [rear, "half", "ready"],

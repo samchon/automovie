@@ -1,4 +1,4 @@
-import { Vector3, bracketedBisection } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionName,
@@ -21,7 +21,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanVerdicts } from "../audit/HumanVerdicts";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanArmPlanned } from "../compose/AutoMovieMotionHumanArmPlanned";
@@ -33,12 +32,11 @@ import { AutoMovieMotionHumanPlaced } from "../compose/AutoMovieMotionHumanPlace
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { HumanTrunk } from "../everyday/HumanTrunk";
 import { exercise } from "../exercise/exercise";
 import { HumanBound } from "../law/HumanBound";
-import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { baseballGroundBall } from "./baseballGroundBall";
 
 /**
  * Baseball and softball positions without the bat's swing or the pitch : the
@@ -182,13 +180,19 @@ export namespace baseball {
         ...(legs === undefined ? {} : { legs }),
       });
     /** Build a placed arm over the prepared baseball clock. */
-    function placed(
+    const placed: (
       side: AutoMovieHumanSide,
       place: IAutoMovieMotionHumanPlaced.IArm["place"],
       shape: IAutoMovieMotionHumanHand.Shape,
       bend: IAutoMovieMotionHumanPlaced.IArm["bend"],
       together?: IAutoMovieMotionHumanArmPlanned.ITogether,
-    ): IAutoMovieMotionHumanPrimitive[] {
+    ) => IAutoMovieMotionHumanPrimitive[] = (
+      side: AutoMovieHumanSide,
+      place: IAutoMovieMotionHumanPlaced.IArm["place"],
+      shape: IAutoMovieMotionHumanHand.Shape,
+      bend: IAutoMovieMotionHumanPlaced.IArm["bend"],
+      together?: IAutoMovieMotionHumanArmPlanned.ITogether,
+    ): IAutoMovieMotionHumanPrimitive[] => {
       return AutoMovieMotionHumanPlaced.arm({
         body,
         side,
@@ -211,12 +215,25 @@ export namespace baseball {
         shape,
         bend,
       });
-    }
+    };
     const primitives: IAutoMovieMotionHumanPrimitive[] = [];
     let contacts: IAutoMovieMotionHumanContactWindow[] =
       AutoMovieMotionHumanBase.plants();
     const arm: number = m.upperArm + m.forearm;
 
+    // The ground ball's crouch and both gloved hands.
+    const groundBall: () => IAutoMovieMotionHumanPrimitive[] =
+      baseballGroundBall({
+        local,
+        entry,
+        arm,
+        body,
+        m,
+        modifiers,
+        context,
+        crouch,
+        placed,
+      });
     switch (p.kind) {
       case "catcherCrouch": {
         // Keep the hand guarded at the proximal edge of the thigh. The
@@ -261,7 +278,7 @@ export namespace baseball {
             (
               posture: IAutoMovieMotionHumanPosture,
               _seconds: number,
-              resolution?: IFK,
+              resolution?: baseballGroundBall.IFK,
             ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
               // Ahead of the crouched chest, not of the standing one.
               point: Vector3.add(
@@ -305,140 +322,7 @@ export namespace baseball {
         break;
       }
       case "groundBall": {
-        // The glove on the floor ahead of the shoulders, open forward and up with the fingers down.
-        const front: IAutoMovieVector3 = local(entry, { x: 0, y: 0, z: 1 });
-        const facing: IAutoMovieVector3 = Vector3.normalize({ ...front, y: 1 });
-        const fingers: IAutoMovieVector3 = Vector3.normalize({
-          ...front,
-          y: -1,
-        });
-        const ahead: IAutoMovieVector3 = Vector3.scale(front, AHEAD * arm);
-        const glovePoint: (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ) => IAutoMovieVector3 = (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ): IAutoMovieVector3 =>
-          Vector3.add(
-            {
-              ...AutoMovieMotionHumanPlaced.shoulders(
-                body,
-                posture,
-                resolution,
-              ),
-              y: up * arm,
-            },
-            ahead,
-          );
-        const glove: (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ) => IAutoMovieMotionHumanPlaced.IWristPlace = (
-          posture: IAutoMovieMotionHumanPosture,
-          up: number,
-          resolution?: IFK,
-        ): IAutoMovieMotionHumanPlaced.IWristPlace => ({
-          point: glovePoint(posture, up, resolution),
-          facing,
-          forward: fingers,
-        });
-        // The glove's palm stands on its fingertips, which point 45 degrees down.
-        const low: number = (Math.SQRT1_2 * m.hand) / 2 / arm;
-        // The hips fall to the squat's depth. Find the trunk's remaining
-        // inclination in the same planted geometry the display will use.
-        const depth: number = exercise.drop(m, "parallel");
-        const plants: ReturnType<
-          typeof AutoMovieMotionHumanTrunk.preparePlanted
-        > = AutoMovieMotionHumanTrunk.preparePlanted(
-          body,
-          AutoMovieMotionHumanTrunk.footing(body, entry),
-        );
-        const planted: IAutoMovieMotionHumanPosture = plants(entry);
-        const read: ReturnType<typeof HumanTrunk.prepareResolve> =
-          HumanTrunk.prepareResolve(body, HumanBoneGroups.SHOULDERS);
-        const wristFromPalm: IAutoMovieVector3 =
-          AutoMovieMotionHumanPlaced.wrist(body, "left", {
-            point: { x: 0, y: low * arm, z: 0 },
-            facing,
-            forward: fingers,
-          });
-        const outside: (pitch: number) => boolean = (
-          pitch: number,
-        ): boolean => {
-          const bones: ReturnType<typeof read> = read(
-            AutoMovieMotionHumanTrunk.sunk(
-              body,
-              planted,
-              depth * modifiers.extent,
-              pitch,
-              0,
-            ),
-          );
-          const left: IAutoMovieVector3 =
-            bones.get("leftUpperArm")!.worldPosition;
-          const mid: IAutoMovieVector3 = Vector3.lerp(
-            left,
-            bones.get("rightUpperArm")!.worldPosition,
-            0.5,
-          );
-          const wrist: IAutoMovieVector3 = Vector3.add(
-            { ...mid, y: 0 },
-            Vector3.add(wristFromPalm, ahead),
-          );
-          const span: number =
-            (REACH * arm) ** 2 -
-            (left.x - wrist.x) ** 2 -
-            (left.z - wrist.z) ** 2;
-          return span < 0 || left.y - wrist.y > Math.sqrt(span);
-        };
-        // Bound a pitch bracket by the contact skin over the upper body's
-        // measured reach from the hips, and keep the reachable bracket end.
-        const tolerance: number =
-          (180 * HumanVerdicts.SKIN) /
-          (Math.PI * (m.shoulderHeight - m.hipHeight));
-        const inclination: number = !outside(0)
-          ? 0
-          : outside(INCLINED)
-            ? INCLINED
-            : bracketedBisection(outside, 0, INCLINED, tolerance);
-        const together: IAutoMovieMotionHumanArmPlanned.ITogether =
-          AutoMovieMotionHumanArmPlanned.together(
-            context.handover,
-            true,
-            context.tempo,
-          );
-        primitives.push(
-          crouch(depth, inclination),
-          ...placed(
-            "left",
-            (
-              posture: IAutoMovieMotionHumanPosture,
-              _seconds: number,
-              resolution?: IFK,
-            ): ReturnType<typeof glove> => glove(posture, low, resolution),
-            "flat",
-            "forward",
-            together,
-          ),
-          ...placed(
-            "right",
-            (
-              posture: IAutoMovieMotionHumanPosture,
-              _seconds: number,
-              resolution?: IFK,
-            ): ReturnType<IAutoMovieMotionHumanPlaced.IArm["place"]> => ({
-              point: glovePoint(posture, low + 0.2, resolution),
-              facing: { x: 0, y: -1, z: 0 },
-            }),
-            "flat",
-            "forward",
-            together,
-          ),
-        );
+        primitives.push(...groundBall());
         break;
       }
       case "battingStance": {
@@ -547,9 +431,3 @@ export namespace baseball {
     });
   }
 }
-
-/**
- * Optional same-person exact FK source used only during an actual current place
- * observation.
- */
-type IFK = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];

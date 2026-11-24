@@ -16,18 +16,31 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanSegmentOverlay } from "./HumanSegmentOverlay";
 
 /**
+ * Whether a leg goal is free: given, neither planted nor in contact, so the leg
+ * continues the chain's seed.
+ */
+function free(
+  goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
+): boolean {
+  return (
+    goal !== undefined && goal.planted !== true && goal.contact === undefined
+  );
+}
+
+/**
  * The legs' continuation seeds of a displayed second, under every name the
  * read's leaf fits a leg by: the plain leaf's (`leaf::<leg>`) and each leaf
  * under the running overlays, named by their ordinals in placement order
  * (`HumanSegmentOverlay.overlaid`), every subset of them since a fading overlay
  * keeps both the leaf with it and the one without. The seeds are the plan's leg
- * chain at the frame at or before the second (`segment.legSeeds`, prepared by
- * `readHumanSegmentLegs.chain` when the action is placed), for a free leg alone
- * (a goal neither planted nor in contact): a leg is only continued from them,
- * never placed at them, and its fit takes the closed-form root nearest the seed
- * (on another branch where the seed's has no legal one). A planted leg keeps
- * its own fit: where its goal asks no turn of the foot, the chain's swivel
- * would turn the foot about the ankle and move its sole.
+ * chain at the second (`segment.legSeeds`, prepared by
+ * `readHumanSegmentLegs.chain` once the performance has placed and settled
+ * every action), for a free leg alone (a goal neither planted nor in contact):
+ * a leg is only continued from them, never placed at them, and its fit takes
+ * the closed-form root nearest the seed (on another branch where the seed's has
+ * no legal one). A planted leg keeps its own fit: where its goal asks no turn
+ * of the foot, the chain's swivel would turn the foot about the ankle and move
+ * its sole.
  *
  * @param person The person.
  * @param segment The action.
@@ -70,43 +83,57 @@ export function readHumanSegmentLegs(
   return out;
 }
 
-/**
- * Whether a leg goal is free: given, neither planted nor in contact, so the leg
- * continues the chain's seed.
- */
-function free(
-  goal: IAutoMovieMotionHumanPosture["limbs"][AutoMovieHumanLimb],
-): boolean {
-  return (
-    goal !== undefined && goal.planted !== true && goal.contact === undefined
-  );
+/** A knot's swivel rates on its branch. */
+interface IRates {
+  /** Degrees per second. */
+  velocity: number;
+
+  /** Degrees per second squared. */
+  acceleration: number;
 }
 
 /** The plan-level leg chain the display's legs continue. */
 export namespace readHumanSegmentLegs {
   /**
-   * A plan's leg chain: the legs' seeds at every frame of the plan's clock
-   * (`AutoMovieMotionHumanArmCourse.STEP`), the first frame fitted cold and
-   * each later one continuing the frame before it, so each frame takes the
-   * closed-form root on the branch the frame before chose and refines only
-   * where that root is illegal (Tolani, Goswami and Badler 2000, section 3.2.4,
-   * the feasible swivel nearest the desired one): the temporal coherence a
-   * display keeps a knee's side by. A second takes the frame at or before it.
-   * The chain reads the plan's own leg goals alone. Its reader is prepared
-   * once, when the action is placed (`IAutoMovieMotionHumanSegment.legSeeds`),
-   * and solves its frames in order from the plan's start up to the latest frame
-   * a second has needed, so no frame depends on the order seconds are read in.
+   * The legs' seeds before the performance has prepared its chains: none, so a
+   * leg read while the schedule is still being placed or settled fits cold.
+   */
+  export const cold: (
+    seconds: number,
+  ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = (): ReadonlyMap<
+    AutoMovieHumanLimb,
+    IAutoMovieSwivelSeed
+  > => new Map();
+
+  /**
+   * A plan's leg chain: the legs' seeds at knots on the plan's frame grid
+   * (`AutoMovieMotionHumanArmCourse.STEP`), the first knot fitted cold and each
+   * later one continuing the knot before it, so each knot takes the closed-form
+   * root on the branch the knot before chose and refines only where that root
+   * is illegal (Tolani, Goswami and Badler 2000, section 3.2.4, the feasible
+   * swivel nearest the desired one): the branch is chosen once per knot, the
+   * temporal coherence a display keeps a knee's side by. Between two knots on
+   * the same branch the continuous swivel angle (Tolani, Goswami and Badler
+   * 2000, section 3) is joined by a quintic carrying each knot's swivel,
+   * velocity and acceleration, the minimum-jerk form of Flash and Hogan 1985,
+   * so the swivel is C² across the knots; across a branch change, or where a
+   * leg has no seed at one of the two knots, a second takes the knot at or
+   * before it. The chain reads the plan's own leg goals alone. It is prepared
+   * once, every knot fitted in order from the plan's start, when the
+   * performance has placed and settled every action
+   * (`IAutoMovieMotionHumanSegment.legSeeds`), and a second is a closed-form
+   * evaluation of the prepared knots.
    *
    * @param plan The segment's plan.
    * @param body The performer's body.
    * @returns Each leg's seed at a plan second.
-   * @evidence contracts/development/common.md#meaningful-documentation States the grid, the chaining, which frame a second takes and why the order of reads cannot matter.
-   * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each frame from the frame before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4).
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation returns the reader; the reader's own list of frames grows in order.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each frame is a full fit of the plan's own leg goals; a display only continues from it, against its own goals.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per frame of the plan, each a closed-form root where it is legal, on a plan posture demanding only the root, trunk and leg channels.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The frames are the solver trajectory of the placed action, kept by its reader and shared by every read of it.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held by the placed action's reader: at most one frame per step of the plan's duration, released with the action.
+   * @evidence contracts/development/common.md#meaningful-documentation States the knot grid, the chaining, the branch choice per knot, the curve between knots and when the chain is prepared.
+   * @evidence contracts/development/implementation.md#principled-implementation Warm-starting each knot from the knot before, on the branch it chose, is the temporal coherence of engine two-bone IK; the root nearest the seed is the closed-form feasible swivel nearest the desired one (Tolani §3.2.4); the swivel between knots is a quintic Hermite of position, velocity and acceleration, the minimum-jerk form (Flash and Hogan 1985), C² at the knots.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Preparation fits the knots and their rates; the reader finds a second's knot interval and evaluates its quintic.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Each knot is a full fit of the plan's own leg goals; no curve crosses a branch change; a display only continues from a seed, against its own goals.
+   * @evidence contracts/development/implementation.md#efficient-algorithms One legs-only fit per knot at preparation, each a closed-form root where it is legal, on a plan posture demanding only the root, trunk and leg channels; a read is constant time.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The knots are the solver trajectory of the placed action, prepared once and shared by every read of it.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Held by the placed action's reader: one knot per step of the plan's duration, released with the action.
    */
   export function chain(
     plan: IAutoMovieMotionHumanActionPlan,
@@ -115,29 +142,127 @@ export namespace readHumanSegmentLegs {
     seconds: number,
   ) => ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> {
     const step: number = AutoMovieMotionHumanArmCourse.STEP;
-
-    // The frames are solved in order from the plan's start, up to the frame a
-    // read first needs: the plan's posture is read only once the performance
-    // can show it, never while the action is being placed.
-    const frames: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[] = [];
+    const count: number = Math.floor(plan.duration / step + 1e-9) + 1;
+    const knots: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[] = [];
+    for (let k: number = 0; k < count; ++k)
+      knots.push(
+        frame(
+          body,
+          plan.posture(Math.min(plan.duration, k * step), LEGGED),
+          knots[k - 1],
+        ),
+      );
+    const rates: ReadonlyMap<AutoMovieHumanLimb, IRates>[] = knots.map(
+      (
+        _: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>,
+        k: number,
+      ): ReadonlyMap<AutoMovieHumanLimb, IRates> => knotRates(knots, k, step),
+    );
     return (
       seconds: number,
     ): ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> => {
-      const index: number = Math.floor(
-        Math.min(plan.duration, Math.max(0, seconds)) / step + 1e-9,
-      );
-      while (frames.length <= index)
-        frames.push(
-          frame(
-            body,
-            plan.posture(Math.min(plan.duration, frames.length * step), LEGGED),
-            frames[frames.length - 1],
+      const at: number = Math.min(plan.duration, Math.max(0, seconds));
+      const k: number = Math.min(count - 1, Math.floor(at / step + 1e-9));
+      const here: ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed> =
+        knots[k]!;
+      const next:
+        | ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>
+        | undefined = knots[k + 1];
+      const u: number = (at - k * step) / step;
+      if (next === undefined || !(u > 0)) return here;
+      const out: Map<AutoMovieHumanLimb, IAutoMovieSwivelSeed> = new Map();
+      for (const [limb, seed] of here) {
+        const after: IAutoMovieSwivelSeed | undefined = next.get(limb);
+        if (after === undefined || after.branch !== seed.branch) {
+          out.set(limb, seed);
+          continue;
+        }
+        const a: IRates = rates[k]!.get(limb)!;
+        const b: IRates = rates[k + 1]!.get(limb)!;
+        out.set(limb, {
+          ...seed,
+          swivel: quintic(
+            seed.swivel,
+            a,
+            seed.swivel + turn(after.swivel - seed.swivel),
+            b,
+            step,
+            u,
           ),
-        );
-      return frames[index]!;
+        });
+      }
+      return out;
     };
   }
 
+  /**
+   * A knot's swivel rates on its own branch: velocity by the central difference
+   * of its neighbours on the same branch (one-sided where one is missing) and
+   * acceleration by the second difference where both are on it, none otherwise;
+   * differences are taken the short way round.
+   */
+  function knotRates(
+    knots: readonly ReadonlyMap<AutoMovieHumanLimb, IAutoMovieSwivelSeed>[],
+    k: number,
+    step: number,
+  ): ReadonlyMap<AutoMovieHumanLimb, IRates> {
+    const out: Map<AutoMovieHumanLimb, IRates> = new Map();
+    for (const [limb, seed] of knots[k]!) {
+      const before: IAutoMovieSwivelSeed | undefined = knots[k - 1]?.get(limb);
+      const after: IAutoMovieSwivelSeed | undefined = knots[k + 1]?.get(limb);
+      const back: number | undefined =
+        before === undefined || before.branch !== seed.branch
+          ? undefined
+          : turn(seed.swivel - before.swivel);
+      const ahead: number | undefined =
+        after === undefined || after.branch !== seed.branch
+          ? undefined
+          : turn(after.swivel - seed.swivel);
+      out.set(limb, {
+        velocity:
+          back !== undefined && ahead !== undefined
+            ? (back + ahead) / (2 * step)
+            : (back ?? ahead ?? 0) / step,
+        acceleration:
+          back !== undefined && ahead !== undefined
+            ? (ahead - back) / (step * step)
+            : 0,
+      });
+    }
+    return out;
+  }
+
+  /**
+   * The quintic Hermite between two knots of position, velocity and
+   * acceleration (the minimum-jerk boundary form of Flash and Hogan 1985).
+   */
+  function quintic(
+    p0: number,
+    a: IRates,
+    p1: number,
+    b: IRates,
+    h: number,
+    u: number,
+  ): number {
+    const u2: number = u * u;
+    const u3: number = u2 * u;
+    const u4: number = u3 * u;
+    const u5: number = u4 * u;
+    return (
+      (1 - 10 * u3 + 15 * u4 - 6 * u5) * p0 +
+      (u - 6 * u3 + 8 * u4 - 3 * u5) * h * a.velocity +
+      (0.5 * u2 - 1.5 * u3 + 1.5 * u4 - 0.5 * u5) * h * h * a.acceleration +
+      (0.5 * u3 - u4 + 0.5 * u5) * h * h * b.acceleration +
+      (-4 * u3 + 7 * u4 - 3 * u5) * h * b.velocity +
+      (10 * u3 - 15 * u4 + 6 * u5) * p1
+    );
+  }
+
+  /** An angle difference taken the short way round, degrees in (-180, 180]. */
+  function turn(degrees: number): number {
+    const wrapped: number = degrees - 360 * Math.round(degrees / 360);
+    return wrapped === -180 ? 180 : wrapped;
+  }
   /**
    * One frame's leg seeds: the posture's leg goals alone, fitted cold or
    * continuing the frame before.

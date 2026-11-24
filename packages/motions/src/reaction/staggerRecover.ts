@@ -12,6 +12,7 @@ import { staggerAdmission } from "./staggerAdmission";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";
 import { staggerClose } from "./staggerClose";
+import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerStep } from "./staggerStep";
 
 /**
@@ -140,8 +141,9 @@ export namespace staggerRecover {
    *   extrapolated centre of mass to rest, seconds.
    * @param admitted Whether the legs admit each step, the close and the rest;
    *   the pendulum alone when false, the upper bound `staggerLimit` reads.
-   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same
-   *   body and entry, shared by a search over speeds; read here when absent.
+   * @param fixed The entry's geometry (`staggerPendulumEntry.prepare`) of this
+   *   same body and entry, shared by a search over speeds; read here when
+   *   absent.
    * @returns The recovery, or null when no order of `STEPS` steps catches,
    *   closes and settles it with every step admitted.
    */
@@ -152,10 +154,9 @@ export namespace staggerRecover {
     speed: number,
     righting: number,
     admitted: boolean = true,
-    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
-      body,
-      entry,
-    ),
+    fixed: ReturnType<
+      typeof staggerPendulumEntry.prepare
+    > = staggerPendulumEntry.prepare(body, entry),
   ): IRecovery | null {
     const { REACTION, STEPS }: typeof staggerBounds = staggerBounds;
 

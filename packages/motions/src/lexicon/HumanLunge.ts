@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -7,13 +7,11 @@ import type {
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanLunge,
   IAutoMovieMotionHumanMountRider,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionPropHold,
-  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,24 +19,15 @@ import type {
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { StrikingStance } from "../striking/StrikingStance";
-import { StrikingTarget } from "../striking/StrikingTarget";
-import { step } from "../striking/step";
 import { HumanLungeChange } from "./HumanLungeChange";
 import { HumanLungeHands } from "./HumanLungeHands";
 import { HumanLungePivot } from "./HumanLungePivot";
+import { HumanLungeStance } from "./HumanLungeStance";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLunge>;
-
-/** Up. */
-const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A swinging foot's peak lift, a share of stature: the step law's. */
-const LIFT: number = 0.015;
 
 /**
  * Admit the lunge, plan the pivot steps on the horse's bearing, and sample.
@@ -94,113 +83,16 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   const other: AutoMovieHumanSide = line === "left" ? "right" : "left";
   if (whip !== undefined) context.prop(whip);
   const body: Context["body"] = context.body;
-  const entry: IAutoMovieMotionHumanPosture = context.entry.posture;
-  const feet: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> =
-    StrikingTarget.feet(context.entry);
-  const centre: IAutoMovieVector3 = {
-    ...Vector3.lerp(feet.left.ankle, feet.right.ankle, 0.5),
-    y: 0,
-  };
-
-  // The horse's bearing from the centre, read on a grid of half swings and unwrapped from the entry's heading.
-  const swing: number = step.period(body);
-  const dt: number = swing / 2;
-  const raw = (time: number): number => {
-    const frame: IAutoMovieRigidTransform = support.frame(context.start + time);
-    return (
-      (Math.atan2(frame.position.x - centre.x, frame.position.z - centre.z) *
-        180) /
-      Math.PI
-    );
-  };
-  const unwrap = (angle: number, near: number): number =>
-    angle + 360 * Math.round((near - angle) / 360);
-  const grid: number[] = [];
-  for (let k: number = 0; k * dt <= seconds + dt; ++k)
-    grid.push(unwrap(raw(k * dt), k === 0 ? entry.yaw : grid[k - 1]!));
-  const bearing = (time: number): number => {
-    const k: number = Math.max(
-      0,
-      Math.min(grid.length - 2, Math.floor(time / dt)),
-    );
-    const u: number = time / dt - k;
-    return grid[k]! + (grid[k + 1]! - grid[k]!) * u;
-  };
-  const schedule: HumanLungePivot.ISchedule = HumanLungePivot.plan(
-    bearing,
+  const {
+    centre,
+    schedule,
+    at: stance,
+  }: HumanLungeStance.IStance = HumanLungeStance(
+    context,
+    support,
     seconds,
-    entry.yaw,
-    swing,
-    dt,
+    transition,
   );
-
-  const lift: number = LIFT * body.measure.stature;
-  const joints: IAutoMovieMotionHumanPosture["joints"] = {
-    ...entry.joints,
-  };
-  // The stance: the pelvis on the live bearing, the feet on the schedule.
-  const stance = (time: number): IAutoMovieMotionHumanPosture => {
-    const facing: number =
-      entry.yaw +
-      minimumJerk.share(Math.min(1, time / transition)) *
-        (unwrap(raw(time), bearing(time)) - entry.yaw);
-    const placed = {} as Record<
-      AutoMovieHumanSide,
-      IAutoMovieMotionHumanFoot.IPlacement
-    >;
-    const down = {} as Record<AutoMovieHumanSide, boolean>;
-    for (const side of ["left", "right"] as const) {
-      const foot: HumanLungePivot.IFoot = HumanLungePivot.foot(
-        schedule,
-        side,
-        time,
-      );
-      const turn: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
-        UP,
-        foot.heading - schedule.heading,
-      );
-      placed[side] = {
-        ankle: Vector3.add(
-          Vector3.add(
-            centre,
-            Quaternion.rotateVector(
-              turn,
-              Vector3.subtract(feet[side].ankle, centre),
-            ),
-          ),
-          {
-            x: 0,
-            y:
-              foot.swing === undefined
-                ? 0
-                : lift * Math.sin(Math.PI * foot.swing),
-            z: 0,
-          },
-        ),
-        rotation: Quaternion.multiply(turn, feet[side].rotation),
-      };
-      down[side] = foot.swing === undefined;
-    }
-    const root: IAutoMovieVector3 = Vector3.add(
-      centre,
-      Quaternion.rotateVector(
-        Quaternion.fromAxisAngle(UP, facing - entry.yaw),
-        Vector3.subtract(entry.root, centre),
-      ),
-    );
-    return lowerHumanPosture(
-      body,
-      {
-        root: { ...root, y: entry.root.y },
-        yaw: facing,
-        pitch: entry.pitch,
-        roll: entry.roll,
-        joints: { ...joints },
-        limbs: StrikingStance.legs(body, placed, down),
-      },
-      lowerHumanPosture.KNEE,
-    );
-  };
 
   const timeline: HumanLungeChange.ITimeline = {
     line,

@@ -25,7 +25,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "../posture/HumanLimbFit";
-import { blendHumanJoint } from "../posture/blendHumanJoint";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
@@ -35,22 +34,16 @@ import { StrikingSkill } from "./StrikingSkill";
 import { StrikingStance } from "./StrikingStance";
 import { StrikingStroke } from "./StrikingStroke";
 import { StrikingWeapon } from "./StrikingWeapon";
+import { punchAnchored } from "./punchAnchored";
+import { punchCompose } from "./punchCompose";
 import { punchContact } from "./punchContact";
+import { punchCorrected } from "./punchCorrected";
 import { punchFootwork } from "./punchFootwork";
 import type { punchLaunch } from "./punchLaunch";
 import type { punchReach } from "./punchReach";
 
-/** The record of `IBuildComposeBare`'s site. */
-type IBuildComposeBare = {
-  base: punchFootwork.IFootwork["base"];
-  hint: (clock: number) => IAutoMovieVector3;
-};
-
 /** The alternatives of `BuildOff`'s site. */
 type BuildOff = "leftArm" | "rightArm";
-
-/** The alternatives of `BuildArm`'s site. */
-type BuildArm = "leftArm" | "rightArm";
 
 /** The alternatives of `TimingWhich`'s site. */
 type TimingWhich = "lead" | "rear";
@@ -145,19 +138,27 @@ export namespace punchGeometry {
     entered: punchLaunch.ILaunch,
   ): IGeometry {
     const p: IAutoMovieMotionHumanPunch.IParams = context.params;
-    const { side, lead, shown, recoil, drop, duration } = timing;
+    const { side, lead, shown, recoil, drop, duration }: ITiming = timing;
     const guardAt: ReturnType<typeof StrikingStance.prepareGuard> =
       StrikingStance.prepareGuard(context.body, { lead });
-    const body = context.body;
+    const body: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPunch.IParams>["body"] =
+      context.body;
     const t0: number = context.start;
-    const arm: BuildArm = side === "left" ? "leftArm" : "rightArm";
+    const arm: punchCompose.BuildArm = side === "left" ? "leftArm" : "rightArm";
     const contact: punchContact.IContact = punchContact.solve(
       context,
       timing,
       tangent,
       entered,
     );
-    const { line, rotation, socket, tracker, bones, solved } = contact;
+    const {
+      line,
+      rotation,
+      socket,
+      tracker,
+      bones,
+      solved,
+    }: punchContact.IContact = contact;
 
     // The tracker's corrections arrived by a second since the start, each
     // carried into the step, the wrist at contact and the elbow's hint on
@@ -260,29 +261,9 @@ export namespace punchGeometry {
     // The delivery aims where the arm lands on the launch plan, and each
     // correction carries the wrist to where its own solution lands.
     const reached: IAutoMovieVector3 = landed;
-    const corrected: IAutoMovieMotionHumanStrikingAim.ITracker = {
-      planned: tracker.planned,
-      units: (seconds: number): IAutoMovieSuperposeMinimumJerk.IUnit[] =>
-        contact.corrected(seconds).map(
-          (
-            c: punchReach.ICorrection,
-          ): IAutoMovieSuperposeMinimumJerk.IUnit => ({
-            displacement: c.end,
-            start: c.start,
-            duration: c.duration,
-          }),
-        ),
-      goal: (seconds: number): IAutoMovieVector3 =>
-        contact
-          .corrected(seconds)
-          .reduce(
-            (
-              g: IAutoMovieVector3,
-              c: punchReach.ICorrection,
-            ): IAutoMovieVector3 => Vector3.add(g, c.end),
-            tracker.planned,
-          ),
-    };
+    const corrected: IAutoMovieMotionHumanStrikingAim.ITracker = punchCorrected(
+      { tracker, contact },
+    );
     const units = StrikingStroke.delivery({
       origin,
       impact: reached,
@@ -323,55 +304,29 @@ export namespace punchGeometry {
       context.entry.pose,
       arm,
     );
-    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> =
-      new Map();
-    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference => {
-      let found: IAutoMovieHumanLimbReference | undefined = anchors.get(reach);
-      if (found === undefined) {
-        const fixedStep: punchFootwork.IFootwork = walk(
-          (): number => reach.advance,
-        );
-        found = HumanLimbFit.reference(
-          resolveHumanPosture(
-            body,
-            compose(shown, reach.solved.end, shown, {
-              base: fixedStep.base,
-              hint: (): IAutoMovieVector3 => reach.hint,
-            }),
-          ),
-          arm,
-        );
-        anchors.set(reach, found);
-      }
-      return found;
+    // Each reach's arm anchor is fitted once when the geometry is built
+    // (`anchors`, below `compose`); a read only looks it up.
+    const fitAnchor = (
+      reach: punchReach.IReach,
+    ): IAutoMovieHumanLimbReference => {
+      const fixedStep: punchFootwork.IFootwork = walk(
+        (): number => reach.advance,
+      );
+      return HumanLimbFit.reference(
+        resolveHumanPosture(
+          body,
+          compose(shown, reach.solved.end, shown, {
+            base: fixedStep.base,
+            hint: (): IAutoMovieVector3 => reach.hint,
+          }),
+        ),
+        arm,
+      );
     };
-    const anchored = (clock: number): IAutoMovieHumanLimbReference => {
-      let at: IAutoMovieHumanLimbReference = anchor(contact.launched);
-      for (const c of corrections(clock)) {
-        if (!c.moved) continue;
-        const s: number = minimumJerk.share(
-          (t0 + clock - c.start) / c.duration,
-        );
-        const next: IAutoMovieHumanLimbReference = anchor(c.reach);
-        at = {
-          upper: blendHumanJoint(
-            body,
-            `${side}UpperArm`,
-            at.upper,
-            next.upper,
-            s,
-          ),
-          lower: blendHumanJoint(
-            body,
-            `${side}LowerArm`,
-            at.lower,
-            next.lower,
-            s,
-          ),
-        };
-      }
-      return at;
-    };
+    const anchor = (reach: punchReach.IReach): IAutoMovieHumanLimbReference =>
+      anchors.get(reach)!;
+    const anchored: (clock: number) => IAutoMovieHumanLimbReference =
+      punchAnchored({ anchor, contact, corrections, t0, body, side });
     // The wrist's share of its way from the guard to where the arm lands on
     // the launch plan, on its free path at a clock: the delivery's own reach
     // of the hand, through the contact and held there after.
@@ -434,88 +389,51 @@ export namespace punchGeometry {
         },
       };
     };
-    const compose = (
+    const compose: (
       t: number,
       end: IAutoMovieVector3,
-      clock: number = t,
-      bare?: IBuildComposeBare,
+      clock?: number,
+      bare?: punchCompose.IBuildComposeBare,
       source?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: ReturnType<typeof prepareHumanPostureProjection>,
-    ): IAutoMovieMotionHumanPosture => {
-      const reference: IAutoMovieHumanLimbReference | undefined =
-        bare === undefined ? anchored(clock) : undefined;
+    ) => IAutoMovieMotionHumanPosture = punchCompose({
+      anchored,
+      travelled,
+      back,
+      footwork,
+      raised,
+      guardAt,
+      startElbow,
+      carry,
+      contact,
+      arm,
+      drop,
+      sag,
+      rotationAt,
+      body,
+      side,
+      launch,
+    });
 
-      // The elbow and the arm's reference go out as far as the wrist has: the
-      // wrist launches after the skill's lag and peaks late in its delivery
-      // (`StrikingStroke.delivery`), so an elbow on the delivery's own clock
-      // led it, and mid-flight it stood ahead of the fist with the forearm
-      // sweeping back across the line (the small woman's cross met the
-      // partner's lead elbow 47 ms before impact with the elbow 15 cm ahead
-      // of the wrist). Read as the wrist's share of its way from the guard
-      // to where the arm lands, the elbow stays behind the fist.
-      const gone: number = travelled(clock);
-      const held: number = Math.max(0, Math.min(1, gone - back(clock)));
-      const resolution: ReturnType<typeof prepareHumanPoseResolution> =
-        prepareHumanPoseResolution(source);
-      const posture: IAutoMovieMotionHumanPosture = (
-        bare?.base ?? footwork.base
-      )(t, clock, resolution);
-      const guard: ReturnType<typeof StrikingStance.guard> = raised(
-        guardAt(posture, resolution, projection),
-        clock,
-      );
-      const elbow: IAutoMovieVector3 = Vector3.lerp(
-        Vector3.lerp(
-          startElbow,
-          bare === undefined
-            ? carry(contact.hint, clock, (c: punchReach.ICorrection) => c.hint)
-            : bare.hint(clock),
-          gone,
+    // The launch's anchor and each moved correction's, fitted once here: the
+    // tracker's every correction (`contact.corrected(Infinity)`) is the set a
+    // read over the whole punch can arrive at.
+    const anchors: Map<punchReach.IReach, IAutoMovieHumanLimbReference> =
+      new Map(
+        [
+          contact.launched,
+          ...corrections(Infinity)
+            .filter((c: punchReach.ICorrection): boolean => c.moved)
+            .map((c: punchReach.ICorrection): punchReach.IReach => c.reach),
+        ].map(
+          (
+            reach: punchReach.IReach,
+          ): [punchReach.IReach, IAutoMovieHumanLimbReference] => [
+            reach,
+            fitAnchor(reach),
+          ],
         ),
-        guard[arm]!.bend,
-        back(clock),
       );
-      const wrist: IAutoMovieVector3 = Vector3.add(end, {
-        x: 0,
-        y: -drop.depth * sag(t),
-        z: 0,
-      });
-      return {
-        ...posture,
-        limbs: {
-          ...posture.limbs,
-          ...guard,
-          [arm]: {
-            point: wrist,
-            bend: elbow,
-            rotation: rotationAt(clock),
-            ...(reference === undefined
-              ? {}
-              : {
-                  reference: {
-                    // Blended as rotations: the launch and the contact
-                    // may be written in different charts of the shoulder.
-                    upper: blendHumanJoint(
-                      body,
-                      `${side}UpperArm`,
-                      launch.upper,
-                      reference.upper,
-                      held,
-                    ),
-                    lower: blendHumanJoint(
-                      body,
-                      `${side}LowerArm`,
-                      launch.lower,
-                      reference.lower,
-                      held,
-                    ),
-                  },
-                }),
-          },
-        },
-      };
-    };
-
     const landing = (): punchReach.IReach =>
       p.feint === undefined
         ? (contact.corrected(Infinity).at(-1)?.reach ?? contact.launched)

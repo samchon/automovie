@@ -120,7 +120,7 @@ export const HUMAN_ACTIONS: Readonly<
   crouch,
   kneel,
   climbStairs,
-  throwObject,
+  throwObject: throwObject,
   catchObject,
   stageCatch,
   release,

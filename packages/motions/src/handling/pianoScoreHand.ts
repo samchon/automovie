@@ -41,16 +41,9 @@ export function pianoScoreHand(
   return { note, previous, transport };
 }
 
-/** The records of `pianoScoreHand`. */
+/** `pianoScoreHand.of` and its records. */
 export namespace pianoScoreHand {
-  /**
-   * One hand's position on its voicing and the preceding transport.
-   *
-   * @evidence contracts/development/common.md#meaningful-documentation States the voicing, the one before it and the transport share.
-   * @evidence contracts/development/design.md#principled-representation The current voicing, the preceding one (none for the first), and the transport share in [0, 1].
-   * @evidence contracts/development/design.md#minimal-and-owned-surface Returned by `pianoScoreHand` and read by the score's arm and finger writers.
-   * @evidence contracts/development/design.md#prohibited-design-shortcuts None: an absent previous voicing is explicit (`undefined`).
-   */
+  /** One hand's position on its voicing and the preceding transport. */
   export interface ISample {
     /** The voicing the hand plays or travels to. */
     note: IVoicing;

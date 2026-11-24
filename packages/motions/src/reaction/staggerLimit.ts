@@ -7,6 +7,7 @@ import type {
 import { StaggerPendulum } from "./StaggerPendulum";
 import { staggerBounds } from "./staggerBounds";
 import { staggerCapture } from "./staggerCapture";
+import { staggerPendulumEntry } from "./staggerPendulumEntry";
 import { staggerRecover } from "./staggerRecover";
 
 /**
@@ -30,9 +31,9 @@ export namespace staggerLimit {
    * @param entry The posture the push meets.
    * @param push The push's horizontal unit direction, world.
    * @param above A speed it does not catch, m/s.
-   * @param fixed The entry's geometry (`StaggerPendulum.prepare`) of this same
-   *   body and entry, shared with the plan that was refused; read here when
-   *   absent.
+   * @param fixed The entry's geometry (`staggerPendulumEntry.prepare`) of this
+   *   same body and entry, shared with the plan that was refused; read here
+   *   when absent.
    * @returns M/s, a whole centimetre per second.
    */
   export function of(
@@ -40,10 +41,9 @@ export namespace staggerLimit {
     entry: IAutoMovieMotionHumanActionContext["entry"],
     push: IAutoMovieVector3,
     above: number,
-    fixed: ReturnType<typeof StaggerPendulum.prepare> = StaggerPendulum.prepare(
-      body,
-      entry,
-    ),
+    fixed: ReturnType<
+      typeof staggerPendulumEntry.prepare
+    > = staggerPendulumEntry.prepare(body, entry),
   ): number {
     // The search runs on the fixed grid of `RESOLUTION` multiples, so the
     // limit does not depend on the refused speed that asked for it: index

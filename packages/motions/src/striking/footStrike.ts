@@ -151,12 +151,10 @@ export namespace footStrike {
         ? minimumJerk.share(seconds / shown)
         : 1 - minimumJerk.share((seconds - shown) / recoil);
 
-    // The geometry reads the target, which may only be read from settled
-    // placement, so it is built on first use and dropped when placement
-    // settles, as the close strike's is.
-    let built: IAutoMovieMotionHumanActionPlan | undefined;
+    // The geometry reads the target: it is built once when the plan is made,
+    // and built again once when placement settles (`settle`), as the close
+    // strike's is; a read only reads the built plan.
     const build = (): IAutoMovieMotionHumanActionPlan => {
-      if (built !== undefined) return built;
       // The target, the line and the form's directions.
       const target: IAutoMovieVector3 = StrikingTarget.aim(
         context,
@@ -508,25 +506,25 @@ export namespace footStrike {
           }),
         ),
       );
-      built = composeAutoMovieMotionHumanAction({
+      return composeAutoMovieMotionHumanAction({
         base: AutoMovieMotionHumanBase.still(duration, entry, contacts),
         clock,
         primitives: [lower, leg],
       });
-      return built;
     };
+    let built: IAutoMovieMotionHumanActionPlan = build();
     return {
       duration,
       events: clock.events(),
       contact: shown,
       get contacts(): IAutoMovieMotionHumanActionPlan["contacts"] {
-        return build().contacts;
+        return built.contacts;
       },
       posture: (
         ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-      ): IAutoMovieMotionHumanPosture => build().posture(...args),
+      ): IAutoMovieMotionHumanPosture => built.posture(...args),
       settle: (): void => {
-        built = undefined;
+        built = build();
       },
     };
   }

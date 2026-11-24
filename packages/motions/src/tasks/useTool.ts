@@ -41,18 +41,9 @@ import { poseBones } from "../posture/poseBones";
 import { HumanToolTurn } from "./HumanToolTurn";
 import { HumanToolWork } from "./HumanToolWork";
 import { prepareToolPlayback } from "./prepareToolPlayback";
-
-/** The record of `IPlanCycleResult`'s site. */
-type IPlanCycleResult = {
-  grip: IAutoMovieVector3;
-  rotation: IAutoMovieQuaternion;
-};
-
-/** The alternatives of `PlanCycle`'s site. */
-type PlanCycle = "grip" | "rotation";
-
-/** The alternatives of `PlanTurn`'s site. */
-type PlanTurn = "grip" | "rotation";
+import { useToolCycle } from "./useToolCycle";
+import { useToolPose } from "./useToolPose";
+import { useToolTarget } from "./useToolTarget";
 
 /** The record of `IPlanFace`'s site. */
 type IPlanFace = { point: IAutoMovieVector3; direction: IAutoMovieVector3 };
@@ -184,9 +175,14 @@ export namespace useTool {
    * A working pose: the tool's unit line toward its working point, the grip's
    * place and the hand's rotation.
    */
-  interface IWork {
+  export interface IWork {
+    /** The tool's unit line toward its working point, world frame. */
     axis: IAutoMovieVector3;
+
+    /** The grip's place, world metres. */
     grip: IAutoMovieVector3;
+
+    /** The hand's rotation, world frame. */
     rotation: IAutoMovieQuaternion;
   }
 
@@ -318,36 +314,17 @@ export namespace useTool {
       };
       return bends.strain(props, bends.solve({ ...props, fallback: "hang" }));
     };
-    const pose: IWork = ((): IWork => {
-      switch (kind) {
-        case "hammer":
-        case "screwdriver":
-          return posed(forward);
-        case "stir":
-          return posed(down);
-        case "saw": {
-          const bends: ReturnType<typeof AutoMovieMotionHumanBend.prepare> =
-            AutoMovieMotionHumanBend.prepare({
-              body,
-              posture: context.entry.posture,
-              side,
-            });
-          const poses: IWork[] = SLOPES.map((degrees: number): IWork => {
-            const slope: number = (degrees * Math.PI) / 180;
-            return posed(
-              Vector3.subtract(
-                Vector3.scale(forward, Math.cos(slope)),
-                Vector3.scale(up, Math.sin(slope)),
-              ),
-            );
-          });
-          const strains: number[] = poses.map((candidate: IWork): number =>
-            strain(candidate, bends),
-          );
-          return poses[strains.indexOf(Math.min(...strains))]!;
-        }
-      }
-    })();
+    const pose: IWork = useToolPose({
+      kind,
+      posed,
+      forward,
+      down,
+      body,
+      context,
+      side,
+      up,
+      strain,
+    });
 
     // The clock: reach, the cycles, return.
     const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
@@ -408,7 +385,9 @@ export namespace useTool {
     // The turning works: a hammer's head rises about the wrist, the axis
     // across the body; a screwdriver turns about its own line through the
     // work point.
-    const turn: ((degrees: number) => Pick<IWork, PlanTurn>) | undefined =
+    const turn:
+      | ((degrees: number) => Pick<IWork, useToolCycle.PlanTurn>)
+      | undefined =
       kind === "hammer"
         ? HumanToolTurn(
             pose,
@@ -420,77 +399,25 @@ export namespace useTool {
           : undefined;
 
     // The hand at a phase of the work, 0 at a contact and periodic in 1.
-    const cycle: (phase: number) => Pick<IWork, PlanCycle> = (
-      phase: number,
-    ): IPlanCycleResult => {
-      switch (kind) {
-        case "hammer": {
-          // The head rises about the wrist and comes down on the work.
-          const c: number = 0.5 - 0.5 * Math.cos(2 * Math.PI * phase);
-          return turn!(-RAISE * c);
-        }
-        case "saw":
-          // The teeth run a quarter of the forearm either way of the work
-          // point, a stroke of half the forearm, about the 14.0 cm median
-          // excursion of real sawing (Starke and Baber 2017, experiment 5).
-          return {
-            grip: Vector3.add(
-              pose.grip,
-              Vector3.scale(
-                pose.axis,
-                0.25 * m.forearm * Math.sin(2 * Math.PI * phase),
-              ),
-            ),
-            rotation: pose.rotation,
-          };
-        case "stir": {
-          const r: number = work.radius;
-          const a: number = 2 * Math.PI * phase;
-          return {
-            grip: Vector3.add(
-              pose.grip,
-              Vector3.add(
-                Vector3.scale(forward, -r * Math.cos(a) + r),
-                Vector3.scale(left, r * Math.sin(a)),
-              ),
-            ),
-            rotation: pose.rotation,
-          };
-        }
-        case "screwdriver":
-          return turn!(TURN * Math.sin(2 * Math.PI * phase));
-      }
-    };
+    const cycle: (phase: number) => Pick<IWork, useToolCycle.PlanCycle> =
+      useToolCycle({ kind, turn, pose, m, work, forward, left });
     const edge: ReturnType<typeof cycle> = cycle(0.5);
     /** The complete grip goal on the target-side frame. */
-    const target = (
+    const target: (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       prepared?: ReturnType<typeof AutoMovieMotionHumanBend.prepare>,
-    ): IAutoMovieMotionHumanArmTarget.ITarget => {
-      const at: ReturnType<typeof cycle> =
-        seconds <= ready || seconds >= recover
-          ? edge
-          : cycle(((seconds - ready) / strokePeriod + 0.5) % 1);
-      const wrist: IAutoMovieMotionHumanBend.ISolve = {
-        body,
-        posture,
-        side,
-        point: placeHumanHandSurface(gripOffset, at.grip, at.rotation).point,
-        rotation: at.rotation,
-        fallback: "hang",
-      };
-      return {
-        surface: "grip",
-        shape: "relaxed",
-        point: at.grip,
-        rotation: at.rotation,
-        bend:
-          prepared === undefined
-            ? AutoMovieMotionHumanBend.solve(wrist)
-            : prepared.solve(wrist),
-      };
-    };
+    ) => IAutoMovieMotionHumanArmTarget.ITarget = useToolTarget({
+      cycle,
+      ready,
+      recover,
+      edge,
+      strokePeriod,
+      body,
+      side,
+      gripOffset,
+      entry: context.entry.posture,
+    });
     const hand: IAutoMovieMotionHumanArmTarget.Frame = (posture, seconds) =>
       target(posture, seconds);
 

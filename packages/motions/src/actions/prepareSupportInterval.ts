@@ -43,12 +43,45 @@ interface IInterval {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanPosture;
 
-  /** Drop target-dependent observations made before the performance settled. */
+  /** Prepare the target-dependent constants again from settled observations. */
   settle(): void;
 }
 
 /** A contact the root can keep through an interval. */
 type Pin = IAutoMovieMotionHumanSupport.IContact | undefined;
+
+/** What a share's bounded posture reads of its interval. */
+interface IPosed {
+  /** The unchanged body. */
+  body: IAutoMovieMotionHumanBody;
+
+  /** The joint blend between the two keys. */
+  blend: ReturnType<typeof supportKey.prepareBlended>;
+
+  /** The floor bound. */
+  floor: ReturnType<typeof knockdown.prepareRest>;
+}
+
+/** The pin's prepared points and the held limbs' frames. */
+interface IPinned {
+  /** The pin's achieved points at the two keys and its readers. */
+  fixed: IPrepareSupportIntervalFixed;
+
+  /** The held hands' and feet's frames at the two keys. */
+  frames: prepareSupportHeldFrames.IHeldFrames[];
+
+  /** Whether a held foot stands raised above the floor. */
+  elevatedFoot: boolean;
+}
+
+/** An interval's target-dependent constants, prepared with its observations. */
+interface IPrepared {
+  /** The pin's points and held frames; none without a pin. */
+  pinned?: IPinned;
+
+  /** The held legs' lift course; none without a held leg. */
+  lifts?: prepareSupportLiftCourse.ICourse;
+}
 /** The record of `IPrepareSupportIntervalFixed`'s site. */
 type IPrepareSupportIntervalFixed = {
   held: IAutoMovieVector3;
@@ -115,136 +148,91 @@ export function prepareSupportInterval(
         !contact.part.endsWith("Foot") && !contact.part.endsWith("Hand"),
     ) ?? common[0];
   const limbs: prepareSupportHeldFrames.IHeld[] = heldLimbs(common);
-  let frames: prepareSupportHeldFrames.IHeldFrames[] | undefined;
-  let fixed: IPrepareSupportIntervalFixed | undefined;
   const floor: ReturnType<typeof knockdown.prepareRest> =
     knockdown.prepareRest(body);
-  const write: IInterval["write"] = (
-    w: number,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): IAutoMovieMotionHumanPosture => {
-    const shaped: IAutoMovieMotionHumanPosture = blend(w);
+  // The lift course splits no finer than the frame grid's share of the
+  // interval's seconds.
+  const least: number =
+    AutoMovieMotionHumanArmCourse.STEP /
+    Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP);
+  const posed: IPosed = { body, blend, floor };
+  // The target-dependent constants: the pin's achieved points, the held
+  // limbs' frames, the held legs' chains, their sinks and end swivels and the
+  // lift course, prepared as the interval is planned and again once when the
+  // schedule settles the observations they read.
+  const prepare: () => IPrepared = (): IPrepared => {
     const read: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution(resolution);
+      prepareHumanPoseResolution();
     const project: ReturnType<typeof prepareHumanPostureProjection> =
-      projection ?? prepareHumanPostureProjection(body);
-    const rest = (posture: IAutoMovieMotionHumanPosture): number =>
-      floor(posture, read, project);
-    if (pin === undefined)
-      return {
-        ...shaped,
-        root: { ...shaped.root, y: Math.max(shaped.root.y, rest(shaped)) },
-      };
-    if (fixed === undefined) {
-      const target: IAutoMovieVector3 | null = place(pin);
-      const aimed: IAutoMovieVector3 | null =
-        target === null ? null : { ...target };
-      const point: ReturnType<typeof supportContact.preparePoints> =
-        supportContact.preparePoints(body, [{ contact: pin, at: aimed }]);
-      fixed = {
-        held: point(a.posture, read, project)[0]!,
-        arrived: point(b.posture, read, project)[0]!,
-        pinFloor: prepareSupportPinFloor(body, pin, aimed),
-        originalPoint: point,
-      };
-    }
-    const pin0: NonNullable<typeof fixed> = fixed;
-    frames ??= prepareSupportHeldFrames(
-      body,
-      a.posture,
-      b.posture,
-      limbs,
-      place,
-      read,
-      project,
-      socket,
-    );
-    const held: prepareSupportHeldFrames.IHeldFrames[] = frames;
-    const elevatedFoot: boolean = held.some(
-      (frame: prepareSupportHeldFrames.IHeldFrames): boolean =>
-        frame.elevated && frame.limb.endsWith("Leg"),
-    );
-
-    // The bounded posture at a share: the blend, the pin carried from where
-    // the key before achieved it to where the key after does (so the course
-    // meets each key's own posture at its ends), each held hand or foot where
-    // the keys hold it, fitted by the limb's own chain, and the floor bound.
-    const placed: (s: number) => IAutoMovieMotionHumanPosture = (
-      s: number,
-    ): IAutoMovieMotionHumanPosture => {
-      const blended: IAutoMovieMotionHumanPosture = s === w ? shaped : blend(s);
-      const fused:
-        | ReturnType<ReturnType<typeof prepareSupportPinFloor>>
-        | undefined =
-        prepareHumanPoseResolution.isNativeSource(read) &&
-        project === body.projection
-          ? pin0.pinFloor(blended, read, project)
-          : undefined;
-      const now: IAutoMovieVector3 =
-        fused === undefined
-          ? pin0.originalPoint(blended, read, project)[0]!
-          : fused.point;
-      const pinned: IAutoMovieVector3 = Vector3.lerp(
-        pin0.held,
-        pin0.arrived,
-        s,
-      );
-      const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
-      for (const frame of held) goals[frame.limb] = heldGoal(frame, s);
-      const moved: IAutoMovieMotionHumanPosture = {
-        ...blended,
-        root: {
-          x: blended.root.x + pinned.x - now.x,
-          y: blended.root.y + pinned.y - now.y,
-          z: blended.root.z + pinned.z - now.z,
-        },
-        limbs: goals,
-      };
-      // The hand pin can carry the hip above a raised foot's reachable
-      // height between keys. Retain the target and limit the hip first.
-      const reachable: IAutoMovieMotionHumanPosture = elevatedFoot
-        ? lowerHumanPosture(body, moved, undefined, read)
-        : moved;
-      const low: number =
-        reachable === moved ? (fused?.floor ?? rest(moved)) : rest(reachable);
-      return {
-        ...reachable,
-        root: { ...reachable.root, y: Math.max(reachable.root.y, low) },
-      };
+      prepareHumanPostureProjection(body);
+    if (pin === undefined) return {};
+    const target: IAutoMovieVector3 | null = place(pin);
+    const aimed: IAutoMovieVector3 | null =
+      target === null ? null : { ...target };
+    const point: ReturnType<typeof supportContact.preparePoints> =
+      supportContact.preparePoints(body, [{ contact: pin, at: aimed }]);
+    const fixed: IPrepareSupportIntervalFixed = {
+      held: point(a.posture, read, project)[0]!,
+      arrived: point(b.posture, read, project)[0]!,
+      pinFloor: prepareSupportPinFloor(body, pin, aimed),
+      originalPoint: point,
     };
-    const bounded: IAutoMovieMotionHumanPosture = placed(w);
+    const frames: prepareSupportHeldFrames.IHeldFrames[] =
+      prepareSupportHeldFrames(
+        body,
+        a.posture,
+        b.posture,
+        limbs,
+        place,
+        read,
+        project,
+        socket,
+      );
+    const pinned: IPinned = {
+      fixed,
+      frames,
+      elevatedFoot: frames.some(
+        (frame: prepareSupportHeldFrames.IHeldFrames): boolean =>
+          frame.elevated && frame.limb.endsWith("Leg"),
+      ),
+    };
     // The floor bound reads the blend, but a held leg is shown as its goal
     // fits it: with its foot planted, a lower hip folds the knee toward the
     // floor and can carry the shin through it. Only the held legs' own
     // chains are read, at the bounded root and again after each lift, until
     // their lowest collider is clear (raising the hip with the foot planted
     // raises the knee, so the reading only rises with the root).
-    legs ??= prepareSupportHeldLegs(body, frames);
-    if (legs === null) return bounded;
+    const chains: prepareSupportHeldLegs.IReader | null =
+      prepareSupportHeldLegs(body, frames);
+    if (chains === null) return { pinned };
     // The keys' own held legs may rest within the fit's tolerance under the
     // floor; the bound is theirs carried between them, so the course meets
     // each key as it is instead of lifting it at its instant.
-    sunk ??= [
-      Math.min(0, legs.lowest(a.posture, read, project)),
-      Math.min(0, legs.lowest(b.posture, read, project)),
+    const reach: readonly [number, number] = [
+      Math.min(0, chains.lowest(a.posture, read, project)),
+      Math.min(0, chains.lowest(b.posture, read, project)),
     ];
-
     // The held legs' fits at the interval's two ends, swept once each; every
-    // read between them continues the fit from their swivels carried by the
+    // fit between them continues the fit from their swivels carried by the
     // share (IAutoMovieSwivelNear), a refinement in place of a sweep.
-    ends ??= [
-      legs.seeds(placed(0), read, project),
-      legs.seeds(placed(1), read, project),
+    const swivels: readonly [
+      IAutoMovieMotionHumanResolveHumanPosture.INear,
+      IAutoMovieMotionHumanResolveHumanPosture.INear,
+    ] = [
+      chains.seeds(placed(posed, pinned, 0, read, project), read, project),
+      chains.seeds(placed(posed, pinned, 1, read, project), read, project),
     ];
-    const chains: prepareSupportHeldLegs.IReader = legs;
-    const reach: readonly [number, number] = sunk;
-    const swivels: NonNullable<typeof ends> = ends;
     // The exact lift at a share: the held legs fitted at the bounded root,
     // continuing the ends' swivels carried by the share, and the root raised
     // by what they still sink, at most LIFTS times.
     const exact: prepareSupportLiftCourse.Exact = (s: number): number => {
-      const start: IAutoMovieMotionHumanPosture = s === w ? bounded : placed(s);
+      const start: IAutoMovieMotionHumanPosture = placed(
+        posed,
+        pinned,
+        s,
+        read,
+        project,
+      );
       const near: IAutoMovieMotionHumanResolveHumanPosture.INear =
         chains.between(swivels[0], swivels[1], s);
       const allowed: number = reach[0] + (reach[1] - reach[0]) * s;
@@ -262,47 +250,127 @@ export function prepareSupportInterval(
     // The lift is planned once on the share and read by every sample
     // (`prepareSupportLiftCourse`): the held legs are fitted at its knots
     // alone, not at every displayed second.
-    return {
-      ...bounded,
-      root: { ...bounded.root, y: bounded.root.y + lifts.read(w, exact) },
-    };
+    return { pinned, lifts: prepareSupportLiftCourse(least, exact) };
   };
-  let legs: prepareSupportHeldLegs.IReader | null | undefined;
-  let sunk: readonly [number, number] | undefined;
-  let ends:
-    | readonly [
-        IAutoMovieMotionHumanResolveHumanPosture.INear,
-        IAutoMovieMotionHumanResolveHumanPosture.INear,
-      ]
-    | undefined;
-  let settled: IAutoMovieMotionHumanPosture | undefined;
-  // The lift course splits no finer than the frame grid's share of the
-  // interval's seconds.
-  const lifts: prepareSupportLiftCourse.ICourse = prepareSupportLiftCourse(
-    AutoMovieMotionHumanArmCourse.STEP /
-      Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP),
-  );
-  return {
-    // A stationary key keeps the same planted goals through compositing.
-    write:
-      a.posture !== b.posture
-        ? write
-        : (
-            ...[_share, resolution, projection]: Parameters<IInterval["write"]>
-          ): IAutoMovieMotionHumanPosture => {
-            settled ??= write(0, resolution, projection);
-            return settled;
+  const write: IInterval["write"] = (
+    w: number,
+    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+    projection?: ReturnType<typeof prepareHumanPostureProjection>,
+  ): IAutoMovieMotionHumanPosture => {
+    const read: ReturnType<typeof prepareHumanPoseResolution> =
+      prepareHumanPoseResolution(resolution);
+    const project: ReturnType<typeof prepareHumanPostureProjection> =
+      projection ?? prepareHumanPostureProjection(body);
+    if (prepared.pinned === undefined) {
+      const shaped: IAutoMovieMotionHumanPosture = blend(w);
+      return {
+        ...shaped,
+        root: {
+          ...shaped.root,
+          y: Math.max(shaped.root.y, floor(shaped, read, project)),
+        },
+      };
+    }
+    const bounded: IAutoMovieMotionHumanPosture = placed(
+      posed,
+      prepared.pinned,
+      w,
+      read,
+      project,
+    );
+    return prepared.lifts === undefined
+      ? bounded
+      : {
+          ...bounded,
+          root: {
+            ...bounded.root,
+            y: bounded.root.y + prepared.lifts.read(w),
           },
+        };
+  };
+  // A stationary key keeps the same planted goals through compositing: its
+  // one posture is written once with each preparation.
+  const still: () => IAutoMovieMotionHumanPosture | undefined = ():
+    | IAutoMovieMotionHumanPosture
+    | undefined => (a.posture !== b.posture ? undefined : write(0));
+  let prepared: IPrepared = prepare();
+  let stationary: IAutoMovieMotionHumanPosture | undefined = still();
+  return {
+    write: (
+      w: number,
+      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
+      projection?: ReturnType<typeof prepareHumanPostureProjection>,
+    ): IAutoMovieMotionHumanPosture =>
+      stationary ?? write(w, resolution, projection),
     settle: (): void => {
-      settled = undefined;
-      fixed = undefined;
-      frames = undefined;
-      ends = undefined;
-      lifts.clear();
+      prepared = prepare();
+      stationary = still();
     },
   };
 }
 
+/**
+ * The bounded posture at a share: the blend, the pin carried from where the key
+ * before achieved it to where the key after does (so the course meets each
+ * key's own posture at its ends), each held hand or foot where the keys hold
+ * it, fitted by the limb's own chain, and the floor bound.
+ *
+ * @param posed The interval's body, blend, pin and floor bound.
+ * @param pinned The prepared pin points and held frames.
+ * @param s The interval's share.
+ * @param read The FK reader.
+ * @param project The ROM projection.
+ * @returns The bounded posture.
+ */
+function placed(
+  posed: IPosed,
+  pinned: IPinned,
+  s: number,
+  read: ReturnType<typeof prepareHumanPoseResolution>,
+  project: ReturnType<typeof prepareHumanPostureProjection>,
+): IAutoMovieMotionHumanPosture {
+  const blended: IAutoMovieMotionHumanPosture = posed.blend(s);
+  const fused:
+    | ReturnType<ReturnType<typeof prepareSupportPinFloor>>
+    | undefined =
+    prepareHumanPoseResolution.isNativeSource(read) &&
+    project === posed.body.projection
+      ? pinned.fixed.pinFloor(blended, read, project)
+      : undefined;
+  const now: IAutoMovieVector3 =
+    fused === undefined
+      ? pinned.fixed.originalPoint(blended, read, project)[0]!
+      : fused.point;
+  const at: IAutoMovieVector3 = Vector3.lerp(
+    pinned.fixed.held,
+    pinned.fixed.arrived,
+    s,
+  );
+  const goals: IAutoMovieMotionHumanPosture["limbs"] = { ...blended.limbs };
+  for (const frame of pinned.frames) goals[frame.limb] = heldGoal(frame, s);
+  const moved: IAutoMovieMotionHumanPosture = {
+    ...blended,
+    root: {
+      x: blended.root.x + at.x - now.x,
+      y: blended.root.y + at.y - now.y,
+      z: blended.root.z + at.z - now.z,
+    },
+    limbs: goals,
+  };
+  // The hand pin can carry the hip above a raised foot's reachable
+  // height between keys. Retain the target and limit the hip first.
+  const reachable: IAutoMovieMotionHumanPosture = pinned.elevatedFoot
+    ? lowerHumanPosture(posed.body, moved, undefined, read)
+    : moved;
+  const low: number =
+    reachable === moved
+      ? (fused?.floor ?? posed.floor(moved, read, project))
+      : posed.floor(reachable, read, project);
+  return {
+    ...reachable,
+    root: { ...reachable.root, y: Math.max(reachable.root.y, low) },
+  };
+}
 /**
  * The hands and feet among the contacts both keys hold, one per limb in contact
  * order.

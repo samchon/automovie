@@ -10,7 +10,7 @@ Join the two feasible contact heights with zero terminal slope. The lifted leg c
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Bracket a requested second between successive contacts, resolve only its two boundary heights and apply the phase envelope.
+Settle every contact height and every footfall's residual once as the walk is planned; a requested second is bracketed between successive contacts, reads their two heights and applies the phase envelope.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,12 +18,12 @@ Bounds the original planned root without changing a foot, support interval or en
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Sorts contact starts once. Binary search is logarithmic per query and each contact's static geometry is evaluated once on demand.
+Sorts contact starts once and settles one ground solve per contact and one claim per footfall at plan time. Binary search is logarithmic per query.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the same grounded leg geometry, excursion and original time as the gait; later queries of a stride reuse only its two geometric limits.
+Uses the same grounded leg geometry, excursion and original time as the gait; every query of a stride reads its two prepared limits.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The plan owns contact times, one height per sampled boundary and one residual per requested landing, independent of displayed frame count.
+The plan owns contact times, one height per contact boundary and one residual per footfall, independent of displayed frame count.

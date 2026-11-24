@@ -36,14 +36,13 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanVariation } from "../compose/AutoMovieMotionHumanVariation";
 import { AutoMovieMotionHumanVariationPlace } from "../compose/AutoMovieMotionHumanVariationPlace";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
-import { HumanBound } from "../law/HumanBound";
 import { HumanPhysics } from "../law/HumanPhysics";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanHandShape } from "../posture/HumanHandShape";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanEffort } from "./HumanEffort";
+import { gestureAdmit } from "./gestureAdmit";
 import { gestureHands } from "./gestureHands";
 import { gestureJoints } from "./gestureJoints";
 import { gestureStroke } from "./gestureStroke";
@@ -57,9 +56,6 @@ type IPlanPriorHand = {
   request: IAutoMovieMotionHumanArmTarget.ISided;
   fingers: IAutoMovieMotionHumanPosture["joints"];
 };
-
-/** The alternatives of `PlanSidesWhich`'s site. */
-type PlanSidesWhich = "one" | "both" | "none";
 
 /**
  * A communicative gesture while standing: the hand, head or trunk moves through
@@ -187,39 +183,10 @@ export namespace gesture {
     );
     const rhythm: (typeof gestureStrokeTables.RHYTHM)[IAutoMovieMotionHumanGestureStroke.Kind] =
       gestureStrokeTables.RHYTHM[p.kind];
-    const cycles: number = p.count ?? rhythm.cycles;
-    HumanBound.whole("count", cycles);
-    const hold: number = p.hold ?? 0;
-    HumanBound.least("hold", hold, 0, "s");
-    const depth: number = p.depth ?? BOW;
-    if (p.kind === "bow")
-      HumanBound.within("depth", depth, 0, DEEPEST_BOW, "degrees", "minimum");
-    if (p.kind === "point" && p.target === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "target",
-        value: undefined,
-        reason: "Pointing needs a target",
-        fix: "give the point gesture a target",
-      });
-    if (p.aim !== undefined && p.shape === undefined)
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "aim",
-        value: p.aim,
-        reason:
-          "an aim points a digit of the hand's emblem shape, and no shape is given",
-        fix: "give the gesture a shape whose digit is aimed, or leave out aim",
-      });
-
-    const sides: AutoMovieHumanSide[] = ((): AutoMovieHumanSide[] => {
-      const which: PlanSidesWhich = gestureStrokeTables.HANDS[p.kind];
-      return which === "both"
-        ? ["left", "right"]
-        : which === "one"
-          ? [p.hand ?? "right"]
-          : [];
-    })();
+    const { cycles, hold, depth, sides }: gestureAdmit.IAdmitted = gestureAdmit(
+      p,
+      rhythm,
+    );
     const target: (seconds: number) => IAutoMovieVector3 | undefined = (
       seconds: number,
     ): IAutoMovieVector3 | undefined =>

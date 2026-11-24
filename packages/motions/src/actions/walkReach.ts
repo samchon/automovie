@@ -377,9 +377,30 @@ export namespace walkReach {
     };
     const placed: IGround["feet"] = {} as IGround["feet"];
     const contacts: IGround["contacts"] = {} as IGround["contacts"];
-    const readers: Partial<
-      Record<AutoMovieHumanSide, ReturnType<typeof walkReachStance.prepare>>
-    > = {};
+    // Each stance's reader, prepared once for this solve.
+    const readers: Record<
+      AutoMovieHumanSide,
+      ReturnType<typeof walkReachStance.prepare>
+    > = {
+      left: walkReachStance.prepare(
+        body,
+        "left",
+        feet.left,
+        yaw,
+        pivots.left,
+        rocker,
+        dorsal.left,
+      ),
+      right: walkReachStance.prepare(
+        body,
+        "right",
+        feet.right,
+        yaw,
+        pivots.right,
+        rocker,
+        dorsal.right,
+      ),
+    };
     const read: Record<AutoMovieHumanSide, Map<number, IReadEntryEntry>> = {
       left: new Map(),
       right: new Map(),
@@ -404,17 +425,7 @@ export namespace walkReach {
         const known: IGroundPlaceKnown | undefined = inactive
           ? undefined
           : read[side].get(drop);
-        const out: IGroundPlaceOut =
-          known ??
-          (readers[side] ??= walkReachStance.prepare(
-            body,
-            side,
-            feet[side],
-            yaw,
-            pivots[side],
-            rocker,
-            dorsal[side],
-          ))(hip(side, drop));
+        const out: IGroundPlaceOut = known ?? readers[side](hip(side, drop));
         if (!inactive && known === undefined) read[side].set(drop, out);
         placed[side] = out.end;
         contacts[side] = out.contact;

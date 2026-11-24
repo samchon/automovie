@@ -78,14 +78,6 @@ type EndItemEntry = 0 | 1;
 
 /**
  * Resolve the score over the seated entry's existing supports.
- *
- * @evidence contracts/development/common.md#meaningful-documentation Describes the placement, score fields, admission and synchronized outcomes.
- * @evidence contracts/development/implementation.md#principled-implementation Reuses the keyed manipulation wrist fit and the button's model frame and range. The finger and button use the same minimum-jerk fraction of the measured dip.
- * @evidence contracts/development/implementation.md#clear-and-simple-structure Admit the score, resolve each hand voicing, then publish the hand paths and independent key drives.
- * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Uses actual prop articulation geometry and caller-specified fingering and timing.
- * @evidence contracts/development/implementation.md#efficient-algorithms Fit both wrists at each checked boundary. A posture reads the current or upcoming voicing from each hand's ordered timeline.
- * @evidence contracts/development/implementation.md#reuse-equivalent-work Each voicing retains the common wrist, key endpoints and resting fingering for all posture samples.
- * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Retains only resolved notes, entry supports and base posture.
  */
 function plan(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanPianoScore>,

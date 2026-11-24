@@ -7,7 +7,6 @@ import {
   hingedArmSwivel,
   physicalShapeBounds,
   physicalShapeNearest,
-  physicalShapePairDistance,
   prepareChainPlant,
 } from "@automovie/engine";
 import type {
@@ -17,25 +16,16 @@ import type {
   IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanEntryState,
-  IAutoMoviePhysicalShape,
-  IAutoMovieResolvedBone,
-  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
+import { fitSeatedAnkleCrossShape } from "./fitSeatedAnkleCrossShape";
+import { fitSeatedAnkleCrossSweep } from "./fitSeatedAnkleCrossSweep";
 
 interface ILegPose {
   hip: IAutoMovieJointPose;
   knee: IAutoMovieJointPose;
-}
-
-interface IShape {
-  bone: AutoMovieHumanoidBone;
-  pose: IAutoMovieRigidTransform;
-  shape: IAutoMoviePhysicalShape;
-  bounds: ReturnType<typeof physicalShapeBounds>;
 }
 
 const RAD = Math.PI / 180;
@@ -45,6 +35,41 @@ const RAD = Math.PI / 180;
  * fit.
  */
 const SURFACE_PRECISION = 0.00005;
+
+interface IReading {
+  moving: fitSeatedAnkleCrossShape.IShape[];
+  ankle: IAutoMovieVector3;
+  order: number;
+}
+
+const ANGLES = ["flexion", "abduction", "twist"] as const;
+
+function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
+  return ANGLES.reduce(
+    (total, angle) => total + Math.abs((a[angle] ?? 0) - (b[angle] ?? 0)),
+    0,
+  );
+}
+
+/** Timing is a separate concern from the certified segment's angle curve. */
+function interpolateSeatedAnkleCross(
+  a: ILegPose,
+  b: ILegPose,
+  t: number,
+): ILegPose {
+  const angle = (a: number | null, b: number | null): number =>
+    (a ?? 0) + ((b ?? 0) - (a ?? 0)) * t;
+  const between = (
+    from: IAutoMovieJointPose,
+    to: IAutoMovieJointPose,
+  ): IAutoMovieJointPose => ({
+    bone: from.bone,
+    flexion: angle(from.flexion, to.flexion),
+    abduction: angle(from.abduction, to.abduction),
+    twist: angle(from.twist, to.twist),
+  });
+  return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
+}
 
 /**
  * Fit the ankle against the carrying leg's posed body; first travel outside
@@ -105,7 +130,7 @@ export function fitSeatedAnkleCross(
     hip: startHip,
     knee: startKnee,
   };
-  const carry = readShapes(
+  const carry = fitSeatedAnkleCrossShape.readShapes(
     body,
     new Set<AutoMovieHumanoidBone>([
       otherUpper,
@@ -120,7 +145,7 @@ export function fitSeatedAnkleCross(
     ),
     bearing,
   );
-  const readMoving = readShapes(
+  const readMoving = fitSeatedAnkleCrossShape.readShapes(
     body,
     new Set<AutoMovieHumanoidBone>([upper, lower, foot, `${side}Toes`]),
   );
@@ -166,14 +191,17 @@ export function fitSeatedAnkleCross(
   };
   // The adjoining thigh hulls overlap in an ordinary seated entry. All
   // independent leg pairs remain subject to the sweep clearance test.
-  const pairClearance = prepareSweepPlanes(carry, surface.normal);
+  const pairClearance = fitSeatedAnkleCrossSweep(carry, surface.normal);
   const clearance = (reading: IReading, sweep: number): number => {
     let nearest = reading.order;
     for (const moving of reading.moving) {
       nearest = Math.min(nearest, moving.bounds.min.y);
       for (const fixed of carry) {
         if (moving.bone === upper && fixed.bone === otherUpper) continue;
-        const separated = boundsGap(fixed.bounds, moving.bounds);
+        const separated = fitSeatedAnkleCrossShape.boundsGap(
+          fixed.bounds,
+          moving.bounds,
+        );
         nearest = Math.min(
           nearest,
           separated > 0 ? separated : pairClearance(fixed, moving, sweep),
@@ -228,7 +256,10 @@ export function fitSeatedAnkleCross(
   };
   // Read the exact displacement bound from the pose's shape extents. The
   // radii remain valid in all the subsequent rigid rotations about the bone.
-  const radius = (frame: IAutoMovieVector3, row: IShape): number => {
+  const radius = (
+    frame: IAutoMovieVector3,
+    row: fitSeatedAnkleCrossShape.IShape,
+  ): number => {
     const { min, max } = row.bounds;
     return Math.hypot(
       Math.max(Math.abs(min.x - frame.x), Math.abs(max.x - frame.x)),
@@ -298,7 +329,9 @@ export function fitSeatedAnkleCross(
           .flatMap((fixed) =>
             positioned.moving
               .filter((row) => row.bone === lower || row.bone === foot)
-              .map((moving) => distance(fixed, moving)),
+              .map((moving) =>
+                fitSeatedAnkleCrossShape.distance(fixed, moving),
+              ),
           ),
       );
       if (contact >= SURFACE_PRECISION / 2 && contact <= SURFACE_PRECISION) {
@@ -334,211 +367,17 @@ export function fitSeatedAnkleCross(
   return undefined;
 }
 
-interface IReading {
-  moving: IShape[];
-  ankle: IAutoMovieVector3;
-  order: number;
-}
-
-const ANGLES = ["flexion", "abduction", "twist"] as const;
-
-function angleTravel(a: IAutoMovieJointPose, b: IAutoMovieJointPose): number {
-  return ANGLES.reduce(
-    (total, angle) => total + Math.abs((a[angle] ?? 0) - (b[angle] ?? 0)),
-    0,
-  );
-}
-
-/** Timing is a separate concern from the certified segment's angle curve. */
-function interpolateSeatedAnkleCross(
-  a: ILegPose,
-  b: ILegPose,
-  t: number,
-): ILegPose {
-  const angle = (a: number | null, b: number | null): number =>
-    (a ?? 0) + ((b ?? 0) - (a ?? 0)) * t;
-  const between = (
-    from: IAutoMovieJointPose,
-    to: IAutoMovieJointPose,
-  ): IAutoMovieJointPose => ({
-    bone: from.bone,
-    flexion: angle(from.flexion, to.flexion),
-    abduction: angle(from.abduction, to.abduction),
-    twist: angle(from.twist, to.twist),
-  });
-  return { hip: between(a.hip, b.hip), knee: between(a.knee, b.knee) };
-}
-
 /** Interpolate the exact joint-space curve admitted by the fit. */
 export namespace fitSeatedAnkleCross {
   /** Sample one fitted segment independently of its downstream timing. */
   export const interpolate = interpolateSeatedAnkleCross;
 }
 
-function readShapes(
-  body: IAutoMovieMotionHumanBody,
-  bones: ReadonlySet<AutoMovieHumanoidBone>,
-): (
-  frames: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>,
-) => IShape[] {
-  const place = HumanColliders.preparePlaced(body, bones);
-  return (frames) =>
-    place(frames).flatMap(({ bone, pose, shapes }) =>
-      shapes.map((shape) => ({
-        bone,
-        pose,
-        shape,
-        bounds: physicalShapeBounds(pose, shape),
-      })),
-    );
-}
-
-function distance(fixed: IShape, moving: IShape): number {
-  return physicalShapePairDistance(
-    fixed.pose,
-    fixed.shape,
-    moving.pose,
-    moving.shape,
-  );
-}
-
-function boundsGap(
-  a: ReturnType<typeof physicalShapeBounds>,
-  b: ReturnType<typeof physicalShapeBounds>,
-): number {
-  return Math.hypot(
-    Math.max(a.min.x - b.max.x, b.min.x - a.max.x, 0),
-    Math.max(a.min.y - b.max.y, b.min.y - a.max.y, 0),
-    Math.max(a.min.z - b.max.z, b.min.z - a.max.z, 0),
-  );
-}
-
-interface ISweepPlane {
-  rotation: IShape["pose"]["rotation"];
-  fixedMaximum: number;
-  fixedScale: number;
-}
-
-/**
- * An axis from a real material witness certifies a pair only when the actual
- * projected solids are farther apart than the same swept displacement bound.
- * The exact pair distance remains authoritative whenever the plane falls
- * short.
- *
- * This uses the axial projection in Gottschalk, Lin and Manocha (1996), section
- * 5, https://www.cs.cornell.edu/courses/cs667/2005sp/readings/gottschalk96.pdf,
- * alongside a displacement bound as in Tang, Kim and Manocha (2009),
- * https://gamma-web.iacs.umd.edu/papers/documents/articles/2009/tang09.pdf.
- */
-function prepareSweepPlanes(
-  carrying: readonly IShape[],
-  contactNormal: IAutoMovieVector3,
-): (fixed: IShape, moving: IShape, sweep: number) => number {
-  const contact = new Map(
-    carrying.map((shape) => [shape, sweepPlane(contactNormal, shape)] as const),
-  );
-  const witnesses = new Map<
-    IShape,
-    Map<IAutoMoviePhysicalShape, ISweepPlane>
-  >();
-  return (fixed, moving, sweep) => {
-    let pair = witnesses.get(fixed);
-    if (pair === undefined) {
-      pair = new Map();
-      witnesses.set(fixed, pair);
-    }
-    const retained = Math.max(
-      projectedGap(contact.get(fixed), moving),
-      projectedGap(pair.get(moving.shape), moving),
-    );
-    if (retained > sweep) return retained;
-
-    const center = Vector3.scale(
-      Vector3.add(moving.bounds.min, moving.bounds.max),
-      0.5,
-    );
-    const witness = physicalShapeNearest(
-      fixed.pose,
-      fixed.shape,
-      center,
-      center,
-    );
-    const candidate = sweepPlane(witness.normal, fixed);
-    const separation = projectedGap(candidate, moving);
-    if (candidate !== undefined && separation > sweep) {
-      pair.set(moving.shape, candidate);
-      return separation;
-    }
-    return distance(fixed, moving);
-  };
-}
-
-function sweepPlane(
-  direction: IAutoMovieVector3,
-  fixed: IShape,
-): ISweepPlane | undefined {
-  const normal = Vector3.normalize(direction);
-  if (!(Vector3.length(normal) > 0)) return undefined;
-  const axis = Vector3.cross(normal, { x: 0, y: 1, z: 0 });
-  const sine = Vector3.length(axis);
-  const rotation =
-    sine > Number.EPSILON
-      ? Quaternion.fromAxisAngle(axis, Math.atan2(sine, normal.y) / RAD)
-      : Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, normal.y >= 0 ? 0 : 180);
-  const fixedMaximum = physicalShapeBounds(
-    {
-      position: {
-        x: 0,
-        y: Quaternion.rotateVectorY(rotation, fixed.pose.position),
-        z: 0,
-      },
-      rotation: Quaternion.multiply(rotation, fixed.pose.rotation),
-    },
-    fixed.shape,
-  ).max.y;
-  return { rotation, fixedMaximum, fixedScale: projectionScale(fixed) };
-}
-
-function projectedGap(plane: ISweepPlane | undefined, moving: IShape): number {
-  if (plane === undefined) return -Infinity;
-  const movingMinimum = physicalShapeBounds.lowestFromParent(
-    Quaternion.rotateVectorY(plane.rotation, moving.pose.position),
-    Quaternion.multiply(plane.rotation, moving.pose.rotation),
-    moving.shape,
-  );
-  // Both extrema use the same rotated axis. Bound roundoff against the terms
-  // before cancellation, using a 64-operation binary64 error bound for the
-  // quaternion compositions, projections, normalization and subtraction.
-  // Borderline projections go to the original exact pair query.
-  const operations = 64 * Number.EPSILON;
-  const roundoff =
-    (operations / (1 - operations)) *
-    (plane.fixedScale + projectionScale(moving));
-  return movingMinimum - plane.fixedMaximum - roundoff;
-}
-
-function projectionScale(row: IShape): number {
-  const { position } = row.pose;
-  const origin = row.shape.transform.position;
-  const { min, max } = row.bounds;
-  return (
-    1 +
-    Math.abs(position.x) +
-    Math.abs(position.y) +
-    Math.abs(position.z) +
-    Math.abs(origin.x) +
-    Math.abs(origin.y) +
-    Math.abs(origin.z) +
-    Math.max(Math.abs(min.x - position.x), Math.abs(max.x - position.x)) +
-    Math.max(Math.abs(min.y - position.y), Math.abs(max.y - position.y)) +
-    Math.max(Math.abs(min.z - position.z), Math.abs(max.z - position.z))
-  );
-}
 /** The record of `IUpperSurfaceResult`'s site. */
 type IUpperSurfaceResult = { y: number; normal: IAutoMovieVector3 };
 
 function upperSurface(
-  rows: readonly IShape[],
+  rows: readonly fitSeatedAnkleCrossShape.IShape[],
   station: IAutoMovieVector3,
 ): IUpperSurfaceResult | undefined {
   let top: ReturnType<typeof upperSurface>;

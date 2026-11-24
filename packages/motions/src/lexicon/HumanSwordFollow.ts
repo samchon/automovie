@@ -37,8 +37,9 @@ import type {
  * instant. The following moves only the hand, never the region a target names
  * on the trunk, so a read of this performer made while its own following is
  * being evaluated sees its body without that hand correction, and the mutual
- * reads end there. Reads made during schedule resolution can see a half-placed
- * performance, so the plan's settle drops them.
+ * reads end there. The target is read once, as the plan is made, the read
+ * placing the partner first in the schedule's demand order; settle keeps
+ * nothing to drop.
  *
  * @param context The attack's context.
  * @param planned The target point the attack was planned on, read at its start,
@@ -46,7 +47,7 @@ import type {
  * @param contact The decisive instant, seconds since the action's start;
  *   positive.
  * @returns The follower: the displacement at a second since the action's start,
- *   world metres, and the settle that drops its read.
+ *   world metres, and a settle with nothing left to drop.
  */
 export function HumanSwordFollow(
   context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSword.IAttack>,
@@ -60,49 +61,39 @@ export function HumanSwordFollow(
       settle: (): void => {},
     };
 
-  // A person's region is read on their displayed bones; a prop's point
-  // through the context.
-  let region: IAutoMovieHumanoidSurfaces.IFrame | undefined;
-  const read = (at: number): IAutoMovieVector3 => {
-    if (target.kind !== "person") return context.aim(target, at).point;
+  // The target where it is at the decisive instant, read once as the plan is
+  // made: a person's region on their displayed bones (the read places that
+  // person first in the schedule's demand order), a prop's point through the
+  // context.
+  const point: IAutoMovieVector3 = ((): IAutoMovieVector3 => {
+    if (target.kind !== "person")
+      return context.aim(target, context.start + contact).point;
     const other: IAutoMovieMotionHumanPerformerReader = context.performer(
       target.subject,
     );
-    region ??= other.body.surfaces.regions[target.region];
+    const region: IAutoMovieHumanoidSurfaces.IFrame =
+      other.body.surfaces.regions[target.region];
     return resolveAutoMovieHumanoidSurfaces.place(
       region,
       other
-        .bones(at, new Set<AutoMovieHumanoidBone>([region.bone]))
+        .bones(
+          context.start + contact,
+          new Set<AutoMovieHumanoidBone>([region.bone]),
+        )
         .get(region.bone)!,
     ).point;
+  })();
+  const unit: IAutoMovieSuperposeMinimumJerk.IUnit = {
+    displacement: Vector3.subtract(point, planned),
+    start: 0,
+    duration: contact,
   };
-  let unit: IAutoMovieSuperposeMinimumJerk.IUnit | undefined;
-  let busy: boolean = false;
   return {
-    at: (seconds: number): IAutoMovieVector3 => {
-      if (seconds <= 0 || busy) return { x: 0, y: 0, z: 0 };
-      busy = true;
-      try {
-        unit ??= {
-          displacement: Vector3.subtract(
-            read(context.start + contact),
-            planned,
-          ),
-          start: 0,
-          duration: contact,
-        };
-        return superposeMinimumJerk.position(
-          { x: 0, y: 0, z: 0 },
-          [unit],
-          seconds,
-        );
-      } finally {
-        busy = false;
-      }
-    },
-    settle: (): void => {
-      unit = undefined;
-    },
+    at: (seconds: number): IAutoMovieVector3 =>
+      seconds <= 0
+        ? { x: 0, y: 0, z: 0 }
+        : superposeMinimumJerk.position({ x: 0, y: 0, z: 0 }, [unit], seconds),
+    settle: (): void => {},
   };
 }
 
