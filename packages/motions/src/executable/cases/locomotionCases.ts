@@ -14,8 +14,7 @@ import { locomotionCase } from "./locomotionCase";
 
 /** The record of `ILocomotionCasesAllItem`'s site. */
 type ILocomotionCasesAllItem = {
-  law: AllLawItem;
-  pace: string;
+  gait: locomotionCase.IGait;
   froude: number;
   label: string;
   to: IAutoMovieVector3;
@@ -24,9 +23,6 @@ type ILocomotionCasesAllItem = {
 
 /** The alternatives of `AllExtraItem`'s site. */
 type AllExtraItem = "to" | "pace";
-
-/** The alternatives of `AllLawItem`'s site. */
-type AllLawItem = "walk" | "run";
 
 /** The record of `ILocomotionCasesPrepared`'s site. */
 type ILocomotionCasesPrepared = {
@@ -116,7 +112,10 @@ export function* locomotionCases(
       ...(who === "m-average"
         ? [
             {
-              gait: { law: "walk", pace: "normal" } satisfies locomotionCase.IGait,
+              gait: {
+                law: "walk",
+                pace: "normal",
+              } satisfies locomotionCase.IGait,
               froude: walk.FROUDE.normal,
               label: "path",
               to: { x: 1.5, y: 0, z: 4 },

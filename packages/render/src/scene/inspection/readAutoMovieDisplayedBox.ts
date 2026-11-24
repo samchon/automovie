@@ -7,6 +7,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { createDualQuaternionSkinningShaderPatch } from "../dualQuaternionSkinning/createDualQuaternionSkinningShaderPatch.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** Program identity from the owned dual-quaternion shader builder. */
 const DUAL_QUATERNION_KEY: string =
@@ -39,8 +40,8 @@ function proveLocalBox(geometry: THREE.BufferGeometry): THREE.Box3 | null {
   const points = geometry.getAttribute("position");
   const indices: THREE.BufferAttribute | null = geometry.getIndex();
   if (
-    !(points instanceof THREE.BufferAttribute) ||
-    !(points.array instanceof Float32Array) ||
+    !(AutoMovieThreeKind.isBufferAttribute(points)) ||
+    !(AutoMovieThreeKind.isFloat32Array(points.array)) ||
     points.itemSize !== 3 ||
     points.normalized ||
     indices?.normalized ||
@@ -164,10 +165,10 @@ export namespace readAutoMovieDisplayedBox {
    */
   export function supportsStockSurface(material: THREE.Material): boolean {
     return (
-      (material instanceof THREE.MeshStandardMaterial ||
-        material instanceof THREE.MeshBasicMaterial ||
-        material instanceof THREE.MeshLambertMaterial ||
-        material instanceof THREE.MeshPhongMaterial) &&
+      (AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+        AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+        AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+        AutoMovieThreeKind.isMeshPhongMaterial(material)) &&
       material.visible &&
       !material.transparent &&
       !material.wireframe &&
@@ -188,7 +189,7 @@ export namespace readAutoMovieDisplayedBox {
     mesh: THREE.Mesh,
     material: THREE.Material,
   ): boolean {
-    if (!(mesh instanceof AutoMovieSkinnedMesh) || mesh.method === "linear")
+    if (!(AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) || mesh.method === "linear")
       return (
         material.onBeforeCompile === THREE.Material.prototype.onBeforeCompile
       );

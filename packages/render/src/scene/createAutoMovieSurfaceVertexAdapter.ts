@@ -1,5 +1,6 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Share one mesh's posed-point queries and inverse skin differential without
@@ -30,7 +31,7 @@ export function createAutoMovieSurfaceVertexAdapter(mesh: THREE.Mesh): {
       value: IAutoMovieVector3,
     ): IAutoMovieVector3 => {
       point.set(value.x, value.y, value.z);
-      if (mesh instanceof THREE.SkinnedMesh) {
+      if (AutoMovieThreeKind.isSkinnedMesh(mesh)) {
         // Each fixed-weight linear or dual-quaternion skin is affine in its
         // vertex position. These basis images reuse the mesh's canonical blend.
         mesh.applyBoneTransform(index, origin.set(0, 0, 0));

@@ -7,6 +7,7 @@ import * as THREE from "three";
 
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionBounds } from "./measureAutoMovieInspectionBounds.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Measure the world-space box of every chosen path of an inspected scene: of
@@ -58,7 +59,7 @@ export function measureAutoMovieInspectionPaths(props: {
     if (anchor !== null) {
       anchor.updateWorldMatrix(true, false);
       placement.copy(anchor.matrixWorld);
-      if (anchor instanceof THREE.InstancedMesh && anchor.count > 0) {
+      if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
         const instance: THREE.Matrix4 = new THREE.Matrix4();
         anchor.getMatrixAt(0, instance);
         placement.multiply(instance);

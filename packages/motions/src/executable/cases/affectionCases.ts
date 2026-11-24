@@ -22,7 +22,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
-
 /**
  * Capture cases of affectionate and social touch between two polygon men of the
  * same body: `a` touches, `b` stands.

@@ -3,6 +3,7 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 
 import type { IAutoMovieInstancedGeometry } from "./IAutoMovieInstancedGeometry.js";
 import { reportAutoMovieResourceRetirement } from "./reportAutoMovieResourceRetirement.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Clone rigid parts into world-rest geometry in their shared traversal order.
@@ -37,7 +38,7 @@ export const flattenRigidParts: (
         >,
         index: number,
       ): void => {
-        if (mesh instanceof THREE.SkinnedMesh)
+        if (AutoMovieThreeKind.isSkinnedMesh(mesh))
           throw new Error(`${owner} has a skinned source mesh.`);
         if (
           Object.values(mesh.geometry.morphAttributes).some(

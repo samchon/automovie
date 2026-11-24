@@ -3,7 +3,6 @@ import type {
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalFrame,
   IAutoMoviePhysicalRecoveryState,
-  IAutoMoviePhysicalSimulation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -135,14 +134,12 @@ export function test_physical_disturbance_verdicts(): void {
     frames: IAutoMoviePhysicalFrame[],
     recovery: IAutoMoviePhysicalRecoveryState,
     contacts: IAutoMovieContactReceipt[] = receipts(frames.length - 1, 1),
-  ): IAutoMoviePhysicalSimulation["cache"] =>
-    ({
-      frames,
-      recovery: { [ID]: recovery },
-      contacts,
-      supportWrenches: [],
-      duration: (frames.length - 1) / RATE,
-    }) as unknown as IAutoMoviePhysicalSimulation["cache"];
+  ): PhysicalDisturbance.ICache => ({
+    frames,
+    recovery: { [ID]: recovery },
+    contacts,
+    supportWrenches: [],
+  });
   const quiet: IAutoMoviePhysicalRecoveryState = {
     last: "supported",
     steps: [],
@@ -152,19 +149,18 @@ export function test_physical_disturbance_verdicts(): void {
     bone: string,
     start: number,
     resolved: number,
-  ): IAutoMoviePhysicalRecoveryState["steps"][number] =>
-    ({
-      bone,
-      kind: "swing",
-      start,
-      end: resolved,
-      from: { point: [0, 0], yaw: 0, pitch: 0, clearance: 0 },
-      to: { point: [0, 0.1], yaw: 0, pitch: 0, clearance: 0 },
-      resolved: { seconds: resolved, status: "landed" },
-    }) as IAutoMoviePhysicalRecoveryState["steps"][number];
+  ): IAutoMoviePhysicalRecoveryState["steps"][number] => ({
+    bone,
+    kind: "swing",
+    start,
+    end: resolved,
+    from: { point: [0, 0], yaw: 0, pitch: 0, clearance: 0 },
+    to: { point: [0, 0.1], yaw: 0, pitch: 0, clearance: 0 },
+    resolved: { seconds: resolved, status: "landed" },
+  });
   const judge = (
     name: PhysicalDisturbance.Outcome,
-    record: IAutoMoviePhysicalSimulation["cache"],
+    record: PhysicalDisturbance.ICache,
   ): PhysicalDisturbance.IVerdict =>
     PhysicalDisturbance.judge(subject, name, record, ID, false);
   const passes = (verdict: PhysicalDisturbance.IVerdict): boolean =>
@@ -259,7 +255,7 @@ export function test_physical_disturbance_verdicts(): void {
 
   // 4. Audit: the floor carries the weight, against half of it, a sample off
   // its bone and a landing that never lifted.
-  const audit = (record: IAutoMoviePhysicalSimulation["cache"]): string[] =>
+  const audit = (record: PhysicalDisturbance.ICache): string[] =>
     PhysicalDisturbance.audit(subject, record, ID, body.maximumRootForce);
   const landedOnce: IAutoMoviePhysicalRecoveryState = {
     ...quiet,

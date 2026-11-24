@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * The drawn objects whose every material states a display colour (`toneMapped:
@@ -18,7 +19,7 @@ export function collectAutoMovieFilmOverlays(
       materials.length !== 0 &&
       materials.every(
         (entry: unknown): boolean =>
-          entry instanceof THREE.Material && entry.toneMapped === false,
+          AutoMovieThreeKind.isMaterial(entry) && entry.toneMapped === false,
       )
     )
       overlays.set(object, object.layers.mask);

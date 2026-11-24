@@ -24,6 +24,7 @@ import {
   Vector4,
   WebGLCoordinateSystem,
 } from "three";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** A fixed projection-space sample grid inside the admitted bounds rectangle. */
 const SAMPLE_OFFSETS: readonly number[] = [0.2, 0.5, 0.8];
@@ -76,14 +77,14 @@ export function sampleAutoMovieCameraOcclusion(
     if (triangles > triangleBudget || !object.layers.test(camera.layers))
       return;
     if (
-      !(object instanceof Mesh) &&
-      !(object instanceof Line) &&
-      !(object instanceof Points) &&
-      !(object instanceof Sprite)
+      !(AutoMovieThreeKind.isMesh(object)) &&
+      !(AutoMovieThreeKind.isLine(object)) &&
+      !(AutoMovieThreeKind.isPoints(object)) &&
+      !(AutoMovieThreeKind.isSprite(object))
     )
       return;
     const onTarget: boolean = targetMeshes.has(object);
-    if (!(object instanceof Mesh) || !supportsRay(object)) {
+    if (!(AutoMovieThreeKind.isMesh(object)) || !supportsRay(object)) {
       if (onTarget) supportedTarget = false;
       else unsupportedBlocker = true;
       return;
@@ -190,10 +191,10 @@ function supportsRay(mesh: Mesh): boolean {
   const material: Material | Material[] = mesh.material;
   if (
     !(
-      material instanceof MeshBasicMaterial ||
-      material instanceof MeshStandardMaterial ||
-      material instanceof MeshLambertMaterial ||
-      material instanceof MeshPhongMaterial
+      AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieThreeKind.isMeshPhongMaterial(material)
     ) ||
     ![
       MeshBasicMaterial,

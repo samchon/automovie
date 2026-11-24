@@ -39,8 +39,8 @@ import { physicalSupportSpanContacts as Contacts } from "./physicalSupportSpanCo
  */
 export function physicalBalancePlan(input: {
   state: Readonly<IAutoMoviePhysicalRecoveryState>;
-  sense: physicalBalanceSense.ISense;
-  stance: physicalBalanceStance.IStance;
+  sense: physicalBalancePlan.ISense;
+  stance: Pick<physicalBalanceStance.IStance, "planted" | "plane" | "tilt">;
   trace?: IAutoMoviePhysicalBalanceTrace[];
 }): physicalBalancePlan.IResult {
   const { sense, stance } = input;
@@ -110,6 +110,13 @@ export function physicalBalancePlan(input: {
 
 /** The plan phase's result and pendulum rate. */
 export namespace physicalBalancePlan {
+  /** What the plan reads of the body's readings. */
+  export type ISense = physicalAuthoredCapture.ISense &
+    Pick<
+      physicalBalanceSense.ISense,
+      "center" | "velocity" | "gravity" | "floor" | "seconds"
+    >;
+
   /** The plan's result. */
   export interface IResult {
     /** The state after the plan. */
@@ -131,7 +138,7 @@ export namespace physicalBalancePlan {
    * @returns The rate, per second.
    */
   export function omega(
-    sense: physicalBalanceSense.ISense,
+    sense: ISense,
     state: Readonly<IAutoMoviePhysicalRecoveryState>,
   ): number {
     return Math.sqrt(

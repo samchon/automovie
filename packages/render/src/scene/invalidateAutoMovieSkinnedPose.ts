@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Start a new pose revision for every skinned mesh under `root`: their CPU
@@ -16,8 +17,8 @@ import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
  */
 export function invalidateAutoMovieSkinnedPose(root: THREE.Object3D): void {
   root.traverse((object: THREE.Object3D): void => {
-    if (object instanceof AutoMovieSkinnedMesh) object.invalidatePose();
-    else if (object instanceof THREE.SkinnedMesh)
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(object)) object.invalidatePose();
+    else if (AutoMovieThreeKind.isSkinnedMesh(object))
       AutoMovieSkinnedMesh.clearBounds(object);
   });
 }

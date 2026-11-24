@@ -17,6 +17,7 @@ import {
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
 import { readAutoMovieDrawnRanges } from "./readAutoMovieDrawnRanges.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** The delivery camera and a required subject's admitted meshes. */
 interface IProps {
@@ -111,11 +112,11 @@ export function measureAutoMovieCameraNearClip(
   }[] = [];
   let triangles: number = 0;
   for (const mesh of meshes) {
-    if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
     const local: Box3 | null =
-      mesh instanceof AutoMovieSkinnedMesh
+      AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
         ? mesh.boundingBox
         : mesh.geometry.boundingBox;
     if (local === null || local.isEmpty()) continue;
@@ -139,7 +140,7 @@ export function measureAutoMovieCameraNearClip(
       Math.hypot(e[2]!, e[6]!, e[10]!),
     );
     const slack: number =
-      mesh instanceof AutoMovieSkinnedMesh ? mesh.tolerance() * scale : 0;
+      AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ? mesh.tolerance() * scale : 0;
     selected.push({ mesh, ranges, slack });
   }
 
@@ -153,7 +154,7 @@ export function measureAutoMovieCameraNearClip(
     const index: BufferAttribute | null = mesh.geometry.index;
     for (const range of ranges) {
       const opaque: boolean =
-        mesh instanceof AutoMovieSkinnedMesh ||
+        AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh) ||
         readAutoMovieDisplayedBox.supportsStockSurface(range.material);
       for (let i: number = range.start; i + 2 < range.end; i += 3) {
         for (let k: number = 0; k < 3; ++k) {

@@ -9,6 +9,7 @@ import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import type { collectAutoMovieCollisionParts } from "./collectAutoMovieCollisionParts.js";
 import { readAutoMovieCollisionTopology } from "./readAutoMovieCollisionTopology.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Read one ordinary drawn mesh: an exact box, a closed static surface or a
@@ -39,7 +40,7 @@ export function readAutoMovieCollisionMesh(
     return unsupported("morph-targets");
   const topology: readAutoMovieCollisionTopology.ITopology | null =
     readAutoMovieCollisionTopology(mesh.geometry);
-  if (mesh instanceof AutoMovieSkinnedMesh) {
+  if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) {
     const bounds: IAutoMovieSubjectBox | null =
       readAutoMovieDisplayedBox.skinEnvelope(mesh);
     const read: collectAutoMovieCollisionParts.IPartSurface["read"] | null =

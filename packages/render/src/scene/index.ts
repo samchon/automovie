@@ -75,6 +75,7 @@ export * from "./invalidateAutoMovieSceneShadowPrograms.js";
 export * from "./resetAutoMovieSceneShadowTargets.js";
 export * from "./assertAutoMovieSceneShadowProfile.js";
 export * from "./readAutoMovieShadowLightSource.js";
+export * from "./IAutoMovieShadowRetirementHost.js";
 export * from "./IAutoMovieShadowTextureHost.js";
 export * from "./readAutoMovieShadowTextureTargets.js";
 export * from "./readAutoMovieCubeShadowDepth.js";

@@ -2,26 +2,31 @@ import type {
   IAutoMovieMotionHumanStepVault,
   IAutoMovieMotionHumanSupport,
 } from "@automovie/interface";
-import { climbStairsPrints, stepVaultSupport } from "@automovie/motions/internal";
+import {
+  climbStairsPrints,
+  stepVaultSupport,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
  * `stepVaultSupport` lays a step vault's four stances: the palm comes down
  * beside both entry feet (`palmBearing`), the stepping foot takes the ledge
- * (`stepBearing`), the through foot lands beyond it (`throughLanded`), and
- * both feet stand at the exit (`vaultStood`), the through foot on the vaulting
+ * (`stepBearing`), the through foot lands beyond it (`throughLanded`), and both
+ * feet stand at the exit (`vaultStood`), the through foot on the vaulting
  * hand's side. `climbStairsPrints.schedule` orders a flight's steps: step over
  * step alternates from the lead and closes with the other foot on the top
- * tread; step to step brings each foot to every tread.
+ * tread; step by step brings each foot to every tread.
  *
  * Scenarios, a right-hand vault over a ledge `l` with entry and exit points:
  *
  * 1. The four stances name their contacts in order, the left foot stepping.
- * 2. Three treads step over step from the right: right 1, left 2, right 3,
- *    left 3; step to step from the left: left 1, right 1, left 2, right 2.
+ * 2. Three treads step over step from the right: right 1, left 2, right 3, left 3;
+ *    step by step from the left: left 1, right 1, left 2, right 2.
  */
 export function test_unit_motions_terrain_step_vault_support(): void {
-  const point = (z: number): IAutoMovieMotionHumanStepVault.Target => ({
+  const point: (z: number) => IAutoMovieMotionHumanStepVault.Target = (
+    z: number,
+  ): IAutoMovieMotionHumanStepVault.Target => ({
     kind: "point",
     frame: "world",
     at: { x: 0, y: 0, z },
@@ -60,8 +65,12 @@ export function test_unit_motions_terrain_step_vault_support(): void {
     ],
     [route.step, route.exit.right, route.exit.left],
   );
-  const steps = (
-    pattern: "stepOverStep" | "stepToStep",
+  const steps: (
+    pattern: "stepOverStep" | "stepByStep",
+    lead: "left" | "right",
+    count: number,
+  ) => string[] = (
+    pattern: "stepOverStep" | "stepByStep",
     lead: "left" | "right",
     count: number,
   ): string[] =>
@@ -70,7 +79,7 @@ export function test_unit_motions_terrain_step_vault_support(): void {
       .map((s: climbStairsPrints.IStep): string => `${s.side}${s.level}`);
   TestValidator.equals(
     "the schedules",
-    [steps("stepOverStep", "right", 3), steps("stepToStep", "left", 2)],
+    [steps("stepOverStep", "right", 3), steps("stepByStep", "left", 2)],
     [
       ["right1", "left2", "right3", "left3"],
       ["left1", "right1", "left2", "right2"],

@@ -8,6 +8,7 @@ import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.
 import { createAutoMovieInspectionDots } from "./createAutoMovieInspectionDots.js";
 import { createAutoMovieInspectionStrokes } from "./createAutoMovieInspectionStrokes.js";
 import { followAutoMovieInspectionSource } from "./followAutoMovieInspectionSource.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Build marks into drawable lines and points, one line object and one points
@@ -268,7 +269,7 @@ function markChanged(geometry: THREE.BufferGeometry): void {
     geometry.getAttribute(
       geometry.hasAttribute("instanceStart") ? "instanceStart" : "position",
     );
-  if (attribute instanceof THREE.InterleavedBufferAttribute)
+  if (AutoMovieThreeKind.isInterleavedBufferAttribute(attribute))
     attribute.data.needsUpdate = true;
   else attribute.needsUpdate = true;
 }
@@ -287,7 +288,7 @@ function place(
     if (object.parent !== null)
       object.matrix.copy(object.parent.matrixWorld).invert();
     object.updateMatrixWorld(true);
-  } else if (anchor instanceof THREE.InstancedMesh && anchor.count > 0) {
+  } else if (AutoMovieThreeKind.isInstancedMesh(anchor) && anchor.count > 0) {
     anchor.getMatrixAt(0, instance);
     followAutoMovieInspectionSource(object, anchor, instance);
   } else followAutoMovieInspectionSource(object, anchor);

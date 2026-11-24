@@ -9,6 +9,7 @@ import { clipAutoMovieSurfaceGraphicGeometry } from "./clipAutoMovieSurfaceGraph
 import { createAutoMovieSurfaceGraphicMaterial } from "./createAutoMovieSurfaceGraphicMaterial.js";
 import { createAutoMovieSurfaceGraphicQuad } from "./createAutoMovieSurfaceGraphicQuad.js";
 import { createAutoMovieSurfaceGraphicText } from "./createAutoMovieSurfaceGraphicText.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Build one key's graphic as a group of flat meshes on the face.
@@ -224,7 +225,7 @@ function mesh(
   owned.push(geometry, material);
   const result: THREE.Mesh = new THREE.Mesh(geometry, material);
   result.castShadow = false;
-  result.receiveShadow = material instanceof THREE.MeshLambertMaterial;
+  result.receiveShadow = AutoMovieThreeKind.isMeshLambertMaterial(material);
   return result;
 }
 

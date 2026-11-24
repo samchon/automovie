@@ -5,6 +5,7 @@ import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasure
 import type { IAutoMovieInspectionPath } from "./IAutoMovieInspectionPath.js";
 import { measureAutoMovieInspectionDefects } from "./measureAutoMovieInspectionDefects.js";
 import { measureAutoMovieInspectionEdges } from "./measureAutoMovieInspectionEdges.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Find the meshes an inspection draws and measure on them the kinds it measures
@@ -40,7 +41,7 @@ export function measureAutoMovieInspectionMeshes(props: {
   const meshes: { path: string; mesh: THREE.Mesh }[] = [];
   for (const { path, object } of props.drawn)
     if (
-      object instanceof THREE.Mesh &&
+      AutoMovieThreeKind.isMesh(object) &&
       (object as { isBatchedMesh?: boolean }).isBatchedMesh !== true &&
       object.geometry.hasAttribute("position") &&
       shown(object)

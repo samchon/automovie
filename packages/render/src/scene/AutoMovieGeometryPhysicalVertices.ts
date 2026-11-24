@@ -1,6 +1,7 @@
 import { resolveAutoMovieMeshPhysicalVertices } from "@automovie/engine";
 import type { IAutoMovieMesh } from "@automovie/interface";
 import type * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Owned physical source correspondence on generated geometry, or readonly
@@ -46,7 +47,7 @@ export class AutoMovieGeometryPhysicalVertices {
         attribute === undefined ||
         attribute.itemSize !== 2 ||
         attribute.normalized ||
-        !(attribute.array instanceof Uint16Array)
+        !(AutoMovieThreeKind.isUint16Array(attribute.array))
       )
         throw new Error("Malformed physical source wire namespace.");
       const vertices: (number | null)[] = [];
@@ -73,7 +74,7 @@ export class AutoMovieGeometryPhysicalVertices {
       position === undefined ||
       position.itemSize !== 3 ||
       position.normalized ||
-      !(position.array instanceof Float32Array)
+      !(AutoMovieThreeKind.isFloat32Array(position.array))
     )
       throw new Error(
         "Physical source correspondence needs resident Float32 XYZ.",

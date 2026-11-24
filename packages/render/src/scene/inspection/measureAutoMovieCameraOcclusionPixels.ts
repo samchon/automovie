@@ -9,6 +9,7 @@ import { autoMovieSemanticMaskOf } from "../semanticMask/autoMovieSemanticMaskOf
 import { maskRoots } from "../semanticMask/maskRoots.js";
 import { nearest } from "../semanticMask/nearest.js";
 import { renderAutoMovieCameraOcclusionMasks } from "./renderAutoMovieCameraOcclusionMasks.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** One full audit of an original placed Draw frame. */
 interface IProps {
@@ -155,11 +156,11 @@ export function measureAutoMovieCameraOcclusionPixels(
   let reason: string | undefined;
   scene.traverseVisible((object: THREE.Object3D): void => {
     if (reason !== undefined || !object.layers.test(camera.layers)) return;
-    if (!(object instanceof THREE.Mesh)) {
+    if (!(AutoMovieThreeKind.isMesh(object))) {
       if (
-        object instanceof THREE.Line ||
-        object instanceof THREE.Points ||
-        object instanceof THREE.Sprite
+        AutoMovieThreeKind.isLine(object) ||
+        AutoMovieThreeKind.isPoints(object) ||
+        AutoMovieThreeKind.isSprite(object)
       )
         reason = "unsupported drawable in delivery scene";
       return;
@@ -172,7 +173,7 @@ export function measureAutoMovieCameraOcclusionPixels(
       object.constructor !== THREE.Mesh ||
       !nativeRenderCallbacks(object) ||
       object.geometry.morphAttributes.position?.length ||
-      !(position instanceof THREE.BufferAttribute) ||
+      !(AutoMovieThreeKind.isBufferAttribute(position)) ||
       Array.isArray(material) ||
       !nativeOpaqueMaterial(material)
     ) {
@@ -331,10 +332,10 @@ function nativeRenderCallbacks(object: THREE.Object3D): boolean {
 function nativeOpaqueMaterial(material: THREE.Material): boolean {
   if (
     !(
-      material instanceof THREE.MeshBasicMaterial ||
-      material instanceof THREE.MeshStandardMaterial ||
-      material instanceof THREE.MeshLambertMaterial ||
-      material instanceof THREE.MeshPhongMaterial
+      AutoMovieThreeKind.isMeshBasicMaterial(material) ||
+      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieThreeKind.isMeshPhongMaterial(material)
     ) ||
     ![
       THREE.MeshBasicMaterial,

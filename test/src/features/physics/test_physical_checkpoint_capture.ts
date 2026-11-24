@@ -53,17 +53,33 @@ export function test_physical_checkpoint_capture(): void {
   for (let step: number = 0; step <= 30; step++)
     cache.frames.push({ seconds: step / input.rate, bodies: {} });
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld(input.gravity);
-  const planned: Map<string, unknown> = new Map([["ball", { marker: 10 }]]);
+  // A balance plan told apart by its step alone.
+  const plan = (
+    step: number,
+  ): Parameters<IAutoMoviePhysicalBinding["planned"]["set"]>[1] => ({
+    step,
+    revision: 0,
+    start: 0,
+    from: {},
+    targets: {},
+    rootDrop: 0,
+    residuals: {},
+    fromRootDrop: 0,
+  });
+  const planned: IAutoMoviePhysicalBinding["planned"] = new Map([
+    ["ball", plan(10)],
+  ]);
   const released: Set<string> = new Set();
   // The binding's parts a checkpoint keeps; the run's other parts are not read.
-  const bound: IAutoMoviePhysicalBinding = {
-    released,
-    contactReleased: new Set<string>(),
-    planned,
-    supportPlanned: new Map(),
-    contactTargets: new Map(),
-    handoffs: new Map(),
-  } as unknown as IAutoMoviePhysicalBinding;
+  const bound: Parameters<typeof capturePhysicalSimulationCheckpoint>[0]["bound"] =
+    {
+      released,
+      contactReleased: new Set<string>(),
+      planned,
+      supportPlanned: new Map(),
+      contactTargets: new Map(),
+      handoffs: new Map(),
+    };
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
   const softened: Map<string, number> = new Map();
   const capture = (step: number): void =>
@@ -100,7 +116,7 @@ export function test_physical_checkpoint_capture(): void {
   active.set("floor/ball", open);
   softened.set("ball/root", 0.3);
   released.add("ball");
-  planned.set("ball", { marker: 20 });
+  planned.set("ball", plan(20));
   cache.ownership.push({
     body: "ball",
     bone: "root",
@@ -123,7 +139,7 @@ export function test_physical_checkpoint_capture(): void {
   });
   cache.recovery.ball.last = "recovery";
   cache.recovery.ball.offsets.root!.x = 0.5;
-  planned.set("ball", { marker: 99 });
+  planned.set("ball", plan(99));
   released.add("other");
   softened.set("ball/root", 0.9);
 
@@ -174,7 +190,7 @@ export function test_physical_checkpoint_capture(): void {
         active: [["floor/ball", "open"]],
         softened: [["ball/root", 0.3]],
         released: ["ball"],
-        balanceTargets: { ball: { marker: 20 } },
+        balanceTargets: { ball: plan(20) },
       }),
     },
   );

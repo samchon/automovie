@@ -19,6 +19,7 @@ import { applyDualQuaternionSkinning } from "./dualQuaternionSkinning/index.js";
 import { AutoMovieCollisionSource } from "./inspection/AutoMovieCollisionSource.js";
 import { applyReliefWeights } from "./reliefWeightShading/index.js";
 import { applyMaterialWear } from "./wearShading/index.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Build a renderable `three.js` object from an {@link IAutoMovieModel}.
@@ -270,7 +271,7 @@ export const buildModel: (
           mesh.userData.automovieMorphTargetDrivers = driven;
         if (part.transform !== null) applyTransform(mesh, part.transform);
 
-        if (mesh instanceof THREE.SkinnedMesh && skin !== null) {
+        if (AutoMovieThreeKind.isSkinnedMesh(mesh) && skin !== null) {
           const palette: string = JSON.stringify(skin.joints);
           let skeleton: THREE.Skeleton | undefined = skeletons.get(palette);
           if (skeleton === undefined) {

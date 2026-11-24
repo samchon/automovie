@@ -22,7 +22,7 @@ import { physicalSupportPoint } from "./physicalSupportPoint";
  * @returns The capture point and its rate, world x and z.
  */
 export function physicalAuthoredCapture(
-  sense: physicalBalanceSense.ISense,
+  sense: physicalAuthoredCapture.ISense,
   state: Readonly<IAutoMoviePhysicalRecoveryState>,
   omega: number,
 ): physicalAuthoredCapture.IDesired {
@@ -50,6 +50,11 @@ export namespace physicalAuthoredCapture {
   /** A planned capture point and its rate. */
   export type IDesired = NonNullable<IAutoMoviePhysicalRecoveryState["desired"]>;
 
+  /** What the capture reads of the body's readings. */
+  export type ISense = Pick<physicalBalanceSense.ISense, "command" | "targets"> & {
+    profile: Pick<physicalBalanceSense.ISense["profile"], "segments" | "mass">;
+  };
+
   /**
    * The authored centre of mass moved by the landed root offset, as the
    * authored goals are: the command's (`trackPhysicalWorld`), else the
@@ -60,7 +65,7 @@ export namespace physicalAuthoredCapture {
    * @returns The centre, world metres.
    */
   export function center(
-    sense: physicalBalanceSense.ISense,
+    sense: ISense,
     state: Readonly<IAutoMoviePhysicalRecoveryState>,
   ): IAutoMovieVector3 {
     const offset: IAutoMovieVector3 = state.rootOffset ?? { x: 0, y: 0, z: 0 };

@@ -6,6 +6,7 @@ import { autoMovieInspectionEntityPathOf } from "./autoMovieInspectionEntityPath
 import { readAutoMovieCollisionCord } from "./readAutoMovieCollisionCord.js";
 import { readAutoMovieCollisionInstances } from "./readAutoMovieCollisionInstances.js";
 import { readAutoMovieCollisionMesh } from "./readAutoMovieCollisionMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Read every visible drawn object of one placed layer as collision parts.
@@ -71,7 +72,7 @@ export function collectAutoMovieCollisionParts(
             },
             parts: members,
           };
-    if (object instanceof THREE.Mesh)
+    if (AutoMovieThreeKind.isMesh(object))
       meshes.push({
         mesh: object,
         ...(assembly?.parts.has(object) ? { group: assembly.group } : {}),
@@ -114,7 +115,7 @@ export function collectAutoMovieCollisionParts(
       AutoMovieCollisionSource.cord(mesh);
     if (cord !== undefined)
       readAutoMovieCollisionCord(mesh, identity, cord, budget, add);
-    else if (mesh instanceof THREE.InstancedMesh)
+    else if (AutoMovieThreeKind.isInstancedMesh(mesh))
       readAutoMovieCollisionInstances(mesh, identity, budget, add);
     else
       readAutoMovieCollisionMesh(

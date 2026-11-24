@@ -2,7 +2,13 @@ import { markAutoMovieSkeleton } from "@automovie/engine";
 import type {
   IAutoMovieMark,
   IAutoMoviePhysicalFrame,
+  IAutoMoviePhysicalJoint,
   IAutoMoviePhysicalProfile,
+  IAutoMoviePhysicalSegment,
+  IAutoMoviePhysicalSegmentState,
+  IAutoMovieQuaternion,
+  IAutoMovieRigidTransform,
+  IAutoMovieVector3,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -22,30 +28,60 @@ import { TestValidator } from "@nestia/e2e";
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-bone chain of three segments, root, mid and tip, joined root to mid and mid to tip).
  */
 export function test_mark_skeleton(): void {
-  const profile = (bones: string[]): IAutoMoviePhysicalProfile =>
-    ({
-      segments: bones.map((bone: string) => ({ bone })),
-      joints: bones
-        .slice(1)
-        .map((child: string, i: number) => ({ parent: bones[i]!, child })),
-    }) as unknown as IAutoMoviePhysicalProfile;
+  const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+  const identity: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
+  const rest: IAutoMovieRigidTransform = { position: zero, rotation: identity };
+  const profile = (bones: string[]): IAutoMoviePhysicalProfile => ({
+    id: bones.join("-"),
+    mass: bones.length,
+    centerOfMass: zero,
+    materials: [],
+    provenance: "test chain",
+    segments: bones.map(
+      (bone: string): IAutoMoviePhysicalSegment => ({
+        bone,
+        neutral: rest,
+        mass: 1,
+        centerOfMass: zero,
+        inertia: { x: 1, y: 1, z: 1 },
+        inertiaRotation: identity,
+        shapes: [],
+      }),
+    ),
+    joints: bones.slice(1).map(
+      (child: string, i: number): IAutoMoviePhysicalJoint => ({
+        id: child,
+        parent: bones[i]!,
+        child,
+        parentFrame: rest,
+        childFrame: rest,
+        axes: [],
+      }),
+    ),
+  });
   const frame = (
     bodies: Record<string, Record<string, [number, number, number]>>,
-  ): IAutoMoviePhysicalFrame =>
-    ({
-      seconds: 0,
-      bodies: Object.fromEntries(
-        Object.entries(bodies).map(([id, segments]) => [
-          id,
-          Object.fromEntries(
-            Object.entries(segments).map(([bone, [x, y, z]]) => [
+  ): IAutoMoviePhysicalFrame => ({
+    seconds: 0,
+    bodies: Object.fromEntries(
+      Object.entries(bodies).map(([id, segments]) => [
+        id,
+        Object.fromEntries(
+          Object.entries(segments).map(
+            ([bone, [x, y, z]]): [string, IAutoMoviePhysicalSegmentState] => [
               bone,
-              { position: { x, y, z }, rotation: { x: 0, y: 0, z: 0, w: 1 } },
-            ]),
+              {
+                position: { x, y, z },
+                rotation: identity,
+                velocity: zero,
+                angularVelocity: zero,
+              },
+            ],
           ),
-        ]),
-      ),
-    }) as unknown as IAutoMoviePhysicalFrame;
+        ),
+      ]),
+    ),
+  });
   const shape = (mark: IAutoMovieMark): unknown[] => [
     mark.path,
     mark.kind,

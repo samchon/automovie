@@ -4,7 +4,6 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieContactReceipt,
-  IAutoMoviePhysicalSupportWrench,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -79,18 +78,19 @@ export function test_physical_disturbance_contacts(): void {
   const touchdown = span.branches.find((branch) => branch.kind === "touchdown");
   TestValidator.predicate("the push steps", !!trigger && !!touchdown);
   if (!trigger || !touchdown) return;
-  const collider = (body: string, bone: string) => ({
+  type Recorded = Parameters<typeof recordPhysicalSpanContacts>[0];
+  const collider = (body: string, bone: string): IAutoMovieContactReceipt["a"] => ({
     body,
     bone,
     shape: bone,
     material: body === "floor" ? "floor" : "sole",
   });
-  const body = {
+  const body: Recorded["settings"]["bodies"][number] = {
     id: "biped",
     mode: { kind: "dynamic" },
     profile: { joints: [] },
   };
-  const bound = {
+  const bound: Recorded["bound"] = {
     colliders: new Map([
       [0, collider("floor", "floor")],
       [1, collider("biped", "left")],
@@ -98,7 +98,7 @@ export function test_physical_disturbance_contacts(): void {
     ]),
     spans: new Map(),
     segments: new Map(),
-    supportWrenches: [] as IAutoMoviePhysicalSupportWrench[],
+    supportWrenches: [],
   };
   const contacts: IAutoMovieContactReceipt[] = [];
   const active: Map<string, IAutoMovieContactReceipt> = new Map();
@@ -110,9 +110,11 @@ export function test_physical_disturbance_contacts(): void {
     const found: Set<string> = new Set();
     for (let substep: number = 1; substep <= SUBSTEPS; substep++)
       recordPhysicalSpanContacts({
-        settings: { rate: RATE, substeps: SUBSTEPS, bodies: [body] } as never,
-        bound: bound as never,
-        recovery: { biped: { last: "supported", steps: [], offsets: {}, span: input } } as never,
+        settings: { rate: RATE, substeps: SUBSTEPS, bodies: [body] },
+        bound,
+        recovery: {
+          biped: { last: "supported", steps: [], offsets: {}, span: input },
+        },
         instant: ((step - 1) * SUBSTEPS + substep) / (RATE * SUBSTEPS),
         seconds: step / RATE,
         step,

@@ -233,45 +233,43 @@ export function handlingCases(
       const gaps: number[] = digits.map(
         (digit: IAutoMovieMotionHumanGrip.Digit): number =>
           Math.min(
-            ...HumanGrip.bones(
-              "right",
-              digit,
-            ).map((bone: AutoMovieHumanoidBone): number => {
-              const c = HumanGrip.chain(
-                body,
-                "right",
-                digit,
-              );
-              const r: IAutoMovieResolvedBone = bones.get(bone)!;
-              const shape = body.profile.segments
-                .find((s) => s.bone === bone)!
-                .shapes.find((s) => s.kind === "capsule")!;
-              const middle: IAutoMovieVector3 = Vector3.add(
-                r.worldPosition,
-                Quaternion.rotateVector(
-                  r.worldRotation,
-                  shape.transform.position,
-                ),
-              );
-              const along: IAutoMovieVector3 = Quaternion.rotateVector(
-                Quaternion.multiply(r.worldRotation, shape.transform.rotation),
-                {
-                  x: 0,
-                  y: shape.kind === "capsule" ? shape.halfLength : 0,
-                  z: 0,
-                },
-              );
-              return (
-                closestPointsBetweenSegments(
-                  Vector3.subtract(middle, along),
-                  Vector3.add(middle, along),
-                  Vector3.subtract(centre(closed), axis),
-                  Vector3.add(centre(closed), axis),
-                ).distance -
-                c.radius -
-                0.035
-              );
-            }),
+            ...HumanGrip.bones("right", digit).map(
+              (bone: AutoMovieHumanoidBone): number => {
+                const c = HumanGrip.chain(body, "right", digit);
+                const r: IAutoMovieResolvedBone = bones.get(bone)!;
+                const shape = body.profile.segments
+                  .find((s) => s.bone === bone)!
+                  .shapes.find((s) => s.kind === "capsule")!;
+                const middle: IAutoMovieVector3 = Vector3.add(
+                  r.worldPosition,
+                  Quaternion.rotateVector(
+                    r.worldRotation,
+                    shape.transform.position,
+                  ),
+                );
+                const along: IAutoMovieVector3 = Quaternion.rotateVector(
+                  Quaternion.multiply(
+                    r.worldRotation,
+                    shape.transform.rotation,
+                  ),
+                  {
+                    x: 0,
+                    y: shape.kind === "capsule" ? shape.halfLength : 0,
+                    z: 0,
+                  },
+                );
+                return (
+                  closestPointsBetweenSegments(
+                    Vector3.subtract(middle, along),
+                    Vector3.add(middle, along),
+                    Vector3.subtract(centre(closed), axis),
+                    Vector3.add(centre(closed), axis),
+                  ).distance -
+                  c.radius -
+                  0.035
+                );
+              },
+            ),
           ),
       );
 

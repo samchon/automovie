@@ -1,3 +1,4 @@
+import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieHumanoidSurfaces } from "../../../pose/IAutoMovieHumanoidSurfaces";
 import type { IAutoMoviePose } from "../../../pose/IAutoMoviePose";
 import type { IAutoMoviePoseResolution } from "../../../pose/IAutoMoviePoseResolution";
@@ -8,10 +9,9 @@ import type { IAutoMovieMotionHumanEvaluation } from "../compose/IAutoMovieMotio
 import type { IAutoMovieMotionHumanPlayback } from "../perform/IAutoMovieMotionHumanPlayback";
 import type { IAutoMovieHumanPostureRotation } from "../posture/IAutoMovieHumanPostureRotation";
 import type { IAutoMovieMotionHumanPosture } from "../posture/IAutoMovieMotionHumanPosture";
-import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { IAutoMovieMotionHumanKickGeometry } from "../striking/IAutoMovieMotionHumanKickGeometry";
-import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanStrikingRecord } from "../striking/IAutoMovieMotionHumanStrikingRecord";
+import type { IAutoMovieMotionHumanUseTool } from "../tasks/IAutoMovieMotionHumanUseTool";
 import type { IAutoMovieMotionHumanBalance } from "./IAutoMovieMotionHumanBalance";
 import type { IAutoMovieMotionHumanBase } from "./IAutoMovieMotionHumanBase";
 import type { IAutoMovieMotionHumanContactWindow } from "./IAutoMovieMotionHumanContactWindow";

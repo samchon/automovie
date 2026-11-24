@@ -172,8 +172,8 @@ export namespace physicalSpanPose {
    *   body may be handed to authored poses (`admissible`), else undefined.
    */
   export function play(
-    bound: Bound,
-    body: IAutoMoviePhysicalSimulationInput.IBody,
+    bound: Pick<Bound, "spans" | "segments">,
+    body: IBody,
     state: IAutoMoviePhysicalRecoveryState | undefined,
     seconds: number,
   ): preparePhysicalDisturbanceSpan.ISample | undefined {
@@ -227,10 +227,18 @@ export namespace physicalSpanPose {
     });
   }
 
+  /** What `play` reads of a body: its id, joints and handoff limits. */
+  export type IBody = Pick<
+    IAutoMoviePhysicalSimulationInput.IBody,
+    "id" | "handoffLimits"
+  > & {
+    profile: Pick<IAutoMoviePhysicalSimulationInput.IBody["profile"], "joints">;
+  };
+
   /** The body's actual poses judged by `admissible`. */
   function handable(
-    bound: Bound,
-    body: IAutoMoviePhysicalSimulationInput.IBody,
+    bound: Pick<Bound, "segments">,
+    body: IBody,
   ): boolean {
     const segments = bound.segments?.get(body.id);
     const limit: number | undefined = body.handoffLimits?.maximumLinearError;

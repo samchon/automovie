@@ -7,13 +7,13 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMovieAffordance,
+  IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanToolWork,
   IAutoMovieMotionHumanUseTool,
-  IAutoMovieMotionHumanActionPlan,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";

@@ -25,7 +25,6 @@ import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
 import { everydayVerdicts } from "./everydayVerdicts";
 
-
 /**
  * Capture cases of the self-directed body actions on one polygon man standing
  * from quiet standing.
@@ -141,10 +140,12 @@ export function selfCases(
       const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion][] = [
         ["right", target.region],
         ...(other?.kind === "self"
-          ? [["left", other.region] satisfies [
-              AutoMovieHumanSide,
-              AutoMovieHumanoidRegion,
-            ]]
+          ? [
+              ["left", other.region] satisfies [
+                AutoMovieHumanSide,
+                AutoMovieHumanoidRegion,
+              ],
+            ]
           : []),
       ];
       for (const [side, region] of hands) {

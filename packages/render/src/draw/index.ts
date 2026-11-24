@@ -13,6 +13,7 @@ export * from "./IAutoMovieDrawCall.js";
 export * from "./IAutoMovieDrawDescription.js";
 export * from "./IAutoMovieDrawFunction.js";
 export * from "./IAutoMovieDrawPage.js";
+export * from "./IAutoMovieDrawPageRequest.js";
 export * from "./IAutoMovieDrawProps.js";
 export * from "./IAutoMovieDrawResult.js";
 export * from "./IAutoMovieDrawScene.js";

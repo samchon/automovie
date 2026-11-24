@@ -4,7 +4,6 @@ import {
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalRecoveryState,
-  IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -57,8 +56,15 @@ export function test_physical_span_hold(): void {
       floor: 0,
     },
   };
-  const bound = { spans: new Map() } as unknown as IAutoMoviePhysicalBinding;
-  const body = { id: "body" } as IAutoMoviePhysicalSimulationInput.IBody;
+  // A binding without actual poses: the response is handable at once.
+  const bound: Pick<IAutoMoviePhysicalBinding, "spans" | "segments"> = {
+    spans: new Map(),
+    segments: new Map(),
+  };
+  const body: Parameters<typeof physicalSpanPose.play>[1] = {
+    id: "body",
+    profile: { joints: [] },
+  };
   const dt: number = 1 / 3840;
 
   // 1. One prepared response held over the substeps.

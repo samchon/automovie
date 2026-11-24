@@ -33,7 +33,7 @@ export function test_unit_motions_dressing_compose_touches(): void {
   );
   TestValidator.equals(
     "the cuff",
-    [cuff.subject, cuff.capability, cuff.parameters],
+    [cuff.subject, cuff.capability, cuff.parameters?.params],
     [
       "a",
       "touch",
@@ -51,7 +51,7 @@ export function test_unit_motions_dressing_compose_touches(): void {
   );
   TestValidator.equals(
     "the own tie",
-    [own.capability, own.parameters],
+    [own.capability, own.parameters?.params],
     [
       "touch",
       {
@@ -73,7 +73,7 @@ export function test_unit_motions_dressing_compose_touches(): void {
   );
   TestValidator.equals(
     "the partner's tie",
-    [partner.capability, partner.parameters],
+    [partner.capability, partner.parameters?.params],
     [
       "touch",
       {

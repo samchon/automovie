@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import type { IAutoMovieViewerSubjectBounds } from "../subjectViewpoint/IAutoMovieViewerSubjectBounds.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Measure the world-space box of what a scene draws now, so a view can be
@@ -49,12 +50,12 @@ export function measureAutoMovieInspectionBounds(
         }
       return;
     }
-    if (object instanceof THREE.Mesh) {
+    if (AutoMovieThreeKind.isMesh(object)) {
       if ((object as { isBatchedMesh?: boolean }).isBatchedMesh === true)
         return;
       if (!object.geometry.hasAttribute("position")) return;
       const count: number = object.geometry.getAttribute("position").count;
-      if (!(object instanceof THREE.InstancedMesh)) {
+      if (!(AutoMovieThreeKind.isInstancedMesh(object))) {
         for (let i: number = 0; i < count; i++) {
           object.getVertexPosition(i, point);
           include(object.matrixWorld);
@@ -82,7 +83,7 @@ export function measureAutoMovieInspectionBounds(
           include(placement);
         }
       }
-    } else if (object instanceof THREE.Line || object instanceof THREE.Points) {
+    } else if (AutoMovieThreeKind.isLine(object) || AutoMovieThreeKind.isPoints(object)) {
       if (!object.geometry.hasAttribute("position")) return;
       const position: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
         object.geometry.getAttribute("position");

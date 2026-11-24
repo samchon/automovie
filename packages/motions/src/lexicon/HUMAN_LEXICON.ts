@@ -15,9 +15,7 @@ export const HUMAN_LEXICON: Readonly<
   Object.entries(HUMAN_LEXICON_FAMILIES).map(
     ([family, laws]: [
       string,
-      Readonly<
-        Partial<Record<string, IAutoMovieMotionHumanActionLaw<never>>>
-      >,
+      Readonly<Partial<Record<string, IAutoMovieMotionHumanActionLaw<never>>>>,
     ]): [string, readonly IAutoMovieMotionHumanActionLaw<never>[]] => [
       family,
       Object.values(laws).filter(

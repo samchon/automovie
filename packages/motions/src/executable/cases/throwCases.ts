@@ -6,8 +6,8 @@ import {
 import type {
   AutoMovieHumanoidSocket,
   IAutoMovieComposition,
-  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanActionPlan,
+  IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanThrowObjectForm,

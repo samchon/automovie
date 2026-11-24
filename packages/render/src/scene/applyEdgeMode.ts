@@ -17,6 +17,7 @@ import { guardAutoMovieRenderModeRetirement } from "./guardAutoMovieRenderModeRe
 import { overrideAutoMovieRenderModeMaterials } from "./overrideAutoMovieRenderModeMaterials.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Inverted-hull shell material: extrude by edgeWidth along the normalized
@@ -108,8 +109,8 @@ const followEdgeShell: (
   }
 
   if (
-    mesh instanceof THREE.InstancedMesh &&
-    shell instanceof THREE.InstancedMesh
+    AutoMovieThreeKind.isInstancedMesh(mesh) &&
+    AutoMovieThreeKind.isInstancedMesh(shell)
   ) {
     shell.count = mesh.count;
     if (shell.instanceMatrix.array.length === mesh.instanceMatrix.array.length)

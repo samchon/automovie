@@ -68,17 +68,7 @@ type LocomotionCaseOne = "slow" | "normal" | "fast";
 export function locomotionCase(
   input: locomotionCase.IInput,
 ): IMotionCaptureCase {
-  const {
-    who,
-    names,
-    gait,
-    froude: fr,
-    label,
-    to,
-    extra,
-    men,
-    bodies,
-  } = input;
+  const { who, names, gait, froude: fr, label, to, extra, men, bodies } = input;
   const lanes: number[] = names.map((): number => 0);
   const goals: IAutoMovieVector3[] = names.map((): IAutoMovieVector3 => to);
   let chain: IAutoMovieMotionHumanChain | undefined;

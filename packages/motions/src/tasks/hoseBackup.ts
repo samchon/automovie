@@ -34,7 +34,6 @@ import type { HumanKnot } from "../posture/HumanKnot";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 
-
 /** Both hands. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
@@ -241,9 +240,8 @@ export function hoseBackup(
           clock.duration,
         ]),
       ].sort((a: number, b: number): number => a - b);
-      const times: number[] = edges.flatMap(
-        (t: number, i: number): number[] =>
-          i === 0 ? [t] : [(edges[i - 1]! + t) / 2, t],
+      const times: number[] = edges.flatMap((t: number, i: number): number[] =>
+        i === 0 ? [t] : [(edges[i - 1]! + t) / 2, t],
       );
       course = prepareHumanKnotCourse(
         times.map((t: number): HumanKnot.IKnot => {

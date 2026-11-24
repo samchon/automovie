@@ -3,6 +3,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinnedMesh } from "./AutoMovieSkinnedMesh.js";
 import { createAutoMovieSurfaceVertexAdapter } from "./createAutoMovieSurfaceVertexAdapter.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /** The largest finite binary32 magnitude a GPU vertex attribute can hold. */
 const F32_MAX: number = 3.4028234663852886e38;
@@ -176,7 +177,7 @@ export function createAutoMovieSurfaceAppearance(input: {
         position.copyArray(record.positions);
         if (record.moved) {
           position.needsUpdate = true;
-          if (record.mesh instanceof AutoMovieSkinnedMesh)
+          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
         }
         let moved: boolean = false;
@@ -227,9 +228,9 @@ export function createAutoMovieSurfaceAppearance(input: {
           record.geometry.computeVertexNormals();
           record.geometry.computeBoundingSphere();
           record.geometry.computeBoundingBox();
-          if (record.mesh instanceof AutoMovieSkinnedMesh)
+          if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(record.mesh))
             record.mesh.invalidatePose();
-          else if (record.mesh instanceof THREE.SkinnedMesh)
+          else if (AutoMovieThreeKind.isSkinnedMesh(record.mesh))
             AutoMovieSkinnedMesh.clearBounds(record.mesh);
         }
         record.moved = moved;

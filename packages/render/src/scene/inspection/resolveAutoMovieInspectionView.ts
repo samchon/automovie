@@ -10,6 +10,7 @@ import type { IAutoMovieViewerSubjectPose } from "../subjectViewpoint/IAutoMovie
 import type { IAutoMovieViewerViewpoint } from "../subjectViewpoint/IAutoMovieViewerViewpoint.js";
 import { autoMovieViewerNamedViewpoints } from "../subjectViewpoint/autoMovieViewerNamedViewpoints.js";
 import { frameAutoMovieViewerSubject } from "../subjectViewpoint/frameAutoMovieViewerSubject.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Smallest half extent a fitted view frames, metres, the framing owner's floor
@@ -307,8 +308,8 @@ function aim(
   camera.up.set(up.x, up.y, up.z);
   camera.lookAt(target.x, target.y, target.z);
   if (
-    camera instanceof THREE.PerspectiveCamera ||
-    camera instanceof THREE.OrthographicCamera
+    AutoMovieThreeKind.isPerspectiveCamera(camera) ||
+    AutoMovieThreeKind.isOrthographicCamera(camera)
   )
     camera.updateProjectionMatrix();
   camera.updateMatrixWorld(true);
@@ -333,7 +334,7 @@ function record(
   const up: THREE.Vector3 = new THREE.Vector3(0, 1, 0)
     .transformDirection(camera.matrixWorld)
     .normalize();
-  const orthographic: boolean = camera instanceof THREE.OrthographicCamera;
+  const orthographic: boolean = AutoMovieThreeKind.isOrthographicCamera(camera);
   return {
     view: text,
     projection: orthographic ? "orthographic" : "perspective",

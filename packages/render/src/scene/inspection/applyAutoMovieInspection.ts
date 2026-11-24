@@ -37,6 +37,7 @@ import { measureAutoMovieInspectionPaths } from "./measureAutoMovieInspectionPat
 import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegends.js";
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Turn a built scene into the picture an inspection request asks for, in place,
@@ -252,7 +253,7 @@ export function applyAutoMovieInspection(
     for (const { path, object } of drawn)
       if (
         !selects(path) ||
-        (!request.surface && object instanceof THREE.Mesh)
+        (!request.surface && AutoMovieThreeKind.isMesh(object))
       ) {
         masks.set(object, object.layers.mask);
         object.layers.mask = 0;

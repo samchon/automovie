@@ -1,6 +1,7 @@
 import { Box3, Mesh } from "three";
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Enclose the current world geometry of a required subject's admitted meshes.
@@ -21,11 +22,11 @@ export function boundAutoMovieCameraSubject(
   const combined: Box3 = new Box3();
   const world: Box3 = new Box3();
   for (const mesh of meshes) {
-    if (mesh instanceof AutoMovieSkinnedMesh) mesh.computeBoundingBox();
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)) mesh.computeBoundingBox();
     else if (mesh.geometry.boundingBox === null)
       mesh.geometry.computeBoundingBox();
     const local: Box3 | null =
-      mesh instanceof AutoMovieSkinnedMesh
+      AutoMovieThreeKind.isAutoMovieSkinnedMesh(mesh)
         ? mesh.boundingBox
         : mesh.geometry.boundingBox;
     if (local === null || !isFiniteBox(local)) return undefined;

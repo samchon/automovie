@@ -5,6 +5,7 @@ import type { IAutoMovieSoftBodyObject } from "./IAutoMovieSoftBodyObject.js";
 import type { IBuildSoftBodyObjectProps } from "./IBuildSoftBodyObjectProps.js";
 import { restoreAutoMovieRenderModeOnce } from "./restoreAutoMovieRenderModeOnce.js";
 import { restoreAutoMovieRenderModeState } from "./restoreAutoMovieRenderModeState.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * Project one canonical Engine cloth surface into an owned Three mesh.
@@ -91,14 +92,14 @@ export const buildSoftBodyObject: (
           | THREE.InterleavedBufferAttribute
           | undefined = geometry.getAttribute("uv");
         if (
-          position instanceof THREE.BufferAttribute &&
-          position.array instanceof Float32Array &&
+          AutoMovieThreeKind.isBufferAttribute(position) &&
+          AutoMovieThreeKind.isFloat32Array(position.array) &&
           position.array.length === surface.mesh.positions.length &&
-          normal instanceof THREE.BufferAttribute &&
-          normal.array instanceof Float32Array &&
+          AutoMovieThreeKind.isBufferAttribute(normal) &&
+          AutoMovieThreeKind.isFloat32Array(normal.array) &&
           normal.array.length === (surface.mesh.normals ?? []).length &&
-          uv instanceof THREE.BufferAttribute &&
-          uv.array instanceof Float32Array &&
+          AutoMovieThreeKind.isBufferAttribute(uv) &&
+          AutoMovieThreeKind.isFloat32Array(uv.array) &&
           uv.array.length === (surface.mesh.uvs ?? []).length &&
           previousIndex !== null &&
           previousIndex.array.length === index.array.length &&

@@ -11,6 +11,7 @@ import {
 
 import { AutoMovieSkinnedMesh } from "../AutoMovieSkinnedMesh.js";
 import { readAutoMovieDisplayedBox } from "./readAutoMovieDisplayedBox.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * List the drawables of a required subject whose current geometry the CPU can
@@ -37,11 +38,11 @@ export function listAutoMovieCameraSubjectMeshes(
   let supported: boolean = true;
   target.traverseVisible((object: Object3D): void => {
     if (!supported || !object.layers.test(camera.layers)) return;
-    if (!(object instanceof Mesh)) {
+    if (!(AutoMovieThreeKind.isMesh(object))) {
       if (
-        object instanceof Line ||
-        object instanceof Points ||
-        object instanceof Sprite
+        AutoMovieThreeKind.isLine(object) ||
+        AutoMovieThreeKind.isPoints(object) ||
+        AutoMovieThreeKind.isSprite(object)
       )
         supported = false;
       return;
@@ -55,7 +56,7 @@ export function listAutoMovieCameraSubjectMeshes(
     }
 
     // The owned skin's CPU pose matches only its own admitted shader route.
-    if (object instanceof AutoMovieSkinnedMesh) {
+    if (AutoMovieThreeKind.isAutoMovieSkinnedMesh(object)) {
       if (readAutoMovieDisplayedBox.supportsStockMaterial(object))
         meshes.push(object);
       else supported = false;
@@ -80,7 +81,7 @@ function keepsVertices(input: Material | Material[]): boolean {
   const materials: Material[] = [input].flat();
   return materials.every(
     (material: Material): boolean =>
-      !(material instanceof ShaderMaterial) &&
+      !(AutoMovieThreeKind.isShaderMaterial(material)) &&
       material.onBeforeCompile === Material.prototype.onBeforeCompile &&
       material.onBeforeRender === Material.prototype.onBeforeRender &&
       (!("displacementMap" in material) || material.displacementMap === null),

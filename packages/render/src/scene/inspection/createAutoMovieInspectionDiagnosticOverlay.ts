@@ -10,6 +10,7 @@ import type { IAutoMovieInspectionDiagnosticOverlay } from "./IAutoMovieInspecti
 import type { IAutoMovieInspectionOverlay } from "./IAutoMovieInspectionOverlay.js";
 import type { IRenderAutoMovieInspectionDiagnosticsProps } from "./IRenderAutoMovieInspectionDiagnosticsProps.js";
 import { buildAutoMovieInspectionMarks } from "./buildAutoMovieInspectionMarks.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** The review overlay uses red, in sRGB. */
 const COLOR: number = 0xff0000;
@@ -100,7 +101,7 @@ export function createAutoMovieInspectionDiagnosticOverlay(): IAutoMovieInspecti
             xray: true,
           });
         for (const child of overlay.object.children)
-          if (child instanceof THREE.Mesh && !Array.isArray(child.material))
+          if (AutoMovieThreeKind.isMesh(child) && !Array.isArray(child.material))
             child.material.opacity = 0.78;
         kept = { overlay, marks, signature, width: 0, height: 0 };
       } else

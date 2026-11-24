@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 import { addMaterialShaderPatch } from "../addMaterialShaderPatch.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * Give one lit material the film's indirect shading: the probes' one-bounce
@@ -35,10 +36,10 @@ export function applyFilmIndirectPatch(
 ): boolean {
   if (
     !(
-      material instanceof THREE.MeshStandardMaterial ||
-      material instanceof THREE.MeshLambertMaterial ||
-      material instanceof THREE.MeshPhongMaterial ||
-      material instanceof THREE.MeshToonMaterial
+      AutoMovieThreeKind.isMeshStandardMaterial(material) ||
+      AutoMovieThreeKind.isMeshLambertMaterial(material) ||
+      AutoMovieThreeKind.isMeshPhongMaterial(material) ||
+      AutoMovieThreeKind.isMeshToonMaterial(material)
     )
   )
     return false;

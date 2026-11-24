@@ -17,6 +17,7 @@ import { formatAutoMovieInspectionCameraView } from "../scene/inspection/formatA
 import { parseAutoMovieInspectionRequest } from "../scene/inspection/parseAutoMovieInspectionRequest.js";
 import { AUTO_MOVIE_DRAW_GLOBALS } from "./AUTO_MOVIE_DRAW_GLOBALS.js";
 import type { IAutoMovieDrawPage } from "./IAutoMovieDrawPage.js";
+import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";
 import type { IAutoMovieDrawProps } from "./IAutoMovieDrawProps.js";
 import { decodeAutoMovieDrawPixels } from "./decodeAutoMovieDrawPixels.js";
 import { planAutoMovieDrawCall } from "./planAutoMovieDrawCall.js";
@@ -141,13 +142,15 @@ export class AutoMovieDrawSession {
       timeout,
       `Describing the subject at ${props.url}`,
       page.evaluate(
-        (name: string): Promise<IAutoMovieDrawDescription> =>
+        (
+          arg: IAutoMovieDrawPageRequest.IDescribe,
+        ): Promise<IAutoMovieDrawDescription> =>
           (
-            (globalThis as unknown as Record<string, unknown>)[name] as {
+            (globalThis as unknown as Record<string, unknown>)[arg.name] as {
               describe(): Promise<IAutoMovieDrawDescription>;
             }
           ).describe(),
-        AUTO_MOVIE_DRAW_GLOBALS.draw,
+        { kind: "describe", name: AUTO_MOVIE_DRAW_GLOBALS.draw },
       ),
     );
     return new AutoMovieDrawSession({
@@ -170,16 +173,13 @@ export class AutoMovieDrawSession {
       this.timeout,
       `Handing the dialogue mouths to subject "${this.subject.name}"`,
       this.page.evaluate(
-        (arg: {
-          name: string;
-          track: IAutoMovieDialogueMouthTrack;
-        }): Promise<void> =>
+        (arg: IAutoMovieDrawPageRequest.ISpeak): Promise<void> =>
           (
             (globalThis as unknown as Record<string, unknown>)[arg.name] as {
               speak(track: IAutoMovieDialogueMouthTrack): Promise<void>;
             }
           ).speak(arg.track),
-        { name: AUTO_MOVIE_DRAW_GLOBALS.draw, track },
+        { kind: "speak", name: AUTO_MOVIE_DRAW_GLOBALS.draw, track },
       ),
     );
   }
@@ -198,16 +198,13 @@ export class AutoMovieDrawSession {
       this.timeout,
       what,
       this.page.evaluate(
-        (arg: {
-          name: string;
-          call: IAutoMovieDrawCall;
-        }): Promise<IAutoMovieDrawResult> =>
+        (arg: IAutoMovieDrawPageRequest.IDraw): Promise<IAutoMovieDrawResult> =>
           (
             (globalThis as unknown as Record<string, unknown>)[arg.name] as {
               draw(call: IAutoMovieDrawCall): Promise<IAutoMovieDrawResult>;
             }
           ).draw(arg.call),
-        { name: AUTO_MOVIE_DRAW_GLOBALS.draw, call },
+        { kind: "draw", name: AUTO_MOVIE_DRAW_GLOBALS.draw, call },
       ),
     );
     return { picture: decodeAutoMovieDrawPixels(result, call), result };

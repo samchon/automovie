@@ -1,3 +1,5 @@
+import type { IAutoMovieDrawPageRequest } from "./IAutoMovieDrawPageRequest.js";
+
 /**
  * The browser page a draw session drives, declared as the five Playwright
  * `Page` methods it calls, so a Playwright page fits as it is and a test passes
@@ -29,9 +31,13 @@ export interface IAutoMovieDrawPage {
 
   /**
    * Run `task(arg)` in the page and resolve with its JSON result, awaiting a
-   * returned promise; a throw in the page rejects with its message.
+   * returned promise; a throw in the page rejects with its message. The
+   * argument is one of the session's typed requests.
    */
-  evaluate<R, T>(task: (arg: T) => R | Promise<R>, arg: T): Promise<R>;
+  evaluate<R, T extends IAutoMovieDrawPageRequest>(
+    task: (arg: T) => R | Promise<R>,
+    arg: T,
+  ): Promise<R>;
 
   /** Close the page. */
   close(): Promise<unknown>;

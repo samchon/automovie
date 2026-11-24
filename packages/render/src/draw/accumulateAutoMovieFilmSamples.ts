@@ -8,6 +8,7 @@ import * as THREE from "three";
 import type { AutoMovieFilmAlpha } from "../scene/filmResponse/AutoMovieFilmAlpha.js";
 import type { AutoMovieFilmResponseStage } from "../scene/filmResponse/AutoMovieFilmResponseStage.js";
 import type { IAutoMovieFilmResponseRenderer } from "../scene/filmResponse/IAutoMovieFilmResponseRenderer.js";
+import { AutoMovieThreeKind } from "../scene/AutoMovieThreeKind.js";
 
 /**
  * Place and draw every sub-frame sample of one frame into the film response
@@ -102,7 +103,7 @@ export async function accumulateAutoMovieFilmSamples(props: {
     const camera: THREE.Camera =
       sample.eye !== null &&
       focus !== null &&
-      base instanceof THREE.PerspectiveCamera
+      AutoMovieThreeKind.isPerspectiveCamera(base)
         ? offsetLens(props.scratch, base, sample.eye, focus)
         : base;
     const draw: () => void = (): void =>

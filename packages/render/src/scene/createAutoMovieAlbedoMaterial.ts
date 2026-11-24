@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * The unlit base-colour material the `albedo` guide pass draws in place of one
@@ -32,15 +33,15 @@ export function createAutoMovieAlbedoMaterial(
 ): THREE.MeshBasicMaterial {
   const source: IBaseColorSource = original as IBaseColorSource;
   const color: THREE.Color =
-    source.color instanceof THREE.Color
+    AutoMovieThreeKind.isColor(source.color)
       ? source.color.clone()
       : new THREE.Color(0, 0, 0);
   const cutout: boolean = original.alphaTest > 0;
   return new THREE.MeshBasicMaterial({
     name: `albedo:${original.name}`,
     color,
-    map: source.map instanceof THREE.Texture ? source.map : null,
-    alphaMap: source.alphaMap instanceof THREE.Texture ? source.alphaMap : null,
+    map: AutoMovieThreeKind.isTexture(source.map) ? source.map : null,
+    alphaMap: AutoMovieThreeKind.isTexture(source.alphaMap) ? source.alphaMap : null,
     vertexColors: original.vertexColors,
     alphaTest: original.alphaTest,
 

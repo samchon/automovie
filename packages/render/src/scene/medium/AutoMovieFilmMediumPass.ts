@@ -7,6 +7,7 @@ import type { IAutoMovieFilmResponseRenderer } from "../filmResponse/IAutoMovieF
 import { buildAutoMovieMediumShader } from "./buildAutoMovieMediumShader.js";
 import { collectAutoMovieMediumLights } from "./collectAutoMovieMediumLights.js";
 import { readAutoMovieSceneMedium } from "./readAutoMovieSceneMedium.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /** The golden ratio's conjugate, the step of the dither shift per sample. */
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
@@ -119,7 +120,7 @@ export class AutoMovieFilmMediumPass {
         value: new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld),
       },
       uOrthographic: {
-        value: camera instanceof THREE.OrthographicCamera ? 1 : 0,
+        value: AutoMovieThreeKind.isOrthographicCamera(camera) ? 1 : 0,
       },
       uScattering: { value: medium.scattering },
       uExtinction: { value: medium.scattering + medium.absorption },

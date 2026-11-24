@@ -129,6 +129,12 @@ const FALLEN: number = 0.6;
  * functions of the record; no simulation runs here.
  */
 export namespace PhysicalDisturbance {
+  /** The parts of a run's cache the verdicts read. */
+  export type ICache = Pick<
+    IAutoMoviePhysicalSimulation["cache"],
+    "frames" | "recovery" | "contacts" | "supportWrenches"
+  >;
+
   /** A standing body ready to be pushed. */
   export interface ISubject {
     /** The body's profile. */
@@ -181,7 +187,11 @@ export namespace PhysicalDisturbance {
       ],
       composition: HumanChain.subject("a").stand({ hold: 1, sway: 0 }).node,
     });
-    const bones = performance.bones("a", 0.9);
+    // The pose's bones by name, which the profile's segments are keyed by.
+    const pose = performance.bones("a", 0.9);
+    const bones = new Map<string, NonNullable<ReturnType<typeof pose.get>>>(
+      pose,
+    );
     const fit: ReturnType<typeof fitHumanPhysicalStandingPose> =
       fitHumanPhysicalStandingPose({
         profile,
@@ -190,7 +200,7 @@ export namespace PhysicalDisturbance {
             (
               segment: IAutoMoviePhysicalSegment,
             ): [string, IAutoMovieRigidTransform] => {
-              const bone = bones.get(segment.bone as never)!;
+              const bone = bones.get(segment.bone)!;
               return [
                 segment.bone,
                 { position: bone.worldPosition, rotation: bone.worldRotation },
@@ -504,7 +514,7 @@ export namespace PhysicalDisturbance {
   export function judge(
     subject: ISubject,
     name: Outcome,
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
     final: boolean,
   ): IVerdict {
@@ -626,7 +636,7 @@ export namespace PhysicalDisturbance {
    */
   export function audit(
     subject: ISubject,
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
     maximum: number,
   ): string[] {
@@ -788,7 +798,7 @@ export namespace PhysicalDisturbance {
 
   /** The body's bones the solver recorded on the floor. */
   function touched(
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
   ): string[] {
     return [
@@ -886,7 +896,7 @@ export namespace PhysicalDisturbance {
    */
   function captured(
     subject: ISubject,
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
     index: number,
   ): boolean {
@@ -903,7 +913,7 @@ export namespace PhysicalDisturbance {
    */
   function captureAt(
     subject: ISubject,
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
     index: number,
   ): {
@@ -960,7 +970,7 @@ export namespace PhysicalDisturbance {
    */
   export function landedExcesses(
     subject: ISubject,
-    cache: IAutoMoviePhysicalSimulation["cache"],
+    cache: ICache,
     id: string,
   ): number[] {
     const frames = cache.frames;

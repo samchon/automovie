@@ -54,7 +54,7 @@ export namespace HumanBikeGuidePath {
    * The path distances at which the athlete comes to a stop: the start of each
    * pause of at least the swing time, and the path's end.
    */
-  export function stops(path: IPath): number[] {
+  export function stops(path: Pick<IPath, "times" | "distances">): number[] {
     const ends: number[] = [];
     let still: number | undefined;
     for (let i: number = 1; i < path.distances.length; ++i) {

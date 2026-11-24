@@ -1,8 +1,4 @@
-import {
-  physicalBalancePlan,
-  type physicalBalanceSense,
-  type physicalBalanceStance,
-} from "@automovie/engine";
+import { physicalBalancePlan } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalRecoveryState,
   IAutoMovieVector3,
@@ -56,38 +52,44 @@ export function test_physical_balance_plan_assessment(): void {
         (ahead: number): IAutoMovieVector3 => ({ x: across, y: 0, z: ahead }),
       ),
     );
-  const stance = {
+  const stance: Parameters<typeof physicalBalancePlan>[0]["stance"] = {
     planted: [
-      { bone: "leftFoot", points: sole(0.1) },
-      { bone: "rightFoot", points: sole(-0.1) },
+      { bone: "leftFoot", points: sole(0.1), position: { x: 0.1, y: 0, z: 0 } },
+      {
+        bone: "rightFoot",
+        points: sole(-0.1),
+        position: { x: -0.1, y: 0, z: 0 },
+      },
     ],
     plane: 0,
     tilt: 0,
-  } as unknown as physicalBalanceStance.IStance;
+  };
   const plan = (
     state: IAutoMoviePhysicalRecoveryState,
     velocity: number,
   ): physicalBalancePlan.IResult => {
     const center: IAutoMovieVector3 = { x: 0, y: HEIGHT, z: 0 };
     const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const sense = {
+    // The authored command's centre stands in for the profile's segments.
+    const sense: physicalBalancePlan.ISense = {
       center,
       velocity: { x: 0, y: 0, z: velocity },
       gravity: GRAVITY,
       floor: 0,
       seconds: 0,
       command: { center, velocity: zero, acceleration: zero },
-    } as unknown as physicalBalanceSense.ISense;
+      profile: { segments: [], mass: 1 },
+      targets: {},
+    };
     return physicalBalancePlan({ state, sense, stance });
   };
-  const stale = (failed: boolean): IAutoMoviePhysicalRecoveryState =>
-    ({
-      last: "supported",
-      steps: [],
-      offsets: {},
-      outsideSince: 0.1,
-      ...(failed ? { failedLanding: true } : {}),
-    }) as unknown as IAutoMoviePhysicalRecoveryState;
+  const stale = (failed: boolean): IAutoMoviePhysicalRecoveryState => ({
+    last: "supported",
+    steps: [],
+    offsets: {},
+    outsideSince: 0.1,
+    ...(failed ? { failedLanding: true } : {}),
+  });
 
   // 1. Quiet.
   const given: IAutoMoviePhysicalRecoveryState = stale(true);

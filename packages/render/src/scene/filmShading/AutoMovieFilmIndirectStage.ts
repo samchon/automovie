@@ -11,6 +11,7 @@ import { AUTOMOVIE_FILM_OCCLUSION_SHADERS } from "./AUTOMOVIE_FILM_OCCLUSION_SHA
 import type { IAutoMovieFilmIndirectRenderer } from "./IAutoMovieFilmIndirectRenderer.js";
 import { applyFilmIndirectPatch } from "./applyFilmIndirectPatch.js";
 import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
+import { AutoMovieThreeKind } from "../AutoMovieThreeKind.js";
 
 /**
  * The indirect light of a directly rendered film's beauty pass: measures what a
@@ -187,7 +188,7 @@ export class AutoMovieFilmIndirectStage {
       const material: unknown =
         "material" in object ? object.material : undefined;
       for (const entry of [material].flat())
-        if (entry instanceof THREE.Material)
+        if (AutoMovieThreeKind.isMaterial(entry))
           applyFilmIndirectPatch(entry, this.uniforms_);
     });
     const { renderer, scene, camera }: typeof props = props;

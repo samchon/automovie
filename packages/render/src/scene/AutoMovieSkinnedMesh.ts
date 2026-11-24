@@ -3,6 +3,7 @@ import * as THREE from "three";
 
 import { AutoMovieSkinBlend } from "./AutoMovieSkinBlend.js";
 import { AutoMovieSkinPose } from "./AutoMovieSkinPose.js";
+import { AutoMovieThreeKind } from "./AutoMovieThreeKind.js";
 
 /**
  * A skinned mesh whose CPU queries read the deformation its shaders draw.
@@ -50,6 +51,9 @@ export class AutoMovieSkinnedMesh<
     | THREE.Material
     | THREE.Material[],
 > extends THREE.SkinnedMesh<THREE.BufferGeometry, TMaterial> {
+  /** This class's literal type flag, as three.js flags its own classes. */
+  public readonly isAutoMovieSkinnedMesh: true = true;
+
   /** Blend the shader draws this skin with; `linear` is Three's own. */
   public method: NonNullable<IAutoMovieMeshSkin["method"]>;
 
@@ -149,7 +153,7 @@ export class AutoMovieSkinnedMesh<
     );
     for (let k: number = 0; k < 4; ++k)
       AutoMovieSkinPose.joint(this, _index.getComponent(k), SINGLE, k * STRIDE);
-    const point: boolean = !(target instanceof THREE.Vector4) || target.w !== 0;
+    const point: boolean = !(AutoMovieThreeKind.isVector4(target)) || target.w !== 0;
     AutoMovieSkinBlend.dual(
       SINGLE,
       0,
