@@ -6,16 +6,23 @@ import process from "node:process";
 import type { IScenarioExecutionAssessment } from "./IScenarioExecutionAssessment";
 import { assessScenarioExecution } from "./scenarioExecution";
 import { prepareScenarioFilter } from "./scenarioSelection";
-import { watchScenarioStall } from "./watchScenarioStall";
 
-/** Seconds one scenario may run before the run ends it as a stall: the project's cap on one spec, three minutes, past which a spec is a defect to fix rather than a run to wait on. */
+/**
+ * Seconds one scenario may take: the project's cap on one spec, three minutes,
+ * past which a spec is a defect to fix rather than a run to wait on.
+ */
 const SCENARIO_LIMIT: number = 180;
 
 /**
- * Run the selected scenarios and exit with their combined verdict. A
- * scenario past `SCENARIO_LIMIT` ends the run by name with its JavaScript
- * stack (`watchScenarioStall`). Completed failures keep their immediate
- * report and timing assessment.
+ * Run the selected scenarios and exit with their combined verdict.
+ *
+ * Every selected scenario runs to its end, however long it takes; no scenario
+ * ends the run or its process. A scenario whose elapsed time is past
+ * `SCENARIO_LIMIT` seconds (`AUTOMOVIE_TEST_SCENARIO_LIMIT` when set) is
+ * reported ✗ with "ran N s, past the 3-minute cap: a defect to fix", even when
+ * its assertions passed, and is listed among the FAILED at the end; the run
+ * goes on to the next scenario. Completed failures keep their immediate report
+ * and timing assessment.
  */
 async function main(): Promise<void> {
   console.log("---------------------------------------------------");
@@ -36,34 +43,28 @@ async function main(): Promise<void> {
     (filter: (name: string) => boolean): Promise<DynamicExecutor.IReport> =>
       DynamicExecutor.validate({ ...discovery, filter }),
   );
-  // A scenario whose work never returns ends the run by name with its stack
-  // (`watchScenarioStall`), past AUTOMOVIE_TEST_SCENARIO_LIMIT seconds.
-  const watch: ReturnType<typeof watchScenarioStall> = watchScenarioStall(
-    Number(process.env.AUTOMOVIE_TEST_SCENARIO_LIMIT ?? SCENARIO_LIMIT),
+  const limit: number = Number(
+    process.env.AUTOMOVIE_TEST_SCENARIO_LIMIT ?? SCENARIO_LIMIT,
   );
   const report: DynamicExecutor.IReport = await DynamicExecutor.validate({
     ...discovery,
-
-    // The watch marks the selected call's start; it names a stall by itself.
-    parameters: (name: string): [] => {
-      watch.start(name);
-      return [];
-    },
     onComplete: (exec: DynamicExecutor.IExecution): void => {
-      watch.complete();
       const result: IScenarioExecutionAssessment =
         assessScenarioExecution(exec);
-      const mark: string = result.passed
-        ? chalk.green("  ✓")
-        : chalk.red("  ✗");
+      const late: string | null = overCap(result, limit);
+      const mark: string =
+        result.passed && late === null ? chalk.green("  ✓") : chalk.red("  ✗");
       console.log(
         `${mark} ${exec.name} ${chalk.gray(`(${result.timingLabel})`)}`,
       );
 
-      // A later scenario can stall; completed failures must remain readable
-      // without repeating the scenarios that already finished.
-      if (result.passed === false)
-        console.log({ assertion: exec.error, timing: result.timingFailure });
+      // Completed failures stay readable at once, before the next scenario.
+      if (result.passed === false || late !== null)
+        console.log({
+          assertion: exec.error,
+          timing: result.timingFailure,
+          ...(late === null ? {} : { cap: late }),
+        });
     },
     filter,
   });
@@ -75,7 +76,7 @@ async function main(): Promise<void> {
     .map(assessScenarioExecution)
     .filter(
       (result: IScenarioExecutionAssessment): boolean =>
-        result.passed === false,
+        result.passed === false || overCap(result, limit) !== null,
     );
   const passed: number = report.executions.length - failures.length;
   console.log("---------------------------------------------------");
@@ -85,7 +86,14 @@ async function main(): Promise<void> {
 
   if (failures.length !== 0) {
     console.log(chalk.red(`\n${failures.length} FAILED:`));
-    for (const f of failures) console.log(chalk.red(`\n● ${f.execution.name}`));
+    for (const f of failures) {
+      const late: string | null = overCap(f, limit);
+      console.log(
+        chalk.red(
+          `\n● ${f.execution.name}${late === null ? "" : ` (${late})`}`,
+        ),
+      );
+    }
     process.exit(1);
   }
   console.log(chalk.green("All tests passed."));
@@ -100,6 +108,26 @@ async function main(): Promise<void> {
   if (open.length !== 0)
     console.log(chalk.gray(`open handles at the end: ${open.join(", ")}`));
   process.exit(0);
+}
+
+/**
+ * The cap's report for a scenario that ran past the limit: "ran N s, past the
+ * 3-minute cap: a defect to fix". A slow scenario is a defect of that scenario,
+ * reported as such; it ends nothing.
+ *
+ * @param result The scenario's assessment.
+ * @param limit The cap, seconds.
+ * @returns The report, or null when the scenario finished within the cap or its
+ *   clock is invalid (which the assessment reports itself).
+ */
+function overCap(
+  result: IScenarioExecutionAssessment,
+  limit: number,
+): string | null {
+  if (result.elapsedMs === null || result.elapsedMs <= limit * 1000)
+    return null;
+  const cap: string = limit % 60 === 0 ? `${limit / 60}-minute` : `${limit} s`;
+  return `ran ${(result.elapsedMs / 1000).toFixed(1)} s, past the ${cap} cap: a defect to fix`;
 }
 
 main().catch((error: unknown): void => {
