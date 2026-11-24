@@ -13,8 +13,31 @@ import type {
 
 import { AutoMovieHumanTrunkNeckSeat } from "./AutoMovieHumanTrunkNeckSeat";
 
-/** Original regular neck boundary from shared scalar/section/frame laws, before either part or any raw chain. */
+/**
+ * Original regular neck boundary from shared scalar/section/frame laws, before
+ * either part or any raw chain.
+ */
 export namespace AutoMovieHumanNeckBoundary {
+  /** Keep the head's original field above its shared regular body section. */
+  export function retainHead(
+    part: IAutoMovieViewPart,
+    station: number,
+  ): IAutoMovieViewPart {
+    if (station === part.stations[0]) return part;
+    if (
+      !(station > part.stations[0]! && station < part.stations.at(-1)!) ||
+      part.pole === "bottom" ||
+      part.pole === "both"
+    )
+      throw new Error(
+        `Head source ${part.name} cannot retain a regular bottom at ${station} mm`,
+      );
+    return {
+      ...part,
+      stations: [station, ...part.stations.filter((s) => s > station)],
+    };
+  }
+
   /**
    * @evidence contracts/common.md#principled-implementation Reads the declared radius/centre laws at the original cut and constructs all four native support two-jets and the original fixed-axis frame2 directly. Native admission still evaluates that actual complete section.
    * @evidence contracts/common.md#clear-and-simple-design Publishes the boundary needed by both source consumers, without constructing a neck part, full head, loft, mesh or calibration.

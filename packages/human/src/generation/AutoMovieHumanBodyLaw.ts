@@ -25,6 +25,7 @@ import { AutoMovieHumanBodyLane } from "./AutoMovieHumanBodyLane";
 import { AutoMovieHumanBodyPreparation } from "./AutoMovieHumanBodyPreparation";
 import { AutoMovieHumanFootConstruction } from "./AutoMovieHumanFootConstruction";
 import { AutoMovieHumanHeadInputs } from "./AutoMovieHumanHeadInputs";
+import { AutoMovieHumanNeckBoundary } from "./AutoMovieHumanNeckBoundary";
 import { AutoMovieHumanHeadLane } from "./head/AutoMovieHumanHeadLane";
 import { AutoMovieHumanLegCrotchHeight } from "./leg/AutoMovieHumanLegCrotchHeight";
 
@@ -124,13 +125,24 @@ export namespace AutoMovieHumanBodyLaw {
   ): IAutoMovieHumanBodyLaw.IDefinition {
     const context: IAutoMovieHumanBodyPreparation.IOutput =
       prepared ?? prepare(params);
-    const headLane: IAutoMovieHumanHeadLane.IOutput =
-      AutoMovieHumanHeadLane.create(
-        context.headInputs,
-        AutoMovieHumanBodyAnatomy.sexOf(params),
-        context.neckSource,
-        context.head,
-      );
+    const head: IAutoMovieHumanHeadLane.IOutput = AutoMovieHumanHeadLane.create(
+      context.headInputs,
+      AutoMovieHumanBodyAnatomy.sexOf(params),
+      context.neckSource,
+      context.head,
+    );
+    const massPart = AutoMovieHumanNeckBoundary.retainHead(
+      head.source.massPart,
+      context.neckConnection.boundary.y,
+    );
+    const headLane: IAutoMovieHumanHeadLane.IOutput = {
+      ...head,
+      source: {
+        ...head.source,
+        massPart,
+        sources: new Map(head.source.sources).set(massPart.name, massPart),
+      },
+    };
     const input: IAutoMovieHumanBodyLane.IInput = bodyInput(context);
     const lane: IAutoMovieHumanBodyLane.IDefinition =
       AutoMovieHumanBodyLane.define({

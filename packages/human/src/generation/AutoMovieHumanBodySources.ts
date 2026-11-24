@@ -170,7 +170,7 @@ export namespace AutoMovieHumanBodySources {
           );
         return AutoMovieHumanNeckBoundary.create(
           controls,
-          actual.neckSource.bottom[1],
+          actual.inputs.neckBase.sideNeckPointHeight * actual.neckSource.scale,
         );
       } finally {
         milliseconds.neckBoundary = performance.now() - began;
