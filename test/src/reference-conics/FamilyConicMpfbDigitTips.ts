@@ -32,10 +32,15 @@ import { preserveFamilyConicDistalSection } from "./preserveFamilyConicDistalSec
 export namespace FamilyConicMpfbDigitTips {
   /** Exact source and original conic bounds on one physical plane, in mm. */
   export interface IExtent {
+    /** Address of the measured plane on the original digit chart. */
     station: number;
+    /** Four extremal bounds cut from the indexed reference surface. */
     stock: [number, number, number, number] | null;
+    /** Four bounds of the unchanged digit wall. */
     original: [number, number, number, number];
+    /** Four bounds of the revised distal wall. */
     candidate?: IExtent["original"];
+    /** Source phase and fullness observations in the angle convention of the digit. */
     angular?: { touch: number[]; shoulder: number[] };
   }
 
@@ -132,7 +137,7 @@ export namespace FamilyConicMpfbDigitTips {
       // The cap law reads two preceding one-millimetre sections. Keep them
       // inside the active wall and leave the protected first section intact.
       const least: number = Math.max(
-        family.rootSectionMark ?? family.knots[0]!,
+        (family.rootSectionMark ?? family.knots[0])!,
         family.knots[0]! + 2,
       );
       // ESTIMATE: the equal axial/reach dome follows circular end curvature
@@ -195,7 +200,7 @@ export namespace FamilyConicMpfbDigitTips {
       const candidate = Full.create(view);
       const ordinary = Full.create(Loft.part(family, family.knots, false));
       const protectedStation: number =
-        family.rootSectionMark ?? family.knots[0]!;
+        (family.rootSectionMark ?? family.knots[0])!;
       const phases: number[] = Array.from(
         { length: 8 },
         (_, i): number => (Math.PI * i) / 4,
@@ -261,7 +266,7 @@ export namespace FamilyConicMpfbDigitTips {
   ): IAutoMovieViewPart {
     if (
       !(
-        from > (family.rootSectionMark ?? family.knots[0]!) &&
+        from > (family.rootSectionMark ?? family.knots[0])! &&
         from <= family.knots.at(-1)! &&
         tip > from
       )
@@ -284,7 +289,7 @@ export namespace FamilyConicMpfbDigitTips {
       false,
     );
     const retained: number = Math.max(
-      family.rootSectionMark ?? open.stations[0]!,
+      (family.rootSectionMark ?? open.stations[0])!,
       ...family.knots.filter((s): boolean => s < from),
     );
     const axis = endAxis(open.axis, from, tip, pole);

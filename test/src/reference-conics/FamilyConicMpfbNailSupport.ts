@@ -14,6 +14,7 @@ import type { FamilyConicMpfbSource as Mpfb } from "./FamilyConicMpfbSource";
 
 /** The raw distal skin and exact source-material length in the same nail frame. */
 export namespace FamilyConicMpfbNailSupport {
+  /** Measure the fold and free edge against the original skin and material patch. */
   export function observe(
     source: Mpfb.IGeometry,
     patch: Stock.IPatch,

@@ -32,7 +32,7 @@ export namespace FamilyConicMpfbDigitTipObservation {
     const joints: number[] = CourseRuns.joints(family.centres, family.halves);
     const joint: number = joints.at(-2)!;
     const blendEnd: number = held ? tip : Math.min(joint, from);
-    const protectedStation: number = family.rootSectionMark ?? family.knots[0]!;
+    const protectedStation: number = (family.rootSectionMark ?? family.knots[0])!;
     const previous: number = joints.at(-3) ?? protectedStation;
     const transition: number = Math.min(blendEnd, (joint + previous) / 2);
     const firstOwned: number | undefined = family.knots.find(

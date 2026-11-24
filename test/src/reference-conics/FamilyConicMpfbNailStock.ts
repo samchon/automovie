@@ -5,6 +5,7 @@ import type { FamilyConicMpfbSource as Mpfb } from "./FamilyConicMpfbSource";
 
 /** Original MPFB material faces of one nail on the pinned indexed body. */
 export namespace FamilyConicMpfbNailStock {
+  /** One indexed nail material patch and the original skin along its border. */
   export interface IPatch {
     /** Compact indexed skin triangles of the published nail material. */
     readonly indices: number[];

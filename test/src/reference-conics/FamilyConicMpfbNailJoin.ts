@@ -41,7 +41,9 @@ export namespace FamilyConicMpfbNailJoin {
 
   /** An actual retained exterior and its optional explicit material boundary. */
   export interface IExterior {
+    /** Indexed skin and nail triangles of the realized exterior. */
     mesh: IAutoMovieConstructionRealization.IMesh;
+    /** Index-buffer offset at which the plate triangles begin. */
     plateFrom?: number;
   }
 
