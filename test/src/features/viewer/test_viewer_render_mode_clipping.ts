@@ -8,6 +8,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { singleMaterial } from "../internal/singleMaterial";
+
 /**
  * The hand-written shader materials the viewer installs, the depth pass, the
  * outline shell and the faces shade, carry everything three.js needs to cut
@@ -77,11 +79,12 @@ export function test_viewer_render_mode_clipping(): void {
     )?.at ?? -1;
 
   // A stage with each resolved include written out; a chunk three.js does not ship expands to nothing here, where three.js throws.
-  const expand = (source: string): string =>
+  const chunks: Map<string, string> = new Map<string, string>(
+    Object.entries(THREE.ShaderChunk),
+  );
+  const expand: (source: string) => string = (source: string): string =>
     source.replace(pattern, (_: string, name: string): string =>
-      expand(
-        (THREE.ShaderChunk as Record<string, string | undefined>)[name] ?? "",
-      ),
+      expand(chunks.get(name) ?? ""),
     );
 
   // The conditions of a cut a material does not meet, by name; empty when three.js can cut it.
@@ -149,8 +152,10 @@ export function test_viewer_render_mode_clipping(): void {
     deep.scene,
     "depth",
   );
-  const program: THREE.ShaderMaterial = deep.mesh
-    .material as THREE.ShaderMaterial;
+  const material: THREE.Material = singleMaterial(deep.mesh.material);
+  if (!AutoMovieThreeKind.isShaderMaterial(material))
+    throw new Error("Expected the depth shader material");
+  const program: THREE.ShaderMaterial = material;
   const source: { vertex: string; fragment: string } = {
     vertex: program.vertexShader,
     fragment: program.fragmentShader,

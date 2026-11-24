@@ -121,29 +121,33 @@ export function test_viewer_render_mode_albedo(): void {
   );
   const overrides: THREE.MeshBasicMaterial[] = meshes.flatMap(
     (mesh: THREE.Mesh): THREE.MeshBasicMaterial[] =>
-      [mesh.material].flat() as THREE.MeshBasicMaterial[],
+      [mesh.material]
+        .flat()
+        .filter(
+          (material: THREE.Material): material is THREE.MeshBasicMaterial =>
+            AutoMovieThreeKind.isMeshBasicMaterial(material),
+        ),
   );
-  /** The eight overrides, in mesh order. */
-  type Overrides = [
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-    THREE.MeshBasicMaterial,
-  ];
-  const [
-    redOverride,
-    greyOverride,
-    texturedOverride,
-    cutoutOverride,
-    clearOverride,
-    glassOverride,
-    groupRed,
-    groupShader,
-  ]: Overrides = overrides as Overrides;
+  /**
+   * The override at a mesh's index; the pass installs one for each of the
+   * eight.
+   */
+  const at: (index: number) => THREE.MeshBasicMaterial = (
+    index: number,
+  ): THREE.MeshBasicMaterial => {
+    const override: THREE.MeshBasicMaterial | undefined = overrides[index];
+    if (override === undefined)
+      throw new Error(`Mesh ${index} has no basic override`);
+    return override;
+  };
+  const redOverride: THREE.MeshBasicMaterial = at(0);
+  const greyOverride: THREE.MeshBasicMaterial = at(1);
+  const texturedOverride: THREE.MeshBasicMaterial = at(2);
+  const cutoutOverride: THREE.MeshBasicMaterial = at(3);
+  const clearOverride: THREE.MeshBasicMaterial = at(4);
+  const glassOverride: THREE.MeshBasicMaterial = at(5);
+  const groupRed: THREE.MeshBasicMaterial = at(6);
+  const groupShader: THREE.MeshBasicMaterial = at(7);
   const colors: string[] = overrides.map(
     (override: THREE.MeshBasicMaterial): string =>
       override.color.getHexString(THREE.SRGBColorSpace),
@@ -205,7 +209,8 @@ export function test_viewer_render_mode_albedo(): void {
         "noImageLighting",
         (): boolean =>
           scene.environment === null &&
-          scene.background instanceof THREE.Color &&
+          scene.background !== null &&
+          AutoMovieThreeKind.isColor(scene.background) &&
           scene.background.getHex() === 0x000000,
       ],
       [

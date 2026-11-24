@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   type IAutoMovieModelObject,
   POSE_OVERLAY_NAME,
   applyRenderMode,
@@ -9,6 +10,8 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
+import { readObjectsOfKind } from "../internal/readObjectsOfKind";
+import { singleMaterial } from "../internal/singleMaterial";
 
 const buildOneNodeScene: () => ReturnType<typeof buildScene> = (): ReturnType<
   typeof buildScene
@@ -41,8 +44,7 @@ const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
 ): THREE.Mesh[] => {
   const meshes: THREE.Mesh[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if ((object as THREE.Mesh).isMesh === true)
-      meshes.push(object as THREE.Mesh);
+    if (AutoMovieThreeKind.isMesh(object)) meshes.push(object);
   });
   return meshes;
 };
@@ -212,7 +214,7 @@ export function test_viewer_render_mode_dispose(): void {
     | THREE.Material<THREE.MaterialEventMap>
     | THREE.Material<THREE.MaterialEventMap>[],
     THREE.Object3DEventMap
-  >[] = overlay.children as THREE.Line[];
+  >[] = readObjectsOfKind(overlay.children, AutoMovieThreeKind.isLine);
   TestValidator.predicate(
     "pose constructed at least one line",
     lines.length > 0,
@@ -231,7 +233,7 @@ export function test_viewer_render_mode_dispose(): void {
     ): { count: number } => spyDispose(line.geometry),
   );
   const lineMaterialSpy: { count: number } = spyDispose(
-    lines[0]!.material as THREE.Material,
+    singleMaterial(lines[0]!.material),
   );
   pose.restore();
   TestValidator.predicate(

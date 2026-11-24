@@ -32,7 +32,11 @@ import { vclose } from "../../../internal/vclose";
  *    `relax`.
  * 2. The pelvis heads -2 degrees at both `stroke` and `strokeEnd`.
  * 3. Both fists hold above the shoulders.
- * 4. Every sampled posture resolves with both guard fists on their sites and the
+ * 4. At the first mark the square, deeper stance (41 degrees of knee bend against
+ *    16) holds the hips over 2 cm lower below their start than the upright,
+ *    bladed taekwondo reset does, the contrast that tells the two silhouettes
+ *    apart.
+ * 5. Every sampled posture resolves with both guard fists on their sites and the
  *    arms clear, and the last returns to the first.
  */
 export async function test_unit_motions_sport_martial_art_plan_muay_thai(): Promise<void> {
@@ -79,6 +83,21 @@ export async function test_unit_motions_sport_martial_art_plan_muay_thai(): Prom
   TestValidator.predicate(
     "the guard above the shoulders",
     raised("left") > 0.03 && raised("right") > 0.03,
+  );
+  const bladed: IAutoMovieMotionHumanActionPlan = martialArt.plan(
+    motionActionContext(body, { kind: "taekwondoStanceReset", hold: 0.24 }),
+  );
+  bladed.prepare?.();
+  const drop = (of: IAutoMovieMotionHumanActionPlan): number =>
+    of.posture(0).root.y -
+    of.posture(
+      of.events.find(
+        (e: IAutoMovieMotionEvent): boolean => e.name === "stroke",
+      )!.share * of.duration,
+    ).root.y;
+  TestValidator.predicate(
+    "lower than the taekwondo reset",
+    drop(plan) - drop(bladed) > 0.02,
   );
   for (let s: number = 0; s < plan.duration; s += 0.1) plan.posture(s);
   TestValidator.predicate(

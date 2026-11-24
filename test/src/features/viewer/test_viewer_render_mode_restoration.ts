@@ -1,4 +1,5 @@
 import {
+  AutoMovieThreeKind,
   EDGE_SHELL_NAME,
   POSE_OVERLAY_NAME,
   applyRenderMode,
@@ -8,6 +9,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
+import { readObjectOfKind } from "../internal/readObjectOfKind";
 import { singleMaterial } from "../internal/singleMaterial";
 
 const caught: (operation: () => void) => unknown = (
@@ -186,7 +188,11 @@ export function test_viewer_render_mode_restoration(): void {
       "pose",
     ),
     overlay: THREE.Object3D = scene.getObjectByName(POSE_OVERLAY_NAME)!;
-  const segment: THREE.Line = overlay.children[0] as THREE.Line;
+  const segment: THREE.Line = readObjectOfKind(
+    overlay.children,
+    0,
+    AutoMovieThreeKind.isLine,
+  );
   let poseAttempts: number = 0;
   segment.geometry.addEventListener("dispose", (): void => {
     ++poseAttempts;

@@ -6,6 +6,7 @@ import type {
   IAutoMovieTransform,
 } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   buildInstancedFormation,
   regenerateFormationSlot,
 } from "@automovie/render";
@@ -14,15 +15,23 @@ import type * as ThreeTypes from "three";
 
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { nclose, qclose, vclose } from "../internal/predicates";
+import { readObjectOfKind } from "../internal/readObjectOfKind";
 
 /**
- * Formation placement delegates arithmetic to the Engine, keeps instance coordinates local and copies promoted source transforms before use. The authored three-degree line supplies an independent rotated-lattice oracle.
+ * Formation placement delegates arithmetic to the Engine, keeps instance
+ * coordinates local and copies promoted source transforms before use. The
+ * authored three-degree line supplies an independent rotated-lattice oracle.
  *
  * Scenarios:
- * 1. Default construction regenerates the rotated slots and writes anchor-relative coordinates without spacing or motion displacement.
- * 2. Doubled lateral spacing uses the designed heading before a quarter turn, while the root carries cue translation and rotation once.
- * 3. A promoted source's displacement, rotation and scale survive two updates without reading back the previously written transform.
- * 4. An explicit source snapshot supersedes the initial snapshot; release retains the host's promoted object and detaches anonymous resources.
+ *
+ * 1. Default construction regenerates the rotated slots and writes anchor-relative
+ *    coordinates without spacing or motion displacement.
+ * 2. Doubled lateral spacing uses the designed heading before a quarter turn,
+ *    while the root carries cue translation and rotation once.
+ * 3. A promoted source's displacement, rotation and scale survive two updates
+ *    without reading back the previously written transform.
+ * 4. An explicit source snapshot supersedes the initial snapshot; release retains
+ *    the host's promoted object and detaches anonymous resources.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds a formation with a promoted host-owned source and updates heading, spacing and source snapshots, then reads real world/local transforms and retained parent identity; catches duplicate placement application and feeding previously updated hero state back into the next seek.
  * @evidence contracts/development/testing.md#independent-expectations Hand-rotated lattice offsets, quarter-turn quaternion composition and literal source transforms define finite vector/quaternion expectations; the existing Engine formation supplies derived placement data and is not independently validated as a solver here.
@@ -94,7 +103,11 @@ export async function test_viewer_formation_placement_source(): Promise<void> {
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>[],
     ThreeTypes.Object3DEventMap
-  > = runtime.object.children[0] as ThreeTypes.InstancedMesh;
+  > = readObjectOfKind(
+    runtime.object.children,
+    0,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   TestValidator.equals(
     "the promoted slot leaves exactly two anonymous instances",
     mesh.count,

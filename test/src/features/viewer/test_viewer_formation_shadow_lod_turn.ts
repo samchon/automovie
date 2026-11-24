@@ -1,5 +1,6 @@
 import type { IAutoMovieModel } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieFormationCycle,
   buildInstancedFormation,
   formationCycleOf,
@@ -10,14 +11,20 @@ import type * as ThreeTypes from "three";
 
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { nclose } from "../internal/predicates";
+import { readObjectsOfKind } from "../internal/readObjectsOfKind";
 
 /**
- * Tier changes preserve resolved cadence in each tier's shared shadow cells; turning adds cycle distance proportional to the member's pivot radius.
+ * Tier changes preserve resolved cadence in each tier's shared shadow cells;
+ * turning adds cycle distance proportional to the member's pivot radius.
  *
  * Scenarios:
- * 1. Near and far tiers own distinct table cells and depth/distance materials; camera selection changes the existing mesh visibility.
- * 2. A translating quarter turn resolves half-distance and half-angle at its midpoint using the supplied derived stride.
- * 3. Seeded phases and opposite seek order preserve the wrapped sample; culling hides the tier and returning restores its visibility.
+ *
+ * 1. Near and far tiers own distinct table cells and depth/distance materials;
+ *    camera selection changes the existing mesh visibility.
+ * 2. A translating quarter turn resolves half-distance and half-angle at its
+ *    midpoint using the supplied derived stride.
+ * 3. Seeded phases and opposite seek order preserve the wrapped sample; culling
+ *    hides the tier and returning restores its visibility.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Updates the established formation through movement, turn, near/far camera and away/back views, reading native batch visibility, cycle values and depth/distance material state; catches stale turned transforms and shadow cycle cells detached from their visible tier.
  * @evidence contracts/development/testing.md#independent-expectations Literal camera positions and authored one-metre travel/quarter turn distinguish admission and LOD transitions; modulo phase arithmetic uses the supplied Engine stride/cadence premise and therefore does not independently establish gait derivation or conservative geometric coverage.
@@ -85,7 +92,10 @@ export async function test_viewer_formation_shadow_lod_turn(): Promise<void> {
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>[],
     ThreeTypes.Object3DEventMap
-  >[] = runtime.object.children as ThreeTypes.InstancedMesh[];
+  >[] = readObjectsOfKind(
+    runtime.object.children,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   const nearCycle: IAutoMovieFormationCycle = formationCycleOf(nearMesh!)!;
   const farCycle: IAutoMovieFormationCycle = formationCycleOf(farMesh!)!;
   TestValidator.predicate(
@@ -106,8 +116,10 @@ export async function test_viewer_formation_shadow_lod_turn(): Promise<void> {
           ThreeTypes.Object3DEventMap
         >,
       ): boolean =>
-        mesh.customDepthMaterial instanceof THREE.MeshDepthMaterial &&
-        mesh.customDistanceMaterial instanceof THREE.MeshDistanceMaterial,
+        mesh.customDepthMaterial !== undefined &&
+        AutoMovieThreeKind.isMeshDepthMaterial(mesh.customDepthMaterial) &&
+        mesh.customDistanceMaterial !== undefined &&
+        AutoMovieThreeKind.isMeshDistanceMaterial(mesh.customDistanceMaterial),
     ),
   );
   const camera: ThreeTypes.PerspectiveCamera = new THREE.PerspectiveCamera(

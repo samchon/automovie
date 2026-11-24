@@ -22,6 +22,7 @@ import * as THREE from "three";
 import { flatBasin, waterFeature } from "../internal/fluidFixtures";
 import { observeThrownValue } from "../internal/observeThrownValue";
 import { namedFacts, throwsError } from "../internal/predicates";
+import { readBackgroundColor } from "../internal/readBackgroundColor";
 import {
   buildingFixture,
   instanceSetFixture,
@@ -37,19 +38,36 @@ import {
 } from "../internal/softFixtures";
 
 /**
- * The packaged mask pass joins a supplied semantic palette to real scene mesh identities and reports unresolved roots/unaddressed meshes. CPU material and membership observations are distinct from actual visibility or drawn pixels.
+ * The packaged mask pass joins a supplied semantic palette to real scene mesh
+ * identities and reports unresolved roots/unaddressed meshes. CPU material and
+ * membership observations are distinct from actual visibility or drawn pixels.
  *
  * Scenarios:
  *
- * 1. A scene handed no palette keeps the index ramp and the handle reports no semantic result, so nothing claims identity it did not paint.
- * 2. `autoMovieSemanticMaskOf` answers `null` before the attach and the binding after, which is the only thing that decides which of the two passes runs.
- * 3. A scene handed its palette paints every mesh the colour its own semantic id earned, an unclaimed mesh the reserved background, and the handle carries the painted, unaddressed and unresolved counts back to its caller.
- * 4. Restoring the pass returns every material and the background, and restoring twice is a no-op.
- * 5. A pond, a curtain and a fern bed the shot declared and the scene never built are named by the audit and by the pass; entries that claim no drawable of their own, such as a room, an opening or an instanced slot, are never named.
- * 6. A scene containing every declared drawable reports an empty `unresolved` and still counts the geometry the palette cannot name, and an instanced set whose viewer group is missing is named by its own set id.
- * 7. A palette that cannot resolve the scene refuses, and the refusal costs the scene nothing: fog, image lighting, background and hidden renderables are all back, because a throw past the pass boundary would leave them suspended with no handle to undo them.
- * 8. A real override's failed dispose cannot skip neighboring material or atmosphere restoration; repeat preserves that cause without retry.
- * 9. A frozen mesh that refuses setup still restores the earlier neighbor and reports its original refusal while independent scene fields recover.
+ * 1. A scene handed no palette keeps the index ramp and the handle reports no
+ *    semantic result, so nothing claims identity it did not paint.
+ * 2. `autoMovieSemanticMaskOf` answers `null` before the attach and the binding
+ *    after, which is the only thing that decides which of the two passes runs.
+ * 3. A scene handed its palette paints every mesh the colour its own semantic id
+ *    earned, an unclaimed mesh the reserved background, and the handle carries
+ *    the painted, unaddressed and unresolved counts back to its caller.
+ * 4. Restoring the pass returns every material and the background, and restoring
+ *    twice is a no-op.
+ * 5. A pond, a curtain and a fern bed the shot declared and the scene never built
+ *    are named by the audit and by the pass; entries that claim no drawable of
+ *    their own, such as a room, an opening or an instanced slot, are never
+ *    named.
+ * 6. A scene containing every declared drawable reports an empty `unresolved` and
+ *    still counts the geometry the palette cannot name, and an instanced set
+ *    whose viewer group is missing is named by its own set id.
+ * 7. A palette that cannot resolve the scene refuses, and the refusal costs the
+ *    scene nothing: fog, image lighting, background and hidden renderables are
+ *    all back, because a throw past the pass boundary would leave them
+ *    suspended with no handle to undo them.
+ * 8. A real override's failed dispose cannot skip neighboring material or
+ *    atmosphere restoration; repeat preserves that cause without retry.
+ * 9. A frozen mesh that refuses setup still restores the earlier neighbor and
+ *    reports its original refusal while independent scene fields recover.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs actual attach/lookup/audit/packaged mask APIs, checking semantic material colors, manually assembled mesh counts and restored borrowed state; real disposal and frozen-mesh assignment failures exercise independent cleanup and sticky original causes.
  * @evidence contracts/development/testing.md#independent-expectations The Engine-derived palette is an independent input to the viewer painter, with expected ids/counts from fixture construction and original object identities for restoration. The legacy wall expectation uses the public maskColor helper and checks its routing rather than independently validating that helper's color formula. The compiled fixture supplies only converter-consumed fields and is not full artifact validity proof; material colors/root membership do not certify native pixels, frustum visibility, anatomy or GPU release.
@@ -183,7 +201,7 @@ export function test_viewer_semantic_mask_pass(): void {
       [
         "background",
         (): boolean =>
-          (complete.scene.background as THREE.Color).getHex() === 0x123456,
+          readBackgroundColor(complete.scene).getHex() === 0x123456,
       ],
       ["mode", (): boolean => handle.mode === "mask"],
     ]),
@@ -237,7 +255,7 @@ export function test_viewer_semantic_mask_pass(): void {
       complete.scene.fog === failureFog &&
       complete.scene.environment === failureEnvironment &&
       failureGrid.visible &&
-      (complete.scene.background as THREE.Color).getHex() === 0x123456,
+      readBackgroundColor(complete.scene).getHex() === 0x123456,
   );
   TestValidator.predicate(
     "all distinct actual overrides retire once despite a failing listener",
@@ -291,7 +309,7 @@ export function test_viewer_semantic_mask_pass(): void {
         mesh.material === setupFailure.beauty.get(mesh),
     ) &&
       setupFailure.scene.fog === setupFog &&
-      (setupFailure.scene.background as THREE.Color).getHex() === 0x123456,
+      readBackgroundColor(setupFailure.scene).getHex() === 0x123456,
   );
   const setupRepeat: ReturnType<typeof observeThrownValue> = observeThrownValue(
     (): ReturnType<typeof applyRenderMode> =>
@@ -394,7 +412,7 @@ export function test_viewer_semantic_mask_pass(): void {
       ["image lighting", (): boolean => short.environment !== null],
       [
         "background",
-        (): boolean => (short.background as THREE.Color).getHex() === 0x123456,
+        (): boolean => readBackgroundColor(short).getHex() === 0x123456,
       ],
       ["grid visible", (): boolean => grid.visible],
     ]),
@@ -409,7 +427,9 @@ export function test_viewer_semantic_mask_pass(): void {
 }
 
 /**
- * Assemble the scene `buildScene` and the compiled shot runtime assemble: one named group per designed node in declaration order, a named group for the compiled instance set, and one named object per simulated drawable.
+ * Assemble the scene `buildScene` and the compiled shot runtime assemble: one
+ * named group per designed node in declaration order, a named group for the
+ * compiled instance set, and one named object per simulated drawable.
  */
 const build: (
   design: IAutoMovieScene,

@@ -1,6 +1,7 @@
 import { ROM_TOLERANCE } from "@automovie/engine";
 import type {
   AutoMovieHumanoidBone,
+  IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanAudit,
   IAutoMovieMotionHumanAuditContact,
   IAutoMovieMotionHumanAuditMeasure,
@@ -10,6 +11,7 @@ import type {
   IAutoMovieMotionHumanPerformance,
   IAutoMovieMotionHumanPerformer,
   IAutoMovieMotionHumanPropOutcome,
+  IAutoMovieMotionHumanSegment,
   IAutoMovieMotionHumanSimulation,
   IAutoMovieMotionHumanVerdicts,
   IAutoMovieMotionHumanWater,
@@ -52,7 +54,7 @@ type OfPlaceResult = "act" | "instance";
  *   before it starts.
  */
 export function HumanVerdicts(
-  performance: IAutoMovieMotionHumanPerformance,
+  performance: HumanVerdicts.IPerformance,
   rate: number = 24,
   span?: IAutoMovieMotionHumanVerdicts.IOfSpan,
 ): IAutoMovieMotionHumanVerdicts.IReport {
@@ -318,6 +320,43 @@ export function HumanVerdicts(
  */
 export namespace HumanVerdicts {
   /**
+   * What the verdicts read of a performance: its length, its performers'
+   * bodies, their displayed poses and bones, the props' frames and flights, the
+   * solved windows and each performer's placed actions.
+   */
+  export interface IPerformance extends Pick<
+    IAutoMovieMotionHumanPerformance,
+    "duration" | "pose" | "bones" | "prop" | "site" | "flights" | "simulations"
+  > {
+    /** The performers, by subject, with their bodies. */
+    readonly performers: readonly Pick<
+      IAutoMovieMotionHumanActionLaw,
+      IAutoMovieMotionHumanPerformer,
+      "subject" | "body"
+    >[];
+
+    /**
+     * A performer's placed actions, in film order.
+     *
+     * @param subject The performer.
+     * @returns The actions.
+     */
+    segments(subject: string): readonly HumanVerdicts.ISegment[];
+  }
+
+  /**
+   * What the verdicts read of a placed action: its identity, its film span, its
+   * params (for the water it names), its plan, and its law's family and
+   * physical flag.
+   */
+  export interface ISegment extends Pick<
+    IAutoMovieMotionHumanSegment,
+    "id" | "index" | "name" | "start" | "entryTime" | "end" | "params" | "plan"
+  > {
+    /** The action's law, as far as its family and physics are read. */
+    law: Pick<IAutoMovieMotionHumanActionLaw<never>, "family" | "physical">;
+  }
+  /**
    * The depth a pressed skin gives, metres: how far two bodies may enter each
    * other, the tangle audit's own skin (`AutoMovieMotionHumanAuditSkin.BUILT`),
    * which the arm planner admits a course by.
@@ -336,7 +375,7 @@ export namespace HumanVerdicts {
    * @returns Whether the performer swims or climbs a ladder.
    */
   export function airborne(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: HumanVerdicts.IPerformance,
     subject: string,
   ): boolean {
     return isAirborne(performance.segments(subject));
@@ -366,9 +405,7 @@ export namespace HumanVerdicts {
 }
 
 /** Whether any action of a chain is one the floor does not carry. */
-const isAirborne = (
-  spans: ReturnType<IAutoMovieMotionHumanPerformance["segments"]>,
-): boolean =>
+const isAirborne = (spans: readonly HumanVerdicts.ISegment[]): boolean =>
   spans.some((s): boolean =>
     HumanVerdicts.AIRBORNE.includes(s.law.family ?? s.name),
   );
@@ -381,7 +418,7 @@ const isAirborne = (
  * floor, bears the body.
  */
 const inWater = (
-  performance: IAutoMovieMotionHumanPerformance,
+  performance: HumanVerdicts.IPerformance,
   subject: string,
   seconds: number,
 ): boolean => {
@@ -417,7 +454,7 @@ const instant = (subject: string, seconds: number): string =>
  * span of one report.
  */
 const remember = (
-  performance: IAutoMovieMotionHumanPerformance,
+  performance: HumanVerdicts.IPerformance,
 ): IAutoMovieMotionHumanAuditMotion => {
   const known: Map<
     string,

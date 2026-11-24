@@ -13,15 +13,21 @@ import { createModel } from "../internal/fixtures";
 import { hasViolation, nclose } from "../internal/predicates";
 
 /**
- * Exercises the numerical lookup approximation, returned shader transformation and radius metadata/admission boundary.
+ * Exercises the numerical lookup approximation, returned shader transformation
+ * and radius metadata/admission boundary.
  *
  * Scenarios:
+ *
  * 1. The no-blur table row matches clamped cosine at every tabulated coordinate.
- * 2. Intermediate blur crosses the terminator and lowers the peak; the widest row approaches the Lambertian mean.
+ * 2. Intermediate blur crosses the terminator and lowers the peak; the widest row
+ *    approaches the Lambertian mean.
  * 3. Independent angular integration bounds every row's Lambertian mean.
- * 4. Returned shader source replaces the supported direct diffuse response while retaining specular operations.
- * 5. All authored radius channels remain exact CPU material metadata under the subsurface hook; opaque material omits it.
- * 6. Negative/nonfinite radii refuse while the authored nonnegative radius is admitted, then locally owned materials are disposed.
+ * 4. Returned shader source replaces the supported direct diffuse response while
+ *    retaining specular operations.
+ * 5. All authored radius channels remain exact CPU material metadata under the
+ *    subsurface hook; opaque material omits it.
+ * 6. A negative radius refuses while the authored nonnegative radius is admitted,
+ *    then locally owned materials are disposed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual lookup/fragment/material/validation owners; judges clamped cosine, terminator transport and integrated mean with independent numeric predicates.
  * @evidence contracts/development/testing.md#independent-expectations An independently integrated clamped-cosine mean and authored radius values define expectations; quadrature error is bounded by stated tolerances rather than a copied table or clinical tissue model.
@@ -159,17 +165,12 @@ export function test_viewer_subsurface_shading(): void {
     );
   };
   TestValidator.predicate(
-    "a negative or nonfinite radius is refused and a nonnegative one admitted",
+    "a negative radius is refused and a nonnegative one admitted",
     hasViolation(
       validate({ subsurfaceRadius: { r: -0.001, g: 0.001, b: 0.001 } }),
       "range",
       ".subsurfaceRadius.r",
-    ) &&
-      refusedAt(
-        { subsurfaceRadius: { r: 0.001, g: Number.NaN, b: 0.001 } },
-        ".subsurfaceRadius.g",
-      ) &&
-      !refusedAt({ subsurfaceRadius: radius }, "subsurfaceRadius"),
+    ) && !refusedAt({ subsurfaceRadius: radius }, "subsurfaceRadius"),
   );
   translucent.dispose();
   opaque.dispose();

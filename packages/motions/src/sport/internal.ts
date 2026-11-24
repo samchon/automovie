@@ -25,6 +25,7 @@ export * from "./HumanBallPlay";
 export * from "./kickboxing/KickboxingRing";
 export * from "./martialArt";
 export * from "./MartialArtStanceForms";
+export * from "./prepareChokuZukiPath";
 export * from "./racketClock";
 export * from "./racketStanceTransfer";
 export * from "./roundOff";

@@ -81,16 +81,13 @@ const NAILS: IAutoMovieMaterialOverlay = {
 export function test_viewer_material_overlay(): void {
   const base: IAutoMovieMaterial = createModel().materials[0]!;
   const resolve: (
-    binding: unknown,
+    binding: AutoMovieTextureBinding,
   ) => THREE.Texture<unknown, THREE.TextureEventMap> = (
-    binding: unknown,
+    binding: AutoMovieTextureBinding,
   ): THREE.Texture<unknown, THREE.TextureEventMap> => {
     const texture: THREE.Texture<unknown, THREE.TextureEventMap> =
       new THREE.Texture();
-    texture.name =
-      typeof binding === "string"
-        ? binding
-        : (binding as IAutoMovieTextureReference).asset;
+    texture.name = typeof binding === "string" ? binding : binding.asset;
     return texture;
   };
   const both: THREE.MeshPhysicalMaterial = buildMaterial(
@@ -131,9 +128,8 @@ export function test_viewer_material_overlay(): void {
       ...base,
       normalTexture: reference("relief", "linear"),
       overlays: [VEINS, NAILS],
-    }).map(
-      (binding: AutoMovieTextureBinding): string =>
-        (binding as IAutoMovieTextureReference).asset,
+    }).map((binding: AutoMovieTextureBinding): string =>
+      typeof binding === "string" ? binding : binding.asset,
     ),
     ["relief", "veins", "veins-relief", "nails"],
   );

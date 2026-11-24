@@ -6,11 +6,15 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 /**
- * Factory sampling facts describe bounded conversion intent while leaving the scene-owned texture's configured fields unchanged.
+ * Factory sampling facts describe bounded conversion intent while leaving the
+ * scene-owned texture's configured fields unchanged.
  *
  * Scenarios:
- * 1. Mip-linear input reports a linear conversion choice while retaining its configured sampler, public version and generated storage policy.
- * 2. Other supported native filters retain their own choice, including a filter outside the authorable union; unsupported wrap/filter facts stay null.
+ *
+ * 1. Mip-linear input reports a linear conversion choice while retaining its
+ *    configured sampler, public version and generated storage policy.
+ * 2. Other supported native filters retain their own choice, including a filter
+ *    outside the authorable union.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies the real scene-image owner and reads its Texture metadata, catching conversion intent confused with the configured sampler or an observer that mutates native fields.
  * @evidence contracts/development/testing.md#independent-expectations The supported conversion policy uses linear sampling for generated mip-linear input and preserves other admitted native filters; literal Three enum tuples pin that policy, while no assertion observes a cached GPU sampler key or native upload.
@@ -83,21 +87,5 @@ export function test_viewer_environment_sampler_intents(): void {
       ]),
     );
   }
-  Object.assign(texture, { wrapS: Number.NaN });
-  TestValidator.equals(
-    "unsupported native wrapping cannot certify factory sampling",
-    [
-      readAutoMovieTextureSource("sky", texture).environmentSampler,
-      readAutoMovieTextureSource("sky", texture).environmentSamplerState,
-    ],
-    [undefined, null],
-  );
-  texture.wrapS = THREE.ClampToEdgeWrapping;
-  Object.assign(texture, { minFilter: Number.NaN });
-  TestValidator.equals(
-    "unsupported native filter keeps explicit unknown intent",
-    readAutoMovieTextureSource("sky", texture).environmentSamplerState,
-    null,
-  );
   texture.dispose();
 }

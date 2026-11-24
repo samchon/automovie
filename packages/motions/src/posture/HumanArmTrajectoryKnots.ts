@@ -45,17 +45,37 @@ export namespace HumanArmTrajectoryKnots {
       const h: number = knots[i + 1]! - knots[i]!;
       const u: number = Math.min(1, Math.max(0, (at - knots[i]!) / h));
       const [h0, h1, h2, h3, h4, h5]: number[] = basis(u, 0);
+      // A knot's velocity and acceleration are variables in its own time
+      // scale (`span`): `span v` and `span² a`, in the positions' units, so
+      // the three blocks are of one magnitude in the subproblem.
+      const s: number = span(knots, i);
+      const t: number = span(knots, i + 1);
       return [
         { knot: i, block: 0, weight: h0! },
-        { knot: i, block: 1, weight: h * h1! },
-        { knot: i, block: 2, weight: h * h * h2! },
+        { knot: i, block: 1, weight: (h / s) * h1! },
+        { knot: i, block: 2, weight: ((h * h) / (s * s)) * h2! },
         { knot: i + 1, block: 0, weight: h3! },
-        { knot: i + 1, block: 1, weight: h * h4! },
-        { knot: i + 1, block: 2, weight: h * h * h5! },
+        { knot: i + 1, block: 1, weight: (h / t) * h4! },
+        { knot: i + 1, block: 2, weight: ((h * h) / (t * t)) * h5! },
       ].filter((w: IWeight): boolean => w.weight !== 0);
     });
   }
 
+  /**
+   * A knot's own time scale, seconds: the mean of its neighbouring segments,
+   * the one segment at an end. Its velocity and acceleration are the
+   * subproblem's variables times it, once and twice (`weights`).
+   *
+   * @param knots The knots' seconds.
+   * @param k The knot.
+   * @returns The scale.
+   */
+  export function span(knots: readonly number[], k: number): number {
+    const n: number = knots.length;
+    const before: number = k > 0 ? knots[k]! - knots[k - 1]! : 0;
+    const after: number = k + 1 < n ? knots[k + 1]! - knots[k]! : 0;
+    return k > 0 && k + 1 < n ? (before + after) / 2 : before + after;
+  }
   /** One knot value's weight in a grid instant's coordinates. */
   export interface IWeight {
     /** The knot. */

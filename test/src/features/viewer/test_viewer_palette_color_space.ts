@@ -18,6 +18,7 @@ import * as THREE from "three";
 
 import { createModel } from "../internal/fixtures";
 import { nclose, throwsError } from "../internal/predicates";
+import { readObjectOfKind } from "../internal/readObjectOfKind";
 
 /**
  * One authored swatch reaches the same linear albedo through the material and
@@ -86,8 +87,11 @@ export function test_viewer_palette_color_space(): void {
 
   const fragile: ReturnType<typeof buildInstancedInstanceSet> =
     paletteInstances(SLATE);
-  const mesh: THREE.InstancedMesh = fragile.object
-    .children[0] as THREE.InstancedMesh;
+  const mesh: THREE.InstancedMesh = readObjectOfKind(
+    fragile.object.children,
+    0,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   const failure: Error = new Error(
     "Instance geometry retirement listener refused.",
   );

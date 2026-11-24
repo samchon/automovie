@@ -15,6 +15,8 @@ import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
 import { namedFacts, nclose } from "../internal/predicates";
+import { readBackgroundColor } from "../internal/readBackgroundColor";
+import { singleMaterial } from "../internal/singleMaterial";
 
 const buildTwoNodeScene: () => ReturnType<typeof buildScene> = (): ReturnType<
   typeof buildScene
@@ -55,8 +57,7 @@ const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
 ): THREE.Mesh[] => {
   const meshes: THREE.Mesh[] = [];
   root.traverse((object: THREE.Object3D<THREE.Object3DEventMap>): void => {
-    if ((object as THREE.Mesh).isMesh === true)
-      meshes.push(object as THREE.Mesh);
+    if (AutoMovieThreeKind.isMesh(object)) meshes.push(object);
   });
   return meshes;
 };
@@ -210,12 +211,15 @@ export function test_viewer_render_modes(): void {
     namedFacts([
       [
         "sceneBackgroundInstanceof",
-        (): boolean => scene.background instanceof THREE.Color,
+        (): boolean =>
+          scene.background !== null &&
+          AutoMovieThreeKind.isColor(scene.background),
       ],
       [
         "sceneBackgroundGetHex",
         (): boolean =>
-          scene.background instanceof THREE.Color &&
+          scene.background !== null &&
+          AutoMovieThreeKind.isColor(scene.background) &&
           scene.background.getHex() === 0x000000,
       ],
     ]),
@@ -288,7 +292,9 @@ export function test_viewer_render_modes(): void {
           | THREE.Material<THREE.MaterialEventMap>[],
           THREE.Object3DEventMap
         >,
-      ): boolean => mesh.material instanceof THREE.MeshNormalMaterial,
+      ): boolean =>
+        AutoMovieThreeKind.isMaterial(mesh.material) &&
+        AutoMovieThreeKind.isMeshNormalMaterial(mesh.material),
     ),
   );
   normal.restore();
@@ -377,12 +383,15 @@ export function test_viewer_render_modes(): void {
     namedFacts([
       [
         "sceneBackgroundInstanceof",
-        (): boolean => scene.background instanceof THREE.Color,
+        (): boolean =>
+          scene.background !== null &&
+          AutoMovieThreeKind.isColor(scene.background),
       ],
       [
         "sceneBackgroundGetHex",
         (): boolean =>
-          scene.background instanceof THREE.Color &&
+          scene.background !== null &&
+          AutoMovieThreeKind.isColor(scene.background) &&
           scene.background.getHex() === 0x000000,
       ],
     ]),
@@ -498,7 +507,12 @@ export function test_viewer_render_modes(): void {
         | THREE.Material<THREE.MaterialEventMap>[],
         THREE.Object3DEventMap
       >,
-    ): THREE.MeshBasicMaterial => mesh.material as THREE.MeshBasicMaterial,
+    ): THREE.MeshBasicMaterial => {
+      const material: THREE.Material = singleMaterial(mesh.material);
+      if (!AutoMovieThreeKind.isMeshBasicMaterial(material))
+        throw new Error("Expected a basic mask material");
+      return material;
+    },
   );
   TestValidator.predicate(
     "mask uses flat unlit materials",
@@ -517,7 +531,7 @@ export function test_viewer_render_modes(): void {
   );
   TestValidator.equals(
     "mask blacks out the background",
-    (scene.background as THREE.Color).getHex(),
+    readBackgroundColor(scene).getHex(),
     0x000000,
   );
   mask.restore();

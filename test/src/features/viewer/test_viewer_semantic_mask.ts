@@ -16,6 +16,7 @@ import * as THREE from "three";
 import { createSemanticMaskViewerTestGraph as build } from "../internal/createSemanticMaskViewerTestGraph";
 import { flatBasin } from "../internal/fluidFixtures";
 import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { readBackgroundColor } from "../internal/readBackgroundColor";
 import {
   buildingFixture,
   instanceSetFixture,
@@ -138,7 +139,7 @@ export function test_viewer_semantic_mask(): void {
       ["image lighting", (): boolean => built.scene.environment === null],
       [
         "background",
-        (): boolean => (built.scene.background as THREE.Color).getHex() === 0,
+        (): boolean => readBackgroundColor(built.scene).getHex() === 0,
       ],
       ["grid hidden", (): boolean => !built.grid.visible],
       ["sprite hidden", (): boolean => !built.sprite.visible],
@@ -253,8 +254,7 @@ export function test_viewer_semantic_mask(): void {
       ],
       [
         "background",
-        (): boolean =>
-          (built.scene.background as THREE.Color).getHex() === 0x123456,
+        (): boolean => readBackgroundColor(built.scene).getHex() === 0x123456,
       ],
       ["fog", (): boolean => built.scene.fog !== null],
       ["image lighting", (): boolean => built.scene.environment !== null],

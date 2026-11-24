@@ -32,7 +32,9 @@ import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBound } from "../law/HumanBound";
 import { HumanFrame } from "../posture/HumanFrame";
+import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
 import { MartialArtStancePhrase } from "./MartialArtStancePhrase";
+import { prepareChokuZukiPath } from "./prepareChokuZukiPath";
 
 /**
  * Martial-art forms other than kickboxing: the karate horse stance
@@ -272,8 +274,6 @@ export namespace martialArt {
       const len: number = PUNCH * modifiers.tempo;
       const start: (i: number) => number = (i: number): number =>
         ready + 2 * i * PUNCH * modifiers.tempo;
-      const ease: (u: number) => number = (u: number): number =>
-        u * u * (3 - 2 * u);
       const extended: (side: AutoMovieHumanSide, s: number) => number = (
         side: AutoMovieHumanSide,
         s: number,
@@ -290,24 +290,30 @@ export namespace martialArt {
         const a: number = start(i);
         const rise: number = Math.min(1, Math.max(0, (s - a) / len));
         const fall: number = Math.min(1, Math.max(0, (s - a - 2 * len) / len));
-        return Math.max(0, ease(rise) - ease(fall));
+        return Math.max(0, rise - fall);
       };
+      // The chamber stands outside both the shoulder's line and the flank,
+      // the chest's half breadth, by a forearm diameter, at waist height.
+      const chamber: IAutoMovieVector3 = {
+        x: Math.max(
+          m.upperArmRadius + m.forearmRadius,
+          m.chestBreadth / 2 + 2 * m.forearmRadius - m.shoulderHalfWidth,
+        ),
+        y: m.waistHeight - m.shoulderHeight,
+        z:
+          AutoMovieMotionHumanTargetGrid.DISTANCES.close *
+            (m.upperArm + m.forearm) +
+          m.forearmRadius / 2,
+      };
+      const path: prepareHumanKnotCourse.ICourse = prepareChokuZukiPath(
+        body,
+        chamber,
+      );
       for (const side of ["left", "right"] as const) {
         const outward: number = side === "left" ? 1 : -1;
-        // The chamber stands outside both the shoulder's line and the
-        // flank, the chest's half breadth, by a forearm diameter.
         const chamberOffset: IAutoMovieVector3 = {
-          x:
-            outward *
-            Math.max(
-              m.upperArmRadius + m.forearmRadius,
-              m.chestBreadth / 2 + 2 * m.forearmRadius - m.shoulderHalfWidth,
-            ),
-          y: m.waistHeight - m.shoulderHeight,
-          z:
-            AutoMovieMotionHumanTargetGrid.DISTANCES.close *
-              (m.upperArm + m.forearm) +
-            m.forearmRadius / 2,
+          ...chamber,
+          x: outward * chamber.x,
         };
         primitives.push(
           ...AutoMovieMotionHumanPlaced.arm({
@@ -363,28 +369,16 @@ export namespace martialArt {
               );
               const phase: number = extended(side, s);
 
-              // The fist drives straight ahead along the flank, the elbow
-              // brushing the side, and turns in to the midline only once it
-              // stands clear of the chest's front (half the chest's depth
-              // and a forearm diameter ahead of the shoulder joint), so the
-              // forearm never crosses the trunk.
+              // The fist's shares of the way from chamber to aim, inward and
+              // ahead, on the punch's prepared path (`prepareChokuZukiPath`).
               const from: IAutoMovieVector3 = chamberOffset;
               const to: IAutoMovieVector3 = HumanFrame.local(local, aim);
-              const front: number = Math.min(
-                1,
-                Math.max(
-                  0,
-                  (m.chestDepth / 2 + 2 * m.forearmRadius - from.z) /
-                    (to.z - from.z),
-                ),
-              );
-              const turn: number =
-                phase <= front ? 0 : ease((phase - front) / (1 - front));
+              const share: readonly number[] = path.position(phase);
               return {
                 point: HumanFrame.point(local, {
-                  x: from.x + (to.x - from.x) * turn,
-                  y: from.y + (to.y - from.y) * phase,
-                  z: from.z + (to.z - from.z) * phase,
+                  x: from.x + (to.x - from.x) * share[0]!,
+                  y: from.y + (to.y - from.y) * share[1]!,
+                  z: from.z + (to.z - from.z) * share[1]!,
                 }),
                 facing: HumanFrame.point(axes, { x: 0, y: 0, z: 1 }),
               };

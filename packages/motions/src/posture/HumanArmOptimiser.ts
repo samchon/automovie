@@ -314,11 +314,9 @@ export namespace HumanArmOptimiser {
     const stride: number = knotted ? 3 * c.width : c.width;
     for (let k: number = 1; k < c.n; ++k) {
       if (!M.inner(c, k)) continue;
-      // A knot's velocity and acceleration take the trust box in their own
-      // units: over the mean of its neighbouring segments, once and twice.
-      const span: number =
-        (c.times[Math.min(c.n - 1, k + 1)]! - c.times[k - 1]!) /
-        (k + 1 < c.n ? 2 : 1);
+      // A knot's velocity and acceleration are the subproblem's variables in
+      // its own time scale (`Knots.span`), in the positions' units.
+      const span: number = Knots.span(c.times, k);
       c.free.forEach((free: readonly number[], a: number): void =>
         free.forEach((d: number, f: number): void => {
           const base: number = (k - 1) * stride + c.offset[a]! + f;
@@ -337,14 +335,14 @@ export namespace HumanArmOptimiser {
           // An iterate the solver's own tolerance left just past the limit keeps
           // the step of no change in its range.
           out[base + c.width] = {
-            low: Math.min(0, -rate - v),
-            high: Math.max(0, rate - v),
-            scale: 1 / span,
+            low: Math.min(0, (-rate - v) * span),
+            high: Math.max(0, (rate - v) * span),
+            scale: 1,
           };
           out[base + 2 * c.width] = {
             low: -Infinity,
             high: Infinity,
-            scale: 1 / (span * span),
+            scale: 1,
           };
         }),
       );
@@ -384,10 +382,13 @@ export namespace HumanArmOptimiser {
       c.free.forEach((free: readonly number[], a: number): void =>
         free.forEach((d: number, f: number): void => {
           const base: number = (k - 1) * 3 * width + c.offset[a]! + f;
+          // The steps are in the knot's own time scale (`Knots.span`).
+          const span: number = Knots.span(c.times, k);
           velocities[a]![k]![d] =
-            velocities[a]![k]![d]! + solved[base + width]!;
+            velocities[a]![k]![d]! + solved[base + width]! / span;
           accelerations[a]![k]![d] =
-            accelerations[a]![k]![d]! + solved[base + 2 * width]!;
+            accelerations[a]![k]![d]! +
+            solved[base + 2 * width]! / (span * span);
         }),
       );
     }

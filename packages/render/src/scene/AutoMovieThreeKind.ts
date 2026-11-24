@@ -37,6 +37,9 @@ declare module "three" {
   interface Material {
     readonly isMeshStandardMaterial?: boolean;
     readonly isMeshPhysicalMaterial?: boolean;
+    readonly isMeshDepthMaterial?: boolean;
+    readonly isMeshDistanceMaterial?: boolean;
+    readonly isMeshNormalMaterial?: boolean;
     readonly isMeshPhongMaterial?: boolean;
     readonly isMeshLambertMaterial?: boolean;
     readonly isMeshBasicMaterial?: boolean;
@@ -47,6 +50,7 @@ declare module "three" {
   }
 
   interface Texture {
+    readonly isColor?: never;
     readonly isDataTexture?: true;
     readonly isDataArrayTexture?: true;
     readonly isData3DTexture?: true;
@@ -238,6 +242,27 @@ export namespace AutoMovieThreeKind {
     return material.isMeshPhysicalMaterial === true;
   }
 
+  /** Whether a material is a depth material. */
+  export function isMeshDepthMaterial(
+    material: THREE.Material,
+  ): material is THREE.MeshDepthMaterial {
+    return material.isMeshDepthMaterial === true;
+  }
+
+  /** Whether a material is a distance material. */
+  export function isMeshDistanceMaterial(
+    material: THREE.Material,
+  ): material is THREE.MeshDistanceMaterial {
+    return material.isMeshDistanceMaterial === true;
+  }
+
+  /** Whether a material is a normal material. */
+  export function isMeshNormalMaterial(
+    material: THREE.Material,
+  ): material is THREE.MeshNormalMaterial {
+    return material.isMeshNormalMaterial === true;
+  }
+
   /** Whether a material is a points material. */
   export function isPointsMaterial(
     material: THREE.Material,
@@ -323,6 +348,13 @@ export namespace AutoMovieThreeKind {
     return (
       isMesh(object) || isLine(object) || isPoints(object) || isSprite(object)
     );
+  }
+
+  /** Whether a scene background is a colour rather than a texture. */
+  export function isColor(
+    value: THREE.Color | THREE.Texture,
+  ): value is THREE.Color {
+    return value.isColor === true;
   }
 
   /** Whether a texture holds raw data. */

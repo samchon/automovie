@@ -2,12 +2,17 @@ import type {
   IAutoMovieCompiledFormationLod,
   IAutoMovieFormationMotion,
 } from "@automovie/interface";
-import { buildInstancedFormation, formationCycleOf } from "@automovie/render";
+import {
+  AutoMovieThreeKind,
+  buildInstancedFormation,
+  formationCycleOf,
+} from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { throwsError } from "../internal/predicates";
+import { readObjectOfKind } from "../internal/readObjectOfKind";
 
 /**
  * Static, empty and promoted-only formations avoid fabricated cycle resources;
@@ -34,8 +39,11 @@ import { throwsError } from "../internal/predicates";
 export function test_viewer_formation_shadow_boundaries(): void {
   const plain: ReturnType<typeof buildInstancedFormation> =
     buildInstancedFormation(createFormationShadowInputs(1, false));
-  const mesh: THREE.InstancedMesh = plain.object
-    .children[0] as THREE.InstancedMesh;
+  const mesh: THREE.InstancedMesh = readObjectOfKind(
+    plain.object.children,
+    0,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   TestValidator.equals(
     "static tiers have no runtime table residency",
     plain.describeTextureSources(),
@@ -169,8 +177,11 @@ export function test_viewer_formation_shadow_boundaries(): void {
 
   const fragile: ReturnType<typeof buildInstancedFormation> =
     buildInstancedFormation(createFormationShadowInputs());
-  const fragileMesh: THREE.InstancedMesh = fragile.object
-    .children[0] as THREE.InstancedMesh;
+  const fragileMesh: THREE.InstancedMesh = readObjectOfKind(
+    fragile.object.children,
+    0,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   const palette: THREE.Material[] = [fragileMesh.material].flat();
   const cycle: NonNullable<ReturnType<typeof formationCycleOf>> =
     formationCycleOf(fragileMesh)!;

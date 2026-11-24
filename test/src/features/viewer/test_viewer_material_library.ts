@@ -60,7 +60,9 @@ export async function test_viewer_material_library(): Promise<void> {
     materialIds: ["fabric"],
   })
     .then((): null => null)
-    .catch((error: unknown): string => (error as Error).message);
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
   const conflictingModel: IAutoMovieModel = boxModel({
     id: "conflicting-model",
     materials: [{ ...stone, roughness: 0.25 }],
@@ -70,7 +72,9 @@ export async function test_viewer_material_library(): Promise<void> {
     materialIds: ["stone"],
   })
     .then((): null => null)
-    .catch((error: unknown): string => (error as Error).message);
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
   TestValidator.equals(
     "invalid cross-model identities retain the resolver's explicit refusal",
     [
@@ -142,7 +146,9 @@ export async function test_viewer_material_library(): Promise<void> {
     materialIds: ["water"],
   })
     .then((): null => null)
-    .catch((error: unknown): string => (error as Error).message);
+    .catch((error: unknown): string =>
+      error instanceof Error ? error.message : String(error),
+    );
   const textured: IAutoMovieMaterialLibrary =
     await buildAutoMovieMaterialLibrary({
       models: [texturedModel],

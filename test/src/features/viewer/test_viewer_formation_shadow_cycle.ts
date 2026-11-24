@@ -3,6 +3,7 @@ import type {
   IAutoMovieRenderTextureSource,
 } from "@automovie/interface";
 import {
+  AutoMovieThreeKind,
   type IAutoMovieFormationCycle,
   type IAutoMovieFormationCycleTake,
   applyFormationCycleMaterial,
@@ -15,15 +16,23 @@ import type * as ThreeTypes from "three";
 
 import { createFormationShadowInputs } from "../internal/createFormationShadowInputs";
 import { nclose, throwsError } from "../internal/predicates";
+import { readObjectsOfKind } from "../internal/readObjectsOfKind";
 
 /**
- * A constructed formation binds depth and distance materials to the same mutable cycle cells as beauty and retires its owned resources once.
+ * A constructed formation binds depth and distance materials to the same
+ * mutable cycle cells as beauty and retires its owned resources once.
  *
  * Scenarios:
- * 1. Two chunks share one tier's depth/distance materials and cycle cells; palette groups preserve their geometry groups.
- * 2. Seeks, gait changes, member phases and periodic wrap reuse the tables and uniform cells.
- * 3. Invoking the real shadow-group hook requests program selection after group features are supplied; this observes orchestration rather than a submitted shadow draw.
- * 4. Disposal attempts chunk geometry, both shadow materials, beauty and gait textures once; updating a retired runtime refuses.
+ *
+ * 1. Two chunks share one tier's depth/distance materials and cycle cells; palette
+ *    groups preserve their geometry groups.
+ * 2. Seeks, gait changes, member phases and periodic wrap reuse the tables and
+ *    uniform cells.
+ * 3. Invoking the real shadow-group hook requests program selection after group
+ *    features are supplied; this observes orchestration rather than a submitted
+ *    shadow draw.
+ * 4. Disposal attempts chunk geometry, both shadow materials, beauty and gait
+ *    textures once; updating a retired runtime refuses.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Builds the existing multi-chunk formation, reads visible/depth/distance cycle cells, invokes its actual compile/shadow hooks and observes owned disposal events; catches split cycle authority, missing shader patch fields and updates admitted after retirement.
  * @evidence contracts/development/testing.md#independent-expectations The authored sinusoidal bob and one-second wrap define sampled values; shared uniform identity, literal geometry groups and per-resource event counts pin projection. Native shader templates exercise generated output only, without GLSL compilation or shadow pixels.
@@ -45,7 +54,10 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>[],
     ThreeTypes.Object3DEventMap
-  >[] = runtime.object.children as ThreeTypes.InstancedMesh[];
+  >[] = readObjectsOfKind(
+    runtime.object.children,
+    AutoMovieThreeKind.isInstancedMesh,
+  );
   TestValidator.equals(
     "two chunk batches were actually constructed",
     meshes.length,
@@ -60,8 +72,9 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
     | ThreeTypes.Material<ThreeTypes.MaterialEventMap>[],
     ThreeTypes.Object3DEventMap
   > = meshes[0]!;
-  const beauty: ThreeTypes.Material<ThreeTypes.MaterialEventMap>[] =
-    mesh.material as ThreeTypes.Material[];
+  const beauty: ThreeTypes.Material<ThreeTypes.MaterialEventMap>[] = [
+    mesh.material,
+  ].flat();
   const cycle: IAutoMovieFormationCycle = formationCycleOf(mesh)!;
   const depth: ThreeTypes.Material<ThreeTypes.MaterialEventMap> =
     mesh.customDepthMaterial!;
@@ -115,8 +128,8 @@ export async function test_viewer_formation_shadow_cycle(): Promise<void> {
   );
   TestValidator.predicate(
     "both projections belong to the shared tier",
-    depth instanceof THREE.MeshDepthMaterial &&
-      distance instanceof THREE.MeshDistanceMaterial &&
+    AutoMovieThreeKind.isMeshDepthMaterial(depth) &&
+      AutoMovieThreeKind.isMeshDistanceMaterial(distance) &&
       meshes[1]!.customDepthMaterial === depth &&
       meshes[1]!.customDistanceMaterial === distance,
   );
