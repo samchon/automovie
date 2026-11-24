@@ -127,9 +127,20 @@ export function trackPhysicalWorld(
     const goals: typeof authoredGoals = played
       ? physicalSpanPose({ body, goals: authoredGoals, sample: played })
       : { ...authoredGoals };
-    const rootIntent: IAutoMovieSamplePhysicalTarget.IResult = structuredClone(
-      authoredGoals[root.bone]!,
-    );
+    // The root's intent, an owned copy of its authored goal: the trackers
+    // write into it.
+    const intent: IAutoMovieSamplePhysicalTarget.IResult =
+      authoredGoals[root.bone]!;
+    const rootIntent: IAutoMovieSamplePhysicalTarget.IResult = {
+      ...intent,
+      pose: {
+        ...intent.pose,
+        position: { ...intent.pose.position },
+        rotation: { ...intent.pose.rotation },
+      },
+      velocity: { ...intent.velocity },
+      angularVelocity: { ...intent.angularVelocity },
+    };
     if (earlyFit)
       scene = trackPhysicalContactTargets(
         input,
@@ -212,33 +223,32 @@ export function trackPhysicalWorld(
     // interval: a derivative of the input, not a control rule.
     const authored:
       | NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]>
-      | undefined =
-      body.balance
-        ? ((): NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]> => {
-            const now: ReturnType<typeof physicalAuthoredCenter> =
-              physicalAuthoredCenter(body.profile, authoredGoals);
-            const before: ReturnType<typeof physicalAuthoredCenter> =
-              physicalAuthoredCenter(
-                body.profile,
-                samplePhysicalAuthoredTargets(
-                  body,
-                  target,
-                  bound,
-                  step,
-                  seconds - dt,
-                  input.rate,
-                ),
-              );
-            return {
-              center: now.center,
-              velocity: now.velocity,
-              acceleration: Vector3.scale(
-                Vector3.subtract(now.velocity, before.velocity),
-                1 / dt,
+      | undefined = body.balance
+      ? ((): NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]> => {
+          const now: ReturnType<typeof physicalAuthoredCenter> =
+            physicalAuthoredCenter(body.profile, authoredGoals);
+          const before: ReturnType<typeof physicalAuthoredCenter> =
+            physicalAuthoredCenter(
+              body.profile,
+              samplePhysicalAuthoredTargets(
+                body,
+                target,
+                bound,
+                step,
+                seconds - dt,
+                input.rate,
               ),
-            };
-          })()
-        : undefined;
+            );
+          return {
+            center: now.center,
+            velocity: now.velocity,
+            acceleration: Vector3.scale(
+              Vector3.subtract(now.velocity, before.velocity),
+              1 / dt,
+            ),
+          };
+        })()
+      : undefined;
     const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
       rootDynamic && body.balance && target.strength > 0
         ? AdvanceBalance({
