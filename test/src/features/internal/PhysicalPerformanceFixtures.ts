@@ -4,12 +4,14 @@ import {
   Vector3,
   physicalSupportPoint,
   planPhysicalSupportTargets,
+  projectPhysicalJointRotation,
 } from "@automovie/engine";
 import type {
   IAutoMovieFootfallPattern,
   IAutoMoviePhysicalSegment,
   IAutoMoviePhysicalShape,
   IAutoMoviePhysicalSimulationInput,
+  IAutoMovieQuaternion,
   IAutoMovieRigidTransform,
   IAutoMovieStepPlanner,
   IAutoMovieVector3,
@@ -268,8 +270,10 @@ export namespace PhysicalPerformanceFixtures {
             iterations: 32,
             tolerance: 0.0005,
           }).targets;
-        // The ankle is the foot's origin, so the shank places the foot; the
-        // foot and its toes keep the stance attitude, flat over the floor.
+        // The ankle is the foot's origin, so the shank places the foot and
+        // turning the foot about it keeps the ankle's anchor; the foot keeps
+        // the stance attitude admitted to the ankle's range against the
+        // shank, and the toes ride it rigidly.
         if (human)
           for (const side of ["left", "right"] as const) {
             const foot: IAutoMovieRigidTransform = segments[`${side}Foot`]!;
@@ -277,13 +281,44 @@ export namespace PhysicalPerformanceFixtures {
               original[`${side}Foot`]!;
             const stanceToes: IAutoMovieRigidTransform =
               original[`${side}Toes`]!;
-            foot.rotation = { ...stanceFoot.rotation };
+            // The stance attitude admitted to the ankle's range against the
+            // shank, as the solver admits it (projectPhysicalJointRotation):
+            // a swinging shank leaves a level foot past plantar flexion.
+            const ankle = profile.joints.find(
+              (joint) => joint.child === `${side}Foot`,
+            )!;
+            const socket: IAutoMovieQuaternion = Quaternion.multiply(
+              segments[ankle.parent]!.rotation,
+              ankle.parentFrame.rotation,
+            );
+            const admitted: IAutoMovieQuaternion = projectPhysicalJointRotation(
+              ankle,
+              Quaternion.multiply(
+                Quaternion.inverse(socket),
+                Quaternion.multiply(
+                  stanceFoot.rotation,
+                  ankle.childFrame.rotation,
+                ),
+              ),
+            );
+            foot.rotation = Quaternion.multiply(
+              Quaternion.multiply(socket, admitted),
+              Quaternion.inverse(ankle.childFrame.rotation),
+            );
+            // The toes ride the foot rigidly.
+            const carry: IAutoMovieQuaternion = Quaternion.multiply(
+              foot.rotation,
+              Quaternion.inverse(stanceFoot.rotation),
+            );
             segments[`${side}Toes`] = {
               position: Vector3.add(
                 foot.position,
-                Vector3.subtract(stanceToes.position, stanceFoot.position),
+                Quaternion.rotateVector(
+                  carry,
+                  Vector3.subtract(stanceToes.position, stanceFoot.position),
+                ),
               ),
-              rotation: { ...stanceToes.rotation },
+              rotation: Quaternion.multiply(carry, stanceToes.rotation),
             };
           }
         return {
