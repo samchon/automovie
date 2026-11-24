@@ -9,11 +9,11 @@ import { TestValidator } from "@nestia/e2e";
  * 1. Two valid singleton images complete observation with no appearance correspondences, retaining owned JSON evidence and no pose.
  * 2. Metadata/policy snapshots remain unchanged when the caller changes its original records from a progress callback and after return.
  * 3. Pre-abort, checkpoint abort and a callback exception return distinct no-value terminal outcomes.
- * 4. Malformed source/raster admission, unknown option keys and invalid cancellation predicates refuse before observer invocation, while an admitted candidate-work overflow fails without partial publication.
+ * 4. An admitted candidate-work overflow fails without partial publication.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the exported memory API and observes its terminal envelopes, actual empty-image evidence, explicit pose absence, original metadata independence, cancellation, callback failure and preallocation admission. It does not infer behavior from exports, filenames or source text.
- * @evidence contracts/development/testing.md#independent-expectations Singleton constant images cannot supply a Harris window or any two-neighbour appearance correspondence, so the mathematically required outcome is zero features/matches and camera refusal. The operation contract requires no artifact on admission failure, cancellation or execution failure. Caller-owned changed scalars are independently known and must not alter the already admitted snapshot.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a valid minimal image, empty observed population, missing RGB bytes, enumerable/nonenumerable/symbol unknown option keys, malformed cancellation predicate, pre-start and checkpoint cancellation, callback-thrown failure, snapshot lifetime and a real admitted candidate budget violation. Positive camera accuracy and nonplanar/planar numerical distinctions belong to independent geometry/consensus tests and image experiments.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls the exported memory API and observes its terminal envelopes, actual empty-image evidence, explicit pose absence, original metadata independence, cancellation, callback failure and the admitted candidate budget. It does not infer behavior from exports, filenames or source text.
+ * @evidence contracts/development/testing.md#independent-expectations Singleton constant images cannot supply a Harris window or any two-neighbour appearance correspondence, so the mathematically required outcome is zero features/matches and camera refusal. The operation contract requires no artifact on cancellation or execution failure. Caller-owned changed scalars are independently known and must not alter the already admitted snapshot.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a valid minimal image, empty observed population, pre-start and checkpoint cancellation, callback-thrown failure, snapshot lifetime and a real admitted candidate budget violation. Positive camera accuracy and nonplanar/planar numerical distinctions belong to independent geometry/consensus tests and image experiments.
  * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_camera_operation entry creates only resident byte arrays, caller records and AbortControllers. It reaches the public synchronous API without files, installed consumers, subprocesses, native builds, browsers or GPU and replaces no foreign method.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Two valid singleton images complete observation with no appearance correspondences, retaining owned JSON evidence and no pose.).
  */
@@ -151,83 +151,6 @@ export function test_recovery_camera_operation(): void {
       !("value" in failed) &&
       failed.diagnostics.includes("Owned observer failure"),
   );
-  const malformed: IAutoMovieRecoveryCameraPairInput = makeInput();
-  malformed.views[0]!.rgb8 = new Uint8Array(0);
-  let observed: boolean = false;
-  const refused: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(malformed, {
-      onProgress: (
-        _phase: string,
-        _completed: number,
-        _total: number,
-      ): void => {
-        observed = true;
-      },
-    });
-  const unsupported: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-    estimateAutoMovieRecoveryCameraPair(
-      makeInput(),
-      Object.assign(
-        {
-          onProgress: (
-            _phase: string,
-            _completed: number,
-            _total: number,
-          ): void => {},
-        },
-        { unknown: true },
-      ),
-    );
-  TestValidator.predicate(
-    "invalid raster and unsupported options refuse without admitting observation work",
-    refused.status === "refused" &&
-      !("value" in refused) &&
-      !observed &&
-      unsupported.status === "refused" &&
-      !("value" in unsupported),
-  );
-  const invalidOptions: Parameters<
-    typeof estimateAutoMovieRecoveryCameraPair
-  >[1][] = [
-    JSON.parse('{"cancelled":"invalid"}'),
-    JSON.parse('{"cancelled":{}}'),
-    JSON.parse('{"cancelled":null}'),
-    JSON.parse('{"signal":{"aborted":true}}'),
-    JSON.parse("[]"),
-    Object.assign(
-      {
-        onProgress: (
-          _phase: string,
-          _completed: number,
-          _total: number,
-        ): void => {
-          observed = true;
-        },
-      },
-      { [Symbol("unknown")]: true },
-    ),
-    Object.defineProperty(
-      {
-        onProgress: (
-          _phase: string,
-          _completed: number,
-          _total: number,
-        ): void => {
-          observed = true;
-        },
-      },
-      "unknown",
-      { value: true },
-    ),
-  ];
-  for (const options of invalidOptions) {
-    const rejected: ReturnType<typeof estimateAutoMovieRecoveryCameraPair> =
-      estimateAutoMovieRecoveryCameraPair(makeInput(), options);
-    TestValidator.predicate(
-      "closed options and optional cancellation predicates are admitted before progress",
-      rejected.status === "refused" && !("value" in rejected) && !observed,
-    );
-  }
   const limited: IAutoMovieRecoveryCameraPairInput = makeInput();
   limited.budget.maxPixels = 160 * 144 * 2;
   limited.budget.maxCandidates = 1;

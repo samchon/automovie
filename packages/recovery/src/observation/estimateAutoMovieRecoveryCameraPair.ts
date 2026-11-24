@@ -42,33 +42,13 @@ export function estimateAutoMovieRecoveryCameraPair(
     "Camera observation cancelled at a cooperative checkpoint",
   );
   try {
-    if (
-      !options ||
-      typeof options !== "object" ||
-      Array.isArray(options) ||
-      Reflect.ownKeys(options).some(
-        (key: string | symbol): boolean =>
-          key !== "cancelled" && key !== "onProgress",
-      ) ||
-      (options.onProgress !== undefined &&
-        typeof options.onProgress !== "function") ||
-      (options.cancelled !== undefined &&
-        typeof options.cancelled !== "function")
-    )
-      throw new Error(
-        "invalid-camera-options: only cancellation callback and synchronous progress observer are supported",
-      );
     const probe: typeof options.cancelled = options.cancelled;
     const observer: typeof options.onProgress = options.onProgress;
     const cancelled: () => boolean = (): boolean => {
       callback = true;
-      const requested: boolean | undefined = probe?.();
-      if (probe !== undefined && typeof requested !== "boolean")
-        throw new Error(
-          "Cancellation callback must return a boolean synchronously",
-        );
+      const requested: boolean = probe?.() === true;
       callback = false;
-      return requested === true;
+      return requested;
     };
     if (cancelled()) throw cancellation;
     const prepared: ReturnType<IAutoMovieRecoveryCameraPairAdmissionOperation.Operation> =
