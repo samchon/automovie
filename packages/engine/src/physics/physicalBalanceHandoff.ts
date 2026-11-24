@@ -10,9 +10,9 @@ import { physicalRecoverySwing } from "./physicalRecoverySwing";
 /**
  * The balance controller's handoff phase (`advancePhysicalBalance`): authored
  * motion taking endpoints back. A step under way on an endpoint the authored
- * motion now owns is cancelled, a diagonal pair whole, counted neither as a
- * landing nor as a fall; an endpoint's retained landing offset is handed back
- * to the authored motion and the handoff recorded.
+ * motion now owns cancels every step under way, counted neither as a landing
+ * nor as a fall; an endpoint's retained landing offset is handed back to the
+ * authored motion and the handoff recorded.
  *
  * @param input The recovery's state, the endpoints authored motion owns this
  *   substep, the present local seconds and the trace to record into, if any.
@@ -35,7 +35,7 @@ export function physicalBalanceHandoff(input: {
   ) {
     // Authored motion now owns this endpoint. A recovery request cannot keep
     // replacing an authored limb action or scheduled swing, nor count its
-    // cancellation as a fall; a diagonal pair is withdrawn whole.
+    // cancellation as a fall; every step under way is withdrawn.
     const next: IAutoMoviePhysicalRecoveryState = {
       ...state,
       steps: owned.reduce(
@@ -54,8 +54,7 @@ export function physicalBalanceHandoff(input: {
       failedLanding: undefined,
       revision: (state.revision ?? 0) + 1,
     };
-    delete next.cleared;
-    delete next.pair;
+    delete next.swings;
     state = next;
     input.trace?.push({
       kind: "cancelled",

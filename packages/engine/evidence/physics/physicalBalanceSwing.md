@@ -2,23 +2,23 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how the landing is re-predicted and when not (the biped places its footstep in its plan), how the path and its clearance are set and that the path is a known non-port of IHMC's swing, what the drive adds, and that the input is never written.
+States that the plans place the landing, how the path and its clearance are set, that the path is a known non-port of IHMC's swings, what the drive adds, and that the input is never written.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The landing is re-predicted through the swing's first half from the present capture point and the time left (Yin et al. 2007, Section 3.3; Khadiv et al. 2017, Section III-B) and held after (Pratt et al., M2V2, Section VII-C1). The clearance is what the stance carries at the swing's peak (`physicalStanceBalance.clearance`), raised by the sole's hang (Pratt et al., M2V2, Section VII-D1); the path is `samplePhysicalRecoveryGoal`'s; the drive adds the path's feed-forward through J^T (`physicalStanceBalance.swingForce`).
+A biped's clearance is what the stance carries at the swing's peak (`physicalStanceBalance.clearance`), a quadruped's step's own ground clearance (IHMC 201903 `QuadrupedSwingState` l.357), either raised by the sole's hang (Pratt et al., M2V2, Section VII-D1); the path is `samplePhysicalRecoveryGoal`'s; the drive adds the path's feed-forward through J^T (`physicalStanceBalance.swingForce`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The re-prediction on one copy of the state and the steps' records, then one path, goal and drive per lifted limb; the drives are returned for the caller to apply.
+One path, goal and drive per lifted limb; the drives are returned for the caller to apply.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-There are no casts; non-null assertions read the re-predicted steps and the lifted limbs' segments, which exist while they swing.
+There are no casts; non-null assertions read the first path and the lifted limbs' segments, which exist while they swing.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most one assessment and two paths per substep.
+One path per lifted limb, at most two at once.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

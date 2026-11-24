@@ -14,7 +14,7 @@ Owned here; read by the biped plan and touchdown phases.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Type aliases of the interface's records; no casts.
+Type aliases of the interface's records and the authored capture point's; no casts.
 
 # src/physics/physicalBipedDesired.ts#physicalBipedDesired.frame
 
@@ -161,36 +161,6 @@ One small plan per update.
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
 Rebuilding keeps the state plain data for checkpoints; the plan is a few segments.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-It retains nothing.
-
-# src/physics/physicalBipedDesired.ts#physicalBipedDesired.authored
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the authored capture point and rate and the fallback.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-xi_a = c_a + c_a' / omega and its rate c_a' + c_a'' / omega, the centre moved by the landed root offset as the authored goals are; the acceleration is the input's numerical derivative (`trackPhysicalWorld`).
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-The centre, velocity and acceleration, then one sum each.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-A non-null assertion reads each segment's authored target. The fallback at rest serves recordings made before the command was read.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Linear in the segments for the fallback only.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-It reads one update's command.
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

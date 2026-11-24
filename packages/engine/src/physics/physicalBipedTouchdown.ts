@@ -108,8 +108,6 @@ export function physicalBipedTouchdown(input: {
       ...(input.trace ? { trace: input.trace } : {}),
     });
     state.swing = undefined;
-    delete state.cleared;
-    delete state.touchdown;
     state.outsideSince = undefined;
     state.revision = (state.revision ?? 0) + 1;
 

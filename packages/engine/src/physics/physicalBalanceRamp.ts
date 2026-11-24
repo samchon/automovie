@@ -9,8 +9,10 @@ import { physicalStanceSeat } from "./physicalStanceSeat";
  * stance foot's seating advanced by one substep (`physicalStanceSeat`), its
  * sole's seating, its low-passed measured load, which decides lift-off and
  * touchdown, and its bearing, flatness and entry shares by geometry, each
- * ramping over `physicalStanceBalance.FADE`; a landed foot's shares ramp in
- * from nothing here. A first stance starts borne and flat. A foot's world
+ * ramping over `physicalStanceBalance.FADE`; a landed foot starts full, as
+ * both of IHMC 201903's controllers seat it (`physicalBalanceTouchdown.land`),
+ * and a foot seated anew otherwise ramps in from nothing here. A first stance
+ * starts borne and flat. A foot's world
  * orientation is latched where it actually stands when its stance begins, at
  * the first step or on landing, its planted-foot hold
  * (`physicalStanceJointTarget`), and latched again when it touches again after

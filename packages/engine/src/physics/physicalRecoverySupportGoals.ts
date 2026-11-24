@@ -45,12 +45,17 @@ export function physicalRecoverySupportGoals(
             (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
               candidate.bone === limb.bone,
           );
-        // A limb asked to step keeps its planted goal until it lifts; a
-        // diagonal pair's partner follows its own path.
+        // A limb keeps its planted goal until it lifts; a second lifted swing
+        // follows its own path (`physicalBalanceSwing`).
         const swing: IAutoMovieStepPlanner.IStep | undefined =
           physicalRecoverySwing.of(state, limb.bone);
         const own: { height: number; hang: number } | undefined =
-          state?.pair?.step.bone === limb.bone ? path?.pair : path;
+          physicalRecoverySwing(state).filter(
+            (step: IAutoMovieStepPlanner.IStep): boolean =>
+              !state?.seating?.[step.bone],
+          )[1]?.bone === limb.bone
+            ? path?.pair
+            : path;
         if (swing && !state?.seating?.[limb.bone] && owner && body.balance) {
           const original: IAutoMovieVector3 = physicalSupportPoint(
             target.segments[owner.bone]!,

@@ -218,11 +218,8 @@ export function physicalBalanceStance(input: {
         supports,
         pattern: sense.policy.pattern,
         maximumStep: sense.policy.maximumStep,
-        // A counted excursion stays counted, and a request stays asked for,
-        // until the capture point is back within the margin of the shrunken
-        // support; a new one starts counting only past the support's own
-        // edge by the margin and the hip strategy's reach
-        // (`physicalBalancePlan`).
+        // The capture point counts as outside once past the shrunken support
+        // by the policy's margin (`AutoMoviePhysicalBalance.assess`).
         margin: sense.policy.margin,
         swingSeconds: sense.policy.duration,
         spin,

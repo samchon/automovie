@@ -6,11 +6,11 @@ States which steps are under way and in which order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The swing and, for a diagonal pair, its partner, which lifts with it and lands by its own contact (Chen et al. 2022, Section 2.1).
+A biped's swing and a quadruped's swings, up to two legs at once in IHMC 201903's xGait (`physicalQuadPlan`), in the order they lifted.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One expression.
+One list.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ There are no casts or special cases.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Constant work.
+Linear in the legs.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -48,7 +48,7 @@ There are no casts or special cases.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most two steps searched.
+Linear in the steps under way.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -66,7 +66,7 @@ States which limbs it returns and in which order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A step under way is lifted once its seat is given up (`physicalBalanceLift`).
+A step under way is lifted once its seat is given up, as its step begins (`physicalBipedPlan`, `physicalQuadPlan`).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -78,7 +78,7 @@ There are no casts or special cases.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most two steps.
+Linear in the steps under way.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 
@@ -96,7 +96,7 @@ States which limbs it returns and in which order.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-A step under way is still asked for while its limb keeps its seat.
+A step under way whose limb keeps its seat; the plans lift a limb as its step begins, so none is left but a recorded state's.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -108,7 +108,7 @@ There are no casts or special cases.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most two steps.
+Linear in the steps under way.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

@@ -9,7 +9,7 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
-import type { physicalBalancePlan } from "./physicalBalancePlan";
+import { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBipedDesired } from "./physicalBipedDesired";
@@ -55,16 +55,20 @@ export function physicalBipedPlan(input: {
   sense: physicalBalanceSense.ISense;
   stance: physicalBalanceStance.IStance;
   trace?: IAutoMoviePhysicalBalanceTrace[];
-}): physicalBalancePlan.IResult {
+}): physicalBipedPlan.IResult {
   const { sense, stance } = input;
   const state: IAutoMoviePhysicalRecoveryState = { ...input.state };
   let push: Recovery.IState = state.push ?? Recovery.initial();
 
+  // The pendulum's rate, IHMC's omega0, held from the first update
+  // (`physicalBipedPlan.omega`).
+  const omega: number = (state.omega ??= physicalBipedPlan.omega(sense, state));
+
   // The capture point and the support, in a world-aligned frame.
   const capture: IAutoMovieVector3 = {
-    x: sense.center.x + sense.velocity.x / stance.omega,
+    x: sense.center.x + sense.velocity.x / omega,
     y: stance.plane,
-    z: sense.center.z + sense.velocity.z / stance.omega,
+    z: sense.center.z + sense.velocity.z / omega,
   };
   const xi: Polygon.IPoint = Polygon.local(WORLD, capture);
   const hull: Polygon.IPoint[] = Polygon.hull(
@@ -80,10 +84,10 @@ export function physicalBipedPlan(input: {
   // transitions, else the authored motion's (`physicalBipedDesired`). The
   // standing state's entry resets the push recovery (201903 `StandingState`
   // l.90).
-  const authored: physicalBipedDesired.IDesired = physicalBipedDesired.authored(
+  const authored: physicalBipedDesired.IDesired = physicalAuthoredCapture(
     sense,
     state,
-    stance.omega,
+    omega,
   );
   const advanced: {
     plan?: physicalBipedDesired.IPlan;
@@ -159,6 +163,7 @@ export function physicalBipedPlan(input: {
         sense.actual(bone),
         physicalBipedPlan.SWING_TIME,
         xi,
+        omega,
       );
       push = placed.state;
       const from: IAutoMovieVector3 = sense.actual(bone);
@@ -213,7 +218,7 @@ export function physicalBipedPlan(input: {
               { x: placed.target.x, y: stance.plane, z: placed.target.z },
             ),
           ],
-          omega: stance.omega,
+          omega,
         };
         planned = start(sense, state, state.plan);
       }
@@ -233,7 +238,6 @@ export function physicalBipedPlan(input: {
       delete seating[bone];
       state.seating = seating;
       state.swing = step;
-      state.cleared = false;
       state.steps = [...state.steps, structuredClone(step)];
       state.failedLanding = undefined;
       state.revision = (state.revision ?? 0) + 1;
@@ -256,6 +260,7 @@ export function physicalBipedPlan(input: {
       target,
       swing.end - sense.seconds,
       xi,
+      omega,
     );
     push = moved.state;
     if (moved.adjusted) {
@@ -343,8 +348,48 @@ export function physicalBipedPlan(input: {
   };
 }
 
-/** The biped plan's constants and its feet's sides. */
+/** The biped plan's result, constants, pendulum rate and feet's sides. */
 export namespace physicalBipedPlan {
+  /** The plan's result. */
+  export interface IResult {
+    /** The state after the plan. */
+    state: IAutoMoviePhysicalRecoveryState;
+
+    /** The endpoint goals the plan holds, world metres, by bone; none here. */
+    goals: Record<string, IAutoMovieVector3>;
+
+    /** The stance's assessment, which the settle phase's policies read. */
+    assessment: IAutoMoviePhysicalBalance.IResult;
+  }
+
+  /**
+   * The biped's pendulum rate, IHMC's omega0: sqrt(g / z0), z0 the authored
+   * centre of mass's height over the floor (`physicalAuthoredCapture.center`).
+   * IHMC sets omega0 once per robot from its nominal height and never updates
+   * it (201903 `HighLevelHumanoidControllerToolbox` l.155, l.204, l.1027-1029;
+   * `WalkingControllerParameters.getOmega0` l.45-51, "not computed from the
+   * actual CoM height"); the authored motion is this engine's nominal, read on
+   * the controller's first update and held in the state for the run. Zulu's
+   * 3.0 (`ZuluWalkingControllerParameters` l.147-150) is that robot's height
+   * and tuning, not this body's.
+   *
+   * @param sense The body's readings.
+   * @param state The recovery's state.
+   * @returns The rate, per second.
+   */
+  export function omega(
+    sense: physicalBalanceSense.ISense,
+    state: Readonly<IAutoMoviePhysicalRecoveryState>,
+  ): number {
+    return Math.sqrt(
+      sense.gravity /
+        Math.max(
+          1e-6,
+          physicalAuthoredCapture.center(sense, state).y - sense.floor,
+        ),
+    );
+  }
+
   /**
    * The recovery swing's time, seconds: Zulu's default swing time
    * (ZuluWalkingControllerParameters l.709-712), which IHMC 201903 gives a
@@ -420,6 +465,7 @@ function check(
   position: IAutoMovieVector3,
   remaining: number,
   xi: Polygon.IPoint,
+  omega: number,
 ): {
   state: Recovery.IState;
   target: { x: number; z: number };
@@ -484,7 +530,7 @@ function check(
       region: {
         support: swinging.y > 0 ? "right" : "left",
         capture: Polygon.local(frame, Polygon.world(WORLD, xi)),
-        omega: stance.omega,
+        omega,
         foot,
         footWidth,
         range: sense.policy.maximumStep,

@@ -6,7 +6,7 @@ States what authored ownership cancels, what it hands back and that the input is
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Authored motion owns an endpoint it reserves: a recovery step on it is cancelled, a diagonal pair whole, and resolved as cancelled rather than landed or failed; a retained landing offset on it is removed and recorded as a handoff. The state is copied where it changes, the offsets keeping the null prototype the state starts them with.
+Authored motion owns an endpoint it reserves: a recovery step on it cancels every step under way, each resolved as cancelled rather than landed or failed; a retained landing offset on it is removed and recorded as a handoff. The state is copied where it changes, the offsets keeping the null prototype the state starts them with.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 

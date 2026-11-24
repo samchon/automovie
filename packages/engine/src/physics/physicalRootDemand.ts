@@ -43,7 +43,11 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  * realized centre of pressure from the actual contact points weighted by their
  * normal impulses (Stephens 2011, Eq. 5.31), frozen while the command is
  * clamped, a push lands, a limb swings or a foot is not fully in, and reset
- * when the swinging limbs change.
+ * when the swinging limbs change. A two-support body's centre of pressure and
+ * pivot are IHMC's capture-point controller's (`physicalBipedPressure`) and a
+ * four-support body's its DCM controller's virtual repellent point
+ * (`physicalQuadFrame.pivot`), each at the rate its plan ran at; neither keeps
+ * the integral.
  *
  * @param input The simulation's settings, the simulated body, its segments and
  *   root body, the root's bone, intent, goal and tracking strength, the stance
@@ -80,6 +84,13 @@ export function physicalRootDemand(input: {
       velocity: { x: number; z: number };
     };
   };
+  dcm?: {
+    desired?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+  };
+  omega?: number;
   pushed?: boolean;
   supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
   swinging: readonly string[];
@@ -201,9 +212,11 @@ export function physicalRootDemand(input: {
             ? { intended: rootIntent.pose.rotation }
             : {}),
           strength: input.strength,
-          ...(integral && !input.icp
+          ...(integral && !input.icp && !input.dcm
             ? { bias: { x: integral.bias.x, y: 0, z: integral.bias.z } }
             : {}),
+          ...(input.dcm ? { dcm: input.dcm } : {}),
+          ...(input.omega !== undefined ? { omega: input.omega } : {}),
           ...(input.icp
             ? {
                 icp: {
@@ -251,9 +264,11 @@ export function physicalRootDemand(input: {
     torque: { ...stance.torque },
   });
   // The biped's controller carries its own integrator
-  // (`physicalAngularMomentumIntegrator`) in place of this integral.
+  // (`physicalAngularMomentumIntegrator`) in place of this integral, and the
+  // quadruped's DCM controller none, its integral gain zero
+  // (`physicalQuadrupedDcmController`).
   const next: physicalStanceBalance.IIntegral | undefined =
-    integral && !stance.icp
+    integral && !stance.icp && !input.dcm
       ? physicalRootDemand.integrate({
           integral,
           stance,

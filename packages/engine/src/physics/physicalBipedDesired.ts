@@ -1,25 +1,24 @@
 import type {
   IAutoMoviePhysicalRecoveryState,
-  IAutoMoviePhysicalSegment,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
+import type { physicalAuthoredCapture } from "./physicalAuthoredCapture";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import type { physicalIcpPlannerCmps } from "./physicalIcpPlannerCmps";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
-import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /**
  * The biped's planned capture point and its rate, the role IHMC 201903's
  * `ContinuousCMPBasedICPPlanner` plays (`physicalIcpPlanner`), with the
  * authored motion as the command: IHMC plans from the robot's command,
  * footsteps or standing, and this engine's command is the authored motion, so
- * with no recovery plan the planned capture point is the authored one, xi_a =
- * c_a + c_a' / omega, rate c_a' + c_a'' / omega.
+ * with no recovery plan the planned capture point is the authored one
+ * (`physicalAuthoredCapture`).
  *
  * A recovery plan is kept as its inputs (`IAutoMoviePhysicalRecoveryState`
  * `.plan`) and built again each update, the planner's builders being pure:
@@ -39,9 +38,7 @@ export namespace physicalBipedDesired {
   export type IPlan = NonNullable<IAutoMoviePhysicalRecoveryState["plan"]>;
 
   /** A planned capture point and its rate. */
-  export type IDesired = NonNullable<
-    IAutoMoviePhysicalRecoveryState["desired"]
-  >;
+  export type IDesired = physicalAuthoredCapture.IDesired;
 
   /**
    * A foot's sole frame: origin at its support endpoint (or a given footstep
@@ -210,58 +207,6 @@ export namespace physicalBipedDesired {
       from: plan.from!,
       to: plan.to!,
     });
-  }
-
-  /**
-   * The authored capture point and its rate, the command's: the authored centre
-   * of mass moved by the landed root offset, its velocity and acceleration
-   * (`trackPhysicalWorld`); without them, as in a recording made before they
-   * were read, the authored segments' centre at rest.
-   *
-   * @param sense The body's readings.
-   * @param state The recovery's state.
-   * @param omega The pendulum's rate, per second.
-   * @returns The capture point and its rate, world x and z.
-   */
-  export function authored(
-    sense: physicalBalanceSense.ISense,
-    state: Readonly<IAutoMoviePhysicalRecoveryState>,
-    omega: number,
-  ): IDesired {
-    const offset: IAutoMovieVector3 = state.rootOffset ?? { x: 0, y: 0, z: 0 };
-    const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-    const center: IAutoMovieVector3 =
-      sense.command?.center ??
-      sense.profile.segments.reduce(
-        (
-          sum: IAutoMovieVector3,
-          segment: IAutoMoviePhysicalSegment,
-        ): IAutoMovieVector3 =>
-          Vector3.add(
-            sum,
-            Vector3.scale(
-              physicalSupportPoint(
-                sense.targets[segment.bone]!,
-                segment.centerOfMass,
-              ),
-              segment.mass / sense.profile.mass,
-            ),
-          ),
-        zero,
-      );
-    const velocity: IAutoMovieVector3 = sense.command?.velocity ?? zero;
-    const acceleration: IAutoMovieVector3 =
-      sense.command?.acceleration ?? zero;
-    return {
-      position: {
-        x: center.x + offset.x + velocity.x / omega,
-        z: center.z + offset.z + velocity.z / omega,
-      },
-      velocity: {
-        x: velocity.x + acceleration.x / omega,
-        z: velocity.z + acceleration.z / omega,
-      },
-    };
   }
 
   /**

@@ -16,6 +16,7 @@ import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalBipedPressure } from "./physicalBipedPressure";
 import type { physicalIcpController } from "./physicalIcpController";
 import { physicalLegCapacity } from "./physicalLegCapacity";
+import { physicalQuadFrame } from "./physicalQuadFrame";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
 /** A support limb of the balance pattern. */
@@ -220,6 +221,27 @@ export namespace physicalStanceBalance {
       };
       dt: number;
     };
+
+    /**
+     * IHMC's DCM controller for a four-support body (`physicalQuadFrame
+     * .pivot`): the plan's DCM setpoint and rate, world x and z, absent for the
+     * authored centre of mass's at rest. With it the controller's virtual
+     * repellent point is the centre of pressure and pivot, and the law, the
+     * allocation, the bias and the trunk's horizontal moment are not used.
+     */
+    dcm?: {
+      desired?: {
+        position: { x: number; z: number };
+        velocity: { x: number; z: number };
+      };
+    };
+
+    /**
+     * The pendulum's rate the controller runs at, per second
+     * (`IAutoMoviePhysicalRecoveryState.omega`); absent, sqrt(g / h) at the
+     * authored centre of mass's height over the floor.
+     */
+    omega?: number;
   }
 
   /** One balance step's demand and bearing. */
@@ -279,7 +301,7 @@ export namespace physicalStanceBalance {
     const mass: number = body.profile.mass;
     const height: number = input.center.y - floor;
     if (!(height > 0) || !(input.strength > 0)) return undefined;
-    const omega: number = Math.sqrt(gravity / height);
+    const omega: number = input.omega ?? Math.sqrt(gravity / height);
     const outlines: { limb: Limb; outline: IAutoMovieVector3[] }[] =
       input.stance
         .map((limb: Limb) => ({
@@ -453,10 +475,28 @@ export namespace physicalStanceBalance {
           floor,
         })
       : undefined;
+    // A four-support body's are IHMC's DCM controller's virtual repellent
+    // point (`physicalQuadFrame.pivot`).
+    const vrp: IAutoMovieVector3 | undefined = input.dcm
+      ? physicalQuadFrame.pivot({
+          ...(input.dcm.desired ? { desired: input.dcm.desired } : {}),
+          authored: {
+            x: input.center.x + input.velocity.x / omega,
+            y: floor,
+            z: input.center.z + input.velocity.z / omega,
+          },
+          center,
+          velocity,
+          omega,
+          floor,
+        })
+      : undefined;
     const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> =
       icp
         ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
-        : allocate({
+        : vrp
+          ? { pressure: vrp, pivot: vrp, clamped: false }
+          : allocate({
             capture,
             reference,
             command,

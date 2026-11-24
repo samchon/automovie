@@ -4,21 +4,21 @@ import type {
 } from "@automovie/interface";
 
 /**
- * The steps a recovery has under way: its swing and, while a four-support body
- * steps a diagonal pair, the swing's partner, which lifts with it and lands by
- * its own contact (`advancePhysicalBalance`; Chen et al. 2022, Section 2.1,
- * Example 1). Each is asked for, still giving up its share of the stance,
- * until its limb lifts.
+ * The steps a recovery has under way (`advancePhysicalBalance`): a two-support
+ * body's swing, and a four-support body's swings, up to two legs at once in
+ * its gait (`physicalQuadPlan`). Each lifts as its step begins.
  *
  * @param state The recovery's state, if any.
- * @returns The swing first, then its partner; empty with no swing.
+ * @returns The swing, then the swings in the order they lifted; empty with
+ *   none.
  */
 export function physicalRecoverySwing(
   state: IAutoMoviePhysicalRecoveryState | undefined,
 ): IAutoMovieStepPlanner.IStep[] {
-  return state?.swing
-    ? [state.swing, ...(state.pair ? [state.pair.step] : [])]
-    : [];
+  return [
+    ...(state?.swing ? [state.swing] : []),
+    ...Object.values(state?.swings ?? {}),
+  ];
 }
 
 /** Which limbs a recovery's steps under way hold, lifted or still asked for. */

@@ -15,17 +15,15 @@ import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalance
 import { accumulatePhysicalMotorTorques } from "./accumulatePhysicalMotorTorques";
 import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { physicalBalanceHandoff } from "./physicalBalanceHandoff";
-import { physicalBalanceLift } from "./physicalBalanceLift";
-import { physicalBalancePlan } from "./physicalBalancePlan";
 import { physicalBalanceRamp } from "./physicalBalanceRamp";
 import { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalBalanceSettle } from "./physicalBalanceSettle";
 import { physicalBalanceStance } from "./physicalBalanceStance";
 import { physicalBalanceSwing } from "./physicalBalanceSwing";
-import { physicalBalanceTouchdown } from "./physicalBalanceTouchdown";
-import { physicalBalanceUnload } from "./physicalBalanceUnload";
 import { physicalBipedPlan } from "./physicalBipedPlan";
 import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
+import { physicalQuadPlan } from "./physicalQuadPlan";
+import { physicalQuadTouchdown } from "./physicalQuadTouchdown";
 
 /**
  * Advance one body's generic recovery controller from actual floor manifolds.
@@ -37,18 +35,18 @@ import { physicalBipedTouchdown } from "./physicalBipedTouchdown";
  * The controller is a machine of phases, each a function from the state and the
  * body's readings (`physicalBalanceSense`) to the next state and its commands,
  * none writing its input, run in this order: authored handoff
- * (`physicalBalanceHandoff`), touchdown (`physicalBalanceTouchdown`), unloading
- * (`physicalBalanceUnload`), the landing ramp (`physicalBalanceRamp`), lift
- * (`physicalBalanceLift`), the plan read from the stance after it
- * (`physicalBalanceStance`, `physicalBalancePlan`), the swing
- * (`physicalBalanceSwing`) and settling (`physicalBalanceSettle`). The swing's
- * drives are applied here, and the caller's state becomes the last phase's.
+ * (`physicalBalanceHandoff`), touchdown, the stance feet's seating
+ * (`physicalBalanceRamp`), the plan read from the stance
+ * (`physicalBalanceStance`), the swing (`physicalBalanceSwing`) and settling
+ * (`physicalBalanceSettle`). The swing's drives are applied here, and the
+ * caller's state becomes the last phase's.
  *
  * IHMC keeps its walking controller and its quadruped controller apart, and so
  * does this machine: a two-support body's touchdown and plan are the walking
  * controller's push recovery from IHMC 201903 (`physicalBipedTouchdown`,
- * `physicalBipedPlan`), which steps at once with no unloading, and a
- * four-support body's are the quadruped's.
+ * `physicalBipedPlan`), and a four-support body's are its quadruped step
+ * controller (`physicalQuadTouchdown`, `physicalQuadPlan`). Either lifts a
+ * foot as its step begins, with no unloading.
  */
 export function advancePhysicalBalance(input: {
   /** Active solver, read before this step's integration. */ world: AutoMovieXpbdWorld;
@@ -123,35 +121,21 @@ export function advancePhysicalBalance(input: {
   const biped: boolean = sense.limbs.length === 2;
   const landed: IAutoMoviePhysicalRecoveryState = biped
     ? physicalBipedTouchdown({ state: handed, sense, ...trace })
-    : physicalBalanceTouchdown({ state: handed, sense, ...trace });
+    : physicalQuadTouchdown({ state: handed, sense, ...trace });
   const seated: IAutoMoviePhysicalRecoveryState = physicalBalanceRamp({
-    state: physicalBalanceUnload({ state: landed, sense }),
+    state: landed,
     sense,
-  });
-  const lifted: IAutoMoviePhysicalRecoveryState = physicalBalanceLift({
-    state: seated,
-    sense,
-    ...trace,
   });
   const stance: physicalBalanceStance.IStance = physicalBalanceStance({
-    state: lifted,
+    state: seated,
     sense,
   });
-  const plan: physicalBalancePlan.IResult = biped
-    ? physicalBipedPlan({ state: lifted, sense, stance, ...trace })
-    : physicalBalancePlan({ state: lifted, sense, stance, ...trace });
-
-  // The biped's swing begins in its plan, so the swing reads the stance it
-  // leaves.
-  const swung: physicalBalanceStance.IStance =
-    biped && plan.state.swing && !lifted.swing
-      ? physicalBalanceStance({ state: plan.state, sense })
-      : stance;
+  const plan: physicalBipedPlan.IResult | physicalQuadPlan.IResult = biped
+    ? physicalBipedPlan({ state: seated, sense, stance, ...trace })
+    : physicalQuadPlan({ state: seated, sense, stance, ...trace });
   const swing: physicalBalanceSwing.IResult = physicalBalanceSwing({
     state: plan.state,
     sense,
-    stance: swung,
-    ...(biped ? { repredict: false } : {}),
     ...trace,
   });
 

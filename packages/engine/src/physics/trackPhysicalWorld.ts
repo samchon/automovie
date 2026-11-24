@@ -182,15 +182,16 @@ export function trackPhysicalWorld(
       ? endpointSupports
       : balanceSupports;
 
-    // A biped's recovery plan stands in for the authored command, its centre
-    // of mass and velocity; their acceleration is the authored velocity
-    // differentiated over the controller period, sampled again a substep
-    // earlier within the cache interval: a derivative of the input, not a
-    // control rule.
+    // The authored command the plan phases follow where IHMC follows its
+    // planner (`physicalAuthoredCapture`): its centre of mass and velocity;
+    // their acceleration is the authored velocity differentiated over the
+    // controller period, sampled again a substep earlier within the cache
+    // interval: a derivative of the input, not a control rule.
     const authored:
       | NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]>
       | undefined =
-      body.balance?.pattern.limbs.length === 2
+      body.balance?.pattern.limbs.length === 2 ||
+      body.balance?.pattern.limbs.length === 4
         ? ((): NonNullable<
             Parameters<typeof AdvanceBalance>[0]["command"]
           > => {
@@ -407,7 +408,9 @@ export function trackPhysicalWorld(
 
       // A two-support body balances by IHMC's capture-point feedback
       // controller, its state kept with the recovery's
-      // (`physicalBipedPressure`).
+      // (`physicalBipedPressure`), and a four-support body by IHMC's DCM
+      // controller (`physicalQuadFrame.pivot`), each at the rate its plan ran
+      // at.
       ...(assessment &&
       (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs.length ===
         2
@@ -416,13 +419,21 @@ export function trackPhysicalWorld(
               ...physicalIcpController.create(),
               key: "",
             }),
-            ...(assessment.state.desired
-              ? { desired: assessment.state.desired }
-              : {}),
             ...(assessment.state.plan
               ? { phase: assessment.state.plan.phase }
               : {}),
           }
+        : {}),
+      ...(assessment &&
+      (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs.length ===
+        4
+        ? { dcm: true }
+        : {}),
+      ...(assessment?.state.desired
+        ? { desired: assessment.state.desired }
+        : {}),
+      ...(assessment?.state.omega !== undefined
+        ? { omega: assessment.state.omega }
         : {}),
       pushed: input.impulses.some(
         (impulse: (typeof input.impulses)[number]): boolean =>

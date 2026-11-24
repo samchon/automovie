@@ -1,109 +1,36 @@
 import {
   AutoMovieXpbdCollider,
   AutoMovieXpbdWorld,
-  physicalBalanceUnload,
-  physicalRootBounds,
-  physicalStanceBalance,
   solveXpbdArticulationContacts,
   solveXpbdContacts,
   solveXpbdSupportCascade,
 } from "@automovie/engine";
-import type {
-  IAutoMoviePhysicalProfile,
-  IAutoMoviePhysicalRecoveryState,
-  IAutoMovieVector3,
-} from "@automovie/interface";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
-
-import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
 
 /**
  * The seams between the stance's force bounds and the support solve hold
- * their contracts: a leaving foot's bound ramps its whole force out before it
- * lifts, an entering foot's bound never takes back the floor's impact, and
- * every hold stays within its bound and its friction cone.
+ * their contracts: an entering foot's bound never takes back the floor's
+ * impact, and every hold stays within its bound and its friction cone.
  *
  * Scenarios:
  *
- * 1. Leaving: from each disturbance case's first recorded request, the unload
- *    phase ramps the asked foot's bearing to zero; at every substep the total
- *    normal impulse its bound admits, the contact passes' impulse plus the
- *    rows' room (`solveXpbdArticulationContacts.room`), is at most the bound
- *    over the substep (Herzog et al. 2016, Section 5.3), so once the bearing
- *    is out the foot carries at most `RELEASE` of the weight and may lift
- *    (`physicalStanceBalance.release`).
- * 2. Entering: a landing foot whose impact exceeds its ramped bound keeps the
+ * 1. Entering: a landing foot whose impact exceeds its ramped bound keeps the
  *    impact; the bound leaves the rows no room to add, never a demand to take
  *    the impact back, so a task asking the impact or more keeps it whole.
- * 3. Holds: a patch asked twice its bound normally and more tangentially than
+ * 2. Holds: a patch asked twice its bound normally and more tangentially than
  *    its cone allows gets its bound, 4 N s, and its cone's edge, 2 N s.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States each seam's contract and its source.
- * @evidence contracts/development/testing.md#behavioral-verification Runs `physicalBalanceUnload`, `physicalRootBounds`, `solveXpbdArticulationContacts.room` and `solveXpbdSupportCascade` and reads their results.
- * @evidence contracts/development/testing.md#independent-expectations The bound over the substep, `RELEASE` of the weight, the impact and the cone's mu N are the contracts' own figures, not values the code computes.
- * @evidence contracts/development/testing.md#distinguishing-cases A room clamped at zero for a leaving bound keeps the passes' impulse above the bound (scenario 1); a negative room for an entering bound takes the impact back (scenario 2); a bound or cone left out of the cascade lets the hold follow the task (scenario 3).
- * @evidence contracts/development/testing.md#execution-ownership Pure computation over the replay fixtures and in-memory programs; no native world, viewer or simulation run.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs `solveXpbdArticulationContacts.room` and `solveXpbdSupportCascade` and reads their results.
+ * @evidence contracts/development/testing.md#independent-expectations The impact and the cone's mu N are the contracts' own figures, not values the code computes.
+ * @evidence contracts/development/testing.md#distinguishing-cases A negative room for an entering bound takes the impact back (scenario 1); a bound or cone left out of the cascade lets the hold follow the task (scenario 2).
+ * @evidence contracts/development/testing.md#execution-ownership Pure computation over in-memory programs; no native world, viewer or simulation run.
  */
 export function test_physical_support_bound_seams(): void {
   const failures: string[] = [];
 
-  // 1. A leaving bound ramps the foot's whole force out.
-  const profiles: Partial<Record<string, IAutoMoviePhysicalProfile>> = {};
-  for (const name of PhysicalBalanceReplay.list()) {
-    const fixture: PhysicalBalanceReplay.IFixture =
-      PhysicalBalanceReplay.load(name);
-    const record: PhysicalBalanceReplay.IRecord | undefined =
-      fixture.records.find(
-        (candidate: PhysicalBalanceReplay.IRecord): boolean =>
-          candidate.kind === "advance" &&
-          !!candidate.input.state?.swing &&
-          !!candidate.input.state?.seating?.[candidate.input.state.swing.bone],
-      );
-    if (!record) continue;
-    const built: IAutoMoviePhysicalProfile = (profiles[fixture.subject] ??=
-      PhysicalBalanceReplay.profile(fixture.subject));
-    const { sense, state: start } = PhysicalBalanceReplay.sense(
-      fixture,
-      record,
-      built,
-    );
-    const bone: string = start.swing!.bone;
-    const given: number = sense.load(bone) * sense.dt;
-    let state: IAutoMoviePhysicalRecoveryState = start;
-    for (let k: number = 0; k < 1000; k++) {
-      const bearing: number = state.seating![bone]!.bearing ?? 1;
-      const bound: number =
-        physicalRootBounds({
-          force: sense.weight,
-          requested: [bone],
-          stance: sense.limbs.map((limb) => limb.bone),
-          seating: state.seating!,
-        }).find((entry) => entry.bone === bone)?.force ?? Infinity;
-      const total: number =
-        given +
-        solveXpbdArticulationContacts.room({
-          force: bound,
-          h: sense.dt,
-          given,
-        });
-      if (total > bound * sense.dt + 1e-12) {
-        failures.push(
-          `${fixture.case}: at bearing ${bearing.toFixed(3)} the leaving bound admits ${(total / sense.dt).toFixed(1)} N over its ${bound.toFixed(1)} N`,
-        );
-        break;
-      }
-      if (bearing <= 0) {
-        if (total > physicalStanceBalance.RELEASE * sense.weight * sense.dt)
-          failures.push(
-            `${fixture.case}: the bearing is out but ${(total / sense.dt).toFixed(1)} N remain`,
-          );
-        break;
-      }
-      state = physicalBalanceUnload({ state, sense });
-    }
-  }
-
-  // 2. An entering bound keeps the landing's impact.
+  // 1. An entering bound keeps the landing's impact.
   const h: number = 1 / 480;
   const impact: number = 3;
   const entering: number = solveXpbdArticulationContacts.room({
@@ -122,7 +49,7 @@ export function test_physical_support_bound_seams(): void {
       );
   }
 
-  // 3. A hold stays within its bound and its friction cone.
+  // 2. A hold stays within its bound and its friction cone.
   const held: number[] | null = solveXpbdSupportCascade(
     program({ given: 0, bound: 4, normal: 8, tangent: 10 }),
   );

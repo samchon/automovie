@@ -2,31 +2,19 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States when a swing foot lands, touches down early or fails, how a diagonal pair's feet land, and that the input is never written.
+States which phases share the writes.
 
-## @evidence contracts/development/implementation.md#principled-implementation
+## @evidence contracts/development/design.md#principled-representation
 
-Landing is the contact event (Coros, Beaudoin and van de Panne 2010, Section 3.1; Yin, Loken and van de Panne 2007, Section 3.1), counted after the minimum phase (Stephens 2011, Figure 4.6); an early touchdown is a cleared, descending foot the floor carries on two substeps (`physicalStanceBalance.touchdown`). A landed foot is seated at once with zero error where it stands and its share ramps in (Feng et al. 2013, Section II-E; Herzog et al. 2016, Section 5.3). The pair's partner is taken first so the swing's landing can leave it the swing (Chen et al. 2022, Section 2.1).
+A namespace of the landing, timeout and failure writes on a state the caller owns.
 
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
+## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-One loop over the pair's partner and the swing, each with its own clearance and touchdown record, then the landing or the failure.
+Read by physicalBipedTouchdown and physicalQuadTouchdown.
 
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The minimum phase is a stated constant; the cast types the null-prototype copy of the offsets; non-null assertions read the swinging limb's own segment and the root target.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-At most two feet per substep, each one support scan.
-
-## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
-
-It advances one state by one substep's contacts.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-It retains nothing; the landing record grows by one entry per landing, owned by the caller's state.
+Functions only.
 
 # src/physics/physicalBalanceTouchdown.ts#physicalBalanceTouchdown.land
 
@@ -36,7 +24,7 @@ States what a landing writes, the seat's caller-given shares and why no other fo
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-The four-support touchdown's landing, shared with the biped's: the landed foot's offset and the root's from the authored poses, the landing's record, the foot seated with zero error where it stands, and its step resolved. The seat's initial shares are the caller's: the four-support controller ramps them in from zero (Feng et al. 2013; Herzog et al. 2016), IHMC 201903's biped starts a landed foot as a full contact.
+The biped's and the quadruped's landing: the landed foot's offset and the root's from the authored poses, the landing's record, the foot seated with zero error where it stands, and its step resolved. The seat's initial shares are the caller's; both of IHMC 201903's controllers start a landed foot as a full contact (`TransferToStandingState` l.79, `QuadrupedSupportState.onEntry` l.74-84).
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -108,7 +96,7 @@ None.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-At most two steps.
+One resolution per step under way.
 
 ## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
 

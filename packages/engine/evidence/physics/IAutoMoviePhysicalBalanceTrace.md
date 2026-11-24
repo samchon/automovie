@@ -10,7 +10,7 @@ A union discriminated by kind, one member per event or reading, so a test narrow
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Each kind is recorded by one phase: the plan's trigger, withdraw, switch and assessment, the lift's lift, the touchdown's landing and failure, the handoff's cancellation, the swing's swing and the root demand's stance.
+Each kind is recorded by one phase: the plans' trigger, lift and assessment, the touchdowns' landing and failure, the handoff's cancellation, the swing's swing and the root demand's stance.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -38,69 +38,33 @@ Two numbers, nothing else.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents each field of a step's trigger.
+Documents each field of a recovery's trigger.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The capture point, the step and why it was asked for, as the plan decides it.
+The capture point and the first step, as the plan decides it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalancePlan.
+Recorded by physicalBipedPlan and physicalQuadPlan.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 Optional fields are absent when the assessment has no value for them.
 
-# src/physics/IAutoMoviePhysicalBalanceTrace.ts#IAutoMoviePhysicalBalanceTrace.IWithdraw
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents a withdrawn request.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The limb whose request was withdrawn and when.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Recorded by physicalBalancePlan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-No optional fields.
-
-# src/physics/IAutoMoviePhysicalBalanceTrace.ts#IAutoMoviePhysicalBalanceTrace.ISwitch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Documents a request moved to another limb.
-
-## @evidence contracts/development/design.md#principled-representation
-
-The limbs it leaves and moves to, and the new pair's partner.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-Recorded by physicalBalancePlan.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-The partner is absent for a single step.
-
 # src/physics/IAutoMoviePhysicalBalanceTrace.ts#IAutoMoviePhysicalBalanceTrace.ILift
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Documents a lift and the seat's load and bearing at release.
+Documents a lift and the seat's load and bearing at lift-off.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The two readings the release decision was made on.
+The seat's two readings as the step lifted it.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalanceLift.
+Recorded by physicalBipedPlan and physicalQuadPlan.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -118,7 +82,7 @@ The landed endpoint in world metres.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalanceTouchdown.
+Recorded by physicalBalanceTouchdown.land.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -154,7 +118,7 @@ The capture point, its excursions, the decision's inputs and the chosen step, as
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Recorded by physicalBalancePlan each substep a trace is passed.
+Recorded by physicalBipedPlan and physicalQuadPlan each substep a trace is passed.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 

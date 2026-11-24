@@ -13,8 +13,6 @@ import type {
  */
 export type IAutoMoviePhysicalBalanceTrace =
   | IAutoMoviePhysicalBalanceTrace.ITrigger
-  | IAutoMoviePhysicalBalanceTrace.IWithdraw
-  | IAutoMoviePhysicalBalanceTrace.ISwitch
   | IAutoMoviePhysicalBalanceTrace.ILift
   | IAutoMoviePhysicalBalanceTrace.ILanded
   | IAutoMoviePhysicalBalanceTrace.IEnded
@@ -32,16 +30,14 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     z: number;
   }
 
-  /** A step asked for (`physicalBalancePlan`). */
+  /** A recovery triggered (`physicalBipedPlan`, `physicalQuadPlan`). */
   export interface ITrigger {
     /** The kind. */
     kind: "trigger";
     /** The substep's local seconds. */
     seconds: number;
-    /** The stepping limb's endpoint bone. */
+    /** The stepping limb's endpoint bone, or the first gait step's. */
     bone: string;
-    /** A diagonal pair's partner, if any. */
-    pair?: string;
     /** The capture point. */
     capture: IPoint;
     /** How far the capture point is past the shrunken support, if measured. */
@@ -60,31 +56,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     pressure?: IPoint;
   }
 
-  /** A request withdrawn, the capture point back inside (`physicalBalancePlan`). */
-  export interface IWithdraw {
-    /** The kind. */
-    kind: "withdraw";
-    /** The substep's local seconds. */
-    seconds: number;
-    /** The request's limb. */
-    bone: string;
-  }
-
-  /** A request moved to another limb or pair (`physicalBalancePlan`). */
-  export interface ISwitch {
-    /** The kind. */
-    kind: "switch";
-    /** The substep's local seconds. */
-    seconds: number;
-    /** The limb the request leaves. */
-    from: string;
-    /** The limb it moves to. */
-    to: string;
-    /** The new pair's partner, if any. */
-    pair?: string;
-  }
-
-  /** A step's limb released by the floor and lifted (`physicalBalanceLift`). */
+  /** A step's limb lifted as its step began (`physicalBipedPlan`, `physicalQuadPlan`). */
   export interface ILift {
     /** The kind. */
     kind: "lift";
@@ -92,13 +64,13 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     seconds: number;
     /** The limb. */
     bone: string;
-    /** Its low-passed measured load at release, newtons. */
+    /** Its low-passed measured load at lift-off, newtons. */
     load: number;
-    /** Its bearing share at release. */
+    /** Its bearing share at lift-off. */
     bearing: number;
   }
 
-  /** A swinging limb landed (`physicalBalanceTouchdown`). */
+  /** A swinging limb landed (`physicalBalanceTouchdown.land`). */
   export interface ILanded {
     /** The kind. */
     kind: "landed";
@@ -106,7 +78,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     seconds: number;
     /** The limb. */
     bone: string;
-    /** Whether it touched down before the swing's minimum phase. */
+    /** Whether it touched down before its swing's end. */
     early: boolean;
     /** Its endpoint where it landed. */
     position: IAutoMovieVector3;
@@ -126,7 +98,7 @@ export namespace IAutoMoviePhysicalBalanceTrace {
     bones: string[];
   }
 
-  /** The step decision's assessment at a substep (`physicalBalancePlan`). */
+  /** The plan's assessment at a substep (`physicalBipedPlan`, `physicalQuadPlan`). */
   export interface IAssess {
     /** The kind. */
     kind: "assess";

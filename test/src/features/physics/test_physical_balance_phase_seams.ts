@@ -1,16 +1,14 @@
 import {
   physicalBalanceHandoff,
-  physicalBalanceLift,
-  physicalBalancePlan,
   physicalBalanceRamp,
   physicalBalanceSense,
   physicalBalanceSettle,
   physicalBalanceStance,
   physicalBalanceSwing,
-  physicalBalanceTouchdown,
-  physicalBalanceUnload,
   physicalBipedPlan,
   physicalBipedTouchdown,
+  physicalQuadPlan,
+  physicalQuadTouchdown,
 } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalProfile,
@@ -27,14 +25,14 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  * result, those fields either carried through as given or written as without
  * them.
  *
- * Private state, by owner: the touchdown's clearance and touchdown record
- * (`cleared`, `touchdown`, and a diagonal pair's own), the plan's excursion
- * watch (`excess`, `band`), the settle phase's loss timer (`lostSince`), the
+ * Private state, by owner: the settle phase's loss timer (`lostSince`), the
  * root tracker's centre-of-pressure integral (`pressure` but its `command`,
- * which the stance reads), the handoff's record (`handoffs`), and on a
- * two-support body the biped touchdown's foot switches (`switches`) and the
- * biped plan's push recovery flags (`push`). A two-support body runs the biped
- * touchdown and plan in place of the four-support ones.
+ * which the stance reads), the handoff's record (`handoffs`), the biped
+ * touchdown's foot switches (`switches`) and the plan's push recovery flags
+ * (`push`). A two-support body runs the biped touchdown and plan, a
+ * four-support body the quadruped's; the quadruped's gait (`gait`, `swings`)
+ * is shared between its touchdown and plan, as IHMC's touchdown callback
+ * clears the step adjustment.
  *
  * Scenarios:
  *
@@ -48,7 +46,7 @@ import { PhysicalBalanceReplay } from "../internal/PhysicalBalanceReplay";
  * @evidence contracts/development/common.md#meaningful-documentation States the private fields by owner, the perturbation and what agreement means.
  * @evidence contracts/development/testing.md#behavioral-verification Calls every phase on recorded states and reads the states and commands they return.
  * @evidence contracts/development/testing.md#independent-expectations The expectation is the same phase's unperturbed result, so a phase reading a foreign private field differs from itself; nothing is computed by a model of the phase.
- * @evidence contracts/development/testing.md#distinguishing-cases A phase that read any perturbed field, say the plan reading the touchdown's `cleared` or the stance reading the integral's bias, would change its result at some recorded frame.
+ * @evidence contracts/development/testing.md#distinguishing-cases A phase that read any perturbed field, say the plan reading the touchdown's `switches` or the stance reading the integral's bias, would change its result at some recorded frame.
  * @evidence contracts/development/testing.md#execution-ownership Pure computation over the replay fixtures; no native world, viewer or simulation run.
  */
 export function test_physical_balance_phase_seams(): void {
@@ -113,51 +111,34 @@ export function test_physical_balance_phase_seams(): void {
       ): IAutoMoviePhysicalRecoveryState =>
         biped
           ? physicalBipedTouchdown({ state: s, sense })
-          : physicalBalanceTouchdown({ state: s, sense });
+          : physicalQuadTouchdown({ state: s, sense });
       const landed: IAutoMoviePhysicalRecoveryState = touchdown(handed);
       check("touchdown", handed, (s) => ({ state: touchdown(s), rest: null }));
-      const unloaded: IAutoMoviePhysicalRecoveryState = physicalBalanceUnload({
+      const seated: IAutoMoviePhysicalRecoveryState = physicalBalanceRamp({
         state: landed,
         sense,
       });
-      check("unload", landed, (s) => ({
-        state: physicalBalanceUnload({ state: s, sense }),
-        rest: null,
-      }));
-      const seated: IAutoMoviePhysicalRecoveryState = physicalBalanceRamp({
-        state: unloaded,
-        sense,
-      });
-      check("ramp", unloaded, (s) => ({
+      check("ramp", landed, (s) => ({
         state: physicalBalanceRamp({ state: s, sense }),
         rest: null,
       }));
-      const lifted: IAutoMoviePhysicalRecoveryState = physicalBalanceLift({
+      const stance: physicalBalanceStance.IStance = physicalBalanceStance({
         state: seated,
         sense,
       });
-      check("lift", seated, (s) => ({
-        state: physicalBalanceLift({ state: s, sense }),
-        rest: null,
-      }));
-      const stance: physicalBalanceStance.IStance = physicalBalanceStance({
-        state: lifted,
-        sense,
-      });
-      check("stance", lifted, (s) => ({ rest: readings(sense, s) }));
+      check("stance", seated, (s) => ({ rest: readings(sense, s) }));
       const planning = (
         s: IAutoMoviePhysicalRecoveryState,
         at: physicalBalanceStance.IStance,
-      ): physicalBalancePlan.IResult =>
+      ): physicalBipedPlan.IResult | physicalQuadPlan.IResult =>
         biped
           ? physicalBipedPlan({ state: s, sense, stance: at })
-          : physicalBalancePlan({ state: s, sense, stance: at });
-      const plan: physicalBalancePlan.IResult = planning(lifted, stance);
-      check("plan", lifted, (s) => {
-        const result: physicalBalancePlan.IResult = planning(
-          s,
-          physicalBalanceStance({ state: s, sense }),
-        );
+          : physicalQuadPlan({ state: s, sense, stance: at });
+      const plan: physicalBipedPlan.IResult | physicalQuadPlan.IResult =
+        planning(seated, stance);
+      check("plan", seated, (s) => {
+        const result: physicalBipedPlan.IResult | physicalQuadPlan.IResult =
+          planning(s, physicalBalanceStance({ state: s, sense }));
         return {
           state: result.state,
           rest: { goals: result.goals, assessment: result.assessment },
@@ -166,15 +147,11 @@ export function test_physical_balance_phase_seams(): void {
       const swing: physicalBalanceSwing.IResult = physicalBalanceSwing({
         state: plan.state,
         sense,
-        stance,
-        ...(biped ? { repredict: false } : {}),
       });
       check("swing", plan.state, (s) => {
         const result: physicalBalanceSwing.IResult = physicalBalanceSwing({
           state: s,
           sense,
-          stance,
-          ...(biped ? { repredict: false } : {}),
         });
         return {
           state: result.state,
@@ -210,9 +187,7 @@ export function test_physical_balance_phase_seams(): void {
 type Owner =
   | "handoff"
   | "touchdown"
-  | "unload"
   | "ramp"
-  | "lift"
   | "stance"
   | "plan"
   | "swing"
@@ -228,54 +203,6 @@ interface IField {
 
 /** Every phase's private fields, each set to a value no recording holds. */
 const FIELDS: readonly IField[] = [
-  {
-    name: "cleared",
-    owner: "touchdown",
-    read: (state) => state.cleared,
-    write: (state) => {
-      state.cleared = !(state.cleared ?? false);
-    },
-  },
-  {
-    name: "touchdown",
-    owner: "touchdown",
-    read: (state) => state.touchdown,
-    write: (state) => {
-      state.touchdown = -1000;
-    },
-  },
-  {
-    name: "pair.cleared",
-    owner: "touchdown",
-    read: (state) => state.pair?.cleared,
-    write: (state) => {
-      if (state.pair) state.pair.cleared = !(state.pair.cleared ?? false);
-    },
-  },
-  {
-    name: "pair.touchdown",
-    owner: "touchdown",
-    read: (state) => state.pair?.touchdown,
-    write: (state) => {
-      if (state.pair) state.pair.touchdown = -1000;
-    },
-  },
-  {
-    name: "excess",
-    owner: "plan",
-    read: (state) => state.excess,
-    write: (state) => {
-      state.excess = 1000;
-    },
-  },
-  {
-    name: "band",
-    owner: "plan",
-    read: (state) => state.band,
-    write: (state) => {
-      state.band = { since: -1000, excess: 1000 };
-    },
-  },
   {
     name: "lostSince",
     owner: "settle",
@@ -354,19 +281,11 @@ function perturb(
 function strip(state: IAutoMoviePhysicalRecoveryState): unknown {
   const copy: IAutoMoviePhysicalRecoveryState = structuredClone(state);
   const command: { x: number; z: number } | undefined = copy.pressure?.command;
-  delete copy.cleared;
-  delete copy.touchdown;
-  delete copy.excess;
-  delete copy.band;
   delete copy.lostSince;
   delete copy.handoffs;
   delete copy.pressure;
   delete copy.switches;
   delete copy.push;
-  if (copy.pair) {
-    delete copy.pair.cleared;
-    delete copy.pair.touchdown;
-  }
   return { ...copy, command: command ?? null };
 }
 

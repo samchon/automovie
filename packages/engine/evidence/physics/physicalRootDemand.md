@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the stance's and the mass centre's tasks, how the feet bear, how the trunk is held and when the integral advances, and that the input is never written.
+States the stance's and the mass centre's tasks, how the feet bear, how the trunk is held and when the integral advances, that a biped's and a quadruped's controllers keep none, and that the input is never written.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

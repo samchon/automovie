@@ -113,6 +113,10 @@ export function trackPhysicalRoot(
             },
           }
         : {}),
+      ...(input.dcm
+        ? { dcm: input.desired ? { desired: input.desired } : {} }
+        : {}),
+      ...(input.omega !== undefined ? { omega: input.omega } : {}),
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
       supports: input.supports,
       swinging,
@@ -359,8 +363,17 @@ export namespace trackPhysicalRoot {
       key: string;
     };
     /**
-     * A biped's planned capture point and rate this substep, world x and z
-     * (`physicalBipedPlan`); absent for the authored centre of mass's at rest.
+     * Whether a four-support body balances by IHMC's DCM controller
+     * (`physicalQuadFrame.pivot`) toward `desired`.
+     */ dcm?: boolean;
+    /**
+     * The pendulum's rate the plan ran at this substep, per second
+     * (`IAutoMoviePhysicalRecoveryState.omega`), if it set one.
+     */ omega?: number;
+    /**
+     * A biped's planned capture point or a quadruped's DCM setpoint and their
+     * rate this substep, world x and z (`physicalBipedPlan`,
+     * `physicalQuadPlan`); absent for the authored centre of mass's at rest.
      */ desired?: {
       position: { x: number; z: number };
       velocity: { x: number; z: number };

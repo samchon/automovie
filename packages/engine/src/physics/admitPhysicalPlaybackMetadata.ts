@@ -3,6 +3,7 @@ import type {
   IAutoMoviePhysicalOwnershipEvent,
   IAutoMoviePhysicalPlayback,
   IAutoMoviePhysicalSupportWrench,
+  IAutoMovieStepPlanner,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
@@ -209,26 +210,16 @@ export function admitPhysicalPlaybackMetadata(
         (!Number.isSafeInteger(state.revision) || state.revision < 0)) ||
       (state.failedLanding !== undefined &&
         typeof state.failedLanding !== "boolean") ||
-      (state.cleared !== undefined && typeof state.cleared !== "boolean") ||
-      (state.touchdown !== undefined && !Number.isFinite(state.touchdown)) ||
-      // A diagonal pair's partner swings only with the swing it pairs.
-      (state.pair !== undefined &&
-        (!state.swing ||
-          typeof state.pair !== "object" ||
-          !state.pair.step ||
-          state.pair.step.bone === state.swing.bone ||
-          (state.pair.cleared !== undefined &&
-            typeof state.pair.cleared !== "boolean") ||
-          (state.pair.touchdown !== undefined &&
-            !Number.isFinite(state.pair.touchdown)))) ||
-      (state.excess !== undefined &&
-        !(Number.isFinite(state.excess) && state.excess >= 0)) ||
-      (state.band !== undefined &&
-        !(
-          Number.isFinite(state.band?.since) &&
-          Number.isFinite(state.band?.excess) &&
-          state.band.excess >= 0
-        )) ||
+      // A four-support body's swings are its gait's, one per bone, never
+      // beside a two-support body's swing.
+      (state.swings !== undefined &&
+        (typeof state.swings !== "object" ||
+          Array.isArray(state.swings) ||
+          state.swing !== undefined ||
+          Object.entries(state.swings).some(
+            ([name, step]: [string, IAutoMovieStepPlanner.IStep]): boolean =>
+              step?.bone !== name,
+          ))) ||
       (state.seating !== undefined &&
         (typeof state.seating !== "object" ||
           Array.isArray(state.seating) ||
@@ -284,7 +275,7 @@ export function admitPhysicalPlaybackMetadata(
     for (const step of [
       ...state.steps,
       ...(state.swing ? [state.swing] : []),
-      ...(state.pair ? [state.pair.step] : []),
+      ...Object.values(state.swings ?? {}),
     ]) {
       if (
         !step ||
