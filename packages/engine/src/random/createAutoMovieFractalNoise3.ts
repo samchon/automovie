@@ -15,8 +15,8 @@ import { createAutoMovieRandom } from "./createAutoMovieRandom";
  * amplitude `roughness^o`, and the sum is divided by the sum of the amplitudes,
  * so it stays in [-1, 1] and keeps every octave's continuity. Octave 0 uses
  * `seed`; octave `o >= 1` uses the stream derived from `seed` by the ids
- * `"octave"` and `o`. A coordinate is admitted when `|coordinate| * 2^(octaves
- * - 1)` is at most {@link createAutoMovieGradientNoise3.BOUND}.
+ * `"octave"` and `o`. A coordinate is admitted when its magnitude times
+ * `2^(octaves-1)` is at most {@link createAutoMovieGradientNoise3.BOUND}.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @param octaves Number of octaves, a positive integer.

@@ -27,12 +27,11 @@ import { fadeAutoMovieGradientNoise } from "./fadeAutoMovieGradientNoise";
  *
  * Bound: the fade weights of the four corners are nonnegative and sum to one,
  * and the gradients are unit vectors, so by Jensen's inequality the raw value
- * is at most `sqrt(sum w |p - c|^2)`. Per axis that sum is `(1 - s) t^2 + s (1
- * - t)^2 <= t (1 - t) <= 1/4`, because the fade `s` lies at or below `t` on
- * `[0, 1/2]` and is symmetric. The raw value is thus at most `sqrt(2) / 2`,
- * attained at a cell centre when every gradient points at it, and the output is
- * the raw value times `2 / sqrt(2)`, clamped to [-1, 1] only to absorb
- * rounding.
+ * is at most `sqrt(sum w |p-c|^2)`. Per axis that sum is `(1-s)t^2+s(1-t)^2`,
+ * at most `t(1-t) <= 1/4`, because the fade `s` lies at or below `t` on `[0,
+ * 1/2]` and is symmetric. The raw value is thus at most `sqrt(2) / 2`, attained
+ * at a cell centre when every gradient points at it, and the output is the raw
+ * value times `2 / sqrt(2)`, clamped to [-1, 1] only to absorb rounding.
  *
  * @param seed Sixteen hexadecimal digits, as `deriveAutoMovieSeed` returns.
  * @returns The noise, taking plan coordinates in lattice cells; it throws
