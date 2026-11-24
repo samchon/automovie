@@ -28,7 +28,15 @@ export function test_unit_motions_actions_walk_paced(): void {
   const plan: walkStation.IPlan = {
     duration: 2,
     events: [{ name: "strike", share: 0.25 }],
-    contacts: [{ part: "leftFoot", kind: "plant", from: 0.5, to: 1 }],
+    contacts: [
+      {
+        part: "leftFoot",
+        kind: "plant",
+        from: 0.5,
+        to: 1,
+        support: { kind: "ground" },
+      },
+    ],
     contact: 1.5,
     posture: (seconds: number): IAutoMovieMotionHumanPosture => ({
       root: { x: seconds, y: 0, z: 0 },

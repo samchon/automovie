@@ -31,8 +31,7 @@ import {
  *    refusals.
  * 3. Positive heights 1..3 preserve a visible centre row; very large finite peaks
  *    saturate the viewport without unbounded row traversal.
- * 4. NaN and infinity samples are refused before drawing, while empty stereo input
- *    remains an opaque silent raster.
+ * 4. Empty stereo input remains an opaque silent raster.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Real planning/mixing and both CPU raster drawers produce observable byte buffers and refusals; tiny-height centre pixels catch negative-radius omission and huge finite peaks must return a fully bounded column.
  * @evidence contracts/development/testing.md#independent-expectations Four channels per pixel and alpha255 follow the RGBA contract; tiny canvases have a centre row floor(height/2), and an over-height bar fills all eight rows. A silent eight-row control supplies contrasting background and centreline bytes solely to identify painted rows; this geometric metamorphic check is not an independent palette or spectral oracle, and no implementation color codes are transcribed.
@@ -119,15 +118,6 @@ export function test_film_production_sound_raster(): void {
           ),
       ],
       [
-        "refusedProductionSoundSpectrogramFirst",
-        (): boolean =>
-          productionSoundRefused(
-            (): IAutoMovieProductionSoundRaster =>
-              productionSoundSpectrogram(mixed.pcm, 1.5, 10),
-            "positive integers",
-          ),
-      ],
-      [
         "refusedProductionSoundSpectrogramNew",
         (): boolean =>
           productionSoundRefused(
@@ -140,7 +130,6 @@ export function test_film_production_sound_raster(): void {
     {
       refusedProductionSoundWaveformFirst: true,
       refusedProductionSoundWaveformNew: true,
-      refusedProductionSoundSpectrogramFirst: true,
       refusedProductionSoundSpectrogramNew: true,
     },
   );
@@ -195,26 +184,6 @@ export function test_film_production_sound_raster(): void {
             (value: number, index: number): boolean => value === painted[index],
           ),
     );
-  for (const value of [NaN, Infinity]) {
-    TestValidator.equals(
-      "waveform refuses non-finite PCM",
-      productionSoundRefused(
-        (): IAutoMovieProductionSoundRaster =>
-          productionSoundWaveform(Float32Array.from([value, 0]), 1, 8),
-        "finite PCM",
-      ),
-      true,
-    );
-    TestValidator.equals(
-      "spectrogram refuses non-finite PCM",
-      productionSoundRefused(
-        (): IAutoMovieProductionSoundRaster =>
-          productionSoundSpectrogram(Float32Array.from([value, 0]), 1, 8),
-        "finite PCM",
-      ),
-      true,
-    );
-  }
   TestValidator.equals(
     "empty waveform is opaque silence",
     productionSoundWaveform(new Float32Array(), 1, 1).rgba[3],

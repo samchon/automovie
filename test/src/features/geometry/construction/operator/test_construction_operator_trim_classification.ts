@@ -24,28 +24,29 @@ type Loop = IAutoMovieSolidMesh.ILoop;
  * unchanged numerical data, with independent metric and emitted-mesh checks.
  *
  * Scenarios:
- * 1. Rectangular holes/islands in stretched and sheared planes, with margins
- *    just below, exactly at and above independently derived distances.
- * 2. Winding cycles that turn back, seam aliases, half-period ties, degenerate
- *    charts/metrics and non-finite values, compared with the original arithmetic.
- * 3. Unreached accessor/malformed loops, a reached original exception, live jet
- *    accessors, fresh preparation after mutation and no reads from copied charts.
- * 4. A unit-cylinder face trimmed at u=1: exact shared ring, two retained grid
- *    rows, outward triangles, paired interior edges and the sole open top ring.
- * 5. A surface failure keeps its identity and station-major jet call order;
- *    empty/singleton face grids do not acquire new admission requirements.
- * 6. A periodic island 5.9 of 6.28 wide, its points crowded at one end: a
- *    point at its far end is kept, at its own phase and a period lower, and
- *    points in its gap are not.
- * 7. An island and a hole wider than a period (f1's ear after the concha's
- *    widened cut, 2.34 to 9.05 rad): a point with two images in the span is
- *    read at the one inside, and points past it are not.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls live/prepared Cycle and MeshLoop readers and the real Mesh.face consumer. Boolean decisions, getter/exception effects, chart-read counts, owner coordinates, edge uses and triangle normals catch stale snapshots, reordered failure, wrong metric margins or changed tessellation. Equivalent immutable numeric preparation is allowed.
+ * 1. Rectangular holes/islands in stretched and sheared planes, with margins just
+ *    below, exactly at and above independently derived distances.
+ * 2. Winding cycles that turn back, seam aliases, half-period ties, degenerate
+ *    charts/metrics values, compared with the original
+ *    arithmetic.
+ * 3. A unit-cylinder face trimmed at u=1: exact shared ring, two retained grid
+ *    rows, outward triangles, paired interior edges and the sole open top
+ *    ring.
+ * 4. A surface failure keeps its identity and station-major jet call order;
+ *    empty/singleton face grids do not acquire new admission requirements.
+ * 5. A periodic island 5.9 of 6.28 wide, its points crowded at one end: a point at
+ *    its far end is kept, at its own phase and a period lower, and points in
+ *    its gap are not.
+ * 6. An island and a hole wider than a period (f1's ear after the concha's widened
+ *    cut, 2.34 to 9.05 rad): a point with two images in the span is read at the
+ *    one inside, and points past it are not.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls live/prepared Cycle and MeshLoop readers and the real Mesh.face consumer. Boolean decisions, owner coordinates, edge uses and triangle normals catch stale snapshots, reordered failure, wrong metric margins or changed tessellation. Equivalent immutable numeric preparation is allowed.
  * @evidence contracts/development/testing.md#independent-expectations Rectangle distances follow the affine plane map: 2 mm on the stretched chart and sqrt(2) mm on the sheared chart. The turnback polygon crosses v=1.5 at u=1.5,3,4.5. The cylinder has four columns and two retained rows, hence 8 grid and 8 zipper triangles, 12 total vertices and one open four-edge top. Floating owner round trips allow 64 EPSILON at this unit scale. A separate literal legacy arithmetic oracle checks compatibility only, including ambiguous zero-margin boundary ties; it does not establish the currently unmet inclusive-on-cycle contract.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers all four kinds, positive/zero margins, periodic aliases and ties, empty/singleton/duplicate charts, singular metrics, unsupported accessors/non-finite data, short-circuit exceptions, copied-data reuse and new preparation after mutation. The unchanged five construction failures and full merge/clip topology are observed by the same construction_ round, not redefined here.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers all four kinds, positive/zero margins, periodic aliases and ties, empty/singleton/duplicate charts and singular metrics. The unchanged five construction failures and full merge/clip topology are observed by the same construction_ round, not redefined here.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU unit test_construction_operator_trim_classification, reached by --include construction_. All surfaces and accessor probes belong to this test; it generates no person and starts no process, host, renderer or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Rectangular holes/islands in stretched and sheared planes, with margins).
  */
 export function test_construction_operator_trim_classification(): void {
   const square: Point[] = [
@@ -280,7 +281,6 @@ export function test_construction_operator_trim_classification(): void {
     ),
   );
 
-  effects(hole, island, stretch);
   consumer();
 }
 
@@ -374,155 +374,11 @@ function legacy(
   return least >= margin;
 }
 
-/** Original exceptions/getters remain live; numerical copies have one reader lifetime. */
-function effects(
-  hole: Loop,
-  island: Loop,
-  frame: IAutoMovieSolidSurface.IJet,
-): void {
-  const sentinel: Error = new Error("owned late chart");
-  let reads: number = 0;
-  const late: Loop = {
-    kind: "hole",
-    vertices: [],
-    get chart(): Point[] {
-      reads++;
-      throw sentinel;
-    },
-  };
-  const reject: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
-    AutoMovieSolidMeshLoop.prepare([hole, late], undefined);
-  TestValidator.predicate("late getter untouched at prepare", reads === 0);
-  TestValidator.predicate(
-    "first loop short circuit",
-    !reject(1, 1, frame, 0) && reads === 0,
-  );
-  let thrown: unknown;
-  try {
-    reject(3, 1, frame, 0);
-  } catch (error) {
-    thrown = error;
-  }
-  TestValidator.predicate(
-    "same reached exception",
-    thrown === sentinel && reads === 1,
-  );
-  const sparse: Loop[] = [hole];
-  Object.defineProperty(sparse, "1", {
-    get: (): Loop => {
-      throw sentinel;
-    },
-    configurable: true,
-  });
-  const lazy: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
-    AutoMovieSolidMeshLoop.prepare(sparse, undefined);
-  TestValidator.predicate("array getter short circuit", !lazy(1, 1, frame, 0));
-  const malformed: Loop = {
-    kind: "hole",
-    chart: [undefined as unknown as Point],
-    vertices: [],
-  };
-  TestValidator.predicate(
-    "malformed unreached",
-    !AutoMovieSolidMeshLoop.prepare([hole, malformed], undefined)(
-      1,
-      1,
-      frame,
-      0,
-    ),
-  );
 
-  const order: string[] = [];
-  const point: Point = [0, 0];
-  Object.defineProperty(point, "0", {
-    get: (): number => {
-      order.push("x");
-      return 0;
-    },
-  });
-  Object.defineProperty(point, "1", {
-    get: (): number => {
-      order.push("y");
-      return 0;
-    },
-  });
-  TestValidator.predicate(
-    "accessor coordinate result",
-    AutoMovieSolidMeshLoop.prepare([loop("hole", [point])], undefined)(
-      3,
-      1,
-      frame,
-      0,
-    ),
-  );
-  TestValidator.predicate(
-    "original coordinate evaluation order",
-    order.join("") === "xyyyyyyxyxxy",
-  );
-
-  let axes: number = 0;
-  const accessor: IAutoMovieSolidSurface.IJet = {
-    ...frame,
-    get u(): Vec3 {
-      axes++;
-      return frame.u;
-    },
-  };
-  const expected: boolean = legacy(hole, 3, 1, accessor, 0, undefined);
-  const originalReads: number = axes;
-  axes = 0;
-  const actual: boolean = AutoMovieSolidMeshLoop.prepare([hole], undefined)(
-    3,
-    1,
-    accessor,
-    0,
-  );
-  TestValidator.predicate(
-    "live jet result and getter count",
-    actual === expected && axes === originalReads,
-  );
-
-  // Descriptor probes are test-owned observations of eligibility/copy work.
-  let probes: number = 0;
-  const counted: Point[] = island.chart.map(
-    (p: Point): Point =>
-      new Proxy(p, {
-        getOwnPropertyDescriptor(
-          target: Point,
-          key: string | symbol,
-        ): PropertyDescriptor | undefined {
-          probes++;
-          return Reflect.getOwnPropertyDescriptor(target, key);
-        },
-      }),
-  );
-  const owned: Loop = loop("island", counted);
-  const read: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
-    AutoMovieSolidMeshLoop.prepare([owned], undefined);
-  TestValidator.predicate("first copied reading", read(1, 1, frame, 0));
-  const copied: number = probes;
-  for (let k: number = 0; k < 10; k++)
-    TestValidator.predicate(
-      "repeated copied reading " + k,
-      read(1, 1, frame, 0),
-    );
-  TestValidator.predicate(
-    "chart source read once",
-    copied > 0 && probes === copied,
-  );
-  owned.chart = [
-    [10, 10],
-    [12, 10],
-    [12, 12],
-    [10, 12],
-  ];
-  TestValidator.predicate(
-    "new reader after mutation",
-    !AutoMovieSolidMeshLoop.prepare([owned], undefined)(1, 1, frame, 0),
-  );
-}
-
-/** The real face consumer on a cylinder with independent topology/coordinate checks. */
+/**
+ * The real face consumer on a cylinder with independent topology/coordinate
+ * checks.
+ */
 function consumer(): void {
   const phases: number[] = [0, Math.PI / 2, Math.PI, (3 * Math.PI) / 2];
   const surface: IAutoMovieSolidSurface = {

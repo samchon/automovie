@@ -12,12 +12,12 @@ import type {
 } from "@automovie/interface";
 
 import { interpolateAutoMovieTrianglePoint } from "../math/interpolateAutoMovieTrianglePoint";
+import { overflowsBinary64 } from "../math/overflowsBinary64";
 import { boundAutoMovieConvexSeparation } from "./boundAutoMovieConvexSeparation";
 import { boundAutoMovieProjectionSeparation } from "./boundAutoMovieProjectionSeparation";
 import { boundAutoMovieTriangleAttachmentContact } from "./boundAutoMovieTriangleAttachmentContact";
 import { buildAutoMovieMeshQueryHierarchy } from "./buildAutoMovieMeshQueryHierarchy";
 import { triangleIndicesOf } from "./triangleIndicesOf";
-import { overflowsBinary64 } from "../math/overflowsBinary64";
 
 /**
  * Compile a resident surface into a conservative whole-feature separation
@@ -76,7 +76,6 @@ export function createAutoMovieMeshSeparationQuery(
   mesh: IAutoMovieMesh,
   representation: "source" | "float32" = "source",
 ): IAutoMovieMeshSeparationQuery {
-
   const indices: number[] = triangleIndicesOf(mesh, "Mesh separation");
   if (indices.length === 0)
     throw new Error(

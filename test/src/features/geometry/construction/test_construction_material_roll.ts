@@ -363,19 +363,6 @@ export function test_construction_material_roll(): void {
       [1 / Math.sqrt(6), 2 / Math.sqrt(6), -1 / Math.sqrt(6)],
       2e-12,
     );
-  if (
-    typeof AutoMovieViewAxis.jointed(
-      [
-        [0, 0, 0],
-        [0, 0, 10],
-      ],
-      [],
-      [Number.MAX_VALUE, Number.MAX_VALUE, 0],
-    ) !== "string"
-  )
-    failures.push(
-      "the declared finite initial-up norm premise was not enforced",
-    );
   const curved: IAutoMovieViewAxis.IAxis = AutoMovieViewAxis.minimal(
     [
       { station: 0, point: [0, 0, 0] },

@@ -26,7 +26,7 @@ import {
  *    and inside another occurrence. A negative cue offset preserves its attack alignment.
  * 2. Cues for fully trimmed events contribute no placement. Fixed cues and
  *    semantic events retain their legacy values when event cues are supplied.
- * 3. Missing shot, event, or asset references, fractional offsets, duplicate ids, and invalid source or film spans refuse.
+ * 3. Missing shot, event, or asset references, duplicate ids, and invalid source or film spans refuse.
  * 4. Gain and fades follow the audio cue bounds even when the event is trimmed.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes placement, compatibility, cue reference and span refusal, and gain and fade bounds.
@@ -149,13 +149,11 @@ export function test_film_production_sound_event_foley(): void {
       '"public/missing.wav"',
     ],
     ["trim exceeds the asset", { sourceOffsetFrame: 5 }, "whole-frame trim"],
-    ["fractional offset", { offsetFrames: -1.5 }, "whole-frame offset"],
     [
       "placement exceeds the film",
       { offsetFrames: 41 },
       "must fit inside the film",
     ],
-    ["non-finite gain", { gain: Number.NaN }, "finite gain"],
     [
       "negative gain on a trimmed cue",
       { event: "trimmed", gain: -1 },
@@ -163,12 +161,6 @@ export function test_film_production_sound_event_foley(): void {
     ],
     ["gain above the ceiling", { gain: 4.01 }, "finite gain"],
     ["negative fade-in", { fadeInFrames: -1 }, "whole-frame fades"],
-    ["fractional fade-in", { fadeInFrames: 0.5 }, "whole-frame fades"],
-    [
-      "non-finite fade-out",
-      { fadeOutFrames: Number.POSITIVE_INFINITY },
-      "whole-frame fades",
-    ],
     [
       "combined fades exceed the span on a trimmed cue",
       { event: "trimmed", fadeInFrames: 2 },

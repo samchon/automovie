@@ -27,5 +27,22 @@ export namespace IAutoMoviePhysicalHullFaces {
      * `tolerance` when every point lies on the surface.
      */ buried: number;
     /** The coplanarity tolerance used, metres: 1e-9 of the extent. */ tolerance: number;
+    /** The flat form of the faces the proximity read walks; built with the hull. */ flat?: IFlat;
+    /** Every distinct edge as its two corner points; built with the hull. */ edges?: [
+      IAutoMovieVector3,
+      IAutoMovieVector3,
+    ][];
+  }
+
+  /**
+   * A hull's planes and edges as flat arrays: per face its normal and offset;
+   * per edge, in its face's loop order, its start, its vector, its squared
+   * length, its inward direction in the face and that direction's product with
+   * the start; `starts` bounds each face's edges.
+   */
+  export interface IFlat {
+    /** Four numbers per face: the normal and the offset. */ planes: Float64Array;
+    /** Each face's first edge, and the count of edges at the end. */ starts: Int32Array;
+    /** Eleven numbers per edge. */ edges: Float64Array;
   }
 }

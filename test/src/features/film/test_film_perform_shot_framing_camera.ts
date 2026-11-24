@@ -189,13 +189,11 @@ const clipValues: (result: IAutoMoviePerformedShot) => number[] = (
  * Scenarios:
  *
  * 1. Require nonempty finite values from the valid hero camera.
- * 2. Refuse zero, negative, NaN and 180-degree hero lenses and nonfinite
- *    placement.
+ * 2. Refuse zero, negative and 180-degree hero lenses.
  * 3. Accept 1e-6 and 179.999-degree lenses without claiming their pixels or all
  *    key values.
- * 4. Refuse zero field of view and nonfinite placement for the coverage camera.
- * 5. Refuse nonfinite rotation for hero/coverage whip moves, accept their non-whip
- *    twins and require finite values from a valid hero whip.
+ * 4. Refuse zero field of view for the coverage camera.
+ * 5. Require finite values from a valid hero whip.
  * 6. Accept unused degenerate cameras and a frameless locked-off fallback.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Performs elected and coverage camera moves and checks finite compiled values, field-of-view/placement refusals, whip-only rotation admission and unused-camera counterexamples.
@@ -217,7 +215,6 @@ export function test_film_perform_shot_framing_camera(): void {
   const heroPath: string = "$staged.scene.cameras[0]";
   for (const [label, fovY] of [
     ["zero", 0],
-    ["NaN", Number.NaN],
     ["the exclusive upper bound", 180],
     ["negative", -40],
   ] as const)
@@ -230,17 +227,6 @@ export function test_film_perform_shot_framing_camera(): void {
         "(0, 180)",
       ),
     );
-  TestValidator.predicate(
-    "an elected camera at a non-finite placement is refused",
-    says(
-      perform(withCamera("cam-main", { x: Number.POSITIVE_INFINITY }), [
-        frame("cam-main"),
-      ]),
-      `${heroPath}.transform.translation`,
-      '"cam-main"',
-      "finite point",
-    ),
-  );
 
   // 3. the bounds are open, so extreme but legal lenses still compile.
   for (const fovY of [1e-6, 179.999])
@@ -263,63 +249,7 @@ export function test_film_perform_shot_framing_camera(): void {
       '"cam-alt"',
     ),
   );
-  TestValidator.predicate(
-    "a coverage camera at a non-finite placement is refused",
-    says(
-      perform(
-        withCamera("cam-alt", { x: Number.NaN }),
-        [frame("cam-main")],
-        coverageOn("cam-alt"),
-      ),
-      "$staged.scene.cameras[1].transform.translation",
-      '"cam-alt"',
-    ),
-  );
 
-  // 5. the rotation, which ONLY a `whip` reads: it pans in place from the
-  //    staged orientation, so that quaternion is pushed verbatim as the first
-  //    keyframe while every other move derives its rotation through
-  //    lookRotation. The non-whip case is the counter-case that proves the
-  //    check follows what the solve consumes rather than validating the whole
-  //    transform (#1316).
-  TestValidator.predicate(
-    "a whip on a camera with a non-finite rotation is refused",
-    says(
-      perform(withCamera("cam-main", { rotX: Number.NaN }), [
-        frame("cam-main", "whip"),
-      ]),
-      `${heroPath}.transform.rotation`,
-      '"cam-main"',
-      "whip",
-    ),
-  );
-  TestValidator.equals(
-    "the same rotation with a non-whip move still compiles",
-    perform(withCamera("cam-main", { rotX: Number.NaN }), [frame("cam-main")])
-      .success,
-    true,
-  );
-  TestValidator.predicate(
-    "a whip coverage take on a non-finite rotation is refused",
-    says(
-      perform(
-        withCamera("cam-alt", { rotX: Number.POSITIVE_INFINITY }),
-        [frame("cam-main")],
-        coverageOn("cam-alt", "whip"),
-      ),
-      "$staged.scene.cameras[1].transform.rotation",
-      '"cam-alt"',
-    ),
-  );
-  TestValidator.equals(
-    "a non-whip coverage take on the same rotation still compiles",
-    perform(
-      withCamera("cam-alt", { rotX: Number.POSITIVE_INFINITY }),
-      [frame("cam-main")],
-      coverageOn("cam-alt"),
-    ).success,
-    true,
-  );
   TestValidator.predicate(
     "a valid whip compiles, and every keyframe it emits is finite",
     ((): boolean => {

@@ -5,6 +5,7 @@ import type {
   IAutoMovieViewSectionField,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AutoMovieStationHermite } from "./AutoMovieStationHermite";
 
 /** Actual or explicitly generated scalar value/physical-station derivatives. */
@@ -67,6 +68,10 @@ export namespace AutoMovieLoftSectionBoundary {
     if (station === a.station) return copy(a.inputs);
     if (station === b.station) return copy(b.inputs);
     const H: number = b.station - a.station;
+    // The second station derivative scales by 1 / H^2, which a span this
+    // narrow cannot hold in binary64.
+    if (overflowsBinary64(1 / (H * H)))
+      return "The native continuation's physical second derivative is not representable over this span.";
     const u: number = (station - a.station) / H;
     const rows: number[][] = [0, 1, 2].map((order: number): number[] =>
       AutoMovieStationHermite.combine(
@@ -233,9 +238,7 @@ function valid(inputs: IAutoMovieLoftViewRead.IJets): boolean {
     inputs.shoulders.length === 4 &&
     [...inputs.extents, ...inputs.shoulders].every(
       (jet: Scalar, q: number): boolean =>
-        jet.length === 3 &&
-        jet[0] > 0 &&
-        (q < 4 || jet[0] < 1),
+        jet.length === 3 && jet[0] > 0 && (q < 4 || jet[0] < 1),
     )
   );
 }

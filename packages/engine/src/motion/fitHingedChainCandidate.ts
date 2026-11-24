@@ -317,6 +317,10 @@ export function fitHingedChainCandidate(
     upperConstraint.swingTwist === null
       ? undefined
       : swingTwistRange.of(props.chain.upper);
+  const upperPrepared: IAutoMovieJointRotationFrame | undefined =
+    upperRange === undefined || upperConstraint === null
+      ? upperRange
+      : swingTwistRange.prepare(upperRange, upperConstraint);
   const upperRotated: boolean =
     upperRange !== undefined &&
     readsSwingTwistFrame(
@@ -787,7 +791,7 @@ export function fitHingedChainCandidate(
       basis: upperBasis,
       frame: props.restFrames?.[props.chain.upper],
       constraint: prepared.upperDomain.constraint,
-      joint: swingTwistRange.of(props.chain.upper),
+      joint: upperPrepared ?? swingTwistRange.of(props.chain.upper),
       rotation: (swivel: number): IAutoMovieQuaternion => posed(swivel).upper,
     });
 
@@ -1182,7 +1186,7 @@ export function fitHingedChainCandidate(
           basis: upperBasis,
           frame: props.restFrames?.[props.chain.upper],
           constraint: prepared.upperDomain.constraint,
-          joint: swingTwistRange.of(props.chain.upper),
+          joint: upperPrepared ?? swingTwistRange.of(props.chain.upper),
           rotation: upper,
         }),
       // Where that refusal covers every swivel no candidate is legal, and the

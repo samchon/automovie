@@ -8,6 +8,7 @@ import type {
   IAutoMovieStationHermite,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 import { AutoMovieLoftChain } from "./AutoMovieLoftChain";
 import { AutoMovieLoftCoefficientSource } from "./AutoMovieLoftCoefficientSource";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
@@ -126,10 +127,17 @@ export namespace AutoMovieLoftSectionLegacy {
         displacement * rows[1][q]! +
         0.5 * displacement * displacement * rows[2][q]!,
     );
+    // The quadratic extension overflows binary64 where its terms do.
+    if (value.some(overflowsBinary64))
+      throw new Error("The declared basis extension has no finite value row.");
     if (derivative === 0) return { kind: "value", order, rows: [value] };
     const first: number[] = rows[1].map(
       (v: number, q: number): number => v + displacement * rows[2][q]!,
     );
+    if (first.some(overflowsBinary64))
+      throw new Error(
+        "The declared basis extension has no finite physical first derivative row.",
+      );
     return { kind: "jet", order, rows: [value, first, [...rows[2]]] };
   }
 }

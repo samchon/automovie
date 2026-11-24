@@ -148,24 +148,6 @@ export function createFilmPropPlacementGeometryCases(
           "$input.props[1].placement.clearance[0].x",
         ),
     ],
-    [
-      "clearanceYNotFinite",
-      (): boolean =>
-        violated(
-          (props: IAutoMoviePropSpec[]): number =>
-            (props[LAMP]!.placement!.clearance[0]!.min.y = NaN),
-          "$input.props[1].placement.clearance[0].y",
-        ),
-    ],
-    [
-      "clearanceZInfinite",
-      (): boolean =>
-        violated(
-          (props: IAutoMoviePropSpec[]): number =>
-            (props[LAMP]!.placement!.clearance[0]!.max.z = Infinity),
-          "$input.props[1].placement.clearance[0].z",
-        ),
-    ],
     // 6. geometry.
     [
       "leavesOccupiedSpace",

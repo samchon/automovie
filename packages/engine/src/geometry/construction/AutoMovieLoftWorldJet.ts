@@ -4,6 +4,7 @@ import type {
   IAutoMovieLoftWorldJetWorld,
 } from "@automovie/interface";
 
+import { overflowsBinary64 } from "../../math/overflowsBinary64";
 
 /**
  * Apply the existing frame product rule to a complete local total2.
@@ -68,6 +69,10 @@ export function AutoMovieLoftWorldJet(
       u0 * local.st[0] + u1 * local.t[0] + w0 * local.st[1] + w1 * local.t[1];
     dtt[k] = u0 * local.tt[0] + w0 * local.tt[1];
   }
+  // The frame products and sums are the operations that can overflow binary64.
+  for (const row of [p, ds, dt, dss, dst, dtt])
+    if (row.some(overflowsBinary64))
+      throw new Error("The world total2 overflows binary64.");
   const out: IAutoMovieLoftWorldJetWorld = {
     p,
     s: ds,

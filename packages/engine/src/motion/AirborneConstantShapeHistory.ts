@@ -148,8 +148,8 @@ export namespace AirborneConstantShapeHistory {
     /** Fixed-size native event counters only, without a caller callback. */
     statistics?: AirborneShapeStatistics.IStatistics;
     /**
-     * Positive-definite operator made with the history; null preserves
-     * ordinary invalid-inertia admission.
+     * Positive-definite operator made with the history; null preserves ordinary
+     * invalid-inertia admission.
      */
     factor: physicalInertiaFactor.IPrepared | null | undefined;
   }
@@ -165,8 +165,7 @@ export namespace AirborneConstantShapeHistory {
    * after clear.
    */
   export function owned(
-    history: IAutoMovieIntegrateAirborneRotation.IHistory &
-      IConstantHistory,
+    history: IAutoMovieIntegrateAirborneRotation.IHistory & IConstantHistory,
   ): boolean {
     return history.constantState !== undefined;
   }

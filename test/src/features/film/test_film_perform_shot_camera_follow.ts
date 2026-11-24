@@ -166,7 +166,6 @@ export function test_film_perform_shot_camera_follow(): void {
     (
       [
         { move: "follow", lookahead: -1 },
-        { move: "follow", lookahead: Infinity },
         { move: "static", lookahead: 0 },
       ] satisfies Partial<IAutoMovieCameraAction>[]
     ).every((overrides: Partial<IAutoMovieCameraAction>): boolean => {

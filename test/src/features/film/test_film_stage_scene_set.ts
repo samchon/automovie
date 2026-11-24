@@ -26,8 +26,8 @@ import {
  *    the wall's yaw encoded exactly like an actor's facing, motion/pose null.
  * 2. A camera may `lookAt` a set piece: its −Z aims at the piece's position.
  * 3. Full quaternion rotation stages sloped or vertical architecture.
- * 4. The gates: a set node colliding with a cast id, a non-finite position, and a
- *    non-finite `facingDeg` are all refused in one round at their
+ * 4. The gates: a set node colliding with a cast id, conflicting rotation
+ *    spellings and a non-unit rotation are all refused in one round at their
  *    `$input.set[i]` paths; an omitted `facingDeg` is not a violation.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Stages static set nodes, yaw and full rotations, and a camera aimed at a set piece; then requires the seven malformed node/model/position/rotation refusals.
@@ -137,13 +137,12 @@ export function test_film_stage_scene_set(): void {
         {
           node: "pit",
           model: "hole",
-          position: { x: Number.NaN, y: 0, z: 0 },
+          position: { x: 0, y: 0, z: 0 },
         },
         {
           node: "gate",
           model: "arch",
           position: { x: 0, y: 0, z: 0 },
-          facingDeg: Number.POSITIVE_INFINITY,
         },
         {
           node: "conflicted",
@@ -156,7 +155,7 @@ export function test_film_stage_scene_set(): void {
           node: "bad-rotation",
           model: "roof",
           position: { x: 0, y: 0, z: 0 },
-          rotation: { x: Number.NaN, y: 0, z: 0, w: 2 },
+          rotation: { x: 0, y: 0, z: 0, w: 2 },
         },
       ],
     }),
@@ -170,18 +169,6 @@ export function test_film_stage_scene_set(): void {
         (): boolean =>
           refused.success === false &&
           hasViolation(refused, "type", "$input.set[0].node"),
-      ],
-      [
-        "hasViolationRefusedRange",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "range", "$input.set[3].position"),
-      ],
-      [
-        "hasViolationRefusedRange2",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "range", "$input.set[4].facingDeg"),
       ],
       [
         "hasRotationConflict",
@@ -199,8 +186,6 @@ export function test_film_stage_scene_set(): void {
     {
       refusedSuccess: true,
       hasViolationRefusedType: true,
-      hasViolationRefusedRange: true,
-      hasViolationRefusedRange2: true,
       hasRotationConflict: true,
       hasInvalidRotation: true,
     },

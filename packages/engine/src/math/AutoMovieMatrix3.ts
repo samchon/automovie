@@ -42,7 +42,10 @@ export namespace AutoMovieMatrix3 {
           const term: number = left[3 * row + at]! * right[3 * at + column]!;
           result[3 * row + column] += term;
           // Products and sums of finite entries can overflow binary64.
-          if (overflowsBinary64(term) || overflowsBinary64(result[3 * row + column]!))
+          if (
+            overflowsBinary64(term) ||
+            overflowsBinary64(result[3 * row + column]!)
+          )
             throw new Error("matrix3: product is not representable");
         }
       }

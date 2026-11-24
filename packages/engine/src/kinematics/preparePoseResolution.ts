@@ -46,16 +46,3 @@ const READER: IReader = {
 export function preparePoseResolution(): IReader {
   return { joint: READER.joint, bone: READER.bone };
 }
-
-/** Actual factory-reader provenance without claiming any numerical admission. */
-export namespace preparePoseResolution {
-  /**
-   * Whether this reader is the factory's kind. The parameter type is the
-   * contract: every reader the type admits is read as native.
-   */
-  export function isNative(
-    _reader: ReturnType<typeof preparePoseResolution>,
-  ): boolean {
-    return true;
-  }
-}

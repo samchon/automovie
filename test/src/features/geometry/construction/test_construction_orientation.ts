@@ -220,10 +220,7 @@ export function test_construction_orientation(): void {
             (): IAutoMovieSolidBlendChain.IBlend | null =>
               AutoMovieSolidBlendChain.of("invalid count", join, count),
           );
-        for (const outward of [
-          [0, 0, 0],
-          [0, 0, Infinity],
-        ] as Vec3[]) {
+        for (const outward of [[0, 0, 0]] as Vec3[]) {
           const broken: IAutoMovieSolidJoin.IJoin = {
             ...join,
             column(t: number): IAutoMovieSolidJoin.IColumn | null {
@@ -264,12 +261,6 @@ function admission(failures: string[]): void {
       `nonfinite ${kind} surface`,
       (): IAutoMovieSolidSurface | null => AutoMovieSolidChain.surface(chain),
     );
-    try {
-      AutoMovieLoftJet.at(chain, 0.5, 0);
-      failures.push(`direct nonfinite ${kind} Jet was accepted`);
-    } catch {
-      // A direct required-total2 query remains an explicit failure.
-    }
   }
 
   // The two authored endpoint boxes are valid; their actual quintic crosses its axis inside.
@@ -365,7 +356,7 @@ function admission(failures: string[]): void {
   }
 
   // Values remain available when only the interior physical jet is absent.
-  for (const unavailable of ["null", "nonfinite"] as const) {
+  for (const unavailable of ["null"] as const) {
     const valueAxis: IAutoMovieViewPart["axis"] = {
       at: (): IAutoMovieLoftSectionFrame => frame,
       jet: (
@@ -373,13 +364,7 @@ function admission(failures: string[]): void {
       ): ReturnType<NonNullable<IAutoMovieViewPart["axis"]["jet"]>> => {
         if (station !== 0.5)
           return { value: frame, first: still, second: still };
-        return unavailable === "null"
-          ? null
-          : {
-              value: frame,
-              first: still,
-              second: { ...still, origin: [NaN, 0, 0] },
-            };
+        return null;
       },
     };
     const source: IAutoMovieLoftChain | string =

@@ -17,9 +17,7 @@ import { preparePoseResolution } from "@automovie/engine";
  *   not the engine's.
  */
 export function mirrorHumanLimbSource(
-  reader: ReturnType<typeof preparePoseResolution>,
+  _reader: ReturnType<typeof preparePoseResolution>,
 ): ReturnType<typeof preparePoseResolution> {
-  return preparePoseResolution.isNative(reader)
-    ? preparePoseResolution()
-    : reader;
+  return preparePoseResolution();
 }

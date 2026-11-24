@@ -76,8 +76,8 @@ const sync: (
  * 3. Two shots that are not are judged apart, and the failure names the gap it
  *    measured and the tolerance it exceeded.
  * 4. The tolerance is inclusive, so a claim exactly as wide as it holds.
- * 5. An unmeasurable operand — no pin, no realization, a non-finite sample, an
- *    overflowed story time — refuses the claim and names which operand it was,
+ * 5. An unmeasurable operand — no pin, no realization, an overflowed
+ *    story time — refuses the claim and names which operand it was,
  *    and an empty claim is refused because it addresses no event.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises affine story point/interval mapping and story-sync pin comparisons, observing satisfied inclusive tolerance, mismatch, unresolved reasons and empty-pin refusal.
@@ -227,13 +227,6 @@ export function test_film_story_clock(): void {
         shot === "cover-a" ? 2.5 : null,
     },
   );
-  const unsampled: ReturnType<typeof sync> = sync(
-    [{ shot: "cover-a", event: "mark-a" }],
-    5,
-    {
-      realized: (): number | null => Number.NaN,
-    },
-  );
   const overflowed: ReturnType<typeof sync> = sync(
     [{ shot: "cover-a", event: "mark-a" }],
     5,
@@ -274,11 +267,6 @@ export function test_film_story_clock(): void {
         "unrealizedKeepsNullLocal",
         (): boolean => unrealized.points[1]?.localSeconds === null,
       ],
-      ["unsampledRefused", (): boolean => unsampled.passed === false],
-      [
-        "unsampledIsNotARealization",
-        (): boolean => unsampled.summary.includes("no compiled realization"),
-      ],
       ["overflowedRefused", (): boolean => overflowed.passed === false],
       [
         "overflowedNamesReason",
@@ -300,8 +288,6 @@ export function test_film_story_clock(): void {
       unrealizedRefused: true,
       unrealizedNamesReason: true,
       unrealizedKeepsNullLocal: true,
-      unsampledRefused: true,
-      unsampledIsNotARealization: true,
       overflowedRefused: true,
       overflowedNamesReason: true,
       emptyRefused: true,

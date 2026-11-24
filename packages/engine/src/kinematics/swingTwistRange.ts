@@ -3,7 +3,7 @@ import type {
   IAutoMovieAngleRange,
   IAutoMovieJointAxes,
   IAutoMovieJointConstraint,
-  IAutoMovieJointRotationFrame,
+  IAutoMovieJointRotationFrame as IAutoMoviePlainJointRotationFrame,
   IAutoMovieQuaternion,
   IAutoMovieSkeleton,
   IAutoMovieSwingTwistBasis,
@@ -29,6 +29,13 @@ import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 
 const DEG: number = swingTwistBasis.DEG;
+
+/**
+ * A joint's axes and rest frame, optionally carrying the swing region prepared
+ * for its constraint (`swingTwistRange.prepare`).
+ */
+type IAutoMovieJointRotationFrame = IAutoMoviePlainJointRotationFrame &
+  swingTwistRegion.IRegional;
 
 /** The twist `swingTwist` gives where the projection vanishes: the identity. */
 const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
@@ -107,15 +114,20 @@ export namespace swingTwistRange {
 
   /**
    * Prepare one frame for repeated numerical readings while its axes and
-   * rest-frame records stay unchanged; each reading admits the frame itself.
+   * rest-frame records stay unchanged. Given the constraint, the frame carries
+   * its swing region, built once here.
    *
    * @param joint The unchanged frame borrowed by this operation.
-   * @returns The same frame.
+   * @param constraint The constraint the frame is read under, when known.
+   * @returns The frame, carrying its region when a constraint is given.
    */
   export function prepare(
     joint: IAutoMovieJointRotationFrame,
+    constraint?: IAutoMovieJointConstraint,
   ): IAutoMovieJointRotationFrame {
-    return joint;
+    return constraint === undefined
+      ? joint
+      : { ...joint, region: swingTwistRegion.prepare(constraint, joint) };
   }
 
   /**
@@ -372,7 +384,7 @@ export namespace swingTwistRange {
     joint: IAutoMovieJointRotationFrame,
     azimuth: number,
   ): number {
-    const table: Float64Array = swingTwistRegion.table(constraint, joint);
+    const table: Float64Array = swingTwistRegion.of(constraint, joint).table;
     const rays: number = swingTwistBasis.RAYS;
     const at: number = positiveModulo(azimuth, 360) / (360 / rays);
     const before: number = Math.floor(at) % rays;

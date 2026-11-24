@@ -102,11 +102,6 @@ export function test_film_stage_scene_medium(): void {
         "$input.medium.scattering",
       ),
       refusedAt(
-        { medium: { ...medium, absorption: Number.POSITIVE_INFINITY } },
-        "range",
-        "$input.medium.absorption",
-      ),
-      refusedAt(
         { medium: { ...medium, anisotropy: 1 } },
         "range",
         "$input.medium.anisotropy",

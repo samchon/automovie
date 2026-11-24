@@ -82,9 +82,9 @@ export namespace AutoMovieMotionClockNative {
   export const END: string = "end";
 
   /**
-   * A fixed window's uniform and minimum-jerk readers, its two instants
-   * resolved here (`AutoMovieMotionInterval.prepare`), so a sample reads no
-   * instant by name.
+   * A fixed window's uniform and minimum-jerk readers, read through the clock's
+   * own `linear` and `progress`, so a clock the author supplies keeps its own
+   * timing law.
    *
    * @param clock The clock.
    * @param from The window's opening instant.
@@ -92,16 +92,19 @@ export namespace AutoMovieMotionClockNative {
    * @returns The readers.
    */
   export function prepare(
-    clock: Pick<IClock, "at">,
+    clock: Pick<IClock, "linear" | "progress">,
     from: string,
     to: string,
   ): AutoMovieMotionInterval.IPrepared {
-    return AutoMovieMotionInterval.prepare(clock, from, to);
+    return {
+      linear: (seconds: number): number => clock.linear(from, to, seconds),
+      progress: (seconds: number): number => clock.progress(from, to, seconds),
+    };
   }
 
   /**
-   * A fixed rise and fall's envelope, each window's instants resolved here: the
-   * rise's minimum-jerk progress less the fall's, never below zero.
+   * A fixed rise and fall's envelope, read through the clock's own `envelope`,
+   * so a clock the author supplies keeps its own timing law.
    *
    * @param clock The clock.
    * @param rise The rise's opening and closing instants.
@@ -109,19 +112,13 @@ export namespace AutoMovieMotionClockNative {
    * @returns The envelope at a second.
    */
   export function prepareEnvelope(
-    clock: Pick<IClock, "at">,
+    clock: Pick<IClock, "envelope">,
     rise: readonly [string, string],
     fall: readonly [string, string],
   ): (seconds: number) => number {
-    const rising: AutoMovieMotionInterval.IPrepared =
-      AutoMovieMotionInterval.prepare(clock, rise[0], rise[1]);
-    const falling: AutoMovieMotionInterval.IPrepared =
-      AutoMovieMotionInterval.prepare(clock, fall[0], fall[1]);
-    return (seconds: number): number =>
-      Math.max(0, rising.progress(seconds) - falling.progress(seconds));
+    return (seconds: number): number => clock.envelope(rise, fall, seconds);
   }
 }
-
 /** The clock record, the interface's. */
 type IClock = IAutoMovieMotionClock;
 

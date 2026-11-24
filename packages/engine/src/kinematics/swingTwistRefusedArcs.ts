@@ -13,8 +13,8 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ROM_TOLERANCE } from "../rom/constants/ROM_TOLERANCE";
 import { toRigAngle } from "../rom/toRigAngle";
-import { swingTwistBasis } from "./swingTwistBasis";
 import { readsSwingTwistFrame } from "./readsSwingTwistFrame";
+import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRegion } from "./swingTwistRegion";
 import { swivelArcs } from "./swivelArcs";
 
@@ -100,7 +100,7 @@ export function swingTwistRefusedArcs(
     return "all";
 
   // The swing past the region's greatest radius.
-  const greatest: number = swingTwistRegion.greatest(constraint, joint);
+  const greatest: number = swingTwistRegion.of(constraint, joint).greatest;
   if (
     greatest < 180 &&
     refuse(

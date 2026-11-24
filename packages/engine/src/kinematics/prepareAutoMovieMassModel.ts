@@ -160,9 +160,7 @@ export namespace prepareAutoMovieMassModel {
     const parts: IAutoMovieCombinePhysicalMassProperties.IPart[] = [];
     const centre: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.mean(
       prepared.model,
-      (
-        segment: IAutoMovieResolveCenterOfMass.ISegment,
-      ): IAutoMovieVector3 => {
+      (segment: IAutoMovieResolveCenterOfMass.ISegment): IAutoMovieVector3 => {
         const bone: IAutoMovieResolvedBone = posedBone(bones, segment);
         const point: IAutoMovieVector3 = placePoint(bone, segment);
         parts.push({
@@ -230,7 +228,8 @@ export namespace prepareAutoMovieMassModel {
     prepared: IPrepared,
     posed: resolveAutoMovieMomentum.IPosed,
   ): number[][] {
-    if (prepared.active) return physicalInertiaTensor(posed.parts, posed.centre);
+    if (prepared.active)
+      return physicalInertiaTensor(posed.parts, posed.centre);
     prepared.active = true;
     try {
       return prepared.tensor(posed.parts, posed.centre);

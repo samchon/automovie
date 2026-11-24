@@ -38,18 +38,28 @@ import { prepareHumanSegment } from "./prepareHumanSegment";
  * 6. The hit record (`HumanPerformanceHits.solve`) and each soft prop's lattice
  *    (`HumanPerformanceSoft.prepare`).
  *
- * No display read recurses through a held prop by dependency, not by a guard:
- * once prepared, a held prop's frame reads its span's hand course (step 5),
- * which evaluates no posture. The hand course itself is solved on the holder's
- * prepared display, which would recurse only if a law's display (its plan's
- * `posture` or a primitive's `write`) read the prop its own hand holds. None
- * does: scanning every plan `posture` and `write` in the laws for a prop's
- * frame read (`.prop(...).frame(`, a reader's `.frame(` at the second) finds
- * ten, in sitCarried, HumanFloatBeside, HumanHoldHandles, HumanLanceCouch,
- * HumanLeadHorse, HumanLunge (two), HumanMounted, HumanSabre and
- * HumanTendHorse, and each reads the support the performer rides or sits on
- * (`params.on`, the carrier), which no hand of theirs holds; a law reads a held
- * prop (`AutoMovieMotionHumanHeld.of`) only while it plans.
+ * No display read recurses through a held prop, by dependency and not by a
+ * guard. Once prepared, a held prop's frame reads its span's hand course (step
+ * 5), which evaluates no posture. A law's display (its plan's `posture` or a
+ * primitive's `write`) reads a prop's frame in ten places, and each reads the
+ * support the performer rides or sits on, never a prop its own hand holds:
+ * sitCarried its carrier (`subject`, which it does not hold), and
+ * HumanFloatBeside, HumanHoldHandles, HumanLanceCouch, HumanLeadHorse,
+ * HumanLunge (two), HumanMounted, HumanSabre and HumanTendHorse the prop they
+ * ride (`params.on`), while the props they hold are a lance, a sabre, a whip
+ * and a tool (`params.tool.prop`), none of them `on`. A law reads a held prop
+ * (`AutoMovieMotionHumanHeld.of`) only while it plans.
+ *
+ * Step 5 solves the hand courses one span at a time. A span whose course is not
+ * yet filled is read on its holder's live hand, and that hand is the holder's
+ * prepared display: it reads only the supports its holder rides, so a read
+ * reaches another span only through a support carried by another performer's
+ * hand (sitCarried's carrier), and from there that carrier's display, which
+ * again reads only what its own performer rides. Each step goes from a rider to
+ * the one who carries it, so the reads end at a performer who rides nothing
+ * carried by hand, and none returns to the span being solved: no performer is
+ * carried, through others' hands, by the prop its own hand holds. The live hand
+ * and the course it is later read on agree within the course's millimetre. *
  *
  * @param self The resolved performance, every action placed.
  */

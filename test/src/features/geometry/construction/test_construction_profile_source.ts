@@ -30,18 +30,20 @@ const CORNERS: readonly (readonly [number, number])[] = [
  * Original nonpolar pieces, holes and active regions reach real atlas readers.
  *
  * Scenarios:
+ *
  * 1. Six exact line fields form a concave L, with alternating original clock
- *    directions over [2,5]; an independent hole uses a clockwise circle.
- *    Every world total2 component follows polynomial/elementary equations.
+ *    directions over [2,5]; an independent hole uses a clockwise circle. Every
+ *    world total2 component follows polynomial/elementary equations.
  * 2. Actual atlas boundaries are inclusive and across uses identical original
  *    positions. Source region membership, material/binding refs and logical
  *    names survive without treating a conservative piece address as a region.
  *    Original derivative integration reads the L boundary's perimeter 8a(s),
  *    distinct from its taut convex hull perimeter (6+sqrt2)a(s).
- * 3. The current native original adapter retains circle Point0/world2 at
- *    off-layer stations, independent of compatibility order or a raw loft.
+ * 3. The current native original adapter retains circle Point0/world2 at off-layer
+ *    stations, independent of compatibility order or a raw loft.
  * 4. Unclosed loops, missing owners, invalid clocks, nonfinite values, absent
- *    local/plane2 and collapsed charts refuse; foreign exceptions retain identity.
+ *    local/plane2 and collapsed charts refuse; foreign exceptions retain
+ *    identity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads actual Profile surfaces, section closure, atlas kept/across and original region predicates, then the real native source adapter, while observing explicit failures and Point0 separately from physical2.
  * @evidence contracts/development/testing.md#independent-expectations The L's line interpolation scales by a(s)=1+s+s². The hole and native circle use elementary sin/cos; native radius is3+s+s². Their analytic derivatives determine all six world vectors independently with absolute2e-9mm component allowance.

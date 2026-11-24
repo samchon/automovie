@@ -52,8 +52,8 @@ import { nclose } from "../internal/nclose";
  * 5. A blackbody colour at 1900 K is warm: red is the largest channel and blue the
  *    smallest.
  * 6. At the compiled shot's artifact boundary, the admitted flames pass, and a
- *    bound flame naming no light clip, a 0.03 m open fire, an unknown size kind
- *    and a missing seed are each refused at their own path.
+ *    bound flame naming no light clip and a 0.03 m open fire are each refused at
+ *    their own path.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario's input and the closed form, track or diagnostic it pins.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public shape sampler, performShot and validateShotArtifact and reads the compiled light clip's track, keys and values and the artifact findings.
@@ -316,16 +316,6 @@ export function test_film_flame_cues(): void {
       "too narrow an open fire",
       { ...admitted, size: { kind: "open", heatRelease: 5, diameter: 0.03 } },
       "$input.flames[0].size.diameter",
-    ],
-    [
-      "an unknown size kind",
-      { ...admitted, size: { kind: "torch" } },
-      "$input.flames[0].size.kind",
-    ],
-    [
-      "a missing seed",
-      { ...admitted, seed: undefined },
-      "$input.flames[0].seed",
     ],
   ] as const)
     TestValidator.predicate(

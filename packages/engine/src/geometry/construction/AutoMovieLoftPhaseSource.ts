@@ -32,10 +32,13 @@ export namespace AutoMovieLoftPhaseSource {
       curves.length !== n ||
       !coordinates.every(
         (value: number, i: number): boolean =>
-          i === 0 || value > coordinates[i - 1]!,
+          // A width past the largest double would overflow its difference.
+          i === 0 ||
+          (value > coordinates[i - 1]! &&
+            value <= Number.MAX_VALUE + coordinates[i - 1]!),
       )
     )
-      return "native phase source needs matching curves and at least two increasing coordinates";
+      return "native phase source needs matching curves and at least two increasing coordinates of representable width";
     for (const curve of curves) {
       if (curve.failure !== null || curve.quarters.length !== 4)
         return `native phase source is not admitted: ${curve.failure ?? "four quarters required"}`;

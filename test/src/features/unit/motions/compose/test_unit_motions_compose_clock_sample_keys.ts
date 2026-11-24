@@ -56,7 +56,10 @@ export function test_unit_motions_compose_clock_sample_keys(): void {
   );
   nativeReplacements();
 }
-/** A prepared interval resolves its instants once, when it is prepared. */
+/**
+ * A prepared window reads through the clock it is given: the factory's fixed
+ * timing, and an authored clock's own `linear`, `progress` and `envelope`.
+ */
 function nativeReplacements(): void {
   const clock: IAutoMovieMotionClock = C(8, [
     { name: "open", seconds: 2 },
@@ -65,26 +68,22 @@ function nativeReplacements(): void {
   ]);
   const rise: readonly [string, string] = ["open", "peak"];
   const fall: readonly [string, string] = ["peak", "close"];
-  const interval: ReturnType<typeof C.prepare> = C.prepare(
-    clock,
-    "open",
-    "close",
-  );
-  const envelope: ReturnType<typeof C.prepareEnvelope> = C.prepareEnvelope(
-    clock,
-    rise,
-    fall,
-  );
-  const originalLinear: IAutoMovieMotionClock["linear"] = clock.linear;
-  clock.at = (): number => {
-    throw new Error("replaced public at");
-  };
-
   TestValidator.predicate(
-    "original factory callbacks keep fixed timing with a replaced public at",
-    nclose(interval.linear(3), 0.25, 0) &&
-      nclose(interval.progress(3), 53 / 512, 0) &&
-      nclose(envelope(3), 0.5, 0),
+    "the factory clock's fixed timing",
+    nclose(C.prepare(clock, "open", "close").linear(3), 0.25, 0) &&
+      nclose(C.prepare(clock, "open", "close").progress(3), 53 / 512, 0) &&
+      nclose(C.prepareEnvelope(clock, rise, fall)(3), 0.5, 0),
   );
-
+  const authored: IAutoMovieMotionClock = {
+    ...clock,
+    linear: (): number => 0.75,
+    progress: (): number => 0.5,
+    envelope: (): number => 0.25,
+  };
+  TestValidator.predicate(
+    "an authored clock's own timing law",
+    C.prepare(authored, "open", "close").linear(3) === 0.75 &&
+      C.prepare(authored, "open", "close").progress(3) === 0.5 &&
+      C.prepareEnvelope(authored, rise, fall)(3) === 0.25,
+  );
 }

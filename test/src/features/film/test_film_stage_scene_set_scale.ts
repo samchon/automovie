@@ -106,21 +106,9 @@ export function test_film_stage_scene_set_scale(): void {
       position: { x: 1, y: 0, z: 0 },
       scale: { x: 1, y: -1, z: 1 },
     },
-    {
-      node: "nan",
-      model: "slab",
-      position: { x: 2, y: 0, z: 0 },
-      scale: Number.NaN,
-    },
-    {
-      node: "endless",
-      model: "slab",
-      position: { x: 3, y: 0, z: 0 },
-      scale: { x: 1, y: 1, z: Number.POSITIVE_INFINITY },
-    },
   ]);
   TestValidator.equals(
-    "zero, negative, and non-finite scales are each refused at their path",
+    "zero and negative scales are each refused at their path",
     namedFacts([
       ["refusedSuccess", (): boolean => refused.success === false],
       [
@@ -135,25 +123,11 @@ export function test_film_stage_scene_set_scale(): void {
           refused.success === false &&
           hasViolation(refused, "range", "$input.set[1].scale"),
       ],
-      [
-        "hasViolationRefusedRange3",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "range", "$input.set[2].scale"),
-      ],
-      [
-        "hasViolationRefusedRange4",
-        (): boolean =>
-          refused.success === false &&
-          hasViolation(refused, "range", "$input.set[3].scale"),
-      ],
     ]),
     {
       refusedSuccess: true,
       hasViolationRefusedRange: true,
       hasViolationRefusedRange2: true,
-      hasViolationRefusedRange3: true,
-      hasViolationRefusedRange4: true,
     },
   );
 

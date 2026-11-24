@@ -31,71 +31,54 @@ import { swingTwistReachBound } from "./swingTwistReachBound";
  * back into it.
  */
 export namespace swingTwistRegion {
-  /**
-   * The radius table of a constraint on a joint's frame.
-   *
-   * @param constraint The constraint.
-   * @param joint The joint's axes and rest frame.
-   * @returns The radius on each of `swingTwistBasis.RAYS` great circles,
-   *   degrees; built on first use and kept.
-   */
-  export function table(
-    constraint: IAutoMovieJointConstraint,
-    joint: IAutoMovieJointRotationFrame,
-  ): Float64Array {
-    let byAxes:
-      | WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
-      | undefined = TABLES.get(constraint);
-    if (byAxes === undefined) {
-      byAxes = new WeakMap();
-      TABLES.set(constraint, byAxes);
-    }
-    let byFrame: Map<object, Float64Array> | undefined = byAxes.get(joint.axes);
-    if (byFrame === undefined) {
-      byFrame = new Map();
-      byAxes.set(joint.axes, byFrame);
-    }
-    const frame: object = joint.frame ?? NO_FRAME;
-    let kept: Float64Array | undefined = byFrame.get(frame);
-    if (kept === undefined) {
-      kept = build(constraint, joint);
-      byFrame.set(frame, kept);
-      GREATEST.set(kept, Math.max(...kept));
-    }
-    return kept;
+  /** A constraint's region on a joint's frame, built once. */
+  export interface IRegion {
+    /** The radius on each of `swingTwistBasis.RAYS` great circles, degrees. */
+    readonly table: Float64Array;
+
+    /**
+     * The farthest the limb may point from rest on any great circle, the bound
+     * every great circle's radius is at most, degrees.
+     */
+    readonly greatest: number;
+  }
+
+  /** A joint frame that carries the region prepared for its constraint. */
+  export interface IRegional {
+    /** Set by `swingTwistRange.prepare`; absent on an unprepared frame. */
+    readonly region?: IRegion;
   }
 
   /**
-   * The region's greatest radius: the farthest the limb may point from rest on
-   * any great circle, the bound every great circle's radius is at most.
+   * Build the region of a constraint on a joint's frame.
    *
    * @param constraint The constraint.
    * @param joint The joint's axes and rest frame.
-   * @returns The greatest radius of `table`'s, degrees, read when the table was
-   *   built.
+   * @returns The region.
    */
-  export function greatest(
+  export function prepare(
     constraint: IAutoMovieJointConstraint,
     joint: IAutoMovieJointRotationFrame,
-  ): number {
-    return GREATEST.get(table(constraint, joint))!;
+  ): IRegion {
+    const table: Float64Array = build(constraint, joint);
+    return { table, greatest: Math.max(...table) };
+  }
+
+  /**
+   * The region a prepared frame carries, or one built here for a frame that
+   * carries none.
+   *
+   * @param constraint The constraint.
+   * @param joint The joint's axes and rest frame.
+   * @returns The region.
+   */
+  export function of(
+    constraint: IAutoMovieJointConstraint,
+    joint: IAutoMovieJointRotationFrame & IRegional,
+  ): IRegion {
+    return joint.region ?? prepare(constraint, joint);
   }
 }
-
-/** Each kept table's greatest radius, degrees, set when the table is built. */
-const GREATEST: WeakMap<Float64Array, number> = new WeakMap();
-
-/**
- * The radius tables, by the identity of the constraint, the axes and the rest
- * frame: the tables of a rig are kept as long as its records are.
- */
-const TABLES: WeakMap<
-  IAutoMovieJointConstraint,
-  WeakMap<IAutoMovieJointAxes, Map<object, Float64Array>>
-> = new WeakMap();
-
-/** The key of a joint read with no rest frame. */
-const NO_FRAME: object = {};
 
 /**
  * The fastest the region's radius may change with the azimuth, degrees per

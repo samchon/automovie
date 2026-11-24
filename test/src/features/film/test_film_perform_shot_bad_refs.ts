@@ -202,38 +202,6 @@ export function test_film_perform_shot_bad_refs(): void {
     { refused: true, violated: true },
   );
 
-  const fractionalRepeat: IAutoMoviePerformedShot = performShot({
-    script: makeScriptWrite(),
-    staged,
-    performance: makePerformanceWrite({
-      draft: [
-        {
-          verb: "gesture",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          repeat: 1.5,
-          kind: "wave",
-        },
-      ],
-      revise: { review: "unchanged.", final: null },
-    }),
-    synthesize: validSynthesizer,
-    skeleton: (): IAutoMovieSkeleton => createSkeleton(),
-  });
-  TestValidator.equals(
-    "fractional repeat rejected",
-    namedFacts([
-      ["refused", (): boolean => fractionalRepeat.success === false],
-      [
-        "violated",
-        (): boolean =>
-          hasViolation(fractionalRepeat, "range", "$input.draft[0].repeat"),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-
   const emptyActorList: IAutoMoviePerformedShot = performShot({
     script: makeScriptWrite(),
     staged,

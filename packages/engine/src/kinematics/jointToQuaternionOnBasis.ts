@@ -15,14 +15,6 @@ import { prepareJointRotationFactor } from "./prepareJointRotationFactor";
 
 /** The three clinical coordinates, read in their existing admission order. */
 
-/**
- * One raw inner-product writer; its prepared form retains fixed axis support
- * only.
- */
-type IInnerProductWriter = ReturnType<
-  typeof multiplyQuaternionInto.prepareCardinal
->;
-
 /** Fixed-basis composition with an optional current-call clinical frame. */
 type IComposition = (
   joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
@@ -61,7 +53,6 @@ type IRawComposition = <Result, Context>(
   context: Context,
   currentFrame?: IAutoMovieRestFrame,
 ) => Result;
-
 
 /** Preserve null rest, angle admission and the caller's clinical frame map. */
 const readAngle: (
@@ -197,8 +188,10 @@ export namespace jointToQuaternionOnBasis {
     frame?: IAutoMovieRestFrame,
     fixedAngles?: IFixedAngles,
   ): () => ReturnType<typeof prepare> {
-    const operation: IOperationState = { axisReaders: {} };
-    if (fixedAngles !== undefined) operation.fixedAngles = fixedAngles;
+    const operation: IOperationState = prepareJointRotationFactor.operation(
+      basis,
+      fixedAngles,
+    );
     return (): ReturnType<typeof prepare> =>
       preparedComposition(basis, frame, operation);
   }
@@ -215,8 +208,10 @@ export namespace jointToQuaternionOnBasis {
     frame?: IAutoMovieRestFrame,
     fixedAngles?: IFixedAngles,
   ): () => IRawReader {
-    const operation: IOperationState = { axisReaders: {} };
-    if (fixedAngles !== undefined) operation.fixedAngles = fixedAngles;
+    const operation: IOperationState = prepareJointRotationFactor.operation(
+      basis,
+      fixedAngles,
+    );
     return (): IRawReader => scalarComposition(basis, frame, operation);
   }
 }
@@ -282,8 +277,6 @@ function scalarComposition(
   let innerRight: IAutoMovieQuaternion | undefined;
   let inner: IAutoMovieQuaternion | undefined;
   let dynamicInner: IAutoMovieQuaternion | undefined;
-  let writeInner: IInnerProductWriter | undefined;
-  let readOuter: typeof multiplyQuaternionInto.read | undefined;
   return <Result, Context>(
     joint: Pick<IAutoMovieJointPose, AutoMovieClinicalAxis>,
     read: (
@@ -340,14 +333,7 @@ function scalarComposition(
       else {
         if (dynamicInner === undefined)
           dynamicInner = Quaternion.multiply(left, right);
-        else {
-          if (writeInner === undefined) {
-            writeInner = operation?.innerWriter ?? multiplyQuaternionInto;
-            if (operation !== undefined && operation.innerWriter === undefined)
-              operation.innerWriter = writeInner;
-          }
-          writeInner(dynamicInner, left, right);
-        }
+        else multiplyQuaternionInto(dynamicInner, left, right);
         inner = dynamicInner;
       }
       innerLeft = left;
@@ -405,12 +391,7 @@ function scalarComposition(
             outer.z * product.z;
       return read(x, y, z, w, context);
     }
-    if (readOuter === undefined) {
-      readOuter = operation?.outerReader ?? multiplyQuaternionInto.read;
-      if (operation !== undefined && operation.outerReader === undefined)
-        operation.outerReader = readOuter;
-    }
-    return readOuter(outer, product, read, context);
+    return multiplyQuaternionInto.read(outer, product, read, context);
   };
 }
 
@@ -444,11 +425,5 @@ function fixedInnerProduct(
           : -1;
   if (leftIndex < 0 || rightIndex < 0) return undefined;
   const index: number = leftIndex * 2 + rightIndex;
-  const known: IAutoMovieQuaternion | undefined =
-    operation.fixedInnerProducts?.[index];
-  if (known !== undefined) return known;
-  const quaternion: IAutoMovieQuaternion = Quaternion.multiply(left, right);
-  operation.fixedInnerProducts ??= [];
-  operation.fixedInnerProducts[index] = quaternion;
-  return quaternion;
+  return operation.fixedInnerProducts?.[index];
 }

@@ -208,6 +208,9 @@ export * from "./compose/AutoMovieMotionInterval";
 export * from "./compose/AutoMovieMotionPrepared";
 export * from "./posture/prepareHumanAdaptiveKnots";
 export * from "./posture/minimizeHumanBrent";
+export * from "./lexicon/crutchHeldLeg";
+export * from "./executable/cases/FootSlip";
+export * from "./grappling/HumanForceDrawn";
 export * from "./striking/punchReach";
 export * from "./striking/StrikingQuality";
 export * from "./reaction/staggerShift";
@@ -340,3 +343,5 @@ export * from "./handling/HumanPrehension";
 export * from "./handling/resolveGuitarStringContact";
 export * from "./everyday/gestureJoints";
 export * from "./affordance/operateLongInsertCourse";
+export * from "./ensemble/manoeuvreCrossings";
+export * from "./climbing/ladderAcces

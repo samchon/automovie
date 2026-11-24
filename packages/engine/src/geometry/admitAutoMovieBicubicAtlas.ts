@@ -36,10 +36,7 @@ export function admitAutoMovieBicubicAtlas(
   if (input.sourceFit !== undefined) {
     const fit: NonNullable<IAutoMovieBicubicAtlasGeometry["sourceFit"]> =
       input.sourceFit;
-    if (
-      fit.maximumResidual !== null &&
-      !(fit.maximumResidual >= 0)
-    )
+    if (fit.maximumResidual !== null && !(fit.maximumResidual >= 0))
       diagnostics.push(
         "Malformed source-fit qualification metadata; finite structural geometry remains displayable",
       );

@@ -173,7 +173,6 @@ export function preparePoseJointResolution(
       }
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(joint.bone) ?? fallback;
-      const basis: IAutoMovieJointAxes = convention.basis;
       const flexion: number | null = clinical(
         joint,
         "flexion",
@@ -200,7 +199,6 @@ export function preparePoseJointResolution(
         boneOf,
         known,
         convention,
-        basis,
         flexion,
         abduction,
         twist,
@@ -222,7 +220,6 @@ export function preparePoseJointResolution(
       const known: IReading | undefined = joints.get(bone);
       const convention: preparePoseJointResolution.IConvention =
         known?.convention ?? conventions.get(bone) ?? fallback;
-      const basis: IAutoMovieJointAxes = convention.basis;
       const flexion: number | null = clinicalValue(
         f,
         "flexion",
@@ -249,7 +246,6 @@ export function preparePoseJointResolution(
         stagedBone,
         known,
         convention,
-        basis,
         flexion,
         abduction,
         twist,
@@ -346,7 +342,6 @@ export function preparePoseJointResolution(
     nameOf: (source: T) => AutoMovieHumanoidBone,
     known: IReading | undefined,
     convention: preparePoseJointResolution.IConvention,
-    basis: IAutoMovieJointAxes,
     flexion: number | null,
     abduction: number | null,
     twist: number | null,
@@ -379,9 +374,7 @@ export function preparePoseJointResolution(
       exchange(known, before, flexion, abduction, twist, record);
       return;
     }
-    const compose: IComposer =
-      known?.compose ??
-      convention.queries();
+    const compose: IComposer = known?.compose ?? convention.queries();
     tuple.flexion = flexion;
     tuple.abduction = abduction;
     tuple.twist = twist;

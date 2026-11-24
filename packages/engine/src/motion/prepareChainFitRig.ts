@@ -55,8 +55,17 @@ export function prepareChainFitRig(
     twist: null,
   };
   const heldJoint: IAutoMovieJointPose = held;
-  let heldRotation: IAutoMovieQuaternion | undefined;
-  let heldInverse: IAutoMovieQuaternion | undefined;
+  const heldRotation: IAutoMovieQuaternion = Quaternion.multiply(
+    prepared?.effectorBaseRotation ??
+      constant.bone(props.chain.effector)?.rest.rotation ??
+      Quaternion.identity(),
+    jointToQuaternionOnBasis(
+      heldJoint,
+      constant.basis(props.chain.effector, "jointToQuaternion axes"),
+      props.restFrames?.[props.chain.effector],
+    ),
+  );
+  const heldInverse: IAutoMovieQuaternion = Quaternion.inverse(heldRotation);
   let swing: IAutoMovieVector3 | undefined;
   const hingeGeometry: hingedArmSwivel.IPrepared | null =
     prepared === null
@@ -86,24 +95,8 @@ export function prepareChainFitRig(
     distalTwist: constant.distalTwist,
     hingeRange: constant.hingeRange,
     held: (): IAutoMovieJointPose => heldJoint,
-    heldRotation: (): IAutoMovieQuaternion => {
-      if (heldRotation === undefined)
-        heldRotation = Quaternion.multiply(
-          prepared?.effectorBaseRotation ??
-            rig.bone(props.chain.effector)?.rest.rotation ??
-            Quaternion.identity(),
-          jointToQuaternionOnBasis(
-            rig.held(),
-            rig.basis(props.chain.effector, "jointToQuaternion axes"),
-            props.restFrames?.[props.chain.effector],
-          ),
-        );
-      return heldRotation;
-    },
-    heldRotationInverse: (): IAutoMovieQuaternion => {
-      heldInverse ??= Quaternion.inverse(rig.heldRotation());
-      return heldInverse;
-    },
+    heldRotation: (): IAutoMovieQuaternion => heldRotation,
+    heldRotationInverse: (): IAutoMovieQuaternion => heldInverse,
     reference: (bone: AutoMovieHumanoidBone): IAutoMovieQuaternion | null =>
       reference.rotation(bone, rig),
     referenceWeight: reference.weight,

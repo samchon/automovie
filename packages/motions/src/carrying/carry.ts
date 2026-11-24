@@ -34,6 +34,24 @@ import { loadedWalkPace } from "./loadedWalkPace";
 /** The record of `IPlanClockResult`'s site. */
 type IPlanClockResult = { name: string; seconds: number };
 
+/** The measures a load's lean reads (`carry.tilt`). */
+type TiltMeasure =
+  | "shoulderHalfWidth"
+  | "hipHalfWidth"
+  | "upperArm"
+  | "forearm"
+  | "shoulderHeight"
+  | "hipHeight";
+
+/** The measures a hanging arm reads (`carry.hang`). */
+type HangMeasure =
+  | "hipHalfWidth"
+  | "thighRadius"
+  | "forearmRadius"
+  | "shoulderHalfWidth"
+  | "upperArm"
+  | "forearm";
+
 /** The record of `IHangResult`'s site. */
 type IHangResult = {
   upper: readonly [number, number, number];
@@ -152,12 +170,13 @@ export namespace carry {
    *   forward over a pushed handle.
    */
   export function tilt(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], TiltMeasure> },
     how: IAutoMovieMotionHumanCarry.How,
     load: number,
   ): number {
     if (how === "push") return PUSH * load;
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], TiltMeasure> =
+      body.measure;
     const offset: number =
       how === "oneHand"
         ? m.shoulderHalfWidth
@@ -190,10 +209,11 @@ export namespace carry {
    * @throws {Error} When the range-of-motion table gives the elbow no flexion.
    */
   export function hang(
-    body: IAutoMovieMotionHumanBody,
+    body: { measure: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> },
     side: AutoMovieHumanSide,
   ): IHangResult {
-    const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
+    const m: Pick<IAutoMovieMotionHumanBody["measure"], HangMeasure> =
+      body.measure;
     const elbow: IAutoMovieAngleRange | null | undefined =
       DEFAULT_HUMANOID_ROM[`${side}LowerArm`]?.flexion;
     if (elbow === null || elbow === undefined)

@@ -6,15 +6,15 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 import { overflowsBinary64 } from "../math/overflowsBinary64";
+import { normalizeAutoMovieSurfaceFrame } from "./normalizeAutoMovieSurfaceFrame";
 
 /**
  * Prepare exactly three finite, noncollinear metre points for rigid placement.
  * Their centroid is the origin, point 0 to point 1 is forward, and the ordered
  * edge cross product supplies the normal. Optional referenceNormal chooses its
  * sign; a zero, nonfinite or exactly perpendicular reference refuses. It does
- * not tilt the triangle. The frozen result owns its coordinates independently
+ * not tilt the triangle. The result owns its coordinates independently
  * of subsequent input edits. Finite inputs whose differences or coordinates
  * overflow refuse; near-collinearity remains a binary64 conditioning limit.
  */

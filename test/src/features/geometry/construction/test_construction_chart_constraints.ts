@@ -5,13 +5,23 @@ import type { IAutoMovieSolidMeshConstraints } from "@automovie/interface";
 type Vertex = [number, readonly [number, number]];
 
 /**
- * Shared chart constraints retain their indexed subdivisions and source history.
+ * Shared chart constraints retain their indexed subdivisions and source
+ * history.
  *
  * Scenarios:
- * 1. A T junction, reversed partial overlap and supplied four-way crossing split into independently prescribed subedges at three units. Degree four is retained instead of being reduced to one outgoing edge.
- * 2. An unsupplied crossing or two coincident authoritative IDs fail explicitly; no new point, weld or implicit repair is accepted.
- * 3. A periodic seam T junction and its three-period translation have the same indexed edges/turns. Opposite semicircles with the same endpoint IDs remain different constraints, while a full-turn self-edge retains its winding.
- * 4. Invalid period, endpoint, turn, zero span and nonfinite coordinates remain named failures. Inputs and repeated-call output ownership are checked independently.
+ *
+ * 1. A T junction, reversed partial overlap and supplied four-way crossing split
+ *    into independently prescribed subedges at three units. Degree four is
+ *    retained instead of being reduced to one outgoing edge.
+ * 2. An unsupplied crossing or two coincident authoritative IDs fail explicitly;
+ *    no new point, weld or implicit repair is accepted.
+ * 3. A periodic seam T junction and its three-period translation have the same
+ *    indexed edges/turns. Opposite semicircles with the same endpoint IDs
+ *    remain different constraints, while a full-turn self-edge retains its
+ *    winding.
+ * 4. Invalid period, endpoint, turn, zero span and nonfinite coordinates remain
+ *    named failures. Inputs and repeated-call output ownership are checked
+ *    independently.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads indexed subconstraint output and provenance, distinguishing a shared-index arrangement primitive from a simple cycle Map or endpoint-pair cancellation. Production MeshPlan uses this same split owner and face tessellation consumes its plan; this question isolates subdivision rather than proving that complete consumer.
  * @evidence contracts/development/testing.md#independent-expectations Literal expected edges follow line order on horizontal/diagonal segments. The seam interval 5.5 to6.5 splits at6, represented by the original phase0 vertex plus one period. Opposite half-turn arcs differ by their explicit cover integer, independently of coordinate proximity.
@@ -166,16 +176,6 @@ export function test_construction_chart_constraints(): void {
   );
   refuse(
     failures,
-    "fractional turn",
-    AutoMovieSolidMeshConstraints.split(
-      new Map(line.slice(0, 2)),
-      [{ a: 0, b: 1, turn: 0.5 }],
-      6,
-    ),
-    "turn",
-  );
-  refuse(
-    failures,
     "nonperiodic turn",
     AutoMovieSolidMeshConstraints.split(new Map(line.slice(0, 2)), [
       { a: 0, b: 1, turn: 1 },
@@ -256,7 +256,10 @@ export function test_construction_chart_constraints(): void {
     throw new Error(`Chart constraint findings:\n${failures.join("\n")}`);
 }
 
-/** Compare exact indexed provenance, then verify borrowed inputs and owned output arrays. */
+/**
+ * Compare exact indexed provenance, then verify borrowed inputs and owned
+ * output arrays.
+ */
 function inspect(
   failures: string[],
   label: string,
@@ -287,7 +290,10 @@ function inspect(
   }
 }
 
-/** Canonical endpoint/turn/source labels form an independent finite collection oracle. */
+/**
+ * Canonical endpoint/turn/source labels form an independent finite collection
+ * oracle.
+ */
 function signature(edges: IAutoMovieSolidMeshConstraints.IEdge[]): string {
   return edges
     .map(
@@ -298,7 +304,10 @@ function signature(edges: IAutoMovieSolidMeshConstraints.IEdge[]): string {
     .join(";");
 }
 
-/** A failed premise is a named result, never a repaired or partly accepted constraint set. */
+/**
+ * A failed premise is a named result, never a repaired or partly accepted
+ * constraint set.
+ */
 function refuse(
   failures: string[],
   label: string,

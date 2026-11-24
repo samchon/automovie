@@ -9,9 +9,9 @@ import type {
   IAutoMovieSwingTwistRange,
 } from "@automovie/interface";
 
-import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { jointToQuaternion } from "../kinematics/jointToQuaternion";
 import { jointToQuaternionOnBasis } from "../kinematics/jointToQuaternionOnBasis";
+import { normalizeJointAxes } from "../kinematics/normalizeJointAxes";
 import { swingTwistRange } from "../kinematics/swingTwistRange";
 import { nearestAngleAlias } from "../math/nearestAngleAlias";
 import { abductionRange } from "./abductionRange";
@@ -279,7 +279,9 @@ export namespace scanJointRom {
         ? undefined
         : (rig ?? swingTwistRange.of(bone));
     const range: IAutoMovieJointRotationFrame | undefined =
-      source === undefined ? undefined : swingTwistRange.prepare(source);
+      source === undefined
+        ? undefined
+        : swingTwistRange.prepare(source, constraint);
     const compose:
       | ((joint: IAutoMovieJointPose) => IAutoMovieQuaternion)
       | undefined =
@@ -324,7 +326,10 @@ export namespace scanJointRom {
     const source: IAutoMovieJointRotationFrame | undefined =
       rig ?? swingTwistRange.of(bone);
     if (source === undefined) return null;
-    const range: IAutoMovieJointRotationFrame = swingTwistRange.prepare(source);
+    const range: IAutoMovieJointRotationFrame = swingTwistRange.prepare(
+      source,
+      constraint,
+    );
     return (rotation: IAutoMovieQuaternion): number =>
       gate(0, rotation, swingTwist, constraint, range, undefined, true);
   }

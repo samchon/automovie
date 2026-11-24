@@ -11,6 +11,7 @@ import { rotationBetween } from "../math/rotationBetween";
 import { toRigAngle } from "../rom/toRigAngle";
 import { swingTwistBasis } from "./swingTwistBasis";
 import { swingTwistRange } from "./swingTwistRange";
+import { swingTwistRegion } from "./swingTwistRegion";
 
 /** A disc coordinate pair and clinical-degree twist, as the chart produces. */
 type IPlace = ReturnType<typeof swingTwistRange.chart>;
@@ -82,6 +83,8 @@ export namespace placeSwingTwistChart {
     const basis: IAutoMovieSwingTwistBasis.IBasis = swingTwistBasis.of(
       joint.axes,
     );
+    const prepared: IAutoMovieJointRotationFrame & swingTwistRegion.IRegional =
+      { ...joint, region: swingTwistRegion.of(constraint, joint) };
     const state: IState = {
       basis,
       aim: rotationBetween.prepare(basis.u),
@@ -89,6 +92,6 @@ export namespace placeSwingTwistChart {
       rig: toRigAngle.prepare(),
     };
     return (place: IPlace): IAutoMovieQuaternion =>
-      placeSwingTwistChart(place, constraint, joint, radius, state);
+      placeSwingTwistChart(place, constraint, prepared, radius, state);
   }
 }

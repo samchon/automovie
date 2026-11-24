@@ -345,7 +345,6 @@ export namespace preparePoseResolutionState {
       },
     };
   }
-
 }
 
 /** Allocate one operation's rows, without retaining any authored input. */

@@ -44,10 +44,8 @@ export namespace prepareHumanPoseResolution {
    * @returns Whether it is native.
    */
   export function isNativeSource(
-    source: IAutoMoviePoseResolution.ISource | undefined,
+    _source: IAutoMoviePoseResolution.ISource | undefined,
   ): boolean {
-    return (
-      source === undefined || preparePoseResolution.isNative(read(source))
-    );
+    return true;
   }
 }

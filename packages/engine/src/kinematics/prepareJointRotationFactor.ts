@@ -1,12 +1,12 @@
 import type {
   IAutoMovieAxisFrame,
+  IAutoMovieJointAxes,
   IAutoMovieQuaternion,
   IAutoMovieResolvedJointAngles,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { Quaternion } from "../math/Quaternion";
-import { multiplyQuaternionInto } from "../math/multiplyQuaternionInto";
 import { toRigAngle } from "../rom/toRigAngle";
 import type { jointToQuaternionOnBasis } from "./jointToQuaternionOnBasis";
 
@@ -46,15 +46,9 @@ export function prepareJointRotationFactor(
     else if (frame === undefined) angle = clinical;
     else {
       const read: ReturnType<typeof toRigAngle.prepare> =
-        rigAngle ?? operation?.rigAngles?.[key] ?? toRigAngle.prepare();
+        rigAngle ?? operation?.rigAngles[key] ?? toRigAngle.prepare();
       angle = read(clinical, frame) ?? 0;
-      if (rigAngle === undefined) {
-        if (operation !== undefined) {
-          operation.rigAngles ??= {};
-          operation.rigAngles[key] = read;
-        }
-        rigAngle = read;
-      }
+      rigAngle = read;
     }
     if (current !== undefined && Object.is(currentAngle, angle)) return current;
     const reused: IAutoMovieQuaternion | undefined =
@@ -78,11 +72,7 @@ export function prepareJointRotationFactor(
       fixedOperation === undefined
         ? axisAngle(angle)
         : fixedFactor(fixedOperation, key, angle, axisAngle);
-    if (reader === undefined) {
-      if (operation !== undefined && operation.axisReaders[key] === undefined)
-        operation.axisReaders[key] = axisAngle;
-      reader = axisAngle;
-    }
+    reader = axisAngle;
     if (initial === undefined) {
       initialAngle = angle;
       initial = quaternion;
@@ -111,25 +101,7 @@ function fixedFactor(
       ? 1
       : null;
   if (index === null) return read(angle);
-  const known: IAutoMovieQuaternion | undefined =
-    operation.fixedFactors?.[key]?.[index];
-  if (known !== undefined) return known;
-  const quaternion: IAutoMovieQuaternion = read(angle);
-  if (
-    quaternion.x === 0 &&
-    quaternion.y === 0 &&
-    quaternion.z === 0 &&
-    quaternion.w === 1
-  ) {
-    operation.identityMasks ??= {};
-    operation.identityMasks[key] =
-      (operation.identityMasks[key] ?? 0) | (1 << index);
-  }
-  operation.fixedFactors ??= {};
-  const readings: prepareJointRotationFactor.IFixedReadings =
-    (operation.fixedFactors[key] ??= []);
-  readings[index] = quaternion;
-  return quaternion;
+  return operation.fixedFactors?.[key]?.[index] ?? read(angle);
 }
 
 /** Bounded fixed-rig preparation shared by independent actual query readers. */
@@ -144,27 +116,89 @@ export namespace prepareJointRotationFactor {
   /** At most two lazy private factors for one axis's declared rig coordinates. */
   export type IFixedReadings = [IAutoMovieQuaternion?, IAutoMovieQuaternion?];
 
-  /** Rig-only scalar/factor/product/support facts, never changing target data. */
+  /** Rig-only scalar/factor/product facts, never changing target data. */
   export interface IOperation {
-    /** Three lazy original direction/length readers, populated after success. */
-    axisReaders: Partial<
-      Record<ClinicalAxis, ReturnType<typeof Quaternion.prepareAxisAngle>>
+    /** The three direction/length readers of the basis. */
+    readonly axisReaders: Record<
+      ClinicalAxis,
+      ReturnType<typeof Quaternion.prepareAxisAngle>
     >;
-    /** Three actual-used successful immutable affine readers at most. */
-    rigAngles?: Partial<
-      Record<ClinicalAxis, ReturnType<typeof toRigAngle.prepare>>
+    /** The three immutable affine readers. */
+    readonly rigAngles: Record<
+      ClinicalAxis,
+      ReturnType<typeof toRigAngle.prepare>
     >;
     /** Borrowed immutable rig coordinates, at most two per axis. */
     fixedAngles?: jointToQuaternionOnBasis.IFixedAngles;
-    /** Factors produced only at actual exact declared-angle matches. */
+    /** The factors of the declared angles, at most two per axis. */
     fixedFactors?: Partial<Record<ClinicalAxis, IFixedReadings>>;
-    /** At most four products of two actual private declared factors. */
+    /** At most four products of two declared factors. */
     fixedInnerProducts?: IAutoMovieQuaternion[];
-    /** Two identity bits per axis among its actual declared factors. */
+    /** Two identity bits per axis among its declared factors. */
     identityMasks?: Partial<Record<ClinicalAxis, number>>;
-    /** Source-only distinct-support metadata; no actual factors/results. */
-    innerWriter?: ReturnType<typeof multiplyQuaternionInto.prepareCardinal>;
-    /** Source-only cardinal-left support; no actual factors/results. */
-    outerReader?: typeof multiplyQuaternionInto.read;
+  }
+
+  /**
+   * Prepare a basis's rig-only facts: its readers and, for declared rig angles,
+   * their factors, identity bits and inner products.
+   */
+  export function operation(
+    basis: IAutoMovieJointAxes,
+    fixedAngles?: jointToQuaternionOnBasis.IFixedAngles,
+  ): IOperation {
+    const axisReaders: IOperation["axisReaders"] = {
+      flexion: Quaternion.prepareAxisAngle(basis.flexion),
+      abduction: Quaternion.prepareAxisAngle(basis.abduction),
+      twist: Quaternion.prepareAxisAngle(basis.twist),
+    };
+    const prepared: IOperation = {
+      axisReaders,
+      rigAngles: {
+        flexion: toRigAngle.prepare(),
+        abduction: toRigAngle.prepare(),
+        twist: toRigAngle.prepare(),
+      },
+    };
+    if (fixedAngles === undefined) return prepared;
+    prepared.fixedAngles = fixedAngles;
+    const fixedFactors: Partial<Record<ClinicalAxis, IFixedReadings>> = {};
+    const identityMasks: Partial<Record<ClinicalAxis, number>> = {};
+    for (const key of ["flexion", "abduction", "twist"] as const) {
+      const declared: jointToQuaternionOnBasis.IFixedAngles[ClinicalAxis] =
+        fixedAngles[key];
+      if (declared === undefined) continue;
+      const readings: IFixedReadings = [];
+      declared.forEach((angle: number, index: number): void => {
+        const quaternion: IAutoMovieQuaternion = axisReaders[key](angle);
+        readings[index] = quaternion;
+        if (
+          quaternion.x === 0 &&
+          quaternion.y === 0 &&
+          quaternion.z === 0 &&
+          quaternion.w === 1
+        )
+          identityMasks[key] = (identityMasks[key] ?? 0) | (1 << index);
+      });
+      fixedFactors[key] = readings;
+    }
+    prepared.fixedFactors = fixedFactors;
+    prepared.identityMasks = identityMasks;
+
+    // The inner product is the left axis's factor times the right axis's.
+    const flexionFirst: boolean =
+      basis.rotationOrder === "flexion-abduction-twist";
+    const distal: boolean = !flexionFirst && basis.twistPlacement === "distal";
+    const left: IFixedReadings | undefined =
+      fixedFactors[distal ? "flexion" : "abduction"];
+    const right: IFixedReadings | undefined =
+      fixedFactors[distal || flexionFirst ? "twist" : "flexion"];
+    const products: IAutoMovieQuaternion[] = [];
+    if (left !== undefined && right !== undefined)
+      for (let l: number = 0; l < 2; ++l)
+        for (let r: number = 0; r < 2; ++r)
+          if (left[l] !== undefined && right[r] !== undefined)
+            products[l * 2 + r] = Quaternion.multiply(left[l]!, right[r]!);
+    prepared.fixedInnerProducts = products;
+    return prepared;
   }
 }

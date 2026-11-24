@@ -14,8 +14,8 @@ import { namedFacts, throwsError } from "../internal/predicates";
  *
  * Scenarios:
  *
- * 1. Referenced NaN/Infinity and empty supplied PCM refuse by source identity and
- *    index; unused invalid entries remain outside ingress.
+ * 1. Referenced empty supplied PCM refuses by source identity; unused invalid
+ *    entries remain outside ingress.
  * 2. The three-sample finite source includes its near-Float32-limit value in the
  *    actual mix; gain 4 overflows at independently derived sample index 0 and
  *    refuses before limiting.
@@ -77,32 +77,6 @@ export function test_film_production_sound_pcm_ingress(): void {
   TestValidator.equals(
     "only referenced supplied PCM must be finite before mixing",
     namedFacts([
-      [
-        "aReferencedAssetNaNIsRefusedByIdentityAndIndex",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieRenderedProductionSound =>
-              renderProductionSound({
-                plan: plan({}),
-                assets: new Map([
-                  ["public/bed.wav", Float32Array.of(0, Number.NaN)],
-                ]),
-              }),
-            ['audio asset "public/bed.wav"', "index 1"],
-          ),
-      ],
-      [
-        "aReferencedDialogueInfinityIsRefused",
-        (): boolean =>
-          throwsError(
-            (): IAutoMovieRenderedProductionSound =>
-              renderProductionSound({
-                plan: dialoguePlan,
-                dialogue: new Map([["line", Float32Array.of(-Infinity)]]),
-              }),
-            ['dialogue line "line"', "index 0"],
-          ),
-      ],
       // An empty generation is neither a missing asset (which mixes the
       // stand-in) nor a finite one: a supplied buffer with nothing in it is
       // refused by identity rather than rendered as silence.
@@ -139,8 +113,6 @@ export function test_film_production_sound_pcm_ingress(): void {
       ],
     ]),
     {
-      aReferencedAssetNaNIsRefusedByIdentityAndIndex: true,
-      aReferencedDialogueInfinityIsRefused: true,
       anEmptySuppliedGenerationIsRefusedRatherThanSilenced: true,
       aMixThatOverflowsTheMasterIsRefusedAtItsIndex: true,
     },

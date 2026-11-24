@@ -12,14 +12,15 @@ import { nclose } from "../../internal/nclose";
  * A named face refusal is explicit and no fallible preparation mutates buffers.
  *
  * Scenarios:
+ *
  * 1. Omitted/undefined callback, recording callback and throwing callback observe
  *    the same invalid-period source, with all four mesh populations unchanged.
- * 2. A source sentinel at the fifth station-major jet propagates by identity;
- *    no owner is registered during preparation and no failure callback runs.
+ * 2. A source sentinel at the fifth station-major jet propagates by identity; no
+ *    owner is registered during preparation and no failure callback runs.
  * 3. A foreign owner stores shifted coordinates while the trim supplies this
  *    face's chart; the square-minus-hole area and shared IDs remain exact.
- * 4. A reused jet object is copied during preparation; analytic plane points
- *    and an explicit detached planar rim survive without a registry.
+ * 4. A reused jet object is copied during preparation; analytic plane points and
+ *    an explicit detached planar rim survive without a registry.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face and Body.draw with ordinary buffers, recording only public output, callback effects and thrown objects; it never replaces globals or foreign methods.
  * @evidence contracts/development/testing.md#independent-expectations Invalid period is outside the public contract; unchanged buffers follow atomic refusal. Plane area is 16 minus 4 and each point is independently [u,v,0], with same original source IDs.
@@ -149,7 +150,10 @@ export function test_construction_mesh_transaction(): void {
     throw new Error(`Mesh transaction findings:\n${failures.join("\n")}`);
 }
 
-/** Two original-ID triangles sharing only their origin have one literal oriented publication. */
+/**
+ * Two original-ID triangles sharing only their origin have one literal oriented
+ * publication.
+ */
 function canonicalIndices(failures: string[]): void {
   const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
   const source: IAutoMovieSolidSurface = plane("canonical-index-source");
@@ -308,7 +312,10 @@ function inspectForeign(failures: string[]): void {
     );
 }
 
-/** A source may reuse its result storage; the face must retain each reading's value. */
+/**
+ * A source may reuse its result storage; the face must retain each reading's
+ * value.
+ */
 function inspectAliased(failures: string[]): void {
   const reused: IAutoMovieSolidSurface.IJet = planeJet(0, 0);
   const source: IAutoMovieSolidSurface = {
@@ -358,7 +365,10 @@ function planeJet(u: number, v: number): IAutoMovieSolidSurface.IJet {
   };
 }
 
-/** Shared IDs admit exact period lifts, never a nearby but different source coordinate. */
+/**
+ * Shared IDs admit exact period lifts, never a nearby but different source
+ * coordinate.
+ */
 function inspectAuthority(failures: string[]): void {
   const source: IAutoMovieSolidSurface = HumanSolidShapes.cylinder(
     "authority",

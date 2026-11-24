@@ -14,23 +14,27 @@ import { ConstructionKnownPortCircular as Made } from "../../internal/constructi
 import { nclose } from "../../internal/nclose";
 
 /**
- * Closed original ports reach the existing periodic seam and both real face meshes.
+ * Closed original ports reach the existing periodic seam and both real face
+ * meshes.
  *
  * Scenarios:
+ *
  * 1. The plane/cylinder original fields give radius2-w+y(w), where
  *    y=-10w³+25w⁴-21w⁵+6w⁶. Every kernel (w,clock) total2 vector, its actual
- *    second-coordinate period and outward orientation use independent equations.
- *    Clocks [0,2pi], [-pi,pi], [0,1] and [2,5] retain offsets and every derivative scale.
+ *    second-coordinate period and outward orientation use independent
+ *    equations. Clocks [0,2pi], [-pi,pi], [0,1] and [2,5] retain offsets and
+ *    every derivative scale.
  * 2. Swapping parent/child and reversing the actual transverse maps gives
  *    B_inverse(w,t)=B(1-w,t), with both mixed/first signs reversed correctly.
  * 3. The existing SolidMesh.seam then both SolidMesh.face consumers use one
  *    authoritative index per rail point. Each face-side edge has incidence1
  *    opposite the band's edge, and actual adjacent vertices retain that face's
- *    independent plane/cylinder law. Pole fans and positional welds are absent.
+ *    independent plane/cylinder law. Pole fans and positional welds are
+ *    absent.
  * 4. Published material/binding addresses and actual original field/map objects
  *    survive. Their presence does not establish evaluated skeletal weights.
- * 5. Open or unoriented bands and malformed columns refuse before mesh writes;
- *    an actual source exception restores the existing mesh and retains identity.
+ * 5. Open or unoriented bands and malformed columns refuse before mesh writes; an
+ *    actual source exception restores the existing mesh and retains identity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Reads closed KnownPort surface jets and Point0, then actual legacy seam plus both source-face meshes; observes each rail's two independent triangle populations and source geometry.
  * @evidence contracts/development/testing.md#independent-expectations Plane and unit-cylinder equations yield the explicit sixth-degree radial/vertical band polynomial. Its derivatives determine all six vectors within2e-10 arithmetic allowance. Shared mesh indices, incidence and opposite edge directions are exact combinatorial expectations.
@@ -110,7 +114,10 @@ export function test_construction_known_port_closed(): void {
   );
 }
 
-/** Closed seam admission precedes writes; later original failures restore the same append checkpoint. */
+/**
+ * Closed seam admission precedes writes; later original failures restore the
+ * same append checkpoint.
+ */
 function admission(
   source: IAutoMovieConstructionKnownPortSource,
   failures: string[],
@@ -200,7 +207,10 @@ function admission(
     );
 }
 
-/** Read the actual seam, parent cut and child start through existing mesh consumers. */
+/**
+ * Read the actual seam, parent cut and child start through existing mesh
+ * consumers.
+ */
 function mesh(
   band: IAutoMoviePreparedConstructionKnownPort.IPrepared,
   inverse: boolean,
@@ -368,7 +378,10 @@ function cross(a: readonly number[], b: readonly number[]): number[] {
   ];
 }
 
-/** Separate each face's actual adjacent strip from the band's triangle population. */
+/**
+ * Separate each face's actual adjacent strip from the band's triangle
+ * population.
+ */
 function strip(
   output: IAutoMovieSolidMesh.IMesh,
   rail: number[],
@@ -443,7 +456,10 @@ function point(mesh: IAutoMovieSolidMesh.IMesh, index: number): number[] {
   return mesh.positions.slice(3 * index, 3 * index + 3);
 }
 
-/** Arithmetic tolerance never welds source positions or modifies original fields. */
+/**
+ * Arithmetic tolerance never welds source positions or modifies original
+ * fields.
+ */
 function vector(
   actual: readonly number[],
   expected: readonly number[],

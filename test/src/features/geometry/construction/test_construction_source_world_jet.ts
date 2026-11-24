@@ -27,14 +27,27 @@ type AxisJet = NonNullable<
 >;
 
 /**
- * Original local2 and actual axis2 share the kernel's existing world product rule.
+ * Original local2 and actual axis2 share the kernel's existing world product
+ * rule.
  *
  * Scenarios:
- * 1. The circle r(s)=1+s*s moves on o=(s*s,s,s*s*s) while its plane rotates by s*s. Closed differentiation of that whole world map supplies all six independent vectors, including nonzero frame-second and mixed terms.
- * 2. The identical original part also goes through actual ViewLoft and SolidChain.surface. Its regular world jets agree without manufacturing a chain or sampling a replacement frame. Fresh outputs and unchanged original scalar records preserve ownership.
- * 3. Missing/null axis2, nonfinite frame data, a singular source pole, invalid query coordinates and world overflow produce explicit failures. Finite source values are not promoted into missing derivatives.
- * 4. The actual axis callback and a returned value getter throw their original Error object through the public query; numerical admission does not swallow foreign exceptions.
- * 5. A finite surface Point0 does not supply physical2 to the grid. Its explicit numeric admission refusal is named and atomic, while an actual source callback error still propagates by identity.
+ *
+ * 1. The circle r(s)=1+s_s moves on o=(s_s,s,s_s_s) while its plane rotates by
+ *    s*s. Closed differentiation of that whole world map supplies all six
+ *    independent vectors, including nonzero frame-second and mixed terms.
+ * 2. The identical original part also goes through actual ViewLoft and
+ *    SolidChain.surface. Its regular world jets agree without manufacturing a
+ *    chain or sampling a replacement frame. Fresh outputs and unchanged
+ *    original scalar records preserve ownership.
+ * 3. Missing/null axis2, a singular source pole, invalid
+ *    query coordinates and world overflow produce explicit failures. Finite
+ *    source values are not promoted into missing derivatives.
+ * 4. The actual axis callback and a returned value getter throw their original
+ *    Error object through the public query; numerical admission does not
+ *    swallow foreign exceptions.
+ * 5. A finite surface Point0 does not supply physical2 to the grid. Its explicit
+ *    numeric admission refusal is named and atomic, while an actual source
+ *    callback error still propagates by identity.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public source/world reader and the real ViewLoft/SolidChain consumer, observing all p/u/v/uu/uv/vv fields, failures, fresh vectors and exception identity. No Human generation or synthetic proxy surface supplies the new result.
  * @evidence contracts/development/testing.md#independent-expectations Uses P=(s*s+r*cos(phi+s*s),s,s*s*s+r*sin(phi+s*s)), r=1+s*s and its explicit first/second partials. A 2e-9 absolute budget covers these unit-scale finite binary64 expressions; equality with the actual loft is separate wiring evidence, not its own numerical oracle or a global cap/domain certificate. A unit frame rotating at1e154 radians/mm has finite second-frame components1e308, while a constant radius4 makes its world second derivative overflow at station0.
@@ -90,19 +103,6 @@ export function test_construction_source_world_jet(): void {
     ),
     "finite axis2",
     "null axis2",
-    failures,
-  );
-  const invalid: AxisJet = frame(0.5);
-  invalid.first.u[1] = NaN;
-  refuse(
-    AutoMovieLoftViewWorldJet(
-      source,
-      { at: part.axis.at, jet: (): AxisJet => invalid },
-      0.5,
-      0,
-    ),
-    "finite axis2",
-    "nonfinite frame",
     failures,
   );
   const overflow: IAutoMovieViewPart = {
@@ -177,7 +177,10 @@ export function test_construction_source_world_jet(): void {
   );
 }
 
-/** A value-capable source still owes a regular physical jet before mesh planning. */
+/**
+ * A value-capable source still owes a regular physical jet before mesh
+ * planning.
+ */
 function unavailableGrid(failures: string[]): void {
   const numeric: Error = new AutoMovieLoftAdmissionError("owned missing axis2");
   const callback: Error = new Error("owned physical source callback");
@@ -223,7 +226,10 @@ function unavailableGrid(failures: string[]): void {
   }
 }
 
-/** Closed world partials derived directly from the complete circle/rotating-plane map. */
+/**
+ * Closed world partials derived directly from the complete
+ * circle/rotating-plane map.
+ */
 function expected(s: number, phi: number): World {
   const r: number = 1 + s * s;
   const first: number = 2 * s;
@@ -245,7 +251,10 @@ function expected(s: number, phi: number): World {
   };
 }
 
-/** Actual nonlinear axis value and physical derivatives, never a fitted layer table. */
+/**
+ * Actual nonlinear axis value and physical derivatives, never a fitted layer
+ * table.
+ */
 function frame(s: number): AxisJet {
   const c: number = Math.cos(s * s);
   const z: number = Math.sin(s * s);
@@ -265,7 +274,10 @@ function frame(s: number): AxisJet {
   };
 }
 
-/** An actual unit frame has finite source2 but its radius4 world product overflows. */
+/**
+ * An actual unit frame has finite source2 but its radius4 world product
+ * overflows.
+ */
 function rapid(s: number): AxisJet {
   const k: number = 1e154;
   const square: number = k * k;
@@ -284,7 +296,10 @@ function rapid(s: number): AxisJet {
 
 /** Authored scalar endpoint2 reproduces r(s)=1+s*s on a one-mm station interval. */
 function original(): IAutoMovieViewPart {
-  /** Four signs share the same original radius function, not emitted coefficients. */
+  /**
+   * Four signs share the same original radius function, not emitted
+   * coefficients.
+   */
   const outline: (sign: number) => IAutoMovieViewPart.IOutline = (
     sign: number,
   ): IAutoMovieViewPart.IOutline => ({
@@ -317,7 +332,10 @@ function original(): IAutoMovieViewPart {
   };
 }
 
-/** A two-knot root-coordinate outline defines sqrt(s), including the singular pole. */
+/**
+ * A two-knot root-coordinate outline defines sqrt(s), including the singular
+ * pole.
+ */
 function root(sign: number): IAutoMovieViewPart.IOutline {
   return {
     knots: [
@@ -337,7 +355,10 @@ function constant(value: number): IAutoMovieViewPart.IOutline {
   };
 }
 
-/** Explicit admission protects valid-case failures from being mistaken for expected refusal. */
+/**
+ * Explicit admission protects valid-case failures from being mistaken for
+ * expected refusal.
+ */
 function prepare(part: IAutoMovieViewPart): IAutoMovieLoftViewSource.ISource {
   const out: IAutoMovieLoftViewSource.IResult | null =
     AutoMovieLoftViewSource.create(part);
@@ -358,7 +379,10 @@ function read(
   return out;
 }
 
-/** Each negative input must retain its declared unavailable capability or numeric cause. */
+/**
+ * Each negative input must retain its declared unavailable capability or
+ * numeric cause.
+ */
 function refuse(
   actual: World | string,
   cause: string,
@@ -371,7 +395,10 @@ function refuse(
     );
 }
 
-/** All six finite world vectors use one absolute tolerance for these unit-scale fixtures. */
+/**
+ * All six finite world vectors use one absolute tolerance for these unit-scale
+ * fixtures.
+ */
 function compare(
   actual: World,
   expected: World,

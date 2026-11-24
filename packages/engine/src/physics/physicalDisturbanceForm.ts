@@ -204,8 +204,8 @@ export namespace physicalDisturbanceForm {
   }
 
   /**
-   * A double-support plan's cubic on fixed soles: its ends carried to where their
-   * frames are (`physicalIcpPlanner`), then its final point at rest.
+   * A double-support plan's cubic on fixed soles: its ends carried to where
+   * their frames are (`physicalIcpPlanner`), then its final point at rest.
    */
   export function transfer(
     start: number,

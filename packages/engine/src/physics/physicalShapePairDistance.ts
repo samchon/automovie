@@ -9,6 +9,7 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
+import { physicalHullEdges } from "./physicalHullEdges";
 import { physicalHullFaces } from "./physicalHullFaces";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalShapeNearest } from "./physicalShapeNearest";
@@ -161,37 +162,11 @@ const frameOf = (
     return { segments, radius: 0 };
   }
   if (shape.kind === "hull") {
-    const known: physicalShapePairDistance.IWires | undefined = EDGES.get(
-      shape.points,
-    );
-    if (known !== undefined) return known;
     const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
       shape.points,
     );
-    const index: Map<IAutoMovieVector3, number> = new Map();
-    const seen: Set<string> = new Set();
-    const segments: [IAutoMovieVector3, IAutoMovieVector3][] = [];
-    for (const face of hull.faces)
-      face.loop.forEach((from: IAutoMovieVector3, at: number): void => {
-        const to: IAutoMovieVector3 = face.loop[(at + 1) % face.loop.length]!;
-        for (const p of [from, to]) if (!index.has(p)) index.set(p, index.size);
-        const i: number = index.get(from)!;
-        const j: number = index.get(to)!;
-        const key: string = i < j ? `${i}:${j}` : `${j}:${i}`;
-        if (seen.has(key)) return;
-        seen.add(key);
-        segments.push([from, to]);
-      });
-    const found: physicalShapePairDistance.IWires = { segments, radius: 0 };
-    EDGES.set(shape.points, found);
-    return found;
+    return { segments: hull.edges ?? physicalHullEdges(hull), radius: 0 };
   }
   shape satisfies never;
   throw new Error("Unknown physical shape kind");
 };
-
-/** Each hull's edges by its point list. */
-const EDGES: WeakMap<
-  readonly IAutoMovieVector3[],
-  physicalShapePairDistance.IWires
-> = new WeakMap();

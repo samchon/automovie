@@ -28,9 +28,8 @@ export function assertAutoMovieCurve64(
       if (!Object.hasOwn(a, i))
         throw new Error("Sparse coefficients are not a complete primitive");
   };
-  const vector: (v: readonly number[]) => void = (
-    v: readonly number[],
-  ): void => dense(v, 3);
+  const vector: (v: readonly number[]) => void = (v: readonly number[]): void =>
+    dense(v, 3);
   const vectors: (a: readonly (readonly number[])[], count: number) => void = (
     a: readonly (readonly number[])[],
     count: number,

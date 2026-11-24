@@ -96,19 +96,8 @@ export function crutchHeldLeg(
   // functions convexified as trajopt's (`HumanSequentialConvexFunctions`),
   // each read in its own knots' variables, from the law's own fold as its
   // seed, and played on the minimum-jerk path (`HumanArmRefine.hermite`).
-  // The fold from the lift to the held pose discretized as TrajOpt
-  // discretizes a trajectory, into evenly spaced timesteps: its arm
-  // trajectories' eleven (Schulman et al. 2013, RSS, section VI), the leg
-  // being one limb's chain as an arm is; the law's contact events after the
-  // held pose are timesteps of their own, fixed where the law puts them.
-  const knots: number[] = [
-    ...Array.from(
-      { length: TIMESTEPS },
-      (_: unknown, i: number): number =>
-        lifted + ((held - lifted) * i) / (TIMESTEPS - 1),
-    ),
-    ...(props.knots ?? []).filter((t: number): boolean => t > held),
-  ];
+  // TrajOpt's evenly spaced timesteps and the law's events (`timesteps`).
+  const knots: number[] = crutchHeldLeg.timesteps(lifted, held, props.knots);
   const model: IAutoMovieMotionHumanAuditTangleModel.IModel = body.tangle;
   const parts: number[] = model.parts.flatMap(
     (part: IAutoMovieMotionHumanAuditTangleModel.IPart, i: number): number[] =>
@@ -406,6 +395,32 @@ export function crutchHeldLeg(
 }
 /** Companion types of {@link crutchHeldLeg}. */
 export namespace crutchHeldLeg {
+  /**
+   * The held leg's timesteps: the fold from the lift to the held pose cut into
+   * TrajOpt's evenly spaced timesteps, its arm trajectories' eleven (Schulman
+   * et al. 2013, RSS, section VI), the leg being one limb's chain as an arm is;
+   * then the law's contact events after the held pose, each a timestep of its
+   * own where the law puts it.
+   *
+   * @param lifted The second the leg leaves its bearing.
+   * @param held The second it is held.
+   * @param events The law's contact events, seconds.
+   * @returns The timesteps, ascending.
+   */
+  export function timesteps(
+    lifted: number,
+    held: number,
+    events: readonly number[] = [],
+  ): number[] {
+    return [
+      ...Array.from(
+        { length: TIMESTEPS },
+        (_: unknown, i: number): number =>
+          lifted + ((held - lifted) * i) / (TIMESTEPS - 1),
+      ),
+      ...events.filter((t: number): boolean => t > held),
+    ];
+  }
   /** The leg to hold and when. */
   export interface IProps {
     /** The body. */

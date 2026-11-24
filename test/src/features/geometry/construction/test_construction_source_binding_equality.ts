@@ -23,21 +23,23 @@ type Field = "coefficients" | "slopes" | "curvatures";
 const FIELDS: readonly Field[] = ["coefficients", "slopes", "curvatures"];
 
 /**
- * Native source ownership keeps its public results while comparing numeric leaves directly.
+ * Native source ownership keeps its public results while comparing numeric
+ * leaves directly.
  *
  * Scenarios:
+ *
  * 1. Actual constant ellipse producers at orders 8, 32 and 128 retain cold-copy
  *    ownership and the independent axis/diagonal ray intersections.
- * 2. First/middle/last rewrites of every compatibility group fail by name;
- *    NaN, unequal empty/short rows and right-side missing entries fail too.
- * 3. Signed zero, optional curvature absence, nested endpoint copies and
- *    undefined optional metadata preserve their declared equality meanings.
- * 4. Query-owned getters observe complete ordered reads, first-mismatch
- *    short circuit and original thrown-error identity without foreign patches.
- * 5. Caller-owned numeric getters count actual compatibility-leaf reads for
- *    both selected rows at all three orders. Ordered complete comparison
- *    visits each left/right leaf once; pure internal arithmetic cost remains
- *    a static review obligation, not a measured wall-time or complexity proof.
+ * 2. First/middle/last rewrites of every compatibility group fail by name; NaN,
+ *    unequal empty/short rows and right-side missing entries fail too.
+ * 3. Signed zero, optional curvature absence, nested endpoint copies and undefined
+ *    optional metadata preserve their declared equality meanings.
+ * 4. Query-owned getters observe complete ordered reads, first-mismatch short
+ *    circuit and original thrown-error identity without foreign patches.
+ * 5. Caller-owned numeric getters count actual compatibility-leaf reads for both
+ *    selected rows at all three orders. Ordered complete comparison visits each
+ *    left/right leaf once; pure internal arithmetic cost remains a static
+ *    review obligation, not a measured wall-time or complexity proof.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises real ViewLoft chains through Source.validate/endpoint and LoftChain.point, including changed-copy rejection, independent ellipse values and observable ordered numeric getter effects. Does not expose or replace the private comparator.
  * @evidence contracts/development/testing.md#independent-expectations The ellipse x*x/9+z*z/4=1 intersects the axis rays at (3,0)/(0,2) and the diagonal at (6/sqrt(13),6/sqrt(13)). Ownership changes must fail; IEEE strict equality equates signed zeros and rejects NaN. Two selected rows have three binding groups each. One complete ordered comparison reads each supplied numeric pair once on either side, so the public getter budget is twice the actual pair count regardless of helper names or source layout. Getter effects are not a geometric oracle or a bound on unobserved internal arithmetic.
@@ -112,7 +114,10 @@ function detail(error: unknown): string {
     : String(error);
 }
 
-/** Build an admitted ellipse with real source retention and ordinary horizontal frames. */
+/**
+ * Build an admitted ellipse with real source retention and ordinary horizontal
+ * frames.
+ */
 function made(order: number): Chain {
   const outline: (value: number) => IAutoMovieViewPart.IOutline = (
     value: number,
@@ -137,7 +142,10 @@ function made(order: number): Chain {
   return result.chain;
 }
 
-/** Copy numerical ownership while preserving the separately owned callable frame source. */
+/**
+ * Copy numerical ownership while preserving the separately owned callable frame
+ * source.
+ */
 function copied(chain: Chain): Chain {
   return {
     ...chain,
@@ -181,7 +189,10 @@ function binding(chain: Chain, index: number, field: Field): number[] {
   return value;
 }
 
-/** Cold public values follow the implicit ellipse, independently of the private equality code. */
+/**
+ * Cold public values follow the implicit ellipse, independently of the private
+ * equality code.
+ */
 function equivalent(base: Chain): void {
   const chain: Chain = copied(base);
   if (AutoMovieLoftSectionSource.validate(chain, 0, 1) !== chain.nativeSource)
@@ -216,7 +227,10 @@ function equivalent(base: Chain): void {
   AutoMovieLoftSectionSource.validate(retained, 0, 1);
 }
 
-/** A malformed or changed copy cannot silently choose original or legacy geometry. */
+/**
+ * A malformed or changed copy cannot silently choose original or legacy
+ * geometry.
+ */
 function refused(chain: Chain): void {
   try {
     AutoMovieLoftSectionSource.validate(chain, 0, 1);
@@ -227,7 +241,10 @@ function refused(chain: Chain): void {
   throw new Error("Changed compatibility rows were admitted");
 }
 
-/** Test every numeric group and both selected rows, including comparison short circuits. */
+/**
+ * Test every numeric group and both selected rows, including comparison short
+ * circuits.
+ */
 function mutations(base: Chain): void {
   for (const index of [0, 1])
     for (const field of FIELDS) {
@@ -245,7 +262,10 @@ function mutations(base: Chain): void {
     }
 }
 
-/** Query-owned accessors preserve the existing left/right order and original failures. */
+/**
+ * Query-owned accessors preserve the existing left/right order and original
+ * failures.
+ */
 function accesses(base: Chain): void {
   const chain: Chain = copied(base);
   const trace: string[] = [];
@@ -321,7 +341,10 @@ function accesses(base: Chain): void {
   refused(sparse);
 }
 
-/** Nested native endpoint snapshots preserve value-copy and optional-field equality. */
+/**
+ * Nested native endpoint snapshots preserve value-copy and optional-field
+ * equality.
+ */
 function endpoints(base: Chain): void {
   const layer: Chain["layers"][number] = copied(base).layers[0]!;
   const field: IAutoMovieLoftSectionSource.IEndpoint["field"] = {
@@ -362,7 +385,10 @@ function endpoints(base: Chain): void {
   throw new Error("A changed nested endpoint snapshot was admitted");
 }
 
-/** Count only effects on the caller's actual numeric rows; no implementation function name, URL or private instrumentation supplies an expectation. */
+/**
+ * Count only effects on the caller's actual numeric rows; no implementation
+ * function name, URL or private instrumentation supplies an expectation.
+ */
 function work(
   chains: readonly Chain[],
 ): { order: number; pairs: number; reads: number; allowed: number }[] {

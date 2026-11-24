@@ -9,13 +9,13 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages
  * anything, returning every `contract-mismatch` diagnostic at once.
  *
- * Each id must be unique, and each decision must match its
- * payload: pending keeps `selected` and `rationale` null, `accepted` selects a
- * response equal to the proposal, `modified` selects a different one,
- * `rejected` selects none, and every decided item states a non-blank rationale.
- * Responses are compared by value with object keys sorted, so key insertion
- * order never decides between `accepted` and `modified`. An empty list means
- * the advice is valid; the advice itself is never applied here.
+ * Each id must be unique, and each decision must match its payload: pending
+ * keeps `selected` and `rationale` null, `accepted` selects a response equal to
+ * the proposal, `modified` selects a different one, `rejected` selects none,
+ * and every decided item states a non-blank rationale. Responses are compared
+ * by value with object keys sorted, so key insertion order never decides
+ * between `accepted` and `modified`. An empty list means the advice is valid;
+ * the advice itself is never applied here.
  */
 export function validateShotPhysicsAdvice(
   advice: readonly IAutoMovieShotPhysicsAdvice[],
@@ -33,8 +33,7 @@ export function validateShotPhysicsAdvice(
         fact: `Physics-advice id "${item.id}" duplicates $runtime.advice[${first}].id.`,
         impact:
           "The selected D010 decision cannot be audited against one stable proposal.",
-        recovery:
-          "Give every advice item one id that is unique in this shot.",
+        recovery: "Give every advice item one id that is unique in this shot.",
       });
     else ids.set(item.id, index);
 

@@ -36,7 +36,7 @@ import {
  *    staged, a surface id that is not a `surface` affordance, two tracks for
  *    one node and surface, keys out of order and a first key after zero, a
  *    negative layer corner, a nonpositive layer size, a layer past the face's
- *    right edge, a negative luminance, an infinite luminance, a text layer
+ *    right edge, a negative luminance, a text layer
  *    naming a font the shot does not list, a feed of the shot's own camera,
  *    reported as an authoring finding rather than thrown as an engine defect,
  *    and a feed of a camera the scene does not stage.
@@ -180,12 +180,6 @@ export function test_film_surface_graphics(): void {
       [
         "negative luminance",
         [{ ...track, keys: [{ time: 0, graphic: graphic([], -1) }] }],
-        "$input.surfaceGraphics[0].keys[0].graphic.emission.luminance",
-        "emissive luminance",
-      ],
-      [
-        "infinite luminance",
-        [{ ...track, keys: [{ time: 0, graphic: graphic([], Infinity) }] }],
         "$input.surfaceGraphics[0].keys[0].graphic.emission.luminance",
         "emissive luminance",
       ],

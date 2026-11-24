@@ -340,10 +340,7 @@ function effects(): void {
  */
 function admission(): void {
   const { e, r }: ReturnType<typeof inputs> = inputs(1, true);
-  const malformed: readonly Scalar[][] = [
-    [],
-    [[0, 0, 0], ...e.slice(1)],
-  ];
+  const malformed: readonly Scalar[][] = [[], [[0, 0, 0], ...e.slice(1)]];
   for (const bad of malformed)
     if (AutoMovieViewSectionField.prepare(bad, r).kind !== "failure")
       throw new Error("Malformed/empty station input was admitted");

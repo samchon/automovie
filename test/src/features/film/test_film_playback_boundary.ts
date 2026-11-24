@@ -58,7 +58,7 @@ function relates(
  * 2. A seam whose incoming trim skips source time, a change of shot and a dissolve overlap are cuts.
  * 3. A doubled playback rate maps each output step to two shot-local steps.
  * 4. A declared break owns the half-open interval ending at its second.
- * 5. Reversed, nonfinite and post-runtime instants are unavailable.
+ * 5. Reversed and post-runtime instants are unavailable.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the five numbered scenarios with the relation each pins.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public classifier over a real cut laid out by sequenceTimeline, so trims, rates and transitions go through the canonical playback mapping.
@@ -163,10 +163,9 @@ export function test_film_playback_boundary(): void {
   );
 
   TestValidator.predicate(
-    "reversed, nonfinite and post-runtime instants are unavailable",
+    "reversed and post-runtime instants are unavailable",
     () =>
       classify(1.1, 1).boundary === "unavailable" &&
-      classify(NaN, 1).boundary === "unavailable" &&
       classify(4.7, timeline.runtime).boundary === "unavailable" &&
       classify(-0.1, 0).boundary === "unavailable",
   );

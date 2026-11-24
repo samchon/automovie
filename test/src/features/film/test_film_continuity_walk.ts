@@ -92,10 +92,10 @@ const beatProps: (
 
 /**
  * The whole-film continuity linter (#1172): walk the film in playback order and
- * compare each beat's opening against the previous beat's end. This audit
- * reads the supplied scenes as authored; it does not resume or restage them.
- * A hero staged back at the origin instead of where it walked to therefore
- * produces an advisory warning. Invalid tolerance remains an admission error.
+ * compare each beat's opening against the previous beat's end. This audit reads
+ * the supplied scenes as authored; it does not resume or restage them. A hero
+ * staged back at the origin instead of where it walked to therefore produces an
+ * advisory warning. Invalid tolerance remains an admission error.
  *
  * Scenarios:
  *
@@ -148,5 +148,4 @@ export function test_film_continuity_walk(): void {
       "$input.beats[1].opening.actors[node=hero].transform.translation",
     ),
   );
-
 }

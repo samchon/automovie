@@ -11,16 +11,18 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../internal/nclose";
 
 /**
- * Actual phase derivatives remain available without invented physical or frame2.
+ * Actual phase derivatives remain available without invented physical or
+ * frame2.
  *
  * Scenarios:
+ *
  * 1. An ellipse traversed backward uses the original clockwise clock, a moving
  *    rotated plane and a nonlinear origin. With physical2 absent, world p/t
  *    still follow the independent ellipse derivatives. Explicit phase2 null
  *    remains null; its actual provided second phase is also read separately.
  * 2. A full2-only original retains its actual phase through the compatibility
- *    path. Explicit unavailable phase refuses even if full2 exists, while
- *    zero phase derivatives supplied by a constant original remain actual zero.
+ *    path. Explicit unavailable phase refuses even if full2 exists, while zero
+ *    phase derivatives supplied by a constant original remain actual zero.
  * 3. Missing/nonfinite phase, unknown/outside charts and original callback
  *    exceptions remain observable; Point0 does not imply physical2 support.
  *
@@ -182,7 +184,10 @@ export function test_construction_profile_phase(): void {
   );
 }
 
-/** Actual ellipse source whose frame2 and physical2 remain explicitly unavailable. */
+/**
+ * Actual ellipse source whose frame2 and physical2 remain explicitly
+ * unavailable.
+ */
 function made(second: boolean): IAutoMovieConstructionProfileSource {
   const curve: IAutoMovieConstructionProfileSource.ICurve = {
     domain: [0, 1],
@@ -255,7 +260,10 @@ function made(second: boolean): IAutoMovieConstructionProfileSource {
   };
 }
 
-/** A named admission failure cannot become successful geometry or a foreign TypeError. */
+/**
+ * A named admission failure cannot become successful geometry or a foreign
+ * TypeError.
+ */
 function refuse(job: () => unknown, failures: string[], label: string): void {
   try {
     job();

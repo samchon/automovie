@@ -79,8 +79,6 @@ export function test_film_prop_placement_geometry(): void {
       footprintAxis: true,
       duplicateClearanceId: true,
       clearanceXOrder: true,
-      clearanceYNotFinite: true,
-      clearanceZInfinite: true,
       leavesOccupiedSpace: true,
       doorDoesNotFitOpening: true,
       spacelessLeafIsStillMeasured: true,

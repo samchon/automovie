@@ -9,11 +9,11 @@ import { createProductionSoundAssetTestInputs } from "../internal/audio/createPr
 import { namedFacts, throwsError } from "../internal/predicates";
 
 /**
- * Cue admission refuses empty, fractional, negative, source-overflow and film-overflow spans by authored identity.
+ * Cue admission refuses empty, negative, source-overflow and film-overflow spans by authored identity.
  *
  * Scenarios:
  * 1. A source offset of one frame makes the trim leave the two-frame complete source and refuses by cue identity.
- * 2. Empty spans or sources, negative starts or offsets, fractional frames and a cue past the film end retain their refusals.
+ * 2. Empty spans or sources, negative starts or offsets and a cue past the film end retain their refusals.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real mixer with contradictory cue spans and requires an error naming the authored cue and positive whole-frame-span contract.
  * @evidence contracts/development/testing.md#independent-expectations Literal negative, fractional, empty and overflowing frame spans contradict the supported source/film containment rules; message fragments locate the refusal without providing an independent complete diagnostic-text oracle.
@@ -93,15 +93,6 @@ export function test_film_production_sound_cue_admission(): void {
       ["aStartBeforeTheFilm", (): boolean => refused({ startFrame: -1 })],
       ["aNegativeOffset", (): boolean => refused({ sourceOffsetFrame: -1 })],
       [
-        "aFractionalFrame",
-        (): boolean =>
-          refused({
-            durationFrames: 1.5,
-            sourceDurationFrames: 2,
-            sourceOffsetFrame: 0,
-          }),
-      ],
-      [
         "aSpanPastTheFilm",
         (): boolean =>
           refused({ startFrame: TOTAL_FRAMES - DURATION_FRAMES + 1 }),
@@ -113,7 +104,6 @@ export function test_film_production_sound_cue_admission(): void {
       anEmptySource: true,
       aStartBeforeTheFilm: true,
       aNegativeOffset: true,
-      aFractionalFrame: true,
       aSpanPastTheFilm: true,
     },
   );

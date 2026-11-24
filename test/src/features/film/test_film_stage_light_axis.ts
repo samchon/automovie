@@ -73,7 +73,7 @@ const WARM: { r: number; g: number; b: number; a: null; hex: null } = {
  * 6. Missing required-per-kind parameters: a directional or spot light with no
  * `direction`, and a point or spot light with no `position`.
  * 7. Boundaries: `intensity: 0` stages (a light that is off is a legitimate
- * light); a zero-length `direction` is refused; `coneAngle: 90` is accepted while zero, 90.0001 and NaN are refused; `range: 0` means infinite while a negative range is refused; a non-finite `position` is a range fault rather than a missing-parameter one; a color component outside `[0, 1]` is refused.
+ * light); a zero-length `direction` is refused; `coneAngle: 90` is accepted while zero and 90.0001 are refused; `range: 0` means infinite while a negative range is refused; a color component outside `[0, 1]` is refused.
  * 8. A color that is not a JSON object
  * reports rather than dereferencing into a TypeError (the engine validator has no transport gate under it), a light-slot `a: null` is the documented value, and an alpha outside `[0, 1]` is refused at staging rather than passing `stage` and being refused a rung later by `commitScene`'s color artifact check, which is the wrong-stage failure this cycle closes elsewhere. A `null` direction or an array position is likewise reported at its own path instead of throwing.
  * 9. An unknown runtime discriminator is refused at `type`; it cannot fall through

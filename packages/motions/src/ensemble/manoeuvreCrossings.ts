@@ -121,7 +121,8 @@ export function manoeuvreCrossings(
 export namespace manoeuvreCrossings {
   /** What the check reads of a member: its name and its shoulders' breadth. */
   export interface IMember
-    extends Pick<IAutoMovieMotionHumanEnsemble.IMember, "subject">,
+    extends
+      Pick<IAutoMovieMotionHumanEnsemble.IMember, "subject">,
       HumanCrowd.IHalfMember {}
 
   /** What the check reads of the ensemble: its id and its members. */

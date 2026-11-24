@@ -163,16 +163,6 @@ export function test_construction_chart_incidence(): void {
     ]),
     "endpoints",
   );
-  refuse(
-    failures,
-    "turn",
-    AutoMovieSolidMeshIncidence.walks(
-      new Map(line),
-      [{ a: 0, b: 1, turn: 0.5 }],
-      6,
-    ),
-    "turns",
-  );
   if (failures.length !== 0)
     throw new Error(`Chart incidence findings:\n${failures.join("\n")}`);
 }

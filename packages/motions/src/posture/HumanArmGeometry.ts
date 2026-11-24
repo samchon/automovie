@@ -119,16 +119,21 @@ export namespace HumanArmGeometry {
     ): boolean => c === null || c[key] !== null;
     const bases: Map<AutoMovieHumanoidBone, IAutoMovieJointAxes> = new Map();
     const upperBone: IAutoMovieBone = find(body, bones.upper);
+    const upperConstraint: IAutoMovieJointConstraint = getConstraint(
+      bones.upper,
+      upperBone.constraint ?? null,
+    )!;
     return {
       body,
       bones,
       constraint: {
-        upper: getConstraint(bones.upper, upperBone.constraint ?? null)!,
+        upper: upperConstraint,
         lower,
         hand,
       },
       joint: swingTwistRange.prepare(
         swingTwistRange.fromAxes(bones.upper, axes[bones.upper])!,
+        upperConstraint,
       ),
       axes,
       rest: {

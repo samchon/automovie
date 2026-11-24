@@ -139,8 +139,9 @@ export function continueHingedOrientation(
   const wanted: IAutoMovieQuaternion = Quaternion.normalize(
     props.effectorRotation,
   );
-  let best: (IAutoMovieSeededChainFit & continueHingedOrientation.IRooted) | null =
-    null;
+  let best:
+    | (IAutoMovieSeededChainFit & continueHingedOrientation.IRooted)
+    | null = null;
   let distance: number = Infinity;
   let selected: number | undefined;
   let trials: number = 0;

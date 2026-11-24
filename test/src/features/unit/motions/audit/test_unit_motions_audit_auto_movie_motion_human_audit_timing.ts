@@ -62,7 +62,15 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_timing(): 
         { name: "ready", share: 0.6 },
         { name: "late", share: 1.5 },
       ],
-      contacts: [{ part: "rightHand", kind: "grip", from: 0.6, to: 0.4 }],
+      contacts: [
+        {
+          part: "rightHand",
+          kind: "grip",
+          from: 0.6,
+          to: 0.4,
+          support: { kind: "ground" },
+        },
+      ],
       contact: 2,
       feigned: 0.5,
     },

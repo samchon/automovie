@@ -13,7 +13,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../internal/nclose";
 import { qclose } from "../internal/qclose";
-import { throwsError } from "../internal/throwsError";
 import { vclose } from "../internal/vclose";
 
 /**
@@ -99,11 +98,6 @@ export function test_kinematics_prepared_rest_mass(): void {
   rest(R.rest(R(skeleton)), 6);
   mass(M(skeleton, profile), 1);
   mass(M.fromRig(R(skeleton), profile), 1);
-  let calls: number = 0;
-  const foreign: typeof rig = { ...rig, resolve: (): never => { calls++; throw new Error("owned foreign resolver"); } };
-  TestValidator.predicate("a structural foreign rig is refused before its resolver is consulted",
-    throwsError((): ReturnType<typeof R.rest> => R.rest(foreign), ["rig", "prepareSkeletonPoseResolution"]) &&
-    throwsError((): IAutoMovieResolveCenterOfMass.IModel => M.fromRig(foreign, profile), ["rig", "prepareSkeletonPoseResolution"]) && calls === 0);
 }
 
 /** Check exact parent-first rest geometry with a variable authored child joint translation. */

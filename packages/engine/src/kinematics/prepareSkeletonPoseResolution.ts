@@ -97,9 +97,8 @@ function snapshotRig(
   const conventions: Map<string, IConvention> = new Map();
   const axes: Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>> =
     skeletonJointAxes(skeleton, jointAxes);
-  const fallbackAxes: IAutoMovieJointAxes = PoseResolutionSnapshot.axes(
-    DEFAULT_JOINT_AXES,
-  );
+  const fallbackAxes: IAutoMovieJointAxes =
+    PoseResolutionSnapshot.axes(DEFAULT_JOINT_AXES);
   const fallback: IConvention =
     preparePoseJointResolution.convention(fallbackAxes);
   const copiedAxes: Map<string, IAutoMovieJointAxes> = new Map();

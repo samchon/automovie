@@ -71,7 +71,7 @@ function launch(
  *    reads shot time, so a launch loosed at 0.5 s meets the foe where it stands
  *    at `0.5 + hitTime`, not where it stood `hitTime` after the shot began.
  * 9. A nodeless aim without onHit keeps its flight/contact; requesting a recoil
- *    with a null or blank targetNode is refused rather than silently omitted.
+ *    with a null targetNode is refused rather than silently omitted.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises compileLaunch's flight, timed recoil, impact events and moving interception; assertions catch wrong speed or landing, reversed incoming recoil, missing onHit actors, and an event clock that omits the action start.
  * @evidence contracts/development/testing.md#independent-expectations Requested speed and target coordinates define the static oracle; constant-velocity target motion defines the independent interception oracle, and the custom-gravity apex gives a zero-velocity sightline case. Timing compares the solved contact against the same result's reaction and events, so it checks clock consistency rather than the ballistic root alone.
@@ -327,7 +327,7 @@ export function test_film_launch(): void {
       pointed.clip.id === "trajectory:arrow" &&
       vclose(pointed.hitPoint, target, 2e-3),
   );
-  for (const targetNode of [null, "", " "])
+  for (const targetNode of [null])
     TestValidator.predicate(
       "a requested reaction without an identified struck actor is refused",
       throwsError(

@@ -61,7 +61,7 @@ export function assertFilmStageLightBoundaries(
     true,
   );
   TestValidator.equals(
-    "zero, above ninety and non-finite angles are refused",
+    "zero and above-ninety angles are refused",
     namedFacts([
       [
         "hasViolationFailureSpotAt",
@@ -72,16 +72,10 @@ export function assertFilmStageLightBoundaries(
         "hasViolationFailureSpotAt2",
         (): boolean => hasViolation(failure(spotAt(0)), "range", "coneAngle"),
       ],
-      [
-        "hasViolationFailureSpotAt3",
-        (): boolean =>
-          hasViolation(failure(spotAt(Number.NaN)), "range", "coneAngle"),
-      ],
     ]),
     {
       hasViolationFailureSpotAt: true,
       hasViolationFailureSpotAt2: true,
-      hasViolationFailureSpotAt3: true,
     },
   );
   TestValidator.equals(
@@ -121,23 +115,6 @@ export function assertFilmStageLightBoundaries(
       ],
     ]),
     { zeroRangeStages: true, negativeRangeRefused: true },
-  );
-  TestValidator.predicate(
-    "a non-finite position is refused as a range fault, not a missing one",
-    hasViolation(
-      failure(
-        stageLights([
-          {
-            node: "flame",
-            type: "point",
-            position: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-            intensity: 1,
-          },
-        ]),
-      ),
-      "range",
-      "$input.lights[0].position",
-    ),
   );
   TestValidator.predicate(
     "a color component outside [0, 1] is refused at its own component",

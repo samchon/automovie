@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { physicalHullFaces } from "./physicalHullFaces";
+import { physicalHullFlat } from "./physicalHullFlat";
 
 /** The scalar signature: the signed distance alone. */
 export function readPhysicalHullPoint(
@@ -28,7 +29,8 @@ export function readPhysicalHullPoint(
 ): IAutoMoviePhysicalHullNearest.IResult | number {
   const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(points);
   if (!hull.faces.length) throw new Error("A hull must span a volume");
-  const flat: IFlat = flattened(hull);
+  const flat: IAutoMoviePhysicalHullFaces.IFlat =
+    hull.flat ?? physicalHullFlat(hull);
   const planes: Float64Array = flat.planes;
   const count: number = hull.faces.length;
   const distances: Float64Array = new Float64Array(count);
@@ -72,7 +74,7 @@ export function readPhysicalHullPoint(
     if (!(d > 0)) continue;
     let within: boolean = true;
     for (let e: number = flat.starts[f]!; e < flat.starts[f + 1]!; e++) {
-      const o: number = EDGE * e;
+      const o: number = physicalHullFlat.EDGE * e;
 
       // The projection is on the inner side of a counter clockwise edge.
       if (
@@ -130,80 +132,3 @@ export function readPhysicalHullPoint(
         : outward,
   };
 }
-
-/** The numbers stored per edge. */
-const EDGE: number = 11;
-
-/**
- * A hull's planes and edges as flat arrays: per face its normal and offset; per
- * edge, in its face's loop order, its start, its vector, its squared length,
- * its inward direction in the face (normal cross edge) and that direction's
- * product with the start; `starts` bounds each face's edges.
- */
-interface IFlat {
-  /** Four numbers per face: the normal and the offset. */
-  planes: Float64Array;
-
-  /** Each face's first edge, and the count of edges at the end. */
-  starts: Int32Array;
-
-  /** `EDGE` numbers per edge. */
-  edges: Float64Array;
-}
-
-/** Each hull's flat form, released with the hull. */
-const FLATS: WeakMap<IAutoMoviePhysicalHullFaces.IHull, IFlat> = new WeakMap();
-
-/** A hull's flat form, built once. */
-const flattened: (hull: IAutoMoviePhysicalHullFaces.IHull) => IFlat = (
-  hull: IAutoMoviePhysicalHullFaces.IHull,
-): IFlat => {
-  const known: IFlat | undefined = FLATS.get(hull);
-  if (known !== undefined) return known;
-  const planes: Float64Array = new Float64Array(4 * hull.faces.length);
-  const starts: Int32Array = new Int32Array(hull.faces.length + 1);
-  const total: number = hull.faces.reduce(
-    (sum: number, face: IAutoMoviePhysicalHullFaces.IFace): number =>
-      sum + face.loop.length,
-    0,
-  );
-  const edges: Float64Array = new Float64Array(EDGE * total);
-  let e: number = 0;
-  hull.faces.forEach(
-    (face: IAutoMoviePhysicalHullFaces.IFace, f: number): void => {
-      const n: IAutoMovieVector3 = face.normal;
-      planes.set([n.x, n.y, n.z, face.offset], 4 * f);
-      starts[f] = e;
-      face.loop.forEach((from: IAutoMovieVector3, i: number): void => {
-        const to: IAutoMovieVector3 = face.loop[(i + 1) % face.loop.length]!;
-        const ex: number = to.x - from.x;
-        const ey: number = to.y - from.y;
-        const ez: number = to.z - from.z;
-        const mx: number = n.y * ez - n.z * ey;
-        const my: number = n.z * ex - n.x * ez;
-        const mz: number = n.x * ey - n.y * ex;
-        edges.set(
-          [
-            from.x,
-            from.y,
-            from.z,
-            ex,
-            ey,
-            ez,
-            ex * ex + ey * ey + ez * ez,
-            mx,
-            my,
-            mz,
-            mx * from.x + my * from.y + mz * from.z,
-          ],
-          EDGE * e,
-        );
-        e++;
-      });
-    },
-  );
-  starts[hull.faces.length] = e;
-  const flat: IFlat = { planes, starts, edges };
-  FLATS.set(hull, flat);
-  return flat;
-};

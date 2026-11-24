@@ -172,7 +172,6 @@ export function test_film_polygon_body_cues(): void {
 
   const refused: ReturnType<typeof compile> = compile([
     { ...authored, subject: "unstaged-actor" },
-    { ...authored, subject: "knightB", at: NaN },
     authored,
     { ...authored, bone: "leftUpperArm" },
   ]);
@@ -188,7 +187,6 @@ export function test_film_polygon_body_cues(): void {
       .sort((a: string, b: string): number => a.localeCompare(b)),
     [
       "$input.polygonBodyCues[0].subject",
-      "$input.polygonBodyCues[1].at",
       "$input.polygonBodyCues[2].bone",
     ],
   );

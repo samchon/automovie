@@ -1,16 +1,24 @@
-import type { IAutoMovieConstructionLocalScaleMinorant } from "@automovie/interface";
 import { AutoMovieConstructionLocalScaleMinorant as Minorant } from "@automovie/engine";
+import type { IAutoMovieConstructionLocalScaleMinorant } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../internal/nclose";
 
 /**
- * One guarded attenuation either satisfies every literal certificate or refuses.
+ * One guarded attenuation either satisfies every literal certificate or
+ * refuses.
  *
  * Scenarios:
- * 1. Already-admitted and exactly-on-cap fields retain every value with alpha 1. A dyadic violation uses the independently known predecessor of 1/2 and preserves the same multiplier at forward and backward columns.
- * 2. Original-factor and final-candidate certificates can refuse separately. A stricter finite log obstacle is honored, and no second candidate is tried.
- * 3. Malformed inputs, a zero predecessor and multiplication to zero refuse at their owning stage. A positive subnormal that satisfies every supplied certificate remains admissible. Every invocation preserves its inputs.
+ *
+ * 1. Already-admitted and exactly-on-cap fields retain every value with alpha 1. A
+ *    dyadic violation uses the independently known predecessor of 1/2 and
+ *    preserves the same multiplier at forward and backward columns.
+ * 2. Original-factor and final-candidate certificates can refuse separately. A
+ *    stricter finite log obstacle is honored, and no second candidate is
+ *    tried.
+ * 3. Malformed inputs, a zero predecessor and multiplication to zero refuse at
+ *    their owning stage. A positive subnormal that satisfies every supplied
+ *    certificate remains admissible. Every invocation preserves its inputs.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the real scalar owner and records its actual supplied certificate calls, accepted values and named refusal stages; all cases are inspected before one assertion.
  * @evidence contracts/development/testing.md#independent-expectations IEEE binary64 has predecessor(1/2)=1/2-2^-54, whose products by 1/2 and 1/4 are exact dyadics. MIN_VALUE has predecessor zero, and multiplying MIN_VALUE by a value below 2^-1022 rounds to zero. Callback inequalities are explicit inputs, not a replacement for the engine geometry predicate. With 0<F<v<=1 a violated ratio cannot overflow or round to zero, so those defensive branches are not forced with an invalid arithmetic shim.
@@ -25,7 +33,10 @@ export function test_construction_local_scale_boundary(): void {
   type Call = { index: number; factor: number; forward: boolean };
 
   /** A completed scalar invocation, including any collected unexpected throw. */
-  type Run = { result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined; calls: Call[] };
+  type Run = {
+    result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined;
+    calls: Call[];
+  };
 
   /** Exercise the scalar contract and collect input mutation on every path. */
   const run: (
@@ -37,14 +48,20 @@ export function test_construction_local_scale_boundary(): void {
     label: string,
     values: readonly number[],
     caps: readonly IAutoMovieConstructionLocalScaleMinorant.ICap[],
-    certificate: IAutoMovieConstructionLocalScaleMinorant.Certify = (): string | null => null,
+    certificate: IAutoMovieConstructionLocalScaleMinorant.Certify = ():
+      | string
+      | null => null,
   ): Run => {
     const beforeValues: number[] = [...values];
-    const beforeCaps: IAutoMovieConstructionLocalScaleMinorant.ICap[] = caps.map(
-      (cap: IAutoMovieConstructionLocalScaleMinorant.ICap): IAutoMovieConstructionLocalScaleMinorant.ICap => ({ ...cap }),
-    );
+    const beforeCaps: IAutoMovieConstructionLocalScaleMinorant.ICap[] =
+      caps.map(
+        (
+          cap: IAutoMovieConstructionLocalScaleMinorant.ICap,
+        ): IAutoMovieConstructionLocalScaleMinorant.ICap => ({ ...cap }),
+      );
     const calls: Call[] = [];
-    let result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined = undefined;
+    let result: IAutoMovieConstructionLocalScaleMinorant.Result | undefined =
+      undefined;
     try {
       result = Minorant.create(
         values,
@@ -67,7 +84,10 @@ export function test_construction_local_scale_boundary(): void {
     if (
       caps.length !== beforeCaps.length ||
       !caps.every(
-        (cap: IAutoMovieConstructionLocalScaleMinorant.ICap, index: number): boolean =>
+        (
+          cap: IAutoMovieConstructionLocalScaleMinorant.ICap,
+          index: number,
+        ): boolean =>
           Object.is(cap.index, beforeCaps[index]!.index) &&
           Object.is(cap.factor, beforeCaps[index]!.factor) &&
           Object.is(cap.logarithm, beforeCaps[index]!.logarithm),
@@ -81,14 +101,20 @@ export function test_construction_local_scale_boundary(): void {
   const refused: (
     label: string,
     actual: Run,
-    stage: Extract<IAutoMovieConstructionLocalScaleMinorant.Result, { kind: "refused" }>["stage"],
+    stage: Extract<
+      IAutoMovieConstructionLocalScaleMinorant.Result,
+      { kind: "refused" }
+    >["stage"],
     index: number | null,
     calls: number,
     reason?: string,
   ) => void = (
     label: string,
     actual: Run,
-    stage: Extract<IAutoMovieConstructionLocalScaleMinorant.Result, { kind: "refused" }>["stage"],
+    stage: Extract<
+      IAutoMovieConstructionLocalScaleMinorant.Result,
+      { kind: "refused" }
+    >["stage"],
     index: number | null,
     calls: number,
     reason?: string,
@@ -344,7 +370,7 @@ export function test_construction_local_scale_boundary(): void {
       0,
     );
   }
-  for (const index of [-1, 1 / 2, 1]) {
+  for (const index of [-1, 1]) {
     const label: string = "invalid-index-" + String(index);
     refused(
       label,

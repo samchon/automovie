@@ -7,9 +7,16 @@ type Point = [number, number];
  * Native-chart topology must distinguish an exact contact from nearby points.
  *
  * Scenarios:
- * 1. For N=2^53-1, det((N,N-1),(N-1,N-2))=-1 by expansion, although the two rounded products cancel. Positive binary rescaling, cyclic permutation, reversal and reflection preserve their known signs.
- * 2. Ordinary axis/diagonal cases, identical points, a determinant smaller than binary64's minimum positive magnitude, and a determinant whose intermediate differences overflow retain their exact represented-number signs.
- * 3. Each caller coordinate is read once and each nonfinite coordinate is refused. No coordinate is moved to turn an uncertain sign into a contact.
+ *
+ * 1. For N=2^53-1, det((N,N-1),(N-1,N-2))=-1 by expansion, although the two
+ *    rounded products cancel. Positive binary rescaling, cyclic permutation,
+ *    reversal and reflection preserve their known signs.
+ * 2. Ordinary axis/diagonal cases, identical points, a determinant smaller than
+ *    binary64's minimum positive magnitude, and a determinant whose
+ *    intermediate differences overflow retain their exact represented-number
+ *    signs.
+ * 3. Each caller coordinate is read once and each nonfinite coordinate is refused.
+ *    No coordinate is moved to turn an uncertain sign into a contact.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the chart orientation primitive used to prepare shared boundary constraints and requires the literal sign before topology is inferred. It detects cancellation, underflow, overflow and a tolerance-based false collinearity.
  * @evidence contracts/development/testing.md#independent-expectations The near-collinear determinant is N(N-2)-(N-1)^2=-1; power-of-two scaling preserves the represented inputs exactly. The subnormal determinant is -MIN_VALUE^2 and the extreme diagonal determinant is 2*MAX_VALUE times the signed unit ordinate. Permutation/reflection identities give the other signs without querying the implementation.

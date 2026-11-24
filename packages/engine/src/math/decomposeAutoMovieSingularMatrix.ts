@@ -2,6 +2,7 @@ import type {
   IAutoMovieSingularDecomposition,
   IAutoMovieSingularMatrixBudget,
 } from "@automovie/interface";
+
 import { overflowsBinary64 } from "./overflowsBinary64";
 
 /**

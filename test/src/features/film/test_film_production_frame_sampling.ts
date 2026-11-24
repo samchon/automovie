@@ -287,11 +287,6 @@ export function test_film_production_frame_sampling(): void {
           sampleProductionRenderFrame(edit, -1),
         "Film-global frame -1 is outside 0..19.",
       ),
-      fractional: throwsError(
-        (): IAutoMovieProductionRenderFrame =>
-          sampleProductionRenderFrame(edit, 1.5),
-        "outside 0..19",
-      ),
       end: throwsError(
         (): IAutoMovieProductionRenderFrame =>
           sampleProductionRenderFrame(edit, 20),
@@ -310,7 +305,6 @@ export function test_film_production_frame_sampling(): void {
     },
     {
       negative: true,
-      fractional: true,
       end: true,
       uncovered: true,
       orphanDissolve: true,

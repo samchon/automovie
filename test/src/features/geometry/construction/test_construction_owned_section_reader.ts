@@ -32,10 +32,10 @@ const FIELDS: readonly (keyof Jet)[] = ["p", "s", "t", "ss", "st", "tt"];
  * 2. Input rewrites after factory return and returned-vector rewrites cannot
  *    mutate the private preparation; every output remains fresh.
  * 3. Public cold copies work and changed snapshots still fail.
- * 4. Original getter exceptions survive; owned precise coverage counts the
- *    actual validator. One public control plus one private successful
- *    preparation allows at most two entries for either one or 129 phases;
- *    missing identity is an observer failure.
+ * 4. Original getter exceptions survive; owned precise coverage counts the actual
+ *    validator. One public control plus one private successful preparation
+ *    allows at most two entries for either one or 129 phases; missing identity
+ *    is an observer failure.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises Native.jet factories/readings and public Field cold/copy/failure paths, detects stale aliases, premature admission, swallowed original errors and repeated private metadata scans.
  * @evidence contracts/development/testing.md#independent-expectations The circle rho(s)=scale*(2+3s+4s*s) at s=0 gives exact p/s/ss and their sine/cosine phase derivatives independently of the kernel. Copy/refusal and exception order follow existing ownership contracts. The work ceiling is one public control plus at most one successful private validation, not a wall/heap oracle or an exact layout.

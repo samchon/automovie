@@ -60,8 +60,8 @@ export namespace ladderAccessRails {
    * @returns Both rails, or undefined when either side lacks an upright rail.
    */
   export function read(
-    ladder: IAutoMovieMotionHumanPropReader,
-    frame: HumanFrame.IPrepared,
+    ladder: Pick<IAutoMovieMotionHumanPropReader, "prop" | "frame">,
+    frame: Pick<HumanFrame.IPrepared, "local">,
     seconds: number,
   ): IPair | undefined {
     const model: IAutoMovieRigidTransform = ladder.frame(seconds);

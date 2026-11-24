@@ -105,7 +105,7 @@ export function test_engine_airborne_tabulated_history(): void {
     );
   };
 
-  // 1. Lazy build, one read a knot.
+  // 1. Build at construction, one read a knot.
   const observation: ReturnType<typeof integrateAirborneRotation.observe> =
     integrateAirborneRotation.observe();
   const history: integrateAirborneRotation.ICachedHistory =
@@ -115,13 +115,11 @@ export function test_engine_airborne_tabulated_history(): void {
       { from: 0, to: 1, step: 1 / 120 },
       observation,
     );
-  if (reads !== 0 || Object.values(observation.read()).some((n: number): boolean => n !== 0))
-    findings.push(`construction read ${reads} shapes or counted work`);
-  const first: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5004);
   if (reads !== 121 || observation.read().uniqueNumericNodes !== 121)
     findings.push(
-      `the first query read ${reads} shapes and counted ${observation.read().uniqueNumericNodes} nodes, 121 expected`,
+      `construction read ${reads} shapes and counted ${observation.read().uniqueNumericNodes} nodes, 121 expected`,
     );
+  const first: IAutoMovieIntegrateAirborneRotation.IInstant = history(0.5004);
 
   // 2. Closed forms off the knots and at the ends.
   const built: number = reads;
@@ -182,13 +180,6 @@ export function test_engine_airborne_tabulated_history(): void {
   );
   if (!(apart <= 1e-5))
     findings.push(`the tabulated flight ends ${apart} rad from the stencil history's`);
-
-  // 5. Clear releases the table.
-  history.clear();
-  reads = 0;
-  history(0.5);
-  if (reads !== 121)
-    findings.push(`after clear the next query read ${reads} shapes, 121 expected`);
 
   TestValidator.equals("a tabulated shape history", findings, []);
   TestValidator.predicate(

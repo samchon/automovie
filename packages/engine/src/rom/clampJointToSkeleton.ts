@@ -304,7 +304,7 @@ function prepareConstraintPair(
     constraint.swingTwist === undefined ||
     constraint.swingTwist === null
       ? source
-      : swingTwistRange.prepare(source);
+      : swingTwistRange.prepare(source, constraint);
   return {
     joint: (joint: IAutoMovieJointPose): IAutoMovieJointPose =>
       clampJointRom(joint, constraint, rig),
@@ -335,9 +335,7 @@ interface IPair {
   values: IValues;
 }
 
-/**
- * Mark only actual source-only factory closures, without wrapping their calls.
- */
+/** Mark only actual source-only factory closures, without wrapping their calls. */
 function ownClamp(
   clamp: IClamp,
   constraint?: IAutoMovieJointConstraint | null,
