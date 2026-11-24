@@ -66,18 +66,6 @@ export namespace AutoMovieHumanoidSurfaceRays {
     inverse: IAutoMovieQuaternion;
   }
 
-  /** One copied origin and its fixed-shape prerequisites, never a ray answer. */
-  interface ILocalOrigin {
-    /** Copied world coordinates; actual XYZ must all match before reuse. */
-    point: IAutoMovieVector3;
-
-    /** Private shape-local origin for those exact coordinates. */
-    local: IAutoMovieVector3;
-
-    /** Lazily observed hull-plane heights; absent for box slabs. */
-    heights?: number[];
-  }
-
   /** The six actual rest observations consumed by anatomical surface owners. */
   interface ITools {
     /** Current reader-owned resolved rest bone; missing bones throw. */
@@ -194,32 +182,21 @@ export namespace AutoMovieHumanoidSurfaceRays {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
     const faces: readonly IAutoMoviePhysicalHullFaces.IFace[] | undefined =
       shape.kind === "hull" ? physicalHullFaces(shape.points).faces : undefined;
-    let previousOrigin: ILocalOrigin | undefined;
     return (origin: IAutoMovieVector3, d: IAutoMovieVector3): number => {
-      const current: ILocalOrigin = localOrigin(
-        previousOrigin,
-        origin,
-        centre,
-        inverse,
-      );
-      previousOrigin = current;
-      const o: IAutoMovieVector3 = current.local;
+      const o: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
+        x: origin.x - centre.x,
+        y: origin.y - centre.y,
+        z: origin.z - centre.z,
+      });
       const dir: IAutoMovieVector3 = Quaternion.rotateVector(inverse, d);
       let near: number = -Infinity;
       let far: number = Infinity;
       if (shape.kind === "hull") {
         // Clip the ray against every face plane: it enters through the planes
         // it runs against and leaves through the ones it runs with.
-        const heights: number[] = (current.heights ??= []);
-        let index: number = 0;
         for (const face of faces!) {
           const speed: number = Vector3.dot(face.normal, dir);
-          let height: number | undefined = heights[index];
-          if (height === undefined) {
-            height = Vector3.dot(face.normal, o) - face.offset;
-            heights[index] = height;
-          }
-          index++;
+          const height: number = Vector3.dot(face.normal, o) - face.offset;
           if (Math.abs(speed) < 1e-12) {
             if (height > BOUNDARY) return -Infinity;
             continue;
@@ -246,40 +223,6 @@ export namespace AutoMovieHumanoidSurfaceRays {
       }
       return near <= far ? far : -Infinity;
     };
-  }
-
-  /**
-   * Reuse only the exact numeric origin under this prepared, unchanged shape
-   * frame.
-   */
-  function localOrigin(
-    known: ILocalOrigin | undefined,
-    point: IAutoMovieVector3,
-    centre: IAutoMovieVector3,
-    inverse: IAutoMovieQuaternion,
-  ): ILocalOrigin {
-    const x: number = point.x;
-    const y: number = point.y;
-    const z: number = point.z;
-    if (
-      known !== undefined &&
-      Object.is(known.point.x, x) &&
-      Object.is(known.point.y, y) &&
-      Object.is(known.point.z, z)
-    )
-      return known;
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {
-      x: x - centre.x,
-      y: y - centre.y,
-      z: z - centre.z,
-    });
-    if (known === undefined) return { point: { x, y, z }, local };
-    known.point.x = x;
-    known.point.y = y;
-    known.point.z = z;
-    known.local = local;
-    if (known.heights !== undefined) known.heights.length = 0;
-    return known;
   }
 
   /**

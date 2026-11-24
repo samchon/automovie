@@ -132,7 +132,12 @@ export namespace RecoveryChartMap {
       ) {
         const applied: Float64Array = multiply(direction),
           denominator: number = dot(direction, applied);
-        if (!(denominator > 0)) {
+        if (
+          !(denominator > 0) ||
+          denominator === Infinity ||
+          product === Infinity ||
+          product === -Infinity
+        ) {
           diagnostics.push(
             `Unresolved harmonic arithmetic in coordinate ${coordinate}`,
           );
@@ -176,7 +181,7 @@ export namespace RecoveryChartMap {
           c: [number, number] = parameters[triangle[2]]!;
         const area: number =
           (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
-        if (!(area > 0)) failedTriangles.push(i);
+        if (!(area > 0) || area === Infinity) failedTriangles.push(i);
       },
     );
     const inRange: boolean = parameters.every((p: [number, number]): boolean =>

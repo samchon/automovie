@@ -100,9 +100,7 @@ export function prepareArticulatedRig<Bone extends string>(
   if (ordered.length !== nodes.size)
     throw new RangeError("An articulated rig must be connected and acyclic");
   return {
-    bones: Object.freeze(
-      ordered.map((node: IPrepared<Bone>): Bone => node.bone),
-    ),
+    bones: ordered.map((node: IPrepared<Bone>): Bone => node.bone),
     read: (
       joints: ReadonlyMap<Bone, Rotation> = new Map(),
       root?: IAutoMovieTransform,

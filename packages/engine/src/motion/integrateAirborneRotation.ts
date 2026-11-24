@@ -76,8 +76,6 @@ export function integrateAirborneRotation(
 ): IAutoMovieIntegrateAirborneRotation.IFlight {
   const { history, momentum } = props;
   const requestedScope: symbol | undefined = props.errorScope;
-  if (requestedScope !== undefined && typeof requestedScope !== "symbol")
-    throw new Error("An airborne failure scope must be a symbol");
   const errorScope: symbol = requestedScope ?? Symbol("airborne trajectory");
   const variations: readonly IAutoMovieVector3[] = props.variations ?? [];
   if (props.momentumTolerance !== undefined && props.tolerance === undefined)
@@ -183,7 +181,6 @@ export function integrateAirborneRotation(
         // q' = q w / 2 gives eta' = -w x eta + I^-1((R^T L) x eta + R^T dL).
         const dx: number[] = [];
         for (let i: number = 0; i < variations.length; i++) {
-          if (!(i in variations)) continue;
           const offset: number = 3 * i;
           const etaX: number = x[offset]!;
           const etaY: number = x[offset + 1]!;

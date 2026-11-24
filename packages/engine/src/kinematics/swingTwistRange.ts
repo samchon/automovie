@@ -31,9 +31,7 @@ import { swingTwistRegion } from "./swingTwistRegion";
 const DEG: number = swingTwistBasis.DEG;
 
 /** The twist `swingTwist` gives where the projection vanishes: the identity. */
-const IDENTITY_TWIST: IAutoMovieQuaternion = Object.freeze(
-  Quaternion.identity(),
-);
+const IDENTITY_TWIST: IAutoMovieQuaternion = Quaternion.identity();
 
 /** Original dimensionless disc coordinates and clinical-degree twist. */
 type IChart = ReturnType<typeof swingTwistRange.chart>;

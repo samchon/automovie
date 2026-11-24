@@ -14,8 +14,6 @@ import type {
 export function admitAutoMovieContourEvents64(
   input: IAutoMovieContourLoft64,
 ): IAutoMovieAdmitContourEvents64.IResult {
-  if (!Array.isArray(input.events))
-    throw new Error("A saved contour event array is required");
   const sections: Map<number, IAutoMovieContourLoft64.ISection> = new Map(
     input.sections.map(
       (
@@ -28,8 +26,7 @@ export function admitAutoMovieContourEvents64(
   );
   const names: Map<string, number> = new Map();
   for (const event of input.events)
-    if (typeof event?.name === "string")
-      names.set(event.name, (names.get(event.name) ?? 0) + 1);
+    names.set(event.name, (names.get(event.name) ?? 0) + 1);
   const unsupported: (string | undefined)[] = [];
   const events: IAutoMovieContourLoft64.IEvent[] = Array.from(
     input.events,
@@ -43,11 +40,7 @@ export function admitAutoMovieContourEvents64(
       if (!before || !after || !(event.beforeMm < event.afterMm))
         throw new Error("Event brackets must address ordered saved sections");
       const reasons: string[] = [];
-      if (
-        typeof event.name !== "string" ||
-        !event.name.trim() ||
-        names.get(event.name)! > 1
-      )
+      if (!event.name.trim() || names.get(event.name)! > 1)
         reasons.push("Event name is empty or has conflicting owners");
       if (
         !(
@@ -56,14 +49,12 @@ export function admitAutoMovieContourEvents64(
         )
       )
         reasons.push("Event coordinate does not lie inside its saved bracket");
-      if (
-        !["minimum", "maximum", "saddle"].includes(event.kind) ||
-        typeof event.regular !== "boolean"
-      )
+      if (!["minimum", "maximum", "saddle"].includes(event.kind))
         reasons.push("Event kind and regularity must be declared");
-      const terminal: unknown = event.terminal;
+      const terminal: IAutoMovieContourLoft64.IEvent["terminal"] =
+        event.terminal;
       const finite: boolean =
-        Array.isArray(terminal) &&
+        terminal !== null &&
         terminal.length === 3 &&
         [0, 1, 2].every((axis: number): boolean =>
           Object.hasOwn(terminal, axis),
@@ -76,19 +67,16 @@ export function admitAutoMovieContourEvents64(
       const incidence: number[][] = [event.before, event.after].map(
         (raw: readonly number[], side: number): number[] => {
           const retained: Set<number> = new Set();
-          if (!Array.isArray(raw))
-            reasons.push(`Event side ${side} has no usable incidence array`);
-          else
-            for (let slot: number = 0; slot < raw.length; slot++) {
-              const id: number = raw[slot];
-              if (id < 0 || id >= (side === 0 ? before : after).loops.length)
-                reasons.push(
-                  `Event side ${side} has an invalid local loop at slot ${slot}`,
-                );
-              else if (retained.has(id))
-                reasons.push(`Event side ${side} repeats local loop ${id}`);
-              else retained.add(id);
-            }
+          for (let slot: number = 0; slot < raw.length; slot++) {
+            const id: number = raw[slot];
+            if (id < 0 || id >= (side === 0 ? before : after).loops.length)
+              reasons.push(
+                `Event side ${side} has an invalid local loop at slot ${slot}`,
+              );
+            else if (retained.has(id))
+              reasons.push(`Event side ${side} repeats local loop ${id}`);
+            else retained.add(id);
+          }
           return [...retained];
         },
       );
@@ -101,11 +89,11 @@ export function admitAutoMovieContourEvents64(
       );
       return {
         ...event,
-        name: typeof event.name === "string" ? event.name : "",
+        name: event.name,
         before: incidence[0],
         after: incidence[1],
         terminal:
-          finite && Array.isArray(terminal)
+          finite && terminal !== null
             ? [terminal[0], terminal[1], terminal[2]]
             : null,
       };

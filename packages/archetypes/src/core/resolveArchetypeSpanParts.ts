@@ -133,7 +133,8 @@ export function resolveArchetypeSpanParts(
    */
   function midpoint(a: number, b: number): number {
     const sum: number = a + b;
-    return sum / 2;
+    // An overflowing sum halves each term instead.
+    return sum !== Infinity && sum !== -Infinity ? sum / 2 : a / 2 + b / 2;
   }
 
   /**

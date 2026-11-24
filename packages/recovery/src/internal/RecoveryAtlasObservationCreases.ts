@@ -64,7 +64,8 @@ export function RecoveryAtlasObservationCreases(
                 0,
               )) /
             denominator;
-        if (!(denominator > 0)) {
+        // An overflowing length product leaves the cosine unresolved.
+        if (!(denominator > 0) || denominator === Infinity) {
           mark("source-crease-test-arithmetic-is-unresolved");
           continue;
         }

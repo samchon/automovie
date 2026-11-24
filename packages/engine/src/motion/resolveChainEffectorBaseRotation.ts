@@ -162,7 +162,6 @@ export namespace resolveChainEffectorBaseRotation {
     // predicate closure at every node of the same ordered traversal.
     const count: number = children.length;
     for (let index: number = 0; index < count; ++index) {
-      if (!(index in children)) continue;
       const child: IAutoMovieBone = children[index]!;
       if (
         child.bone === descendant ||

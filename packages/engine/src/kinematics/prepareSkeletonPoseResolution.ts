@@ -173,15 +173,13 @@ function snapshotRig(
   if (roots !== undefined) for (const root of roots) append(root, -1);
   const preparedAxes: Readonly<
     Partial<Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>>
-  > = Object.freeze(
-    Object.fromEntries(
-      Array.from(
-        conventions,
-        ([name, convention]: [string, IConvention]): [
-          string,
-          IAutoMovieJointAxes,
-        ] => [name, convention.axes],
-      ),
+  > = Object.fromEntries(
+    Array.from(
+      conventions,
+      ([name, convention]: [string, IConvention]): [
+        string,
+        IAutoMovieJointAxes,
+      ] => [name, convention.axes],
     ),
   );
   return { nodes, indices, conventions, fallback, axes: preparedAxes };

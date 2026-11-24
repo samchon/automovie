@@ -59,6 +59,65 @@ export namespace AutoMovieViewParameter {
       : Math.PI - 2 * Math.asin(Math.sqrt(b / span));
   }
 
+  /**
+   * Whether a station lies in the parameter's domain, an endpoint's tolerance
+   * included (`at`): the root map's square root and the angle map's arcsine
+   * read only there.
+   */
+  export function contains(
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
+    station: number,
+  ): boolean {
+    if (parameter === undefined) return true;
+    const extent: number =
+      parameter.type === "root"
+        ? Math.max(Math.abs(parameter.pole), Math.abs(station))
+        : parameter.top - parameter.bottom;
+    const tolerance: number = AUTOMOVIE_CONSTRUCTION_RELATIVE_TOLERANCE * extent;
+    if (parameter.type === "root")
+      return (
+        (parameter.end === "bottom"
+          ? station - parameter.pole
+          : parameter.pole - station) >= -tolerance
+      );
+    return (
+      station - parameter.bottom >= -tolerance &&
+      parameter.top - station >= -tolerance
+    );
+  }
+
+  /**
+   * Whether `jet`'s quotients are representable at a station: near a pole or a
+   * parameter endpoint the root and power underflow so far that dividing by
+   * them would overflow binary64.
+   */
+  export function jetRepresentable(
+    parameter: IAutoMovieConstructionOutlineParameter | undefined,
+    station: number,
+  ): boolean {
+    if (parameter === undefined) return true;
+    if (parameter.type === "root") {
+      const d: number =
+        parameter.end === "bottom"
+          ? station - parameter.pole
+          : parameter.pole - station;
+      return (
+        d === 0 ||
+        (2 * Math.sqrt(d) >= 1 / Number.MAX_VALUE &&
+          4 * d ** 1.5 >= 1 / Number.MAX_VALUE)
+      );
+    }
+    const a: number = station - parameter.bottom;
+    const b: number = parameter.top - station;
+    const p: number = a * b;
+    return (
+      a === 0 ||
+      b === 0 ||
+      (Math.sqrt(p) >= 1 / Number.MAX_VALUE &&
+        2 * p ** 1.5 >= Math.abs(a - b) / Number.MAX_VALUE)
+    );
+  }
+
   /** Invert an admitted in-span source parameter. */
   export function station(
     parameter: IAutoMovieConstructionOutlineParameter | undefined,

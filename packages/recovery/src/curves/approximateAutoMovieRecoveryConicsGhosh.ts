@@ -155,6 +155,16 @@ export function approximateAutoMovieRecoveryConicsGhosh(
       const curvature: number = positiveTerm - negativeTerm;
       const uncertainty: number =
         roundoff * (Math.abs(positiveTerm) + Math.abs(negativeTerm));
+      // phi's powers divide both terms; an overflowing term or difference has
+      // no curvature to compare.
+      if (
+        positiveTerm === Infinity ||
+        positiveTerm === -Infinity ||
+        negativeTerm === Infinity ||
+        curvature === Infinity ||
+        curvature === -Infinity
+      )
+        return "Affine curvature overflow.";
       if (previous !== undefined) {
         const difference: number = curvature - previous;
         const threshold: number =
@@ -284,7 +294,8 @@ export function approximateAutoMovieRecoveryConicsGhosh(
     const wb: number = Math.sqrt(
       Math.abs(area) / (2 * kb * Math.hypot(...endDirection) ** 3),
     );
-    if (wa <= 0 || wb <= 0) return undefined;
+    // A zero-over-zero weight is no weight: only a positive one is admitted.
+    if (!(wa > 0) || !(wb > 0)) return undefined;
     const left: number = Math.min(
       wa === Infinity ? 1 : wa / (1 + wa),
       wb === Infinity ? 1 : wb / (1 + wb),

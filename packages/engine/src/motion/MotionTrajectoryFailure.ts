@@ -77,8 +77,6 @@ export class MotionTrajectoryFailure extends Error {
           ? ""
           : `; last rejection ${rejection.kind}, h ${rejection.step} s, RMS ${rejection.rms}, physical ${rejection.physical}, probe ${rejection.probe?.time} s`),
     );
-    if (scope !== undefined && typeof scope !== "symbol")
-      throw new Error("A trajectory failure's scope must be a symbol");
     this.name = "MotionTrajectoryFailure";
   }
 }

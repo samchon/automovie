@@ -67,8 +67,6 @@ export function solveAirborneTakeoff(
     throw new Error(
       `The take-off needs a positive finite flight, got ${flight}`,
     );
-  if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
-    throw new Error("The take-off error scope must be a symbol");
   const tolerance: number = props.tolerance ?? solveAirborneTakeoff.TOLERANCE;
 
   // The continuation halves a missed stage down to the share the tolerance

@@ -185,10 +185,16 @@ export function physicalIcpController(input: {
     x: perfectCop.x + copDelta.x,
     y: perfectCop.y + copDelta.y,
   };
-  const cmp: Polygon.IPoint = {
-    x: cop.x + cmpDelta.x + integrator.integral.x,
-    y: cop.y + cmpDelta.y + integrator.integral.y,
-  };
+  // The caller's guard (LinearMomentumRateControlModule l.569-598): a
+  // pendulum at rest, omega zero, has no perfect pivot, `-1 / omega` being
+  // unbounded, so the pivot is the capture point itself.
+  const cmp: Polygon.IPoint =
+    input.omega === 0
+      ? { ...input.capture }
+      : {
+          x: cop.x + cmpDelta.x + integrator.integral.x,
+          y: cop.y + cmpDelta.y + integrator.integral.y,
+        };
   return {
     state: {
       copDelta,

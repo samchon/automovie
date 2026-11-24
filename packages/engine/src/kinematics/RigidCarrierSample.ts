@@ -80,9 +80,7 @@ export namespace RigidCarrierSample {
       model,
       point,
       playback,
-      holds: Object.freeze(
-        holds.map((hold: IHold): IHold => Object.freeze({ ...hold })),
-      ),
+      holds: holds.map((hold: IHold): IHold => ({ ...hold })),
     });
     return { motion, point };
   }

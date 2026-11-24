@@ -36,9 +36,9 @@ type Resolution = Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2];
  * arXiv:2412.13423; `prepareHumanSampledCourse`) with every swing's toe-off and
  * heel strike, where the stances it stands on change, a knot, and read between
  * those knots from a knot course (`prepareHumanKnotCourse`, a minimum-jerk path
- * after Flash and Hogan 1985, J. Neurosci. 5(7):1688), no two knots nearer than
- * a tick (`WALK_TICK`). A read then places the stances under the lowered hips
- * with no root search.
+ * after Flash and Hogan 1985, J. Neurosci. 5(7):1688), no stretch knotted finer
+ * than the display's frame grid (`AutoMovieMotionHumanArmCourse.STEP`). A read
+ * then places the stances under the lowered hips with no root search.
  */
 export namespace walkLocomoteLowering {
   /**

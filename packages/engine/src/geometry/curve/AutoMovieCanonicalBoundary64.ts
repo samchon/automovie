@@ -358,7 +358,7 @@ export namespace AutoMovieCanonicalBoundary64 {
    * validated pair escapes to serve all following local checks.
    */
   function parse(key: string): Dyadic {
-    if (typeof key !== "string" || key.length > 550)
+    if (key.length > 550)
       throw new Error("Invalid canonical dyadic phase key");
     const match: RegExpExecArray | null =
       /^d:([0-9a-f]+)p(-?(?:0|[1-9][0-9]*))$/.exec(key);

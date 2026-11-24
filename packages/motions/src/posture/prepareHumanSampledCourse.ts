@@ -118,10 +118,9 @@ export namespace prepareHumanSampledCourse {
     tolerance: prepareHumanAdaptiveKnots.Tolerance;
 
     /**
-     * The finest spacing a stretch is knotted at, seconds (`limit`): the
-     * site's own resolution, or the grid the display reads the value on, so a
-     * rule that never meets the tolerance (a step inside a stretch) stops
-     * there.
+     * The finest spacing a stretch is knotted at, seconds (`limit`): the site's
+     * own resolution, or the grid the display reads the value on, so a rule
+     * that never meets the tolerance (a step inside a stretch) stops there.
      */
     step: number;
   }
@@ -129,9 +128,9 @@ export namespace prepareHumanSampledCourse {
   /**
    * The most knots a stretch may take for its spacing to come down to a step
    * and no further: AutoKnots starts from six uniform knots and halves a
-   * sub-interval at a time, so its spacings are the stretch's fifth halved
-   * `k` times, and the limit is the knots of the fewest halvings that bring
-   * that spacing to the step or under it, `5 * 2^k + 1`.
+   * sub-interval at a time, so its spacings are the stretch's fifth halved `k`
+   * times, and the limit is the knots of the fewest halvings that bring that
+   * spacing to the step or under it, `5 * 2^k + 1`.
    *
    * @param width The stretch's length, seconds.
    * @param step The finest spacing asked, seconds.

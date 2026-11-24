@@ -42,12 +42,9 @@ export class AutoMoviePchipField64 {
   ) {
     if (x.length < 2 || x.length !== y.length)
       throw new Error("PCHIP supports required");
-    if (!Array.isArray(y[0]))
-      throw new Error("Dense PCHIP component rows required");
     const dimension: number = y[0]!.length;
     for (let i: number = 0; i < x.length; ++i) {
-      const row: readonly number[] | undefined = y[i];
-      if (!Array.isArray(row) || row.length !== dimension)
+      if (y[i]!.length !== dimension)
         throw new Error("Dense matching finite PCHIP supports required");
     }
     const h: number[] = x
@@ -71,7 +68,7 @@ export class AutoMoviePchipField64 {
       index: number,
       row: readonly number[],
     ): void => {
-      if (!Array.isArray(row) || row.length !== dimension)
+      if (row.length !== dimension)
         throw new Error("PCHIP derivative rows must match component count");
       this.derivatives[index] = Array.from(row);
     };
@@ -81,8 +78,6 @@ export class AutoMoviePchipField64 {
       for (let i: number = 0; i < x.length; ++i) replace(i, derivatives[i]!);
     } else if (derivatives !== undefined) {
       if (
-        derivatives === null ||
-        typeof derivatives !== "object" ||
         Object.keys(derivatives).some(
           (key: string): boolean => key !== "start" && key !== "end",
         )

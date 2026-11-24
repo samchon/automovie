@@ -72,10 +72,6 @@ export function integrateMotionTrajectory(
     );
   if (!(h > 0))
     throw new Error(`integrateMotionTrajectory: the step ${h} is not positive`);
-  if (props.errorScope !== undefined && typeof props.errorScope !== "symbol")
-    throw new Error(
-      "integrateMotionTrajectory: an error scope must be a symbol",
-    );
   const n: number = props.x0.length;
   const oriented: boolean = props.q0 !== undefined;
   if (

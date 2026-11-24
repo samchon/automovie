@@ -61,22 +61,10 @@ export function preparePosePlacement(
  * result.
  */
 function copyQuaternion(input: IAutoMovieQuaternion): IAutoMovieQuaternion {
-  return !hasProperties(input)
-    ? input
-    : { x: input.x, y: input.y, z: input.z, w: input.w };
+  return { x: input.x, y: input.y, z: input.z, w: input.w };
 }
 
 /** Copy exact changed root metres in the original property order. */
 function copyVector(input: IAutoMovieVector3): IAutoMovieVector3 {
-  return !hasProperties(input) ? input : { x: input.x, y: input.y, z: input.z };
-}
-
-/**
- * Keep malformed non-record values and callable structural records unchanged in
- * kind.
- */
-function hasProperties(input: unknown): boolean {
-  return (
-    (typeof input === "object" && input !== null) || typeof input === "function"
-  );
+  return { x: input.x, y: input.y, z: input.z };
 }

@@ -64,10 +64,10 @@ interface IState {
 }
 
 /** Private identity operands; no returned transform aliases them. */
-const IDENTITY: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
+const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
 
 /** Private root-relative origin. */
-const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create());
+const ORIGIN: IAutoMovieVector3 = Vector3.create();
 
 /**
  * Own the dynamic FK rows of one operation on one immutable prepared rig.
@@ -193,9 +193,9 @@ export namespace preparePoseResolutionState {
   /**
    * Immutable clinical inputs and their lazy successful basis admission.
    *
-   * Fixed raw axes and optional affine degree frames define clinical reading. The
-   * first actual authored use admits the basis; an unused malformed mapping stays
-   * unadmitted. No external record or source pose is certified here.
+   * Fixed raw axes and optional affine degree frames define clinical reading.
+   * The first actual authored use admits the basis; an unused malformed mapping
+   * stays unadmitted. No external record or source pose is certified here.
    */
   export type IConvention = preparePoseJointResolution.IConvention;
 

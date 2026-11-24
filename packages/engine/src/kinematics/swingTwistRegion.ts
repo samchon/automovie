@@ -95,7 +95,7 @@ const TABLES: WeakMap<
 > = new WeakMap();
 
 /** The key of a joint read with no rest frame. */
-const NO_FRAME: object = Object.freeze({});
+const NO_FRAME: object = {};
 
 /**
  * The fastest the region's radius may change with the azimuth, degrees per

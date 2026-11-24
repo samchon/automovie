@@ -84,8 +84,7 @@ export namespace AutoMovieLoftPhaseSource {
       n < 2 ||
       source.curves.length !== n ||
       q < t[0]! ||
-      q > t[n - 1]! ||
-      change !== undefined
+      q > t[n - 1]!
     )
       throw new Error(
         "native phase station has no finite in-domain coordinate 2-jet",

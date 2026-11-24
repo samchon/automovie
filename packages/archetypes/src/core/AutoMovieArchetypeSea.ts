@@ -185,6 +185,8 @@ export namespace AutoMovieArchetypeSea {
       0,
     );
     if (
+      crest === Infinity ||
+      steepest === Infinity ||
       components.some(
         (c: IComponent): boolean =>
           ![c.frequency, c.wavenumber, c.amplitude].every(

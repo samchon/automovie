@@ -129,7 +129,7 @@ export class AutoMovieCurveParentContext {
         !this.frames.has(edge.consumerBone)
       )
         throw new Error("Unique edges need actual owner and consumer bones");
-      this.edges.set(edge.id, Object.freeze(structuredClone(edge)));
+      this.edges.set(edge.id, structuredClone(edge));
     }
     this.revision = JSON.stringify({
       frames: [...this.frames.values()],
@@ -248,12 +248,11 @@ export class AutoMovieCurveParentContext {
     )
       throw new Error("Wrong or repeated anatomical boundary owner");
     const value: IAutoMovieCurveBoundary64 = structuredClone(boundary);
-    freezeBoundary(value);
-    const operator: IAutoMovieCurveBoundaryPublication64 = Object.freeze({
+    const operator: IAutoMovieCurveBoundaryPublication64 = {
       edge,
       contextRevision: this.revision,
       value,
-    });
+    };
     this.published.set(boundary.id, operator);
     return operator;
   }
@@ -284,26 +283,4 @@ export class AutoMovieCurveParentContext {
       throw new Error("Stale, forged or wrong anatomical connection");
     return operator.value;
   }
-}
-
-/**
- * Freeze a cloned boundary field by its declared structure: the section's spans
- * and their controls, its phase widths, the derivative field and the
- * longitudinal axis.
- */
-function freezeBoundary(value: IAutoMovieCurveBoundary64): void {
-  for (const span of value.section.spans) {
-    for (const control of span) Object.freeze(control);
-    Object.freeze(span);
-  }
-  Object.freeze(value.section.spans);
-  Object.freeze(value.section.phaseIntervals);
-  Object.freeze(value.section);
-  for (const controls of value.fullJ) {
-    for (const control of controls) Object.freeze(control);
-    Object.freeze(controls);
-  }
-  Object.freeze(value.fullJ);
-  Object.freeze(value.longitudinalAxis);
-  Object.freeze(value);
 }

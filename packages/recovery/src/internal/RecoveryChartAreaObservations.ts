@@ -299,7 +299,11 @@ export function RecoveryChartAreaObservations(
       Math.abs(retainedArea - sourceArea) / sourceArea,
     );
   }
-  if (!observations.length)
+  if (
+    !observations.length ||
+    sourceAreaMm2 === Infinity ||
+    integratedAreaMm2 === Infinity
+  )
     throw new Error("Finite positive source-area coverage is required");
   return {
     observations,

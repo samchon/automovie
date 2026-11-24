@@ -7,7 +7,7 @@ import {
 /** The empty table returned when neither the bones nor the host declare axes. */
 const NO_JOINT_AXES: Partial<
   Record<AutoMovieHumanoidBone, IAutoMovieJointAxes>
-> = Object.freeze({});
+> = {};
 
 /**
  * The per-bone clinical axes a skeleton articulates with: each bone's own

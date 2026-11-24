@@ -115,7 +115,11 @@ export function RecoveryChartBoxSolve(
           value *
           Math.max(scales[i]!, scales[j]!) *
           Math.min(scales[i]!, scales[j]!);
-        if (value !== 0 && coefficient === 0)
+        if (
+          (value !== 0 && coefficient === 0) ||
+          coefficient === Infinity ||
+          coefficient === -Infinity
+        )
           throw new Error("Scaled Gram entry is unrepresentable");
         return [j, coefficient];
       }),
@@ -141,6 +145,11 @@ export function RecoveryChartBoxSolve(
       input.upper[i % 3]! / scales[Math.floor(i / 3)]!,
   );
   if (
+    [scaledRhs, lo, hi].some((vector: Float64Array): boolean =>
+      vector.some(
+        (value: number): boolean => value === Infinity || value === -Infinity,
+      ),
+    ) ||
     scaledRhs.some(
       (value: number, i: number): boolean => value === 0 && input.rhs[i] !== 0,
     ) ||
@@ -185,6 +194,13 @@ export function RecoveryChartBoxSolve(
         const at: number = 3 * i + k;
         gradient[at] = product - input.rhs[at]!;
         objective += values[at]! * (product / 2 - input.rhs[at]!);
+        if (
+          [product, gradient[at]!, objective].some(
+            (value: number): boolean =>
+              value === Infinity || value === -Infinity,
+          )
+        )
+          throw new Error("Original quadratic evaluation is unrepresentable");
       }
     return objective;
   };

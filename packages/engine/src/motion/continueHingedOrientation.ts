@@ -333,7 +333,6 @@ function outputGuards(
       result.seed === null ||
       !guardFields(result.seed, ["branch", "swivel"], guards) ||
       !guardFields(pose, ["skeleton", "root", "joints"], guards) ||
-      !Array.isArray(pose.joints) ||
       !guardFields(pose.joints, ["length"], guards)
     )
       return undefined;
@@ -363,11 +362,10 @@ function outputGuards(
 
 /** Record current own data only; an accessor/missing member grants no proof. */
 function guardFields(
-  owner: unknown,
+  owner: object,
   keys: readonly string[],
   guards: IOutputGuard[],
 ): boolean {
-  if (owner === null || typeof owner !== "object") return false;
   for (const key of keys) {
     const field: PropertyDescriptor | undefined =
       Object.getOwnPropertyDescriptor(owner, key);

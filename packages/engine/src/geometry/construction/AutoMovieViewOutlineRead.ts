@@ -11,9 +11,10 @@ export namespace AutoMovieViewOutlineRead {
     outline: IAutoMovieViewOutline.IOutline,
     station: number,
   ): number | string {
+    if (!AutoMovieViewParameter.contains(outline.parameter, station))
+      return `station ${station} is not finite inside the source parameter domain`;
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
-    const y: number = valueAt(outline, station, x);
-    return y;
+    return valueAt(outline, station, x);
   }
 
   /**
@@ -25,6 +26,8 @@ export namespace AutoMovieViewOutlineRead {
     station: number,
   ): IAutoMovieViewOutline.IReading | string {
     const { bottom, top }: IAutoMovieViewOutline.IEnds = outline.ends;
+    if (!AutoMovieViewParameter.contains(outline.parameter, station))
+      return `station ${station} is not finite inside the source parameter domain`;
     const x: number = AutoMovieViewParameter.at(outline.parameter, station);
     const pole: boolean = station === bottom || station === top;
     const polynomial: [number, number, number] | null = pole
@@ -48,11 +51,25 @@ export namespace AutoMovieViewOutlineRead {
     let stationJetStatus: IAutoMovieViewOutline.IReading["stationJetStatus"] =
       pole ? "singular-pole" : "singular-parameter";
     if (change !== null && !pole) {
-      stationJet = [
-        jet[0] * change[0],
-        jet[1] * change[0] * change[0] + jet[0] * change[1],
-      ];
-      stationJetStatus = "regular";
+      // The chain rule's products overflow binary64 before they are formed
+      // where the parameter's change does near a pole.
+      const fits = (x: number, y: number): boolean =>
+        y === 0 || Math.abs(x) <= Number.MAX_VALUE / Math.abs(y);
+      const representable: boolean =
+        AutoMovieViewParameter.jetRepresentable(outline.parameter, station) &&
+        fits(jet[0], change[0]) &&
+        fits(change[0], change[0]) &&
+        fits(jet[1], change[0] * change[0]) &&
+        fits(jet[0], change[1]) &&
+        Math.abs(jet[1] * change[0] * change[0]) <=
+          Number.MAX_VALUE - Math.abs(jet[0] * change[1]);
+      if (representable) {
+        stationJet = [
+          jet[0] * change[0],
+          jet[1] * change[0] * change[0] + jet[0] * change[1],
+        ];
+        stationJetStatus = "regular";
+      } else stationJetStatus = "nonfinite";
     }
     const [lo, hi]: readonly [number, number] = outline.domain;
     return {

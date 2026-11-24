@@ -136,7 +136,7 @@ export namespace AutoMovieArchetypeTrack {
       const next: number = (a + b) / 2;
       const product: number = a * b;
       const geometric: number =
-        product >= 2 ** -1022
+        product >= 2 ** -1022 && product !== Infinity
           ? Math.sqrt(product)
           : Math.sqrt(a) * Math.sqrt(b);
       a =

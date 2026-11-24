@@ -24,10 +24,10 @@ import { skeletonJointAxes } from "./skeletonJointAxes";
  * Only the direct pure FK path borrows these defaults; no callback or output
  * receives them.
  */
-const IDENTITY: IAutoMovieQuaternion = Object.freeze(Quaternion.identity());
+const IDENTITY: IAutoMovieQuaternion = Quaternion.identity();
 
 /** Model-frame origin for the same direct pure path. */
-const ORIGIN: IAutoMovieVector3 = Object.freeze(Vector3.create(0, 0, 0));
+const ORIGIN: IAutoMovieVector3 = Vector3.create(0, 0, 0);
 
 /**
  * Forward kinematics: resolve a pose against its skeleton into one transform

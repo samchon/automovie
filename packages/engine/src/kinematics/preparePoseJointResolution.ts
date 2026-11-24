@@ -71,17 +71,17 @@ interface IReading {
 }
 
 /** Null clinical rest genuinely resolves to this exact positive-zero rig angle. */
-const REST_ANGLE: readonly [number] = Object.freeze<readonly [number]>([0]);
+const REST_ANGLE: readonly [number] = [0];
 
 /**
  * Immutable rig declarations share only factors actually requested at exact rig
  * rest.
  */
-const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = Object.freeze({
+const REST_ANGLES: jointToQuaternionOnBasis.IFixedAngles = {
   flexion: REST_ANGLE,
   abduction: REST_ANGLE,
   twist: REST_ANGLE,
-});
+};
 
 /** The composer's four components, written by `store` and read at once. */
 interface ISink {

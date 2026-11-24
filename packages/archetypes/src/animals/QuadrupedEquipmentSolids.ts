@@ -91,6 +91,7 @@ export class QuadrupedEquipmentSolids {
      * tolerance.
      */
     function up(value: number): number {
+      if (value === Infinity || value === -Infinity) return value;
       if (value === 0) return Number.MIN_VALUE;
       view.setFloat64(0, value, false);
       view.setBigUint64(
