@@ -4,7 +4,7 @@
 
 Set the [form expectations](../3d-modeling/inspection.md#measures) and follow the issue's acceptance limits. Check anatomical measurements at their actual sites, the response to supplied length and tissue controls, and the assembled skin for the required coverage, topology and clearances. [Anatomical consistency](../../../packages/human/docs/testing/consistency.md) · [Generalization](../../../packages/human/docs/generalization.md).
 
-Judge anatomical naturalness from personally opened, matched clay, curves over clay and close views. Examine the relevant silhouettes, recesses and contact folds. Use differences from a reference to locate evidence. Keep a verdict open when a required comparison is unavailable. [Inspecting a form](../3d-modeling/inspection.md) · [Correction rounds](../visual-debugging/correction-rounds.md).
+Judge anatomical naturalness from personally opened, matched clay, curves over clay and close views. Examine the relevant silhouettes, recesses and contact folds. Treat differences from exemplar figures as optional diagnostics. Base acceptance on naturalness, anatomical evidence and the independent form checks. [Inspecting a form](../3d-modeling/inspection.md) · [Correction rounds](../visual-debugging/correction-rounds.md).
 
 ## Shared connections
 

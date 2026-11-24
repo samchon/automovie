@@ -12,7 +12,7 @@ Use one parameterized body definition for the supported population. Human author
 
 Use conic families for the body's lofted regions. Choose the representation for folds, openings and other features under [3D modeling](../3d-modeling/crafting/lofting.md#composition-before-lofting). Build bilateral regions from the same law and reflect their frames with consistent orientation. Keep the same realized atlas for binding, appearance and export. Keep the modelled skin free of genitals and nipples.
 
-Use reference observations to establish laws and check generalization. Production generation derives curves from the person's inputs and published or documented estimated laws. A fitted reconstruction of one shape serves as evidence for those laws. [Mesh recovery](../3d-modeling/crafting/recovery.md).
+Derive production curves from the person's inputs and published or documented estimated laws. Use the fewest curves and simplest rules that satisfy the anatomical form and connections. Use reference observations to investigate laws and check generalization. [Mesh recovery](../3d-modeling/crafting/recovery.md).
 
 ## Connections
 
