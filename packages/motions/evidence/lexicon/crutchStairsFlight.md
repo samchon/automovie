@@ -153,3 +153,33 @@ Nothing to reuse.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
+
+# src/lexicon/crutchStairsFlight.ts#crutchStairsFlight.profile
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the climb, the entry floor and the levels returned.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The flight's own geometry. The entry floor runs to the first nosing. Each tread begins at its nosing, `start + i tread` ahead of the toes, one riser above or below the level before (`sign`), the same treads `level` sets each foot and tip on.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One level per crutch move after the entry floor.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+The climb's own riser, tread, start and direction.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+O(count), once per plan.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+Called once per plan.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns fresh levels.

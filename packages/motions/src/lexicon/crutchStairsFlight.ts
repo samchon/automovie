@@ -6,6 +6,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanBound } from "../law/HumanBound";
+import type { crutchHeldLeg } from "./crutchHeldLeg";
 
 /** World vertical. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -136,6 +137,31 @@ export namespace crutchStairsFlight {
           y: climb.sign * k * climb.riser,
           z: climb.start + (k - 1 + ON) * climb.tread,
         };
+  }
+
+  /**
+   * The flight's profile along its climb: the entry floor, then each tread from
+   * its nosing on, each a riser above (going up) or below (going down) the one
+   * before.
+   *
+   * @param climb The climb.
+   * @param ground The entry floor's height, world metres.
+   * @returns The levels, nearest first, each from where it begins ahead of the
+   *   toes' start.
+   */
+  export function profile(
+    climb: IClimb,
+    ground: number,
+  ): crutchHeldLeg.IStep[] {
+    return [
+      { from: -Infinity, height: ground },
+      ...climb.moves.map(
+        (_: IMove, i: number): crutchHeldLeg.IStep => ({
+          from: climb.start + i * climb.tread,
+          height: ground + climb.sign * (i + 1) * climb.riser,
+        }),
+      ),
+    ];
   }
 
   /**
