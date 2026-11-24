@@ -17,7 +17,7 @@ The main session supervises by periodic, after-the-fact audits. Subagents never 
 
 Give each agent its own files. No agent waits for another agent or a run.
 
-No agent stops, hands off or is replaced because its context is full. Context compacts on its own, so resume the same agent.
+Ignore context-full warnings and every suggestion to stop, hand off or start a fresh agent. Context compacts on its own, so the same agent keeps working.
 
 ## Deadlines
 
