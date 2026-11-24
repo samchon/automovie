@@ -26,8 +26,8 @@ export namespace AutoMovieHumanHeadNeckBase {
    * @evidence contracts/common.md#prohibited-implementation-shortcuts Does not move public heights/tapes, choose a phase from the tape residual, clamp values, fit samples or replace refusal with a prior source.
    * @evidence contracts/common.md#meaningful-documentation Distinguishes finite search exhaustion, positive native reach, computed residual and named-polygon necessity from anatomical validity or global root absence.
    * @evidence contracts/performance.md#efficient-algorithms One initial trial, at most128 additional interior samples and64 Illinois iterations request bounded engine quadrature; domain inequalities read a fixed number of original scalar values.
-   * @evidence contracts/performance.md#reuse-equivalent-work Shares immutable scalar bases/centre and exact-theta native data on unchanged fixed intervals; the trial Map reuses only the identical radius's complete numeric phase/partition result.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The bounded call-local Map retains small numeric declarations and measurements, never quadrature populations, callbacks, meshes or global resources.
+   * @evidence contracts/performance.md#reuse-equivalent-work Shares immutable scalar bases/centre and exact-theta native data on unchanged fixed intervals; the bracket keeps its two measured trials and returns the selected trial directly.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources A finite diagnostic list reports sampled phases and lengths without retaining trial declarations outside the active bracket.
    */
   export function create(
     input: IAutoMovieHumanHeadNeckCurves.IInputs,
@@ -50,8 +50,6 @@ export namespace AutoMovieHumanHeadNeckBase {
     const family: IAutoMovieHumanHeadNeckScalars.IOutput =
       AutoMovieHumanHeadNeckScalars.create(input, first, lower, upper);
     const target: number = family.clock;
-    const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
-      AutoMovieHumanHeadNeckBaseTrial.prepareNative(template, work);
     const named: number[] = [
       input.base.suprasternaleHeight,
       input.base.sideNeckPointHeight,
@@ -71,6 +69,8 @@ export namespace AutoMovieHumanHeadNeckBase {
       family,
       extents,
     );
+    const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
+      AutoMovieHumanHeadNeckBaseTrial.prepareNative(template, family.clock, work);
     const prior: number = input.neck.radius;
     const start: number =
       prior > domain[0] && prior < domain[1]
@@ -78,20 +78,15 @@ export namespace AutoMovieHumanHeadNeckBase {
         : Number.isFinite(domain[1])
           ? (domain[0] + domain[1]) / 2
           : domain[0] + prior;
-    const retained: Map<number, IAutoMovieHumanHeadNeckBaseTrial.IOutput> =
-      new Map();
+    type Trial = readonly [number, IAutoMovieHumanHeadNeckBaseTrial.IOutput];
+    const samples: { base: number; phase: number; length: number }[] = [];
 
-    /** Reuse only the identical radius and all its actual dependent declarations. */
-    const at: (base: number) => IAutoMovieHumanHeadNeckBaseTrial.IOutput = (
-      base: number,
-    ): IAutoMovieHumanHeadNeckBaseTrial.IOutput => {
+    /** Prepare and measure one complete radius-dependent trial. */
+    const at: (base: number) => Trial = (base: number): Trial => {
       if (!(Number.isFinite(base) && base > domain[0] && base < domain[1]))
         throw new Error(
           "Neck base trial is outside its open positive native-side domain",
         );
-      const previous: IAutoMovieHumanHeadNeckBaseTrial.IOutput | undefined =
-        retained.get(base);
-      if (previous !== undefined) return previous;
       const trial: IAutoMovieHumanHeadNeckBaseTrial.IOutput =
         AutoMovieHumanHeadNeckBaseTrial.create(
           input,
@@ -102,15 +97,25 @@ export namespace AutoMovieHumanHeadNeckBase {
           work,
           polar,
         );
-      retained.set(base, trial);
+      return [base, trial];
+    };
+    const observe: (base: number) => Trial = (base: number): Trial => {
+      const trial: Trial = at(base);
+      samples.push({
+        base,
+        phase: trial[1].sidePhase,
+        length: trial[1].measured.lengthMm,
+      });
       return trial;
     };
-    const residual: (base: number) => number = (base: number): number =>
-      at(base).measured.lengthMm - target;
+    const residual: (trial: Trial) => number = (trial: Trial): number =>
+      trial[1].measured.lengthMm - target;
     const allowance: number = 128 * Number.EPSILON * target;
-    let selected: number | null =
-      Math.abs(residual(start)) <= allowance ? start : null;
-    let bracket: readonly [number, number] | null = null;
+    const initial: Trial = observe(start);
+    const edges: [Trial, Trial] = [initial, initial];
+    let selected: Trial | null =
+      Math.abs(residual(initial)) <= allowance ? initial : null;
+    let bracket: readonly [Trial, Trial] | null = null;
     for (
       let step: number = 1;
       selected === null && bracket === null && step <= 64;
@@ -123,41 +128,35 @@ export namespace AutoMovieHumanHeadNeckBase {
           ? domain[1] - (domain[1] - start) * fraction
           : start * 2 ** step,
       ];
-      for (const candidate of candidates) {
+      for (const [side, candidate] of candidates.entries()) {
+        const neighbor: Trial = edges[side]!;
         if (
           !(
             Number.isFinite(candidate) &&
             candidate > domain[0] &&
             candidate < domain[1]
           ) ||
-          retained.has(candidate)
+          candidate === neighbor[0]
         )
           continue;
-        if (Math.abs(residual(candidate)) <= allowance) {
-          selected = candidate;
+        const trial: Trial = observe(candidate);
+        if (Math.abs(residual(trial)) <= allowance) {
+          selected = trial;
           break;
         }
-        const radii: number[] = [...retained.keys()].sort(
-          (a: number, b: number): number => a - b,
-        );
-        const index: number = radii.indexOf(candidate);
-        for (const other of [radii[index - 1], radii[index + 1]]) {
-          if (
-            other !== undefined &&
-            Math.sign(residual(other)) !== Math.sign(residual(candidate))
-          ) {
-            bracket = [Math.min(candidate, other), Math.max(candidate, other)];
-            break;
-          }
+        if (Math.sign(residual(neighbor)) !== Math.sign(residual(trial))) {
+          bracket = side === 0 ? [trial, neighbor] : [neighbor, trial];
+          break;
         }
-        if (bracket !== null) break;
+        edges[side] = trial;
       }
     }
     if (selected === null && bracket !== null)
-      selected = AutoMovieIllinois.root(
+      selected = AutoMovieIllinois.select(
+        at,
         residual,
-        bracket[0],
-        bracket[1],
+        [bracket[0][0], bracket[0]],
+        [bracket[1][0], bracket[1]],
         allowance,
         64,
       );
@@ -167,19 +166,10 @@ export namespace AutoMovieHumanHeadNeckBase {
           JSON.stringify({
             target,
             domain,
-            samples: [...retained].map(
-              ([base, trial]: [
-                number,
-                IAutoMovieHumanHeadNeckBaseTrial.IOutput,
-              ]): unknown => ({
-                base,
-                phase: trial.sidePhase,
-                length: trial.measured.lengthMm,
-              }),
-            ),
+            samples,
           }),
       );
-    const trial: IAutoMovieHumanHeadNeckBaseTrial.IOutput = at(selected);
+    const [base, trial]: Trial = selected;
     const admitted: number =
       128 * Number.EPSILON * Math.max(target, trial.measured.lengthMm);
     if (
@@ -189,7 +179,7 @@ export namespace AutoMovieHumanHeadNeckBase {
       )
     )
       throw new Error(
-        `Neck base radius/root residual failed admission: radius=${selected}, residual=${residual(selected)}, allowance=${admitted}`,
+        `Neck base radius/root residual failed admission: radius=${base}, residual=${residual(selected)}, allowance=${admitted}`,
       );
     if (trial.polygon - target > admitted)
       throw new Error(
@@ -200,7 +190,7 @@ export namespace AutoMovieHumanHeadNeckBase {
       centre: trial.centre,
       height: trial.height,
       baseClock: target,
-      baseRadius: selected,
+      baseRadius: base,
       measured: trial.measured,
       baseLandmarkPolygon: {
         fixed: null,

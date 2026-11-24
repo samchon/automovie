@@ -27,3 +27,33 @@ Module-constant nodes/weights serve both rules and the existing cubic wrapper; e
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Borrows pieces/callbacks synchronously, retains only fixed 16 quadrature constants globally, and returns two scalars; no source reference, queue or task survives a call or exception.
+
+# src/geometry/curve/measureAutoMovieCurveLength64.ts#measureAutoMovieCurveLength64.parameters
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Declares one fixed piece's endpoint and interior requests in its original parameter units and numerical order.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Admits the original domain and panel count before enumerating the actual GL8 addresses.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The public source-length owner admits the input and the shared quadrature owner emits the schedule.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Uses the measurement's domain and subdivision bounds. Only the measurement admits derivatives and integration contributions.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Returns 2 + 24K numbers with one traversal of the two quadrature rules and their endpoints.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+An original source can prepare exactly the stations it will be asked to evaluate. No alternative node table is defined.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns a plain parameter array and holds no source callback or prior computation.

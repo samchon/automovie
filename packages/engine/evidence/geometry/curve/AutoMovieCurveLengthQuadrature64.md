@@ -6,11 +6,11 @@ States internal ownership, validated caller premises, unchanged GL8 arithmetic a
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents Internal shared GL8 computation for original curve derivatives, with numeric observations separated from each public length owner's admission policy: companion namespace of 1 member (`measure`); units and frames named in its text: world, second, local. It has no optional member, so no absent-value state combines with another.
+The same GL8 abscissas define the derivative measurement and its prepared parameter addresses. Public callers own admission and interpretation.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Owned by the module that declares `AutoMovieCurveLengthQuadrature64` in packages/engine/src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts; its surface is the 1 member listed and the text shows 2 other files naming it, mostly packages/engine (2), so no member is declared for a presumed future need.
+The curve length owners use `measure`. The admitted source-length parameter preparation uses `parameters`.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -45,3 +45,33 @@ The same speed reader, constants and summation serve both rules and both public 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Borrows callbacks and domains synchronously and returns scalar observations only; fixed module constants are the sole retained population.
+
+# src/geometry/curve/AutoMovieCurveLengthQuadrature64.ts#AutoMovieCurveLengthQuadrature64.parameters
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Lists the two domain endpoints followed by the closed chart's coarse and fine quadrature addresses.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Uses the same interval, GL8 node constants and binary64 affine operation order as the measurement.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+Builds one plain array for one already admitted domain and panel count.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+Preserves repeated or collapsed addresses so source preparation does not change the integration rule.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Emits two endpoints and 24 times the panel count in interior addresses in one pass.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Both this enumeration and measurement use the same affine node calculation.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Returns only the caller-owned parameter array.

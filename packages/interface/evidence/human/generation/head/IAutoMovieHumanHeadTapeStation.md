@@ -54,7 +54,7 @@ Required fields are `reader`, `station`; callers supply the complete record.
 
 Complete phase reading before the separate physical source2 request.
 
-## @evidence contracts/development/design.md#principled-representation `point`: Original world point, calibration mm. `frame`: Actual current world frame; phase reads do not borrow an inverse trial's frame. `local`: Same native point and its first two phase derivatives.
+## @evidence contracts/development/design.md#principled-representation `point`: Original world point, calibration mm. `frame`: Original world frame of the prepared physical station. `local`: Same native point and its first two phase derivatives.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -68,11 +68,11 @@ Required fields are `point`, `frame`, `local`; callers supply the complete recor
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-One measured course retains only its two successful endpoint preparations.
+A course reader can own the original station preparations for its fixed integration endpoints.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-One measured course retains only its two successful endpoint preparations.
+The declared integration interval determines the endpoint preparations. The final phase query can receive the same preparation that produced its selected trial.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -80,17 +80,17 @@ Returned by AutoMovieHumanHeadTapeStation.create. Read by AutoMovieHumanHeadTape
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The representation is used by AutoMovieHumanHeadTapeSource.course, AutoMovieHumanHeadTapeSource.sources, AutoMovieHumanHeadTapeStation.create for one measured course retains only its two successful endpoint preparations.
+The representation carries the point or phase operation on the actual original station. It exposes no lookup state and stores no previous trial output.
 
 # src/human/generation/head/IAutoMovieHumanHeadTapeStation.ts#IAutoMovieHumanHeadTapeStation.CreateEnds
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Share only exact unchanged endpoints, and carry an arbitrary selected bracket trial directly into its final phase read.
+Ordered physical stations to prepare for repeated integration, in calibration mm.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Share only exact unchanged endpoints, and carry an arbitrary selected bracket trial directly into its final phase read. The outer tuple/array is readonly; nested element types determine whether their contents can change.
+The readonly pair supplies the lower and upper physical stations of the measured course. Equal values request one preparation for a horizontal course.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -98,7 +98,7 @@ IAutoMovieHumanHeadTapeStation.CreateEnds is the canonical exchange used by Auto
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-The representation is used by AutoMovieHumanHeadTapeStation.create for share only exact unchanged endpoints, and carry an arbitrary selected bracket trial directly into its final phase read.
+The pair describes fixed input stations of one integration. It carries neither bracket state nor previous trial outputs.
 
 # src/human/generation/head/IAutoMovieHumanHeadTapeStation.ts#IAutoMovieHumanHeadTapeStation.VectorLocal
 

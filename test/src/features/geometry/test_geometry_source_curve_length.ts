@@ -22,7 +22,7 @@ type Piece = Parameters<typeof measureAutoMovieCurveLength64>[0][number];
  * 1. Lines, helices, a parabola with its asinh antiderivative and a three-dimensional quintic Pythagorean-hodograph curve have independent lengths. Unequal pieces, reversed parameters, world reflections and three length units retain them.
  * 2. Actual natural/quintic Outline station jets measure a folded-back source and a monotone named-height course with nonzero axis drift. Original prepared records remain unchanged; finite zero speed is allowed.
  * 3. Original cubic Bernstein controls retain local-parameter length despite unequal phase widths; the shared API and wrapper both meet the analytic 13/3 mm length. Legacy finite-final returns also retain subnormal rounding and finite quadrature of a curve with endpoint-only speed overflow, while strict source admission still refuses them.
- * 4. Closed-domain queries and the declared finite evaluation budget are observed. Invalid domains/subdivisions, nonfinite endpoint/interior derivatives, unrepresentable widths/nodes/contributions and callback exceptions fail explicitly.
+ * 4. The prepared schedule matches the actual closed-domain queries and finite evaluation budget. Invalid domains/subdivisions, nonfinite endpoint/interior derivatives, unrepresentable widths/nodes/contributions and callback exceptions fail explicitly.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public source-length API, original Outline jet readers and existing cubic wrapper; verifies physical lengths, source immutability, query confinement, fixed work and explicit failure without replacing any foreign callback or global.
  * @evidence contracts/development/testing.md#independent-expectations A line's norm is13; a helix has constant speed. The parabola antiderivative is t*sqrt(1+4*t*t)/2+asinh(2*t)/4. The quintic derivative [1-t*t-t^4,2*t,2*t*t] has speed1+t*t+t^4 and length23/15. Total variation of the known natural source gives14; the monotone quintic height with X=2Y gives sqrt(5). Cubic PH plus a3mm line gives13/3. The large monotone cubic has exact lengthA and endpoint derivative3A beyond binary64; minimum-subnormal weighted terms round to zero by IEEE754 ties-to-even. No quadrature implementation derives these expectations.
@@ -397,7 +397,7 @@ export function test_geometry_source_curve_length(): void {
   );
 
   // Query counters belong to these pure-result test callbacks, never to a foreign method.
-  let reads: number = 0;
+  const reads: number[] = [];
   let outside: boolean = false;
   const bounded: ReturnType<typeof measureAutoMovieCurveLength64> =
     measureAutoMovieCurveLength64(
@@ -405,7 +405,7 @@ export function test_geometry_source_curve_length(): void {
         {
           domain: [2, 3],
           derivative: (t: number): Readonly<AutoMovieVector3Tuple> => {
-            ++reads;
+            reads.push(t);
             outside ||= t < 2 || t > 3;
             return [1, 0, 0];
           },
@@ -417,7 +417,17 @@ export function test_geometry_source_curve_length(): void {
   check(
     failures,
     "closed-domain evaluation budget",
-    reads === 24 * 1024 + 2 && !outside,
+    reads.length === 24 * 1024 + 2 && !outside,
+  );
+  const prepared: number[] = measureAutoMovieCurveLength64.parameters(
+    [2, 3],
+    1024,
+  );
+  check(
+    failures,
+    "prepared schedule matches the exact callback sequence",
+    prepared.length === reads.length &&
+      prepared.every((at: number, i: number): boolean => Object.is(at, reads[i])),
   );
   const constant: (
     t: number,
@@ -444,6 +454,9 @@ export function test_geometry_source_curve_length(): void {
         [{ domain: [0, 1], derivative: constant }],
         count,
       ),
+    );
+    refuses(failures, "prepared subdivision " + count, (): unknown =>
+      measureAutoMovieCurveLength64.parameters([0, 1], count),
     );
     refuses(failures, "cubic subdivision " + count, (): unknown =>
       measureAutoMovieCubicCurveLength64(cubic, count),

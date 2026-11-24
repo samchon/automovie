@@ -101,20 +101,44 @@ export namespace AutoMovieHumanHeadTapeSource {
       throw new Error(
         "Head tape needs ordered original stations inside its domain",
       );
+    return preparePlane(reader, front)(back);
+  }
+
+  /** Fix the original front anchor for a bounded posterior search. */
+  export function preparePlane(
+    reader: IAutoMovieHumanHeadTapeSource.IReader,
+    front: number,
+  ): (back: number) => IAutoMovieHumanHeadTapeSource.IPlane {
+    if (
+      !(
+        Number.isFinite(front) &&
+        front >= reader.source.domain[0] &&
+        front <= reader.source.domain[1]
+      )
+    )
+      throw new Error(
+        "Head tape needs ordered original stations inside its domain",
+      );
     const p: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
       reader,
       front,
     ).point(0);
-    const q: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
-      reader,
-      back,
-    ).point(Math.PI);
-    if (!(p[0] > q[0] && p[1] >= q[1]))
-      throw new Error(
-        "Head tape has no front-higher positive sagittal anchor span",
-      );
-    const b: number = (p[1] - q[1]) / (p[0] - q[0]);
-    return { a: p[1] - b * p[0], b, front: p, back: q, range: [back, front] };
+    return (back: number): IAutoMovieHumanHeadTapeSource.IPlane => {
+      if (!(Number.isFinite(back) && back >= reader.source.domain[0] && back <= front))
+        throw new Error(
+          "Head tape needs ordered original stations inside its domain",
+        );
+      const q: AutoMovieVector3Tuple = AutoMovieHumanHeadTapeStation.prepare(
+        reader,
+        back,
+      ).point(Math.PI);
+      if (!(p[0] > q[0] && p[1] >= q[1]))
+        throw new Error(
+          "Head tape has no front-higher positive sagittal anchor span",
+        );
+      const b: number = (p[1] - q[1]) / (p[0] - q[0]);
+      return { a: p[1] - b * p[0], b, front: [...p], back: q, range: [back, front] };
+    };
   }
 
   /**
@@ -137,7 +161,7 @@ export namespace AutoMovieHumanHeadTapeSource {
       reader,
       plane,
       phase,
-      AutoMovieHumanHeadTapeStation.create(reader, plane.range),
+      AutoMovieHumanHeadTapeStation.create(reader),
     );
   }
 
@@ -203,7 +227,7 @@ export namespace AutoMovieHumanHeadTapeSource {
    * @evidence contracts/common.md#meaningful-documentation Returns mm and preserves all original source/root/derivative failures.
    * @evidence contracts/performance.md#efficient-algorithms N original knot planes use bounded native phase inversions, then the resulting O(N) pieces use the shared K/2K quadrature policy and at's source-query bound.
    * @evidence contracts/performance.md#reuse-equivalent-work Every derivative query borrows the same actual source and plane; the two exact endpoint Point0 preparations are shared across phases and each selected trial supplies its final phase geometry.
-   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure retains two successful endpoint readers and its active bracket; selected-trial numeric data expires after its final phase read.
+   * @evidence contracts/performance.md#bound-retention-and-release-resources The synchronous measure prepares its declared endpoints and holds its active bracket; selected-trial numeric data expires after its final phase read.
    */
   export function measure(
     reader: IAutoMovieHumanHeadTapeSource.IReader,
@@ -216,7 +240,10 @@ export namespace AutoMovieHumanHeadTapeSource {
     );
 
     const sources: IAutoMovieHumanHeadTapeStation.IOutput =
-      AutoMovieHumanHeadTapeStation.create(reader, plane.range);
+      AutoMovieHumanHeadTapeStation.create(
+        reader,
+        plane.b === 0 ? [plane.range[0], plane.range[0]] : plane.range,
+      );
 
     return measureAutoMovieCurveLength64(
       sites

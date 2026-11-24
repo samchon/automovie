@@ -19,21 +19,15 @@ import { AutoMovieHumanHeadNeckScalars } from "./AutoMovieHumanHeadNeckScalars";
 /** A complete radius-dependent original neck trial, before any emitted curve or loft. */
 export namespace AutoMovieHumanHeadNeckBaseTrial {
   /**
-   * Reuse only identical binary64 theta readings of this immutable template.
-   * Fixed native-piece intervals use the engine's unchanged K/2K nodes;
-   * variable height/site/preimage intervals are evaluated without retention.
-   * No world radius, station, height, side phase or frame enters this map.
-   * Its size is bounded by the fixed source-piece intervals' GL8 K=4/8 nodes,
-   * and it is released with this one base solve.
+   * Prepare the exact GL8 K=4/8 nodes of the immutable native pieces in the
+   * shared tape clock. A varying height/site/preimage split uses direct reads.
+   * One base solve owns this finite preparation.
    */
   export function prepareNative(
     template: IAutoMovieViewSection.ISection,
+    clock: number,
     work?: IAutoMovieHumanHeadNeckCurves.IWork,
   ): IAutoMovieHumanHeadNeckBaseTrial.IPolar {
-    const readings: Map<
-      number,
-      IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
-    > = new Map();
     const boundaries: Set<number> = new Set([0, 2 * Math.PI]);
     for (const [q, arc] of template.conics.quarters.entries()) {
       const first: number = (q * Math.PI) / 2;
@@ -43,27 +37,50 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
       if (arc.start !== null) boundaries.add(first + arc.start.angle);
       if (arc.end !== null) boundaries.add(last - arc.end.angle);
     }
-    return {
-      boundaries: [...boundaries].sort((a: number, b: number): number => a - b),
-      at(
-        theta: number,
-        fixedPartition: boolean,
-      ): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading {
-        const previous:
-          | IAutoMovieHumanHeadNeckBaseTrial.IPolarReading
-          | undefined = fixedPartition ? readings.get(theta) : undefined;
-        if (previous !== undefined) {
-          if (work !== undefined) work.baseNativeReused++;
-          return previous;
+    const stations: number[] = [
+      ...new Set(
+        Array.from(
+          boundaries,
+          (angle: number): number => clock * (angle / (2 * Math.PI)),
+        ),
+      ),
+    ].sort((a: number, b: number): number => a - b);
+    type Read = (station: number) => IAutoMovieHumanHeadNeckBaseTrial.IPolarReading;
+    const read: Read = (
+      station: number,
+    ): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading => {
+      const theta: number = (2 * Math.PI * station) / clock;
+      if (work !== undefined) work.baseNativeEvaluations++;
+      return {
+        jet: AutoMovieViewSection.radius(template, theta),
+        cos: Math.cos(theta),
+        sin: Math.sin(theta),
+      };
+    };
+    const pieces: Read[] = stations.slice(1).map((last: number, i: number): Read => {
+      const nodes: number[] = measureAutoMovieCurveLength64
+        .parameters([stations[i]!, last], 4)
+        .sort((a: number, b: number): number => a - b);
+      const values: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading[] = nodes.map(read);
+      return (station: number): IAutoMovieHumanHeadNeckBaseTrial.IPolarReading => {
+        let low: number = 0;
+        let high: number = nodes.length - 1;
+        while (low < high) {
+          const middle: number = (low + high) >>> 1;
+          if (nodes[middle]! < station) low = middle + 1;
+          else high = middle;
         }
-        const value: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading = {
-          jet: AutoMovieViewSection.radius(template, theta),
-          cos: Math.cos(theta),
-          sin: Math.sin(theta),
-        };
-        if (work !== undefined) work.baseNativeEvaluations++;
-        if (fixedPartition) readings.set(theta, value);
-        return value;
+        if (nodes[low] !== station)
+          throw new Error("Neck native piece requires a declared quadrature node");
+        if (work !== undefined) work.baseNativeReused++;
+        return values[low]!;
+      };
+    });
+    return {
+      stations,
+      piece(first: number, last: number): Read {
+        const index: number = stations.indexOf(first);
+        return index >= 0 && last === stations[index + 1] ? pieces[index]! : read;
       },
     };
   }
@@ -136,20 +153,15 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
     const preparedHeight: IAutoMovieViewOutline.IOutline =
       prepareScalar(height);
     const native: IAutoMovieHumanHeadNeckBaseTrial.IPolar =
-      sharedPolar ?? prepareNative(template, work);
+      sharedPolar ?? prepareNative(template, family.clock, work);
 
     // Only actual rational-piece joins belong to the source partition.
     // The template's observation knots refine inspection/native quadrature;
     // they neither define this polar course nor replace its K4/K8 check.
-    const fixed: Set<number> = new Set(
-      native.boundaries.map(
-        (angle: number): number => family.clock * (angle / (2 * Math.PI)),
-      ),
-    );
     const cuts: number[] = height.knots.map(
       (knot: IAutoMovieViewPart.IKnot): number => knot.station,
     );
-    cuts.push(...fixed);
+    cuts.push(...native.stations);
 
     // Each trial has different height spans. Split at the actual radius-knot
     // numerical preimages, not a previous radius's quadrature population.
@@ -185,9 +197,13 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
             (
               end: number,
               i: number,
-            ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => ({
-              domain: [partition[i]!, end],
-              derivative(s: number): [number, number, number] {
+            ): Parameters<typeof measureAutoMovieCurveLength64>[0][number] => {
+              const start: number = partition[i]!;
+              const polarAt: ReturnType<IAutoMovieHumanHeadNeckBaseTrial.IPolar["piece"]> =
+                native.piece(start, end);
+              return {
+                domain: [start, end],
+                derivative(s: number): [number, number, number] {
                 if (work !== undefined) {
                   work.baseFixedQueries++;
                   work.baseRadiusQueries++;
@@ -204,9 +220,8 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
                   axis,
                   y.value,
                 );
-                const theta: number = (2 * Math.PI * s) / family.clock;
                 const polar: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading =
-                  native.at(theta, fixed.has(partition[i]!) && fixed.has(end));
+                  polarAt(s);
                 const jet: IAutoMovieHumanHeadNeckBaseTrial.IPolarReading["jet"] =
                   polar.jet;
                 const u: number = jet[0] * polar.cos;
@@ -221,8 +236,9 @@ export namespace AutoMovieHumanHeadNeckBaseTrial {
                   dy,
                   dq * v + q * dv * turn,
                 ];
-              },
-            }),
+                },
+              };
+            },
           ),
         4,
       );

@@ -6,11 +6,11 @@ States the bracket premise, the halving rule and the stop condition.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents A root of a continuous function inside a bracket by the Illinois rule: regula falsi that halves the stored value of the end kept twice in a row, improving the one-sided stagnation of plain regula falsi: companion namespace of 1 member (`root`); units and frames named in its text: second. It has no optional member, so no absent-value state combines with another.
+The Illinois rule halves the residual weight of the end kept twice in a row. The owner accepts scalar roots or evaluated trials on the same bracket.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Owned by the module that declares `AutoMovieIllinois` in packages/engine/src/geometry/construction/AutoMovieIllinois.ts; its surface is the 1 member listed and the text shows 20 other files naming it, mostly packages/human (18), packages/engine (2), so no member is declared for a presumed future need.
+Existing scalar callers use `root`. Head calibration uses `select` to carry an actual evaluated member into the next source operation.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -45,3 +45,33 @@ Reuses retained endpoint residuals and applies Illinois weighting instead of ree
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
 Holds only scalar iteration state and the supplied callback during the synchronous call; no task or cache survives return or a thrown callback.
+
+# src/geometry/construction/AutoMovieIllinois.ts#AutoMovieIllinois.select
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Takes explicit evaluated endpoints with their scalar parameters and separates trial construction from reading its residual.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+Applies the Illinois weights and retains the evaluated trial that produced the selected residual.
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+The scalar root uses the same implementation with the parameter as its trial. A structured caller supplies the residual projection.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+A sign failure returns null. An exact endpoint zero selects that endpoint. On iteration exhaustion the last trial carries no tolerance certificate.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Reads both endpoint residuals and constructs at most one new trial per requested iteration.
+
+## @evidence contracts/development/implementation.md#reuse-equivalent-work
+
+Returns the actual member directly. No caller has to evaluate the parameter again to recover it.
+
+## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+
+Keeps the scalar bracket and selected member during the call. No lookup or refinement data survives.

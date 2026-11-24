@@ -45,16 +45,13 @@ export namespace IAutoMovieHumanHeadNeckBaseTrial {
     readonly sin: number;
   }
 
-  /** One native template reader; only fixed-partition query parameters may be retained.
-   */
+  /** Native readings prepared on the fixed, original piece partition. */
   export interface IPolar {
-    /** Actual quarter/G2 source-piece boundaries in the immutable native radian clock; inspection/refinement samples are separate. */
-    readonly boundaries: readonly number[];
+    /** Actual quarter/G2 piece boundaries expressed in the shared tape clock. */
+    readonly stations: readonly number[];
 
-    /**
-     * False evaluates without retaining a trial-dependent quadrature parameter.
-     */
-    at(theta: number, fixedPartition: boolean): IPolarReading;
+    /** Fixed pieces read their prepared nodes. Any split piece reads its moving parameters directly. */
+    piece(first: number, last: number): (station: number) => IPolarReading;
   }
 
   /** The extents argument of AutoMovieHumanHeadNeckBaseTrial.create. ISO 8559-1 3.1.7 identifies an anterior trapezius border, not a fixed

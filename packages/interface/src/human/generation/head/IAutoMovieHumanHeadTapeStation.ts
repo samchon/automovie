@@ -29,12 +29,12 @@ export namespace IAutoMovieHumanHeadTapeStation {
     readonly station: number;
 
     /**
-     * Point0 inversion retains its exact prepared frame after a successful first read.
+     * Read the original world point in the prepared station frame.
      */
     point(phase: number): AutoMovieVector3Tuple;
 
     /**
-     * Explicit phase demand reads its actual frame and shares only the numeric native source.
+     * Read the native phase jet and its world point in the prepared frame.
      */
     value(phase: number): IReading;
   }
@@ -45,15 +45,14 @@ export namespace IAutoMovieHumanHeadTapeStation {
     /** Original world point, calibration mm. */
     point: AutoMovieVector3Tuple;
 
-    /** Actual current world frame; phase reads do not borrow an inverse trial's frame. */
+    /** Original world frame of the prepared physical station. */
     frame: IAutoMovieLoftSectionFrame;
 
     /** Same native point and its first two phase derivatives. */
     local: IAutoMovieLoftSectionPhase;
   }
 
-  /** One measured course retains only its two successful endpoint preparations.
-   */
+  /** A course reader with optional fixed integration endpoint preparations. */
   export interface IOutput {
     /**
      * Actual Point0 and the source that produced this bracket trial.
@@ -66,10 +65,7 @@ export namespace IAutoMovieHumanHeadTapeStation {
     value(station: number, phase: number, selected?: IPrepared): IReading;
   }
 
-  /** The ends argument of AutoMovieHumanHeadTapeStation.create. Share only exact unchanged endpoints, and carry an arbitrary selected
-  bracket trial directly into its final phase read. No trial-station map,
-  failed preparation, whole part or physical Hessian is cached.
- */
+  /** Ordered physical stations to prepare for repeated integration, in calibration mm. */
   export type CreateEnds = readonly [number, number];
 
   /** The local argument of AutoMovieHumanHeadTapeStation.vector. Restore a native local vector without an origin translation.

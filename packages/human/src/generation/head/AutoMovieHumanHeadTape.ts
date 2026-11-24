@@ -112,8 +112,8 @@ export namespace AutoMovieHumanHeadTape {
    * sign bracket like the former safeguarded secant but replaces its forced
    * bisection on every fourth step by the Illinois halving of a stagnant end,
    * converging superlinearly at this simple root. Each residual is one member
-   * with its course maximum; members are memoised by power, and the previous
-   * best member's posterior coordinate seeds the next maximum. The final
+   * with its course maximum. The bracket starts with two complete members,
+   * and the best member's posterior coordinate seeds the next maximum. The final
    * member is re-maximized by the complete search, and the result is
    * published only when that certified length meets the unchanged 1e-8 mm
    * allowance; otherwise null tells the caller to repeat with `complete`.
@@ -125,11 +125,8 @@ export namespace AutoMovieHumanHeadTape {
     allowance: number,
     mode: IAutoMovieHumanHeadTapeBrow.Mode,
   ): IAutoMovieHumanHeadTape.IResult | null {
-    const trials: Map<number, Trial> = new Map();
     let best: Trial | null = null;
     const trial: (power: number) => Trial = (power: number): Trial => {
-      const previous: Trial | undefined = trials.get(power);
-      if (previous !== undefined) return previous;
       const member: IAutoMovieHumanHeadTape.Member = factory(power);
       const reader: IAutoMovieHumanHeadTapeSource.IReader =
         AutoMovieHumanHeadTapeSource.of(member.part);
@@ -145,7 +142,6 @@ export namespace AutoMovieHumanHeadTape {
           best === null ? "complete" : mode,
         ),
       };
-      trials.set(power, current);
       if (
         best === null ||
         Math.abs(current.course.lengthMm - plan.tape) <
@@ -166,10 +162,11 @@ export namespace AutoMovieHumanHeadTape {
       throw new Error(
         `Public head tape has no retained-family bracket: target=${plan.tape}, source lengths=${low.course.lengthMm},${high.course.lengthMm}`,
       );
-    AutoMovieIllinois.root(
-      (power: number): number => trial(power).course.lengthMm - plan.tape,
-      1.6,
-      6,
+    AutoMovieIllinois.select(
+      trial,
+      (member: Trial): number => member.course.lengthMm - plan.tape,
+      [low.power, low],
+      [high.power, high],
       allowance,
       40,
     );
@@ -235,8 +232,6 @@ export namespace AutoMovieHumanHeadTape {
     let unavailable: number = 0;
     let best: IAutoMovieHumanHeadTape.ICourse | null = null;
     const coarse: IAutoMovieHumanHeadTape.ICourse[] = [];
-    const measuredPlanes: Map<string, IAutoMovieHumanHeadTape.ICourse | null> =
-      new Map();
     const evaluate: (
       u: number,
       v: number,
@@ -245,8 +240,6 @@ export namespace AutoMovieHumanHeadTape {
       v: number,
     ): IAutoMovieHumanHeadTape.ICourse | null => {
       if (u < 0 || u > 1 || v < 0 || v > 1) return null;
-      const key: string = `${u},${v}`;
-      if (measuredPlanes.has(key)) return measuredPlanes.get(key)!;
       if (evaluations >= 512) return null;
       evaluations++;
       if (
@@ -269,7 +262,7 @@ export namespace AutoMovieHumanHeadTape {
         return null;
       const measured: ReturnType<typeof AutoMovieHumanHeadTapeSource.measure> =
         AutoMovieHumanHeadTapeSource.measure(reader, plane, 2);
-      const course: IAutoMovieHumanHeadTape.ICourse = {
+      return {
         plane,
         ...measured,
         coordinates: [u, v],
@@ -277,8 +270,6 @@ export namespace AutoMovieHumanHeadTape {
         evaluations,
         unavailable,
       };
-      measuredPlanes.set(key, course);
-      return course;
     };
     for (const u of [0, 0.5, 1])
       for (const v of [0, 0.5, 1]) {
@@ -294,10 +285,10 @@ export namespace AutoMovieHumanHeadTape {
           best = candidate;
       }
     if (seed !== undefined) {
-      const candidate: IAutoMovieHumanHeadTape.ICourse | null = evaluate(
-        seed[0],
-        seed[1],
-      );
+      const candidate: IAutoMovieHumanHeadTape.ICourse | null =
+        coarse.find((course: IAutoMovieHumanHeadTape.ICourse): boolean =>
+          course.coordinates[0] === seed[0] && course.coordinates[1] === seed[1],
+        ) ?? evaluate(seed[0], seed[1]);
       if (
         candidate !== null &&
         (best === null || candidate.lengthMm > best.lengthMm)
@@ -345,12 +336,16 @@ export namespace AutoMovieHumanHeadTape {
       initial: IAutoMovieHumanHeadTape.ICourse,
     ): IAutoMovieHumanHeadTape.ICourse {
       const simplex: IAutoMovieHumanHeadTape.ICourse[] = [initial];
+      const sample: typeof evaluate = (u: number, v: number) =>
+        simplex.find((vertex: IAutoMovieHumanHeadTape.ICourse): boolean =>
+          vertex.coordinates[0] === u && vertex.coordinates[1] === v,
+        ) ?? evaluate(u, v);
       for (const component of [0, 1] as const) {
         let vertex: IAutoMovieHumanHeadTape.ICourse | null = null;
         for (const direction of [1, -1]) {
           const point: [number, number] = [...initial.coordinates];
           point[component] += direction / 8;
-          vertex = evaluate(...point);
+          vertex = sample(...point);
           if (vertex !== null) break;
         }
         if (vertex === null)
@@ -389,7 +384,7 @@ export namespace AutoMovieHumanHeadTape {
         ) => IAutoMovieHumanHeadTape.ICourse | null = (
           factor: number,
         ): IAutoMovieHumanHeadTape.ICourse | null =>
-          evaluate(
+          sample(
             centre[0] + factor * (centre[0] - worst.coordinates[0]),
             centre[1] + factor * (centre[1] - worst.coordinates[1]),
           );
@@ -420,7 +415,7 @@ export namespace AutoMovieHumanHeadTape {
           else
             for (let index: number = 1; index < 3; index++) {
               const vertex: IAutoMovieHumanHeadTape.ICourse = simplex[index]!;
-              const shrunk: IAutoMovieHumanHeadTape.ICourse | null = evaluate(
+              const shrunk: IAutoMovieHumanHeadTape.ICourse | null = sample(
                 (leader.coordinates[0] + vertex.coordinates[0]) / 2,
                 (leader.coordinates[1] + vertex.coordinates[1]) / 2,
               );

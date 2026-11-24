@@ -27,19 +27,32 @@ export namespace AutoMovieIllinois {
     tolerance: number,
     iterations: number,
   ): number | null {
-    let x0: number = a;
-    let x1: number = b;
-    let f0: number = f(x0);
-    let f1: number = f(x1);
-    if (f0 === 0) return x0;
-    if (f1 === 0) return x1;
+    return select((x: number): number => x, f, [a, a], [b, b], tolerance, iterations);
+  }
+
+  /** Apply the same bracketed rule and return the selected evaluated trial. */
+  export function select<T>(
+    evaluate: (x: number) => T,
+    residual: (trial: T) => number,
+    a: readonly [number, T],
+    b: readonly [number, T],
+    tolerance: number,
+    iterations: number,
+  ): T | null {
+    let x0: number = a[0];
+    let x1: number = b[0];
+    let f0: number = residual(a[1]);
+    let f1: number = residual(b[1]);
+    if (f0 === 0) return a[1];
+    if (f1 === 0) return b[1];
     if (!(f0 * f1 < 0)) return null;
     let side: number = 0;
-    let x: number = x0;
+    let selected: T = a[1];
     for (let i: number = 0; i < iterations; i++) {
-      x = (x0 * f1 - x1 * f0) / (f1 - f0);
-      const fx: number = f(x);
-      if (Math.abs(fx) <= tolerance) return x;
+      const x: number = (x0 * f1 - x1 * f0) / (f1 - f0);
+      selected = evaluate(x);
+      const fx: number = residual(selected);
+      if (Math.abs(fx) <= tolerance) return selected;
       if (fx * f1 < 0) {
         // The root lies between x and x1: x0's end is replaced.
         x0 = x1;
@@ -56,6 +69,6 @@ export namespace AutoMovieIllinois {
         side = -1;
       }
     }
-    return x;
+    return selected;
   }
 }
