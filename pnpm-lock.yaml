@@ -194,7 +194,7 @@ catalogs:
       version: 1.62.0
     playwright-core:
       specifier: ^1.60.0
-      version: 1.62.0
+      version: 1.60.0
     pngjs:
       specifier: ^7.0.0
       version: 7.0.0
@@ -229,8 +229,8 @@ catalogs:
       specifier: ^0.37.1
       version: 0.37.1
     '@wrtnlabs/evidence':
-      specifier: ^0.11.0
-      version: 0.11.0
+      specifier: ^0.11.1
+      version: 0.11.1
     tstl:
       specifier: ^3.0.0
       version: 3.0.0
@@ -333,7 +333,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       bumpp:
         specifier: catalog:utils
         version: 12.3.0
@@ -387,7 +387,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       tinyglobby:
         specifier: catalog:utils
         version: 0.2.17
@@ -427,7 +427,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       automovie:
         specifier: workspace:^
         version: link:../cli
@@ -485,7 +485,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -510,7 +510,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -525,7 +525,7 @@ importers:
     dependencies:
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -633,7 +633,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -654,7 +654,7 @@ importers:
         version: 0.37.1(ttsc@0.37.1(typescript@7.0.2))
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -697,7 +697,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       automovie:
         specifier: workspace:^
         version: link:../cli
@@ -749,7 +749,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -789,7 +789,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -823,7 +823,7 @@ importers:
         version: 22.19.20
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       rimraf:
         specifier: catalog:utils
         version: 6.1.3
@@ -863,7 +863,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       react:
         specifier: catalog:react
         version: 19.3.1
@@ -978,7 +978,7 @@ importers:
         version: 0.186.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
-        version: 0.11.0(ttsc@0.37.1(typescript@7.0.2))
+        version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
       chalk:
         specifier: catalog:utils
         version: 4.1.2
@@ -2648,8 +2648,8 @@ packages:
   '@webassemblyjs/wast-printer@1.14.1':
     resolution: {integrity: sha512-kPSSXE6De1XOR820C90RIo2ogvZG+c3KiHzqUoO/F34Y2shGzesfqv7o57xrxovZJH/MetF5UjroJ/R/3isoiw==}
 
-  '@wrtnlabs/evidence@0.11.0':
-    resolution: {integrity: sha512-eftgpw+au1E2w84+WWn1w82g7PdnxdZceecuHw1h2CfxnAjBcSKCoV+3WHanyFOogxNOEHDar9McVpST6SIr0A==}
+  '@wrtnlabs/evidence@0.11.1':
+    resolution: {integrity: sha512-dqJ0PpP2nRjnZLjC1JvJY2x7RowwlP6xkl+TXs7G6yklOpA8886aJLarItxNGTiiD5AnOjHh+ZTFYj5aXyuV7w==}
     hasBin: true
 
   '@xmldom/xmldom@0.9.12':
@@ -6253,7 +6253,7 @@ snapshots:
       '@webassemblyjs/ast': 1.14.1
       '@xtuc/long': 4.2.2
 
-  '@wrtnlabs/evidence@0.11.0(ttsc@0.37.1(typescript@7.0.2))':
+  '@wrtnlabs/evidence@0.11.1(ttsc@0.37.1(typescript@7.0.2))':
     dependencies:
       '@prisma/prisma-schema-wasm': 7.10.0-2.d0368e25c88e68caa4d283b5f2d88d1b76ed9356
       '@typia/interface': 15.4.1

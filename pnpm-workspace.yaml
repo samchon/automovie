@@ -8,7 +8,7 @@ catalogs:
   samchon:
     typia: &typia ^15.4.1
     "@nestia/e2e": ^14.3.1
-    "@wrtnlabs/evidence": ^0.11.0
+    "@wrtnlabs/evidence": ^0.11.1
     tstl: ^3.0.0
     ttsc: &ttsc ^0.37.1
     "@ttsc/evidence": *ttsc
@@ -83,4 +83,4 @@ minimumReleaseAgeExclude:
   - "@typia/utils@15.4.1"
   - ttsc@0.37.1
   - typia@15.4.1
-  - "@wrtnlabs/evidence@0.11.0"
+  - "@wrtnlabs/evidence@0.11.1"
