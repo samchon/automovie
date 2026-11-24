@@ -1,4 +1,3 @@
-import { admitAutoMovieFilmShading } from "@automovie/engine";
 import type {
   IAutoMovieFilmShading,
   IAutoMovieIrradianceProbe,
@@ -20,20 +19,18 @@ import { bakeAutoMovieFilmProbes } from "./bakeAutoMovieFilmProbes.js";
  *
  * `draw` with a shading that has `probes` or `occlusion`:
  *
- * 1. Admits the shading with `admitAutoMovieFilmShading`, which refuses either
- *    without optics;
- * 2. Patches every lit material in the scene once with `applyFilmIndirectPatch`;
- * 3. With `probes`, bakes them with `bakeAutoMovieFilmProbes` unless the last bake
+ * 1. Patches every lit material in the scene once with `applyFilmIndirectPatch`;
+ * 2. With `probes`, bakes them with `bakeAutoMovieFilmProbes` unless the last bake
  *    had the same box, spacing, layer and revision, which by the contract's
  *    meaning of `revision` is exactly what a new bake would give, and stores
  *    the bake as a float texture of nine coefficient texels per probe;
- * 4. With `occlusion`, renders a depth and view-space normal prepass of the scene
+ * 3. With `occlusion`, renders a depth and view-space normal prepass of the scene
  *    through the beauty camera at the beauty raster, background and display
  *    overlays (`toneMapped: false`, which the response stage draws last) off,
  *    every object drawn with one double-sided normal material;
- * 5. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
+ * 4. Runs the horizon search of `AUTOMOVIE_FILM_OCCLUSION_SHADERS` and its 4 × 4
  *    blur into a visibility target;
- * 6. Turns on the patch's terms that were asked for, calls `beauty`, which draws
+ * 5. Turns on the patch's terms that were asked for, calls `beauty`, which draws
  *    the beauty pass (the film response stage), and turns them off again.
  *
  * Without shading, or with a shading that asks for nothing, `draw` only calls
@@ -142,12 +139,7 @@ export class AutoMovieFilmIndirectStage {
     return this.uniforms_;
   }
 
-  /**
-   * Measure the shading of one second, then draw the beauty pass with it.
-   *
-   * Throws, before anything is drawn, the refusal of
-   * `admitAutoMovieFilmShading`.
-   */
+  /** Measure the shading of one second, then draw the beauty pass with it. */
   public draw(
     props: {
       /** The renderer; its current target receives the beauty pass. */
@@ -187,7 +179,6 @@ export class AutoMovieFilmIndirectStage {
       beauty();
       return;
     }
-    admitAutoMovieFilmShading(shading, props.seconds, props.optics);
     if (shading.occlusion === undefined && shading.probes === undefined) {
       beauty();
       return;

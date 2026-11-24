@@ -1,7 +1,4 @@
-import {
-  admitAutoMovieFilmOptics,
-  autoMovieFilmResponseMatrix,
-} from "@automovie/engine";
+import { autoMovieFilmResponseMatrix } from "@automovie/engine";
 import type { IAutoMovieFilmOptics } from "@automovie/interface";
 import * as THREE from "three";
 
@@ -171,10 +168,6 @@ export class AutoMovieFilmResponseStage {
    * Draw `scene` through `camera` into the renderer's current target at `width`
    * by `height` pixels, with the response of `optics`, or plainly when it is
    * absent.
-   *
-   * `optics` is admitted by `admitAutoMovieFilmOptics` before anything is
-   * drawn, so an out-of-range value throws an error naming `seconds` and the
-   * field, and leaves the renderer and scene untouched.
    */
   public draw(props: {
     /** The renderer, whose current target receives the picture. */
@@ -222,7 +215,6 @@ export class AutoMovieFilmResponseStage {
       renderer.render(scene, camera);
       return;
     }
-    admitAutoMovieFilmOptics(optics, props.seconds);
     const targets: allocateAutoMovieFilmTargets.ITargets = this.prepare(
       props.width,
       props.height,
@@ -297,8 +289,8 @@ export class AutoMovieFilmResponseStage {
   /**
    * Render sample `index` of `count` sub-frame samples of one second, placed by
    * the caller in sample order, and add it to the running average that `draw`
-   * with `accumulated: true` then responds to. Sample 0 admits `optics`; the
-   * sum itself is `AutoMovieFilmSampleSum`'s.
+   * with `accumulated: true` then responds to. The sum itself is
+   * `AutoMovieFilmSampleSum`'s.
    */
   public accumulate(
     props: Omit<
@@ -315,8 +307,6 @@ export class AutoMovieFilmResponseStage {
       count: number;
     },
   ): void {
-    if (props.index === 0)
-      admitAutoMovieFilmOptics(props.optics, props.seconds);
     const linear: THREE.WebGLRenderTarget = this.prepare(
       props.width,
       props.height,
