@@ -1,116 +1,19 @@
-import { AutoMovieMeshExtract } from "@automovie/engine";
-import type {
-  IAutoMovieMeshSectionChain,
-  IAutoMovieMeshSectionCut,
-  IAutoMovieMeshSectionFrame,
-} from "@automovie/interface";
 import fs from "node:fs/promises";
 import path from "node:path";
 
 import { FamilyConicCaptureContext as Capture } from "./FamilyConicCaptureContext";
 import { FamilyConicCaptureFrame as Frame } from "./FamilyConicCaptureFrame";
+import { FamilyConicMpfbArmscye as Armscye } from "./FamilyConicMpfbArmscye";
 import { FamilyConicMpfbSource as Mpfb } from "./FamilyConicMpfbSource";
 import { NodeCanvasCamera as Camera } from "./render/NodeCanvasCamera";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 import type { NodeCanvasTypes as N } from "./render/NodeCanvasTypes";
 
 type Point = Mpfb.Point;
-type Planar = [number, number];
-type Pair = { trunk: Planar[]; upperArm: Planar[] };
 
 /** Euclidean distance in the units of the input points. */
 function distance(a: Point, b: Point): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
-}
-
-/** Test which section contains the arm's skeletal axis. */
-function encloses(loop: readonly Planar[], [x, z]: Planar): boolean {
-  let inside: boolean = false;
-  for (let i: number = 0; i < loop.length; ++i) {
-    const [xa, za] = loop[i]!;
-    const [xb, zb] = loop[(i + 1) % loop.length]!;
-    if (za > z !== zb > z && x < xa + ((xb - xa) * (z - za)) / (zb - za))
-      inside = !inside;
-  }
-  return inside;
-}
-
-/** Find the opening between the trunk and arm using real skin sections. */
-function axilla(
-  source: Mpfb.IGeometry,
-  shoulder: Point,
-  elbow: Point,
-): {
-  point: Point;
-  yBracketMm: [number, number];
-  cutGapMm: number;
-} {
-  const query = AutoMovieMeshExtract.prepareOutline(source.body);
-  const frame: IAutoMovieMeshSectionFrame = {
-    origin: [0, 0, 0],
-    axes: [
-      [0, 1, 0],
-      [1, 0, 0],
-      [0, 0, 1],
-    ],
-  };
-  const sections = (y: number): Pair | null => {
-    const t: number = (y - shoulder[1]) / (elbow[1] - shoulder[1]);
-    const target: Planar = [
-      shoulder[0] + t * (elbow[0] - shoulder[0]),
-      shoulder[2] + t * (elbow[2] - shoulder[2]),
-    ];
-    // Exact slice contours from the asset. A zero bridge preserves an actual opening.
-    const section: IAutoMovieMeshSectionCut = query(frame, [y], 0, 0.5, 0)[0]!;
-    const closed: Planar[][] = section.outer
-      .filter((face: IAutoMovieMeshSectionChain): boolean => face.closed)
-      .map((face): Planar[] => face.points);
-    const trunk: Planar[] | undefined = closed.find(
-      (loop): boolean =>
-        loop.some((p): boolean => p[1] < 0) &&
-        loop.some((p): boolean => p[1] > 0),
-    );
-    const upperArm: Planar[] | undefined = closed.find(
-      (loop): boolean =>
-        loop !== trunk &&
-        loop.every((p): boolean => p[1] > 0) &&
-        encloses(loop, target),
-    );
-    return trunk === undefined || upperArm === undefined
-      ? null
-      : { trunk, upperArm };
-  };
-
-  let low: number = elbow[1],
-    high: number = shoulder[1];
-  let separated: Pair | null = sections(low);
-  if (separated === null || sections(high) !== null)
-    throw new Error(
-      "The public skin does not bracket a separate arm below its shoulder",
-    );
-  // Resolve the height within one millimetre, the existing diagnostic view's chord.
-  while (high - low > 1) {
-    const y: number = (low + high) / 2;
-    const at: Pair | null = sections(y);
-    if (at === null) high = y;
-    else {
-      low = y;
-      separated = at;
-    }
-  }
-
-  // Below the contact height the nearest facing crossings converge to the crease.
-  let gap: number = Infinity;
-  let point: Point = [0, low, 0];
-  for (const a of separated.trunk)
-    for (const b of separated.upperArm) {
-      const separation: number = Math.hypot(a[0] - b[0], a[1] - b[1]);
-      if (separation < gap) {
-        gap = separation;
-        point = [(a[0] + b[0]) / 2, low, (a[1] + b[1]) / 2];
-      }
-    }
-  return { point, yBracketMm: [low, high], cutGapMm: gap };
 }
 
 /** Fit the annotated viewport and remove unrelated skin along the view axis. */
@@ -143,7 +46,7 @@ function frame(
 }
 
 /**
- * Write four source-only views in the public rest pose, in the same view
+ * Write matched skin and contour views in the public rest pose, in the same view
  * directions as the joint comparison. The receipt retains the complete cameras
  * for replay.
  *
@@ -158,10 +61,12 @@ export async function captureMpfbShoulder(
   const shoulder: Point = source.joints.get("joint-l-shoulder")!;
   const clavicle: Point = source.joints.get("joint-l-clavicle")!;
   const elbow: Point = source.joints.get("joint-l-elbow")!;
-  const opening = axilla(source, shoulder, elbow);
+  const landmarks = Armscye.measure(source);
+  const guide = Armscye.guide(source, landmarks);
+  const fold = landmarks.apex;
   const position: number[] = Array.from(source.body.positions);
   const shoulderRadius: number = distance(shoulder, clavicle);
-  const foldRadius: number = distance(shoulder, opening.point);
+  const foldRadius: number = distance(shoulder, fold);
   const points = (centre: Point, radius: number): Point[] => {
     const selection: Point[] = [];
     for (let i: number = 0; i < position.length; i += 3) {
@@ -172,7 +77,7 @@ export async function captureMpfbShoulder(
     return selection;
   };
   const overview: Point[] = points(shoulder, shoulderRadius);
-  const close: Point[] = points(opening.point, foldRadius);
+  const close: Point[] = points(fold, foldRadius);
   const cameras: N.Camera[] = [
     frame("front", [1, 0, 0], [0, 1, 0], overview),
     frame("back", [-1, 0, 0], [0, 1, 0], overview),
@@ -187,24 +92,31 @@ export async function captureMpfbShoulder(
   };
   await fs.mkdir(out, { recursive: true });
   NodeCanvasRaster.initialize();
-  const frames: { file: string; sha256: string; camera: N.Camera }[] = [];
+  const frames: { file: string; sha256: string; camera: N.Camera; pass: string }[] = [];
+  const seam: N.Curve = {
+    id: "hm08.armscye",
+    points: guide.points.map(([x, y, z]): Point => [x / 1000, y / 1000, z / 1000]),
+    closed: true,
+  };
   for (const camera of cameras) {
-    const file: string = `mpfb.hm08.shoulder.${camera.name}.png`;
-    const record = await Frame.write(
-      null,
-      out,
-      file,
-      camera,
-      [mesh],
-      [],
-      "depth",
-      `MPFB HM08 | shoulder | ${camera.name}`,
-      "reference",
-      "left shoulder",
-      undefined,
-      "MPFB HM08",
-    );
-    frames.push({ ...record, camera });
+    for (const pass of ["reference", "reference-guides"] as const) {
+      const file: string = `mpfb.hm08.shoulder.${camera.name}.${pass}.png`;
+      const record = await Frame.write(
+        null,
+        out,
+        file,
+        camera,
+        [mesh],
+        pass === "reference" ? [] : [seam],
+        "depth",
+        `MPFB HM08 | shoulder | ${camera.name} | ${pass}`,
+        pass,
+        "left shoulder",
+        undefined,
+        "MPFB HM08",
+      );
+      frames.push({ ...record, camera, pass });
+    }
   }
   await fs.writeFile(
     path.join(out, "receipt.json"),
@@ -212,8 +124,9 @@ export async function captureMpfbShoulder(
       {
         asset: source.source,
         pose: "HM08 rest",
-        landmarksMm: { shoulder, clavicle, elbow, axilla: opening },
+        landmarksMm: { ...landmarks, shoulder, clavicle, elbow },
         radiusMm: { shoulder: shoulderRadius, axilla: foldRadius },
+        guide: { winding: guide.winding, stations: guide.stations, sampledPoints: guide.points.length },
         vertices: mesh.positions.length / 3,
         triangles: mesh.indices.length / 3,
         frames,
