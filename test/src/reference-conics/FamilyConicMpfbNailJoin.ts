@@ -11,6 +11,7 @@ import {
 import {
   AutoMovieHumanNailLoop as Loop,
   AutoMovieHumanDigitNails as Nails,
+  AutoMovieHumanNailContact as Paired,
 } from "@automovie/human";
 import type {
   IAutoMovieConstructionJoin,
@@ -28,7 +29,6 @@ import type { FamilyConicMpfbDigitTips as Tips } from "./FamilyConicMpfbDigitTip
 import { FamilyConicMpfbNailMesh as Mesh } from "./FamilyConicMpfbNailMesh";
 import { FamilyConicMpfbNailPatch as Patch } from "./FamilyConicMpfbNailPatch";
 import type { FamilyConicMpfbNailStock as Stock } from "./FamilyConicMpfbNailStock";
-import { FamilyConicMpfbPairedNail as Paired } from "./FamilyConicMpfbPairedNail";
 
 /** Native connection and clipped-depth receipts for the actual bed and plate. */
 export namespace FamilyConicMpfbNailJoin {
@@ -49,16 +49,16 @@ export namespace FamilyConicMpfbNailJoin {
 
   /** Verify a one-skin material patch from its committed mesh incidence. */
   export function observePatch(
-    cap: Tips.ICap,
     made: IAutoMovieHumanDigitNails.IMade,
     keep: (result: IExterior) => void,
+    sampling: Parameters<typeof Nails.addReliefs>[1] = {},
     stock?: Stock.IPatch,
   ) {
-    const patch = Patch.realize(cap, made, stock);
+    const patch = Patch.realize(made, sampling, stock);
     const { mesh, seam, plateFrom } = patch;
     const topology = inspectAutoMovieMeshTopology(Mesh.topologyInput(mesh));
     const plateId: number = mesh.owners.indexOf(made.nail.plate.name);
-    const bedId: number = mesh.owners.indexOf(cap.family.name);
+    const bedId: number = mesh.owners.indexOf(made.original.name);
     const direction = Mesh.clipping(
       mesh,
       plateId,
@@ -72,7 +72,7 @@ export namespace FamilyConicMpfbNailJoin {
     const distalBoundary: number = Mesh.boundary(
       mesh,
       bedId,
-      cap.view.stations[0]!,
+      made.original.stations[0]!,
     );
     const incidence = Mesh.seamIncidence(mesh.indices, seam, plateFrom);
     const skin = Mesh.topologyInput({

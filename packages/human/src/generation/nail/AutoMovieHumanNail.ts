@@ -393,15 +393,23 @@ export namespace AutoMovieHumanNail {
     const breadth: number = across[1] - across[0];
     const initialWidth: [number, number] | null =
       measured === undefined ? null : span(segment, first.lateral);
+    const tip0: number = first.at(skin.tip, 0)[0];
+    // ESTIMATE: keep one fold depth distal to the last articulation before
+    // borrowing the stock aspect. The person's own distal reach bounds both
+    // dimensions when that aspect would otherwise put the fold over the joint.
+    const supported: number = tip0 - proportions.fold;
     let width: number = initialWidth === null ? proportions.width * breadth :
       Math.min(breadth, initialWidth[1] - initialWidth[0]);
+    if (initialWidth === null && supported > 0)
+      width = Math.min(width, proportions.aspect * supported);
     let half: number = width / 2;
-    const tip0: number = first.at(skin.tip, 0)[0];
     const initialSpan: [number,number] | null =
       measured === undefined ? null : span(segment, segment.distal);
     let fold0: number = initialSpan?.[0] ?? tip0 - width / proportions.aspect;
     const middleDorsal = (ring: IPreparedRing): ReturnType<IPreparedRing["find"]> => ring.find(ring.middle);
     if (!(fold0 > 0)) throw new Error("nail: " + name + "'s proximal fold stands " + fold0.toFixed(2) + " mm from the last joint, behind it");
+    if (initialWidth === null && !(supported > 0))
+      throw new Error("nail: " + name + " has no distal room for its fold");
     if (!(width > 0 && (initialSpan === null || initialSpan[1] > fold0)))
       throw new Error("nail: " + name + " has no positive measured distal span");
 

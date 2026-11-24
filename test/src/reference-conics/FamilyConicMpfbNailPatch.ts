@@ -11,6 +11,7 @@ import {
   AutoMovieHumanNailLoop as Loop,
   AutoMovieHumanNail as Nail,
   AutoMovieHumanDigitNails as Nails,
+  AutoMovieHumanNailContact as Paired,
 } from "@automovie/human";
 import type {
   IAutoMovieConstructionRealization,
@@ -21,9 +22,7 @@ import type {
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
 
-import type { FamilyConicMpfbDigitTips as Tips } from "./FamilyConicMpfbDigitTips";
 import type { FamilyConicMpfbNailStock as Stock } from "./FamilyConicMpfbNailStock";
-import { FamilyConicMpfbPairedNail as Paired } from "./FamilyConicMpfbPairedNail";
 
 /**
  * A common indexed edge of the skin and an independently named nail material.
@@ -36,17 +35,15 @@ export namespace FamilyConicMpfbNailPatch {
 
   /** Replace the parent chart's trimmed interior by the original plate crown. */
   export function realize(
-    cap: Tips.ICap,
     made: IAutoMovieHumanDigitNails.IMade,
+    sampling: Parameters<typeof Nails.addReliefs>[1],
     stock?: Stock.IPatch,
   ) {
     const started: number = performance.now();
-    const { nail } = made;
+    const { nail, original: source } = made;
+    const tip: number = made.support.domain[1];
     const rawPlate = Nails.attachmentPlate(nail.plate, nail.bed);
-    const rawSkin = Nails.addReliefs(cap.view, cap.family, [
-      nail.bed,
-      nail.strip,
-    ]);
+    const rawSkin = Nails.addReliefs(source, sampling, [nail.bed, nail.strip]);
     const plate = AutoMovieViewLoft.create(rawPlate),
       skin = AutoMovieViewLoft.create(rawSkin);
     if (plate.chain === null || skin.chain === null || skin.surface === null)
@@ -54,8 +51,8 @@ export namespace FamilyConicMpfbNailPatch {
         JSON.stringify([...plate.diagnostics, ...skin.diagnostics]),
       );
     const host: IAutoMovieSolidSurface = skin.surface;
-    const edge = Paired.prepare(nail, rawPlate, rawSkin, cap.tip);
-    const footprint = Loop.prepare(nail, plate.chain, skin.chain, cap.tip);
+    const edge = Paired.prepare(nail, rawPlate, rawSkin, tip);
+    const footprint = Loop.prepare(nail, plate.chain, skin.chain, tip);
     const original = (s: number, phase: number): P3 =>
       AutoMovieLoftChain.point(skin.chain!, s, phase);
     const onPlate = (s: number, phase: number): P3 =>
@@ -160,12 +157,13 @@ export namespace FamilyConicMpfbNailPatch {
       Mesh.vertex(kernel, original(...point), hostId, ...point),
     );
     const [first, last]: [number, number] = host.domain!;
+    const bottom: boolean = rawSkin.pole === "both";
     const stations: number[] = AutoMovieLoftStations.bisect(
       skin.chain,
       first,
       last,
       Nails.CLIP_MM / 4,
-    ).filter((s): boolean => s < cap.tip);
+    ).filter((s): boolean => s < tip && (!bottom || s > first));
     const phases: number[] =
       skin.chain.phases === undefined
         ? Array.from(
@@ -185,28 +183,34 @@ export namespace FamilyConicMpfbNailPatch {
         },
       ],
     });
-    const distal = open.find((ring): boolean => ring.end === "top");
-    if (distal === undefined)
-      throw new AutoMovieLoftAdmissionError(
-        "The skin trim lost its original distal closing ring",
+    // AutoMovieConstructionSkin uses both returned end cycles with their own
+    // winding. Each collapsed pole owns Point0 alone, outside the regular grid.
+    const ends: ("top" | "bottom")[] = bottom ? ["top", "bottom"] : ["top"];
+    for (const end of ends) {
+      const cycle = open.find((ring): boolean => ring.end === end);
+      if (cycle === undefined)
+        throw new AutoMovieLoftAdmissionError(
+          "The skin trim lost its original " + end + " closing ring",
+        );
+      const station: number = end === "top" ? tip : first;
+      const pole: number = Mesh.vertex(
+        kernel,
+        original(station, 0),
+        hostId,
+        station,
+        0,
       );
-    const pole: number = Mesh.vertex(
-      kernel,
-      original(cap.tip, 0),
-      hostId,
-      cap.tip,
-      0,
-    );
-    Mesh.close(
-      kernel,
-      distal.vertices.map((v, i): [number, number, number] => [
-        v,
-        distal.vertices[(i + 1) % distal.vertices.length]!,
-        pole,
-      ]),
-      host,
-      false,
-    );
+      Mesh.close(
+        kernel,
+        cycle.vertices.map((v, i): [number, number, number] => [
+          v,
+          cycle.vertices[(i + 1) % cycle.vertices.length]!,
+          pole,
+        ]),
+        host,
+        false,
+      );
+    }
     const skinDone: number = performance.now();
 
     const plateFrom: number = kernel.indices.length;

@@ -28,6 +28,21 @@ export namespace IAutoMovieHumanDigitNails {
     physicalStation?: (station: number) => number;
   }
 
+  /** The real placed digit before its nail relief. */
+  export interface IOriginal {
+    /** Anatomy key in the nail proportion table. */
+    digit: string;
+
+    /** The placed skin's original chart, including its own distal pole. */
+    source: IAutoMovieViewPart;
+
+    /**
+     * Signed physical mm from the distal joint to each original station plane,
+     * increasing toward the pole.
+     */
+    jointDistance: (station: number) => number;
+  }
+
   /**
    * Axial support and combined bed-and-strip clipping from the prepared
    * original.

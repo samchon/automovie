@@ -174,11 +174,11 @@ export namespace FamilyConicMpfbNails {
           try {
             join = skinPatch
               ? Join.observePatch(
-                  cap,
                   made,
                   (result): void => {
                     mesh = result;
                   },
+                  cap.family,
                   fromStock ? patch : undefined,
                 )
               : Join.observe(

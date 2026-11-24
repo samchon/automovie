@@ -1,6 +1,5 @@
-import { AutoMovieLoftViewFullSource, AutoMovieSolidVector, bracketedRoot } from "@automovie/engine";
+import { AutoMovieLoftViewFullSource } from "@automovie/engine";
 import type {
-  AutoMovieVector3Tuple,
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionNode,
   IAutoMovieHumanConicLoft,
@@ -13,6 +12,7 @@ import type {
 
 import { AutoMovieHumanConicLoft } from "../conic/AutoMovieHumanConicLoft";
 import { AutoMovieHumanCourseRuns } from "../conic/AutoMovieHumanCourseRuns";
+import { AutoMovieHumanDigitNailSkin } from "./AutoMovieHumanDigitNailSkin";
 import { AutoMovieHumanNail } from "./AutoMovieHumanNail";
 
 /**
@@ -84,8 +84,8 @@ export namespace AutoMovieHumanDigitNails {
    * the lunula radius in the absence of comparable data.
    *
    * Applying the female default dimensions to an unmeasured person of another
-   * sex is an ESTIMATE. The width and radius ratios scale with that digit's
-   * own measured skin chart. Plate thickness remains the cited default in mm.
+   * sex is an ESTIMATE. The width and radius ratios scale with that digit's own
+   * measured skin chart. Plate thickness remains the cited default in mm.
    */
   export const ROWS: readonly IAutoMovieHumanDigitNails.IRow[] = [
     finger("finger.thumb", 13.2 / 18.8, 9.6 / 13.2, 0.41),
@@ -112,15 +112,8 @@ export namespace AutoMovieHumanDigitNails {
    */
   export const CLIP_MM: number = 0.01;
 
-  /**
-   * The skin net's chart station step in mm, phase count, and distance in
-   * physical arclength before the last joint.
-   */
-  const SKIN: { station: number; phases: number; before: number } = {
-    station: 0.25,
-    phases: 360,
-    before: 3,
-  };
+  /** The physical extent of the aperture before the last articulation, mm. */
+  const BEFORE_MM: number = 3;
 
   /** The plate's and the bed's names for a digit. */
   export function names(digit: string): { plate: string; bed: string } {
@@ -187,135 +180,112 @@ export namespace AutoMovieHumanDigitNails {
       );
     const surface: IAutoMovieLoftViewFullSource.IReader =
       AutoMovieLoftViewFullSource.create(original);
-    const [from, end]: readonly [number, number] = surface.domain;
     const cap: IAutoMovieHumanConicLoft.ITip | null = family.tips?.[1] ?? null;
+    requirePole(original, surface, cap?.tip);
+    return fit(digit, segment, original, surface, setup, (): number => {
+      // The fitted chart opens before the physical joint rather than before a
+      // numerically equal station on a stretched material course.
+      if (family.native !== undefined && physicalStation === undefined)
+        throw new Error(
+          "nail: " + family.name + " needs the native digit's course map",
+        );
+      const joint: number = AutoMovieHumanCourseRuns.joints(
+        family.centres,
+        family.halves,
+      ).at(-2)!;
+      return AutoMovieHumanDigitNailSkin.aperture(
+        original.name,
+        surface.domain,
+        joint - BEFORE_MM,
+        physicalStation,
+      );
+    });
+  }
+
+  /**
+   * Fit the same plate and bed to a direct digit original and its own station
+   * planes.
+   */
+  export function createOn(
+    { digit, source, jointDistance }: IAutoMovieHumanDigitNails.IOriginal,
+    segment: IAutoMovieHumanNail.IFrame,
+    setup: IAutoMovieHumanNail.ISetup = {},
+  ): IAutoMovieHumanDigitNails.IMade {
+    const surface: IAutoMovieLoftViewFullSource.IReader =
+      AutoMovieLoftViewFullSource.create(source);
+    requirePole(source, surface);
+    return fit(digit, segment, source, surface, setup, (): number =>
+      AutoMovieHumanDigitNailSkin.aperture(
+        source.name,
+        surface.domain,
+        -BEFORE_MM,
+        jointDistance,
+      ),
+    );
+  }
+
+  /**
+   * Admit the actual distal pole, checking a family-declared endpoint when
+   * supplied.
+   */
+  function requirePole(
+    original: IAutoMovieViewPart,
+    surface: IAutoMovieLoftViewFullSource.IReader,
+    tip?: number,
+  ): void {
     if (
       (original.pole !== "top" && original.pole !== "both") ||
-      (cap !== null && end !== cap.tip)
+      (tip !== undefined && surface.domain[1] !== tip)
     )
       throw new Error(
         "nail: " +
-          family.name +
+          original.name +
           " source does not carry its completed distal pole",
       );
+  }
+
+  /**
+   * Use the same fitted net, material shape and clipping receipt for both
+   * source paths.
+   */
+  function fit(
+    digit: string,
+    segment: IAutoMovieHumanNail.IFrame,
+    original: IAutoMovieViewPart,
+    surface: IAutoMovieLoftViewFullSource.IReader,
+    setup: IAutoMovieHumanNail.ISetup,
+    open: () => number,
+  ): IAutoMovieHumanDigitNails.IMade {
     const clinical: IAutoMovieHumanDigitNails.IRow | undefined = ROWS.find(
       (r): boolean => r.digit === digit,
     );
     if (clinical === undefined)
       throw new Error("nail: no proportion row for " + digit);
-    const margin = setup.groove === undefined ? null : measuredGroove(setup.groove, segment);
-    const row: IAutoMovieHumanDigitNails.IRow =
-      margin === null || margin.fold === null ? clinical : {
-        ...clinical,
-        proportions: {
-          ...clinical.proportions,
-          fold: Math.min(clinical.proportions.fold, margin.fold),
-        },
-      };
-    const { plate, bed }: { plate: string; bed: string } = names(family.name);
-
-    // Open the skin chart three physical mm before the last joint's rounded course station, or at the first admitted ring.
-    // The native course reads these same planes in material stations. Invert its declared map inside the digit's chart.
-    if (family.native !== undefined && physicalStation === undefined)
-      throw new Error(
-        "nail: " + family.name + " needs the native digit's course map",
-      );
-    const joint: number = AutoMovieHumanCourseRuns.joints(
-      family.centres,
-      family.halves,
-    ).at(-2)!;
-    const opening: number = joint - SKIN.before;
-    let first: number = Math.max(from, opening);
-    if (
-      physicalStation !== undefined &&
-      physicalStation !== AutoMovieHumanCourseRuns.identity
-    ) {
-      if (opening <= physicalStation(from)) first = from;
-      else {
-        if (!(opening < physicalStation(end)))
-          throw new Error(
-            "nail: " + family.name + " aperture is past the skin's tip",
+    const margin =
+      setup.groove === undefined
+        ? null
+        : AutoMovieHumanDigitNailSkin.measuredGroove(
+            setup.groove,
+            segment,
+            CLIP_MM,
           );
-        first = bracketedRoot(
-          (station: number): number => physicalStation(station) - opening,
-          from,
-          end,
-          1e-9,
-        );
-      }
-    }
-    if (!(first < end))
-      throw new Error(
-        "nail: " + family.name + " aperture is past the skin's tip",
-      );
-
-    // The bilinear net keeps its uniform chart pitch. In the ordinary arclength chart a 0.25 mm chord on a 5 mm radius
-    // stands about 2 micrometres off the skin. Native length transport can change the net's physical spacing.
-    const rows: number = Math.ceil((end - first) / SKIN.station) + 1;
-    const pitch: number = (end - first) / (rows - 1);
-    const ring = (station: number): AutoMovieVector3Tuple[] => {
-      const pointAt = surface.pointAt(station);
-      return Array.from(
-        { length: SKIN.phases },
-        (_: unknown, j: number): AutoMovieVector3Tuple =>
-          pointAt((2 * Math.PI * j) / SKIN.phases),
-      );
-    };
-    const net: AutoMovieVector3Tuple[][] = Array.from(
-      { length: rows },
-      (_: unknown, i: number): AutoMovieVector3Tuple[] =>
-        ring(i === rows - 1 ? end : first + pitch * i),
-    );
-
-    // Keep the fitted chart itself. The bed may also use the original owning
-    // skin between the actual first ring and this chart's first ring.
-    const leading: number = Math.ceil((first - from) / SKIN.station);
-    const leadPitch: number = leading === 0 ? 0 : (first - from) / leading;
-    const proximal: NonNullable<IAutoMovieHumanNail.ISkin["proximal"]> =
-      Array.from({ length: leading }, (_, i: number) => {
-        const station: number = from + leadPitch * i;
-        return { station, ring: ring(station) };
-      });
-    const point = (station: number, phase: number): readonly number[] => {
-      const behind: boolean = leading !== 0 && station < first;
-      const rowCount: number = behind ? leading + 1 : rows;
-      const a: number = Math.max(
-        0,
-        Math.min(
-          rowCount - 1,
-          behind ? (station - from) / leadPitch : (station - first) / pitch,
-        ),
-      );
-      const i: number = Math.min(rowCount - 2, Math.floor(a));
-      const turn: number = phase / (2 * Math.PI);
-      const b: number = (turn - Math.floor(turn)) * SKIN.phases;
-      const j: number = Math.floor(b) % SKIN.phases;
-      const [s, t]: [number, number] = [a - i, b - Math.floor(b)];
-      const at: readonly AutoMovieVector3Tuple[] = behind
-        ? proximal[i]!.ring
-        : net[i]!;
-      const next: readonly AutoMovieVector3Tuple[] = behind
-        ? i + 1 === leading
-          ? net[0]!
-          : proximal[i + 1]!.ring
-        : net[i + 1]!;
-      const [p, q, r, w]: number[][] = [
-        at[j]!,
-        at[(j + 1) % SKIN.phases]!,
-        next[j]!,
-        next[(j + 1) % SKIN.phases]!,
-      ];
-      return [0, 1, 2].map(
-        (k: number): number =>
-          (1 - s) * ((1 - t) * p![k]! + t * q![k]!) +
-          s * ((1 - t) * r![k]! + t * w![k]!),
-      );
-    };
+    const row: IAutoMovieHumanDigitNails.IRow =
+      margin === null || margin.fold === null
+        ? clinical
+        : {
+            ...clinical,
+            proportions: {
+              ...clinical.proportions,
+              fold: Math.min(clinical.proportions.fold, margin.fold),
+            },
+          };
+    const { plate, bed }: { plate: string; bed: string } = names(original.name);
+    const first: number = open();
     const nail = AutoMovieHumanNail.create(
       plate,
       bed,
       segment,
-      { point, first, tip: end, grid: net, proximal },
+      AutoMovieHumanDigitNailSkin.net(surface, first),
       row.proportions,
       3 * CHORD_MM,
       TURN,
@@ -323,7 +293,7 @@ export namespace AutoMovieHumanDigitNails {
     );
     const { clipped, clippedAt, clippedIn } = nail.readings;
     const support: IAutoMovieHumanDigitNails.ISupport = {
-      domain: [from, end],
+      domain: [...surface.domain],
       aperture: first,
       clipped,
       clippedAt,
@@ -334,28 +304,6 @@ export namespace AutoMovieHumanDigitNails {
     return { row, original, nail, support };
   }
 
-  /** The shared source edge locates its proximal ridge and lateral skin reach. */
-  function measuredGroove(
-    rows: NonNullable<IAutoMovieHumanNail.ISetup["groove"]>,
-    frame: IAutoMovieHumanNail.IFrame,
-  ): { fold: number | null; side: number | null } {
-    const { cross, sub, scale, add, dot } = AutoMovieSolidVector;
-    const lateral: AutoMovieVector3Tuple = cross(frame.distal, frame.dorsal);
-    const proximal: number[] = [], aside: number[] = [];
-    for (const { edge: [a,b], skin } of rows) {
-      const reach: AutoMovieVector3Tuple = sub(skin, scale(add(a,b), 0.5));
-      const along: number = dot(reach, frame.distal), across: number = Math.abs(dot(reach, lateral));
-      const dorsal: number = dot(reach, frame.dorsal);
-      if (across > Math.abs(along)) aside.push(across);
-      else if (along < 0 && dorsal > CLIP_MM) proximal.push(dorsal);
-    }
-    const median = (values: number[]): number | null => {
-      if (values.length === 0) return null;
-      values.sort((a,b): number => a-b);
-      return (values[Math.floor((values.length-1)/2)]! + values[Math.floor(values.length/2)]!) / 2;
-    };
-    return { fold: median(proximal), side: median(aside) };
-  }
   /**
    * How far a digit's nail may turn about its long axis from its distal
    * segment's frame, rad: the spread of the prior the skin's levelling is
@@ -371,88 +319,8 @@ export namespace AutoMovieHumanDigitNails {
    */
   const TURN: number = 0.183;
 
-  /**
-   * Insert only display samples inside existing intervals, preserving endpoints
-   * exactly.
-   */
-  function refined(
-    stations: readonly number[],
-    step: (from: number, to: number) => number,
-  ): number[] {
-    return stations.flatMap((to: number, i: number): number[] => {
-      if (i === 0) return [to];
-      const from: number = stations[i - 1]!;
-      const cuts: number = Math.max(1, Math.ceil((to - from) / step(from, to)));
-      return Array.from({ length: cuts }, (_: unknown, k: number): number =>
-        k + 1 === cuts ? to : from + ((to - from) * (k + 1)) / cuts,
-      );
-    });
-  }
-
-  /**
-   * Add reliefs and their display rows to the existing positioned digit.
-   *
-   * The direct view field reads its own outline knots. Its axial and phase
-   * display rows carry no shape authority. Original cap rows stay in the list
-   * and additional rows split their intervals where a relief needs them.
-   *
-   * @evidence contracts/development/implementation.md#principled-implementation Only the sampling lists and reliefs change on the original direct view part.
-   * @evidence contracts/development/implementation.md#clear-and-simple-structure Splits existing station intervals at the finest intersecting relief's row pitch and delegates angular turn sampling.
-   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Keeps the original axis, scalar controls, closure and native material authority. Adds no replacement source or tolerance.
-   * @evidence contracts/development/implementation.md#efficient-algorithms One pass over original station intervals and bounded relief windows before the existing angular sampler.
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The source that drove the fit retains every generating definition at emission.
-   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Borrows immutable source data and allocates only feature and display lists.
-   * @evidence contracts/development/common.md#meaningful-documentation Names the two display clocks and their independence from the original cap and scalar controls.
-   */
-  export function addReliefs(
-    original: IAutoMovieViewPart,
-    family: IAutoMovieHumanConicLoft.IFamily,
-    added: readonly IAutoMovieLoftRelief[],
-  ): IAutoMovieViewPart {
-    const reliefs: IAutoMovieLoftRelief[] = [
-      ...(original.reliefs ?? []),
-      ...added,
-    ];
-    const stations: number[] = refined(
-      original.stations,
-      (from: number, to: number): number =>
-        Math.min(
-          Infinity,
-          ...added
-            .filter(
-              (relief: IAutoMovieLoftRelief): boolean =>
-                relief.stations[0] < to && relief.stations[1] > from,
-            )
-            .map(
-              (relief: IAutoMovieLoftRelief): number =>
-                (relief.stations[1] - relief.stations[0]) / (relief.rows - 3),
-            ),
-        ),
-    );
-    const sampling: IAutoMovieHumanConicLoft.IFamily = { ...family, reliefs };
-    const samples: number =
-      original.phases?.length ??
-      Math.max(
-        original.samples,
-        AutoMovieHumanConicLoft.phaseCount(sampling, 0),
-      );
-    const source: IAutoMovieViewPart = {
-      ...original,
-      stations,
-      reliefs,
-      samples,
-    };
-    const [bottom, top]: [
-      IAutoMovieHumanConicLoft.ITip | null,
-      IAutoMovieHumanConicLoft.ITip | null,
-    ] = family.tips ?? [null, null];
-    const wall: number[] = stations.filter(
-      (s: number): boolean =>
-        (bottom === null || bottom.from <= s) &&
-        (top === null || s <= top.from),
-    );
-    return AutoMovieHumanConicLoft.sampled(sampling, source, wall);
-  }
+  /** Add relief display rows without replacing the actual original field. */
+  export const addReliefs = AutoMovieHumanDigitNailSkin.addReliefs;
 
   /**
    * Legacy family adapter for callers that have yet to prepare their original
@@ -568,16 +436,17 @@ export namespace AutoMovieHumanDigitNails {
                 twin!(made.nail.plate.name),
               );
         const cell: number = bedPitch(made.nail.bed);
-        const plateSource: IAutoMovieViewPart = attachmentPlate(plate, made.nail.bed);
+        const plateSource: IAutoMovieViewPart = attachmentPlate(
+          plate,
+          made.nail.bed,
+        );
         const digitName: string =
           side > 0 ? made.original.name : twin!(made.original.name);
         const digit: IAutoMovieViewPart | undefined = sources.get(digitName);
         if (digit === undefined)
           throw new Error("nail: missing bedded digit " + digitName);
-        const { seed, tolerance, grazing, curveLength, parameter, loop } = contact(
-          plateSource,
-          digit,
-        );
+        const { seed, tolerance, grazing, curveLength, parameter, loop } =
+          contact(plateSource, digit);
         if (
           seed.partFace !== plate.name ||
           seed.hostFace !== digitName ||

@@ -211,7 +211,7 @@ export namespace FamilyConicMpfbNailCapture {
   }
 
   /** Display the retained exterior plate and skin using their mesh ownership. */
-  function shades(
+  export function shades(
     { mesh, plateFrom }: Join.IExterior,
     plate: string,
     colour: N.Mesh["colour"],
@@ -240,7 +240,7 @@ export namespace FamilyConicMpfbNailCapture {
   }
 
   /** Realize only the named skin or plate's actual source. */
-  function realize(
+  export function realize(
     part: IAutoMovieViewPart,
   ): IAutoMovieConstructionRealization.IRealization {
     // ESTIMATE: resolve the established nail chord to a quarter for clay review.

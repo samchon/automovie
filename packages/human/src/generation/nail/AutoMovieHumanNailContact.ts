@@ -4,7 +4,6 @@ import {
   AutoMovieSolidDomain as Domain,
   AutoMovieSolidVector as Vec,
 } from "@automovie/engine";
-import { AutoMovieHumanNailLoop as Loop } from "@automovie/human";
 import type {
   IAutoMovieConstructionSharedLoop,
   IAutoMovieHumanNail,
@@ -14,6 +13,8 @@ import type {
   AutoMovieVector2Tuple as P2,
   AutoMovieVector3Tuple as P3,
 } from "@automovie/interface";
+
+import { AutoMovieHumanNailLoop as Loop } from "./AutoMovieHumanNailLoop";
 
 type Chart = ReturnType<IAutoMovieSolidSharedCurve.Loop>;
 type Ready = Extract<
@@ -28,14 +29,14 @@ type Ready = Extract<
  *
  * @see https://occt3d.com/dev/doc/refman/html/class_b_rep_builder_a_p_i___sewing.html
  */
-export namespace FamilyConicMpfbPairedNail {
+export namespace AutoMovieHumanNailContact {
   /** Parent ellipse shares, from the authored inner support to overflow guard. */
   const SHARES: readonly number[] = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 4];
   /** Four observed points per quarter fit the initial closed chart controls. */
   const GUIDE: number = 16;
   const TURN: number = 2 * Math.PI;
 
-  /** Return two independently queryable charts on one physical original loop. */
+  /** Return both original millimetre/radian curves on the same contact loop. */
   export function prepare(
     nail: IAutoMovieHumanNail.INail,
     plate: IAutoMovieViewPart,

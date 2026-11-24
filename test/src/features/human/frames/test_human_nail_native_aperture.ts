@@ -35,6 +35,8 @@ import { HumanNailFixture } from "../../internal/HumanNailFixture";
  *    jets. The actual collapsed pole has a point without a regular jet.
  * 3. The identity map on exactly that skin opens the chart late at material
  *    station 57.
+ * 4. The same transported original can fit directly from its physical joint
+ *    distance, using the original's actual fields and distal pole.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the native source and course owners and both digit fits. Evaluates the emitted cap outside the retained relief and tests the pole's absent regular jet.
  * @evidence contracts/development/testing.md#independent-expectations The straight course ratio, known section radius and off-quarter first ring determine the probes.
@@ -139,6 +141,30 @@ export function test_human_nail_native_aperture(): void {
     "transported digit's placed pole",
     transported.nail.readings.tip,
     30,
+    1e-9,
+  );
+  const direct: IAutoMovieHumanDigitNails.IMade =
+    AutoMovieHumanDigitNails.createOn(
+      {
+        digit: stretched.name,
+        source: original,
+        jointDistance: (station): number => physicalStation(station) - 60,
+      },
+      stretchedFrame,
+    );
+  if (direct.original !== original)
+    failures.push("direct placement replaced the native digit");
+  near("direct aperture", direct.support.aperture, 38, 1e-9);
+  near(
+    "direct fitted breadth",
+    direct.nail.readings.breadth,
+    transported.nail.readings.breadth,
+    1e-9,
+  );
+  near(
+    "direct fitted clipping",
+    direct.support.clipped,
+    transported.support.clipped,
     1e-9,
   );
   const bed: IAutoMovieHumanDigitNails.IMade["nail"]["bed"] =
