@@ -13,7 +13,8 @@ import { TestValidator } from "@nestia/e2e";
 import { PhysicalModelFixtures } from "../internal/PhysicalModelFixtures";
 
 /**
- * Actual off-centre primitive joint anchors, reach-derived root drop and unchanged support goals.
+ * Actual off-centre primitive joint anchors, reach-derived root drop and
+ * unchanged support goals.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `Quaternion`, `Vector3`, `planPhysicalSupportTargets` on in-memory inputs and asserts the returned observations through 1x TestValidator.equals; the behavior its summary names. A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
  * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
@@ -63,61 +64,69 @@ export function test_physical_support_feedback(): void {
   };
   // The hip and ankle from the fixture's own joint anchors: its bent knees
   // hold the ankle 2 * 0.45 cos(pi / 8) m under the hip, so the root drops
-  // only by what a straight 0.9 m leg still lacks, none for a 0.2 m reach.
+  // only by what a straight 0.9 m leg still lacks, none for a 0.2 m reach and a nonzero drop for 0.45 m.
   const anchor = (child: string): IAutoMovieRigidTransform["position"] => {
-    const joint = profile.joints.find((candidate) => candidate.child === child)!;
+    const joint = profile.joints.find(
+      (candidate) => candidate.child === child,
+    )!;
     const parent: IAutoMovieRigidTransform = targets[joint.parent]!;
     return Vector3.add(
       parent.position,
       Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
     );
   };
-  const reach: number = 0.2;
-  const goal: IAutoMovieRigidTransform["position"] = {
-    ...targets["support-0"]!.position,
-    x: targets["support-0"]!.position.x + reach,
-  };
-  const result: ReturnType<typeof planPhysicalSupportTargets> =
-    planPhysicalSupportTargets({
-      profile,
-      pattern,
-      targets,
-      goals: { "support-0": goal },
-      maximumRootDrop: 0.15,
-      iterations: 48,
-      tolerance: 0.0001,
-    });
-  const expectedDrop: number = Math.max(
-    0,
-    anchor("upper-0").y -
-      anchor("support-0").y -
-      Math.sqrt(0.9 ** 2 - reach ** 2),
-  );
   const failures: string[] = [];
-  if (Math.abs(result.rootDrop - expectedDrop) > 1e-10)
-    failures.push(`root reach: ${result.rootDrop} versus ${expectedDrop}`);
-  for (const limb of pattern.limbs) {
-    const error: number = Vector3.length(
-      Vector3.subtract(
-        result.targets[limb.bone]!.position,
-        limb.bone === "support-0" ? goal : targets[limb.bone]!.position,
-      ),
+  for (const reach of [0.2, 0.45]) {
+    const goal: IAutoMovieRigidTransform["position"] = {
+      ...targets["support-0"]!.position,
+      x: targets["support-0"]!.position.x + reach,
+    };
+    const result: ReturnType<typeof planPhysicalSupportTargets> =
+      planPhysicalSupportTargets({
+        profile,
+        pattern,
+        targets,
+        goals: { "support-0": goal },
+        maximumRootDrop: 0.15,
+        iterations: 48,
+        tolerance: 0.0001,
+      });
+    const expectedDrop: number = Math.max(
+      0,
+      anchor("upper-0").y -
+        anchor("support-0").y -
+        Math.sqrt(0.9 ** 2 - reach ** 2),
     );
-    if (error > 0.005) failures.push(`${limb.bone}: endpoint ${error} m`);
-  }
-  for (const joint of profile.joints) {
-    const parent: IAutoMovieRigidTransform = result.targets[joint.parent]!;
-    const child: IAutoMovieRigidTransform = result.targets[joint.child]!;
-    const a: IAutoMovieRigidTransform["position"] = Vector3.add(
-      parent.position,
-      Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
-    );
-    const b: IAutoMovieRigidTransform["position"] = Vector3.add(
-      child.position,
-      Quaternion.rotateVector(child.rotation, joint.childFrame.position),
-    );
-    if (Vector3.length(Vector3.subtract(a, b)) > 1e-10)
-      failures.push(`${joint.id}: separated anchors`);
+    if (reach > 0.2 && !(expectedDrop > 0))
+      failures.push(`: the case needs a drop`);
+    if (Math.abs(result.rootDrop - expectedDrop) > 1e-10)
+      failures.push(
+        `${reach}: root reach ${result.rootDrop} versus ${expectedDrop}`,
+      );
+    for (const limb of pattern.limbs) {
+      const error: number = Vector3.length(
+        Vector3.subtract(
+          result.targets[limb.bone]!.position,
+          limb.bone === "support-0" ? goal : targets[limb.bone]!.position,
+        ),
+      );
+      if (error > 0.005)
+        failures.push(`${reach}: ${limb.bone} endpoint ${error} m`);
+    }
+    for (const joint of profile.joints) {
+      const parent: IAutoMovieRigidTransform = result.targets[joint.parent]!;
+      const child: IAutoMovieRigidTransform = result.targets[joint.child]!;
+      const a: IAutoMovieRigidTransform["position"] = Vector3.add(
+        parent.position,
+        Quaternion.rotateVector(parent.rotation, joint.parentFrame.position),
+      );
+      const b: IAutoMovieRigidTransform["position"] = Vector3.add(
+        child.position,
+        Quaternion.rotateVector(child.rotation, joint.childFrame.position),
+      );
+      if (Vector3.length(Vector3.subtract(a, b)) > 1e-10)
+        failures.push(`${reach}: ${joint.id} separated anchors`);
+    }
   }
   TestValidator.equals(
     "all support goals and articulated anchors",
