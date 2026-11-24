@@ -1,4 +1,8 @@
-import { Quaternion, physicalShapeBounds } from "@automovie/engine";
+import {
+  Quaternion,
+  physicalHullFaces,
+  physicalShapeBounds,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanObstacle,
   IAutoMovieMotionHumanPerformanceState,
@@ -74,6 +78,19 @@ export function placeHumanSimulationColliders(
       (_: unknown, step: number): IAutoMovieRigidTransform =>
         frame(obstacle, seconds(step)),
     );
+    const prismPoints: IAutoMovieVector3[] = [
+      obstacle.bottom,
+      obstacle.top,
+    ].flatMap(
+      (y: number): IAutoMovieVector3[] =>
+        obstacle.footprint.map(
+          (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
+            x: corner.x,
+            y,
+            z: corner.z,
+          }),
+        ),
+    );
     const prism: IAutoMoviePhysicalShape[] = [
       {
         id: "solid",
@@ -83,16 +100,8 @@ export function placeHumanSimulationColliders(
           rotation: Quaternion.identity(),
         },
         kind: "hull",
-        points: [obstacle.bottom, obstacle.top].flatMap(
-          (y: number): IAutoMovieVector3[] =>
-            obstacle.footprint.map(
-              (corner: IAutoMovieVector3): IAutoMovieVector3 => ({
-                x: corner.x,
-                y,
-                z: corner.z,
-              }),
-            ),
-        ),
+        points: prismPoints,
+        hull: physicalHullFaces(prismPoints),
       },
     ];
     if (!within(frames, prism, reach)) continue;

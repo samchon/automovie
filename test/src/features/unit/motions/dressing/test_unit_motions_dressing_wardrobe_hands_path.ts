@@ -49,7 +49,11 @@ export function test_unit_motions_dressing_wardrobe_hands_path(): void {
   );
   TestValidator.predicate(
     "clamped",
-    vclose(wardrobeHands.path(from, to, -1).position, from.position, ROUNDING) &&
+    vclose(
+      wardrobeHands.path(from, to, -1).position,
+      from.position,
+      ROUNDING,
+    ) &&
       vclose(wardrobeHands.path(from, to, 2).position, to.position, ROUNDING),
   );
 }

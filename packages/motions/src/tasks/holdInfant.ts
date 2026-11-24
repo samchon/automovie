@@ -201,7 +201,10 @@ export namespace holdInfant {
     const placed: (t: number) => IAutoMovieRigidTransform = (
       t: number,
     ): IAutoMovieRigidTransform => {
-      const rotation: IAutoMovieQuaternion = holdInfantBasis(pose.line, pose.face);
+      const rotation: IAutoMovieQuaternion = holdInfantBasis(
+        pose.line,
+        pose.face,
+      );
       return { position: Vector3.add(pose.seat, sway(t)), rotation };
     };
     const world: (
@@ -224,7 +227,6 @@ export namespace holdInfant {
       rate,
       params.kind === "shoulder",
     );
-
 
     // The infant's front, opposite its back across its body's line, which
     // the bundle centres.

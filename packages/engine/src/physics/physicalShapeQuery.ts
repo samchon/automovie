@@ -10,8 +10,9 @@ import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { bracketedMinimum } from "../math/bracketedMinimum";
 import { closestPointsBetweenSegments } from "../math/closestPointsBetweenSegments";
-import { physicalHullNearest } from "./physicalHullNearest";
-import { physicalHullSegment } from "./physicalHullSegment";
+import { physicalHullFacesSegment } from "./physicalHullFacesSegment";
+import { physicalShapeHull } from "./physicalShapeHull";
+import { readPhysicalHullFacesPoint } from "./readPhysicalHullFacesPoint";
 
 /**
  * A shape-local proximity reading before its point and normal return to world
@@ -250,7 +251,7 @@ function query(
   const local: (p: IAutoMovieVector3) => ILocal = (
     p: IAutoMovieVector3,
   ): ILocal => {
-    if (shape.kind === "hull") return physicalHullNearest(shape.points, p);
+    if (shape.kind === "hull") return readPhysicalHullFacesPoint(physicalShapeHull(shape), p, true);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p);
     if (shape.kind === "sphere" || shape.kind === "capsule")
       return roundNearest(
@@ -288,7 +289,7 @@ function query(
     p: IAutoMovieVector3,
   ): number => {
     if (shape.kind === "hull")
-      return physicalHullNearest(shape.points, p, false);
+      return readPhysicalHullFacesPoint(physicalShapeHull(shape), p, false);
     if (shape.kind === "box") return boxNearest(shape.halfExtents, p, false);
     if (shape.kind === "sphere" || shape.kind === "capsule") {
       if (roundAxis === undefined) roundAxis = { x: 0, y: 0, z: 0 };
@@ -305,7 +306,7 @@ function query(
   let parameter: number = 0;
   const point: boolean = la.x === lb.x && la.y === lb.y && la.z === lb.z;
   if (!point && shape.kind === "hull" && taper === undefined)
-    parameter = physicalHullSegment(shape.points, la, lb);
+    parameter = physicalHullFacesSegment(physicalShapeHull(shape), la, lb);
   else if (!point) {
     // Only the scalar is observed before the next probe overwrites this
     // point; full final contacts use a separate interpolation result.

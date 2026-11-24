@@ -10,11 +10,10 @@ import { isLightProperty } from "./isLightProperty";
  * checked by the consumer.
  */
 export const parseLightPointer: (
-  pointer: unknown,
+  pointer: string,
 ) => IAutoMovieLightPointer | null = (
-  pointer: unknown,
+  pointer: string,
 ): IAutoMovieLightPointer | null => {
-  if (typeof pointer !== "string") return null;
   const segments: string[] = pointer.split("/");
   if (segments.length !== 4) return null;
   if (segments[0] !== "" || segments[1] !== "lights") return null;

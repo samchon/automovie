@@ -182,7 +182,7 @@ export namespace FamilyCaseKit {
    * @returns Degrees; 0 for a joint the pose leaves neutral.
    */
   export function angle(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
     seconds: number,
     bone: string,
@@ -326,7 +326,7 @@ export namespace FamilyCaseKit {
    * @returns Metres.
    */
   export function drift(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "bones">,
     subject: string,
     bone: AutoMovieHumanoidBone,
     point: (seconds: number) => IAutoMovieVector3,

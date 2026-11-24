@@ -2,6 +2,7 @@ import type {
   IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanPresentHand,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import {
@@ -51,7 +52,8 @@ const RETURNED: number = 0.01;
 export async function test_unit_motions_dressing_present_hand(): Promise<void> {
   // Plans the arm on the whole body: the rig, the arm chain, the measure and the pose resolution.
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
-  const context = motionActionContext(body, { side: "left", hold: 0.5 });
+  const params: IAutoMovieMotionHumanPresentHand = { side: "left", hold: 0.5 };
+  const context = motionActionContext(body, params);
   const plan: IAutoMovieMotionHumanActionPlan = presentHand.plan(context);
   const at = (name: string): number =>
     plan.duration *

@@ -23,6 +23,7 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 import { balletPositions } from "./balletPositions";
 import { dance } from "./dance";
+import { danceGrooveEnvelope } from "./danceGrooveEnvelope";
 import { prepareDanceBeats } from "./prepareDanceBeats";
 
 /**
@@ -152,7 +153,7 @@ export namespace streetDance {
       });
       const side: (t: number) => number = (t: number): number =>
         Math.sin((Math.PI * (t - beats.at(1))) / beats.period) *
-        settle(t, beats, end);
+        danceGrooveEnvelope(t, beats, end);
       const struck: (t: number) => number = (t: number): number => {
         let best: number = 0;
         for (const s of peaks) {
@@ -191,7 +192,7 @@ export namespace streetDance {
               standing.y -
               BOUNCE *
                 body.measure.stature *
-                settle(t, beats, end) *
+                danceGrooveEnvelope(t, beats, end) *
                 (0.5 +
                   0.5 *
                     Math.cos((2 * Math.PI * (t - beats.at(1))) / beats.period)),
@@ -384,7 +385,9 @@ export namespace streetDance {
             x: standing.x + mid.x - start.x,
             y:
               standing.y -
-              CROUCH * body.measure.stature * settle(t, beats, end),
+              CROUCH *
+                body.measure.stature *
+                danceGrooveEnvelope(t, beats, end),
             z: standing.z + mid.z - start.z,
           };
         },
@@ -394,21 +397,6 @@ export namespace streetDance {
       },
       { kind: "ground" },
     );
-  }
-
-  /** The groove's envelope: in by the first beat, out after the last. */
-  function settle(
-    t: number,
-    beats: IAutoMovieMotionHumanDanceBeats,
-    end: number,
-  ): number {
-    const first: number = beats.at(1);
-    const last: number = beats.at(beats.count);
-    if (t <= first)
-      return minimumJerk.share(Math.max(0, t) / Math.max(1e-9, first));
-    if (t >= last)
-      return 1 - minimumJerk.share((t - last) / Math.max(1e-9, end - last));
-    return 1;
   }
 
   /** Two joint sets mixed by a share. */

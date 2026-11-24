@@ -6,9 +6,7 @@ import {
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
-/**
- * The shortest wardrobe transfer, seconds: a readable short phase on screen.
- */
+/** The shortest wardrobe transfer, seconds: a readable short phase on screen. */
 const SHORTEST: number = 0.23;
 
 /**

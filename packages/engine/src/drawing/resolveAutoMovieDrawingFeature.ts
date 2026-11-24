@@ -16,6 +16,9 @@ import { indexAutoMovieDrawingDesign } from "./indexAutoMovieDrawingDesign";
 import { roundAutoMovieDrawingScalar } from "./roundAutoMovieDrawingScalar";
 import { transformAutoMovieDrawingPoint } from "./transformAutoMovieDrawingPoint";
 
+/** The three local axes an axis feature can name. */
+const AXIS_INDICES: readonly number[] = [0, 1, 2];
+
 /** A world point with its coordinates on the drawing grid, for ordering. */
 interface IWelded {
   point: IAutoMovieVector3;
@@ -74,7 +77,7 @@ export const resolveAutoMovieDrawingFeature = (
   if (feature.kind === "axis") {
     // Integral on purpose: a fractional index names no axis, and would
     // otherwise produce a zero direction reported as a collapsed scale.
-    if (feature.index < 0 || feature.index > 2)
+    if (!AXIS_INDICES.includes(feature.index))
       return stale(
         `element "${element.id}" axis index must be 0, 1 or 2, but was ${feature.index}`,
       );
@@ -165,7 +168,7 @@ export const resolveAutoMovieDrawingFeature = (
     const vertices: IWelded[] = canonicalVertices(triangles);
     const guard: IAutoMovieDrawingFeatureResolution | null = check(
       feature,
-      vertices.length,
+      vertices,
       element.id,
       "vertex",
     );
@@ -183,7 +186,7 @@ export const resolveAutoMovieDrawingFeature = (
     const edges: IWeldedEdge[] = canonicalEdges(triangles);
     const guard: IAutoMovieDrawingFeatureResolution | null = check(
       feature,
-      edges.length,
+      edges,
       element.id,
       "edge",
     );
@@ -202,7 +205,7 @@ export const resolveAutoMovieDrawingFeature = (
 
   const guard: IAutoMovieDrawingFeatureResolution | null = check(
     feature,
-    triangles.length,
+    triangles,
     element.id,
     "face",
   );
@@ -281,16 +284,18 @@ const comparePoints = (left: IWelded, right: IWelded): number =>
 /** A stale result when the count changed or the index is out of range. */
 const check = (
   feature: IAutoMovieDrawingFeature,
-  count: number,
+  features: readonly unknown[],
   element: string,
   label: string,
 ): IAutoMovieDrawingFeatureResolution | null => {
+  const count: number = features.length;
   if (feature.count !== null && feature.count !== count)
     return stale(
       `element "${element}" now has ${count} ${label} features, but the target was authored against ${feature.count}`,
       count,
     );
-  if (feature.index < 0 || feature.index >= count)
+  // A fractional, negative or past-the-end index names no feature.
+  if (features[feature.index] === undefined)
     return stale(
       `element "${element}" ${label} index ${feature.index} is outside its ${count} ${label} features`,
       count,

@@ -1,5 +1,6 @@
 import type { IAutoMovieQuaternion } from "../geometry/IAutoMovieQuaternion";
 import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
+import type { IAutoMovieProjectileFlight } from "./IAutoMovieProjectileFlight";
 
 /**
  * Borrowed finite world launch state: origin in metres, initial velocity in
@@ -34,6 +35,12 @@ export interface IAutoMovieProjectile {
 
   /** How the body turns in flight; a state carries no rotation when absent. */
   attitude?: IAutoMovieProjectile.Attitude;
+
+  /**
+   * The drag flight's reader, built with the projectile when it has drag; a
+   * reader that finds none integrates the flight itself.
+   */
+  flight?: IAutoMovieProjectileFlight;
 }
 
 /** Data and callback contracts shared by the Projectile operations. */

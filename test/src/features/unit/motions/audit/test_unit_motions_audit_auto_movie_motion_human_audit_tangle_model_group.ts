@@ -2,9 +2,9 @@ import { AutoMovieMotionHumanAuditTangleModel } from "@automovie/motions/interna
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `AutoMovieMotionHumanAuditTangleModel.group` names the part a bone belongs
- * to where several bones are one part: a hand with its fingers, a foot with
- * its toes; any other bone is its own part.
+ * `AutoMovieMotionHumanAuditTangleModel.group` names the part a bone belongs to
+ * where several bones are one part: a hand with its fingers, a foot with its
+ * toes; any other bone is its own part.
  *
  * Scenarios: a left index phalanx and the left hand are the left hand; the
  * right toes are the right foot; the right forearm and the head are their own.

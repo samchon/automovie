@@ -1,4 +1,4 @@
-import { Vector3, physicalHullFaces } from "@automovie/engine";
+import { Vector3, physicalShapeHull } from "@automovie/engine";
 import type {
   IAutoMoviePhysicalHullFaces,
   IAutoMoviePhysicalShape,
@@ -34,9 +34,7 @@ export function HumanColliderBound(
   if (shape.kind === "box")
     return { centre: origin, radius: Vector3.length(shape.halfExtents) };
   if (shape.kind === "hull") {
-    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalHullFaces(
-      shape.points,
-    );
+    const hull: IAutoMoviePhysicalHullFaces.IHull = physicalShapeHull(shape);
     return { centre: hull.centre, radius: hull.radius };
   }
   shape satisfies never;

@@ -95,6 +95,9 @@ export namespace pocketedBalls {
     /** The ball's body id in the deck cache. */
     id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
 
+    /** Its placed pose; the credit reads the cache, not this. */
+    pose?: IAutoMovieMotionHumanPrecisionDeck.IRigid["pose"];
+
     /** Its profile, the first segment its sphere and centre of mass. */
     profile: {
       /** The profile's segments. */

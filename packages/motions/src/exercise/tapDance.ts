@@ -1,8 +1,4 @@
-import {
-  ANKLE_DORSIFLEXION,
-  AutoMovieGravity,
-  Vector3,
-} from "@automovie/engine";
+import { ANKLE_DORSIFLEXION, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieMotionHumanActionKey,
@@ -29,6 +25,7 @@ import { DanceFootwork } from "./DanceFootwork";
 import { ExerciseKey } from "./ExerciseKey";
 import { dance } from "./dance";
 import { prepareDanceBeats } from "./prepareDanceBeats";
+import { tapDanceFlights } from "./tapDanceFlights";
 import { tapDanceSteps } from "./tapDanceSteps";
 
 /** The alternatives of `SetSocket`'s site. */
@@ -213,7 +210,10 @@ export namespace tapDance {
       end,
       support,
     );
-    const flights: readonly IFlight[] = unsupported(keys, end);
+    const flights: readonly tapDanceFlights.IFlight[] = tapDanceFlights(
+      keys,
+      end,
+    );
     const rest: IAutoMovieVector3 = body.rest.get("hips")!;
     const ankle: number = body.rest.get("leftFoot")!.y;
     // The hips ride `CROUCH` low, no lower than lets each flat step's foot
@@ -265,7 +265,7 @@ export namespace tapDance {
           );
           return {
             x: mid.x,
-            y: floor + rest.y - crouch + hop(flights, t),
+            y: floor + rest.y - crouch + tapDanceFlights.hop(flights, t),
             z: mid.z,
           };
         },
@@ -286,15 +286,6 @@ export namespace tapDance {
 
     /** Its ankle, world metres. */
     ankle: IAutoMovieVector3;
-  }
-
-  /** A span with no foot bearing, action seconds. */
-  interface IFlight {
-    /** When the last bearing foot leaves. */
-    from: number;
-
-    /** When the next lands. */
-    to: number;
   }
 
   /**
@@ -354,53 +345,6 @@ export namespace tapDance {
       heading,
       mode === "ball" ? -PITCH : PITCH,
     );
-  }
-
-  /** Where no foot bears between its keys. */
-  function unsupported(
-    keys: Record<
-      AutoMovieHumanSide,
-      readonly IAutoMovieMotionHumanDanceFootKey[]
-    >,
-    end: number,
-  ): IFlight[] {
-    const spans: (
-      list: readonly IAutoMovieMotionHumanDanceFootKey[],
-    ) => IFlight[] = (
-      list: readonly IAutoMovieMotionHumanDanceFootKey[],
-    ): IFlight[] =>
-      list
-        .filter((k: IAutoMovieMotionHumanDanceFootKey): boolean => k.bears)
-        .map(
-          (k: IAutoMovieMotionHumanDanceFootKey): IFlight => ({
-            from: k.at,
-            to: Math.min(end, k.leave),
-          }),
-        );
-    const borne: IFlight[] = [...spans(keys.left), ...spans(keys.right)].sort(
-      (a: IFlight, b: IFlight): number => a.from - b.from,
-    );
-    const flights: IFlight[] = [];
-    let covered: number = 0;
-    for (const span of borne) {
-      if (span.from > covered + 1e-9)
-        flights.push({ from: covered, to: span.from });
-      covered = Math.max(covered, span.to);
-    }
-    return flights;
-  }
-
-  /** The hips' rise on the ballistic arc of the flight they are in. */
-  function hop(flights: readonly IFlight[], t: number): number {
-    for (const f of flights)
-      if (t > f.from && t < f.to) {
-        const u: number = (t - f.from) / (f.to - f.from);
-        const span: number = f.to - f.from;
-        return (
-          4 * ((AutoMovieGravity.STANDARD * span * span) / 8) * u * (1 - u)
-        );
-      }
-    return 0;
   }
 
   /** A word with its first letter capital. */

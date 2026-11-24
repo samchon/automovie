@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, physicalHullFaces } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeHull } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanArmGeometry,
   IAutoMoviePhysicalShapeNearest,
@@ -54,7 +54,7 @@ export function HumanArmSweepGradient(
   let positive: IAutoMovieVector3 | undefined;
   let low: number = 0;
   let high: number = 0;
-  for (const face of physicalHullFaces(solid.points).faces) {
+  for (const face of physicalShapeHull(solid).faces) {
     const distance: number = Vector3.dot(face.normal, point) - face.offset;
     if (Math.abs(distance - nearest.distance) > error) continue;
     const slope: number = Vector3.dot(face.normal, direction);

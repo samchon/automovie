@@ -119,7 +119,7 @@ export const instanceSlot: (
     explicit?.palette ?? instanceSet.variation.palette[paletteIndex];
   if (palette === undefined)
     throw new RangeError(
-      `Instance set "${instanceSet.id}" slot ${slot} has an empty palette.`,
+      `Instance set "${instanceSet.id}" slot ${slot} derived non-finite variation or an empty palette.`,
     );
   const legacy: boolean =
     instanceSet.prototypes === undefined &&

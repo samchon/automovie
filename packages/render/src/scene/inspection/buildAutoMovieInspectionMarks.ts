@@ -259,7 +259,11 @@ function arrowLines(
   return out;
 }
 
-/** Tell three.js that a geometry's positions were rewritten in place. */
+/**
+ * Tell three.js that a geometry's positions were rewritten in place, and bound
+ * the new positions: the geometry measured its bounds when it was made, before
+ * the first write, so they would otherwise stay those of the zero buffer.
+ */
 function markChanged(geometry: THREE.BufferGeometry): void {
   const attribute: THREE.BufferAttribute | THREE.InterleavedBufferAttribute =
     geometry.getAttribute(
@@ -268,6 +272,8 @@ function markChanged(geometry: THREE.BufferGeometry): void {
   if (AutoMovieThreeKind.isInterleavedBufferAttribute(attribute))
     attribute.data.needsUpdate = true;
   else attribute.needsUpdate = true;
+  geometry.computeBoundingBox();
+  geometry.computeBoundingSphere();
 }
 
 /**

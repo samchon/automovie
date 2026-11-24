@@ -57,6 +57,9 @@ export namespace bowlingPinfall {
     /** The pin's body id in the deck cache. */
     id: IAutoMovieMotionHumanPrecisionDeck.IRigid["id"];
 
+    /** Its placed pose; the pinfall reads the cache, not this. */
+    pose?: IAutoMovieMotionHumanPrecisionDeck.IRigid["pose"];
+
     /** Its profile, the first segment its hull and centre of mass. */
     profile: {
       /** The profile's segments. */

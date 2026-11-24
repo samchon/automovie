@@ -15,11 +15,11 @@ import {
 } from "@automovie/motions/internal";
 
 /**
- * A typed synthetic audit motion for a unit test of one audit check: one
- * person holding the quiet stance at the origin facing +Z (`stand.posture`),
- * the whole body displaced at each second by `shift`, under one action that
- * spans the motion and declares the given contacts. Nothing else is read, so a
- * check's reading follows from the displacement in closed form.
+ * A typed synthetic audit motion for a unit test of one audit check: one person
+ * holding the quiet stance at the origin facing +Z (`stand.posture`), the whole
+ * body displaced at each second by `shift`, under one action that spans the
+ * motion and declares the given contacts. Nothing else is read, so a check's
+ * reading follows from the displacement in closed form.
  *
  * @param body The person's body.
  * @param options The displacement, the contacts and the motion's length.

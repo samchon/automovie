@@ -9,13 +9,12 @@ const ROUNDING: number = 1e-12;
 
 /**
  * `wardrobeHands.middle` places an aperture's middle, half its height up its
- * own +Y from the lower edge the frame marks, and refuses an aperture without
- * a positive height and width.
+ * own +Y from the lower edge the frame marks, and refuses an aperture without a
+ * positive height and width.
  *
  * Scenarios:
  *
- * 1. A 0.2 m tall sleeve opening at (0, 1, 0), upright: its middle at (0, 1.1,
- *    0).
+ * 1. A 0.2 m tall sleeve opening at (0, 1, 0), upright: its middle at (0, 1.1, 0).
  * 2. The same opening turned a half turn about +Z: its +Y points down, so the
  *    middle lies at (0, 0.9, 0).
  * 3. An opening with no width is refused on `opening`.

@@ -11,7 +11,10 @@ import { nclose } from "../../../internal/nclose";
 /** Rounding of a subtraction, degrees. */
 const ROUNDING: number = 1e-9;
 
-/** Both ankles' dorsiflexion, degrees: within the loaded limit, past the unloaded. */
+/**
+ * Both ankles' dorsiflexion, degrees: within the loaded limit, past the
+ * unloaded.
+ */
 const FLEXION: number = 30;
 
 /**

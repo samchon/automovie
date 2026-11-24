@@ -16,7 +16,11 @@ import { TestValidator } from "@nestia/e2e";
 export function test_unit_motions_audit_auto_movie_motion_human_audit_describe(): void {
   TestValidator.equals(
     "clean",
-    AutoMovieMotionHumanAudit.describe({ measures: {}, pairs: [], findings: [] }),
+    AutoMovieMotionHumanAudit.describe({
+      measures: {},
+      pairs: [],
+      findings: [],
+    }),
     "clean",
   );
   const report: IAutoMovieMotionHumanAudit.IReport = {

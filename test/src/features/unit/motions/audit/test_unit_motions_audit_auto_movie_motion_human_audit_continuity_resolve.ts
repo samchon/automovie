@@ -25,9 +25,9 @@ const FINEST: number = 2e-4;
  * Scenarios, the head moving along z at 1 m/s, the interval 1 to 1.125 s at a 5
  * mm limit:
  *
- * 1. A 0.2 m step at 1.03 s is resolved to 0.2 m, plus at most the steady
- *    travel over the last interval, on the head, from an instant within the
- *    interval before the step.
+ * 1. A 0.2 m step at 1.03 s is resolved to 0.2 m, plus at most the steady travel
+ *    over the last interval, on the head, from an instant within the interval
+ *    before the step.
  * 2. Without the step the path is continuous: zero at `none`.
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_continuity_resolve(): void {
@@ -65,7 +65,13 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_continuity
   );
   TestValidator.equals(
     "a continuous path",
-    AutoMovieMotionHumanAuditContinuity.resolve(motion(0), "a", 1, 1.125, 0.005),
+    AutoMovieMotionHumanAuditContinuity.resolve(
+      motion(0),
+      "a",
+      1,
+      1.125,
+      0.005,
+    ),
     { value: 0, seconds: 1, where: "none" },
   );
 }

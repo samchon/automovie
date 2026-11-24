@@ -1,4 +1,7 @@
-import type { IAutoMovieComposition, IAutoMovieIntent } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import { PULSE_HOLD, pulse } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -10,8 +13,8 @@ import { TestValidator } from "@nestia/e2e";
  *
  * Scenarios, on a chain for subject `a`:
  *
- * 1. The carotid of `b` with no hand named: the right fingertips hold `b`'s
- *    neck for `PULSE_HOLD` seconds.
+ * 1. The carotid of `b` with no hand named: the right fingertips hold `b`'s neck
+ *    for `PULSE_HOLD` seconds.
  * 2. The radial pulse with the left hand holds `b`'s wrist.
  */
 export function test_unit_motions_touch_pulse(): void {

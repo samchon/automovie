@@ -2,8 +2,8 @@ import type { IAutoMovieMotionEvent } from "@automovie/interface";
 
 /**
  * A hold's events: `held` once the arms have settled, a `pat<k>` each `1 /
- * rate` seconds after it while the hold lasts when the other palm pats the
- * back (the shoulder hold), and `relax` at the end.
+ * rate` seconds after it while the hold lasts when the other palm pats the back
+ * (the shoulder hold), and `relax` at the end.
  *
  * @param settle Seconds the arms take to bring the infant in.
  * @param duration The hold's whole seconds.

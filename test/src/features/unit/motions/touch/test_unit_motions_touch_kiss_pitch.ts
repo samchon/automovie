@@ -15,10 +15,10 @@ const ROUNDING: number = 1e-9;
  *
  * Scenarios, the mouth 0.8 m straight above the hip:
  *
- * 1. Facing +Z (yaw 0), a point 30 degrees forward of vertical is a 30 degree
- *    bow, and one 20 degrees behind is -20.
- * 2. Facing +X (yaw 90), the point 30 degrees toward +X is again a 30 degree
- *    bow, and the point's sideways offset along the axis does not change it.
+ * 1. Facing +Z (yaw 0), a point 30 degrees forward of vertical is a 30 degree bow,
+ *    and one 20 degrees behind is -20.
+ * 2. Facing +X (yaw 90), the point 30 degrees toward +X is again a 30 degree bow,
+ *    and the point's sideways offset along the axis does not change it.
  */
 export function test_unit_motions_touch_kiss_pitch(): void {
   const hip: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };

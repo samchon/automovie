@@ -265,7 +265,7 @@ export namespace projectileFirstContact {
     const flightBound: number | undefined =
       projectile.drag === undefined
         ? undefined
-        : projectileDragFlight(projectile).fastest;
+        : (projectile.flight ?? projectileDragFlight(projectile)).fastest;
     const centre: number =
       flightBound === undefined || flightBound === Infinity
         ? Math.max(

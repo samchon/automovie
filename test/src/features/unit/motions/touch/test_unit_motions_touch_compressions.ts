@@ -1,4 +1,7 @@
-import type { IAutoMovieComposition, IAutoMovieIntent } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import { compressions } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";

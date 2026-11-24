@@ -1,12 +1,14 @@
-import type { IAutoMovieComposition, IAutoMovieIntent } from "@automovie/interface";
+import type {
+  IAutoMovieComposition,
+  IAutoMovieIntent,
+} from "@automovie/interface";
 import { HumanChain } from "@automovie/motions";
 import { HumanPocket } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `HumanPocket.takeOut` appends a pick-up of the stowed prop by its handle
- * into the named hand, lifted nothing: the hand leaves the pocket as it
- * closes.
+ * `HumanPocket.takeOut` appends a pick-up of the stowed prop by its handle into
+ * the named hand, lifted nothing: the hand leaves the pocket as it closes.
  *
  * Scenario, on a chain for subject `a`: taking `phone` out by `grip` with the
  * right hand appends that `pickUp`.

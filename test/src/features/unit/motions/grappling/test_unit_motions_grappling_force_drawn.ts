@@ -38,6 +38,8 @@ export function test_unit_motions_grappling_force_drawn(): void {
     nclose(at.offset, offset, 1e-12) &&
       nclose(at.speed, speed, 1e-12) &&
       nclose(at.extrapolated, offset + speed / 3, 1e-12) &&
-      nclose(HumanForceDrawn.prepare(props).offset(1), offset, 1e-12),
+      nclose(HumanForceDrawn.prepare(props).offset(1), offset, 1e-12) &&
+      nclose(HumanForceDrawn.prepare(props).sample(1).speed, speed, 1e-12) &&
+      HumanForceDrawn.prepare(props).sample(-1).offset === 0,
   );
 }

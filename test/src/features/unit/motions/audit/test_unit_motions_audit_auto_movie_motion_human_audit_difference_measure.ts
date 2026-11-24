@@ -26,8 +26,8 @@ const ROUNDING: number = 1e-12;
  * either side and rise 0.1 m a second, over 2 s:
  *
  * 1. Against itself the distance is 0.
- * 2. Against a 1.5 s copy whose left hand stands 0.1 m higher, the distance is
- *    0.1 on the left hand, first at 0 s, and the lengths differ by 0.5 s.
+ * 2. Against a 1.5 s copy whose left hand stands 0.1 m higher, the distance is 0.1
+ *    on the left hand, first at 0 s, and the lengths differ by 0.5 s.
  * 3. Against its mirror image about x = 0.5, read with `mirror: 0.5`, it is 0;
  *    read without the mirror, every joint lies 1 m off in x (the hips at 1, the
  *    left hand at 1.2 against 0.2).

@@ -1,4 +1,9 @@
-import { AutoMovieGravity, Quaternion, Vector3 } from "@automovie/engine";
+import {
+  AutoMovieGravity,
+  Quaternion,
+  Vector3,
+  projectileDragFlight,
+} from "@automovie/engine";
 import type {
   IAutoMovieMotionPropLaunch,
   IAutoMovieProjectile,
@@ -62,7 +67,7 @@ export function launchPropProjectile(
     sphere === undefined
       ? origin
       : Vector3.add(origin, Quaternion.rotateVector(rotation, sphere.centre));
-  return {
+  const projectile: IAutoMovieProjectile = {
     origin: centre,
     velocity:
       aim === undefined
@@ -80,4 +85,7 @@ export function launchPropProjectile(
           ? launch.attitude
           : { ...launch.attitude, rotation },
   };
+  return drag === undefined
+    ? projectile
+    : { ...projectile, flight: projectileDragFlight(projectile) };
 }

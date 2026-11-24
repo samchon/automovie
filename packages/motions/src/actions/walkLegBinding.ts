@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalHullFaces,
+  physicalShapeHull,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -69,9 +69,7 @@ export namespace walkLegBinding {
     const inverse: IAutoMovieQuaternion = Quaternion.inverse(
       shape.transform.rotation,
     );
-    const hull: ReturnType<typeof physicalHullFaces> = physicalHullFaces(
-      shape.points,
-    );
+    const hull: ReturnType<typeof physicalShapeHull> = physicalShapeHull(shape);
     return (local: IAutoMovieVector3, floor: number): number => {
       const point: IAutoMovieVector3 = Quaternion.rotateVector(
         inverse,

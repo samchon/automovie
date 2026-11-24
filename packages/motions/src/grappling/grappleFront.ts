@@ -17,7 +17,7 @@ export namespace grappleFront {
    * @returns Metres.
    */
   export function chest(
-    body: IAutoMovieMotionHumanBody,
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
     pitch: number,
   ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
@@ -34,7 +34,10 @@ export namespace grappleFront {
    * @param pitch The trunk's pitch, degrees.
    * @returns Metres.
    */
-  export function head(body: IAutoMovieMotionHumanBody, pitch: number): number {
+  export function head(
+    body: Pick<IAutoMovieMotionHumanBody, "measure">,
+    pitch: number,
+  ): number {
     const m: IAutoMovieMotionHumanBody["measure"] = body.measure;
     return (
       (m.headHeight - m.headRadius - m.hipHeight) *

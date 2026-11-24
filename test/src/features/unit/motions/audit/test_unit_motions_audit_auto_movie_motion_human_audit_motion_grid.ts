@@ -4,9 +4,9 @@ import { TestValidator } from "@nestia/e2e";
 import { throwsError } from "../../../internal/throwsError";
 
 /**
- * `AutoMovieMotionHumanAuditMotion.grid` samples `from`, every `1 / rate`
- * after it, and `to` itself when the ticks miss it, so neither end of a window
- * goes unread; a rate that is not positive or a reversed span is refused.
+ * `AutoMovieMotionHumanAuditMotion.grid` samples `from`, every `1 / rate` after
+ * it, and `to` itself when the ticks miss it, so neither end of a window goes
+ * unread; a rate that is not positive or a reversed span is refused.
  *
  * Scenarios at 4 samples a second:
  *

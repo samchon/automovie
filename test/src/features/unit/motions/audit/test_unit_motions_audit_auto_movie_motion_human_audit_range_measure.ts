@@ -22,10 +22,10 @@ const ROUNDING: number = 1e-9;
  * Scenarios, 1 s read at 4 Hz (five instants):
  *
  * 1. An elbow bent 90 degrees throughout is within range: nothing read.
- * 2. One bent 160 degrees from 0.5 s overshoots by 10 at 0.5 s on its flexion,
- *    at three of the five instants (0.6).
- * 3. One abducted 5 degrees throughout overshoots by 5 on its abduction at
- *    every instant.
+ * 2. One bent 160 degrees from 0.5 s overshoots by 10 at 0.5 s on its flexion, at
+ *    three of the five instants (0.6).
+ * 3. One abducted 5 degrees throughout overshoots by 5 on its abduction at every
+ *    instant.
  * 4. A joint the table does not list (the hips, whose turn is the root's) is
  *    unconstrained.
  */
@@ -40,8 +40,8 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_range_meas
       joints: [joint(t)],
     }),
   });
-  const elbow = (flexion: number, abduction: number | null) =>
-    (): IAutoMovieJointPose => ({
+  const elbow =
+    (flexion: number, abduction: number | null) => (): IAutoMovieJointPose => ({
       bone: "leftLowerArm",
       flexion,
       abduction,
@@ -54,12 +54,14 @@ export function test_unit_motions_audit_auto_movie_motion_human_audit_range_meas
   );
   const bent: IAutoMovieMotionHumanAuditRange.IResult =
     AutoMovieMotionHumanAuditRange.measure(
-      posed((t: number): IAutoMovieJointPose => ({
-        bone: "leftLowerArm",
-        flexion: t >= 0.5 ? 160 : 90,
-        abduction: null,
-        twist: 0,
-      })),
+      posed(
+        (t: number): IAutoMovieJointPose => ({
+          bone: "leftLowerArm",
+          flexion: t >= 0.5 ? 160 : 90,
+          abduction: null,
+          twist: 0,
+        }),
+      ),
       "a",
       4,
     );

@@ -11,8 +11,8 @@ const ROUNDING: number = 1e-12;
 /**
  * `touchFaces` names the point a two-handed touch turns the trunk toward: the
  * middle of the two regions when it lies aside of the shoulders' midpoint by
- * more than half their span, measured across the heading; none between them
- * or without both shoulders.
+ * more than half their span, measured across the heading; none between them or
+ * without both shoulders.
  *
  * Scenarios, shoulders at x = 0.2 and x = -0.2 at 1.4 m (half span 0.2):
  *

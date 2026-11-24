@@ -1,7 +1,7 @@
 import {
   Quaternion,
   Vector3,
-  physicalHullFaces,
+  physicalShapeHull,
   physicalShapeSegmentDistance,
 } from "@automovie/engine";
 import type {
@@ -80,7 +80,7 @@ export function prepareAutoMovieMotionHumanAuditDepths(
         shape: IAutoMoviePhysicalShape,
       ): IAutoMoviePhysicalHullFaces.IFace[] | undefined =>
         shape.kind === "hull"
-          ? physicalHullFaces(shape.points).faces
+          ? physicalShapeHull(shape).faces
           : undefined,
     );
   return (

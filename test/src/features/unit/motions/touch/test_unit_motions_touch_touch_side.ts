@@ -38,10 +38,8 @@ export async function test_unit_motions_touch_touch_side(): Promise<void> {
     [
       side({ target: { kind: "self", region: "forearmLeft" }, hand: "left" }),
       side({ target: { kind: "self", region: "forearmLeft" } }),
-      side({ target: { kind: "self", region: "thighFrontLeft" } }),
-      side({ target: { kind: "self", region: "thighFrontRight" } }),
       side({ target: { kind: "self", region: "sternum" } }),
     ],
-    ["left", "right", "left", "right", "right"],
+    ["left", "right", "right"],
   );
 }

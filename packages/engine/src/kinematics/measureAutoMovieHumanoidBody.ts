@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
-import { physicalHullFaces } from "../physics/physicalHullFaces";
 import { physicalShapeHull } from "../physics/physicalShapeHull";
 import { physicalShapeBounds } from "../physics/physicalShapeBounds";
 import { AutoMovieHumanoidNeutralBounds } from "./AutoMovieHumanoidNeutralBounds";

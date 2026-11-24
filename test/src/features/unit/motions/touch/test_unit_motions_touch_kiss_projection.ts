@@ -12,18 +12,18 @@ import { nclose } from "../../../internal/nclose";
 const ROUNDING: number = 1e-9;
 
 /**
- * `kissProjection` aims the hip-to-mouth vector at a skin point by a rigid
- * turn about the hip: a roll sets its sideways part, then a pitch its forward
- * part, each the inverse sine of the goal's component over the radius it turns
- * on, less the angle the mouth already makes; none beyond that radius.
+ * `kissProjection` aims the hip-to-mouth vector at a skin point by a rigid turn
+ * about the hip: a roll sets its sideways part, then a pitch its forward part,
+ * each the inverse sine of the goal's component over the radius it turns on,
+ * less the angle the mouth already makes; none beyond that radius.
  *
  * Scenarios, an upright entry facing +Z with the hip at (0, 1, 0):
  *
  * 1. The mouth 0.6 m above and 0.1 m ahead, aimed at itself: no turn.
- * 2. The same mouth aimed 20 degrees further forward on its own circle about
- *    the hip's left axis: a 20 degree pitch, no roll.
- * 3. A mouth straight above at 0.6 m aimed 15 degrees toward -X: a 15 degree
- *    roll, no pitch.
+ * 2. The same mouth aimed 20 degrees further forward on its own circle about the
+ *    hip's left axis: a 20 degree pitch, no roll.
+ * 3. A mouth straight above at 0.6 m aimed 15 degrees toward -X: a 15 degree roll,
+ *    no pitch.
  * 4. A point 1 m aside, beyond the 0.6 m radius: none.
  */
 export function test_unit_motions_touch_kiss_projection(): void {

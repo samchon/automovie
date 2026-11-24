@@ -37,7 +37,7 @@ import { AutoMovieAir } from "./AutoMovieAir";
  * its chunk, and every chunk depends on the launch alone: reads in any order
  * give the same values. Finite times before launch read the launch state;
  * nonfinite requests throw before any chunks are allocated. Projectile data
- * must remain unchanged while its identity-cached reader is used.
+ * must remain unchanged while its reader is used.
  *
  * @param projectile A projectile with drag.
  * @returns The flight's reader.
@@ -48,9 +48,6 @@ import { AutoMovieAir } from "./AutoMovieAir";
 export function projectileDragFlight(
   projectile: IAutoMovieProjectile,
 ): IAutoMovieProjectileFlight {
-  const known: IAutoMovieProjectileFlight | undefined = MEMO.get(projectile);
-  if (known !== undefined) return known;
-
   const drag: IAutoMovieProjectile.IDrag = projectile.drag!;
   const density: number = drag.density ?? AutoMovieAir.DENSITY;
   for (const [name, value] of [
@@ -200,7 +197,6 @@ export function projectileDragFlight(
       };
     },
   };
-  MEMO.set(projectile, flight);
   return flight;
 }
 
@@ -219,10 +215,6 @@ export namespace projectileDragFlight {
    */
   export const CHUNK: number = 1024;
 }
-
-/** The flights integrated so far, by projectile record. */
-const MEMO: WeakMap<IAutoMovieProjectile, IAutoMovieProjectileFlight> =
-  new WeakMap();
 
 /**
  * Reject an unbounded chunk request before allocation; finite prelaunch reads

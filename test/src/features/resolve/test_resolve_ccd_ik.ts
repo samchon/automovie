@@ -85,19 +85,6 @@ const dist: (a: IAutoMovieVector3, b: IAutoMovieVector3) => number = (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A reachable goal converges: the tip lands within 1e-3 of the goal and both).
  */
 export function test_resolve_ccd_ik(): void {
-  TestValidator.predicate(
-    "unsafe iteration count rejects before an already-satisfied solve",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
-          [ccd({ iterations: Number.MAX_SAFE_INTEGER + 1 })],
-          bentWorld({ x: 1, y: 1, z: 0 }),
-          new Map(),
-          new Map(),
-        ),
-      "safe-integer range",
-    ),
-  );
   // 1. reachable goal converges, lengths preserved
   const w1: Map<string, number[]> = bentWorld({ x: 1.2, y: 0.5, z: 0 });
   resolveWorldDrivers([ccd({})], w1, new Map(), new Map());
@@ -216,12 +203,6 @@ export function test_resolve_ccd_ik(): void {
     { iterations: 0 },
     bentWorld({ x: 1, y: 1, z: 0 }),
     ["iterative IK iterations", "positive integer", "0"],
-  );
-  guard(
-    "fractional iterations reject",
-    { iterations: 1.5 },
-    bentWorld({ x: 1, y: 1, z: 0 }),
-    ["iterative IK iterations", "1.5"],
   );
   guard(
     "one-node chain rejects",

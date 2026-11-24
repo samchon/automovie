@@ -3,8 +3,8 @@ import { wardrobeHands } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 /**
- * `wardrobeHands.frame` reads a declared contact's rigid frame: its
- * translation as the position and its rotation, the scale dropped.
+ * `wardrobeHands.frame` reads a declared contact's rigid frame: its translation
+ * as the position and its rotation, the scale dropped.
  *
  * Scenario: a collar handle at (0.1, 0.4, 0) turned a quarter about +Y, scaled
  * twice, reads that position and rotation.

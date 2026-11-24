@@ -5,7 +5,8 @@ import type {
 
 import { Vector3 } from "../math/Vector3";
 import { AutoMovieGravity } from "../physics/AutoMovieGravity";
-import { physicalHullMass } from "../physics/physicalHullMass";
+import { physicalHullFacesMass } from "../physics/physicalHullFacesMass";
+import { physicalShapeHull } from "../physics/physicalShapeHull";
 
 /**
  * The buoyant and drag forces water puts on one body segment (#3432), the
@@ -99,7 +100,7 @@ export namespace resolveHydrodynamicForce {
       else if (shape.kind === "box")
         sum +=
           8 * shape.halfExtents.x * shape.halfExtents.y * shape.halfExtents.z;
-      else sum += physicalHullMass(shape.points).volume;
+      else sum += physicalHullFacesMass(physicalShapeHull(shape)).volume;
     }
     return sum;
   }

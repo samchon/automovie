@@ -17,14 +17,6 @@ import { orderValueDrivers } from "./orderValueDrivers";
 /** The two channel-space drivers this pass resolves (no world transform needed). */
 type ValueDriver = IAutoMovieCopyDriver | IAutoMovieDrivenDriver;
 
-const VALUE_DRIVER_TYPES: Set<unknown> = new Set<unknown>(["copy", "driven"]);
-const DEFERRED_DRIVER_TYPES: Set<unknown> = new Set<unknown>([
-  "aim",
-  "ik",
-  "parent",
-  "spring",
-]);
-
 /**
  * Evaluate copy and driven channels in stable dependency order, mutating
  * samples before constraints. Return world/stateful descriptors in original
@@ -42,12 +34,9 @@ export const resolveDrivers: (
 ): IAutoMovieDriver[] => {
   const value: ValueDriver[] = [];
   const deferred: IAutoMovieDriver[] = [];
-  for (const d of drivers) {
-    const type: unknown = (d as { type?: unknown }).type;
-    if (VALUE_DRIVER_TYPES.has(type)) value.push(d as ValueDriver);
-    else if (DEFERRED_DRIVER_TYPES.has(type)) deferred.push(d);
-    else throw new Error(`unknown driver type "${String(type)}"`);
-  }
+  for (const d of drivers)
+    if (d.type === "copy" || d.type === "driven") value.push(d);
+    else deferred.push(d);
 
   for (const d of orderValueDrivers(value))
     if (d.type === "copy") applyCopy(d, sampled, nodesById);

@@ -43,7 +43,10 @@ export function test_unit_motions_dressing_wardrobe_hands_site(): void {
     ],
     ["collar", "aperture"],
   );
-  const refused = (id: string, kind?: IAutoMovieAffordance["kind"]): boolean => {
+  const refused = (
+    id: string,
+    kind?: IAutoMovieAffordance["kind"],
+  ): boolean => {
     try {
       wardrobeHands.site(jacket, id, kind);
       return false;

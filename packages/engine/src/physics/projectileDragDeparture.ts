@@ -24,7 +24,8 @@ export function projectileDragDeparture(
   projectile: IAutoMovieProjectile,
   contact: IAutoMovieResolveContactEvents.IInitialContact,
 ): IAutoMovieResolveContactEvents.Departure | undefined {
-  const flight: IAutoMovieProjectileFlight = projectileDragFlight(projectile);
+  const flight: IAutoMovieProjectileFlight =
+    projectile.flight ?? projectileDragFlight(projectile);
   let current: number = contact.from;
   while (current < contact.to) {
     const interval: IAutoMovieProjectileDragInterval = flight.interval(current);

@@ -21,8 +21,8 @@ import { TestValidator } from "@nestia/e2e";
  * 3. At 0.75 s the right foot bears on 0.1 m as well: the lower, 0.1.
  * 4. At 1.5 s, between contacts, the floor is the bank the first plant ended on,
  *    0.3, the earlier of the two that ended together.
- * 5. At 2.5 s a prop seat bears the person and at 3.5 s it was the last
- *    contact: no floor.
+ * 5. At 2.5 s a prop seat bears the person and at 3.5 s it was the last contact:
+ *    no floor.
  * 6. Without any contact, in water there is no floor, out of it the world plane.
  */
 export function test_unit_motions_audit_auto_movie_motion_human_audit_motion_floors(): void {

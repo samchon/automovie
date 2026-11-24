@@ -111,14 +111,12 @@ export namespace HumanColliderPlacement {
   }
 
   /**
-   * Prepare the existing neutral definitions and hull-face geometry.
+   * Prepare the existing neutral definitions; hull faces ride the shapes.
    *
    * @param body The unchanged body definition to prepare.
    */
   export function prepare(body: IAutoMovieMotionHumanBody): void {
-    for (const segment of sided(body).segments)
-      for (const shape of segment.shapes)
-        if (shape.kind === "hull") physicalHullFaces(shape.points);
+    sided(body);
   }
 
   /**
@@ -339,13 +337,18 @@ function mirrored(segment: ISided, bone: string): ISided {
           position: mirrorPoint(shape.transform.position),
           rotation: mirrorTurn(shape.transform.rotation),
         };
-        return shape.kind === "hull"
-          ? {
-              ...shape,
-              transform,
-              points: physicalHullFaces.mirrorX(shape.points),
-            }
-          : { ...shape, transform };
+        if (shape.kind !== "hull") return { ...shape, transform };
+        const points: IAutoMovieVector3[] = physicalHullFaces.mirrorX(
+          shape.points,
+        );
+        return {
+          ...shape,
+          transform,
+          points,
+          ...(shape.hull === undefined
+            ? {}
+            : { hull: physicalHullFaces.mirrorHull(points, shape.hull) }),
+        };
       },
     ),
   };

@@ -27,6 +27,7 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHand } from "../posture/HumanHand";
+import { juggleTiming } from "./juggleTiming";
 
 /**
  * Toss juggling standing still.
@@ -156,19 +157,18 @@ export namespace juggle {
     const g: number = AutoMovieGravity.STANDARD;
     const height: number = p.height ?? 0.6;
     HumanBound.above("height", height, 0, "m");
-    const flight: number = Math.sqrt((8 * height) / g);
-    const k: number = DWELL;
-    const dwell: number =
-      p.pattern === "cascade"
-        ? (2 * k * flight) / (n - 2 * k)
-        : (((2 * k) / 3) * flight) / (1 - k);
-    const vacancy: number = ((1 - k) / k) * dwell;
+    const timing: juggleTiming.ITiming = juggleTiming({
+      pattern: p.pattern,
+      balls: n,
+      height,
+      ratio: DWELL,
+      vacancy: VACANCY,
+    });
+    const flight: number = timing.flight;
+    const dwell: number = timing.dwell;
+    const vacancy: number = timing.vacancy;
     if (vacancy < VACANCY) {
-      const needed: number =
-        p.pattern === "cascade"
-          ? (VACANCY * (n - 2 * k)) / (2 * (1 - k))
-          : (VACANCY * 3 * (1 - k)) / (2 * (1 - k));
-      const least: number = (g * needed * needed) / 8;
+      const least: number = timing.least;
       throw new HumanRefusal({
         kind: "parameter",
         axis: "height",

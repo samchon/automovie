@@ -43,7 +43,7 @@ export const projectileAt: (
           ),
           velocity: Vector3.add(p.velocity, Vector3.scale(p.gravity, t)),
         }
-      : projectileDragFlight(p).at(t);
+      : (p.flight ?? projectileDragFlight(p)).at(t);
   if (p.attitude === undefined) return state;
   switch (p.attitude.kind) {
     case "velocity":

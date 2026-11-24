@@ -21,10 +21,8 @@ const ROUNDING: number = 1e-6;
  */
 export function test_unit_motions_handling_human_handover_upright_angle(): void {
   const asked = Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, 40);
-  const after = (
-    axis: { x: number; y: number; z: number },
-    degrees: number,
-  ) => Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), asked);
+  const after = (axis: { x: number; y: number; z: number }, degrees: number) =>
+    Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), asked);
   TestValidator.predicate(
     "the tips",
     nclose(HumanHandoverUpright.angle(asked, asked), 0, ROUNDING) &&

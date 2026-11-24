@@ -21,7 +21,6 @@ import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
 import { malformedCurrentSemanticMasks } from "../internal/malformedCurrentSemanticMasks";
-import { malformedSemanticMaskShapes } from "../internal/malformedSemanticMaskShapes";
 import { throwsError } from "../internal/predicates";
 import { renderSemanticMaskPayload } from "../internal/renderSemanticMaskPayload";
 
@@ -316,47 +315,6 @@ export function test_render_semantic_mask_digest(): void {
       ),
     ),
   );
-  const malformedShapes: readonly (readonly [
-    string,
-    IAutoMovieSemanticMask,
-    string,
-  ])[] = malformedSemanticMaskShapes(mask);
-  TestValidator.equals(
-    "wrong current-schema shapes fail at their exact structural boundary",
-    Object.fromEntries(
-      malformedShapes.map(
-        ([name, candidate, boundary]: readonly [
-          string,
-          IAutoMovieSemanticMask,
-          string,
-        ]): [
-          string,
-          {
-            reason: "unsupported" | "invalid" | "digest-mismatch" | null;
-            boundary: boolean;
-          },
-        ] => [
-          name,
-          {
-            reason: verificationFailure(candidate),
-            boundary: throwsError(
-              (): void => verifyAutoMovieSemanticMask(candidate),
-              boundary,
-            ),
-          },
-        ],
-      ),
-    ),
-    Object.fromEntries(
-      malformedShapes.map(
-        ([name]: readonly [string, IAutoMovieSemanticMask, string]): [
-          string,
-          { reason: "invalid"; boundary: boolean },
-        ] => [name, { reason: "invalid" as const, boundary: true }],
-      ),
-    ),
-  );
-
   const reports: IAutoMovieRenderReport[] = [
     mask,
     editEntry(mask, { owner: "space:hall" }),

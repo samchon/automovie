@@ -15,8 +15,8 @@ import type {
 import { material } from "../internal/renderFixtures";
 
 /**
- * Exercises ordinary source facts when manual mips or intrinsic/factory extents
- * cannot certify native history.
+ * Exercises ordinary source facts when manual mips cannot certify native
+ * history.
  *
  * Scenarios:
  *
@@ -24,8 +24,7 @@ import { material } from "../internal/renderFixtures";
  *    authored first-level extents and uncertain native history.
  * 2. Generation/filter combinations, an empty level and both independently
  *    required environment products retain unknown bytes/cardinality.
- * 3. Intrinsic/display and raw factory dimensions contrast matching fallback;
- *    framebuffer, depth, compressed and target families preserve their separate
+ * 3. Framebuffer, depth, compressed and target families preserve their separate
  *    ownership boundary.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls real texture observation and Engine closure over authored manual layouts and unsupported families, preserving diagnostics while refusing bytes/cardinality.
@@ -164,48 +163,6 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
     read().allocationStateKnown,
     false,
   );
-  const ordinary: Texture<unknown, TextureEventMap> = new THREE.Texture();
-  ordinary.image = { width: 2, height: 2, naturalWidth: 8, naturalHeight: 8 };
-  TestValidator.equals(
-    "intrinsic extent is distinct from image factory fields",
-    [
-      readAutoMovieTextureSource("image", ordinary).width,
-      readAutoMovieTextureSource("image", ordinary).height,
-      readAutoMovieTextureSource("image", ordinary).allocationStateKnown,
-    ],
-    [8, 8, false],
-  );
-  ordinary.image = { width: 8, height: 2, naturalWidth: 8, naturalHeight: 8 };
-  TestValidator.equals(
-    "matching width does not certify a different factory height",
-    [
-      readAutoMovieTextureSource("image", ordinary).height,
-      readAutoMovieTextureSource("image", ordinary).allocationStateKnown,
-    ],
-    [8, false],
-  );
-  ordinary.image = { width: 4, height: 4, naturalWidth: 0, naturalHeight: 0 };
-  TestValidator.equals(
-    "native intrinsic fallback preserves matching fields",
-    readAutoMovieTextureSource("image", ordinary).allocationStateKnown,
-    true,
-  );
-  ordinary.image = { displayWidth: 8, displayHeight: 4 };
-  TestValidator.equals(
-    "display-only extent retains unknown factory authority",
-    [
-      readAutoMovieTextureSource("frame", ordinary).width,
-      readAutoMovieTextureSource("frame", ordinary).height,
-      readAutoMovieTextureSource("frame", ordinary).allocationStateKnown,
-    ],
-    [8, 4, false],
-  );
-  ordinary.image = { width: 8, displayWidth: 8, displayHeight: 4 };
-  TestValidator.equals(
-    "present raw width cannot replace an absent factory height",
-    readAutoMovieTextureSource("frame", ordinary).allocationStateKnown,
-    false,
-  );
   const framebuffer: import("three").FramebufferTexture =
     new THREE.FramebufferTexture(4, 4);
   framebuffer.mipmaps = [first];
@@ -300,7 +257,6 @@ export async function test_viewer_texture_manual_layout_uncertainty(): Promise<v
     4,
   );
   texture.dispose();
-  ordinary.dispose();
   framebuffer.dispose();
   depth.dispose();
   compressed.dispose();

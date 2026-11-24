@@ -8,6 +8,7 @@ import type {
 } from "@automovie/interface";
 
 import { Vector3 } from "../math/Vector3";
+import { projectileDragFlight } from "./projectileDragFlight";
 import { projectileAt } from "./projectileAt";
 
 /**
@@ -218,8 +219,7 @@ export function projectileContinue(
                 ),
               ),
             }),
-        projectile: {
-          ...projectile,
+        projectile: relaunched(projectile, {
           origin: state.position,
           velocity,
           ...(projectile.attitude === undefined ||
@@ -233,7 +233,7 @@ export function projectileContinue(
                     : { rotation: state.rotation }),
                 },
               }),
-        },
+        }),
       };
     }
     case "roll":
@@ -247,8 +247,7 @@ export function projectileContinue(
       return {
         kind: "flight",
         from: hit.time,
-        projectile: {
-          ...projectile,
+        projectile: relaunched(projectile, {
           origin: state.position,
           velocity: Vector3.scale(state.velocity, 1 - outcome.loss),
           ...(projectile.attitude === undefined ||
@@ -262,7 +261,7 @@ export function projectileContinue(
                     : { rotation: state.rotation }),
                 },
               }),
-        },
+        }),
       };
     }
   }
@@ -322,3 +321,19 @@ export namespace projectileContinue {
 
 /** A surface at rest and a ball that does not turn. */
 const STILL: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
+
+/**
+ * The projectile launched on again from a new state: its launch fields replaced
+ * and, when it has drag, its flight built afresh from them, so no reader finds
+ * the flight of the earlier launch.
+ */
+function relaunched(
+  projectile: IAutoMovieProjectile,
+  changes: Partial<IAutoMovieProjectile>,
+): IAutoMovieProjectile {
+  const { flight: _earlier, ...rest }: IAutoMovieProjectile = projectile;
+  const next: IAutoMovieProjectile = { ...rest, ...changes };
+  return next.drag === undefined
+    ? next
+    : { ...next, flight: projectileDragFlight(next) };
+}

@@ -5,6 +5,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
+import { physicalHullFaces } from "@automovie/engine";
 
 import type { AutoMovieArchetypeConvexCell } from "./AutoMovieArchetypeConvexCell";
 
@@ -69,12 +70,14 @@ export namespace ArchetypeShapes {
           throw new Error(
             `Convex cell ${part.id} no longer matches its visible geometry`,
           );
+        const points: IAutoMovieVector3[] = cell.points.map(
+          (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
+        );
         shapes.push({
           ...base,
           kind: "hull",
-          points: cell.points.map(
-            (point: IAutoMovieVector3): IAutoMovieVector3 => ({ ...point }),
-          ),
+          points,
+          hull: physicalHullFaces(points),
         });
         continue;
       }
@@ -111,26 +114,32 @@ export namespace ArchetypeShapes {
               radius: shape.radius,
               halfLength: shape.height / 2 - shape.radius,
             });
-          else
+          else {
+            const points: IAutoMovieVector3[] = [
+              ...ring(shape.radius, shape.height / 2),
+              ...ring(shape.radius, -shape.height / 2),
+            ];
             shapes.push({
               ...base,
               kind: "hull",
-              points: [
-                ...ring(shape.radius, shape.height / 2),
-                ...ring(shape.radius, -shape.height / 2),
-              ],
+              points,
+              hull: physicalHullFaces(points),
             });
+          }
           break;
-        case "cone":
+        case "cone": {
+          const points: IAutoMovieVector3[] = [
+            ...ring(shape.radius, shape.height / 2),
+            { x: 0, y: -shape.height / 2, z: 0 },
+          ];
           shapes.push({
             ...base,
             kind: "hull",
-            points: [
-              ...ring(shape.radius, shape.height / 2),
-              { x: 0, y: -shape.height / 2, z: 0 },
-            ],
+            points,
+            hull: physicalHullFaces(points),
           });
           break;
+        }
         case "plane":
           break;
       }

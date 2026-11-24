@@ -1,7 +1,8 @@
-import { Quaternion, Vector3, physicalHullFaces } from "@automovie/engine";
+import { Quaternion, Vector3, physicalShapeHull } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanColliders,
   IAutoMoviePhysicalHullFaces,
+  IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -16,9 +17,9 @@ type ISphereResult = { centre: IAutoMovieVector3; radius: number };
  * the hull's own frame: the same for every posed frame of the same hull (a fit
  * frames a fresh pose's colliders, the planes do not move with it).
  */
-function planes(points: readonly IAutoMovieVector3[]): Float64Array {
+function planes(shape: Extract<IAutoMoviePhysicalShape, { kind: "hull" }>): Float64Array {
   const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
-    physicalHullFaces(points).faces;
+    physicalShapeHull(shape).faces;
   const packed: Float64Array = new Float64Array(4 * faces.length);
   faces.forEach(
     (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
@@ -46,7 +47,7 @@ export function HumanShapeFraming(
     lead: 0,
     ...(shape.kind === "hull"
       ? {
-          faces: planes(shape.points),
+          faces: planes(shape),
           origin: Vector3.add(
             pose.position,
             Quaternion.rotateVector(pose.rotation, shape.transform.position),

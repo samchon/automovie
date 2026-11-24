@@ -15,12 +15,12 @@ export function test_unit_motions_sport_aquatic_crew_bear(): void {
   TestValidator.equals(
     "the borne windows",
     [
-      AquaticCrew.bear("scull", "hips", "bear", 0, 1, "seat"),
+      AquaticCrew.bear("scull", "seat", "bear", 0, 1, "seat"),
       AquaticCrew.bear("scull", "leftFoot", "plant", 0.25, 0.75).region,
     ],
     [
       {
-        part: "hips",
+        part: "seat",
         kind: "bear",
         from: 0,
         to: 1,

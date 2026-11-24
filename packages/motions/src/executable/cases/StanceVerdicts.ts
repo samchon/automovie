@@ -116,7 +116,7 @@ export namespace StanceVerdicts {
    * @returns Flexion, abduction and twist; zeros when the pose omits the joint.
    */
   export function joint(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "pose">,
     subject: string,
     bone: AutoMovieHumanoidBone,
     seconds: number,
@@ -141,7 +141,7 @@ export namespace StanceVerdicts {
    * @returns Degrees.
    */
   export function included(
-    performance: IAutoMovieMotionHumanPerformance,
+    performance: Pick<IAutoMovieMotionHumanPerformance, "bones">,
     subject: string,
     a: AutoMovieHumanoidBone,
     b: AutoMovieHumanoidBone,
