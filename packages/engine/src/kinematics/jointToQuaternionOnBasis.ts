@@ -62,30 +62,6 @@ type IRawComposition = <Result, Context>(
   currentFrame?: IAutoMovieRestFrame,
 ) => Result;
 
-/** Fixed direction/length readers for a genuine immutable normalizer output. */
-type IDirectAxisReaders = Readonly<
-  Record<AutoMovieClinicalAxis, ReturnType<typeof Quaternion.prepareAxisAngle>>
->;
-
-/** Weak source-only preparation; no frame, angle, factor or target is retained. */
-const DIRECT_AXIS_READERS: WeakMap<IAutoMovieJointAxes, IDirectAxisReaders> =
-  new WeakMap();
-
-/** Ordinary/accessor inputs retain all original direct axis reads/admission. */
-function directAxisReaders(
-  basis: IAutoMovieJointAxes,
-): IDirectAxisReaders | undefined {
-  if (!normalizeJointAxes.owns(basis)) return undefined;
-  const known: IDirectAxisReaders | undefined = DIRECT_AXIS_READERS.get(basis);
-  if (known !== undefined) return known;
-  const readers: IDirectAxisReaders = {
-    flexion: Quaternion.prepareAxisAngle(basis.flexion),
-    abduction: Quaternion.prepareAxisAngle(basis.abduction),
-    twist: Quaternion.prepareAxisAngle(basis.twist),
-  };
-  DIRECT_AXIS_READERS.set(basis, readers);
-  return readers;
-}
 
 /** Preserve null rest, angle admission and the caller's clinical frame map. */
 const readAngle: (
@@ -129,28 +105,18 @@ export function jointToQuaternionOnBasis(
   basis: IAutoMovieJointAxes,
   frame?: IAutoMovieRestFrame,
 ): IAutoMovieQuaternion {
-  const readers: IDirectAxisReaders | undefined = directAxisReaders(basis);
-  const qFlexion: IAutoMovieQuaternion =
-    readers === undefined
-      ? Quaternion.fromAxisAngle(
-          basis.flexion,
-          readAngle(joint, "flexion", frame?.flexion),
-        )
-      : readers.flexion(readAngle(joint, "flexion", frame?.flexion));
-  const qAbduction: IAutoMovieQuaternion =
-    readers === undefined
-      ? Quaternion.fromAxisAngle(
-          basis.abduction,
-          readAngle(joint, "abduction", frame?.abduction),
-        )
-      : readers.abduction(readAngle(joint, "abduction", frame?.abduction));
-  const qTwist: IAutoMovieQuaternion =
-    readers === undefined
-      ? Quaternion.fromAxisAngle(
-          basis.twist,
-          readAngle(joint, "twist", frame?.twist),
-        )
-      : readers.twist(readAngle(joint, "twist", frame?.twist));
+  const qFlexion: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    basis.flexion,
+    readAngle(joint, "flexion", frame?.flexion),
+  );
+  const qAbduction: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    basis.abduction,
+    readAngle(joint, "abduction", frame?.abduction),
+  );
+  const qTwist: IAutoMovieQuaternion = Quaternion.fromAxisAngle(
+    basis.twist,
+    readAngle(joint, "twist", frame?.twist),
+  );
   if (basis.rotationOrder === "flexion-abduction-twist")
     return Quaternion.multiply(
       qFlexion,
@@ -376,14 +342,7 @@ function scalarComposition(
           dynamicInner = Quaternion.multiply(left, right);
         else {
           if (writeInner === undefined) {
-            writeInner =
-              operation?.innerWriter ??
-              (normalizeJointAxes.owns(basis)
-                ? multiplyQuaternionInto.prepareCardinal(
-                    basis[innerLeftAxis],
-                    basis[innerRightAxis],
-                  )
-                : multiplyQuaternionInto);
+            writeInner = operation?.innerWriter ?? multiplyQuaternionInto;
             if (operation !== undefined && operation.innerWriter === undefined)
               operation.innerWriter = writeInner;
           }
@@ -447,11 +406,7 @@ function scalarComposition(
       return read(x, y, z, w, context);
     }
     if (readOuter === undefined) {
-      readOuter =
-        operation?.outerReader ??
-        (normalizeJointAxes.owns(basis)
-          ? multiplyQuaternionInto.prepareCardinalLeft(basis[outerAxis])
-          : multiplyQuaternionInto.read);
+      readOuter = operation?.outerReader ?? multiplyQuaternionInto.read;
       if (operation !== undefined && operation.outerReader === undefined)
         operation.outerReader = readOuter;
     }

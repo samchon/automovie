@@ -40,8 +40,9 @@ export function prepareGymnasticsLaunch(
       ? HumanColliders.bones(body)
       : new Set<AutoMovieHumanoidBone>(
           model.segments.map(
-            (segment: IAutoMovieResolveCenterOfMass.IModel["segments"][number]): AutoMovieHumanoidBone =>
-              segment.bone,
+            (
+              segment: IAutoMovieResolveCenterOfMass.IModel["segments"][number],
+            ): AutoMovieHumanoidBone => segment.bone,
           ),
         ),
   );

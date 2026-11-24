@@ -1,0 +1,20 @@
+import { runResolveDriversCopyScenario } from "../internal/runResolveDriversCopyScenario";
+
+/**
+ * Copy drivers read sampled values or rest transforms, blend selected components and refuse out-of-range influences and sampled widths.
+ *
+ * Scenarios:
+ * 1. Full influence copies translation, scale and the checked quaternion components from rest into new channels.
+ * 2. Translation-only half influence blends sampled10/20 into15 and keeps rotation absent.
+ * 3. Negative/above-one influences throw.
+ * 4. Missing sampled owner/source nodes, short translation and extra rotation components throw.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the shared copy cases through actual resolveDrivers and observes sampled arrays, deferred count, absent rotation and refusal messages, catching lost rest fallback, wrong blend direction or accepted malformed inputs.
+ * @evidence contracts/development/testing.md#independent-expectations Full influence selects authored source translation5 and scale4, half influence averages10/20 to15, and the authored unit Y quarter-turn supplies two checked quaternion components. These partial rotation checks do not independently establish all four components or unit norm.
+ * @evidence contracts/development/testing.md#distinguishing-cases Rest/new channels and sampled/replaced channels contrast full/half influence and enabled/disabled components, with out-of-range influence, missing nodes and width neighbors; dependency ordering and cyclic graphs have separate entries.
+ * @evidence contracts/development/testing.md#execution-ownership The named synchronous test_resolve_drivers_copy delegates its existing portable cases to runResolveDriversCopyScenario, which owns direct product calls without dynamic registration, a process, renderer or foreign replacement.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Full influence copies translation, scale and the checked quaternion components from rest into new channels.).
+ */
+export function test_resolve_drivers_copy(): void {
+  runResolveDriversCopyScenario();
+}

@@ -15,7 +15,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
@@ -23,6 +22,7 @@ import { AutoMovieMotionHumanJoints } from "../compose/AutoMovieMotionHumanJoint
 import { AutoMovieMotionHumanLean } from "../compose/AutoMovieMotionHumanLean";
 import { AutoMovieMotionHumanRoot } from "../compose/AutoMovieMotionHumanRoot";
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -192,22 +192,21 @@ export namespace knockdown {
     // The heading that faces the blow, so the back falls away from it: the
     // blow is read at the look before the start, solved once the performance
     // is placed (`prepare`); a read before reads it there.
-    const solved: AutoMovieMotionPrepared.IValue<number> = AutoMovieMotionPrepared(
-      (): number => {
-      const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
-        ReactionSource.at(
-          context,
-          context.params.target,
-          context.start - StrikingTarget.LOOK,
-          entry,
-          AutoMovieMotionHumanTarget.DEFAULTS.ahead,
-        ),
-        entry.root,
-        entry.yaw,
-      );
-      return (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
-      },
-    );
+    const solved: AutoMovieMotionPrepared.IValue<number> =
+      AutoMovieMotionPrepared((): number => {
+        const away: IAutoMovieVector3 = AutoMovieMotionHumanTarget.away(
+          ReactionSource.at(
+            context,
+            context.params.target,
+            context.start - StrikingTarget.LOOK,
+            entry,
+            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+          ),
+          entry.root,
+          entry.yaw,
+        );
+        return (Math.atan2(-away.x, -away.z) * 180) / Math.PI;
+      });
     const heading: () => number = (): number => solved.read();
 
     const flat: (yaw: number, forward: number) => IAutoMovieVector3 = (

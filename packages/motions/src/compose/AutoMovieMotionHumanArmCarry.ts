@@ -253,31 +253,41 @@ export namespace AutoMovieMotionHumanArmCarry {
             planned(before),
             before,
           );
-        // The carry's branch points: its ends, the span's edges and the
-        // centre between each two.
-        const edges: number[] = [
+        // The carry's branch points, where the display reads it: off the
+        // plan's span (`onPlan` below), each stretch's ends and centre.
+        const stretches: (readonly [number, number])[] =
+          span === undefined
+            ? [[props.from, props.to]]
+            : [
+                [props.from, Math.min(props.to, span.start)],
+                ...(span.relax >= span.end
+                  ? []
+                  : [[Math.max(props.from, span.end), props.to] as const]),
+              ];
+        const branches: number[] = [
           ...new Set<number>(
-            [props.from, props.to, span?.start, span?.end].filter(
-              (at: number | undefined): at is number =>
-                at !== undefined && at >= props.from && at <= props.to,
-            ),
+            stretches
+              .filter(([a, b]: readonly [number, number]): boolean => b > a)
+              .flatMap(([a, b]: readonly [number, number]): number[] => [
+                a,
+                (a + b) / 2,
+                b,
+              ]),
           ),
-        ].sort((a: number, b: number): number => a - b);
-        const branches: number[] = edges.flatMap(
-          (at: number, i: number): number[] =>
-            i === 0 ? [at] : [(edges[i - 1]! + at) / 2, at],
-        );
-        course = AutoMovieMotionHumanArmJointCourse(
-          props.body,
-          branches.map(
-            (at: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
-              seconds: at,
-              input: input(before(at), at),
-            }),
-          ),
-        );
-      },
-      write: (
+        ];
+        course =
+          branches.length === 0
+            ? undefined
+            : AutoMovieMotionHumanArmJointCourse(
+                props.body,
+                branches.map(
+                  (at: number): AutoMovieMotionHumanArmJointCourse.IKnot => ({
+                    seconds: at,
+                    input: input(before(at), at),
+                  }),
+                ),
+              );
+      },      write: (
         posture: IAutoMovieMotionHumanPosture,
         seconds: number,
         before?: (seconds: number) => IAutoMovieMotionHumanPosture,

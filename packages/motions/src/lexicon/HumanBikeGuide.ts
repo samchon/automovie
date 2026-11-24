@@ -18,9 +18,9 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanLeg } from "../compose/AutoMovieMotionHumanLeg";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { courseArmGoal } from "../compose/courseArmGoal";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";

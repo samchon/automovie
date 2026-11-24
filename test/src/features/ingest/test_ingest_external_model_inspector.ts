@@ -1,0 +1,601 @@
+import { inspectAutoMovieExternalModelBytes } from "@automovie/ingest";
+import type { IAutoMovieExternalModelInspection } from "@automovie/interface";
+import { TestValidator } from "@nestia/e2e";
+
+import { namedFacts, throwsError } from "../internal/predicates";
+import { test12ValuesClose } from "../internal/test12ValuesClose";
+
+/**
+ * Motion inspection grounds every semantic mapping in the exact glTF node hierarchy, local rest transforms, and declared spatial interpretation.
+ *
+ * Scenarios:
+ *
+ * 1. A valid motion source returns stable node ids, source indices and names, parent ids, canonical local TRS, and the meter/right-handed/Y-up profile.
+ * 2. Out-of-range, multiply parented, and cyclic node hierarchies fail before an adoption receipt can cite them.
+ * 3. Malformed or non-finite TRS, non-positive scale, and non-unit rotation fail instead of becoming a guessed source rest basis.
+ * 4. A node matrix is refused because this profile promises explicit TRS and does not silently decompose or discard shear.
+ * 5. JSON glTF and GLB refuse duplicate object members, including names that become equal only after JSON escape decoding.
+ * 6. A document nested 100,000 levels deep is accepted when its members are unique and refused when the deepest object repeats a member, so the duplicate scan never turns nesting depth into call-stack depth.
+ *
+ * @evidence contracts/development/testing.md#behavioral-verification Calls motion byte inspection and observes canonical node facts or precise structural/JSON refusal; lost rest transforms, guessed matrix decomposition or duplicate-member acceptance fails.
+ * @evidence contracts/development/testing.md#independent-expectations Authored node TRS and parent links supply canonical facts, and decoded JSON member identity defines duplicates; glTF/GLB headers and explicit little-endian samples define the fixture independently.
+ * @evidence contracts/development/testing.md#distinguishing-cases Parent resolution, cycles, names, malformed/nonfinite TRS, positive scale, unit rotations, matrices, root/escaped/nested/array duplicates, string escapes and 100,000-level accepted/refused nesting are retained; adoption policy is owned by the adoption unit.
+ * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_external_model_inspector entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A valid motion source returns stable node ids, source indices and names, parent ids, canonical local TRS, and the meter/right-handed/Y-up...).
+ */
+export function test_ingest_external_model_inspector(): void {
+  const inspected: IAutoMovieExternalModelInspection = inspect(motionFixture());
+  TestValidator.predicate(
+    "canonical motion node facts",
+    test12ValuesClose(
+      {
+        interpretation: inspected.motion?.interpretation,
+        nodes: inspected.motion?.nodes,
+        nodeIds: inspected.motion?.nodeIds,
+      },
+      {
+        interpretation: "gltf-2.0-meter-right-handed-y-up",
+        nodes: [
+          {
+            id: "node_0",
+            index: 0,
+            name: null,
+            parent: "node_1",
+            transform: {
+              translation: { x: 0, y: 0.5, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            },
+          },
+          {
+            id: "node_1",
+            index: 1,
+            name: null,
+            parent: "node_2",
+            transform: {
+              translation: { x: 0, y: 0, z: 0 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 1, y: 1, z: 1 },
+            },
+          },
+          {
+            id: "node_2",
+            index: 2,
+            name: "Root",
+            parent: null,
+            transform: {
+              translation: { x: 1, y: 2, z: 3 },
+              rotation: { x: 0, y: 0, z: 0, w: 1 },
+              scale: { x: 2, y: 3, z: 4 },
+            },
+          },
+        ],
+        nodeIds: ["node_0", "node_1", "node_2"],
+      },
+    ),
+  );
+
+  TestValidator.predicate(
+    "invalid node facts are refused",
+    test12ValuesClose(
+      namedFacts([
+        [
+          "parentIndexMustResolve",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] => (nodes[0]!.children = [99]),
+              "children[0] does not resolve",
+            ),
+        ],
+        [
+          "nodeMustHaveOneParent",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] => (nodes[0]!.children = [1]),
+              "has multiple parents",
+            ),
+        ],
+        [
+          "nodeHierarchyMustBeAcyclic",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] => (nodes[0]!.children = [2]),
+              "belongs to a parent cycle",
+            ),
+        ],
+        [
+          "nodeMatrixIsRefused",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] =>
+                (nodes[0]!.matrix = [
+                  1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1,
+                ]),
+              ".matrix is unsupported",
+            ),
+        ],
+        [
+          "nodeNameMustBeString",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number => (nodes[1]!.name = 7),
+              ".name must be a string",
+            ),
+        ],
+        [
+          "translationMustBeAnArray",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): {} => (nodes[0]!.translation = {}),
+              "must contain exactly 3 finite numbers",
+            ),
+        ],
+        [
+          "translationMustHaveThreeComponents",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] =>
+                (nodes[0]!.translation = [0, 0]),
+              "must contain exactly 3 finite numbers",
+            ),
+        ],
+        [
+          "translationMustBeFinite",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): (number | null)[] =>
+                (nodes[0]!.translation = [0, null, 0]),
+              ".translation[1] must be finite",
+            ),
+        ],
+        [
+          "scaleMustBePositive",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] => (nodes[0]!.scale = [1, 0, 1]),
+              ".scale must contain only positive values",
+            ),
+        ],
+        [
+          "rotationMustBeUnit",
+          (): boolean =>
+            rejects(
+              (nodes: MotionNode[]): number[] =>
+                (nodes[0]!.rotation = [0, 0, 0, 2]),
+              ".rotation must be a unit quaternion",
+            ),
+        ],
+      ]),
+      Object.fromEntries(
+        [
+          "parentIndexMustResolve",
+          "nodeMustHaveOneParent",
+          "nodeHierarchyMustBeAcyclic",
+          "nodeMatrixIsRefused",
+          "nodeNameMustBeString",
+          "translationMustBeAnArray",
+          "translationMustHaveThreeComponents",
+          "translationMustBeFinite",
+          "scaleMustBePositive",
+          "rotationMustBeUnit",
+        ].map((name: string): [string, true] => [name, true]),
+      ),
+    ),
+  );
+
+  const duplicateFixture: ReturnType<typeof motionFixture> = motionFixture();
+  const source: string = JSON.stringify(duplicateFixture.document);
+  const rootDuplicate: string =
+    JSON.stringify({ asset: { version: "1.0" } }).slice(0, -1) +
+    `,${source.slice(1)}`;
+  const escapedDuplicate: string = source.replace(
+    '"asset":',
+    '"\\u0061sset":{"version":"1.0"},"asset":',
+  );
+  const nestedDuplicate: string = source.replace(
+    '"asset":',
+    '"extras":{"owner":"left","owner":"right"},"asset":',
+  );
+  const arrayElementDuplicate: string = source.replace(
+    '"asset":',
+    '"extras":{"list":[1,{"k":1,"k":2}]},"asset":',
+  );
+  const depth: number = 100_000;
+  const deepNesting: string = source.replace(
+    '"asset":',
+    `"extras":${"[".repeat(depth)}${"]".repeat(depth)},"asset":`,
+  );
+  const deepDuplicate: string = source.replace(
+    '"asset":',
+    `"extras":${'{"k":'.repeat(depth)}{"d":1,"d":2}${"}".repeat(depth)},"asset":`,
+  );
+  const trickyStrings: string = source.replace(
+    '"asset":',
+    '"extras":{"note":"{\\"a\\":[1,{\\"b\\":2}]}","q\\"uote":"]}","\\u007b":" , "},"asset":',
+  );
+  TestValidator.predicate(
+    "decoded duplicate members are refused in JSON glTF and GLB",
+    test12ValuesClose(
+      namedFacts([
+        [
+          "jsonRootDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(rootDuplicate, "public/motion/duplicate.gltf"),
+              'duplicate member "asset"',
+            ),
+        ],
+        [
+          "jsonSyntax",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource('{"asset":', "public/motion/invalid.gltf"),
+              "External model JSON is invalid",
+            ),
+        ],
+        [
+          "jsonWhitespace",
+          (): true => {
+            inspectSource(` \n${source}\n`, "public/motion/whitespace.gltf");
+            return true;
+          },
+        ],
+        [
+          "jsonEscapedDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(escapedDuplicate, "public/motion/escaped.gltf"),
+              'duplicate member "asset"',
+            ),
+        ],
+        [
+          "jsonNestedDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(nestedDuplicate, "public/motion/nested.gltf"),
+              'duplicate member "owner"',
+            ),
+        ],
+        [
+          "jsonArrayElementDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(
+                  arrayElementDuplicate,
+                  "public/motion/array.gltf",
+                ),
+              'duplicate member "k"',
+            ),
+        ],
+        [
+          "jsonBracesAndEscapesInsideStringsAreNotStructure",
+          (): true => {
+            inspectSource(trickyStrings, "public/motion/tricky.gltf");
+            return true;
+          },
+        ],
+        [
+          "jsonDeepNestingIsAccepted",
+          (): true => {
+            inspectSource(deepNesting, "public/motion/deep.gltf");
+            return true;
+          },
+        ],
+        [
+          "jsonDeepDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(deepDuplicate, "public/motion/deep.gltf"),
+              'duplicate member "d"',
+            ),
+        ],
+        [
+          "glbRootDuplicate",
+          (): boolean =>
+            throwsError(
+              (): IAutoMovieExternalModelInspection =>
+                inspectSource(
+                  motionGlb(rootDuplicate),
+                  "public/motion/duplicate.glb",
+                ),
+              'duplicate member "asset"',
+            ),
+        ],
+      ]),
+      {
+        glbRootDuplicate: true,
+        jsonArrayElementDuplicate: true,
+        jsonBracesAndEscapesInsideStringsAreNotStructure: true,
+        jsonDeepDuplicate: true,
+        jsonDeepNestingIsAccepted: true,
+        jsonEscapedDuplicate: true,
+        jsonNestedDuplicate: true,
+        jsonRootDuplicate: true,
+        jsonSyntax: true,
+        jsonWhitespace: true,
+      },
+    ),
+  );
+}
+
+type MotionDocument = ReturnType<typeof motionDocument>;
+type MotionNode = Record<string, unknown>;
+
+const inspect: (
+  fixture: ReturnType<typeof motionFixture>,
+) => IAutoMovieExternalModelInspection = (
+  fixture: ReturnType<typeof motionFixture>,
+): IAutoMovieExternalModelInspection =>
+  inspectSource(fixture.bytes, "public/motion/grounded.gltf", fixture.payload);
+
+const inspectSource: (
+  bytes: Uint8Array | string,
+  path: string,
+  payload?: Uint8Array,
+) => IAutoMovieExternalModelInspection = (
+  bytes: Uint8Array | string,
+  path: string,
+  payload: Uint8Array = motionFixture().payload,
+): IAutoMovieExternalModelInspection =>
+  inspectAutoMovieExternalModelBytes({
+    path,
+    bytes: typeof bytes === "string" ? Buffer.from(bytes, "utf8") : bytes,
+    profile: "gltf-motion-v1",
+    resolveResource: (uri: string): Uint8Array<ArrayBufferLike> | null =>
+      uri === "grounded.bin" ? payload : null,
+  });
+
+const motionGlb: (source: string) => Uint8Array = (
+  source: string,
+): Uint8Array => {
+  const json: Buffer<ArrayBuffer> = Buffer.from(source, "utf8");
+  const padding: number = (4 - (json.length % 4)) % 4;
+  const output: Buffer<ArrayBuffer> = Buffer.alloc(
+    20 + json.length + padding,
+    0x20,
+  );
+  output.writeUInt32LE(0x46546c67, 0);
+  output.writeUInt32LE(2, 4);
+  output.writeUInt32LE(output.length, 8);
+  output.writeUInt32LE(json.length + padding, 12);
+  output.writeUInt32LE(0x4e4f534a, 16);
+  json.copy(output, 20);
+  return output;
+};
+
+const rejects: (
+  mutate: (nodes: MotionNode[]) => void,
+  message: string,
+) => boolean = (
+  mutate: (nodes: MotionNode[]) => void,
+  message: string,
+): boolean => {
+  const document: ReturnType<typeof motionDocument> = motionDocument();
+  mutate(document.nodes as MotionNode[]);
+  return throwsError(
+    (): IAutoMovieExternalModelInspection => inspect(motionFixture(document)),
+    message,
+  );
+};
+
+const motionFixture: (document?: MotionDocument) => {
+  document: {
+    asset: { version: string };
+    extensionsUsed: never[];
+    buffers: { byteLength: number; uri: string }[];
+    bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+    accessors: {
+      bufferView: number;
+      componentType: number;
+      count: number;
+      type: string;
+    }[];
+    nodes: (
+      | {
+          translation: number[];
+          rotation: number[];
+          name?: undefined;
+          children?: undefined;
+          scale?: undefined;
+        }
+      | {
+          name: string;
+          children: number[];
+          translation?: undefined;
+          rotation?: undefined;
+          scale?: undefined;
+        }
+      | {
+          name: string;
+          children: number[];
+          translation: number[];
+          rotation: number[];
+          scale: number[];
+        }
+    )[];
+    scenes: { nodes: number[] }[];
+    animations: {
+      name: string;
+      samplers: { input: number; output: number }[];
+      channels: { sampler: number; target: { node: number; path: string } }[];
+    }[];
+  };
+  bytes: Buffer<ArrayBuffer>;
+  payload: Buffer<ArrayBuffer>;
+} = (
+  document: MotionDocument = motionDocument(),
+): {
+  document: {
+    asset: { version: string };
+    extensionsUsed: never[];
+    buffers: { byteLength: number; uri: string }[];
+    bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+    accessors: {
+      bufferView: number;
+      componentType: number;
+      count: number;
+      type: string;
+    }[];
+    nodes: (
+      | {
+          translation: number[];
+          rotation: number[];
+          name?: undefined;
+          children?: undefined;
+          scale?: undefined;
+        }
+      | {
+          name: string;
+          children: number[];
+          translation?: undefined;
+          rotation?: undefined;
+          scale?: undefined;
+        }
+      | {
+          name: string;
+          children: number[];
+          translation: number[];
+          rotation: number[];
+          scale: number[];
+        }
+    )[];
+    scenes: { nodes: number[] }[];
+    animations: {
+      name: string;
+      samplers: { input: number; output: number }[];
+      channels: { sampler: number; target: { node: number; path: string } }[];
+    }[];
+  };
+  bytes: Buffer<ArrayBuffer>;
+  payload: Buffer<ArrayBuffer>;
+} => {
+  const payload: Buffer<ArrayBuffer> = Buffer.alloc(40);
+  payload.writeFloatLE(1, 4);
+  payload.writeFloatLE(1, 20);
+  payload.writeFloatLE(1, 36);
+  document.buffers[0]!.byteLength = payload.byteLength;
+  return {
+    document,
+    bytes: Buffer.from(JSON.stringify(document), "utf8"),
+    payload,
+  };
+};
+
+const motionDocument: () => {
+  asset: { version: string };
+  extensionsUsed: never[];
+  buffers: { byteLength: number; uri: string }[];
+  bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+  accessors: {
+    bufferView: number;
+    componentType: number;
+    count: number;
+    type: string;
+  }[];
+  nodes: (
+    | {
+        translation: number[];
+        rotation: number[];
+        name?: undefined;
+        children?: undefined;
+        scale?: undefined;
+      }
+    | {
+        name: string;
+        children: number[];
+        translation?: undefined;
+        rotation?: undefined;
+        scale?: undefined;
+      }
+    | {
+        name: string;
+        children: number[];
+        translation: number[];
+        rotation: number[];
+        scale: number[];
+      }
+  )[];
+  scenes: { nodes: number[] }[];
+  animations: {
+    name: string;
+    samplers: { input: number; output: number }[];
+    channels: { sampler: number; target: { node: number; path: string } }[];
+  }[];
+} = (): {
+  asset: { version: string };
+  extensionsUsed: never[];
+  buffers: { byteLength: number; uri: string }[];
+  bufferViews: { buffer: number; byteOffset: number; byteLength: number }[];
+  accessors: {
+    bufferView: number;
+    componentType: number;
+    count: number;
+    type: string;
+  }[];
+  nodes: (
+    | {
+        translation: number[];
+        rotation: number[];
+        name?: undefined;
+        children?: undefined;
+        scale?: undefined;
+      }
+    | {
+        name: string;
+        children: number[];
+        translation?: undefined;
+        rotation?: undefined;
+        scale?: undefined;
+      }
+    | {
+        name: string;
+        children: number[];
+        translation: number[];
+        rotation: number[];
+        scale: number[];
+      }
+  )[];
+  scenes: { nodes: number[] }[];
+  animations: {
+    name: string;
+    samplers: { input: number; output: number }[];
+    channels: { sampler: number; target: { node: number; path: string } }[];
+  }[];
+} => ({
+  asset: { version: "2.0" },
+  extensionsUsed: [],
+  buffers: [{ byteLength: 40, uri: "grounded.bin" }],
+  bufferViews: [
+    { buffer: 0, byteOffset: 0, byteLength: 8 },
+    { buffer: 0, byteOffset: 8, byteLength: 32 },
+  ],
+  accessors: [
+    { bufferView: 0, componentType: 5126, count: 2, type: "SCALAR" },
+    { bufferView: 1, componentType: 5126, count: 2, type: "VEC4" },
+  ],
+  nodes: [
+    { translation: [0, 0.5, 0], rotation: [0, 0, 0, 0.99999] },
+    { name: "", children: [0] },
+    {
+      name: "Root",
+      children: [1],
+      translation: [1, 2, 3],
+      rotation: [0, 0, 0, 1],
+      scale: [2, 3, 4],
+    },
+  ],
+  scenes: [{ nodes: [2] }],
+  animations: [
+    {
+      name: "Grounded",
+      samplers: [{ input: 0, output: 1 }],
+      channels: [{ sampler: 0, target: { node: 0, path: "rotation" } }],
+    },
+  ],
+});

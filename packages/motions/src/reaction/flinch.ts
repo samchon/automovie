@@ -19,7 +19,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
@@ -31,6 +30,7 @@ import { AutoMovieMotionHumanRange } from "../compose/AutoMovieMotionHumanRange"
 import { AutoMovieMotionHumanTarget } from "../compose/AutoMovieMotionHumanTarget";
 import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTiming";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
+import { AutoMovieMotionPrepared } from "../compose/AutoMovieMotionPrepared";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFrame } from "../posture/HumanFrame";
@@ -164,23 +164,27 @@ export namespace flinch {
     // forward. The threat is read at the look before the start, solved once
     // the performance is placed (`prepare`); a read before reads it there.
     const solved: AutoMovieMotionPrepared.IValue<IAutoMovieVector3> =
-      AutoMovieMotionPrepared((): IAutoMovieVector3 =>
-      HumanFrame.local(
-        { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
-        AutoMovieMotionHumanTarget.away(
-          ReactionSource.at(
-            context,
-            p.target,
-            context.start - StrikingTarget.LOOK,
-            entry,
-            AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+      AutoMovieMotionPrepared(
+        (): IAutoMovieVector3 =>
+          HumanFrame.local(
+            { origin: { x: 0, y: 0, z: 0 }, yaw: entry.yaw },
+            AutoMovieMotionHumanTarget.away(
+              ReactionSource.at(
+                context,
+                p.target,
+                context.start - StrikingTarget.LOOK,
+                entry,
+                AutoMovieMotionHumanTarget.DEFAULTS.ahead,
+              ),
+              StrikingBody.trunk(
+                body,
+                entry,
+                undefined,
+                HumanBoneGroups.HEAD,
+              ).get("head")!.worldPosition,
+              entry.yaw,
+            ),
           ),
-          StrikingBody.trunk(body, entry, undefined, HumanBoneGroups.HEAD).get(
-            "head",
-          )!.worldPosition,
-          entry.yaw,
-        ),
-      ),
       );
     const away: () => IAutoMovieVector3 = (): IAutoMovieVector3 =>
       solved.read();

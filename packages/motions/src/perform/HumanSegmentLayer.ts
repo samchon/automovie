@@ -107,15 +107,10 @@ export namespace HumanSegmentLayer {
                   channel,
                 ),
             };
-            if (layer.blend !== undefined) {
-              const native: HumanAirborneShape.ShapeBlend | undefined =
-                assembly === undefined
-                  ? undefined
-                  : HumanAirborneShape.prepared(layer);
-              return native === undefined
-                ? layer.blend(current, seconds, context, weight)
-                : native(current, seconds, context, weight, assembly);
-            }
+            if (assembly !== undefined && layer.lend !== undefined)
+              return layer.lend(current, seconds, context, weight, assembly);
+            if (layer.blend !== undefined)
+              return layer.blend(current, seconds, context, weight);
             return mixHumanPosture(
               current,
               layer.apply(current, seconds, context),

@@ -94,11 +94,7 @@ export function HumanRideHands(
     return {
       ...seated,
       ...angles,
-      root: seatSocket.root(
-        context.body,
-        bearing,
-        angles,
-      ),
+      root: seatSocket.root(context.body, bearing, angles),
     };
   };
   const holding: AutoMovieHumanSide[] = (["left", "right"] as const).filter(
@@ -300,8 +296,7 @@ export function HumanRideHands(
   // The lean the reins are crossed on, read where the hold begins.
   const reaching: IAutoMovieMotionHumanPosture | undefined = holding.some(
     (side: AutoMovieHumanSide): boolean =>
-      handles[side]!.reinPalm !== undefined &&
-      begun[side]?.axis !== undefined,
+      handles[side]!.reinPalm !== undefined && begun[side]?.axis !== undefined,
   )
     ? bow(lean(begun, origin))
     : undefined;

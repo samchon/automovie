@@ -316,29 +316,31 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   };
 
   // The arm's own solution at the decisive station, the engage when a charge comes and the slope otherwise: the reference every goal keeps from the arrival on, as the sword strokes keep theirs (`StrikingBlade`).
-  const anchored: IAutoMovieHumanLimbReference = ((): IAutoMovieHumanLimbReference => {
-    const at: IStation = from === undefined ? stations.slope : stations.engage;
-    const stood: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
-      local,
-      from === undefined ? 0 : engaged.turn,
-    );
-    return HumanLimbFit.reference(
-      resolveHumanPosture.seeded(context.body, {
-        ...stood,
-        limbs: {
-          ...stood.limbs,
-          rightArm: {
-            ...goal(
-              StrikingHeld.hand(tool, tool.length, at.grip, at.axis, at.edge),
-              { x: 0, y: 0, z: 0 },
-            ),
-            bend: AutoMovieMotionHumanBend.hang(context.body, stood, "right"),
+  const anchored: IAutoMovieHumanLimbReference =
+    ((): IAutoMovieHumanLimbReference => {
+      const at: IStation =
+        from === undefined ? stations.slope : stations.engage;
+      const stood: IAutoMovieMotionHumanPosture = StrikingBlade.turned(
+        local,
+        from === undefined ? 0 : engaged.turn,
+      );
+      return HumanLimbFit.reference(
+        resolveHumanPosture.seeded(context.body, {
+          ...stood,
+          limbs: {
+            ...stood.limbs,
+            rightArm: {
+              ...goal(
+                StrikingHeld.hand(tool, tool.length, at.grip, at.axis, at.edge),
+                { x: 0, y: 0, z: 0 },
+              ),
+              bend: AutoMovieMotionHumanBend.hang(context.body, stood, "right"),
+            },
           },
-        },
-      }).pose,
-      "rightArm",
-    );
-  })();
+        }).pose,
+        "rightArm",
+      );
+    })();
   const windows: IAutoMovieMotionHumanContactWindow[] = [
     ...StrikingHeld.grips(tool).map(
       (

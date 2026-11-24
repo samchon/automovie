@@ -18,8 +18,7 @@ import type { AutoMovieViseme } from "@automovie/interface";
  * shape the mouth through coarticulation. Multi-symbol entries are matched
  * before single symbols.
  */
-export const AUTOMOVIE_IPA_VISEMES: Readonly<Record<string, AutoMovieViseme>> =
-  Object.freeze({
+export const AUTOMOVIE_IPA_VISEMES: Readonly<Record<string, AutoMovieViseme>> = {
     p: "PP",
     b: "PP",
     m: "PP",
@@ -74,4 +73,4 @@ export const AUTOMOVIE_IPA_VISEMES: Readonly<Record<string, AutoMovieViseme>> =
     ʍ: "U",
     h: "sil",
     ʔ: "sil",
-  });
+};

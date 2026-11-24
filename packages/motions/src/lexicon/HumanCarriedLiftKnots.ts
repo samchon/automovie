@@ -117,8 +117,8 @@ export namespace HumanCarriedLiftKnots {
   }
 
   /**
-   * Fit a phase's knots: its two ends and every middle its judgement splits
-   * at, down to the frame grid.
+   * Fit a phase's knots: its two ends and every middle its judgement splits at,
+   * down to the frame grid.
    *
    * @param course The phase's course, its whole interval set here.
    * @param body The carried body.

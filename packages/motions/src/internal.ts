@@ -273,3 +273,4 @@ export * from "./everyday/restForearm";
 export * from "./handling/pickUpStepReach";
 export * from "./handling/pickUpAlong";
 export * from "./everyday/conversationGaze";
+export * from "./actions/prepareSupportLiftCourse";

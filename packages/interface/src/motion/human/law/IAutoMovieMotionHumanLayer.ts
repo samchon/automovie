@@ -67,6 +67,27 @@ export interface IAutoMovieMotionHumanLayer {
   ): IAutoMovieMotionHumanPosture;
 
   /**
+   * `blend` that also lends the assembly its held goals are placed on, for a
+   * display that fits the layered posture on that very assembly; absent on a
+   * layer whose blend lends none. A copy that replaces `blend` drops it.
+   *
+   * @param posture The active action's posture, after earlier layers.
+   * @param seconds Layer-local seconds.
+   * @param context The person and the performance's queries.
+   * @param weight The scheduled window weight.
+   * @param assembly Receives the projected joints and root of the layered
+   *   posture during this evaluation.
+   * @returns The layered posture.
+   */
+  lend?(
+    posture: IAutoMovieMotionHumanPosture,
+    seconds: number,
+    context: IAutoMovieMotionHumanLayer.IContext,
+    weight: number,
+    assembly: (direct: IAutoMovieMotionHumanLayer.IAssembled) => void,
+  ): IAutoMovieMotionHumanPosture;
+
+  /**
    * The posture with this layer's contribution added.
    *
    * @param posture The active action's posture, after earlier layers.
@@ -86,6 +107,25 @@ export interface IAutoMovieMotionHumanLayer {
  * HumanAirborneShape.layer.
  */
 export namespace IAutoMovieMotionHumanLayer {
+  /**
+   * A posture's direct part as a fit reads it
+   * (`IAutoMovieMotionHumanLayer.lend`): the posture, its root and clamped
+   * direct joints, and its limb goals in world terms.
+   */
+  export interface IAssembled {
+    /** The posture as authored. */
+    posture: IAutoMovieMotionHumanPosture;
+
+    /** The root and every rig bone's clamped direct joint, before any fit. */
+    pose: IAutoMoviePose;
+
+    /** The posture's own limb goals, turned by its whole-body rotation. */
+    limbs: IAutoMovieMotionHumanPosture["limbs"];
+
+    /** The pose whose joints stood in for unset bones, if any. */
+    base?: IAutoMoviePose;
+  }
+
   /** What a layer can read. */
   export interface IContext {
     /** The person's subject id. */

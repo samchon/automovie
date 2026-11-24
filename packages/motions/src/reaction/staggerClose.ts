@@ -186,7 +186,9 @@ export function staggerClose(
   // tracks nothing yet.
   const jump: IAutoMovieVector3 = Vector3.subtract(
     landed,
-    nearest(Vector3.subtract(begin, Vector3.scale(travel, minimumJerk(0).ds / rate))),
+    nearest(
+      Vector3.subtract(begin, Vector3.scale(travel, minimumJerk(0).ds / rate)),
+    ),
   );
   for (let i: number = 1; i * STEP <= longest; i++) {
     const reference: IAutoMovieMinimumJerk.IProfile = minimumJerk(

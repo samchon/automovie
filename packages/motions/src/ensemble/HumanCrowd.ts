@@ -1,5 +1,6 @@
 import { AutoMovieGravity, steerAutoMovieCrowd } from "@automovie/engine";
 import type {
+  IAutoMovieBodyMeasure,
   IAutoMovieCrowdAgent,
   IAutoMovieMotionHumanCrowd,
   IAutoMovieMotionHumanEnsemble,
@@ -62,6 +63,30 @@ export namespace HumanCrowd {
    */
   export const STEP: number = 1 / 24;
 
+  /** What a member's desire reads of its ensemble: the seed and the id. */
+  export interface IDesiredEnsemble {
+    /** The ensemble's seed and id. */
+    input: Pick<IAutoMovieMotionHumanEnsemble.IInput, "seed" | "id">;
+  }
+
+  /** What a member's desire reads of it. */
+  export interface IDesiredMember
+    extends Pick<
+      IAutoMovieMotionHumanEnsemble.IMember,
+      "index" | "proficiency" | "attributes"
+    > {
+    /** The member's hip height. */
+    body: { measure: Pick<IAutoMovieBodyMeasure, "hipHeight"> };
+  }
+
+  /** What a member's half breadth reads of it. */
+  export interface IHalfMember {
+    /** The member's shoulder half width and upper arm radius. */
+    body: {
+      measure: Pick<IAutoMovieBodyMeasure, "shoulderHalfWidth" | "upperArmRadius">;
+    };
+  }
+
   /**
    * A member's desired speed and delay as the pass draws them: its gait's speed
    * at its leg length scaled by its keyed normal draw (floored at `SLOWEST`,
@@ -75,8 +100,8 @@ export namespace HumanCrowd {
    * @returns The member's desire.
    */
   export function desired(
-    ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble,
-    m: IAutoMovieMotionHumanEnsemble.IMember,
+    ensemble: IDesiredEnsemble,
+    m: IDesiredMember,
     request: Pick<IAutoMovieMotionHumanCrowd.IRequest, DesiredRequest>,
   ): IAutoMovieMotionHumanCrowd.IDesired {
     const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
@@ -279,7 +304,7 @@ export namespace HumanCrowd {
    * @param member The member.
    * @returns The half breadth.
    */
-  export function half(member: IAutoMovieMotionHumanEnsemble.IMember): number {
+  export function half(member: IHalfMember): number {
     return (
       member.body.measure.shoulderHalfWidth + member.body.measure.upperArmRadius
     );

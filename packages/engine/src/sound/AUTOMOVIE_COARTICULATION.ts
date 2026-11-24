@@ -47,9 +47,9 @@ export const AUTOMOVIE_COARTICULATION: Readonly<{
 
   /** Dominance magnitude of a viseme `magnitude` does not list. */
   defaultMagnitude: number;
-}> = Object.freeze({
+}> = {
   defaultTimeConstantSeconds: 0.05,
-  timeConstantSeconds: Object.freeze({ PP: 0.04, FF: 0.04 }),
-  magnitude: Object.freeze({ PP: 5, FF: 5 }),
+  timeConstantSeconds: { PP: 0.04, FF: 0.04 },
+  magnitude: { PP: 5, FF: 5 },
   defaultMagnitude: 1,
-});
+};

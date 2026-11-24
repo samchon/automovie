@@ -28,7 +28,6 @@ import type {
 import { jump } from "../actions/jump";
 import { jumpAirborne } from "../actions/jumpAirborne";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanAirborneShape } from "../lexicon/HumanAirborneShape";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
 import { HumanPerformanceFlightFailure } from "./HumanPerformanceFlightFailure";
@@ -140,9 +139,7 @@ export function flyPerformanceFlight(
       t0 - segment.transition.cut >= segment.transition.blend) &&
     person.layers.every(
       (row): boolean =>
-        row.to <= t0 ||
-        row.from >= t1 ||
-        HumanAirborneShape.prepared(row.layer) !== undefined,
+        row.to <= t0 || row.from >= t1 || row.layer.lend !== undefined,
     )
   ) {
     const source: IAutoMoviePose = at(t0);

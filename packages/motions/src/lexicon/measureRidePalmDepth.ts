@@ -55,8 +55,8 @@ export function measureRidePalmDepth(
 export namespace measureRidePalmDepth {
   /**
    * Measure, once, the palm depth of every holding hand whose handle is a round
-   * riding handle on a fixed seat and declares no depth of its own: the
-   * depth is set on the handle.
+   * riding handle on a fixed seat and declares no depth of its own: the depth
+   * is set on the handle.
    *
    * @param body The body.
    * @param handles The ride's handles by hand.

@@ -31,19 +31,16 @@ export function physicalShapeNormal(
   point: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
 ): IAutoMovieVector3 {
-  return normal(frame, shape, point, fallback);
+  return normal(shape, point, fallback, prepareNormal(frame, shape));
 }
 
 /** Fixed collider geometry can lend only its invariant normal prerequisites. */
 export namespace physicalShapeNormal {
   /**
    * Read normals on one unchanged admitted frame/shape during an operation. The
-   * first actual point lazily prepares its needed centre/rotation and kind's
-   * axis/inverse/planes. Every later point retains original radial checks,
-   * plane heights, exponential weights, summation order and normalization.
-   * Release the callback after surface resolution; geometry edits require
-   * another reader. It owns O(F) fixed planes and overwritten height scratch
-   * for F faces; every current height is computed, without a normal cache.
+   * centre, rotation and the kind's axis, inverse rotation and planes are
+   * prepared once here; every point retains the original radial checks, plane
+   * heights, exponential weights, summation order and normalization.
    */
   export function prepare(
     frame: IAutoMovieRigidTransform,
@@ -52,11 +49,11 @@ export namespace physicalShapeNormal {
     point: IAutoMovieVector3,
     fallback: IAutoMovieVector3,
   ) => IAutoMovieVector3 {
-    const prepared: IPrepared = {};
+    const prepared: IPrepared = prepareNormal(frame, shape);
     return (
       point: IAutoMovieVector3,
       fallback: IAutoMovieVector3,
-    ): IAutoMovieVector3 => normal(frame, shape, point, fallback, prepared);
+    ): IAutoMovieVector3 => normal(shape, point, fallback, prepared);
   }
 }
 
@@ -96,31 +93,52 @@ const SMOOTH: number = 0.005;
 /** Metres under which a radius or a normal has no direction. */
 const BOUNDARY: number = 1e-9;
 
-/**
- * Fixed metadata and overwritten scalar scratch; no query point or output is
- * retained.
- */
+/** Fixed metadata of one framed collider; no query point is retained. */
 interface IPrepared {
-  /** Actual parent/local centre, prepared at the first normal demand. */
-  centre?: IAutoMovieVector3;
+  /** Actual parent/local centre. */
+  centre: IAutoMovieVector3;
 
-  /** Actual composed rotation, unused by a sphere's radial normal. */
-  rotation?: IAutoMovieQuaternion;
+  /** Actual composed rotation. */
+  rotation: IAutoMovieQuaternion;
 
   /** Capsule length direction in the query's common frame. */
-  axis?: IAutoMovieVector3;
+  axis: IAutoMovieVector3;
 
-  /** Common-to-polytope rotation, unused by radial primitives. */
-  inverse?: IAutoMovieQuaternion;
+  /** Common-to-polytope rotation. */
+  inverse: IAutoMovieQuaternion;
 
-  /** Hull owner planes or six original-order box planes. */
-  planes?: readonly { normal: IAutoMovieVector3; offset: number }[];
+  /** Hull owner planes or six original-order box planes; empty otherwise. */
+  planes: readonly { normal: IAutoMovieVector3; offset: number }[];
+}
 
-  /**
-   * Every present plane's height is overwritten before this query's
-   * maximum/weights.
-   */
-  heights?: number[];
+/** Prepare one framed collider's centre, orientation and planes. */
+function prepareNormal(
+  frame: IAutoMovieRigidTransform,
+  shape: IAutoMoviePhysicalShape,
+): IPrepared {
+  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
+    frame.rotation,
+    shape.transform.rotation,
+  );
+  return {
+    centre: centreOfShape(frame, shape),
+    rotation,
+    axis: Quaternion.rotateVector(rotation, { x: 0, y: 1, z: 0 }),
+    inverse: Quaternion.inverse(rotation),
+    planes:
+      shape.kind === "hull"
+        ? physicalHullFaces(shape.points).faces
+        : shape.kind === "box"
+          ? BOX.map(
+              (
+                plane: IBoxPlane,
+              ): { normal: IAutoMovieVector3; offset: number } => ({
+                normal: plane.normal,
+                offset: shape.halfExtents[plane.axis],
+              }),
+            )
+          : [],
+  };
 }
 
 /**
@@ -128,37 +146,14 @@ interface IPrepared {
  * readers.
  */
 function normal(
-  frame: IAutoMovieRigidTransform,
   shape: IAutoMoviePhysicalShape,
   point: IAutoMovieVector3,
   fallback: IAutoMovieVector3,
-  prepared?: IPrepared,
+  prepared: IPrepared,
 ): IAutoMovieVector3 {
-  const centre: IAutoMovieVector3 =
-    prepared?.centre ?? centreOfShape(frame, shape);
-  if (prepared !== undefined && prepared.centre === undefined)
-    prepared.centre = centre;
-
-  // Raw transforms may expose getters: compose orientation before kind even
-  // when a sphere's radial formula does not use the resulting quaternion.
-  let rotation: IAutoMovieQuaternion | undefined =
-    prepared === undefined
-      ? Quaternion.multiply(frame.rotation, shape.transform.rotation)
-      : prepared.rotation;
+  const { centre, rotation, axis, inverse, planes }: IPrepared = prepared;
   if (shape.kind === "sphere") return radial(point, centre, fallback);
-  rotation ??= Quaternion.multiply(frame.rotation, shape.transform.rotation);
-  if (prepared !== undefined && prepared.rotation === undefined)
-    prepared.rotation = rotation;
   if (shape.kind === "capsule") {
-    const axis: IAutoMovieVector3 =
-      prepared?.axis ??
-      Quaternion.rotateVector(rotation, {
-        x: 0,
-        y: 1,
-        z: 0,
-      });
-    if (prepared !== undefined && prepared.axis === undefined)
-      prepared.axis = axis;
     const along: number = Math.max(
       -shape.halfLength,
       Math.min(
@@ -172,42 +167,19 @@ function normal(
     middle.z = centre.z + middle.z;
     return radial(point, middle, fallback);
   }
-  const inverse: IAutoMovieQuaternion =
-    prepared?.inverse ?? Quaternion.inverse(rotation);
-  if (prepared !== undefined && prepared.inverse === undefined)
-    prepared.inverse = inverse;
   const o: IAutoMovieVector3 = Quaternion.rotateVector(
     inverse,
     Vector3.subtract(point, centre),
   );
-  const planes: readonly { normal: IAutoMovieVector3; offset: number }[] =
-    prepared?.planes ??
-    (shape.kind === "hull"
-      ? physicalHullFaces(shape.points).faces
-      : BOX.map(
-          (
-            plane: IBoxPlane,
-          ): { normal: IAutoMovieVector3; offset: number } => ({
-            normal: plane.normal,
-            offset: shape.halfExtents[plane.axis],
-          }),
-        ));
-  if (prepared !== undefined && prepared.planes === undefined)
-    prepared.planes = planes;
-  const heights: number[] =
-    prepared === undefined ? [] : (prepared.heights ??= []);
-  heights.length = planes.length;
-  for (let k: number = 0; k < planes.length; k++) {
-    if (!(k in planes)) continue;
-    const plane: { normal: IAutoMovieVector3; offset: number } = planes[k]!;
-    heights[k] = Vector3.dot(plane.normal, o) - plane.offset;
-  }
+  const heights: number[] = planes.map(
+    (plane: { normal: IAutoMovieVector3; offset: number }): number =>
+      Vector3.dot(plane.normal, o) - plane.offset,
+  );
   const top: number = Math.max(...heights);
   let x: number = 0;
   let y: number = 0;
   let z: number = 0;
   for (let k: number = 0; k < planes.length; k++) {
-    if (!(k in planes)) continue;
     const plane: { normal: IAutoMovieVector3; offset: number } = planes[k]!;
     const weight: number = Math.exp((heights[k]! - top) / SMOOTH);
     x += plane.normal.x * weight;

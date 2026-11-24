@@ -196,10 +196,7 @@ function planHumanHandrimStroke(
         (part: IAutoMovieAffordance): boolean =>
           part.id === rim && part.kind === "wheel",
       );
-    if (
-      geometry === undefined ||
-      !(geometry.radius! > 0)
-    )
+    if (geometry === undefined || !(geometry.radius! > 0))
       return HumanHandrimStrokeRefuseRim(on, rim, side);
     return { side, rim, geometry };
   });

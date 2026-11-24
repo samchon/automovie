@@ -4,7 +4,6 @@ import {
   type IAutoMovieRestFrame,
 } from "@automovie/interface";
 
-import { BendClinicalNodes } from "../../kinematics/BendClinicalNodes";
 
 /**
  * Bones of each arm from the clavicle to the fingertips, without the side
@@ -127,4 +126,3 @@ export const HUMANOID_REST_FRAME: Partial<
   return table;
 })();
 
-BendClinicalNodes.record(HUMANOID_REST_FRAME);

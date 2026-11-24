@@ -107,7 +107,7 @@ type IPrepareSupportIntervalFixed = {
  * held legs as their goals fit them, reading only their chains, and the root
  * lifted by what they still sink: with a foot planted, a hip the blend carries
  * lower folds the knee toward the floor. That lift is planned on the interval's
- * share at knots and read between them within the solver's millimetre
+ * share at the frame grid's knots and read between them
  * (`prepareSupportLiftCourse`). A held knee or trunk contact has no two-bone
  * chain ending at it and stays held only through the root pin and the floor
  * bound.
@@ -150,8 +150,8 @@ export function prepareSupportInterval(
   const limbs: prepareSupportHeldFrames.IHeld[] = heldLimbs(common);
   const floor: ReturnType<typeof knockdown.prepareRest> =
     knockdown.prepareRest(body);
-  // The lift course splits no finer than the frame grid's share of the
-  // interval's seconds.
+  // The lift course's knots: the frame grid's share of the interval's
+  // seconds.
   const least: number =
     AutoMovieMotionHumanArmCourse.STEP /
     Math.max(b.seconds - a.seconds, AutoMovieMotionHumanArmCourse.STEP);

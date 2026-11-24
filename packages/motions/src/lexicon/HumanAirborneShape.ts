@@ -107,7 +107,19 @@ export namespace HumanAirborneShape {
   export function layer(
     shape: IAutoMovieMotionHumanAirborneShape.Shape,
   ): IAutoMovieMotionHumanLayer {
-    return new NativeLayer(shape);
+    const definition: IDefinition = build(shape);
+    return {
+      name: shape,
+      channels: definition.channels,
+      blend: definition.blend,
+      lend: definition.blend,
+      apply: (
+        posture: IAutoMovieMotionHumanPosture,
+        seconds: number,
+        context: IAutoMovieMotionHumanLayer.IContext,
+      ): IAutoMovieMotionHumanPosture =>
+        definition.blend(posture, seconds, context, 1),
+    };
   }
 
   /** Receive the projected joints and root during the same displayed evaluation. */
@@ -127,56 +139,10 @@ export namespace HumanAirborneShape {
     assembly?: Assembly,
   ) => IAutoMovieMotionHumanPosture;
 
-  /**
-   * Read the original blend only for the layer that constructed it. Its private
-   * callback can create an assembly only from the actual projected posture. An
-   * external layer, wrapped function, changed property or proxy has no loan.
-   */
-  export function prepared(
-    layer: IAutoMovieMotionHumanLayer,
-  ): ShapeBlend | undefined {
-    return NativeLayer.read(layer);
-  }
-
   /** The definition returned by the native shape constructor. */
   interface IDefinition {
     channels: AutoMovieHumanLimb[];
     blend: ShapeBlend;
-  }
-
-  /**
-   * Each layer owns its actual callable; its constructor accepts only a shape
-   * name.
-   */
-  class NativeLayer implements IAutoMovieMotionHumanLayer {
-    public readonly name: IAutoMovieMotionHumanAirborneShape.Shape;
-    public readonly channels: AutoMovieHumanLimb[];
-    public readonly blend: ShapeBlend;
-    public readonly apply: IAutoMovieMotionHumanLayer["apply"];
-    readonly #original: ShapeBlend;
-
-    public constructor(shape: IAutoMovieMotionHumanAirborneShape.Shape) {
-      const definition: IDefinition = build(shape);
-      this.name = shape;
-      this.channels = definition.channels;
-      this.blend = definition.blend;
-      this.#original = definition.blend;
-      this.apply = (
-        posture: IAutoMovieMotionHumanPosture,
-        seconds: number,
-        context: IAutoMovieMotionHumanLayer.IContext,
-      ): IAutoMovieMotionHumanPosture =>
-        definition.blend(posture, seconds, context, 1);
-    }
-
-    public static read(
-      layer: IAutoMovieMotionHumanLayer,
-    ): ShapeBlend | undefined {
-      if (!(#original in layer)) return undefined;
-      const field: PropertyDescriptor | undefined =
-        Object.getOwnPropertyDescriptor(layer, "blend");
-      return field?.value === layer.#original ? layer.#original : undefined;
-    }
   }
 
   /** Construct the clinical keys, demanded limb chains and their native blend. */

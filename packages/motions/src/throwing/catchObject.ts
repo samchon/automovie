@@ -44,20 +44,20 @@ import { catchObjectFingers } from "./catchObjectFingers";
  * enters the reach, give with it, and bring it to the chest.
  *
  * The goal is an interception. The throw's plan carries its launch
- * (`readThrowObjectLaunch`), so the path is known in closed form, drag-free. The catch
- * point is where the path first comes within `REACH` arm lengths ahead of the
- * catcher's root along its heading (provisional), and the contact instant the
- * path's time there; a path that never comes so near, or a point the arms
- * cannot reach from the shoulders, is refused. With two hands the palms take
- * the object from both sides, each palm on its surface across the catcher's
- * left-right axis; with one the palm takes it from behind, facing the way it
- * comes, or with a worn glove (`glove`) the hand turned as that palm would be
- * and moved so the glove's pocket meets it. The fingers take the turn about the
- * palm's normal (`ROLLS`, upward first) the arm holds at the contact with the
- * least strain (`AutoMovieMotionHumanBend.strain`), so the wrist's range
- * decides it. The ball's size is the ball's own (`ball`, `HumanBall`). The
- * hands travel there on minimum-jerk progress over the aimed movement time to
- * an object of its size (McIntosh et al. 2018,
+ * (`readThrowObjectLaunch`), so the path is known in closed form, drag-free.
+ * The catch point is where the path first comes within `REACH` arm lengths
+ * ahead of the catcher's root along its heading (provisional), and the contact
+ * instant the path's time there; a path that never comes so near, or a point
+ * the arms cannot reach from the shoulders, is refused. With two hands the
+ * palms take the object from both sides, each palm on its surface across the
+ * catcher's left-right axis; with one the palm takes it from behind, facing the
+ * way it comes, or with a worn glove (`glove`) the hand turned as that palm
+ * would be and moved so the glove's pocket meets it. The fingers take the turn
+ * about the palm's normal (`ROLLS`, upward first) the arm holds at the contact
+ * with the least strain (`AutoMovieMotionHumanBend.strain`), so the wrist's
+ * range decides it. The ball's size is the ball's own (`ball`, `HumanBall`).
+ * The hands travel there on minimum-jerk progress over the aimed movement time
+ * to an object of its size (McIntosh et al. 2018,
  * `AutoMovieMotionHumanTiming.aimed`), arriving at contact; the anticipatory
  * `prepare` instant is 100 ms before impact (Lacquaniti and Maioli 1989, J
  * Neurosci 9:134). After contact the hands give `GIVE` along the object's

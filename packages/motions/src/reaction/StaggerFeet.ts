@@ -396,9 +396,9 @@ export class StaggerFeet {
   }
 
   /**
-   * Prepare every recovery step's settled endpoints, raised-start walking
-   * swing curve, nonzero-travel normal and bow under the plan's current shift,
-   * each endpoint settled as the pose settles it.
+   * Prepare every recovery step's settled endpoints, raised-start walking swing
+   * curve, nonzero-travel normal and bow under the plan's current shift, each
+   * endpoint settled as the pose settles it.
    */
   private prepareSteps(): void {
     this.swings.clear();
@@ -441,7 +441,8 @@ export class StaggerFeet {
 
       // The step's closed-form bow around the foot standing through its swing
       // (`staggerSwingBow`).
-      const stance: AutoMovieHumanSide = step.side === "left" ? "right" : "left";
+      const stance: AutoMovieHumanSide =
+        step.side === "left" ? "right" : "left";
       this.bows.set(
         step,
         staggerSwingBow(

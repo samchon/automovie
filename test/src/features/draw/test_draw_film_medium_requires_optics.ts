@@ -8,7 +8,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { throwsError } from "../internal/throwsError";
-import { createFilmResponseRendererDouble } from "../unit/render/draw/createFilmResponseRendererDouble";
+import { createFilmResponseRendererDouble } from "./createFilmResponseRendererDouble";
 
 /**
  * A medium is drawn only in the film's linear beauty target, so every path

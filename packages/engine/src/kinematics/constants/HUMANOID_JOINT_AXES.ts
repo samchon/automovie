@@ -3,7 +3,6 @@ import {
   IAutoMovieJointAxes,
 } from "@automovie/interface";
 
-import { BendClinicalNodes } from "../BendClinicalNodes";
 
 /** The hand and every finger and thumb segment, without the side prefix. */
 const HAND: readonly string[] = [
@@ -137,4 +136,3 @@ export const HUMANOID_JOINT_AXES: Partial<
   return table;
 })();
 
-BendClinicalNodes.record(HUMANOID_JOINT_AXES);
