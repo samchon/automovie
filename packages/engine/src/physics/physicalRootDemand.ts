@@ -223,6 +223,7 @@ export function physicalRootDemand(input: {
                   state: input.icp.state,
                   ...(input.icp.desired ? { desired: input.icp.desired } : {}),
                   dt: input.dt,
+                  swinging: input.swinging.length > 0,
                 },
               }
             : {}),
@@ -313,12 +314,38 @@ export function physicalRootDemand(input: {
           ),
         )
       : spin;
+  // IHMC's weighted objective, its centre of pressure command's foot read as
+  // that limb's contact bodies.
+  const objective: AutoMovieXpbdWorld.IObjective | undefined = stance.objective
+    ? {
+        force: stance.objective.force,
+        ...(stance.objective.yaw ? { yaw: stance.objective.yaw } : {}),
+        ...(stance.objective.pressure
+          ? {
+              pressure: {
+                point: stance.objective.pressure.point,
+                weight: stance.objective.pressure.weight,
+                ...(stance.objective.pressure.bone !== undefined
+                  ? {
+                      bodies: bodiesOf(
+                        limbs,
+                        segments,
+                        stance.objective.pressure.bone,
+                      ),
+                    }
+                  : {}),
+              },
+            }
+          : {}),
+      }
+    : undefined;
   return {
     wrench: {
       origin,
       force: stance.force,
       torque: stance.torque,
       ...(held ? { spin: held } : {}),
+      ...(objective ? { objective } : {}),
     },
     ...(next ? { integral: next } : {}),
     ...(release ? { release } : {}),
@@ -478,4 +505,23 @@ export namespace physicalRootDemand {
       },
     };
   }
+}
+
+/** A stance limb's contact bodies: its endpoint's and its contacts'. */
+function bodiesOf(
+  limbs: readonly IAutoMovieFootfallPattern["limbs"][number][],
+  segments: ReadonlyMap<string, AutoMovieXpbdBody>,
+  bone: string,
+): AutoMovieXpbdBody[] {
+  const limb: IAutoMovieFootfallPattern["limbs"][number] | undefined =
+    limbs.find(
+      (candidate: IAutoMovieFootfallPattern["limbs"][number]): boolean =>
+        candidate.bone === bone,
+    );
+  return [bone, ...(limb?.contacts ?? [])].flatMap(
+    (name: string): AutoMovieXpbdBody[] => {
+      const body: AutoMovieXpbdBody | undefined = segments.get(name);
+      return body ? [body] : [];
+    },
+  );
 }

@@ -18,6 +18,7 @@ import type { physicalIcpController } from "./physicalIcpController";
 import { physicalLegCapacity } from "./physicalLegCapacity";
 import { physicalQuadFrame } from "./physicalQuadFrame";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
+import { physicalSupportPoint } from "./physicalSupportPoint";
 
 /** A support limb of the balance pattern. */
 type Limb = IAutoMovieFootfallPattern["limbs"][number];
@@ -210,8 +211,8 @@ export namespace physicalStanceBalance {
      * (`physicalBipedPressure`): its state, the plan's capture point and rate,
      * world x and z, absent for the authored centre of mass's at rest, and the
      * controller's update period, seconds. With it the controller sets the
-     * pivot and the centre of pressure the trunk's moment moves (`demand`), and
-     * the law, the allocation and the bias are not used.
+     * centre of pressure and pivot, and the law, the allocation, the bias and
+     * the trunk's horizontal moment are not used.
      */
     icp?: {
       state: physicalIcpController.IState;
@@ -220,15 +221,16 @@ export namespace physicalStanceBalance {
         velocity: { x: number; z: number };
       };
       dt: number;
+      /** Whether a foot swings, which selects the yaw rate command. */
+      swinging?: boolean;
     };
 
     /**
      * IHMC's DCM controller for a four-support body (`physicalQuadFrame
      * .pivot`): the plan's DCM setpoint and rate, world x and z, absent for the
      * authored centre of mass's at rest. With it the controller's virtual
-     * repellent point is the pivot and the centre of pressure the trunk's
-     * moment moves (`demand`), and the law, the allocation and the bias are
-     * not used.
+     * repellent point is the centre of pressure and pivot, and the law, the
+     * allocation, the bias and the trunk's horizontal moment are not used.
      */
     dcm?: {
       desired?: {
@@ -285,7 +287,71 @@ export namespace physicalStanceBalance {
 
     /** The capture-point feedback controller's next state, when it ran. */
     icp?: physicalIcpController.IState;
+
+    /**
+     * IHMC's weighted objective for the root task, when a controller of IHMC's
+     * ran (`IObjective`).
+     */
+    objective?: IObjective;
   }
+
+  /**
+   * IHMC's weighted whole-body objective over the contact wrench
+   * (`AutoMovieXpbdWorld.IObjective`), the centre of pressure command's foot
+   * named by its endpoint bone, all the stance's when absent.
+   */
+  export interface IObjective {
+    /** Each axis's weight on the force's residual, world x, y and z. */
+    force: IAutoMovieVector3;
+
+    /** The yaw rate command's centre of mass and weight, when selected. */
+    yaw?: { center: IAutoMovieVector3; weight: number };
+
+    /** The centre of pressure command, when there is one. */
+    pressure?: { point: IAutoMovieVector3; weight: number; bone?: string };
+  }
+
+  /**
+   * Zulu's linear momentum rate weight, (0.5, 0.5, 0.02) in IHMC's x, y and z
+   * (develop `ZuluMomentumOptimizationSettings` l.19, also its recovery weight,
+   * `MomentumOptimizationSettings.getRecoveryLinearMomentumWeight` l.21-24),
+   * world x and z horizontal and y up; the vertical row is selected, as
+   * `controlHeightWithMomentum` is true (`WalkingControllerParameters`
+   * l.817-819, `LinearMomentumRateControlModule` l.420).
+   */
+  export const BIPED_MOMENTUM_WEIGHT: Readonly<IAutoMovieVector3> = {
+    x: 0.5,
+    y: 0.02,
+    z: 0.5,
+  };
+
+  /**
+   * Zulu's yaw angular momentum rate weight (`ZuluMomentumOptimizationSettings`
+   * l.21), selected while a foot swings
+   * (`ZuluWalkingControllerParameters.minimizeAngularMomentumRateZDuringSwing`
+   * l.135-137, `LinearMomentumRateControlModule` l.421).
+   */
+  export const BIPED_YAW_WEIGHT: number = 0.1;
+
+  /**
+   * The centre of pressure command's weight on both rows
+   * (`CenterOfPressureCommandCalculator.CenterOfPressureObjectiveWeight`,
+   * develop l.39).
+   */
+  export const CENTER_OF_PRESSURE_WEIGHT: number = 15.0;
+
+  /**
+   * The quadruped's linear momentum rate weight, (5, 5, 2.5) in IHMC's x, y and
+   * z, world x and z horizontal and y up; its momentum command selects the
+   * linear rows only and it gives no centre of pressure command (201903
+   * `QuadrupedMomentumRateOfChangeModule` l.36, l.68; the generic quadruped's
+   * parameter file leaves the weight at its default).
+   */
+  export const QUADRUPED_MOMENTUM_WEIGHT: Readonly<IAutoMovieVector3> = {
+    x: 5.0,
+    y: 2.5,
+    z: 5.0,
+  };
 
   /**
    * The demand of one step.
@@ -492,77 +558,58 @@ export namespace physicalStanceBalance {
           floor,
         })
       : undefined;
-    // IHMC commands the controllers' linear momentum only, the centre of
-    // pressure a weighted objective, and realizes the trunk's orientation
-    // tasks through the same contacts, which bear only inside the support
-    // (develop `LinearMomentumRateControlModule.computeMomentumRateCommand`
-    // l.417-433; 201903 `QuadrupedMomentumRateOfChangeModule` l.68, l.119-120,
-    // `QuadrupedBodyOrientationManager`): the force is aimed through the
-    // controller's pivot, and the centre of pressure is the controller's moved
-    // by the trunk's moment, (tau_z, -tau_x) / F_y, then held on the bearing
-    // support at its point nearest.
-    const held = (base: IAutoMovieVector3): IAutoMovieVector3 =>
-      AutoMoviePhysicalBalance.nearest(bearable.hull, {
-        x: base.x + input.torque.z / lift,
-        y: floor,
-        z: base.z - input.torque.x / lift,
-      });
     const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> =
       icp
-        ? {
-            pressure: held(icp.pressure),
-            pivot: icp.pivot,
-            clamped: !icp.converged,
-          }
+        ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
         : vrp
-          ? { pressure: held(vrp), pivot: vrp, clamped: false }
+          ? { pressure: vrp, pivot: vrp, clamped: false }
           : allocate({
-            capture,
-            reference,
-            command,
-            offset: {
-              x: input.torque.z / lift,
-              y: 0,
-              z: -input.torque.x / lift,
-            },
-            shrunken: capped(polygon),
-            support: capped(bearable.hull),
-            // The bearing feet's hips deliver the ground's moment on the body
-            // with the room their feet's forces leave them (`hipRoom`): the
-            // pivot's offset along d turns the body about the axis across it,
-            // (d_z, 0, -d_x).
-            bound: (direction: IAutoMovieVector3): number =>
-              hipRoom({
-                profile: body.profile,
-                segments,
-                stance: carried,
-                axis: { x: direction.z, y: 0, z: -direction.x },
-              }) / lift,
-            ...(input.intended
-              ? {
-                  hip: (direction: IAutoMovieVector3): number | undefined => {
-                    const strategy = hip({
-                      profile: body.profile,
-                      segments,
-                      limbs,
-                      stance: input.stance,
-                      direction,
-                      intended: input.intended!,
-                    });
-                    if (!strategy) return undefined;
-                    // Bang-bang: out while the trunk can still be stopped within
-                    // the angle left, back once its turn would carry it past.
-                    const braking: boolean =
-                      strategy.rate > 0 &&
-                      (strategy.rate * strategy.rate * strategy.inertia) /
-                        (2 * strategy.torque) >=
-                        strategy.angle;
-                    if (!braking && !(strategy.angle > 0)) return undefined;
-                    return ((braking ? -1 : 1) * strategy.torque) / lift;
-                  },
-                }
-              : {}),
-          });
+              capture,
+              reference,
+              command,
+              offset: {
+                x: input.torque.z / lift,
+                y: 0,
+                z: -input.torque.x / lift,
+              },
+              shrunken: capped(polygon),
+              support: capped(bearable.hull),
+              // The bearing feet's hips deliver the ground's moment on the body
+              // with the room their feet's forces leave them (`hipRoom`): the
+              // pivot's offset along d turns the body about the axis across it,
+              // (d_z, 0, -d_x).
+              bound: (direction: IAutoMovieVector3): number =>
+                hipRoom({
+                  profile: body.profile,
+                  segments,
+                  stance: carried,
+                  axis: { x: direction.z, y: 0, z: -direction.x },
+                }) / lift,
+              ...(input.intended
+                ? {
+                    hip: (direction: IAutoMovieVector3): number | undefined => {
+                      const strategy = hip({
+                        profile: body.profile,
+                        segments,
+                        limbs,
+                        stance: input.stance,
+                        direction,
+                        intended: input.intended!,
+                      });
+                      if (!strategy) return undefined;
+                      // Bang-bang: out while the trunk can still be stopped within
+                      // the angle left, back once its turn would carry it past.
+                      const braking: boolean =
+                        strategy.rate > 0 &&
+                        (strategy.rate * strategy.rate * strategy.inertia) /
+                          (2 * strategy.torque) >=
+                          strategy.angle;
+                      if (!braking && !(strategy.angle > 0)) return undefined;
+                      return ((braking ? -1 : 1) * strategy.torque) / lift;
+                    },
+                  }
+                : {}),
+            });
     const aimed: IAutoMovieVector3 = Vector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),
@@ -589,6 +636,24 @@ export namespace physicalStanceBalance {
       Vector3.cross(Vector3.subtract(center, input.origin), force),
       Vector3.scale(reaction, input.strength),
     );
+
+    // IHMC's controllers ask the whole-body solve for their linear momentum
+    // rate, aimed through the pivot (develop `LinearMomentumRateControlModule
+    // .computeDesiredLinearMomentumRateOfChange` l.603-628), as weighted
+    // objectives over the contact wrench rather than a moment
+    // (`AutoMovieXpbdWorld.IObjective`); the trunk's orientation stays the
+    // root task's spin row, its own task.
+    const objective: IResult["objective"] = icp
+      ? {
+          force: BIPED_MOMENTUM_WEIGHT,
+          ...(input.icp?.swinging
+            ? { yaw: { center, weight: BIPED_YAW_WEIGHT } }
+            : {}),
+          ...pressureCommand(outlines, input.planted, icp.pressure),
+        }
+      : vrp
+        ? { force: QUADRUPED_MOMENTUM_WEIGHT }
+        : undefined;
     return {
       force,
       torque,
@@ -604,7 +669,63 @@ export namespace physicalStanceBalance {
       // its outward direction, which the stance hips release (`hip`).
       ...(strategy ? { release: { x: strategy.z, y: 0, z: -strategy.x } } : {}),
       ...(icp ? { icp: icp.state } : {}),
+      ...(objective ? { objective } : {}),
     };
+  }
+
+  /**
+   * IHMC's centre of pressure command for a biped
+   * (`CenterOfPressureCommandCalculator.computeCenterOfPressureCommand`,
+   * develop l.52-101): with one foot in contact, the command on that foot's
+   * contacts; with two, on the foot the desired centre of pressure lies inside
+   * of and to its outer side (left of the left sole, right of the right,
+   * l.73-88), else on both; with none, no command (weight zero, l.97-101). The
+   * weight is `CenterOfPressureObjectiveWeight` (l.39). The sole frames face +z
+   * as the authored stance does, so the left one is the foot of the larger x.
+   *
+   * @param outlines The planted stance limbs and their outlines, world metres.
+   * @param planted The planted poses of the stance limbs' carriers.
+   * @param point The ICP controller's desired centre of pressure, world metres.
+   * @returns The command, or none.
+   */
+  function pressureCommand(
+    outlines: readonly { limb: Limb; outline: IAutoMovieVector3[] }[],
+    planted: Readonly<Record<string, IAutoMovieRigidTransform>>,
+    point: IAutoMovieVector3,
+  ): { pressure?: NonNullable<IObjective["pressure"]> } {
+    if (outlines.length === 0) return {};
+    const command = (
+      bone?: string,
+    ): { pressure: NonNullable<IObjective["pressure"]> } => ({
+      pressure: {
+        point,
+        weight: CENTER_OF_PRESSURE_WEIGHT,
+        ...(bone !== undefined ? { bone } : {}),
+      },
+    });
+    if (outlines.length === 1) return command(outlines[0]!.limb.bone);
+    const soles = outlines.map(
+      (entry: { limb: Limb; outline: IAutoMovieVector3[] }) => ({
+        entry,
+        origin: physicalSupportPoint(
+          planted[entry.limb.bone]!,
+          entry.limb.localPoint,
+        ),
+      }),
+    );
+    // Left first, as `RobotSide.values` lists the sides (l.75).
+    soles.sort((a, b): number => b.origin.x - a.origin.x);
+    for (const [index, sole] of soles.entries()) {
+      const outward: number =
+        (index === 0 ? 1 : -1) * (point.x - sole.origin.x);
+      const nearest: IAutoMovieVector3 = AutoMoviePhysicalBalance.nearest(
+        sole.entry.outline,
+        point,
+      );
+      if (outward > 0 && nearest.x === point.x && nearest.z === point.z)
+        return command(sole.entry.limb.bone);
+    }
+    return command();
   }
   /** The centre-of-pressure integral's persisted state. */
   export interface IIntegral {

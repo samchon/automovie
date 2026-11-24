@@ -201,3 +201,33 @@ Built by AutoMovieXpbdSupportRows.collect and solveXpbdSupportComplementarity; r
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
 No unit is implied beyond the owner's.
+
+# src/physics/solveXpbdArticulationContacts.ts#solveXpbdArticulationContacts.objectiveRow
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States the row's force, yaw and centre of pressure entries and their sources.
+
+## @evidence contracts/development/implementation.md#principled-implementation
+
+The unit impulse's force; its moment about the vertical through the centre of mass when the yaw rate is commanded (develop `LinearMomentumRateControlModule` l.421); its moment about the desired centre of pressure, the horizontal rows `CoPObjectiveCalculator.computeTask` builds (l.24-46), over the command's body only (`WrenchMatrixCalculator` l.269-281).
+
+## @evidence contracts/development/implementation.md#clear-and-simple-structure
+
+One moment helper, then the three parts.
+
+## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
+
+None.
+
+## @evidence contracts/development/implementation.md#efficient-algorithms
+
+Constant work per row.
+
+## @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work
+
+It reads one row.
+
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
+
+It retains nothing.

@@ -364,6 +364,23 @@ Set by trackPhysicalRoot under internal actuation and read by solveXpbdArticulat
 
 The wrench is the root controller's own demand; nothing is allocated before the solve.
 
+# src/physics/AutoMovieXpbdWorld.ts#AutoMovieXpbdWorld.IObjective
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+States IHMC's commands the objective carries and their sources.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The linear momentum rate's per-axis weights, the yaw rate command and the centre of pressure command with its weight and contacting bodies, as IHMC's whole-body program takes them (develop `LinearMomentumRateControlModule` l.417-424, `WrenchMatrixCalculator.getNextCenterOfPressureInput` l.251-299, `CoPObjectiveCalculator.computeTask` l.15-48).
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Written by physicalRootDemand from the stance's demand; read by solveXpbdArticulationContacts.
+
+## @evidence contracts/development/design.md#prohibited-design-shortcuts
+
+The yaw and centre of pressure commands are absent when not given; the bodies are absent for the whole stance.
 # src/physics/AutoMovieXpbdWorld.ts#AutoMovieXpbdWorld.IBound
 
 ## @evidence contracts/development/common.md#meaningful-documentation

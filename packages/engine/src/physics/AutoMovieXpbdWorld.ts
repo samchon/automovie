@@ -364,6 +364,48 @@ export namespace AutoMovieXpbdWorld {
      * None when absent.
      */
     spin?: IAutoMovieVector3;
+
+    /**
+     * The weighted objective the supports' wrench is solved against, IHMC's
+     * whole-body controller's, in place of the force and moment rows' unit
+     * weights; absent, those rows (`AutoMovieXpbdWorld.IObjective`).
+     */
+    objective?: AutoMovieXpbdWorld.IObjective;
+  }
+
+  /**
+   * IHMC's whole-body objective over the contact wrench: the linear momentum
+   * rate command with its per-axis weights and its yaw angular momentum rate
+   * when selected (develop `LinearMomentumRateControlModule
+   * .computeMomentumRateCommand` l.417-424; 201903
+   * `QuadrupedMomentumRateOfChangeModule` l.36, l.68, l.119-120), and the
+   * centre of pressure command, the ground reaction's moment about the desired
+   * centre of pressure at zero over the contacting body's rows, weighted
+   * (`WrenchMatrixCalculator.getNextCenterOfPressureInput` l.251-299,
+   * `CoPObjectiveCalculator.computeTask` l.15-48). The force rows read the
+   * task's force; the moment rows are not asked.
+   */
+  export interface IObjective {
+    /** Each axis's weight on the force's residual, world x, y and z. */
+    force: IAutoMovieVector3;
+
+    /**
+     * The yaw angular momentum rate command, the ground reaction's moment about
+     * the vertical through the centre of mass at zero, and its weight; absent
+     * when not selected.
+     */
+    yaw?: { center: IAutoMovieVector3; weight: number };
+
+    /**
+     * The centre of pressure command: the desired centre of pressure on the
+     * floor, world metres, its weight on both horizontal rows, and the bodies
+     * whose contacts count, all the supports' when absent.
+     */
+    pressure?: {
+      point: IAutoMovieVector3;
+      weight: number;
+      bodies?: readonly AutoMovieXpbdBody[];
+    };
   }
 
   /** One group of a root task's bounded supports. */

@@ -577,6 +577,29 @@ export namespace PhysicalBalanceReplay {
               : {}),
             ...(task.released ? { released: named(task.released) } : {}),
             ...(task.stance ? { stance: named(task.stance) } : {}),
+            ...(task.objective
+              ? {
+                  objective: {
+                    force: clone(task.objective.force),
+                    ...(task.objective.yaw
+                      ? { yaw: clone(task.objective.yaw) }
+                      : {}),
+                    ...(task.objective.pressure
+                      ? {
+                          pressure: {
+                            point: clone(task.objective.pressure.point),
+                            weight: task.objective.pressure.weight,
+                            ...(task.objective.pressure.bodies
+                              ? {
+                                  bodies: named(task.objective.pressure.bodies),
+                                }
+                              : {}),
+                          },
+                        }
+                      : {}),
+                  },
+                }
+              : {}),
           }
         : null,
       integral: clone(integral),

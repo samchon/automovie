@@ -18,13 +18,17 @@ import { solveXpbdDualActiveSet as ActiveSet } from "./solveXpbdDualActiveSet";
  * patch's whole friction, the contact passes' plus the rows', stays inside the
  * inscribed pyramid `|t1| + |t2| <= mu (N + sum lambda_n)` the wrench
  * allocation uses, a patch's torsional moment within its points' friction on
- * their levers, every joint impulse within its motor's cap on its own
- * direction (Herzog et al. 2016, Section 2.1), and each bounded group's summed
- * normal impulse within its bound, the ramp a leaving contact's force follows
- * to zero (Section 5.3).
+ * their levers, every joint impulse within its motor's cap on its own direction
+ * (Herzog et al. 2016, Section 2.1), and each bounded group's summed normal
+ * impulse within its bound, the ramp a leaving contact's force follows to zero
+ * (Section 5.3).
  *
  * - Level one minimizes the task's residual `e = G x - g`, regularized by
- *   `sqrt(eps)` as the allocation is.
+ *   `sqrt(eps)` as the allocation is, each row by its weight when the task is
+ *   IHMC's weighted objective: develop
+ *   `InverseDynamicsOptimizationControlModule` adds the centre-of-pressure
+ *   inputs (l.422-424) and the momentum rate command (l.620-625) to one program
+ *   as weighted objectives.
  * - Level two fixes that residual at its optimum and minimizes the motion rows'
  *   residual `m = W x - w`: the posture's joint rates and the root's spin after
  *   the step against what their servos ask, a task in motion, as whole-body
@@ -87,8 +91,9 @@ function cascade(
 
   // The variables: the unknowns, the wrench residual, the motion residual
   // and, relaxed, the holds' residual.
+  const width: number = target.length;
   const wrench: number = size;
-  const moved: number = wrench + 6;
+  const moved: number = wrench + width;
   const held: number = moved + motion.length;
   const count: number = held + (relaxed ? holds.length : 0);
   const equalities: ActiveSet.IRow[] = [];
@@ -180,7 +185,10 @@ function cascade(
         inequality(
           `t${name}:${s}`,
           [patch.torsion, ...patch.normals],
-          [-s, ...levers.map((lever: number): number => patch.friction * lever)],
+          [
+            -s,
+            ...levers.map((lever: number): number => patch.friction * lever),
+          ],
           -given,
         );
     }
@@ -210,7 +218,7 @@ function cascade(
     ),
   );
   // The task's residual e = G x - g, one variable per wrench row.
-  for (let m: number = 0; m < 6; ++m)
+  for (let m: number = 0; m < width; ++m)
     equalities.push({
       indices: [
         ...columns.map((_: number[], s: number): number => s),
@@ -262,8 +270,12 @@ function cascade(
     if (hold === null) return null;
     fixed = fix(hold, held, count);
   }
+  // Level one weighs each wrench row by its objective's weight, one without
+  // (`IInput.weights`).
   const first: number[] | null = level(
-    weigh(wrench, moved),
+    weigh(wrench, moved).map((value: number, i: number): number =>
+      i >= wrench && i < moved ? (input.weights?.[i - wrench] ?? 1) : value,
+    ),
     zero,
     [...equalities, ...fixed],
     inequalities,
@@ -304,12 +316,19 @@ export namespace solveXpbdSupportCascade {
 
     /**
      * Each unknown's ground-reaction wrench per unit impulse, force then moment
-     * over the lever.
+     * over the lever, or the rows of IHMC's whole-body objective
+     * (`solveXpbdArticulationContacts.objectiveRow`).
      */
     columns: readonly number[][];
 
     /** The ground-reaction wrench the rows should add, over the substep. */
     target: readonly number[];
+
+    /**
+     * Each wrench row's weight in level one, IHMC's command weights; one each
+     * when absent.
+     */
+    weights?: readonly number[];
 
     /** The support rows and patches. */
     set: Contacts.ISet;
