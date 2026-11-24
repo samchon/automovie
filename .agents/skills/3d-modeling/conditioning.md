@@ -84,7 +84,7 @@ A few fixed variants need no parameter: generate or fetch each as its own frozen
 
 ### Band ends
 
-Let the params fix every dimension a band varies, because a band's ends are where a part most often detaches or stops moving. Build the form at its middle and at both ends of each band, one dimension at a time. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. A dimension that moves no rest geometry by design, such as an articulation's limit or a mass property, is recorded with its reason.
+A band is the range a seeded form draws one free dimension from. Let the form's parameters fix every banded dimension, and build the form at its middle and at each end of every band, one dimension at a time, because a part most often detaches or stops moving at a band's end. Fix every end where the form fails admission, a part loses its area or detaches, or nothing changes that the dimension should change. Record with its reason a dimension that moves no rest geometry by design, such as an articulation's limit or a mass property.
 
 ## Final check
 

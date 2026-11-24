@@ -26,9 +26,9 @@ Realize [shots and cuts](../story/layers/shots.md) with the installed camera typ
 
 Light from the set and story day's sources. Keep direction and color continuous across cuts.
 
-Place the sun of an exterior, or of window light, at the story's site, date and hour. Solve its position with `solveAutoMovieSunPosition` from `@automovie/engine`, turn it into a world vector with `autoMovieSunDirection` from the set's north and up, and give the directional light the negated vector, since a light travels along its local -Z. Use the same vector for any daylight instant of that hour. A sun below the horizon lights nothing directly.
+Place the sun of an exterior, or of window light, at the story's site, date and hour. Solve its position with `solveAutoMovieSunPosition` from `@automovie/engine`, and turn it into a world vector with `autoMovieSunDirection` from the set's north and up. Stage the sun as a directional light along the negated vector, and use the same vector for any daylight instant the scene declares for that hour. A sun below the horizon lights nothing directly.
 
-Give a hazy, smoky or dusty set the stage's `medium` instead of `fog`: its scattering and absorption per metre dim what lies behind the air, and its anisotropy, positive for haze, sends each light's glow toward the camera, so a window or a lamp casts a visible beam. A stage carries a fog or a medium, not both.
+Give a hazy, smoky or dusty set the stage's `medium` rather than `fog`, so each lamp and window casts a visible beam. A stage carries a fog or a medium, not both.
 
 Inspect every shot at the delivered aspect and scale through the whole action, in the camera's frames rather than in subject bounds:
 

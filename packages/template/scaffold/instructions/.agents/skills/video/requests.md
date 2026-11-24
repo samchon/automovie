@@ -41,7 +41,7 @@ Give each input one role, and state it in the prompt under [input roles](diffusi
 - the accepted previous take, for continuing its motion under [continuity](diffusion/continuity.md#chaining-requests);
 - accepted dialogue audio or a voice reference, for commissioned speech where the model takes one.
 
-[Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md). The render draws at the film's `fps`, `width` and `height`. For channels at the model's frame rate and size, set those to the model's before rendering with `--passes`, keeping `durationSeconds` a whole number of frames at that rate. Never resample a channel afterwards, because resampling blends depth values and mask colors.
+[Hints](diffusion/hints.md) sets how each input reaches the model. Render the request's hint and channels under [control channels](../motion/control-channels.md) at the model's frame rate and size. The render draws at the film's `fps`, `width` and `height`, so set those to the model's before rendering, with `durationSeconds` a whole number of frames at that rate. Resampling a channel afterwards would blend depth values and mask colors.
 
 ## Record
 
