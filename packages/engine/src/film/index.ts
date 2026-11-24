@@ -64,7 +64,6 @@ export * from "./inspectGrammarCut";
 export * from "./intersectsPerspectiveFrustumBox";
 export * from "./intersectsPerspectiveFrustumSegment";
 export * from "./intersectsPerspectiveFrustumSphere";
-export * from "./isPortableMotionTakePath";
 export * from "./localSegmentMeetsPerspectiveFrustum";
 export * from "./locateOnBeat";
 export * from "./lookRotation";

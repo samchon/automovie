@@ -1,12 +1,10 @@
 import type { IAutoMovieMotionTake } from "@automovie/interface";
 
-import { isPortableMotionTakePath } from "./isPortableMotionTakePath";
-
 /**
  * Admit a parsed motion-take artifact before the host binds any saved
  * references.
  *
- * Accepts authored version 1 only. Checks exact record fields, portable paths,
+ * Accepts authored version 1 only. Checks exact record fields, nonblank paths,
  * lowercase SHA-256 digests, unique ledger keys, and finite nonnegative clocks.
  * The source module must appear in the file ledger and at least one versioned
  * provider must be named. Throws a path-specific diagnostic for a malformed
@@ -34,7 +32,7 @@ export function admitMotionTake(input: unknown): IAutoMovieMotionTake {
   identifier(take.take, "$take.take");
   const source: Record<string, unknown> = object(take.source, "$take.source");
   properties(source, "$take.source", ["module", "export"]);
-  const modulePath: string = portablePath(source.module, "$take.source.module");
+  const modulePath: string = identifier(source.module, "$take.source.module");
   identifier(source.export, "$take.source.export");
 
   const anchor: Record<string, unknown> = object(take.anchor, "$take.anchor");
@@ -122,18 +120,11 @@ function seconds(value: unknown, path: string): void {
     invalid(path, "expected finite nonnegative seconds");
 }
 
-/** Reject absolute and traversing references in the portable persisted address. */
-function portablePath(value: unknown, path: string): string {
-  if (!isPortableMotionTakePath(value))
-    invalid(path, "expected a production-relative POSIX path");
-  return value;
-}
-
 /** Check one file identity and return its ledger key. */
 function file(value: unknown, path: string): string {
   const row: Record<string, unknown> = object(value, path);
   properties(row, path, ["path", "sha256"]);
-  const address: string = portablePath(row.path, `${path}.path`);
+  const address: string = identifier(row.path, `${path}.path`);
   if (typeof row.sha256 !== "string" || !/^[0-9a-f]{64}$/.test(row.sha256))
     invalid(
       `${path}.sha256`,
