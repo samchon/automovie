@@ -8,6 +8,7 @@ import type {
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import { physicalBalanceTouchdown } from "./physicalBalanceTouchdown";
+import { physicalBipedDesired } from "./physicalBipedDesired";
 import { physicalFootSwitch } from "./physicalFootSwitch";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery } from "./physicalPushRecovery";
@@ -25,12 +26,13 @@ import { physicalPushRecovery } from "./physicalPushRecovery";
  * A landed foot is a full contact at once: IHMC 201903 has no touchdown
  * duration (`WalkingControllerParameters.getDefaultTouchdownTime` l.340-343)
  * nor toe-load ramp (l.360-363), and the transfer to standing sets both feet
- * flat on entry (`TransferToStandingState` l.79). The plan then holds the
- * capture point at the centre of mass projected onto the support shrunk by
- * `HOLD_SHRINK` (`BalanceManager.requestICPPlannerToHoldCurrentCoM` l.815-829,
- * requested at single support's entry l.270-273), and the push recovery resets
- * as single support ends (`SingleSupportState.onExit` l.84-87). A landing
- * overdue past the policy's timeout fails as the four-support controller's does
+ * flat on entry (`TransferToStandingState` l.79). The landing starts the
+ * transfer to standing, which holds the capture point at the centre of mass
+ * projected onto the support (`physicalBipedDesired`;
+ * `BalanceManager.requestICPPlannerToHoldCurrentCoM` l.815-829, requested at
+ * single support's entry l.270-273), and the push recovery resets as single
+ * support ends (`SingleSupportState.onExit` l.84-87). A landing overdue past
+ * the policy's timeout fails as the four-support controller's does
  * (`physicalBalanceTouchdown.fail`).
  *
  * @param input The recovery's state, the body's readings and the trace to
@@ -111,28 +113,47 @@ export function physicalBipedTouchdown(input: {
     state.outsideSince = undefined;
     state.revision = (state.revision ?? 0) + 1;
 
-    // The plan holds the centre of mass projected onto the support, every
-    // foot planted now, shrunk by the hold distance (l.815-829).
-    const support: Polygon.IPoint[] = Polygon.hull(
-      sense.limbs.flatMap(
-        (limb: physicalBalanceSense.ILimb): Polygon.IPoint[] =>
-          sense
-            .footprint(limb, state)
-            .points.map(
-              (p: IAutoMovieVector3): Polygon.IPoint => Polygon.local(WORLD, p),
-            ),
-      ),
+    // The transfer to standing holds the centre of mass projected onto the
+    // support, every foot planted now, each on the side the step's plan gave
+    // it, its start riding on the frame nearer the last planned capture point
+    // of single support (`physicalBipedDesired`; 201903 `BalanceManager`
+    // l.688-700, l.815-829, requested at single support's entry l.270-273).
+    const planned: physicalBipedDesired.IPlan["feet"][number] | undefined =
+      state.plan?.phase === "single" ? state.plan.feet[0] : undefined;
+    const supportBone: string =
+      planned?.bone ??
+      sense.limbs.find(
+        (limb: physicalBalanceSense.ILimb): boolean => limb.bone !== swing.bone,
+      )!.bone;
+    const supportSide: "left" | "right" =
+      planned?.side ?? physicalBipedDesired.side(sense, supportBone);
+    const sideOf = (bone: string): "left" | "right" =>
+      bone === supportBone
+        ? supportSide
+        : supportSide === "left"
+          ? "right"
+          : "left";
+    const feet: physicalBipedDesired.IPlan["feet"] = sense.limbs.map(
+      (
+        limb: physicalBalanceSense.ILimb,
+      ): physicalBipedDesired.IPlan["feet"][number] =>
+        physicalBipedDesired.foot(sense, state, limb.bone, sideOf(limb.bone)),
     );
-    if (support.length > 0) {
-      const hold: { x: number; z: number } = Polygon.world(
-        WORLD,
-        Polygon.project(
-          Polygon.shrink(support, physicalBipedTouchdown.HOLD_SHRINK),
-          Polygon.local(WORLD, sense.center),
-        ),
-      );
-      state.desired = { x: hold.x, z: hold.z };
-    }
+    // A state recorded before the plan was kept has no planned capture point;
+    // the support sole's origin then picks the support sole.
+    state.plan = {
+      phase: "toStanding",
+      since: sense.seconds,
+      feet,
+      support: supportSide,
+      desired:
+        state.desired?.position ??
+        feet.find(
+          (foot: physicalBipedDesired.IPlan["feet"][number]): boolean =>
+            foot.bone === supportBone,
+        )!.frame.origin,
+      center: { x: sense.center.x, z: sense.center.z },
+    };
     state.push = physicalPushRecovery.reset(
       state.push ?? physicalPushRecovery.initial(),
     );
@@ -152,12 +173,6 @@ export namespace physicalBipedTouchdown {
    * seconds (IHMC 201903 `WalkingSingleSupportState` l.412-413).
    */
   export const MINIMUM_SWING_TIME: number = 0.15;
-
-  /**
-   * How far the support is shrunk before the held capture point is projected
-   * onto it, metres (IHMC 201903 `BalanceManager` l.265).
-   */
-  export const HOLD_SHRINK: number = 0.08;
 }
 
 /** The world-aligned frame the phase's polygons use. */

@@ -27,12 +27,14 @@ import { collectPhysicalSupports } from "./collectPhysicalSupports";
 import { configurePhysicalJointMotor } from "./configurePhysicalJointMotor";
 import { copyPhysicalTarget } from "./copyPhysicalTarget";
 import { hasPhysicalHandoff } from "./hasPhysicalHandoff";
+import { physicalAuthoredCenter } from "./physicalAuthoredCenter";
 import { physicalGravityTorques } from "./physicalGravityTorques";
+import { physicalIcpController } from "./physicalIcpController";
 import { physicalJointEffort } from "./physicalJointEffort";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
 import { physicalStanceJointTarget } from "./physicalStanceJointTarget";
-import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalSupportPoint } from "./physicalSupportPoint";
+import { physicalSwingReference } from "./physicalSwingReference";
 import { physicalTrackingWithdrawn } from "./physicalTrackingWithdrawn";
 import { readPhysicalScene } from "./readPhysicalScene";
 import { releasePhysicalTracking } from "./releasePhysicalTracking";
@@ -45,7 +47,8 @@ import { trackPhysicalRootSupportTargets } from "./trackPhysicalRootSupportTarge
 import { trackPhysicalSupports } from "./trackPhysicalSupports";
 
 /**
- * Apply bounded PD forces and equal-opposite joint torques before the fixed step.
+ * Apply bounded PD forces and equal-opposite joint torques before the fixed
+ * step.
  */
 export function trackPhysicalWorld(
   world: AutoMovieXpbdWorld,
@@ -178,6 +181,43 @@ export function trackPhysicalWorld(
     const supports: ReturnType<typeof supportsFor> = body.supportTracking
       ? endpointSupports
       : balanceSupports;
+
+    // A biped's recovery plan stands in for the authored command, its centre
+    // of mass and velocity; their acceleration is the authored velocity
+    // differentiated over the controller period, sampled again a substep
+    // earlier within the cache interval: a derivative of the input, not a
+    // control rule.
+    const authored:
+      | NonNullable<Parameters<typeof AdvanceBalance>[0]["command"]>
+      | undefined =
+      body.balance?.pattern.limbs.length === 2
+        ? ((): NonNullable<
+            Parameters<typeof AdvanceBalance>[0]["command"]
+          > => {
+            const now: ReturnType<typeof physicalAuthoredCenter> =
+              physicalAuthoredCenter(body.profile, authoredGoals);
+            const before: ReturnType<typeof physicalAuthoredCenter> =
+              physicalAuthoredCenter(
+                body.profile,
+                samplePhysicalAuthoredTargets(
+                  body,
+                  target,
+                  bound,
+                  step,
+                  seconds - dt,
+                  input.rate,
+                ),
+              );
+            return {
+              center: now.center,
+              velocity: now.velocity,
+              acceleration: Vector3.scale(
+                Vector3.subtract(now.velocity, before.velocity),
+                1 / dt,
+              ),
+            };
+          })()
+        : undefined;
     const assessment: IAutoMovieAdvancePhysicalBalance.IResult | undefined =
       rootDynamic && body.balance && target.strength > 0
         ? AdvanceBalance({
@@ -188,6 +228,7 @@ export function trackPhysicalWorld(
             colliders: bound.colliders,
             contacts,
             policy: body.balance,
+            ...(authored ? { command: authored } : {}),
             state: (recovery[body.id] ??= {
               last: "supported",
               steps: [],
@@ -363,6 +404,26 @@ export function trackPhysicalWorld(
             }),
           }
         : {}),
+
+      // A two-support body balances by IHMC's capture-point feedback
+      // controller, its state kept with the recovery's
+      // (`physicalBipedPressure`).
+      ...(assessment &&
+      (body.supportTracking?.pattern ?? body.balance?.pattern)?.limbs.length ===
+        2
+        ? {
+            icp: (assessment.state.icp ??= {
+              ...physicalIcpController.create(),
+              key: "",
+            }),
+            ...(assessment.state.desired
+              ? { desired: assessment.state.desired }
+              : {}),
+            ...(assessment.state.plan
+              ? { phase: assessment.state.plan.phase }
+              : {}),
+          }
+        : {}),
       pushed: input.impulses.some(
         (impulse: (typeof input.impulses)[number]): boolean =>
           impulse.body === body.id && impulse.step === step,
@@ -504,8 +565,7 @@ export function trackPhysicalWorld(
                 role: "planted" as const,
                 latched:
                   (planted
-                    ? assessment?.state.seating?.[joint.child]?.anchor
-                        ?.rotation
+                    ? assessment?.state.seating?.[joint.child]?.anchor?.rotation
                     : undefined) ?? authoredGoals[joint.child]!.pose.rotation,
               }
             : stance !== undefined && stance.chain[0] === joint.child
@@ -536,15 +596,16 @@ export function trackPhysicalWorld(
       // reference left at the path's first, near rest, would have the joints'
       // damping hold back a leg the advancing pelvis is turning, pressing the
       // lifted foot back into the floor.
-      const own: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number] | undefined =
-        body.balance?.pattern.limbs.find(
-          (
-            limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
-          ): boolean =>
-            swinging.includes(limb.bone) &&
-            (limb.chain.includes(joint.child) ||
-              (limb.contacts?.includes(joint.child) ?? false)),
-        );
+      const own:
+        | IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number]
+        | undefined = body.balance?.pattern.limbs.find(
+        (
+          limb: IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number],
+        ): boolean =>
+          swinging.includes(limb.bone) &&
+          (limb.chain.includes(joint.child) ||
+            (limb.contacts?.includes(joint.child) ?? false)),
+      );
       const swing: IAutoMovieStepPlanner.IStep | undefined = own
         ? physicalRecoverySwing.of(recovery[body.id], own.bone)
         : undefined;
@@ -632,4 +693,3 @@ function plantedPoses(
 
 /** No balance posture is excluded when that controller is inactive. */
 const NO_POSTURE: ReadonlySet<string> = new Set();
-

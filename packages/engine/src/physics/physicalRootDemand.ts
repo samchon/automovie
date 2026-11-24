@@ -17,6 +17,7 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
 import { physicalCentroidalTask } from "./physicalCentroidalTask";
+import type { physicalIcpController } from "./physicalIcpController";
 import { physicalStanceBalance } from "./physicalStanceBalance";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
@@ -36,22 +37,21 @@ import { physicalSupportFootprint } from "./physicalSupportFootprint";
  * held in the world frame as motion, its angular velocity after the step
  * turning it toward the intended attitude at its servo's rate, stiffness over
  * damping, on an error saturated as Feng et al. 2013 saturate theirs (Section
- * III-B), but along the hip strategy's axis while the strategy turns it,
- * where its spin is left as it is (design-4017-edge, E2). Otherwise the task
- * is the mass centre's servo
- * (`physicalCentroidalTask`). The integral reads the realized centre of
- * pressure from the actual contact points weighted by their normal impulses
- * (Stephens 2011, Eq. 5.31), frozen while the command is clamped, a push
- * lands, a limb swings or a foot is not fully in, and reset when the swinging
- * limbs change.
+ * III-B), but along the hip strategy's axis while the strategy turns it, where
+ * its spin is left as it is (design-4017-edge, E2). Otherwise the task is the
+ * mass centre's servo (`physicalCentroidalTask`). The integral reads the
+ * realized centre of pressure from the actual contact points weighted by their
+ * normal impulses (Stephens 2011, Eq. 5.31), frozen while the command is
+ * clamped, a push lands, a limb swings or a foot is not fully in, and reset
+ * when the swinging limbs change.
  *
  * @param input The simulation's settings, the simulated body, its segments and
  *   root body, the root's bone, intent, goal and tracking strength, the stance
  *   limbs and their seating, the planted poses and authored centre of mass,
- *   whether a step has landed, the integral, whether a push lands, the
- *   measured supports, the lifted limbs, the moment asked of the stance, the
- *   trunk servo's moment and intended attitude, the segments' goals, the
- *   integration duration and the trace to record into, if any.
+ *   whether a step has landed, the integral, whether a push lands, the measured
+ *   supports, the lifted limbs, the moment asked of the stance, the trunk
+ *   servo's moment and intended attitude, the segments' goals, the integration
+ *   duration and the trace to record into, if any.
  * @returns The task's wrench; while a stance is planted and an integral is
  *   kept, the integral after this step; and the hip strategy's axis while it
  *   runs. The input is never written.
@@ -73,6 +73,13 @@ export function physicalRootDemand(input: {
   center?: IAutoMovieVector3;
   landed?: boolean;
   integral?: Readonly<physicalStanceBalance.IIntegral>;
+  icp?: {
+    state: physicalIcpController.IState;
+    desired?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+  };
   pushed?: boolean;
   supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
   swinging: readonly string[];
@@ -194,8 +201,17 @@ export function physicalRootDemand(input: {
             ? { intended: rootIntent.pose.rotation }
             : {}),
           strength: input.strength,
-          ...(integral
+          ...(integral && !input.icp
             ? { bias: { x: integral.bias.x, y: 0, z: integral.bias.z } }
+            : {}),
+          ...(input.icp
+            ? {
+                icp: {
+                  state: input.icp.state,
+                  ...(input.icp.desired ? { desired: input.icp.desired } : {}),
+                  dt: input.dt,
+                },
+              }
             : {}),
         })
       : undefined;
@@ -234,17 +250,20 @@ export function physicalRootDemand(input: {
     force: { ...stance.force },
     torque: { ...stance.torque },
   });
-  const next: physicalStanceBalance.IIntegral | undefined = integral
-    ? physicalRootDemand.integrate({
-        integral,
-        stance,
-        feet,
-        supports: input.supports,
-        swinging: input.swinging,
-        ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
-        dt: input.dt,
-      })
-    : undefined;
+  // The biped's controller carries its own integrator
+  // (`physicalAngularMomentumIntegrator`) in place of this integral.
+  const next: physicalStanceBalance.IIntegral | undefined =
+    integral && !stance.icp
+      ? physicalRootDemand.integrate({
+          integral,
+          stance,
+          feet,
+          supports: input.supports,
+          swinging: input.swinging,
+          ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
+          dt: input.dt,
+        })
+      : undefined;
   const spin: IAutoMovieVector3 | undefined =
     body.rootTorque && body.rootTorque.damping > 0
       ? Vector3.add(
@@ -288,6 +307,7 @@ export function physicalRootDemand(input: {
     },
     ...(next ? { integral: next } : {}),
     ...(release ? { release } : {}),
+    ...(stance.icp ? { icp: stance.icp } : {}),
   };
 }
 
@@ -297,22 +317,28 @@ export namespace physicalRootDemand {
   export interface IResult {
     /** The momentum task's wrench, before its support transitions. */
     wrench: AutoMovieXpbdWorld.IRootTask;
-    /** The centre-of-pressure integral after this step, while one is kept and a stance is planted. */
+    /**
+     * The centre-of-pressure integral after this step, while one is kept and a
+     * stance is planted.
+     */
     integral?: physicalStanceBalance.IIntegral;
     /**
      * The world axis, unit length, the stance's hip strategy turns the trunk
      * about this step, which the stance hips release; absent without it.
      */
     release?: IAutoMovieVector3;
+
+    /** The biped's capture-point feedback controller's next state, when it ran. */
+    icp?: physicalIcpController.IState;
   }
 
   /**
    * The centre-of-pressure integral after one step of the stance's demand
    * (`physicalStanceBalance.integrate`), on a copy: the realized centre of
-   * pressure from the measured contacts weighted by their normal impulses,
-   * the swinging limbs as the key whose change resets the bias, and the
-   * command kept for the step choice, since a limb whose remaining supports
-   * hold it can be unloaded at once (`AutoMoviePhysicalBalance.assess`).
+   * pressure from the measured contacts weighted by their normal impulses, the
+   * swinging limbs as the key whose change resets the bias, and the command
+   * kept for the step choice, since a limb whose remaining supports hold it can
+   * be unloaded at once (`AutoMoviePhysicalBalance.assess`).
    *
    * @param input The integral, the stance's demand, the stance feet's shares,
    *   the measured supports, the lifted limbs, whether a push lands and the
@@ -359,17 +385,20 @@ export namespace physicalRootDemand {
       ...(weight > 0 ? { real: Vector3.scale(realized, 1 / weight) } : {}),
     });
     integral.swing = swung;
-    integral.command = { x: input.stance.pressure.x, z: input.stance.pressure.z };
+    integral.command = {
+      x: input.stance.pressure.x,
+      z: input.stance.pressure.z,
+    };
     return integral;
   }
 
   /**
    * The root's demand under an external wrench: the servo toward the root's
    * goal (`AutoMoviePhysicalTracking.force`), with the body's weight
-   * compensated and the total held within the strength's share of the
-   * maximum root force; and the trunk servo's moment with the gravity
-   * compensation moment, each axis held within the strength's share of the
-   * maximum root torque.
+   * compensated and the total held within the strength's share of the maximum
+   * root force; and the trunk servo's moment with the gravity compensation
+   * moment, each axis held within the strength's share of the maximum root
+   * torque.
    *
    * @param input The simulation's settings, the simulated body, its root body,
    *   the root's goal and intent, the tracking strength, the trunk servo's
@@ -413,7 +442,10 @@ export namespace physicalRootDemand {
       );
       const magnitude: number = Vector3.length(force);
       if (magnitude > body.maximumRootForce * strength)
-        force = Vector3.scale(force, (body.maximumRootForce * strength) / magnitude);
+        force = Vector3.scale(
+          force,
+          (body.maximumRootForce * strength) / magnitude,
+        );
     }
     if (!body.rootTorque || !(strength > 0))
       return { force, torque: { x: 0, y: 0, z: 0 } };

@@ -152,11 +152,66 @@ export interface IAutoMoviePhysicalRecoveryState {
     }
   >;
   /**
-   * The planned capture point the biped holds, world x and z metres: after a
-   * recovery landing, the centre of mass projected onto the support shrunk by
-   * 0.08 m (IHMC 201903 `BalanceManager.requestICPPlannerToHoldCurrentCoM`);
-   * absent, the plan is the planted feet's centroid.
-   */ desired?: { x: number; z: number };
+   * The biped's planned capture point this substep and its rate, world x and z,
+   * metres and metres per second, which its push recovery and its capture-point
+   * controller read: the recovery plan's while one runs, else the authored
+   * motion's.
+   */ desired?: {
+    position: { x: number; z: number };
+    velocity: { x: number; z: number };
+  };
+  /**
+   * The biped's recovery plan (IHMC 201903 `ContinuousCMPBasedICPPlanner`),
+   * kept as the inputs it is built from: its phase, single support from a
+   * recovery trigger, the transfer to standing from a landing, or the standing
+   * re-plan; when it was made, local seconds; its feet, each its endpoint bone,
+   * its side, its sole frame as the plan was made (origin and forward unit
+   * direction, world x and z) and its contact outline in that frame (x forward,
+   * y left), the support then the footstep in single support, both feet
+   * otherwise; and the pendulum's rate per second, the step's support side,
+   * the last planned capture point of single support and the centre of mass
+   * at the landing, or the capture point and rate the re-plan starts from and
+   * ends at, each world x and z, as the phase needs.
+   */ plan?: {
+    phase: "single" | "toStanding" | "standing";
+    since: number;
+    feet: {
+      bone: string;
+      side: "left" | "right";
+      frame: {
+        origin: { x: number; z: number };
+        forward: { x: number; z: number };
+      };
+      polygon: { x: number; y: number }[];
+    }[];
+    omega?: number;
+    support?: "left" | "right";
+    desired?: { x: number; z: number };
+    center?: { x: number; z: number };
+    from?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+    to?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+  };
+  /**
+   * The biped's capture-point feedback controller (IHMC `ICPController`): its
+   * last centre-of-pressure feedback and pivot offset, world x and z metres as
+   * x and y, its smart integrator's stuck flag and integral, whether it was
+   * just initialized, how many updates its program has failed, and the walking
+   * state it last ran in, the swinging limbs joined by "+" and empty in double
+   * support, whose change initializes it.
+   */ icp?: {
+    copDelta: { x: number; y: number };
+    cmpDelta: { x: number; y: number };
+    integrator: { stuck: boolean; integral: { x: number; y: number } };
+    ignoreRateLimit: boolean;
+    failures: number;
+    key: string;
+  };
   /**
    * The centre-of-pressure integral: its bias, world metres, the low-passed
    * horizontal centre-of-mass acceleration and the last velocity it was read

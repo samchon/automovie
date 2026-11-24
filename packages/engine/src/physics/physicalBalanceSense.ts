@@ -21,8 +21,8 @@ import { physicalSwingReference } from "./physicalSwingReference";
 /**
  * What the balance controller reads of one body this substep, shared by its
  * phases (`advancePhysicalBalance`): the segments' actual state, the supports'
- * measured loads, the authored placements and the policy's limbs. Every
- * reading is a function of the input alone; nothing here writes a body or the
+ * measured loads, the authored placements and the policy's limbs. Every reading
+ * is a function of the input alone; nothing here writes a body or the
  * recovery's state, and a reading that depends on the state takes the part of
  * it that it reads as an argument.
  *
@@ -36,7 +36,8 @@ import { physicalSwingReference } from "./physicalSwingReference";
 export function physicalBalanceSense(
   input: physicalBalanceSense.IInput,
 ): physicalBalanceSense.ISense {
-  const limbs: readonly physicalBalanceSense.ILimb[] = input.policy.pattern.limbs;
+  const limbs: readonly physicalBalanceSense.ILimb[] =
+    input.policy.pattern.limbs;
   let center: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   let velocity: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
   for (const segment of input.profile.segments) {
@@ -73,7 +74,8 @@ export function physicalBalanceSense(
 
   const limb = (bone: string): physicalBalanceSense.ILimb =>
     limbs.find(
-      (candidate: physicalBalanceSense.ILimb): boolean => candidate.bone === bone,
+      (candidate: physicalBalanceSense.ILimb): boolean =>
+        candidate.bone === bone,
     )!;
   const authored = (bone: string): IAutoMovieVector3 =>
     physicalSupportPoint(input.targets[bone]!, limb(bone).localPoint);
@@ -231,7 +233,8 @@ export function physicalBalanceSense(
         profile: input.profile,
         carriers: of.contacts ?? [of.bone],
         planned: (bone: string): IAutoMovieRigidTransform | undefined => {
-          const goal: IAutoMovieRigidTransform | undefined = input.targets[bone];
+          const goal: IAutoMovieRigidTransform | undefined =
+            input.targets[bone];
           return goal
             ? {
                 position: Vector3.add(goal.position, shift),
@@ -271,7 +274,8 @@ export function physicalBalanceSense(
 /** The readings {@link physicalBalanceSense} gives the balance phases. */
 export namespace physicalBalanceSense {
   /** One supporting limb of the policy's pattern. */
-  export type ILimb = IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number];
+  export type ILimb =
+    IAutoMoviePhysicalRecoveryPolicy["pattern"]["limbs"][number];
 
   /** What the readings are taken from. */
   export interface IInput {
@@ -297,6 +301,17 @@ export namespace physicalBalanceSense {
     floor: number;
     /** The supports' measured contacts this substep. */
     supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
+
+    /**
+     * The authored pose's centre of mass, world metres, its velocity and its
+     * acceleration, the command a biped's recovery plan stands in for; absent,
+     * a centre at rest on the authored segments' poses.
+     */
+    command?: {
+      center: IAutoMovieVector3;
+      velocity: IAutoMovieVector3;
+      acceleration: IAutoMovieVector3;
+    };
   }
 
   /** The readings, world metres, seconds and newtons. */
@@ -313,7 +328,10 @@ export namespace physicalBalanceSense {
     root: { segment: IAutoMoviePhysicalSegment; body: AutoMovieXpbdBody };
     /** The limb of an endpoint bone. */
     limb(bone: string): ILimb;
-    /** A limb's measured floor load this substep: its normal impulse over the substep. */
+    /**
+     * A limb's measured floor load this substep: its normal impulse over the
+     * substep.
+     */
     load(bone: string): number;
     /** Whether a floor constraint touches a limb this substep. */
     touching(bone: string): boolean;
@@ -321,18 +339,21 @@ export namespace physicalBalanceSense {
     grounded(limb: ILimb): boolean;
     /**
      * The spread of a foot carrier's sole vertices' actual heights: the
-     * vertices lowest at its planted pose, the toes (a jointed segment of
-     * their own) left out.
+     * vertices lowest at its planted pose, the toes (a jointed segment of their
+     * own) left out.
      */
     spread(bone: string): number;
     /** A limb's authored support endpoint. */
     authored(bone: string): IAutoMovieVector3;
-    /** A limb's actual support endpoint, read without moving a body's bone-origin frame. */
+    /**
+     * A limb's actual support endpoint, read without moving a body's
+     * bone-origin frame.
+     */
     actual(bone: string): IAutoMovieVector3;
     /**
-     * A stance foot's references as it actually stands when its stance
-     * begins: its support point and its world rotation, which its
-     * planted-foot hold keeps through the stance (`physicalStanceJointTarget`).
+     * A stance foot's references as it actually stands when its stance begins:
+     * its support point and its world rotation, which its planted-foot hold
+     * keeps through the stance (`physicalStanceJointTarget`).
      */
     latch(limb: ILimb): NonNullable<physicalStanceSeat.ISeat["anchor"]>;
     /** A limb's swinging mass: its chain and contact carriers, kilograms. */
@@ -340,16 +361,16 @@ export namespace physicalBalanceSense {
     /**
      * How much further a limb's lowest contact point hangs below its endpoint
      * at its planned swing attitude than at its planted pose: its carriers at
-     * their authored attitude, the level foot the swing holds, carried with
-     * the endpoint to where it stands (`physicalSwingReference.hang`).
+     * their authored attitude, the level foot the swing holds, carried with the
+     * endpoint to where it stands (`physicalSwingReference.hang`).
      */
     hang(limb: ILimb): number;
     /**
      * A limb's support patch: its contact shapes' outline on the floor
-     * (`physicalSupportFootprint`), where it bears or would bear again,
-     * seated by the recovery's seating and moved by its landed offset; with a
-     * place, its planted outline moved so its endpoint stands there, as where
-     * a swinging limb lifted from.
+     * (`physicalSupportFootprint`), where it bears or would bear again, seated
+     * by the recovery's seating and moved by its landed offset; with a place,
+     * its planted outline moved so its endpoint stands there, as where a
+     * swinging limb lifted from.
      */
     footprint(
       limb: ILimb,
@@ -360,10 +381,10 @@ export namespace physicalBalanceSense {
     ): IAutoMoviePhysicalSupportPatch;
     /**
      * From a limb's endpoint to the middle of its planted footprint,
-     * horizontal, both at its planted pose moved by its landed offset: a
-     * target for the footprint's middle less this is the endpoint's (Pratt et
-     * al., M2V2, Section VII-C2). The planted pose, not the present one, so a
-     * foot rolling as it unloads does not move where it is aimed.
+     * horizontal, both at its planted pose moved by its landed offset: a target
+     * for the footprint's middle less this is the endpoint's (Pratt et al.,
+     * M2V2, Section VII-C2). The planted pose, not the present one, so a foot
+     * rolling as it unloads does not move where it is aimed.
      */
     inset(
       bone: string,

@@ -13,6 +13,8 @@ import { convexHull2D } from "../math/convexHull2D";
 import { AutoMoviePhysicalBalance } from "./AutoMoviePhysicalBalance";
 import type { AutoMovieXpbdBody } from "./AutoMovieXpbdBody";
 import { PhysicalRotationVector } from "./PhysicalRotationVector";
+import { physicalBipedPressure } from "./physicalBipedPressure";
+import type { physicalIcpController } from "./physicalIcpController";
 import { physicalLegCapacity } from "./physicalLegCapacity";
 import { physicalSupportFootprint } from "./physicalSupportFootprint";
 
@@ -32,9 +34,9 @@ type Limb = IAutoMovieFootfallPattern["limbs"][number];
  *   M2V2, Eq. 1). xi_ref is the authored centre of mass over the planted
  *   polygon, clamped into it. The centre of pressure is kept on the support
  *   polygon shrunk by a margin, off the feet's edges (M2V2, footnote 2), and
- *   where no foot carries more than its leg holds (`physicalLegCapacity`),
- *   and the support is shared between capture, the torso's moment and the
- *   command's convergence in that order (`allocate`).
+ *   where no foot carries more than its leg holds (`physicalLegCapacity`), and
+ *   the support is shared between capture, the torso's moment and the command's
+ *   convergence in that order (`allocate`).
  * - Wrench: the pendulum's horizontal force m omega^2 (c - u) through the
  *   allocated pivot u, the weight with a height servo held to a narrow band,
  *   and the moment the centre of pressure's offset from the pivot carries: the
@@ -162,8 +164,8 @@ export namespace physicalStanceBalance {
           edge?: readonly IAutoMovieVector3[];
           /**
            * Its low-passed measured floor load, newtons, the force its leg's
-           * joints carry now (`hipRoom`); absent takes its bearing share of
-           * the lift.
+           * joints carry now (`hipRoom`); absent takes its bearing share of the
+           * lift.
            */
           load?: number;
         }
@@ -201,6 +203,23 @@ export namespace physicalStanceBalance {
     strength: number;
     /** The centre-of-pressure integral's bias, world metres (`integrate`). */
     bias?: IAutoMovieVector3;
+
+    /**
+     * IHMC's capture-point feedback controller for a two-support body
+     * (`physicalBipedPressure`): its state, the plan's capture point and rate,
+     * world x and z, absent for the authored centre of mass's at rest, and the
+     * controller's update period, seconds. With it the controller sets the
+     * centre of pressure and pivot, and the law, the allocation, the bias and
+     * the trunk's horizontal moment are not used.
+     */
+    icp?: {
+      state: physicalIcpController.IState;
+      desired?: {
+        position: { x: number; z: number };
+        velocity: { x: number; z: number };
+      };
+      dt: number;
+    };
   }
 
   /** One balance step's demand and bearing. */
@@ -240,6 +259,9 @@ export namespace physicalStanceBalance {
      * absent without it.
      */
     release?: IAutoMovieVector3;
+
+    /** The capture-point feedback controller's next state, when it ran. */
+    icp?: physicalIcpController.IState;
   }
 
   /**
@@ -349,28 +371,31 @@ export namespace physicalStanceBalance {
     // No foot is asked for more of the weight than its leg's joints hold at
     // its present pose (`physicalLegCapacity`): the command's region is the
     // support cut to where every foot's share stays within its capacity.
-    const capacity: IAutoMovieVector3[] | undefined = physicalLegCapacity.region(
-      bearing.map(({ limb, points }) => {
-        const middle: IAutoMovieVector3 = Vector3.scale(
-          points.reduce(
-            (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-              Vector3.add(sum, p),
-            { x: 0, y: 0, z: 0 },
-          ),
-          1 / Math.max(1, points.length),
-        );
-        return {
-          points,
-          share:
-            physicalLegCapacity({
-              profile: body.profile,
-              segments,
-              chain: limb.chain,
-              point: { ...middle, y: floor },
-            }) / lift,
-        };
-      }),
-    );
+    const capacity: IAutoMovieVector3[] | undefined =
+      physicalLegCapacity.region(
+        bearing.map(({ limb, points }) => {
+          const middle: IAutoMovieVector3 = Vector3.scale(
+            points.reduce(
+              (
+                sum: IAutoMovieVector3,
+                p: IAutoMovieVector3,
+              ): IAutoMovieVector3 => Vector3.add(sum, p),
+              { x: 0, y: 0, z: 0 },
+            ),
+            1 / Math.max(1, points.length),
+          );
+          return {
+            points,
+            share:
+              physicalLegCapacity({
+                profile: body.profile,
+                segments,
+                chain: limb.chain,
+                point: { ...middle, y: floor },
+              }) / lift,
+          };
+        }),
+      );
     // Each bearing foot's present load at its bearing points' middle: its
     // measured floor load, or its bearing share of the lift without one.
     const shares: number = bearing.reduce(
@@ -383,8 +408,10 @@ export namespace physicalStanceBalance {
         point: {
           ...Vector3.scale(
             points.reduce(
-              (sum: IAutoMovieVector3, p: IAutoMovieVector3): IAutoMovieVector3 =>
-                Vector3.add(sum, p),
+              (
+                sum: IAutoMovieVector3,
+                p: IAutoMovieVector3,
+              ): IAutoMovieVector3 => Vector3.add(sum, p),
               { x: 0, y: 0, z: 0 },
             ),
             1 / Math.max(1, points.length),
@@ -405,51 +432,77 @@ export namespace physicalStanceBalance {
       );
       return cut.length >= 3 ? cut : outline;
     };
-    const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> = allocate(
-      {
-        capture,
-        reference,
-        command,
-        offset: { x: input.torque.z / lift, y: 0, z: -input.torque.x / lift },
-        shrunken: capped(polygon),
-        support: capped(bearable.hull),
-        // The bearing feet's hips deliver the ground's moment on the body
-        // with the room their feet's forces leave them (`hipRoom`): the
-        // pivot's offset along d turns the body about the axis across it,
-        // (d_z, 0, -d_x).
-        bound: (direction: IAutoMovieVector3): number =>
-          hipRoom({
-            profile: body.profile,
-            segments,
-            stance: carried,
-            axis: { x: direction.z, y: 0, z: -direction.x },
-          }) / lift,
-        ...(input.intended
-          ? {
-              hip: (direction: IAutoMovieVector3): number | undefined => {
-                const strategy = hip({
-                  profile: body.profile,
-                  segments,
-                  limbs,
-                  stance: input.stance,
-                  direction,
-                  intended: input.intended!,
-                });
-                if (!strategy) return undefined;
-                // Bang-bang: out while the trunk can still be stopped within
-                // the angle left, back once its turn would carry it past.
-                const braking: boolean =
-                  strategy.rate > 0 &&
-                  (strategy.rate * strategy.rate * strategy.inertia) /
-                    (2 * strategy.torque) >=
-                    strategy.angle;
-                if (!braking && !(strategy.angle > 0)) return undefined;
-                return ((braking ? -1 : 1) * strategy.torque) / lift;
-              },
-            }
-          : {}),
-      },
-    );
+    // A two-support body's centre of pressure and pivot are IHMC's
+    // capture-point feedback controller's (`physicalBipedPressure`); the
+    // law's command, the allocation and the trunk's offset are not used.
+    const icp: physicalBipedPressure.IResult | undefined = input.icp
+      ? physicalBipedPressure({
+          state: input.icp.state,
+          outlines: outlines.map(
+            (entry: {
+              limb: Limb;
+              outline: IAutoMovieVector3[];
+            }): IAutoMovieVector3[] => entry.outline,
+          ),
+          ...(input.icp.desired ? { desired: input.icp.desired } : {}),
+          authored: { center: input.center, velocity: input.velocity },
+          center,
+          velocity,
+          omega,
+          dt: input.icp.dt,
+          floor,
+        })
+      : undefined;
+    const { pressure, pivot, clamped, strategy }: ReturnType<typeof allocate> =
+      icp
+        ? { pressure: icp.pressure, pivot: icp.pivot, clamped: !icp.converged }
+        : allocate({
+            capture,
+            reference,
+            command,
+            offset: {
+              x: input.torque.z / lift,
+              y: 0,
+              z: -input.torque.x / lift,
+            },
+            shrunken: capped(polygon),
+            support: capped(bearable.hull),
+            // The bearing feet's hips deliver the ground's moment on the body
+            // with the room their feet's forces leave them (`hipRoom`): the
+            // pivot's offset along d turns the body about the axis across it,
+            // (d_z, 0, -d_x).
+            bound: (direction: IAutoMovieVector3): number =>
+              hipRoom({
+                profile: body.profile,
+                segments,
+                stance: carried,
+                axis: { x: direction.z, y: 0, z: -direction.x },
+              }) / lift,
+            ...(input.intended
+              ? {
+                  hip: (direction: IAutoMovieVector3): number | undefined => {
+                    const strategy = hip({
+                      profile: body.profile,
+                      segments,
+                      limbs,
+                      stance: input.stance,
+                      direction,
+                      intended: input.intended!,
+                    });
+                    if (!strategy) return undefined;
+                    // Bang-bang: out while the trunk can still be stopped within
+                    // the angle left, back once its turn would carry it past.
+                    const braking: boolean =
+                      strategy.rate > 0 &&
+                      (strategy.rate * strategy.rate * strategy.inertia) /
+                        (2 * strategy.torque) >=
+                        strategy.angle;
+                    if (!braking && !(strategy.angle > 0)) return undefined;
+                    return ((braking ? -1 : 1) * strategy.torque) / lift;
+                  },
+                }
+              : {}),
+          });
     const force: IAutoMovieVector3 = Vector3.scale(
       {
         x: mass * omega * omega * (center.x - pivot.x),
@@ -480,9 +533,8 @@ export namespace physicalStanceBalance {
       omega,
       // The hip strategy turns the trunk about the stance hips' axis across
       // its outward direction, which the stance hips release (`hip`).
-      ...(strategy
-        ? { release: { x: strategy.z, y: 0, z: -strategy.x } }
-        : {}),
+      ...(strategy ? { release: { x: strategy.z, y: 0, z: -strategy.x } } : {}),
+      ...(icp ? { icp: icp.state } : {}),
     };
   }
   /** The centre-of-pressure integral's persisted state. */
@@ -875,23 +927,22 @@ export namespace physicalStanceBalance {
 
   /**
    * A lifted swing foot's early touchdown: its measured load above `TOUCH` of
-   * the weight on two successive substeps before the swing's minimum phase is
-   * a contact, an aborted lift or an early touchdown, so the foot joins the
-   * support again and the step is planned again, and the floor's force on it
-   * is the root task's once more; a single substep's scuff is not (Stephens
-   * 2011, Figure 4.6; Feng et al. 2015, Section III-A4). Only a foot that has
-   * cleared the floor since its lift-off can touch down: until then its load
-   * is the floor it never left, and accepting it lands a null step where it
-   * stood. And only one coming down: a toe that scrapes the floor while the
-   * foot still rises is a scuff, which neither lands nor restarts the swing
-   * (Stephens 2011, Figure 4.6), as Feng's Atlas, scraping a block halfway
-   * through, touched down much earlier than planned (Feng et al. 2015,
-   * Section III-A4).
+   * the weight on two successive substeps before the swing's minimum phase is a
+   * contact, an aborted lift or an early touchdown, so the foot joins the
+   * support again and the step is planned again, and the floor's force on it is
+   * the root task's once more; a single substep's scuff is not (Stephens 2011,
+   * Figure 4.6; Feng et al. 2015, Section III-A4). Only a foot that has cleared
+   * the floor since its lift-off can touch down: until then its load is the
+   * floor it never left, and accepting it lands a null step where it stood. And
+   * only one coming down: a toe that scrapes the floor while the foot still
+   * rises is a scuff, which neither lands nor restarts the swing (Stephens
+   * 2011, Figure 4.6), as Feng's Atlas, scraping a block halfway through,
+   * touched down much earlier than planned (Feng et al. 2015, Section III-A4).
    *
    * @param input The foot's measured load and the weight, newtons; whether it
-   *   has cleared the floor since lift-off; whether it is coming down; when
-   *   its load began, local seconds, if it is pressing; the present local
-   *   seconds; and the substep, seconds.
+   *   has cleared the floor since lift-off; whether it is coming down; when its
+   *   load began, local seconds, if it is pressing; the present local seconds;
+   *   and the substep, seconds.
    * @returns When its present load began, absent while it does not press, has
    *   not cleared or still rises, and whether it has touched down.
    */
@@ -1010,9 +1061,9 @@ export namespace physicalStanceBalance {
    * when that edge is unknown. Their vertices are the contact points the stance
    * may load, and the command's polygon is the union of them shrunk by `MARGIN`
    * (Pratt et al., M2V2, footnote 2); the union unshrunk, the hull, is the
-   * support itself (`allocate`). The margin is kept on the whole support,
-   * not on each foot, so a narrow foot (a heel point and a forefoot edge) keeps
-   * its own vertices instead of collapsing to one point that bears no moment. A
+   * support itself (`allocate`). The margin is kept on the whole support, not
+   * on each foot, so a narrow foot (a heel point and a forefoot edge) keeps its
+   * own vertices instead of collapsing to one point that bears no moment. A
    * foot with a bearing share under one is drawn that share of the way out from
    * the fully bearing feet's hull; an absent share is one.
    */
@@ -1137,27 +1188,27 @@ export namespace physicalStanceBalance {
    * the centre of pressure that holds it (Koolen et al., Corollary 3;
    * derived):
    *
-   * 1. Capture: p is not behind xi_eff along its displacement from the
-   *    reference, so xi_eff does not diverge while it is inside the support.
-   * 2. Trunk: p is nearest u_law + delta, delta = (M_z, -M_x) / F_y the offset
-   *    the trunk's moment asks of it from the pivot, on the shrunken polygon,
-   *    or on the support itself once xi_eff has passed the shrunken edge, and
-   *    then u = p - delta. On held feet a body has little posture freedom, a
+   * 1. Capture: p is not behind xi_eff along its displacement from the reference,
+   *    so xi_eff does not diverge while it is inside the support.
+   * 2. Trunk: p is nearest u_law + delta, delta = (M_z, -M_x) / F_y the offset the
+   *    trunk's moment asks of it from the pivot, on the shrunken polygon, or on
+   *    the support itself once xi_eff has passed the shrunken edge, and then u
+   *    = p - delta. On held feet a body has little posture freedom, a
    *    four-support body none, so the trunk's moment is part of holding the
    *    body and is served before convergence.
-   * 3. Convergence: u_law = xi + k (xi - xi_ref) takes what is left, the term
-   *    that is trimmed.
+   * 3. Convergence: u_law = xi + k (xi - xi_ref) takes what is left, the term that
+   *    is trimmed.
    *
    * 2b. In the band, xi_eff past the shrunken edge but inside the support,
-   *    where capture is at risk, convergence comes before the trunk, linear
-   *    momentum kept before angular as Lee and Goswami order them: u = u_law,
-   *    and p, nearest u_law + delta on the support, takes the trunk's offset
-   *    only as far as the room allows, the term that is trimmed. A pivot past
-   *    p turns the trunk, so it goes past p toward the excess only as far as
-   *    the stance's hip strategy reaches (`hip`); a stance without one keeps
-   *    the order of rule 2, the trunk's offset trimmed so the pivot does not
-   *    fall inside the capture point along the outward normal, u . n >= xi .
-   *    n, as xi' = omega (xi - u) would carry xi out (Hof et al. 2005).
+   * where capture is at risk, convergence comes before the trunk, linear
+   * momentum kept before angular as Lee and Goswami order them: u = u_law, and
+   * p, nearest u_law + delta on the support, takes the trunk's offset only as
+   * far as the room allows, the term that is trimmed. A pivot past p turns the
+   * trunk, so it goes past p toward the excess only as far as the stance's hip
+   * strategy reaches (`hip`); a stance without one keeps the order of rule 2,
+   * the trunk's offset trimmed so the pivot does not fall inside the capture
+   * point along the outward normal, u . n >= xi . n, as xi' = omega (xi - u)
+   * would carry xi out (Hof et al. 2005).
    *
    * In every branch the pivot lies within the stance hips' hold of the centre
    * of pressure, |u - p| F_y no more than the room their caps leave about the
@@ -1174,9 +1225,9 @@ export namespace physicalStanceBalance {
    * @param input The capture point with spin, its reference and the law's
    *   command, world metres; the trunk's offset delta, metres; the shrunken
    *   polygon and the support, world metres; the hip strategy's signed pivot
-   *   offset along an outward direction, metres, or undefined for none; and
-   *   the farthest the pivot may lie from the centre of pressure along a
-   *   horizontal direction, metres, absent for no bound.
+   *   offset along an outward direction, metres, or undefined for none; and the
+   *   farthest the pivot may lie from the centre of pressure along a horizontal
+   *   direction, metres, absent for no bound.
    * @returns The centre of pressure, the pivot, and whether the command was
    *   trimmed.
    */
@@ -1323,23 +1374,23 @@ export namespace physicalStanceBalance {
   }
 
   /**
-   * The trunk excursion a hip strategy may spend, radians: half the 0.5 rad
-   * hip strategy range (Stephens 2011, Table 4.1), since the recovery tests
-   * count 0.5 rad as tipped (stated).
+   * The trunk excursion a hip strategy may spend, radians: half the 0.5 rad hip
+   * strategy range (Stephens 2011, Table 4.1), since the recovery tests count
+   * 0.5 rad as tipped (stated).
    */
   export const HIP_RANGE: number = 0.25;
 
   /**
    * The hip strategy a stance has toward a horizontal direction: the trunk,
    * every segment off the support limbs, turned about the stance hips' axis
-   * across the direction, a = y x n, by their joints' torque (Horak and
-   * Nashner 1986; Stephens 2011, Section 4.2). A hip off that axis by e rises
-   * or sinks by e theta as the trunk turns, so the trunk turns about the hips
-   * as a hinge only while e `HIP_RANGE` stays within `LIFT`. A stance whose
-   * hips lie apart along the direction, two feet side by side against a
-   * lateral push or a four-legged body either way, has none and holds by its
-   * centre of pressure alone: in the frontal plane the hips load and unload
-   * the legs rather than turn the trunk (Winter 1995). Derived.
+   * across the direction, a = y x n, by their joints' torque (Horak and Nashner
+   * 1986; Stephens 2011, Section 4.2). A hip off that axis by e rises or sinks
+   * by e theta as the trunk turns, so the trunk turns about the hips as a hinge
+   * only while e `HIP_RANGE` stays within `LIFT`. A stance whose hips lie apart
+   * along the direction, two feet side by side against a lateral push or a
+   * four-legged body either way, has none and holds by its centre of pressure
+   * alone: in the frontal plane the hips load and unload the legs rather than
+   * turn the trunk (Winter 1995). Derived.
    *
    * The torque is the stance hips' bound about the axis, each joint axis
    * counted by its alignment with it, sum min(tau+, tau-) |e_i . a|, so the
@@ -1350,8 +1401,8 @@ export namespace physicalStanceBalance {
    *
    * @param input The profile, its segments, every support limb, the stance
    *   limbs, the outward direction, and the trunk's intended world rotation.
-   * @returns The torque, N m; the inertia, kg m^2; the angle left, radians;
-   *   the rate, radians per second; or undefined without a hip strategy.
+   * @returns The torque, N m; the inertia, kg m^2; the angle left, radians; the
+   *   rate, radians per second; or undefined without a hip strategy.
    */
   export function hip(input: {
     profile: IAutoMoviePhysicalProfile;
@@ -1360,7 +1411,9 @@ export namespace physicalStanceBalance {
     stance: readonly Limb[];
     direction: IAutoMovieVector3;
     intended: IAutoMovieQuaternion;
-  }): { torque: number; inertia: number; angle: number; rate: number } | undefined {
+  }):
+    | { torque: number; inertia: number; angle: number; rate: number }
+    | undefined {
     const size: number = Math.hypot(input.direction.x, input.direction.z);
     if (!(size > 0) || input.stance.length === 0) return undefined;
     const n: IAutoMovieVector3 = {
@@ -1381,7 +1434,8 @@ export namespace physicalStanceBalance {
     const torque: number = hips.reduce((sum, h) => sum + h.torque, 0);
     const mean: IAutoMovieVector3 = Vector3.scale(
       hips.reduce(
-        (sum: IAutoMovieVector3, h): IAutoMovieVector3 => Vector3.add(sum, h.pivot),
+        (sum: IAutoMovieVector3, h): IAutoMovieVector3 =>
+          Vector3.add(sum, h.pivot),
         { x: 0, y: 0, z: 0 },
       ),
       1 / hips.length,
@@ -1418,7 +1472,10 @@ export namespace physicalStanceBalance {
     if (!root || !(torque > 0) || !(inertia > 0)) return undefined;
     const lean: number = Vector3.dot(
       PhysicalRotationVector.log(
-        Quaternion.multiply(root.rotation(), Quaternion.inverse(input.intended)),
+        Quaternion.multiply(
+          root.rotation(),
+          Quaternion.inverse(input.intended),
+        ),
       ),
       axis,
     );
@@ -1437,13 +1494,13 @@ export namespace physicalStanceBalance {
    * less the torque that force takes, sum (tau_dir - |tau_support|) |e_i . a|,
    * tau_support = J^T f (`physicalLegCapacity`), since the joint's limit holds
    * on its whole torque (Herzog et al. 2016, Section 2.1). The ground's moment
-   * about the body reaches the trunk through these joints, so the pivot lies
-   * at most this over the vertical force from the centre of pressure
+   * about the body reaches the trunk through these joints, so the pivot lies at
+   * most this over the vertical force from the centre of pressure
    * (design-4017-edge, E1, rule 2).
    *
-   * @param input The profile, its segments, each stance limb with the point
-   *   and normal force its foot carries, world metres and newtons, and the
-   *   axis, world, unit length.
+   * @param input The profile, its segments, each stance limb with the point and
+   *   normal force its foot carries, world metres and newtons, and the axis,
+   *   world, unit length.
    * @returns The moment, N m; zero without a stance hip.
    */
   export function hipRoom(input: {
@@ -1487,7 +1544,9 @@ export namespace physicalStanceBalance {
   }): number {
     if (!(input.torque > 0) || !(input.inertia > 0) || !(input.angle > 0))
       return 0;
-    const half: number = Math.sqrt((input.angle * input.inertia) / input.torque);
+    const half: number = Math.sqrt(
+      (input.angle * input.inertia) / input.torque,
+    );
     return (
       (input.torque / (input.mass * input.gravity)) *
       (1 - Math.exp(-input.omega * half)) ** 2
@@ -1496,19 +1555,19 @@ export namespace physicalStanceBalance {
 
   /**
    * Whether the capture point has gone past what the stance holds without a
-   * step: past the support by more than the margin and the hip strategy's
-   * reach toward it, and not shrinking (Koolen et al., Corollary 3). Whether
-   * it shrinks is measured, its distance past the support against the
-   * previous step's: a capture point that stalls outside, its pivot held off
-   * the support's edge while the spin decays, is not coming back however the
+   * step: past the support by more than the margin and the hip strategy's reach
+   * toward it, and not shrinking (Koolen et al., Corollary 3). Whether it
+   * shrinks is measured, its distance past the support against the previous
+   * step's: a capture point that stalls outside, its pivot held off the
+   * support's edge while the spin decays, is not coming back however the
    * spin-free part lies. Without a previous distance it is predicted, the
    * capture point without the body's spin at or past the support's nearest
-   * point along the excess, since xi_eff' = omega (xi - p) with p at that
-   * point (derived).
+   * point along the excess, since xi_eff' = omega (xi - p) with p at that point
+   * (derived).
    *
-   * @param input The support, the capture point with spin and the spin's
-   *   shift, world metres; the margin, metres; the hip strategy's reach along
-   *   an outward direction, metres; and the capture point's distance past the
+   * @param input The support, the capture point with spin and the spin's shift,
+   *   world metres; the margin, metres; the hip strategy's reach along an
+   *   outward direction, metres; and the capture point's distance past the
    *   support at the previous controller step, metres, if it was measured.
    * @returns Whether a step is due.
    */
@@ -1544,10 +1603,10 @@ export namespace physicalStanceBalance {
   }
 
   /**
-   * A lifted swing's drive at its endpoint, newtons: its effective mass
-   * carried against gravity and along its path's acceleration, m (g y + a),
-   * the feed-forward its joints' motors apply through J^T within their caps;
-   * the joints' own servos on the reference fit to the same path correct what
+   * A lifted swing's drive at its endpoint, newtons: its effective mass carried
+   * against gravity and along its path's acceleration, m (g y + a), the
+   * feed-forward its joints' motors apply through J^T within their caps; the
+   * joints' own servos on the reference fit to the same path correct what
    * remains (Coros, Beaudoin and van de Panne 2010, Section 3; Yin, Loken and
    * van de Panne 2007, Section 3.2).
    *
@@ -1645,10 +1704,10 @@ export namespace physicalStanceBalance {
 /**
  * A stance limb's hip: its first joint's centre, world metres, and the moment
  * its axes hold about a horizontal axis, N m: sum min(tau+, tau-) |e_i . a|,
- * or, for a foot carrying a force, each axis's cap on the side it already
- * turns less the torque that force takes, tau_i = -f e_i . ((p - o) x n)
- * (tau = J^T f, as `physicalLegCapacity` reads it), the room left. Undefined
- * without the joint or its parent.
+ * or, for a foot carrying a force, each axis's cap on the side it already turns
+ * less the torque that force takes, tau_i = -f e_i . ((p - o) x n) (tau = J^T
+ * f, as `physicalLegCapacity` reads it), the room left. Undefined without the
+ * joint or its parent.
  */
 function stanceHip(
   profile: IAutoMoviePhysicalProfile,

@@ -3,6 +3,7 @@ import {
   Vector3,
   advancePhysicalBalance,
   physicalBalanceSense,
+  physicalIcpController,
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
@@ -41,27 +42,28 @@ import { repositoryRoot } from "./repositoryRoot";
  *   `profileDigest`, the FNV-1a digest of its JSON, which the replay checks
  *   against the subject it rebuilds.
  * - `records`: in time order, pairs of an `advance` record (`reason`: the key
- *   frame, `input`: the controller's input with each segment's state,
- *   `output`: its result, the state after and the actuation it accumulated)
- *   and the `root` record of the same substep (`input`: the root tracker's
- *   input, `output`: the root task it set, the integral after, the wrench
- *   records it pushed and the actuation after). Bodies in a root task are
- *   named by their bone.
- * - `statics`: each segment's constant state, by bone: body-frame
- *   `centerOfMass`, principal `inertia` and `inertiaRotation`, and `dynamic`.
- * - An input's `segments` holds, by bone, 13 numbers: the world centre of
- *   mass, the orientation quaternion, the velocity and the angular velocity. A
- *   root input's `goals` holds, by bone, the same 13 numbers of the goal's
- *   pose position, pose rotation, velocity and angular velocity.
- * - `shared`: values that occur more than once; a top-level input or output
- *   value `{ "@": n }` stands for `shared[n]`.
+ *   frame, `input`: the controller's input with each segment's state, `output`:
+ *   its result, the state after and the actuation it accumulated) and the
+ *   `root` record of the same substep (`input`: the root tracker's input,
+ *   `output`: the root task it set, the integral after, the wrench records it
+ *   pushed and the actuation after). Bodies in a root task are named by their
+ *   bone.
+ * - `statics`: each segment's constant state, by bone: body-frame `centerOfMass`,
+ *   principal `inertia` and `inertiaRotation`, and `dynamic`.
+ * - An input's `segments` holds, by bone, 13 numbers: the world centre of mass,
+ *   the orientation quaternion, the velocity and the angular velocity. A root
+ *   input's `goals` holds, by bone, the same 13 numbers of the goal's pose
+ *   position, pose rotation, velocity and angular velocity.
+ * - `shared`: values that occur more than once; a top-level input or output value
+ *   `{ "@": n }` stands for `shared[n]`.
  *
  * Numbers are JSON's shortest round-trip doubles, so a value read back is the
  * value recorded, bit for bit, except that negative zero reads as zero.
  */
 export namespace PhysicalBalanceReplay {
   /** The fixtures' folder, under the repository. */
-  export const FOLDER: string = "test/src/features/internal/physicalBalanceReplay";
+  export const FOLDER: string =
+    "test/src/features/internal/physicalBalanceReplay";
 
   /** One segment's recorded state. */
   export interface ISegment {
@@ -225,7 +227,9 @@ export namespace PhysicalBalanceReplay {
   }
 
   /** The case's profile, rebuilt as the recording built it. */
-  export function profile(subject: IFixture["subject"]): IAutoMoviePhysicalProfile {
+  export function profile(
+    subject: IFixture["subject"],
+  ): IAutoMoviePhysicalProfile {
     return (
       subject === "human"
         ? PhysicalDisturbance.standing(motionHumanBody("m-average"))
@@ -308,11 +312,17 @@ export namespace PhysicalBalanceReplay {
     public velocityAtPoint(point: IAutoMovieVector3): IAutoMovieVector3 {
       return Vector3.add(
         this.velocity,
-        Vector3.cross(this.angularVelocity, Vector3.subtract(point, this.center)),
+        Vector3.cross(
+          this.angularVelocity,
+          Vector3.subtract(point, this.center),
+        ),
       );
     }
 
-    /** The world inverse inertia applied to a world vector; zero when not dynamic. */
+    /**
+     * The world inverse inertia applied to a world vector; zero when not
+     * dynamic.
+     */
     public inverseInertia(v: IAutoMovieVector3): IAutoMovieVector3 {
       if (!this.dynamic) return { x: 0, y: 0, z: 0 };
       const r: IAutoMovieQuaternion = Quaternion.multiply(
@@ -379,9 +389,10 @@ export namespace PhysicalBalanceReplay {
       steps: [],
       offsets: Object.create(null),
     };
-    const actuation: Map<string, IAutoMovieVector3> | undefined = input.actuation
-      ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
-      : undefined;
+    const actuation: Map<string, IAutoMovieVector3> | undefined =
+      input.actuation
+        ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
+        : undefined;
     const output = advancePhysicalBalance({
       world: undefined as never,
       body: fixture.body.id,
@@ -399,7 +410,9 @@ export namespace PhysicalBalanceReplay {
       gravity: input.gravity,
       floor: input.floor,
       ...(actuation ? { actuation } : {}),
-      supports: clone(input.supports) as IAutoMovieCollectPhysicalSupports.ISupport[],
+      supports: clone(
+        input.supports,
+      ) as IAutoMovieCollectPhysicalSupports.ISupport[],
     });
     return {
       rootStrength: output.rootStrength,
@@ -412,9 +425,9 @@ export namespace PhysicalBalanceReplay {
   }
 
   /**
-   * One `advance` record's readings and state as the controller's phases
-   * see them: the readings built from the recorded bodies and supports, and
-   * the recorded state before the call, a copy.
+   * One `advance` record's readings and state as the controller's phases see
+   * them: the readings built from the recorded bodies and supports, and the
+   * recorded state before the call, a copy.
    */
   export function sense(
     fixture: IFixture,
@@ -430,7 +443,10 @@ export namespace PhysicalBalanceReplay {
         profile: built,
         segments: segments(input.segments) as never,
         policy: clone(fixture.body.balance) as IAutoMoviePhysicalRecoveryPolicy,
-        targets: clone(input.targets) as Record<string, IAutoMovieRigidTransform>,
+        targets: clone(input.targets) as Record<
+          string,
+          IAutoMovieRigidTransform
+        >,
         ...(input.velocities ? { velocities: clone(input.velocities) } : {}),
         ...(input.unavailable ? { unavailable: clone(input.unavailable) } : {}),
         seconds: input.seconds,
@@ -471,12 +487,15 @@ export namespace PhysicalBalanceReplay {
       supportWrenches: [] as unknown[],
     };
     const integral = clone(input.integral);
-    const actuation: Map<string, IAutoMovieVector3> | undefined = input.actuation
-      ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
-      : undefined;
+    const actuation: Map<string, IAutoMovieVector3> | undefined =
+      input.actuation
+        ? new Map(clone(input.actuation) as [string, IAutoMovieVector3][])
+        : undefined;
     const base: Body = bodies.get(input.base)!;
     trackPhysicalRoot({
-      settings: clone(fixture.settings) as IAutoMoviePhysicalSimulationInput.IInput,
+      settings: clone(
+        fixture.settings,
+      ) as IAutoMoviePhysicalSimulationInput.IInput,
       body: {
         ...clone(fixture.body),
         profile: built,
@@ -484,7 +503,9 @@ export namespace PhysicalBalanceReplay {
       bound: bound as never,
       base: base as never,
       rootDynamic: input.rootDynamic,
-      rootIntent: clone(input.rootIntent) as IAutoMovieSamplePhysicalTarget.IResult,
+      rootIntent: clone(
+        input.rootIntent,
+      ) as IAutoMovieSamplePhysicalTarget.IResult,
       target: clone(input.target) as IAutoMoviePhysicalSimulationInput.ITarget,
       ...(input.rootShift ? { rootShift: clone(input.rootShift) } : {}),
       ...(input.planted ? { planted: clone(input.planted) } : {}),
@@ -492,11 +513,29 @@ export namespace PhysicalBalanceReplay {
       ...(input.center ? { center: clone(input.center) } : {}),
       ...(input.landed !== undefined ? { landed: input.landed } : {}),
       ...(integral ? { integral } : {}),
+      // A two-support body runs IHMC's capture-point controller, as the world
+      // gives it one (`trackPhysicalWorld`); a recording without its state
+      // starts it new.
+      ...((
+        fixture.body.supportTracking?.pattern ?? fixture.body.balance?.pattern
+      )?.limbs.length === 2
+        ? {
+            icp: clone(input.icp) ?? {
+              ...physicalIcpController.create(),
+              key: "",
+            },
+            ...(input.desired ? { desired: clone(input.desired) } : {}),
+          }
+        : {}),
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
       gravity: clone(input.gravity),
       ...(actuation ? { actuation } : {}),
-      supports: clone(input.supports) as IAutoMovieCollectPhysicalSupports.ISupport[],
-      ...(input.recoveryBones ? { recoveryBones: clone(input.recoveryBones) } : {}),
+      supports: clone(
+        input.supports,
+      ) as IAutoMovieCollectPhysicalSupports.ISupport[],
+      ...(input.recoveryBones
+        ? { recoveryBones: clone(input.recoveryBones) }
+        : {}),
       ...(input.requested ? { requested: clone(input.requested) } : {}),
       step: input.step,
       seconds: input.seconds,
@@ -505,8 +544,12 @@ export namespace PhysicalBalanceReplay {
       goals: clone(input.goals),
     } as trackPhysicalRoot.IInput);
     const task = world.rootTasks.get(base);
-    const named = (list: Iterable<unknown> | undefined): string[] | undefined =>
-      list ? [...list].map((body: unknown): string => names.get(body) ?? "?") : undefined;
+    const named = (
+      list: Iterable<unknown> | undefined,
+    ): string[] | undefined =>
+      list
+        ? [...list].map((body: unknown): string => names.get(body) ?? "?")
+        : undefined;
     return {
       task: task
         ? {
@@ -516,10 +559,12 @@ export namespace PhysicalBalanceReplay {
             ...(task.spin ? { spin: clone(task.spin) } : {}),
             ...(task.bounds
               ? {
-                  bounds: task.bounds.map((b: { bodies: unknown[]; force: number }) => ({
-                    bodies: named(b.bodies),
-                    force: b.force,
-                  })),
+                  bounds: task.bounds.map(
+                    (b: { bodies: unknown[]; force: number }) => ({
+                      bodies: named(b.bodies),
+                      force: b.force,
+                    }),
+                  ),
                 }
               : {}),
             ...(task.released ? { released: named(task.released) } : {}),

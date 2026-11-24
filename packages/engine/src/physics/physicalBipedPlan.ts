@@ -12,6 +12,8 @@ import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalance
 import type { physicalBalancePlan } from "./physicalBalancePlan";
 import type { physicalBalanceSense } from "./physicalBalanceSense";
 import type { physicalBalanceStance } from "./physicalBalanceStance";
+import { physicalBipedDesired } from "./physicalBipedDesired";
+import { physicalIcpPlanner } from "./physicalIcpPlanner";
 import { physicalPlanarPolygon as Polygon } from "./physicalPlanarPolygon";
 import { physicalPushRecovery as Recovery } from "./physicalPushRecovery";
 import { physicalRecoverySwing } from "./physicalRecoverySwing";
@@ -24,17 +26,17 @@ import { physicalRecoverySwing } from "./physicalRecoverySwing";
  *
  * - Double support (`BalanceManager.compute` l.447-451,
  *   `DoubSuppToSingSuppCond4DistRecov`): the capture point xi = c + v / omega,
- *   the plain one IHMC feeds back, against the plan; the plan is the held point
- *   after a landing (`physicalBipedTouchdown`), else the area centroid of the
- *   planted feet's hull (`ReferenceCentroidalMomentumPivotLocations
- *   Calculator.computeFinalCMPBetweenSupportFeet` l.766-797, chicken support
- *   0.5, l.187). A fall swings the farther foot at once, with no transfer: the
- *   footstep starts at its present pose and is checked against the capture
- *   region over the default swing time (`WalkingSingleSupportState` l.204-216,
- *   `PushRecoveryControlModule.packFootstepForRecoveringFromDisturbance`
- *   l.283-292).
- * - Single support (`WalkingSingleSupportState.doAction` l.136-160): the error
- *   test, then the footstep checked again with the swing time left.
+ *   the plain one IHMC feeds back, against the planned one: the recovery
+ *   plan's on the soles as they are now, else the authored motion's
+ *   (`physicalBipedDesired`). A fall swings the farther foot at once, with no
+ *   transfer: the footstep starts at its present pose and is checked against
+ *   the capture region over the default swing time, and the single-support
+ *   plan is made from the support foot to the footstep
+ *   (`WalkingSingleSupportState` l.204-216, `PushRecoveryControlModule
+ *   .packFootstepForRecoveringFromDisturbance` l.283-292).
+ * - Single support (`WalkingSingleSupportState.doAction` l.136-163): the error
+ *   test, then the footstep checked again with the swing time left, the plan
+ *   made again from now when it moves.
  *
  * The capture region is the support sole's: its origin the support limb's
  * endpoint, its forward the foot's heading as latched, the support side the one
@@ -73,9 +75,36 @@ export function physicalBipedPlan(input: {
         ),
     ),
   );
-  const desired: Polygon.IPoint = state.desired
-    ? Polygon.local(WORLD, state.desired)
-    : Polygon.centroid(hull);
+
+  // The plan's capture point: the recovery plan's while one runs, after its
+  // transitions, else the authored motion's (`physicalBipedDesired`). The
+  // standing state's entry resets the push recovery (201903 `StandingState`
+  // l.90).
+  const authored: physicalBipedDesired.IDesired = physicalBipedDesired.authored(
+    sense,
+    state,
+    stance.omega,
+  );
+  const advanced: {
+    plan?: physicalBipedDesired.IPlan;
+    desired: physicalBipedDesired.IDesired;
+  } = physicalBipedDesired.advance({
+    ...(state.plan
+      ? {
+          plan: state.plan,
+          soles: physicalBipedDesired.soles(sense, state, state.plan),
+        }
+      : {}),
+    seconds: sense.seconds,
+    capture: { x: capture.x, z: capture.z },
+    authored,
+  });
+  if (advanced.plan?.phase === "standing" && state.plan?.phase === "toStanding")
+    push = Recovery.reset(push);
+  if (advanced.plan) state.plan = advanced.plan;
+  else delete state.plan;
+  let planned: physicalBipedDesired.IDesired = advanced.desired;
+  const desired: Polygon.IPoint = Polygon.local(WORLD, planned.position);
 
   let falling: boolean = false;
   if (!state.swing) {
@@ -160,6 +189,35 @@ export function physicalBipedPlan(input: {
         tipping: false,
       });
 
+      // The recovery plan begins with the swing: single support from the
+      // support foot to the footstep (`initializeICPPlanForSingleSupport`),
+      // the swing foot on the support's other side, as a biped's are.
+      const supportBone: string | undefined = stance.planted.find(
+        (patch: IAutoMoviePhysicalSupportPatch): boolean => patch.bone !== bone,
+      )?.bone;
+      if (supportBone !== undefined) {
+        const supportSide: "left" | "right" = physicalBipedDesired.side(
+          sense,
+          supportBone,
+        );
+        state.plan = {
+          phase: "single",
+          since: sense.seconds,
+          feet: [
+            physicalBipedDesired.foot(sense, state, supportBone, supportSide),
+            physicalBipedDesired.foot(
+              sense,
+              state,
+              bone,
+              supportSide === "left" ? "right" : "left",
+              { x: placed.target.x, y: stance.plane, z: placed.target.z },
+            ),
+          ],
+          omega: stance.omega,
+        };
+        planned = start(sense, state, state.plan);
+      }
+
       // The swing begins at once: the foot leaves the support; its switch
       // resets as the touchdown phase next reads it (`physicalBipedTouchdown`).
       const seating: NonNullable<IAutoMoviePhysicalRecoveryState["seating"]> = {
@@ -218,9 +276,30 @@ export function physicalBipedPlan(input: {
               : recorded,
         );
       state.revision = (state.revision ?? 0) + 1;
+
+      // The plan is made again from now with the moved footstep (201903
+      // `WalkingSingleSupportState` l.150-163).
+      if (state.plan?.phase === "single") {
+        state.plan = {
+          ...state.plan,
+          since: sense.seconds,
+          feet: [
+            state.plan.feet[0]!,
+            physicalBipedDesired.foot(
+              sense,
+              state,
+              swing.bone,
+              state.plan.feet[1]!.side,
+              { x: moved.target.x, y: stance.plane, z: moved.target.z },
+            ),
+          ],
+        };
+        planned = start(sense, state, state.plan);
+      }
     }
   }
   state.push = push;
+  state.desired = planned;
 
   // The assessment the settle phase's policies read: the support hull and the
   // capture point against it.
@@ -313,6 +392,20 @@ const WORLD: Polygon.IFrame = {
   origin: { x: 0, z: 0 },
   forward: { x: 0, z: 1 },
 };
+
+/** A plan's capture point and rate as it starts, on the soles as they are. */
+function start(
+  sense: physicalBalanceSense.ISense,
+  state: Readonly<IAutoMoviePhysicalRecoveryState>,
+  plan: Readonly<physicalBipedDesired.IPlan>,
+): physicalBipedDesired.IDesired {
+  const output: physicalIcpPlanner.IOutput = physicalIcpPlanner(
+    physicalBipedDesired.build(plan),
+    0,
+    physicalBipedDesired.soles(sense, state, plan),
+  );
+  return { position: output.position, velocity: output.velocity };
+}
 
 /**
  * The footstep checked against the support foot's one-step capture region

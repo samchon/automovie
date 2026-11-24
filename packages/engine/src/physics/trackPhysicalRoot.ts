@@ -17,23 +17,24 @@ import type { AutoMovieXpbdWorld } from "./AutoMovieXpbdWorld";
 import type { IAutoMoviePhysicalBalanceTrace } from "./IAutoMoviePhysicalBalanceTrace";
 import type { IAutoMoviePhysicalBinding as Bound } from "./IAutoMoviePhysicalBinding";
 import { distributePhysicalSupportWrench } from "./distributePhysicalSupportWrench";
+import { physicalIcpController } from "./physicalIcpController";
 import { physicalRootDemand } from "./physicalRootDemand";
 import { physicalRootServo } from "./physicalRootServo";
 import { physicalRootTransitions } from "./physicalRootTransitions";
 import type { physicalStanceBalance } from "./physicalStanceBalance";
 
 /**
- * Realize one bounded root demand through an external wrench, or under
- * internal actuation as the root task of the motors' whole-body solve.
+ * Realize one bounded root demand through an external wrench, or under internal
+ * actuation as the root task of the motors' whole-body solve.
  *
  * The demand is computed by pure functions: the trunk's servo
  * (`physicalRootServo`), the stance's or the mass centre's momentum task and
  * the centre-of-pressure integral after it (`physicalRootDemand`), and the
  * task's support transitions and force bounds (`physicalRootTransitions`,
  * `physicalRootBounds`). This function applies them: it sets the task on the
- * world, writes the integral back into the caller's state, records the
- * task's feasible split as a diagnostic at the cache's instants, or applies
- * the external wrench to the root.
+ * world, writes the integral back into the caller's state, records the task's
+ * feasible split as a diagnostic at the cache's instants, or applies the
+ * external wrench to the root.
  *
  * @param input The pre-integration state the endpoint and joint controllers
  *   use.
@@ -76,6 +77,19 @@ export function trackPhysicalRoot(
     const segments: ReadonlyMap<string, AutoMovieXpbdBody> = bound.segments.get(
       body.id,
     )!;
+
+    // The biped's capture-point controller is initialized whenever its
+    // walking state changes, as IHMC initializes it on every new ICP plan
+    // (`LinearMomentumRateControlModule.updateICPControllerState` l.530-538,
+    // `ICPController.initialize` l.232-236): here, when the swinging limbs or
+    // the transfer to standing change (`physicalBipedDesired`).
+    const key: string =
+      swinging.join("+") + (input.phase === "toStanding" ? "|toStanding" : "");
+    const icp: physicalIcpController.IState | undefined = input.icp
+      ? input.icp.key === key
+        ? input.icp
+        : physicalIcpController.initialize(input.icp)
+      : undefined;
     const demand: physicalRootDemand.IResult = physicalRootDemand({
       settings: input.settings,
       body,
@@ -91,6 +105,14 @@ export function trackPhysicalRoot(
       ...(input.center ? { center: input.center } : {}),
       ...(input.landed !== undefined ? { landed: input.landed } : {}),
       ...(input.integral ? { integral: input.integral } : {}),
+      ...(icp
+        ? {
+            icp: {
+              state: icp,
+              ...(input.desired ? { desired: input.desired } : {}),
+            },
+          }
+        : {}),
       ...(input.pushed !== undefined ? { pushed: input.pushed } : {}),
       supports: input.supports,
       swinging,
@@ -109,9 +131,11 @@ export function trackPhysicalRoot(
       ...(input.trace ? { trace: input.trace } : {}),
     });
 
-    // The integral is the caller's state, advanced in place.
+    // The integral and the controller are the caller's state, advanced in
+    // place.
     if (input.integral && demand.integral)
       Object.assign(input.integral, demand.integral);
+    if (input.icp && demand.icp) Object.assign(input.icp, demand.icp, { key });
     submit(input, limbs, demand.wrench);
     return demand.release ? { release: demand.release } : {};
   }
@@ -135,11 +159,10 @@ export function trackPhysicalRoot(
 }
 
 /**
- * The torque the swinging hip exerts on its thigh, world N m: the swing
- * drive's demand already accumulated at that hip (`advancePhysicalBalance`).
- * Its reaction turns the torso, so the stance supports add it to the torso's
- * moment (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb
- * swings.
+ * The torque the swinging hip exerts on its thigh, world N m: the swing drive's
+ * demand already accumulated at that hip (`advancePhysicalBalance`). Its
+ * reaction turns the torso, so the stance supports add it to the torso's moment
+ * (Yin, Loken and van de Panne 2007, Section 3.2). None while no limb swings.
  */
 function swingHip(
   body: IAutoMoviePhysicalSimulationInput.IBody,
@@ -249,19 +272,19 @@ function submit(
 /** The root tracker's stance moment and input. */
 export namespace trackPhysicalRoot {
   /**
-   * The moment the stance's supports are asked to bear about the body, world
-   * N m: the trunk's orientation servo in every support, single as double,
-   * and each swinging hip's torque on its thigh, whose reaction the stance
-   * holds. The stance hips hold the trunk in the world frame and take the
-   * swing's reaction, tau_stance = -tau_torso - tau_swing (Yin, Loken and van
-   * de Panne 2007, Section 3.2; Pratt et al., M2V2, Sections VII-D2 and
-   * VII-E4); the centre of pressure's room bounds what is borne
+   * The moment the stance's supports are asked to bear about the body, world N
+   * m: the trunk's orientation servo in every support, single as double, and
+   * each swinging hip's torque on its thigh, whose reaction the stance holds.
+   * The stance hips hold the trunk in the world frame and take the swing's
+   * reaction, tau_stance = -tau_torso - tau_swing (Yin, Loken and van de Panne
+   * 2007, Section 3.2; Pratt et al., M2V2, Sections VII-D2 and VII-E4); the
+   * centre of pressure's room bounds what is borne
    * (`physicalStanceBalance.allocate`). A swing hip's own demand is carried
-   * whole and never trimmed to make room for the trunk: the swing keeps its
-   * own task.
+   * whole and never trimmed to make room for the trunk: the swing keeps its own
+   * task.
    *
-   * @param input The trunk's servo moment and each swinging hip's torque on
-   *   its thigh, world N m.
+   * @param input The trunk's servo moment and each swinging hip's torque on its
+   *   thigh, world N m.
    * @returns Their sum, world N m.
    */
   export function moment(input: {
@@ -298,7 +321,10 @@ export namespace trackPhysicalRoot {
     /** The stance carriers' planted poses: authored, moved by a landed step. */ planted?: Readonly<
       Record<string, IAutoMovieRigidTransform>
     >;
-    /** Each stance foot's seating and its ramped bearing and flatness shares (`advancePhysicalBalance`). */ seating?: Readonly<
+    /**
+     * Each stance foot's seating and its ramped bearing and flatness shares
+     * (`advancePhysicalBalance`).
+     */ seating?: Readonly<
       Record<
         string,
         {
@@ -313,25 +339,62 @@ export namespace trackPhysicalRoot {
         }
       >
     >;
-    /** The authored pose's centre of mass, world metres, moved with any landed step; internal actuation balances it. */ center?: IAutoMovieVector3;
-    /** Whether a recovery step has landed, so the stance stands on a new polygon. */ landed?: boolean;
-    /** The centre-of-pressure integral's persisted state, advanced in place (`physicalRootDemand.integrate`). */ integral?: physicalStanceBalance.IIntegral;
+    /**
+     * The authored pose's centre of mass, world metres, moved with any landed
+     * step; internal actuation balances it.
+     */ center?: IAutoMovieVector3;
+    /**
+     * Whether a recovery step has landed, so the stance stands on a new
+     * polygon.
+     */ landed?: boolean;
+    /**
+     * The centre-of-pressure integral's persisted state, advanced in place
+     * (`physicalRootDemand.integrate`).
+     */ integral?: physicalStanceBalance.IIntegral;
+    /**
+     * A biped's capture-point feedback controller's persisted state and the
+     * walking state it last ran in, advanced in place
+     * (`physicalBipedPressure`).
+     */ icp?: physicalIcpController.IState & {
+      key: string;
+    };
+    /**
+     * A biped's planned capture point and rate this substep, world x and z
+     * (`physicalBipedPlan`); absent for the authored centre of mass's at rest.
+     */ desired?: {
+      position: { x: number; z: number };
+      velocity: { x: number; z: number };
+    };
+    /** A biped's recovery plan's phase, if one runs (`physicalBipedDesired`). */ phase?:
+      | "single"
+      | "toStanding"
+      | "standing";
     /** Whether an external push lands on the body this control frame. */ pushed?: boolean;
     /** Declared gravity-compensation moment about the root. */ gravity: IAutoMovieVector3;
     /** Internal Cartesian moments accumulate into bounded joint motors. */ actuation?: Map<
       string,
       IAutoMovieVector3
     >;
-    /** Actual solved floor witnesses with their measured impulses and centres of pressure. */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
-    /** Endpoints currently owned by recovery: the lifted swing limbs, a diagonal pair's both. */ recoveryBones?: readonly string[];
-    /** Limbs asked to step that have not lifted yet: each one's share of the stance ramps out. */ requested?: readonly string[];
+    /**
+     * Actual solved floor witnesses with their measured impulses and centres of
+     * pressure.
+     */ supports: IAutoMovieCollectPhysicalSupports.ISupport[];
+    /**
+     * Endpoints currently owned by recovery: the lifted swing limbs, a diagonal
+     * pair's both.
+     */ recoveryBones?: readonly string[];
+    /**
+     * Limbs asked to step that have not lifted yet: each one's share of the
+     * stance ramps out.
+     */ requested?: readonly string[];
     /** Enclosing cache interval. */ step: number;
     /** Exact declared native tick time. */ seconds: number;
     /** Native integration duration. */ dt: number;
     /** The world whose motors' solve takes the root's task. */ world: AutoMovieXpbdWorld;
-    /** Every segment's sampled goal, with the balance's root offset; the momentum task's reference pose. */ goals: Readonly<
-      Record<string, IAutoMovieSamplePhysicalTarget.IResult>
-    >;
+    /**
+     * Every segment's sampled goal, with the balance's root offset; the
+     * momentum task's reference pose.
+     */ goals: Readonly<Record<string, IAutoMovieSamplePhysicalTarget.IResult>>;
     /** Where the stance's demand is recorded, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
   }
 }

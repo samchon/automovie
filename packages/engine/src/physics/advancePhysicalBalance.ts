@@ -84,6 +84,10 @@ export function advancePhysicalBalance(input: {
    * motor demands.
    */ actuation?: Map<string, IAutoMovieVector3>;
   /** Reuse actual constraints and their independently measured load authority. */ supports?: readonly IAutoMovieCollectPhysicalSupports.ISupport[];
+  /**
+   * The authored pose's centre of mass, its velocity and acceleration, world; a
+   * biped's recovery plan stands in for it.
+   */ command?: physicalBalanceSense.IInput["command"];
   /** Where the phases record their events and readings, if anywhere. */ trace?: IAutoMoviePhysicalBalanceTrace[];
 }): IAutoMovieAdvancePhysicalBalance.IResult {
   const supports: readonly IAutoMovieCollectPhysicalSupports.ISupport[] =
@@ -101,6 +105,7 @@ export function advancePhysicalBalance(input: {
     gravity: input.gravity,
     floor: input.floor,
     supports,
+    ...(input.command ? { command: input.command } : {}),
   });
   const trace: { trace?: IAutoMoviePhysicalBalanceTrace[] } = input.trace
     ? { trace: input.trace }
