@@ -226,19 +226,6 @@ export function test_resolve_world_drivers(): void {
   TestValidator.equals("ik is the deferred one", deferred[0]!.type, "ik");
 
   TestValidator.predicate(
-    "aim rejects NaN influence",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
-          [aim({ influence: Number.NaN })],
-          new Map(),
-          new Map(),
-          new Map(),
-        ),
-      ["world driver aim influence", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
     "aim rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
@@ -262,19 +249,6 @@ export function test_resolve_world_drivers(): void {
           new Map(),
         ),
       ["world driver aim influence", "between 0 and 1", "1.1"],
-    ),
-  );
-  TestValidator.predicate(
-    "aim rejects non-finite aim axis",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveWorldDrivers(
-          [aim({ aimAxis: { x: Number.NaN, y: 0, z: -1 } })],
-          new Map(),
-          new Map(),
-          new Map(),
-        ),
-      ["world driver aim aimAxis.x", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(

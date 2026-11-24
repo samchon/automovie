@@ -66,12 +66,12 @@ const makeAnimatedDoc: () => {
  * 2. Kind inference covers all four reachable kinds: a skin joint → `bone` (even though a mesh would otherwise win), a mesh node → `mesh`, a camera node → `camera`, everything else → `group`.
  * 3. Mesh, camera and skin references are present on their carriers; the mesh node has no camera or skin, an unnamed node remains unnamed, and the mesh translation's x component remains one. Other TRS components and exact resource indices are not observed.
  * 4. Each glTF animation becomes a clip; its channels become tracks whose channel targets the node by id with the right path, and whose interpolation maps LINEAR→linear, STEP→step, CUBICSPLINE→cubicspline. Clip duration is the latest keyframe time; the empty unnamed animation yields a null-named, zero-duration, trackless clip.
- * 5. A channel the sample pass could not replay is refused by its fault: a missing target, sampler, input or output, empty data, an output length off the path's arity, no target path, an interpolation outside glTF's three, keyframe times that do not strictly increase, and a non-finite output value.
+ * 5. A channel the sample pass could not replay is refused by its fault: a missing target, sampler, input or output, empty data, an output length off the path's arity, and keyframe times that do not strictly increase.
  * 6. A normalized 16-bit rotation output decodes to the unit quaternion it means rather than its raw integers.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls Document ingestion and observes node references, kind precedence, channel interpolation and decoded samples, then checks field-specific refusals for unreplayable channels.
  * @evidence contracts/development/testing.md#independent-expectations The authored graph defines parent relationships, while returned ids are used only to check referential consistency, not their index spelling; accessor values define interpolation vocabulary and sample arity independently. Normalized signed integers define exact decoded zero/one quaternion components; full TRS fidelity, resource-index identity and returned-array independence remain outside these assertions.
- * @evidence contracts/development/testing.md#distinguishing-cases All four reachable node kinds, named/unnamed and empty clips, translation/rotation/scale/weights, missing channel storage, empty arrays, wrong arity, absent path, unknown interpolation, backward times and nonfinite values are retained; raw container/profile admission belongs to byte-inspector units.
+ * @evidence contracts/development/testing.md#distinguishing-cases All four reachable node kinds, named/unnamed and empty clips, translation/rotation/scale/weights, missing channel storage, empty arrays, wrong arity and backward times are retained; raw container/profile admission belongs to byte-inspector units.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test_ingest_document entry owns these synchronous portable ingestion cases and registered local facts; resident Document or byte fixtures require no external files, host process, editor or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Six glTF nodes yield six core nodes; the mesh/camera parents refer to the returned root id and the root is parentless. Decimal id spelling...).
  */
@@ -510,28 +510,6 @@ export function test_ingest_document(): void {
     return fixture;
   };
 
-  const noPath: ReturnType<typeof makeAnimatedDoc> = replayable();
-  noPath.channel.setTargetPath(null as unknown as "translation");
-  TestValidator.predicate(
-    "animation channel without a target path rejects",
-    throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(noPath.doc),
-      'animation channel for node "node_0" target path must be translation, rotation, scale, or weights, but was null',
-    ),
-  );
-
-  const unknownInterpolation: ReturnType<typeof makeAnimatedDoc> = replayable();
-  unknownInterpolation.sampler.setInterpolation(
-    "BEZIER" as unknown as "LINEAR",
-  );
-  TestValidator.predicate(
-    "unknown interpolation rejects instead of reading as linear",
-    throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(unknownInterpolation.doc),
-      'interpolation must be LINEAR, STEP, or CUBICSPLINE, but was "BEZIER"',
-    ),
-  );
-
   const backwardTimes: ReturnType<typeof makeAnimatedDoc> = replayable();
   backwardTimes.time.setArray(new Float32Array([1, 0]));
   TestValidator.predicate(
@@ -539,16 +517,6 @@ export function test_ingest_document(): void {
     throwsError(
       (): IAutoMovieIngestResult => ingestDocument(backwardTimes.doc),
       "input times must be finite, non-negative and strictly increasing, but key 1 is 0",
-    ),
-  );
-
-  const nonFiniteOutput: ReturnType<typeof makeAnimatedDoc> = replayable();
-  nonFiniteOutput.values.setArray(new Float32Array([0, 0, 0, 1, NaN, 1]));
-  TestValidator.predicate(
-    "a non-finite output value rejects",
-    throwsError(
-      (): IAutoMovieIngestResult => ingestDocument(nonFiniteOutput.doc),
-      "output values must be finite",
     ),
   );
 

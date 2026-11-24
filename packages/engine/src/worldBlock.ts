@@ -17,7 +17,6 @@ export const worldBlock: (
 ) => IAutoMovieWorldBlock = (
   input: IAutoMovieWorldBlock.IInput,
 ): IAutoMovieWorldBlock => {
-  assertText(input.id, "World block id");
   for (const [name, value] of Object.entries(input.size))
     if (Number.isFinite(value) === false || value <= 0)
       throw new Error(
@@ -95,18 +94,6 @@ export const worldBlock: (
       },
     },
   };
-};
-
-/**
- * Require non-whitespace id text without rewriting its spelling or certifying
- * displayed visibility.
- */
-const assertText: (value: string, field: string) => void = (
-  value: string,
-  field: string,
-): void => {
-  if (value.trim().length === 0)
-    throw new Error(`${field} must contain non-whitespace text.`);
 };
 
 /** Refuse a nonfinite base component before grounded-box arithmetic. */

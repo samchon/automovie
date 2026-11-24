@@ -21,7 +21,6 @@ import {
 import { Quaternion } from "../math/Quaternion";
 import { Transform } from "../math/Transform";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { collectNonEmptyId } from "../validation/collectNonEmptyId";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { validateSceneEnvironment } from "../validation/validateSceneEnvironment";
 import { validateSpace } from "../validation/validateSpace";
@@ -50,9 +49,9 @@ const UNIT_QUATERNION_TOLERANCE: number = 1e-6;
  * or return every violation for the correction round.
  *
  * Referential integrity is the core check: every placement names a cast member,
- * every cast member is placed, ids are non-blank and unique across actors, set
- * pieces, cameras and lights, a mount rides another placed actor, and a
- * camera's `lookAt` node is a placed actor, set piece or camera, the same table
+ * every cast member is placed, ids are unique across actors, set pieces,
+ * cameras and lights, a mount rides another placed actor, and a camera's
+ * `lookAt` node is a placed actor, set piece or camera, the same table
  * the performance stage resolves positional targets against. Scalars are
  * range-checked where a later stage could not use them: finite positions and
  * turns, a unit set rotation not combined with `facingDeg`, a positive finite
@@ -137,16 +136,8 @@ export function stageScene(
     ),
   ]);
 
-  collectNonEmptyId(staging.scene.id, "$input.scene.id", "scene id", out);
   script.cast.forEach(
     (member: IAutoMovieScript["cast"][number], i: number): void => {
-      if (member.modelRef !== null)
-        collectNonEmptyId(
-          member.modelRef,
-          `$script.cast[${i}].modelRef`,
-          "cast model reference",
-          out,
-        );
       if (!placed.has(member.node))
         out.push(
           "type",
@@ -158,8 +149,7 @@ export function stageScene(
   );
 
   const ids: Set<string> = new Set();
-  function claim(id: string, path: string, label: string): void {
-    collectNonEmptyId(id, path, label, out);
+  function claim(id: string, path: string): void {
     if (ids.has(id))
       out.push(
         "type",
@@ -172,7 +162,7 @@ export function stageScene(
 
   staging.actors.forEach((actor: IAutoMovieStageActor, i: number): void => {
     const path: string = `$input.actors[${i}]`;
-    claim(actor.node, `${path}.node`, "actor node id");
+    claim(actor.node, `${path}.node`);
     if (!cast.has(actor.node))
       out.push(
         "type",
@@ -213,8 +203,7 @@ export function stageScene(
 
   set.forEach((piece: IAutoMovieStageSetPiece, i: number): void => {
     const path: string = `$input.set[${i}]`;
-    claim(piece.node, `${path}.node`, "set node id");
-    collectNonEmptyId(piece.model, `${path}.model`, "set model id", out);
+    claim(piece.node, `${path}.node`);
     if (!isFiniteStageVector3(piece.position))
       out.push(
         "range",
@@ -321,7 +310,7 @@ export function stageScene(
     new Map();
   staging.cameras.forEach((camera: IAutoMovieStageCamera, i: number): void => {
     const path: string = `$input.cameras[${i}]`;
-    claim(camera.node, `${path}.node`, "camera node id");
+    claim(camera.node, `${path}.node`);
     const direction: IAutoMovieVector3 | undefined = validateStageCamera(
       camera,
       path,
@@ -333,7 +322,7 @@ export function stageScene(
 
   staging.lights.forEach((light: IAutoMovieStageLight, i: number): void => {
     const path: string = `$input.lights[${i}]`;
-    claim(light.node, `${path}.node`, "light node id");
+    claim(light.node, `${path}.node`);
     if (!Number.isFinite(light.intensity) || light.intensity < 0)
       out.push(
         "range",

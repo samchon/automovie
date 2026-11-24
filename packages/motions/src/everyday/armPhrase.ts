@@ -29,11 +29,12 @@ import { AutoMovieMotionHumanTiming } from "../compose/AutoMovieMotionHumanTimin
 import { AutoMovieMotionHumanTouchEffector } from "../compose/AutoMovieMotionHumanTouchEffector";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { composeAutoMovieMotionHumanAction } from "../compose/composeAutoMovieMotionHumanAction";
-import { handToFace } from "../daily/handToFace";
+import { handToFaceMirrored } from "../daily/handToFaceMirrored";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
 import { HumanHandDirection } from "../posture/HumanHandDirection";
 import { poseBones } from "../posture/poseBones";
+import type { IArmPhraseArm } from "./IArmPhraseArm";
 import { armPhraseFacing } from "./armPhraseFacing";
 
 /** The record of `IPlanArmsNamed`'s site. */
@@ -168,7 +169,7 @@ export namespace armPhrase {
     const aim = (side: AutoMovieHumanSide): IPlanAimResult =>
       context.aim(
         p.mirror === true && p.target.kind === "self"
-          ? { ...p.target, region: handToFace.mirrored(p.target.region, side) }
+          ? { ...p.target, region: handToFaceMirrored(p.target.region, side) }
           : p.target,
         context.start,
       );
@@ -177,178 +178,180 @@ export namespace armPhrase {
     // the performer's frame by shares of the arm's length (`out` mirrored by
     // the arm, so two hands at one median target meet there), its place and
     // its turn.
-    const arms: IArm[] = sides.map((side: AutoMovieHumanSide): IArm => {
-      const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
-        AutoMovieMotionHumanArmTarget.origin(
+    const arms: IArmPhraseArm[] = sides.map(
+      (side: AutoMovieHumanSide): IArmPhraseArm => {
+        const origin: IAutoMovieMotionHumanArmTarget.IOrigin =
+          AutoMovieMotionHumanArmTarget.origin(
+            body,
+            bones,
+            { origin: hold.root, yaw: hold.yaw },
+            side,
+            surface,
+          );
+        const direction: ReturnType<typeof HumanHandDirection.prepare> =
+          HumanHandDirection.prepare(side);
+        const shift: (
+          o: IAutoMovieMotionHumanArmPhrase.IOffset | undefined,
+        ) => IAutoMovieVector3 = (
+          o: IAutoMovieMotionHumanArmPhrase.IOffset | undefined,
+        ): IAutoMovieVector3 =>
+          o === undefined
+            ? { x: 0, y: 0, z: 0 }
+            : Vector3.scale(
+                Vector3.add(
+                  Vector3.add(
+                    Vector3.scale(direction(hold.yaw, "out"), o.out),
+                    Vector3.scale(direction(hold.yaw, "up"), o.up),
+                  ),
+                  Vector3.scale(direction(hold.yaw, "forward"), o.forward),
+                ),
+                reach,
+              );
+        const aimed: IPlanArmsAimed = aim(side);
+        const place: IAutoMovieVector3 = Vector3.add(
+          aimed.point,
+          shift(p.offset),
+        );
+        // A held prop's working point, from the grip socket in the hand's rest
+        // axes, with the direction it faces out of the prop.
+        const named: IPlanArmsNamed | null =
+          p.point === undefined || p.held === undefined
+            ? null
+            : AutoMovieMotionHumanHeld.point(
+                AutoMovieMotionHumanHeld(context, side, p.held),
+                p.point,
+              );
+        // The elbow hangs as the entry posture hangs it, the target being read
+        // where it is at the phrase's start: one hint for the whole phrase.
+        const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
           body,
-          bones,
-          { origin: hold.root, yaw: hold.yaw },
+          hold,
+          side,
+          HANG_OUT,
+        );
+        const emit: ReturnType<
+          typeof AutoMovieMotionHumanArmTarget.prepareTarget
+        > = AutoMovieMotionHumanArmTarget.prepareTarget(
+          body,
           side,
           surface,
+          shape,
         );
-      const direction: ReturnType<typeof HumanHandDirection.prepare> =
-        HumanHandDirection.prepare(side);
-      const shift: (
-        o: IAutoMovieMotionHumanArmPhrase.IOffset | undefined,
-      ) => IAutoMovieVector3 = (
-        o: IAutoMovieMotionHumanArmPhrase.IOffset | undefined,
-      ): IAutoMovieVector3 =>
-        o === undefined
-          ? { x: 0, y: 0, z: 0 }
-          : Vector3.scale(
-              Vector3.add(
+        // The working point's offset from the surface in the hand's rest axes:
+        // both offsets are from the wrist joint, the prop's read from the grip
+        // socket it rides.
+        const offset: IAutoMovieVector3 | null =
+          named === null
+            ? null
+            : Vector3.subtract(
                 Vector3.add(
-                  Vector3.scale(direction(hold.yaw, "out"), o.out),
-                  Vector3.scale(direction(hold.yaw, "up"), o.up),
+                  HumanHand.offset(body, side, "grip").point,
+                  named.point,
                 ),
-                Vector3.scale(direction(hold.yaw, "forward"), o.forward),
-              ),
-              reach,
-            );
-      const aimed: IPlanArmsAimed = aim(side);
-      const place: IAutoMovieVector3 = Vector3.add(
-        aimed.point,
-        shift(p.offset),
-      );
-      // A held prop's working point, from the grip socket in the hand's rest
-      // axes, with the direction it faces out of the prop.
-      const named: IPlanArmsNamed | null =
-        p.point === undefined || p.held === undefined
-          ? null
-          : AutoMovieMotionHumanHeld.point(
-              AutoMovieMotionHumanHeld(context, side, p.held),
-              p.point,
-            );
-      // The elbow hangs as the entry posture hangs it, the target being read
-      // where it is at the phrase's start: one hint for the whole phrase.
-      const bend: IAutoMovieVector3 = AutoMovieMotionHumanBend.hang(
-        body,
-        hold,
-        side,
-        HANG_OUT,
-      );
-      const emit: ReturnType<
-        typeof AutoMovieMotionHumanArmTarget.prepareTarget
-      > = AutoMovieMotionHumanArmTarget.prepareTarget(
-        body,
-        side,
-        surface,
-        shape,
-      );
-      // The working point's offset from the surface in the hand's rest axes:
-      // both offsets are from the wrist joint, the prop's read from the grip
-      // socket it rides.
-      const offset: IAutoMovieVector3 | null =
-        named === null
-          ? null
-          : Vector3.subtract(
-              Vector3.add(
-                HumanHand.offset(body, side, "grip").point,
-                named.point,
-              ),
-              HumanHand.offset(body, side, surface, shape).point,
-            );
-      // The hand's turn: as named; else, for a working point, the point
-      // facing into the target (against its normal) with the fingers as near
-      // upright as the arm meets at the place, turned about the normal, which
-      // the point's aim leaves free (`AutoMovieMotionHumanArmReach`): a fixed
-      // upright turn asked the forearm's twist beyond its range for a utensil
-      // at the mouth; else the hand's surface against the normal, the fingers
-      // up.
-      const rotation: IAutoMovieQuaternion =
-        p.facing !== undefined
-          ? HumanHand.facing(side, hold.yaw, p.facing)
-          : named !== null && offset !== null
-            ? ((): IAutoMovieQuaternion => {
-                const aligned: IAutoMovieQuaternion = HumanHand.align(
-                  {
-                    normal: named.direction,
-                    forward: AutoMovieMotionHumanTouchEffector.axis(
-                      side,
-                      "fingers",
-                    ),
-                  },
-                  {
-                    normal: Vector3.scale(aimed.normal, -1),
-                    forward: { x: 0, y: 1, z: 0 },
-                  },
-                );
-                return AutoMovieMotionHumanArmReach.attitude({
-                  body,
-                  posture: hold,
-                  side,
-                  bend,
-                  requested: aligned,
-                  axis: aimed.normal,
-                  // The wrist that puts the working point on the place: the
-                  // point's grip-socket offset turned with the hand.
-                  wrist: (r: IAutoMovieQuaternion): IAutoMovieVector3 =>
-                    Vector3.subtract(
-                      place,
-                      Quaternion.rotateVector(
-                        r,
-                        Vector3.add(
-                          HumanHand.offset(body, side, "grip").point,
-                          named.point,
+                HumanHand.offset(body, side, surface, shape).point,
+              );
+        // The hand's turn: as named; else, for a working point, the point
+        // facing into the target (against its normal) with the fingers as near
+        // upright as the arm meets at the place, turned about the normal, which
+        // the point's aim leaves free (`AutoMovieMotionHumanArmReach`): a fixed
+        // upright turn asked the forearm's twist beyond its range for a utensil
+        // at the mouth; else the hand's surface against the normal, the fingers
+        // up.
+        const rotation: IAutoMovieQuaternion =
+          p.facing !== undefined
+            ? HumanHand.facing(side, hold.yaw, p.facing)
+            : named !== null && offset !== null
+              ? ((): IAutoMovieQuaternion => {
+                  const aligned: IAutoMovieQuaternion = HumanHand.align(
+                    {
+                      normal: named.direction,
+                      forward: AutoMovieMotionHumanTouchEffector.axis(
+                        side,
+                        "fingers",
+                      ),
+                    },
+                    {
+                      normal: Vector3.scale(aimed.normal, -1),
+                      forward: { x: 0, y: 1, z: 0 },
+                    },
+                  );
+                  return AutoMovieMotionHumanArmReach.attitude({
+                    body,
+                    posture: hold,
+                    side,
+                    bend,
+                    requested: aligned,
+                    axis: aimed.normal,
+                    // The wrist that puts the working point on the place: the
+                    // point's grip-socket offset turned with the hand.
+                    wrist: (r: IAutoMovieQuaternion): IAutoMovieVector3 =>
+                      Vector3.subtract(
+                        place,
+                        Quaternion.rotateVector(
+                          r,
+                          Vector3.add(
+                            HumanHand.offset(body, side, "grip").point,
+                            named.point,
+                          ),
                         ),
                       ),
-                    ),
-                  name: "point",
-                }).rotation;
-              })()
-            : armPhraseFacing(side, aimed.normal, hold.yaw);
-      // The working point's lever from the surface, world metres at the
-      // hand's asked rotation.
-      const lever: IAutoMovieVector3 =
-        offset === null
-          ? { x: 0, y: 0, z: 0 }
-          : Quaternion.rotateVector(rotation, offset);
-      const target: (
-        point: IAutoMovieVector3,
-      ) => IAutoMovieMotionHumanArmTarget.ITarget = (
-        point: IAutoMovieVector3,
-      ): IAutoMovieMotionHumanArmTarget.ITarget =>
-        emit({
-          point: Vector3.subtract(point, lever),
-          rotation,
-          bend,
-        });
-      const start: IAutoMovieVector3 = AutoMovieMotionHumanArmTarget.point(
-        hold,
-        origin,
-      );
+                    name: "point",
+                  }).rotation;
+                })()
+              : armPhraseFacing(side, aimed.normal, hold.yaw);
+        // The working point's lever from the surface, world metres at the
+        // hand's asked rotation.
+        const lever: IAutoMovieVector3 =
+          offset === null
+            ? { x: 0, y: 0, z: 0 }
+            : Quaternion.rotateVector(rotation, offset);
+        const target: (
+          point: IAutoMovieVector3,
+        ) => IAutoMovieMotionHumanArmTarget.ITarget = (
+          point: IAutoMovieVector3,
+        ): IAutoMovieMotionHumanArmTarget.ITarget =>
+          emit({
+            point: Vector3.subtract(point, lever),
+            rotation,
+            bend,
+          });
+        const start: IAutoMovieVector3 = AutoMovieMotionHumanArmTarget.point(
+          hold,
+          origin,
+        );
 
-      // A stroke begins at its path's start, `from` away from the place it
-      // ends on, so its preparation travels there and its retraction from
-      // the place; a visit and an oscillation begin and end on the place.
-      const from: IAutoMovieVector3 =
-        p.phrase === "stroke" ? shift(p.from) : ZERO;
-      const swing: IAutoMovieVector3 = shift(
-        p.swing ?? { out: SWING, up: 0, forward: 0 },
-      );
-      return {
-        side,
-        origin,
-        place,
-        from,
-        swing,
-        target,
-        prepare: Vector3.distance(
-          Vector3.subtract(Vector3.add(place, from), lever),
-          start,
-        ),
-        retract: Vector3.distance(Vector3.subtract(place, lever), start),
-      };
-    });
+        // A stroke begins at its path's start, `from` away from the place it
+        // ends on, so its preparation travels there and its retraction from
+        // the place; a visit and an oscillation begin and end on the place.
+        const from: IAutoMovieVector3 =
+          p.phrase === "stroke" ? shift(p.from) : ZERO;
+        const swing: IAutoMovieVector3 = shift(
+          p.swing ?? { out: SWING, up: 0, forward: 0 },
+        );
+        return {
+          side,
+          origin,
+          place,
+          from,
+          swing,
+          target,
+          prepare: Vector3.distance(
+            Vector3.subtract(Vector3.add(place, from), lever),
+            start,
+          ),
+          retract: Vector3.distance(Vector3.subtract(place, lever), start),
+        };
+      },
+    );
 
     // The phases: travels of the farthest arm's distance to its first goal
     // and back from its last, a beat-long stroke or hold, scaled by the
     // manner's tempo, one clock for both arms so two hands meet together.
     const prepared: number = AutoMovieMotionHumanTiming.transport(
-      Math.max(...arms.map((a: IArm): number => a.prepare)),
+      Math.max(...arms.map((a: IArmPhraseArm): number => a.prepare)),
     );
     const retracted: number = AutoMovieMotionHumanTiming.transport(
-      Math.max(...arms.map((a: IArm): number => a.retract)),
+      Math.max(...arms.map((a: IArmPhraseArm): number => a.retract)),
     );
     const beat: number = AutoMovieMotionHumanTiming.seconds("beat");
     const cycles: number = p.count ?? 2;
@@ -368,7 +371,7 @@ export namespace armPhrase {
       retract: mods.tempo * retracted,
     });
     const primitives: IAutoMovieMotionHumanPrimitive[] = arms.map(
-      (a: IArm): IAutoMovieMotionHumanPrimitive => {
+      (a: IArmPhraseArm): IAutoMovieMotionHumanPrimitive => {
         const phrase: IAutoMovieMotionHumanArmPhrase.IPhrase = {
           body,
           clock,
@@ -451,48 +454,6 @@ export namespace armPhrase {
       ],
     };
   }
-}
-
-/**
- * One arm's geometry in a phrase: its origin, its place, its offset in the
- * performer's frame and its target at a point.
- */
-interface IArm {
-  /** The arm. */
-  side: AutoMovieHumanSide;
-
-  /** The hand's place before and after. */
-  origin: IAutoMovieMotionHumanArmTarget.IOrigin;
-
-  /**
-   * The working point's place (the surface's, or a held prop's point), world
-   * metres.
-   */
-  place: IAutoMovieVector3;
-
-  /**
-   * A stroke's start from its place, world metres; zero for a visit or an
-   * oscillation.
-   */
-  from: IAutoMovieVector3;
-
-  /** An oscillation's swing to one side of its place, world metres. */
-  swing: IAutoMovieVector3;
-
-  /** The target that brings the working point to a point. */
-  target: (point: IAutoMovieVector3) => IAutoMovieMotionHumanArmTarget.ITarget;
-
-  /**
-   * The distance from the surface's place before the phrase to its first goal,
-   * metres.
-   */
-  prepare: number;
-
-  /**
-   * The distance from the surface's last goal back to its place before the
-   * phrase, metres.
-   */
-  retract: number;
 }
 
 /**

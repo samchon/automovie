@@ -20,15 +20,13 @@ import { hasViolation, nclose, vclose } from "../internal/predicates";
  * Scenarios:
  *
  * 1. Body-only and parent-rig envelopes resolve with independent nested objects.
- * 2. Malformed envelopes, spheres and centres produce located type violations.
- * 3. Non-finite centre coordinates and non-positive or non-numeric radii produce
- * range violations; a missing parent-rig declaration is separately reported.
+ * 2. Non-positive body and parent-rig radii produce range violations.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Stages body-only and parent-rig clearance envelopes and observes value preservation with distinct nested objects, then checks located malformed sphere and parent-rig failures.
- * @evidence contracts/development/testing.md#independent-expectations Authored envelope objects supply expected values, while reference inequality independently checks ownership rather than visual clearance; literal malformed/finite/radius requirements supply refusal kinds and paths.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves both positive shapes and all original null, missing, non-object, non-finite, nonnumeric, zero and negative radius/centre/parent-rig inputs.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages body-only and parent-rig clearance envelopes and observes value preservation with distinct nested objects, then checks located non-positive radius failures.
+ * @evidence contracts/development/testing.md#independent-expectations Authored envelope objects supply expected values, while reference inequality independently checks ownership rather than visual clearance; literal radius requirements supply refusal kinds and paths.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves both positive shapes and zero and negative body/parent-rig radii.
  * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_scene_camera_clearance_envelope and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Body-only and parent-rig envelopes resolve with independent nested objects.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Body-only and parent-rig envelopes resolve with independent nested objects.).
  */
 export function test_film_stage_scene_camera_clearance_envelope(): void {
   const standard: IAutoMovieStage = makeStagingWrite();
@@ -94,43 +92,11 @@ export function test_film_stage_scene_camera_clearance_envelope(): void {
   }
 
   const invalid: Array<[unknown, "type" | "range", string]> = [
-    [null, "type", ""],
-    [{ body: null, parentRig: null }, "type", ".body"],
-    [
-      { body: { ...sphere, center: null }, parentRig: null },
-      "type",
-      ".body.center",
-    ],
-    [
-      {
-        body: { ...sphere, center: { x: 0, y: Infinity, z: 0 } },
-        parentRig: null,
-      },
-      "range",
-      ".body.center",
-    ],
-    [
-      { body: { ...sphere, center: { x: "0", y: 0, z: 0 } }, parentRig: null },
-      "range",
-      ".body.center",
-    ],
-    [
-      { body: { ...sphere, radius: "large" }, parentRig: null },
-      "range",
-      ".body.radius",
-    ],
-    [
-      { body: { ...sphere, radius: Infinity }, parentRig: null },
-      "range",
-      ".body.radius",
-    ],
     [
       { body: { ...sphere, radius: 0 }, parentRig: null },
       "range",
       ".body.radius",
     ],
-    [{ body: sphere }, "type", ".parentRig"],
-    [{ body: sphere, parentRig: false }, "type", ".parentRig"],
     [
       { body: sphere, parentRig: { ...sphere, radius: -1 } },
       "range",

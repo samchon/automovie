@@ -16,11 +16,11 @@ const PLANE_NORMAL_EPSILON: number = 1e-12;
 /**
  * Validate the logical spaces of a building and their hierarchy.
  *
- * Each space needs a unique non-blank id, a non-blank kind and a parent that
+ * Each space needs a unique id, a non-blank kind and a parent that
  * resolves. It states its volume at most once, as convex cells or as a closed
  * shell judged by {@link validateBuiltSpaceShell}, and a `fidelity` is either
  * `exact` or `faceted` and only allowed on a space that states a volume. Each
- * cell needs a unique non-blank id within its space and at least 4 planes, each
+ * cell needs a unique id within its space and at least 4 planes, each
  * with a finite non-zero normal and a finite offset. The parent hierarchy must
  * be acyclic. Findings are pushed under `<root>.spaces`.
  *
@@ -84,7 +84,6 @@ export const validateBuiltSpaces: (
       space.cells.forEach(
         (cell: IAutoMovieConvexSpaceCell, cellIndex: number): void => {
           const cellPath: string = `${path}.cells[${cellIndex}]`;
-          collector.nonEmpty(`${cellPath}.id`, cell.id, "space-cell id");
           if (cellIds.has(cell.id))
             collector.push(
               "type",

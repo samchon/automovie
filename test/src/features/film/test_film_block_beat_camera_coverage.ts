@@ -74,7 +74,7 @@ const block: (list: ICoverage[]) => ReturnType<typeof blockBeat> = (
  * The multi-camera half of #1187 at the BLOCKING consumer: a beat may plan
  * additional staged cameras as `coverage` intents beside the singular hero
  * `camera`. Each coverage camera must exist in the staging exactly once, favour
- * something placed, and state a supported framing and move at blocking time.
+ * and favour something placed.
  *
  * Scenarios:
  *
@@ -83,18 +83,16 @@ const block: (list: ICoverage[]) => ReturnType<typeof blockBeat> = (
  * 2. Two coverage entries on distinct cameras (cam-alt + cam-wide) → success, the
  *    multi-camera case; the empty list `coverage: []` → success too, the
  *    omitted-equivalent boundary.
- * 3. An unstaged coverage camera and an empty camera id → `type` at
- *    `$input.coverage[0].camera`; a repeated coverage camera → `type` at
- *    `$input.coverage[1].camera`.
- * 4. A coverage favouring the unstaged `ghost` → `type` at `.on.node`; a forged
- *    framing or move name → `type` at `.framing` / `.move`.
+ * 3. An unstaged coverage camera → `type` at `$input.coverage[0].camera`; a
+ *    repeated coverage camera → `type` at `$input.coverage[1].camera`.
+ * 4. A coverage favouring the unstaged `ghost` → `type` at `.on.node`.
  * 5. Negative twins: a point-target coverage fires no `.on.node` violation (a
  *    point needs no placement), and two DISTINCT cameras fire no duplicate
  *    violation (the over-match counter-example for scenario 3).
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat against a stageScene-produced three-camera fixture and checks admitted coverage, copied node-target intent, located membership and vocabulary refusals, and violation-free point and distinct-camera twins. These observations catch lost coverage and gates that reject every list or admit forged camera references.
- * @evidence contracts/development/testing.md#independent-expectations Literal staged camera and actor ids determine membership, while medium/static and wide/orbit are supported interface values; forged strings are outside those unions. Coverage equality contains only string discriminators and node ids, and the expected zero violation counts come from valid authored plans rather than engine constants.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves the five numbered groups: singleton, multiple and empty lists; absent, empty and repeated camera ids; absent node targets and forged vocabulary; and point-target and distinct-id negative twins. Hero camera paths are covered by test_film_block_beat_camera_target.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat against a stageScene-produced three-camera fixture and checks admitted coverage, copied node-target intent, located membership refusals, and violation-free point and distinct-camera twins. These observations catch lost coverage and gates that reject every list or admit forged camera references.
+ * @evidence contracts/development/testing.md#independent-expectations Literal staged camera and actor ids determine membership, while medium/static and wide/orbit are supported interface values. Coverage equality contains only string discriminators and node ids, and the expected zero violation counts come from valid authored plans rather than engine constants.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves the five numbered groups: singleton, multiple and empty lists; absent and repeated camera ids; absent node targets; and point-target and distinct-id negative twins. Hero camera paths are covered by test_film_block_beat_camera_target.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous test_film_block_beat_camera_coverage entry owns all coverage cases; a module-local stageScene call prepares only portable numeric fixture data before entry discovery. No consumer installation, native artifact, process, browser or GPU is used.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: One coverage entry (cam-alt, medium static on knightB) → success, the plan).
  */
@@ -126,38 +124,19 @@ export function test_film_block_beat_camera_coverage(): void {
     "an unstaged coverage camera is a type violation",
     hasViolation(ghost, "type", "$input.coverage[0].camera"),
   );
-  const blank: ReturnType<typeof block> = block([coverage({ camera: "" })]);
-  TestValidator.predicate(
-    "an empty coverage camera id is a type violation",
-    hasViolation(blank, "type", "$input.coverage[0].camera"),
-  );
   const repeated: ReturnType<typeof block> = block([coverage(), coverage()]);
   TestValidator.predicate(
     "a repeated coverage camera is a type violation at the later entry",
     hasViolation(repeated, "type", "$input.coverage[1].camera"),
   );
 
-  // 4. target and closed-union gates.
+  // 4. target gate.
   const stranger: ReturnType<typeof block> = block([
     coverage({ on: { kind: "node", node: "ghost" } }),
   ]);
   TestValidator.predicate(
     "a coverage favouring a stranger is a type violation",
     hasViolation(stranger, "type", "$input.coverage[0].on.node"),
-  );
-  const badFraming: ReturnType<typeof block> = block([
-    coverage({ framing: "dutch" as never }),
-  ]);
-  TestValidator.predicate(
-    "a forged framing is a type violation",
-    hasViolation(badFraming, "type", "$input.coverage[0].framing"),
-  );
-  const badMove: ReturnType<typeof block> = block([
-    coverage({ move: "dolly" as never }),
-  ]);
-  TestValidator.predicate(
-    "a forged move is a type violation",
-    hasViolation(badMove, "type", "$input.coverage[0].move"),
   );
 
   // 5. negative twins: nothing fires one property away from each gate.

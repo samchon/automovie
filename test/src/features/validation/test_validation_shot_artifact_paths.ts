@@ -1,15 +1,19 @@
 import { validateShotArtifact } from "@automovie/engine";
-import {
+import type {
   IAutoMovieCamera,
+  IAutoMovieCameraIntent,
+  IAutoMovieClip,
   IAutoMovieConstraintViolation,
+  IAutoMovieInteractionEvent,
   IAutoMovieScene,
   IAutoMovieShot,
+  IAutoMovieShotCoverage,
+  IAutoMovieTrack,
   IAutoMovieValidation,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../internal/predicates";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
 
 const transform: () => {
   translation: { x: number; y: number; z: number };
@@ -47,23 +51,27 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene =>
     ],
   }) as unknown as IAutoMovieScene;
 
-/** Supplies the existing partial shot; each case requires its own located fault and permits unrelated missing-field findings. */
-const shot: (overrides?: Record<string, unknown>) => IAutoMovieShot = (
-  overrides: Record<string, unknown> = {},
-): IAutoMovieShot =>
-  ({
-    id: "opening",
-    scene: "sc",
-    camera: "cam",
-    duration: 2,
-    performances: [],
-    ...overrides,
-  }) as unknown as IAutoMovieShot;
+/** A shot the validator accepts, so each case reports only what it broke. */
+const shot: (overrides?: Partial<IAutoMovieShot>) => IAutoMovieShot = (
+  overrides: Partial<IAutoMovieShot> = {},
+): IAutoMovieShot => ({
+  id: "opening",
+  name: null,
+  scene: "sc",
+  camera: "cam",
+  cameraMotion: null,
+  performances: [],
+  objectMotions: [],
+  duration: 2,
+  ...overrides,
+});
 
-/** An event the validator accepts, so a case reports only what it broke. */
-const event: (overrides?: Record<string, unknown>) => unknown = (
-  overrides: Record<string, unknown> = {},
-): unknown => ({
+/** An event the validator accepts. */
+const event: (
+  overrides?: Partial<IAutoMovieInteractionEvent>,
+) => IAutoMovieInteractionEvent = (
+  overrides: Partial<IAutoMovieInteractionEvent> = {},
+): IAutoMovieInteractionEvent => ({
   id: "contact-1",
   kind: "contact",
   source: "collisionSolver",
@@ -78,9 +86,11 @@ const event: (overrides?: Record<string, unknown>) => unknown = (
 });
 
 /** A camera intent span the validator accepts. */
-const intent: (overrides?: Record<string, unknown>) => unknown = (
-  overrides: Record<string, unknown> = {},
-): unknown => ({
+const intent: (
+  overrides?: Partial<IAutoMovieCameraIntent>,
+) => IAutoMovieCameraIntent = (
+  overrides: Partial<IAutoMovieCameraIntent> = {},
+): IAutoMovieCameraIntent => ({
   start: 0,
   framing: "medium",
   move: "static",
@@ -94,9 +104,11 @@ const intent: (overrides?: Record<string, unknown>) => unknown = (
  *
  * Coverage plays another angle, so its camera is never the shot's own `cam`.
  */
-const take: (overrides?: Record<string, unknown>) => unknown = (
-  overrides: Record<string, unknown> = {},
-): unknown => ({
+const take: (
+  overrides?: Partial<IAutoMovieShotCoverage>,
+) => IAutoMovieShotCoverage = (
+  overrides: Partial<IAutoMovieShotCoverage> = {},
+): IAutoMovieShotCoverage => ({
   camera: "wide",
   cameraMotion: null,
   cameraIntent: [],
@@ -108,9 +120,9 @@ const take: (overrides?: Record<string, unknown>) => unknown = (
  *
  * The scene stages `key` as a spot light, so `/lights/key/intensity` addresses a property that light actually carries.
  */
-const lightClip: (overrides?: Record<string, unknown>) => unknown = (
-  overrides: Record<string, unknown> = {},
-): unknown => ({
+const lightClip: (overrides?: Partial<IAutoMovieTrack>) => IAutoMovieClip = (
+  overrides: Partial<IAutoMovieTrack> = {},
+): IAutoMovieClip => ({
   id: "key-fade",
   name: null,
   duration: 2,
@@ -130,6 +142,11 @@ const lightClip: (overrides?: Record<string, unknown>) => unknown = (
   ],
 });
 
+/** An empty object clip with the given id. */
+const objectClip: (id: string) => IAutoMovieClip = (
+  id: string,
+): IAutoMovieClip => ({ id, name: null, duration: 1, loop: false, tracks: [] });
+
 const pathsOf: (validation: IAutoMovieValidation) => string[] = (
   validation: IAutoMovieValidation,
 ): string[] =>
@@ -146,34 +163,36 @@ interface IShotCase {
 }
 
 /**
- * Requires a located error for each malformed shot field. The existing partial fixture may report unrelated missing fields; a case succeeds only when its own authored path is reported without an escaped exception.
+ * Requires a located error for each out-of-range or unresolved shot field.
  *
  * Scenarios:
  *
- * 1. Identity: a blank id, a scene that is not the scene beside it, and a camera
- *    no scene camera supplies.
+ * 1. References: a scene that is not the scene beside it, and a camera no scene
+ *    camera supplies.
  * 2. Duration: a non-positive span.
- * 3. Performances: a non-object entry, a blank node, a node the scene does not
- *    stage, and a motion outside the registry the caller resolved.
- * 4. Coverage and camera intent: a non-object coverage entry, and an intent whose
- *    framing, focal length, or start is out of shape.
- * 5. Missing performance, motion and metadata entries are located without escaped exceptions; missing clearance samples are located separately from clock completeness.
- * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant clearance plan remain accepted.
+ * 3. Performances: a node the scene does not stage, a start after the shot ends,
+ *    and a motion outside the registry the caller resolved.
+ * 4. Metadata: events, camera intent and coverage outside the shot clock, with
+ *    non-positive focal length, or naming unstaged, live or repeated cameras.
+ * 5. Light clips: a channel that does not address a staged light property with
+ *    its own value type, and repeated clip ids.
+ * 6. Dense empty motions, event/intent/coverage rows and a complete three-instant
+ *    clearance plan remain accepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact on malformed shot fields and requires the authored error path, including missing performance, object-motion and metadata entries and carried clearance samples without escaped exceptions.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls validateShotArtifact on one-field mutations of an admitted shot and requires the authored error path.
  *
- * @evidence contracts/development/testing.md#independent-expectations Expected paths come from each authored shot field and required object/array shape; the independent two-second, one-Hz clock is [0,1,2]. Path-prefix checks permit unrelated findings, and structural clear-report acceptance does not prove physical camera clearance or geometry freshness.
+ * @evidence contracts/development/testing.md#independent-expectations Expected paths come from each authored shot field; the independent two-second, one-Hz clock is [0,1,2]. Path-prefix checks permit unrelated findings, and structural clear-report acceptance does not prove physical camera clearance or geometry freshness.
  *
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps every existing identity, duration, event, intent, coverage and light-motion case and admits dense empty-motion and metadata twins. Missing middle samples are distinguished from a whole report hole; malformed cases use the existing partial fixture and require their own path rather than complete-shot validity.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps reference, duration, event, intent, coverage and light-motion cases and admits dense empty-motion and metadata twins.
  *
  * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_validation_shot_artifact_paths; the discoverable test_validation_shot_artifact_paths entry owns every synchronous case without a browser or native renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Identity: a blank id, a scene that is not the scene beside it, and a camera).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: References: a scene that is not the scene beside it, and a camera).
  */
 export function test_validation_shot_artifact_paths(): void {
   TestValidator.predicate(
     "dense empty performance and motion arrays remain valid",
     validateShotArtifact(
-      shot({ cameraMotion: null, objectMotions: [], lightMotions: [] }),
+      shot({ lightMotions: [] }),
       scene(),
       new Set<string>(["walk"]),
     ).success,
@@ -182,8 +201,6 @@ export function test_validation_shot_artifact_paths(): void {
     "dense event, intent and coverage metadata remain valid",
     validateShotArtifact(
       shot({
-        cameraMotion: null,
-        objectMotions: [],
         lightMotions: [],
         events: [event()],
         cameraIntent: [intent()],
@@ -213,8 +230,6 @@ export function test_validation_shot_artifact_paths(): void {
     "dense endpoint-inclusive clearance metadata remain valid",
     validateShotArtifact(
       shot({
-        cameraMotion: null,
-        objectMotions: [],
         lightMotions: [],
         cameraClearance: [
           {
@@ -233,57 +248,6 @@ export function test_validation_shot_artifact_paths(): void {
   );
   const cases: IShotCase[] = [
     {
-      title: "a missing event slot",
-      shot: shot({ events: new Array<unknown>(1) }),
-      path: "$input.events[0]",
-    },
-    {
-      title: "a missing camera-intent slot",
-      shot: shot({ cameraIntent: new Array<unknown>(1) }),
-      path: "$input.cameraIntent[0]",
-    },
-    {
-      title: "a missing coverage slot",
-      shot: shot({ coverage: new Array<unknown>(1) }),
-      path: "$input.coverage[0]",
-    },
-    {
-      title: "a missing clearance-report slot",
-      shot: shot({ cameraClearance: new Array<unknown>(1) }),
-      path: "$input.cameraClearance[0]",
-    },
-    {
-      title: "a missing carried clearance sample",
-      shot: shot({
-        cameraClearance: [
-          {
-            camera: "cam",
-            sampleRate: 1,
-            sampleTimes: withoutArraySlot([0, 1, 2], 1),
-            intervals: 2,
-            status: "clear",
-            findings: [],
-          },
-        ],
-      }),
-      path: "$input.cameraClearance[0].sampleTimes[1]",
-    },
-    {
-      title: "a missing performance slot",
-      shot: shot({ performances: new Array<unknown>(1) }),
-      path: "$input.performances[0]",
-    },
-    {
-      title: "a missing object-motion slot",
-      shot: shot({ objectMotions: new Array<unknown>(1) }),
-      path: "$input.objectMotions[0]",
-    },
-    {
-      title: "a blank shot id",
-      shot: shot({ id: "  " }),
-      path: "$input.id",
-    },
-    {
       title: "a shot naming another scene",
       shot: shot({ scene: "other" }),
       path: "$input.scene",
@@ -299,18 +263,10 @@ export function test_validation_shot_artifact_paths(): void {
       path: "$input.duration",
     },
     {
-      title: "a non-object performance",
-      shot: shot({ performances: [7] }),
-      path: "$input.performances[0]",
-    },
-    {
-      title: "a performance with a blank node",
-      shot: shot({ performances: [{ node: " ", motion: null }] }),
-      path: "$input.performances[0].node",
-    },
-    {
       title: "a performance naming a node the scene does not stage",
-      shot: shot({ performances: [{ node: "ghost", motion: null }] }),
+      shot: shot({
+        performances: [{ node: "ghost", motion: null, startOffset: 0 }],
+      }),
       path: "$input.performances[0].node",
     },
     {
@@ -328,42 +284,9 @@ export function test_validation_shot_artifact_paths(): void {
       path: "$input.performances[0].motion",
     },
     {
-      title: "an absent cameraMotion, which is not an explicit null",
-      shot: shot({ cameraMotion: undefined }),
-      path: "$input.cameraMotion",
-    },
-    {
       title: "duplicate object motion clip ids",
-      shot: shot({
-        cameraMotion: null,
-        objectMotions: [{ id: "twin" }, { id: "twin" }],
-      }),
+      shot: shot({ objectMotions: [objectClip("twin"), objectClip("twin")] }),
       path: "$input.objectMotions",
-    },
-    {
-      title: "an events field that is not an array",
-      shot: shot({ events: 7 }),
-      path: "$input.events",
-    },
-    {
-      title: "a non-object event entry",
-      shot: shot({ events: [7] }),
-      path: "$input.events[0]",
-    },
-    {
-      title: "an event with a blank id",
-      shot: shot({ events: [event({ id: " " })] }),
-      path: "$input.events[0].id",
-    },
-    {
-      title: "an event whose kind is not one the engine emits",
-      shot: shot({ events: [event({ kind: "sneeze" })] }),
-      path: "$input.events[0].kind",
-    },
-    {
-      title: "an event whose source is not one the engine emits",
-      shot: shot({ events: [event({ source: "vibes" })] }),
-      path: "$input.events[0].source",
     },
     {
       title: "an event timed outside the shot's own clock",
@@ -374,11 +297,6 @@ export function test_validation_shot_artifact_paths(): void {
       title: "an event timed before the shot starts",
       shot: shot({ events: [event({ time: -1 })] }),
       path: "$input.events[0].time",
-    },
-    {
-      title: "an event naming a blank actor",
-      shot: shot({ events: [event({ actor: " " })] }),
-      path: "$input.events[0].actor",
     },
     {
       title: "an event whose contact point is not a finite vector",
@@ -393,29 +311,9 @@ export function test_validation_shot_artifact_paths(): void {
       path: "$input.events[0].actionIndex",
     },
     {
-      title: "a camera intent field that is not an array",
-      shot: shot({ cameraIntent: "wide" }),
-      path: "$input.cameraIntent",
-    },
-    {
-      title: "a non-object camera intent span",
-      shot: shot({ cameraIntent: [7] }),
-      path: "$input.cameraIntent[0]",
-    },
-    {
       title: "a camera intent starting after the shot ends",
       shot: shot({ cameraIntent: [intent({ start: 9 })] }),
       path: "$input.cameraIntent[0].start",
-    },
-    {
-      title: "a camera framing outside the closed union",
-      shot: shot({ cameraIntent: [intent({ framing: "dutch" })] }),
-      path: "$input.cameraIntent[0].framing",
-    },
-    {
-      title: "a camera move outside the closed union",
-      shot: shot({ cameraIntent: [intent({ move: "teleport" })] }),
-      path: "$input.cameraIntent[0].move",
     },
     {
       title: "a camera focus that is not a finite vector",
@@ -428,16 +326,6 @@ export function test_validation_shot_artifact_paths(): void {
       title: "a non-positive camera focal length",
       shot: shot({ cameraIntent: [intent({ focalLength: 0 })] }),
       path: "$input.cameraIntent[0].focalLength",
-    },
-    {
-      title: "a coverage field that is not an array",
-      shot: shot({ coverage: "cam" }),
-      path: "$input.coverage",
-    },
-    {
-      title: "a non-object coverage take",
-      shot: shot({ coverage: [7] }),
-      path: "$input.coverage[0]",
     },
     {
       title: "a coverage take naming a camera the scene does not stage",
@@ -455,22 +343,19 @@ export function test_validation_shot_artifact_paths(): void {
       path: "$input.coverage[1].camera",
     },
     {
-      title: "a coverage take whose cameraMotion is absent, not null",
-      shot: shot({ coverage: [{ camera: "wide", cameraIntent: [] }] }),
-      path: "$input.coverage[0].cameraMotion",
-    },
-    {
-      title: "a coverage take carrying a malformed camera intent",
+      title: "a coverage take carrying an out-of-clock camera intent",
       shot: shot({
-        coverage: [take({ cameraIntent: [intent({ framing: "dutch" })] })],
+        coverage: [take({ cameraIntent: [intent({ start: 9 })] })],
       }),
-      path: "$input.coverage[0].cameraIntent[0].framing",
+      path: "$input.coverage[0].cameraIntent[0].start",
     },
     {
       title: "a light clip channel that does not address by pointer",
       shot: shot({
         lightMotions: [
-          lightClip({ channel: { kind: "node", node: "key", property: "x" } }),
+          lightClip({
+            channel: { kind: "node", node: "key", path: "translation" },
+          }),
         ],
       }),
       path: "$input.lightMotions[0].tracks[0].channel.kind",
@@ -498,7 +383,7 @@ export function test_validation_shot_artifact_paths(): void {
             channel: {
               kind: "pointer",
               pointer: "/lights/key/intensity",
-              valueType: "vector3",
+              valueType: "vec3",
             },
             values: [0, 0, 0, 1, 1, 1],
           }),
@@ -530,7 +415,7 @@ export function test_validation_shot_artifact_paths(): void {
     },
   ];
   TestValidator.equals(
-    "the shot validator reports the located violation for each malformed field",
+    "the shot validator reports the located violation for each field",
     namedFacts(
       cases.map(
         (entry: IShotCase): readonly [string, () => boolean] =>
@@ -553,10 +438,5 @@ export function test_validation_shot_artifact_paths(): void {
     Object.fromEntries(
       cases.map((entry: IShotCase): [string, true] => [entry.title, true]),
     ),
-  );
-  TestValidator.predicate(
-    "a shot that is not an object is refused before any field is read",
-    validateShotArtifact(null as unknown as IAutoMovieShot, scene(), null)
-      .success === false,
   );
 }

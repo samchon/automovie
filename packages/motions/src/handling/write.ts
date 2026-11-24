@@ -83,12 +83,9 @@ function planWrite(
 ): IAutoMovieMotionHumanActionPlan {
   const p: IAutoMovieMotionHumanWrite = context.params;
   if (
-    !Array.isArray(p.stroke) ||
     p.stroke.length < 2 ||
     p.stroke.some(
       (vertex: readonly [number, number]): boolean =>
-        !Array.isArray(vertex) ||
-        vertex.length !== 2 ||
         !Number.isFinite(vertex[0]) ||
         !Number.isFinite(vertex[1]),
     )

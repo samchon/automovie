@@ -15,9 +15,9 @@ import { nclose } from "../internal/nclose";
  * 2. A nonunit axis preserves original input direction while actual coordinates use the normalized physical frame.
  * 3. Closed, open, degenerate and failed contours retain original source-face lineage without adding source arrays to output.
  * 4. Reversing the axis and signed coordinates observes the same physical planes with reversed normal direction.
- * 5. Invalid, duplicate, sparse and empty coordinates are refused; observer exceptions and aborts return no value.
+ * 5. Duplicate and empty coordinates are refused; observer exceptions and aborts return no value.
  * 6. A source-seeded distal tetrahedron observes its actual apex and brackets while retaining the other component in every additional cut; an open-ended tube cannot authorize a point tip.
- * 7. A single plane can request exact cutter-face lineage without adding a slab or changing its coefficient publication; malformed retention flags are refused.
+ * 7. A single plane can request exact cutter-face lineage without adding a slab or changing its coefficient publication.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public fixed-section observer and asserts exact requested station populations, all-component counts, physical Hermite endpoint heights, original incidence, local failure records and terminal effects.
  * @evidence contracts/development/testing.md#independent-expectations Each authored tetrahedron occupies 0<=Y<=3; interior cuts meet its three side faces, Y=-1 is empty, and Y=3 is a single isolated apex. Translation by 10 mm in X creates a second disjoint component with triangle ordinals offset by four. A single triangle has one open interior cut. These geometric facts define expectations without a recovered-output snapshot.
@@ -214,14 +214,6 @@ export function test_recovery_fixed_sections(): void {
     ),
     [4, 5, 7],
   );
-  TestValidator.equals(
-    "nonboolean retention flag refused",
-    observeAutoMovieRecoverySections(
-      { ...singlePlane, includeExactSourceLineage: 1 as unknown as boolean },
-      { curveFormat: "hermite" },
-    ).status,
-    "refused",
-  );
   const reversed: ReturnType<
     typeof observeAutoMovieRecoverySections<"hermite">
   > = observeAutoMovieRecoverySections(
@@ -296,8 +288,6 @@ export function test_recovery_fixed_sections(): void {
   for (const coordinatesMm of [
     [],
     [0.5, 0.5],
-    [Number.NaN],
-    new Array<number>(1),
   ]) {
     const refused: ReturnType<
       typeof observeAutoMovieRecoverySections<"hermite">

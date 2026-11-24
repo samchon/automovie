@@ -12,7 +12,6 @@ import { TestValidator } from "@nestia/e2e";
 
 import { createModel } from "../internal/fixtures";
 import { hasViolation } from "../internal/predicates";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
 
 const VALID_MESH: IAutoMovieMesh = {
   positions: [0, 0, 0, 1, 0, 0, 0, 1, 0],
@@ -61,14 +60,12 @@ const modelWithMesh: (mesh: IAutoMovieMesh) => IAutoMovieModel = (
  * 4. Normals must align to the position vertex count.
  * 5. Indices must be triangle triples that reference existing vertices.
  * 6. Malformed tuple lengths are type violations.
- * 7. Isolated non-finite and missing positions report despite valid indices;
- *    sparse indices and optional attribute/skin slots report their own fields
- *    instead of escaping through topology or passing a skipped row.
+ * 7. Isolated non-finite positions report despite valid indices.
  * 8. Dense finite relief and normalized skin buffers remain admitted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification The real model gate returns located structural findings for resident mesh buffers, catching skipped sparse slots and escaped weld errors while retaining valid indexed/nonindexed and fully populated optional attributes.
- * @evidence contracts/development/testing.md#independent-expectations Three xyz vertices require nine finite position scalars, triangle references require three in-range integers, relief requires one finite nonnegative scalar per vertex, and four finite skin influences per vertex sum to one. Missing a required slot cannot supply any of these values.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve valid/minimal and combined malformed tuple/index cases, adding isolated NaN/Infinity and sparse position/index/relief/skin-joint/skin-index/skin-weight cases beside a dense normalized control; explicit physical partition and closed-boundary semantics remain owning topology cases.
+ * @evidence contracts/development/testing.md#behavioral-verification The real model gate returns located structural findings for resident mesh buffers, catching escaped weld errors while retaining valid indexed/nonindexed and fully populated optional attributes.
+ * @evidence contracts/development/testing.md#independent-expectations Three xyz vertices require nine finite position scalars, triangle references require three in-range integers, relief requires one finite nonnegative scalar per vertex, and four finite skin influences per vertex sum to one. These counts follow from the vertex count.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve valid/minimal and combined malformed tuple/index cases, adding isolated NaN/Infinity cases beside a dense normalized control; explicit physical partition and closed-boundary semantics remain owning topology cases.
  * @evidence contracts/development/testing.md#execution-ownership Portable CPU unit discovered as test_validation_model_mesh_buffers; existing model/rig record builders supply only source data and validateModel owns all observed results, without a mesh uploader, browser, GPU or Human inspection host.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A finite, aligned triangle mesh validates.).
  */
@@ -162,9 +159,6 @@ export function test_validation_model_mesh_buffers(): void {
       ),
     );
   }
-  const missingPosition: number[] = withoutArraySlot(VALID_MESH.positions, 4);
-  const missingIndex: number[] = withoutArraySlot([0, 1, 2], 1);
-  const missingRelief: number[] = withoutArraySlot([0, 1, 0], 1);
   const skin: IAutoMovieMeshSkin = {
     joints: ["hips"],
     boneIndices: new Array<number>(12).fill(0),
@@ -176,57 +170,4 @@ export function test_validation_model_mesh_buffers(): void {
       model: modelWithMesh({ ...VALID_MESH, reliefWeights: [0, 1, 0], skin }),
     }).success,
   );
-  const missingWeights: number[] = withoutArraySlot(skin.weights, 3);
-  const missingBoneIndex: number[] = withoutArraySlot(skin.boneIndices, 3);
-  const missingJoint: AutoMovieHumanoidBone[] =
-    new Array<AutoMovieHumanoidBone>(1);
-  const cases: {
-    mesh: IAutoMovieMesh;
-    kind: "range" | "type";
-    field: string;
-  }[] = [
-    {
-      mesh: { ...VALID_MESH, positions: missingPosition },
-      kind: "range",
-      field: "positions[4]",
-    },
-    {
-      mesh: { ...VALID_MESH, indices: missingIndex },
-      kind: "range",
-      field: "indices[1]",
-    },
-    {
-      mesh: { ...VALID_MESH, reliefWeights: missingRelief },
-      kind: "range",
-      field: "reliefWeights[1]",
-    },
-    {
-      mesh: { ...VALID_MESH, skin: { ...skin, weights: missingWeights } },
-      kind: "range",
-      field: "skin.weights[3]",
-    },
-    {
-      mesh: { ...VALID_MESH, skin: { ...skin, boneIndices: missingBoneIndex } },
-      kind: "range",
-      field: "skin.boneIndices[3]",
-    },
-    {
-      mesh: { ...VALID_MESH, skin: { ...skin, joints: missingJoint } },
-      kind: "type",
-      field: "skin.joints[0]",
-    },
-  ];
-  for (const entry of cases) {
-    const result: IAutoMovieValidation = validateModel({
-      model: modelWithMesh(entry.mesh),
-    });
-    TestValidator.predicate(
-      "each required resident slot is admitted by index",
-      hasViolation(
-        result,
-        entry.kind,
-        "$input.parts[0].geometry.mesh." + entry.field,
-      ),
-    );
-  }
 }

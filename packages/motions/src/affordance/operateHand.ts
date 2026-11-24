@@ -12,14 +12,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanFrame } from "../posture/HumanFrame";
 import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { operateInsert } from "./operateInsert";
 import { operateState } from "./operateState";
-
-/** The alternatives of `OperateHandTrial`'s site. */
-type OperateHandTrial = 0 | 1;
 
 /** The record of `IOperateHandFrame`'s site. */
 type IOperateHandFrame = {
@@ -39,10 +35,6 @@ type IOperateHandResult = {
     posture: IAutoMovieMotionHumanPosture,
     progress: number,
     seconds?: number,
-    trial?: readonly [
-      AutoMovieMotionHumanBendRepeat.IRead,
-      OperateHandTargetTrialResult,
-    ],
   ) => IAutoMovieMotionHumanArmTarget.ITarget;
   wrist: (
     posture: IAutoMovieMotionHumanPosture,
@@ -50,9 +42,6 @@ type IOperateHandResult = {
     seconds?: number,
   ) => IAutoMovieVector3;
 };
-
-/** The alternatives of `OperateHandTargetTrialResult`'s site. */
-type OperateHandTargetTrialResult = 0 | 1;
 
 /** The record of `IOperateHandProps`'s site. */
 type IOperateHandProps = {
@@ -208,16 +197,13 @@ export function operateHand(
       posture: IAutoMovieMotionHumanPosture,
       progress: number,
       seconds?: number,
-      trial?: readonly [AutoMovieMotionHumanBendRepeat.IRead, OperateHandTrial],
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const current: ReturnType<typeof frame> = frame(
         posture,
         progress,
         seconds,
       );
-      return trial === undefined
-        ? hand.target(posture, current.place, current.forward)
-        : hand.target(posture, current.place, current.forward, trial);
+      return hand.target(posture, current.place, current.forward);
     },
     wrist: (
       posture: IAutoMovieMotionHumanPosture,

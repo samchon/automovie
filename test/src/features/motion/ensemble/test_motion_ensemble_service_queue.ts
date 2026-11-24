@@ -46,7 +46,7 @@ export function test_motion_ensemble_service_queue(): void {
     motionHumanBody("m-tall"),
   ];
   const drawn: IAutoMovieMotionHumanEnsemble.IEnsemble =
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id: "queue",
       count: 3,
       seed: "queue",

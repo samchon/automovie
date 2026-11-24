@@ -53,19 +53,16 @@ function firstActor(action: IAutoMovieLaunchAction): string | null {
  * the caller to stamp.
  *
  * Returns null when the target is out of range at that speed. Throws
- * `RangeError` when `onHit` has no non-blank `targetNode`, because no actor can
- * perform that requested reaction.
+ * `RangeError` when `onHit` has no `targetNode`, because no actor can perform
+ * that requested reaction.
  */
 export function compileLaunch(
   props: IAutoMovieCompileLaunch.IProps,
 ): IAutoMovieLaunchResult | null {
   const action: IAutoMovieLaunchAction = props.action;
-  if (
-    action.onHit !== undefined &&
-    (props.targetNode === null || props.targetNode.trim().length === 0)
-  )
+  if (action.onHit !== undefined && props.targetNode === null)
     throw new RangeError(
-      "A launch's onHit requires a non-blank targetNode identifying the struck actor; point and group aims identify no actor to recoil.",
+      "A launch's onHit requires a targetNode identifying the struck actor; point and group aims identify no actor to recoil.",
     );
   const gravity: IAutoMovieVector3 = props.gravity ?? DEFAULT_GRAVITY;
   const arc: "direct" | "high" = props.arc ?? "direct";

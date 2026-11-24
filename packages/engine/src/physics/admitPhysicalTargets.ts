@@ -6,7 +6,6 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalContactBindings } from "./admitPhysicalContactBindings";
 import { admitPhysicalTargetMotion } from "./admitPhysicalTargetMotion";
 import { inPhysicalFloorBounds } from "./inPhysicalFloorBounds";
@@ -68,7 +67,6 @@ export function admitPhysicalTargets(
       values: Record<string, number>,
       names: ReadonlySet<string>,
     ): boolean =>
-      isAutoMovieRecord(values) &&
       Object.entries(values).every(
         ([name, value]: [string, number]): boolean =>
           names.has(name) && Number.isFinite(value) && value >= 0 && value <= 1,

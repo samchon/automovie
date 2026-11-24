@@ -31,7 +31,7 @@ import {
  *
  * Scenarios:
  * 1. Check canonical ordering, identity, frames, rational seconds, protocol seeds/digests and reader acceptance.
- * 2. Refuse invalid identity/rate, duplicate world ids, malformed intervals/cues and missing zone/recipe.
+ * 2. Refuse an invalid fingerprint/rate, duplicate world ids, malformed intervals/cues and missing zone/recipe.
  * 3. Distinguish same-zone overlap from touching intervals or different zones, and preserve only declared runtime fields.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs materializeProductionFilmEffects and the population verifier, checking observable fields and named refusal classes; overlapping cues must name their common frames and invalid input must not become a partial runtime set.
@@ -223,20 +223,12 @@ export function test_film_effect_materialization(): void {
   TestValidator.equals(
     "a malformed identity or rate is refused as input",
     [
-      refuse({ identity: { ...identity, production: "" } }),
-      refuse({ identity: { ...identity, film: " " } }),
       refuse({ identity: { ...identity, compileFingerprint: "sha256:c" } }),
-      refuse({
-        identity: {
-          ...identity,
-          editFingerprint: `md5:${"0".repeat(64)}` as `sha256:${string}`,
-        },
-      }),
       refuse({ frameRate: 0 }),
       refuse({ frameRate: 23.976 }),
       refuse({ frameRate: { numerator: 0, denominator: 1 } }),
     ],
-    Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
+    Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
   );
   const world: (
     patch: Partial<
@@ -248,22 +240,20 @@ export function test_film_effect_materialization(): void {
     >,
   ): IAutoMovieWorldDesign => ({ ...filmEffectWorld(), ...patch });
   TestValidator.equals(
-    "blank or duplicated world ids are refused",
+    "duplicated world ids are refused",
     [
-      refuse({ world: world({ effectRecipes: [filmEffectRecipe(" ")] }) }),
       refuse({
         world: world({
           effectRecipes: [filmEffectRecipe(), filmEffectRecipe()],
         }),
       }),
-      refuse({ world: world({ effectZones: [filmEffectZone("")] }) }),
       refuse({
         world: world({
           effectZones: [filmEffectZone("yard"), filmEffectZone("yard")],
         }),
       }),
     ],
-    Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
+    Array.from({ length: 2 }, (): string => "film-effect-input-invalid"),
   );
 
   const interval: IAutoMovieShotEffectFilmInterval = {
@@ -276,9 +266,6 @@ export function test_film_effect_materialization(): void {
   TestValidator.equals(
     "a malformed shot interval is refused and a valid one accepted",
     [
-      { cue: " " },
-      { shot: "" },
-      { zone: " " },
       { startFrame: -1 },
       { startFrame: 30.5 },
       { endFrame: 36.5 },
@@ -332,7 +319,7 @@ export function test_film_effect_materialization(): void {
       ): string => refuse({ shotEffects: [{ ...interval, ...patch }] }),
     ),
     [
-      ...Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
+      ...Array.from({ length: 4 }, (): string => "film-effect-input-invalid"),
       "accepted",
     ],
   );
@@ -352,15 +339,11 @@ export function test_film_effect_materialization(): void {
   TestValidator.equals(
     "a malformed cue is refused and the intensity bounds are accepted",
     [
-      cue({ id: " " }),
-      cue({ recipe: "shot-zone" as "world-zone" }),
-      cue({ zone: "" }),
       cue({ startFrame: -1 }),
       cue({ startFrame: 0.5 }),
       cue({ durationFrames: 1.5 }),
       cue({ durationFrames: 0 }),
       cue({ startFrame: Number.MAX_SAFE_INTEGER, durationFrames: 1 }),
-      cue({ intensity: Number.NaN }),
       cue({ intensity: -0.1 }),
       cue({ intensity: 1.1 }),
       cue({ intensity: 0 }),
@@ -373,7 +356,7 @@ export function test_film_effect_materialization(): void {
       }),
     ],
     [
-      ...Array.from({ length: 11 }, (): string => "film-effect-input-invalid"),
+      ...Array.from({ length: 7 }, (): string => "film-effect-input-invalid"),
       "accepted",
       "accepted",
       "film-effect-input-invalid",

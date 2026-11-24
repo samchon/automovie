@@ -27,19 +27,14 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AquaticProp } from "../sport/AquaticProp";
+import { HumanBikeGuideHeading } from "./HumanBikeGuideHeading";
 import { HumanBikeGuidePath } from "./HumanBikeGuidePath";
+import { HumanBikeGuidePlace } from "./HumanBikeGuidePlace";
+import { HumanBikeGuidePrint } from "./HumanBikeGuidePrint";
+import type { IHumanBikeGuidePrint } from "./IHumanBikeGuidePrint";
 
 /** Path samples per second of the bicycle's course read at planning, Hz. */
 const RATE: number = 60;
-
-/**
- * Heel rise about the ball by lift-off, degrees: provisional, within the foot's
- * pitch at pre-swing in Perry's Gait Analysis.
- */
-const ROCKER: number = 35;
-
-/** Toe clearance at mid-swing, metres: provisional for a hurried walk. */
-const CLEARANCE: number = 0.06;
 
 /**
  * The guiding station's root outward of the grip, metres: provisional, a
@@ -58,21 +53,6 @@ const ADJUST: number = 0.8;
  * the station.
  */
 const REACH: number = ADJUST;
-
-/** One planted footprint: where and how the foot stands, and from when. */
-interface IPrint {
-  /** Seconds of the action at which the foot lands; 0 for the entered footprint. */
-  land: number;
-
-  /** Seconds at which it lifts for its next step; the end when it stays. */
-  lift: number;
-
-  /** World ankle position, metres. */
-  ankle: IAutoMovieVector3;
-
-  /** World foot rotation. */
-  rotation: IAutoMovieQuaternion;
-}
 
 /**
  * Wheel a bicycle by hand beside it, as a triathlete does through the
@@ -149,7 +129,7 @@ function planHumanBikeGuide(
   };
   const held = (t: number): IAutoMovieVector3 =>
     Vector3.lerp(entered, station, minimumJerk.share(Math.min(1, t / ADJUST)));
-  const heading0: number = heading(origin.rotation);
+  const heading0: number = HumanBikeGuideHeading(origin.rotation);
   const path: HumanBikeGuidePath.IPath = {
     times: [],
     distances: [],
@@ -167,7 +147,7 @@ function planHumanBikeGuide(
     const last: IAutoMovieVector3 | undefined = path.points.at(-1);
     path.times.push(t);
     path.points.push(point);
-    path.turns.push(heading(frame.rotation) - heading0);
+    path.turns.push(HumanBikeGuideHeading(frame.rotation) - heading0);
     path.distances.push(
       last === undefined
         ? 0
@@ -203,9 +183,13 @@ function planHumanBikeGuide(
     left: hips - entry.feet.left.ankle.y,
     right: hips - entry.feet.right.ankle.y,
   };
-  const prints: Record<AutoMovieHumanSide, IPrint[]> = {
-    left: [print(0, entry.feet.left.ankle, entry.feet.left.rotation)],
-    right: [print(0, entry.feet.right.ankle, entry.feet.right.rotation)],
+  const prints: Record<AutoMovieHumanSide, IHumanBikeGuidePrint[]> = {
+    left: [
+      HumanBikeGuidePrint(0, entry.feet.left.ankle, entry.feet.left.rotation),
+    ],
+    right: [
+      HumanBikeGuidePrint(0, entry.feet.right.ankle, entry.feet.right.rotation),
+    ],
   };
   const events: IAutoMovieMotionEvent[] = [
     { name: "take", share: REACH / duration },
@@ -214,7 +198,7 @@ function planHumanBikeGuide(
   steps.forEach((step: HumanBikeGuidePath.IStep, k: number): void => {
     const foot: AutoMovieHumanSide = k % 2 === 0 ? other : side;
     const land: number = Math.max(previous, step.land);
-    const before: IPrint = prints[foot].at(-1)!;
+    const before: IHumanBikeGuidePrint = prints[foot].at(-1)!;
     before.lift = Math.max(
       previous,
       before.land,
@@ -231,7 +215,7 @@ function planHumanBikeGuide(
       Vector3.subtract(entered, entry.posture.root),
     );
     prints[foot].push(
-      print(
+      HumanBikeGuidePrint(
         land,
         {
           x: path.points[index]!.x + offset.x,
@@ -321,10 +305,10 @@ function planHumanBikeGuide(
       frame.position,
       Quaternion.rotateVector(frame.rotation, held(t)),
     );
-    const turn: number = heading(frame.rotation) - heading0;
-    const feet: Record<AutoMovieHumanSide, IPrint> = {
-      left: place(prints.left, t, balls.left),
-      right: place(prints.right, t, balls.right),
+    const turn: number = HumanBikeGuideHeading(frame.rotation) - heading0;
+    const feet: Record<AutoMovieHumanSide, IHumanBikeGuidePrint> = {
+      left: HumanBikeGuidePlace(prints.left, t, balls.left),
+      right: HumanBikeGuidePlace(prints.right, t, balls.right),
     };
 
     // Lower the pelvis only as far as a leg must to reach a foot that
@@ -354,7 +338,7 @@ function planHumanBikeGuide(
       limbs: { ...entry.posture.limbs },
     };
     for (const foot of ["left", "right"] as const) {
-      const now: IPrint = feet[foot];
+      const now: IHumanBikeGuidePrint = feet[foot];
       posture.limbs[`${foot}Leg`] = {
         ...AutoMovieMotionHumanLeg.goal(
           body,
@@ -430,87 +414,3 @@ export const HumanBikeGuide: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHuma
 
 /** The world up axis. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-
-/** A footprint landing at a second, not yet lifted. */
-function print(
-  land: number,
-  ankle: IAutoMovieVector3,
-  rotation: IAutoMovieQuaternion,
-): IPrint {
-  return { land, lift: Infinity, ankle, rotation };
-}
-
-/** A rotation's heading about the world up axis, degrees, +Z at 0 and +X at 90. */
-function heading(rotation: IAutoMovieQuaternion): number {
-  const forward: IAutoMovieVector3 = Quaternion.rotateVector(rotation, {
-    x: 0,
-    y: 0,
-    z: 1,
-  });
-  return (Math.atan2(forward.x, forward.z) * 180) / Math.PI;
-}
-
-/**
- * Where a foot is at a second. On its print the ball stays put while, over the
- * second half of the stance, the heel rises about it to `ROCKER` degrees by
- * lift-off (Perry's forefoot rocker); between prints the foot swings from that
- * lifted pose to the next print with a clearance pulse.
- */
-function place(
-  prints: readonly IPrint[],
-  t: number,
-  ball: IAutoMovieVector3,
-): IPrint {
-  for (let i: number = 0; i < prints.length; ++i) {
-    const now: IPrint = prints[i]!;
-    const next: IPrint | undefined = prints[i + 1];
-    if (next === undefined || t <= now.lift) return stance(now, t, ball);
-    if (t < next.land) {
-      const from: IPrint = stance(now, now.lift, ball);
-      const share: number = minimumJerk.share(
-        (t - now.lift) / (next.land - now.lift),
-      );
-      const ankle: IAutoMovieVector3 = Vector3.lerp(
-        from.ankle,
-        next.ankle,
-        share,
-      );
-      return {
-        land: Infinity,
-        lift: -Infinity,
-        ankle: {
-          ...ankle,
-          y: ankle.y + CLEARANCE * Math.sin(Math.PI * share) ** 2,
-        },
-        rotation: Quaternion.slerp(from.rotation, next.rotation, share),
-      };
-    }
-  }
-  return stance(prints.at(-1)!, t, ball);
-}
-
-/**
- * A planted foot at a second: flat, or rolled about its ball late in a stance
- * that ends.
- */
-function stance(print: IPrint, t: number, ball: IAutoMovieVector3): IPrint {
-  if (!Number.isFinite(print.lift)) return print;
-  const mid: number = (print.land + print.lift) / 2;
-  const share: number = minimumJerk.share(
-    Math.min(1, Math.max(0, (t - mid) / (print.lift - mid))),
-  );
-  if (!(share > 0)) return print;
-  const rotation: IAutoMovieQuaternion = Quaternion.multiply(
-    print.rotation,
-    Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, ROCKER * share),
-  );
-  const fixed: IAutoMovieVector3 = Vector3.add(
-    print.ankle,
-    Quaternion.rotateVector(print.rotation, ball),
-  );
-  return {
-    ...print,
-    ankle: Vector3.subtract(fixed, Quaternion.rotateVector(rotation, ball)),
-    rotation,
-  };
-}

@@ -60,7 +60,7 @@ export function test_motion_seat_seated_draw(): void {
         kind: "knife",
       });
       const staged: IAutoMovieMotionHumanSheath.IStaging =
-        AutoMovieMotionHumanDress.HumanSheath.of(
+        AutoMovieMotionHumanDress.HumanSheath(
           {
             ...HumanObject.prop("sheath", sheath, {
               at: { x: 0, y: 0, z: 0 },

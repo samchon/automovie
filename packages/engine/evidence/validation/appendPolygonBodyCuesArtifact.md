@@ -22,7 +22,7 @@ Omission or an empty list exits before indexing. Other calls index staged nodes 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-The placement and per-subject rig indexes serve every cue in the same shot. The existing vector and rotation validators own numeric shape and tolerance.
+The placement and per-subject rig indexes serve every cue in the same shot. The existing vector and rotation validators own numeric finiteness and tolerance.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

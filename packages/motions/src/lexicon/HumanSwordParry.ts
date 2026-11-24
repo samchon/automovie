@@ -27,6 +27,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { StrikingRoll } from "../striking/StrikingRoll";
 import { StrikingSkill } from "../striking/StrikingSkill";
 import { HumanSword } from "./HumanSword";
+import { HumanSwordParryAside } from "./HumanSwordParryAside";
 import { HumanSwordTiming } from "./HumanSwordTiming";
 
 /** The record of `IParryFound`'s site. */
@@ -133,37 +134,6 @@ export namespace HumanSwordParry {
     aside: IAutoMovieVector3;
     sweep: number;
   }
-
-  /**
-   * How far a parry carries a taken blade aside, world metres: square to the
-   * defender's front, level, toward the side of the defender's centre line the
-   * meeting lies on, until the whole attacking blade, from its grip's end to
-   * its point, lies outside the defender's broadest half breadth, the shoulders
-   * with the upper arm's girth or the chest, by the blades' `GAP`; none when it
-   * already does. The defender's own forward lunge then passes beside it.
-   */
-  const aside = (
-    context: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSwordParry.IParry>,
-    s: IAutoMovieMotionHumanSword.ISetup,
-    ends: readonly [IAutoMovieVector3, IAutoMovieVector3],
-    middle: IAutoMovieVector3,
-  ): IAutoMovieVector3 => {
-    const lateral: IAutoMovieVector3 = s.world({ out: 1, up: 0, forward: 0 });
-    const centre: IAutoMovieVector3 = context.entry.posture.root;
-    const off = (p: IAutoMovieVector3): number =>
-      Vector3.dot(Vector3.subtract(p, centre), lateral);
-    const side: number = off(middle) >= 0 ? 1 : -1;
-    const m: IAutoMovieMotionHumanActionContext["body"]["measure"] =
-      context.body.measure;
-    const clear: number =
-      Math.max(m.chestBreadth / 2, m.shoulderHalfWidth + m.upperArmRadius) +
-      HumanSword.GAP;
-    const shift: number = Math.max(
-      0,
-      clear - Math.min(side * off(ends[0]), side * off(ends[1])),
-    );
-    return Vector3.scale(lateral, side * shift);
-  };
 
   /**
    * Where the parry meets: the drill's line, or the attacker's stopped blade
@@ -306,7 +276,7 @@ export namespace HumanSwordParry {
       lead: seconds - context.start,
       stays,
       aside: taken
-        ? aside(
+        ? HumanSwordParryAside(
             context,
             s,
             [end, Vector3.subtract(end, Vector3.scale(along, length))],

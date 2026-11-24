@@ -2,11 +2,11 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Validates dense object rows, nonblank ids and labels, exact id uniqueness and finite endpoints with `0 <= start < duration` and `start <= end <= duration`.
+Validates nonblank labels, exact id uniqueness and finite endpoints with `0 <= start < duration` and `start <= end <= duration`.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One validator serves authored and stored shot inputs through canonical shallow shape, text and violation helpers.
+One validator serves authored and stored shot inputs through the canonical violation helper.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

@@ -26,6 +26,7 @@ import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
 import { HumanSegmentCarry } from "./HumanSegmentCarry";
 import { HumanSegmentLegs } from "./HumanSegmentLegs";
+import { HumanSegmentOverlayRun } from "./HumanSegmentOverlayRun";
 import { HumanSegmentPose } from "./HumanSegmentPose";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { overlayContactGoals } from "./overlayContactGoals";
@@ -324,7 +325,7 @@ export namespace HumanSegmentOverlay {
             Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
           ),
         ),
-        released(person, overlay, seconds),
+        HumanSegmentOverlayRun.released(person, overlay, seconds),
       ));
 
       // The prefix names exactly the included overlays, in their original
@@ -400,7 +401,9 @@ export namespace HumanSegmentOverlay {
       const entered: IAutoMovieMotionHumanActionPlan["enteredChannels"] =
         overlay.plan.enteredChannels;
       const release: number =
-        entered === undefined ? weight : released(person, overlay, seconds);
+        entered === undefined
+          ? weight
+          : HumanSegmentOverlayRun.released(person, overlay, seconds);
       // A hand that holds a prop on past the overlay's end hands its arm and
       // fingers on whole at the end to what carries the hold next (the
       // carrier's carry of it, `HumanSegmentCarry`), captured where the
@@ -413,7 +416,12 @@ export namespace HumanSegmentOverlay {
           Math.max(0, (seconds - overlay.entryTime) / HumanSegment.FADE),
         ),
       );
-      const holding: Partial<Record<AutoMovieHumanSide, boolean>> = {};
+      // Whether each hand of this overlay holds a prop on past its end
+      // (`HumanSegmentOverlayRun.holdsOn`), read once for the overlay.
+      const holding: Record<AutoMovieHumanSide, boolean> = {
+        left: HumanSegmentOverlayRun.holdsOn(person, overlay, "left"),
+        right: HumanSegmentOverlayRun.holdsOn(person, overlay, "right"),
+      };
       for (const bone of owned) {
         const pair: [
           IAutoMovieJointPose | undefined,
@@ -435,7 +443,7 @@ export namespace HumanSegmentOverlay {
             ? 1
             : side !== undefined &&
                 (channel.endsWith("Arm") || channel.endsWith("Hand")) &&
-                (holding[side] ??= holdsOn(person, overlay, side))
+                holding[side]
               ? coming
               : entered?.includes(channel)
                 ? release
@@ -474,115 +482,14 @@ export namespace HumanSegmentOverlay {
     return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
   }
 
-  /**
-   * The overlays that run at a second.
-   *
-   * @param person The person.
-   * @param seconds Film seconds.
-   * @returns The overlays, in placement order.
-   */
-  export function running(
-    person: IAutoMovieMotionHumanSegment.IPerson,
-    seconds: number,
-  ): IAutoMovieMotionHumanSegment.IOverlay[] {
-    return person.overlays.filter(
-      (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
-        seconds >= o.entryTime - 1e-12 && seconds <= o.end + 1e-12,
-    );
-  }
+  /** The overlays that run at a second (`HumanSegmentOverlayRun.running`). */
+  export const running: typeof HumanSegmentOverlayRun.running =
+    HumanSegmentOverlayRun.running;
 
   /**
    * Read a state with the overlays that end at a second handing their channels
-   * on there: an overlay chain's next act is placed at the instant the act
-   * before it ends, and reads its entry from that act's end, not from the
-   * carrier the act would release to were nothing to follow it.
-   *
-   * @param seconds The film second the next act enters at.
-   * @param run The read.
-   * @returns What the read returns.
+   * on there (`HumanSegmentOverlayRun.handing`).
    */
-  export function handing<T>(seconds: number, run: () => T): T {
-    const enclosing: number | undefined = entering;
-    entering = seconds;
-    try {
-      return run();
-    } finally {
-      entering = enclosing;
-    }
-  }
-}
-
-/**
- * The second an overlay chain's next act enters at, while its entry is read
- * (`HumanSegmentOverlay.handing`).
- */
-let entering: number | undefined;
-
-/** Seconds two instants of one handoff may differ by. */
-const HANDOFF: number = 1e-9;
-
-/** Whether two overlays claim a channel in common. */
-function shares(
-  a: IAutoMovieMotionHumanSegment.IOverlay,
-  b: IAutoMovieMotionHumanSegment.IOverlay,
-): boolean {
-  return a.channels.some((channel: (typeof a.channels)[number]): boolean =>
-    b.channels.includes(channel),
-  );
-}
-
-/**
- * Whether an overlay hands its channels on at its end: to one that enters then,
- * or to the act whose entry is being read there
- * (`HumanSegmentOverlay.handing`).
- */
-function handsOn(
-  person: IAutoMovieMotionHumanSegment.IPerson,
-  overlay: IAutoMovieMotionHumanSegment.IOverlay,
-): boolean {
-  if (entering !== undefined && Math.abs(entering - overlay.end) <= HANDOFF)
-    return true;
-  return person.overlays.some(
-    (o: IAutoMovieMotionHumanSegment.IOverlay): boolean =>
-      o !== overlay &&
-      Math.abs(o.entryTime - overlay.end) <= HANDOFF &&
-      shares(o, overlay),
-  );
-}
-
-/**
- * Whether an overlay's hand on a side holds a prop on past the overlay's end:
- * the overlay drives that hand, and a hold of it began by the end and lasts
- * beyond it, so the prop stays in the hand after the overlay is gone.
- */
-function holdsOn(
-  person: IAutoMovieMotionHumanSegment.IPerson,
-  overlay: IAutoMovieMotionHumanSegment.IOverlay,
-  side: AutoMovieHumanSide,
-): boolean {
-  return (
-    HumanSegment.drives(overlay.plan, side) &&
-    person.holds.some(
-      (held: IAutoMovieMotionHumanSegment.IHeld): boolean =>
-        held.side === side &&
-        held.from <= overlay.end + HANDOFF &&
-        held.until > overlay.end + HANDOFF,
-    )
-  );
-}
-
-/**
- * How far an overlay still holds its channels at a second, released to the
- * carrier over the fade before its end unless it hands them on.
- */
-function released(
-  person: IAutoMovieMotionHumanSegment.IPerson,
-  overlay: IAutoMovieMotionHumanSegment.IOverlay,
-  seconds: number,
-): number {
-  return handsOn(person, overlay)
-    ? 1
-    : minimumJerk.share(
-        Math.min(1, Math.max(0, (overlay.end - seconds) / HumanSegment.FADE)),
-      );
+  export const handing: typeof HumanSegmentOverlayRun.handing =
+    HumanSegmentOverlayRun.handing;
 }

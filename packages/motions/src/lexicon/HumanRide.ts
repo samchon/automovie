@@ -305,11 +305,9 @@ export namespace HumanRide {
           posture: IAutoMovieMotionHumanPosture,
           frame: IAutoMovieRigidTransform,
         ) => T,
-        nativeFrame?: typeof support.frame,
       ): T => {
         const film: number = context.start + Math.min(seconds, Math.max(0, at));
-        const now: IAutoMovieRigidTransform =
-          nativeFrame === undefined ? support.frame(film) : nativeFrame(film);
+        const now: IAutoMovieRigidTransform = support.frame(film);
         const sample: RigidCarrierSample.IRead | undefined =
           RigidCarrierSample.playback(support.prop)?.sample(film);
         const taken: number = minimumJerk.share(Math.min(1, at / TAKE));
@@ -392,9 +390,7 @@ export namespace HumanRide {
         // A hand told to hold a point of the support goes to it over `TAKE` seconds and stays, turned to it and closed on it (`HumanMountRider.hold`).
         const grasp: IAutoMovieMotionHumanPosture["joints"] = {};
         const taking: ReturnType<typeof HumanMountRider.taking> | undefined =
-          taken < 1 &&
-          grips.left !== undefined &&
-          grips.right !== undefined
+          taken < 1 && grips.left !== undefined && grips.right !== undefined
             ? HumanMountRider.taking(context.body, out, taken)
             : undefined;
         for (const side of ["left", "right"] as const) {
@@ -482,53 +478,11 @@ export namespace HumanRide {
           TAKE,
         );
       if (alternatives === undefined) return plan;
-
-      // Roots, the seat and both grips share an authored stationary domain only
-      // after acquisition. A posting stride, an equestrian response or moving pedals still change the rider.
-      const domains: readonly RigidCarrierSample.IHold[] | undefined =
-        rising === undefined &&
-        equestrian === undefined &&
-        pedals.length === 0 &&
-        placed.length === 0
-          ? RigidCarrierSample.holds(support.prop)
-          : undefined;
-      const nativeFrame: typeof support.prop.motion =
-        domains === undefined ? undefined : support.prop.motion;
-      let held: WorkingSeatRidePlan.IHeld | undefined;
-      if (
-        domains !== undefined &&
-        nativeFrame !== undefined &&
-        seconds >= TAKE
-      ) {
-        const hold = (local: number): RigidCarrierSample.IHold | undefined => {
-          if (
-            local < TAKE ||
-            RigidCarrierSample.holds(support.prop) !== domains
-          )
-            return undefined;
-          const film: number = context.start + Math.min(seconds, local);
-          return domains.find(
-            (domain: RigidCarrierSample.IHold): boolean =>
-              film >= domain.from && film <= domain.to && domain.contains(film),
-          );
-        };
-        const events: readonly number[] = [TAKE, seconds].filter(
-          (local: number): boolean => hold(local) !== undefined,
-        );
-        if (events.length > 0)
-          held = {
-            events,
-            hold,
-            frame: (local: number): WorkingSeatRidePlan.IWritten =>
-              written(local, WorkingSeatRidePlan.withFrame, nativeFrame),
-          };
-      }
       return new WorkingSeatRidePlan(
         plan,
         context.body,
         alternatives,
         plan.postureWithFrame,
-        held,
       );
     },
   } satisfies IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanRide.IParams>;

@@ -18,10 +18,10 @@ const LOBES: Partial<IAutoMovieMaterial> = {
 };
 
 const validate: (
-  patch: Record<string, unknown>,
+  patch: Partial<IAutoMovieMaterial>,
   parts?: IAutoMovieModelPart[],
 ) => IAutoMovieValidation = (
-  patch: Record<string, unknown>,
+  patch: Partial<IAutoMovieMaterial>,
   parts?: IAutoMovieModelPart[],
 ): IAutoMovieValidation => {
   const model: IAutoMovieModel = createModel();
@@ -29,17 +29,17 @@ const validate: (
     model: {
       ...model,
       parts: parts ?? model.parts,
-      materials: [{ ...model.materials[0]!, ...patch } as IAutoMovieMaterial],
+      materials: [{ ...model.materials[0]!, ...patch }],
     },
   });
 };
 
 const refused: (
-  patch: Record<string, unknown>,
+  patch: Partial<IAutoMovieMaterial>,
   kind: "type" | "range",
   path: string,
 ) => boolean = (
-  patch: Record<string, unknown>,
+  patch: Partial<IAutoMovieMaterial>,
   kind: "type" | "range",
   path: string,
 ): boolean =>
@@ -71,7 +71,7 @@ const triangle: (uvs: number[] | null) => IAutoMovieModelPart = (
  * Scenarios:
  *
  * 1. Every lobe at its closed-interval boundary on a UV-bearing mesh, a multi-turn negative rotation, a bare-id anisotropy map and a linear thickness map validate, and omitting every lobe validates.
- * 2. Strength above one and below zero, an infinite rotation, a missing anisotropy texture field, a non-record anisotropy or sheen, sheen roughness above one, an out-of-range sheen colour channel and specular intensity just above one are refused at their paths.
+ * 2. Strength above one and below zero, sheen roughness above one, an out-of-range sheen colour channel and specular intensity just above one are refused at their paths.
  * 3. An sRGB anisotropy map or thickness map is refused because both slots carry linear data.
  * 4. An anisotropic material cited by a mesh without UV0 is refused at that mesh's `uvs` and one cited by a tessellated primitive at its geometry, while the same mesh with UV0, or with anisotropy strength zero, is not.
  *
@@ -112,7 +112,7 @@ export function test_validation_material_lobes(): void {
         "strengthHigh",
         (): boolean =>
           refused(
-            { anisotropy: { ...LOBES.anisotropy, strength: 1.01 } },
+            { anisotropy: { ...LOBES.anisotropy!, strength: 1.01 } },
             "range",
             ".anisotropy.strength",
           ),
@@ -121,39 +121,17 @@ export function test_validation_material_lobes(): void {
         "strengthLow",
         (): boolean =>
           refused(
-            { anisotropy: { ...LOBES.anisotropy, strength: -0.01 } },
+            { anisotropy: { ...LOBES.anisotropy!, strength: -0.01 } },
             "range",
             ".anisotropy.strength",
           ),
       ],
-      [
-        "rotation",
-        (): boolean =>
-          refused(
-            { anisotropy: { ...LOBES.anisotropy, rotationDeg: Infinity } },
-            "range",
-            ".anisotropy.rotationDeg",
-          ),
-      ],
-      [
-        "textureField",
-        (): boolean =>
-          refused(
-            { anisotropy: { strength: 0.5, rotationDeg: 0 } },
-            "type",
-            ".anisotropy.texture",
-          ),
-      ],
-      [
-        "anisotropyRecord",
-        (): boolean => refused({ anisotropy: 0.5 }, "type", ".anisotropy"),
-      ],
-      ["sheenRecord", (): boolean => refused({ sheen: [] }, "type", ".sheen")],
+
       [
         "sheenRoughness",
         (): boolean =>
           refused(
-            { sheen: { ...LOBES.sheen, roughness: 1.01 } },
+            { sheen: { ...LOBES.sheen!, roughness: 1.01 } },
             "range",
             ".sheen.roughness",
           ),
@@ -164,7 +142,7 @@ export function test_validation_material_lobes(): void {
           refused(
             {
               sheen: {
-                ...LOBES.sheen,
+                ...LOBES.sheen!,
                 color: { r: 1.5, g: 0, b: 0, a: null, hex: null },
               },
             },
@@ -183,7 +161,7 @@ export function test_validation_material_lobes(): void {
           refused(
             {
               anisotropy: {
-                ...LOBES.anisotropy,
+                ...LOBES.anisotropy!,
                 texture: { asset: "flow.png", texCoord: 0, colorSpace: "srgb" },
               },
             },
@@ -210,10 +188,7 @@ export function test_validation_material_lobes(): void {
     {
       strengthHigh: true,
       strengthLow: true,
-      rotation: true,
-      textureField: true,
-      anisotropyRecord: true,
-      sheenRecord: true,
+
       sheenRoughness: true,
       sheenColour: true,
       specular: true,

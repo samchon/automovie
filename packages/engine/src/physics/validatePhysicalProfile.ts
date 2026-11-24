@@ -11,7 +11,6 @@ import type {
 
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { physicalHullFaces } from "./physicalHullFaces";
 
 /**
@@ -413,10 +412,6 @@ export function validatePhysicalProfile(
         `${location}.coordinateSign`,
       );
       if (axis.sourceDomain !== undefined) {
-        if (!isAutoMovieRecord(axis.sourceDomain)) {
-          errors.push(`${location}.sourceDomain`);
-          continue;
-        }
         const sign: number = axis.coordinateSign ?? 1;
         const low: number = sign === 1 ? axis.minimum : -axis.maximum;
         const high: number = sign === 1 ? axis.maximum : -axis.minimum;

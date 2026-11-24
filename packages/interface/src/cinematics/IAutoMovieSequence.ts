@@ -20,7 +20,7 @@ import type { IAutoMovieSequenceEntry } from "./IAutoMovieSequenceEntry";
  * representable output span.
  */
 export interface IAutoMovieSequence {
-  /** Stable, non-blank id. */
+  /** Stable id. */
   id: string;
 
   /** Human or LLM readable name, or `null` when unnamed. */

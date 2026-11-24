@@ -109,8 +109,8 @@ function properties(
 
 /** Check a stable textual address without coercing or trimming it. */
 function identifier(value: unknown, path: string): string {
-  if (typeof value !== "string" || value.length === 0 || value.trim() !== value)
-    invalid(path, "expected a nonblank string without surrounding whitespace");
+  if (typeof value !== "string" || value.trim() !== value)
+    invalid(path, "expected a string without surrounding whitespace");
   return value;
 }
 

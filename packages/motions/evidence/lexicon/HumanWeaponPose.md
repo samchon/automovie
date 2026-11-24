@@ -1,21 +1,3 @@
-# src/lexicon/HumanWeaponPose.ts#HumanWeaponPose.IPosed
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Each member states its frame and unit.
-
-## @evidence contracts/development/design.md#principled-representation
-
-What the stroke and its refusal read of a presentation: the trunk's turn, the posture, the sight line's ends and the hand frame.
-
-## @evidence contracts/development/design.md#minimal-and-owned-surface
-
-The stroke and grip admission read the same modeled tool and pivot as the pose choice.
-
-## @evidence contracts/development/design.md#prohibited-design-shortcuts
-
-None optional.
-
 # src/lexicon/HumanWeaponPose.ts#HumanWeaponPose
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -45,3 +27,21 @@ Read once per plan and once per weighed grip.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
+
+# src/lexicon/HumanWeaponPose.ts#HumanWeaponPose.IPosed
+
+## @evidence contracts/development/common.md#meaningful-documentation
+
+Names the record `IHumanWeaponPosePosed` that `HumanWeaponPose` readers address by this name.
+
+## @evidence contracts/development/design.md#principled-representation
+
+The same record as `IHumanWeaponPosePosed`, read through `HumanWeaponPose`.
+
+## @evidence contracts/development/design.md#minimal-and-owned-surface
+
+Adds no member; `IHumanWeaponPosePosed` owns the representation.
+
+## @evidenceExclude contracts/development/design.md#prohibited-design-shortcuts
+
+An alias of one record; no optional combination arises.

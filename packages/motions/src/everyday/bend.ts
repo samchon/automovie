@@ -16,6 +16,7 @@ import { stand } from "../actions/stand";
 import { AutoMovieMotionHumanInterrupt } from "../compose/AutoMovieMotionHumanInterrupt";
 import { AutoMovieMotionHumanTouchStance } from "../compose/AutoMovieMotionHumanTouchStance";
 import { bendLower } from "./bendLower";
+import { bendLowerSolve } from "./bendLowerSolve";
 import { planBendStrategy } from "./planBendStrategy";
 
 /** The offset-corrected wrist point for a strategy. */
@@ -206,7 +207,7 @@ export namespace bend {
 
   /**
    * The lowering that brings a hand within reach of a target: the strategy
-   * `choose` gives, solved by `bendLower.solve`, and for `auto` a squat where
+   * `choose` gives, solved by `bendLowerSolve`, and for `auto` a squat where
    * the semi-squat cannot reach.
    *
    * @param body The body.
@@ -232,7 +233,7 @@ export namespace bend {
     balance?: IAutoMovieMotionHumanBalance,
     wristAt?: AutoMovieBendWrist,
     lateralTilt: number = 0,
-    instant?: bendLower.IInstant,
+    instant?: bendLowerSolve.IInstant,
   ): IAutoMovieMotionHumanBendLower.ISolved {
     const chosen: Exclude<IAutoMovieMotionHumanBend.Strategy, "auto"> = choose(
       body,
@@ -244,7 +245,7 @@ export namespace bend {
     ) => IAutoMovieMotionHumanBendLower.ISolved = (
       candidate: typeof chosen,
     ): IAutoMovieMotionHumanBendLower.ISolved => {
-      return bendLower.solve(
+      return bendLowerSolve(
         body,
         upright,
         target,

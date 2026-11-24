@@ -263,7 +263,7 @@ export async function test_inspect_film_production(): Promise<void> {
     );
 
     const violation: IAutoMovieMotionHumanVerdicts.IFinding | undefined =
-      HumanVerdicts.of(performance).findings.find(
+      HumanVerdicts(performance).findings.find(
         (finding: IAutoMovieMotionHumanVerdicts.IFinding): boolean =>
           finding.check === "partner",
       );

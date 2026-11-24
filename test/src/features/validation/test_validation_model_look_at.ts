@@ -38,15 +38,14 @@ const WITHIN: IAutoMovieLookAt.IBone = {
  *    refused on the left eye only, and an inner range of 12 also on the left
  *    eye only, since its outward turn is positive twist and the right eye's is
  *    negative.
- * 5. An unknown gaze type is refused.
- * 6. Orthogonal declared bone axes are admitted and skewed ones are refused at
+ * 5. Orthogonal declared bone axes are admitted and skewed ones are refused at
  *    the bone's `axes` path.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs validateModel on models whose gaze and bone axes vary and asserts success or the exact violation kinds and paths; a missing eye check, a swapped per-eye direction, an off-by-boundary comparison or unchecked declared axes fails.
  * @evidence contracts/development/testing.md#independent-expectations Limits follow from the default eye row and the scenario's override read with the documented signs, positive twist toward the model's left and positive flexion down; the boundary values equal those limits.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the exact boundary, one degree over, negative and non-finite ranges, no skeleton and no eyes, the asymmetric per-eye override in both directions, the expression variant, an unknown type and valid against skewed axes; the eye-bone rotation itself belongs to the kinematics lookAt entry.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers the exact boundary, one degree over, negative and non-finite ranges, no skeleton and no eyes, the asymmetric per-eye override in both directions, the expression variant and valid against skewed axes; the eye-bone rotation itself belongs to the kinematics lookAt entry.
  * @evidence contracts/development/testing.md#execution-ownership A discoverable synchronous validation unit entry over in-memory fixtures, calling engine source without a viewer, GPU or installed asset.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bone gaze at exactly the eyes' reach is admitted, and an expression).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A bone gaze at exactly the eyes' reach is admitted, and an expression).
  */
 export function test_validation_model_look_at(): void {
   // 1. admitted at the boundary; expression needs no eyes
@@ -125,14 +124,7 @@ export function test_validation_model_look_at(): void {
     ["horizontalInner turns leftEye 12 degrees, beyond the 10 degrees"],
   );
 
-  // 5. unknown type
-  TestValidator.equals(
-    "unknown gaze type",
-    issues(model({ type: "morph" } as unknown as IAutoMovieLookAt)),
-    ["type $input.lookAt.type"],
-  );
-
-  // 6. declared bone axes
+  // 5. declared bone axes
   const axed: (axes: IAutoMovieBone["axes"]) => IAutoMovieModel = (
     axes: IAutoMovieBone["axes"],
   ): IAutoMovieModel => {

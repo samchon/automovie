@@ -46,8 +46,8 @@ const THICKNESS_EPSILON: number = 1e-9;
  * answers for whichever of them is exposed rather than being demanded twice.
  *
  * A wrapping layer must belong to the run of wrapping layers starting at one
- * face; one behind a non-wrapping layer is refused. Ids must be non-blank and
- * unique within the assembly, the axis, sense, exposures and substances must be
+ * face; one behind a non-wrapping layer is refused. Ids must be unique within
+ * the assembly, the axis, sense, exposures and substances must be
  * known words, the offset finite, and at least one layer present. Every finding
  * is reported at once with a `$input` path, and none throws. With `host`, the
  * summed thickness must equal the host's within 1e-9 m; with `substances`,
@@ -68,7 +68,6 @@ export const validateAutoMovieMaterialAssembly: (
   const root: string = "$input";
   const layers: readonly IAutoMovieMaterialLayer[] = assembly.layers;
 
-  collector.nonEmpty(`${root}.id`, assembly.id, "material assembly id");
   if (!AXES.includes(assembly.axis))
     collector.push(
       "type",
@@ -117,7 +116,6 @@ export const validateAutoMovieMaterialAssembly: (
   const ids: Set<string> = new Set();
   layers.forEach((layer: IAutoMovieMaterialLayer, index: number): void => {
     const path: string = `${root}.layers[${index}]`;
-    collector.nonEmpty(`${path}.id`, layer.id, "material layer id");
     if (ids.has(layer.id))
       collector.push(
         "type",

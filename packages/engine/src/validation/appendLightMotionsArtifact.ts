@@ -106,24 +106,6 @@ const appendLightValueBounds: (
 };
 
 /**
- * The per-keyframe value width of one light property, read from the SAME table
- * `clipTrackShapeFaults` measures a track against.
- *
- * Never `undefined` here: that answer is reserved for a `weights` channel,
- * whose width is the model's morph-target count, and no light property declares
- * one. Deriving the width locally is what let this file's cubic pass carry
- * `scalar ? 1 : 3`, a rule that was right only while every non-scalar axis
- * happened to be a `vec3`.
- */
-const lightValueWidth: (property: AutoMovieLightProperty) => number = (
-  property: AutoMovieLightProperty,
-): number =>
-  channelValueWidth({
-    kind: "pointer",
-    valueType: LIGHT_CHANNEL_PROPERTIES[property].valueType,
-  })!;
-
-/**
  * The whole-value rule of one light property
  * ({@link IAutoMovieLightChannelProperty.valueFault}), applied to every keyframe
  * of one track.
@@ -156,7 +138,8 @@ const appendLightKeyValueFaults: (
   const { valueFault }: IAutoMovieLightChannelProperty =
     LIGHT_CHANNEL_PROPERTIES[property];
   if (valueFault === undefined) return;
-  const width: number = lightValueWidth(property);
+  // The width the shared track-shape contract measures this channel by.
+  const width: number = channelValueWidth(track.channel)!;
   const stride: number = cubic ? width * 3 : width;
   const values: number[] = track.values;
   if (values.length === 0 || values.length % stride !== 0) return;
@@ -234,7 +217,8 @@ const appendCubicLightValueBounds: (
 ): void => {
   const times: number[] = track.times;
   const values: number[] = track.values;
-  const width: number = lightValueWidth(property);
+  // The width the shared track-shape contract measures this channel by.
+  const width: number = channelValueWidth(track.channel)!;
   const stride: number = width * 3;
   // The shared clip-shape gate owns every malformed case. Stop here rather
   // than deriving ranges from a stride or clock it has already refused.

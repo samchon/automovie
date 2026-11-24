@@ -60,7 +60,6 @@ import { gatePerformShotRegionOverlaps } from "./gatePerformShotRegionOverlaps";
 import { gatePerformShotScript } from "./gatePerformShotScript";
 import { memoizePerformShotSynthesis } from "./memoizePerformShotSynthesis";
 import { plantPerformShotStanceFeet } from "./plantPerformShotStanceFeet";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /** Event order at one instant: cause before effect, pickup before release. */
 const EVENT_KIND_ORDER: Record<IAutoMovieInteractionEvent["kind"], number> = {
@@ -205,7 +204,6 @@ export function performShot(
     ),
     out.items,
   );
-  validatePerformShotId(out, performance.beat, "$input.beat", "beat id");
   if (beat === undefined)
     out.push(
       "type",

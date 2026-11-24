@@ -12,6 +12,7 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { bendLower } from "../everyday/bendLower";
+import { bendLowerSolve } from "../everyday/bendLowerSolve";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { poseBones } from "../posture/poseBones";
@@ -34,7 +35,7 @@ type IJudgedContext = {
  * trunk and the legs (Sha and Thomas 2011, arXiv:1108.1940). The freedoms are
  * taken in order: the arm alone; then the trunk inclined toward the lifted
  * place within its sagittal range, as the bend law inclines it
- * (`bendLower.solve`, the hips moved back to keep the body over its feet); then
+ * (`bendLowerSolve`, the hips moved back to keep the body over its feet); then
  * a lowered stance straightened part of the way, never past the landing of a
  * foot it stepped. Each closes on the arm near full extension
  * (`bendLower.REACH`) first and on the straight arm after. Where none of them
@@ -146,7 +147,7 @@ export namespace pickUpLift {
       // The trunk, inclined toward the lifted place.
       try {
         return {
-          trunk: bendLower.solve(body, held, lifted, side, "stoop", reach),
+          trunk: bendLowerSolve(body, held, lifted, side, "stoop", reach),
           share: 1,
         };
       } catch (error) {

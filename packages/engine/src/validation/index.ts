@@ -24,8 +24,6 @@ export * from "./detectBodyCollision";
 export * from "./detectFreeFall";
 export * from "./detectSupportToppling";
 export * from "./engineDiagnostic";
-export * from "./finiteMinimum";
-export * from "./finiteNumber";
 export * from "./fkReachableBones";
 export * from "./isAutoMovieMaterialExtension";
 export * from "./lightClipChannelGate";

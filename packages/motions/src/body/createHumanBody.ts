@@ -19,6 +19,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { stand } from "../actions/stand";
 import { standRelaxed } from "../actions/standRelaxed";
 import { standUpright } from "../actions/standUpright";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
@@ -35,10 +36,11 @@ type CreateHumanBody = "measure" | "surfaces";
  * @param skeleton The canonical rig.
  * @param profile Its physical profile.
  * @returns The body with its measure, surfaces, topology, rest joints, bone
- *   records by name and immutable canonical FK preparation. The bone-local mass
- *   model, the quiet-stance alignment, the relaxed hanging arms, collider
- *   placement, hull faces and each side's hanging arm are prepared by their
- *   actual first queries. Recreate it after editing the input rig or profile.
+ *   records by name, immutable canonical FK preparation, the quiet-stance
+ *   alignment and the relaxed hanging arms, both solved here. The bone-local
+ *   mass model, collider placement, hull faces and each side's hanging arm are
+ *   prepared by their actual first queries. Recreate it after editing the input
+ *   rig or profile.
  */
 export function createHumanBody(
   skeleton: IAutoMovieSkeleton,
@@ -99,62 +101,87 @@ export function createHumanBody(
       if (constants !== null) chains[`${side}${limb}`] = constants;
     }
   let massModel: IAutoMovieMotionHumanBody["massModel"] | undefined;
-  let upright: IAutoMovieMotionHumanBody["upright"] | undefined;
-  let relaxed: IAutoMovieMotionHumanBody["relaxed"] | undefined;
   let colliderBones: IAutoMovieMotionHumanBody["colliderBones"] | undefined;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const record of skeleton.bones as IAutoMovieBone[])
     if (!bones.has(record.bone)) bones.set(record.bone, record);
-  const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
-    new Map();
-  const body: IAutoMovieMotionHumanBody = {
+  const projection: IAutoMovieMotionHumanBody["projection"] =
+    clampPose.prepare(skeleton);
+  const settled: IAutoMovieMotionHumanBody["settled"] =
+    humanSettledJoints(skeleton);
+  const reads: IAutoMovieMotionHumanBody["reads"] = humanLimbReads(
     skeleton,
-    profile,
-    measure,
-    surfaces,
-    topology,
     poseResolution,
     chains,
+  );
+  const record = (
+    upright: IAutoMovieMotionHumanBody["upright"],
+    relaxed: IAutoMovieMotionHumanBody["relaxed"],
+  ): IAutoMovieMotionHumanBody => {
+    const hung: Map<AutoMovieHumanSide, IAutoMovieResolvedJointAngles | null> =
+      new Map();
+    const body: IAutoMovieMotionHumanBody = {
+      skeleton,
+      profile,
+      measure,
+      surfaces,
+      topology,
+      poseResolution,
+      chains,
 
-    // The rig's ROM projection is a constant of the body like its FK
-    // prerequisites: one pose clamp on this rig, read by every consumer.
-    projection: clampPose.prepare(skeleton),
-    settled: humanSettledJoints(skeleton),
+      // The rig's ROM projection is a constant of the body like its FK
+      // prerequisites: one pose clamp on this rig, read by every consumer.
+      projection,
+      settled,
 
-    // What each limb's fit reads of a pose is a value of the rig too.
-    reads: humanLimbReads(skeleton, poseResolution, chains),
-    get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
-      colliderBones ??= poseResolution.prepareBones(HumanColliders.bones(body));
-      return colliderBones;
-    },
-    get massModel(): IAutoMovieMotionHumanBody["massModel"] {
-      massModel ??= resolveAutoMovieCenterOfMass.fromRig(
-        poseResolution,
-        profile,
-      );
-      return massModel;
-    },
-
-    // Quiet standing is a property of the body: aligned on its first read.
-    get upright(): IAutoMovieMotionHumanBody["upright"] {
-      upright ??= standUpright.align(body);
-      return upright;
-    },
-
-    // The relaxed hanging arms are a property of the body as well.
-    get relaxed(): IAutoMovieMotionHumanBody["relaxed"] {
-      relaxed ??= standRelaxed.solve(body);
-      return relaxed;
-    },
-    rest,
-    bones,
-    hanging: (
-      side: AutoMovieHumanSide,
-    ): IAutoMovieResolvedJointAngles | null => {
-      if (!hung.has(side))
-        hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
-      return hung.get(side)!;
-    },
+      // What each limb's fit reads of a pose is a value of the rig too.
+      reads,
+      get colliderBones(): IAutoMovieMotionHumanBody["colliderBones"] {
+        colliderBones ??= poseResolution.prepareBones(
+          HumanColliders.bones(body),
+        );
+        return colliderBones;
+      },
+      get massModel(): IAutoMovieMotionHumanBody["massModel"] {
+        massModel ??= resolveAutoMovieCenterOfMass.fromRig(
+          poseResolution,
+          profile,
+        );
+        return massModel;
+      },
+      upright,
+      relaxed,
+      rest,
+      bones,
+      hanging: (
+        side: AutoMovieHumanSide,
+      ): IAutoMovieResolvedJointAngles | null => {
+        if (!hung.has(side))
+          hung.set(side, AutoMovieMotionHumanBend.hanging(body, side));
+        return hung.get(side)!;
+      },
+    };
+    return body;
   };
-  return body;
+
+  // Quiet standing is a property of the body, solved here once: the alignment
+  // on the rig's rest column, then the relaxed hanging arms on the aligned
+  // stance, each solve reading only the record it is given.
+  const upright: IAutoMovieMotionHumanBody["upright"] = standUpright.align(
+    record(REST_COLUMN, stand.RELAXED),
+  );
+  const relaxed: IAutoMovieMotionHumanBody["relaxed"] = standRelaxed.solve(
+    record(upright, stand.RELAXED),
+  );
+  return record(upright, relaxed);
 }
+
+/**
+ * The rig's rest column, unaligned: the trunk, neck and head at their rest
+ * angles and no forward lean, the record the quiet-stance alignment is solved
+ * from (`standUpright.align`).
+ */
+const REST_COLUMN: IAutoMovieMotionHumanBody["upright"] = {
+  joints: {},
+  lean: 0,
+};

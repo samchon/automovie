@@ -10,13 +10,13 @@ import { createSkinnedTubeModel } from "../internal/createSkinnedTubeModel";
 import { hasViolation } from "../internal/predicates";
 
 /**
- * Model admission checks a mesh's morph targets for buffer length, finiteness, unique nonempty names and well-formed drivers, and refuses a driven target under a name expressions write.
+ * Model admission checks a mesh's morph targets for buffer length, finiteness, unique names and well-formed drivers, and refuses a driven target under a name expressions write.
  *
  * Scenarios:
  * 1. A tube with an undriven target, a driven target and a target without normals is admitted; an undriven target may take an ARKit name.
  * 2. Position and normal buffers of the wrong length, and a nonfinite delta, are refused at their paths.
- * 3. An empty name and a duplicated name are refused.
- * 4. A driver naming a bone outside the skeleton, an unknown axis, an empty curve, a nonfinite point and a non-increasing source are refused.
+ * 3. A duplicated name is refused.
+ * 4. A driver naming a bone outside the skeleton, an empty curve, a nonfinite point and a non-increasing source are refused.
  * 5. A driven target named after an ARKit channel, in any case, or a preset is refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs validateModel over whole models and reads success and violation paths; catches admitted malformed buffers, names and drivers, and an expression-named driven target that the viewer would overwrite every frame.
@@ -110,14 +110,7 @@ export function test_validation_mesh_morph_targets(): void {
   );
 
   // 3. names
-  refused(
-    "an empty name is refused",
-    (t: IAutoMovieMeshMorphTarget[]): void => {
-      t[0]!.name = "";
-    },
-    "type",
-    "targets[0].name",
-  );
+
   refused(
     "a duplicated name is refused",
     (t: IAutoMovieMeshMorphTarget[]): void => {
@@ -137,14 +130,7 @@ export function test_validation_mesh_morph_targets(): void {
     "type",
     "targets[1].driver.bone",
   );
-  refused(
-    "an unknown driver axis is refused",
-    (t: IAutoMovieMeshMorphTarget[]): void => {
-      (t[1]!.driver as { axis: string }).axis = "roll";
-    },
-    "type",
-    "targets[1].driver.axis",
-  );
+
   refused(
     "an empty curve is refused",
     (t: IAutoMovieMeshMorphTarget[]): void => {

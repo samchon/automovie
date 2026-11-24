@@ -22,7 +22,7 @@ Prepare one chain and one fixed target after placement. Each work sample evaluat
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Exact XYZ and orientation admit the fixed tool trunk; the native plan checks live rig, profile and fallback shoulder dependencies.
+Exact XYZ and orientation admit the fixed tool trunk; the native plan checks profile and fallback shoulder dependencies.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

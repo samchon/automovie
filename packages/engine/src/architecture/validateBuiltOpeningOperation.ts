@@ -17,14 +17,14 @@ import { validateBuiltTravelMotion } from "./validateBuiltTravelMotion";
  * Validate the movable panels, named states, and hardware of one opening.
  *
  * An operated opening must name the element it fills, and declare at least one
- * panel and one state. Each panel needs a unique non-blank id, an element that
+ * panel and one state. Each panel needs a unique id, an element that
  * resolves and is the filling element or below it, a positive width and height,
  * and a valid travel by {@link validateBuiltTravelMotion}. No element may be
  * driven by two members of the whole work, because one element carries one
  * displacement: `driven` records which member already drives each element
  * across every opening and connector, and is updated here. Each state needs a
- * unique non-blank id and gives every panel exactly one value inside its
- * travel, and the current state must resolve. Hardware needs unique non-blank
+ * unique id and gives every panel exactly one value inside its
+ * travel, and the current state must resolve. Hardware needs unique
  * ids, a non-blank kind, and an element that resolves when it names one.
  * Findings are pushed under `path`; an opening with no operation is skipped.
  *

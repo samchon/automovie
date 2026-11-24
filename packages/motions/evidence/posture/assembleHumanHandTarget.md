@@ -18,7 +18,7 @@ No contact, actual writer or explicit authored bend is replaced.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Only the selected bend branch runs, and the optional owner-issued loan reaches only numeric scoring.
+Only the selected bend branch runs.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

@@ -252,6 +252,14 @@ export interface IAutoMovieMotionHumanActionPlan {
   aimed?: IAutoMovieHumanoidSurfaces.ITangent;
 
   /**
+   * The plan whose posture still writes the arm goals this plan's posture
+   * replaced by the arm's angles (a coursed arm, `courseArmGoal`): a law-side
+   * judgement of a goal (a strike's event on its target, a carried hold's
+   * frame) reads it. Absent, the plan writes its own goals.
+   */
+  goals?: IAutoMovieMotionHumanActionPlan;
+
+  /**
    * The span in which the body flies, touching nothing, and the angular
    * momentum it flies with. The performance turns the composed body through it
    * after placement (`HumanPerformanceFlight`): the shape the carrier, its

@@ -6,7 +6,7 @@ Validates the canonical linear color representation and derives the optional dis
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Owns one unknown-input color gate used by materials, staged atmosphere and lights, scene backgrounds and production artifacts, so object shape, scalar bounds and label consistency cannot acquire different rules in those consumers.
+Owns one color gate used by materials, staged atmosphere and lights, scene backgrounds and production artifacts, so scalar bounds and label consistency cannot acquire different rules in those consumers.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -14,7 +14,7 @@ Reports authored values without clamping or replacing channels from hex; every s
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Gives linear channel ranges, nullable alpha and hex semantics, the quantized sRGB agreement rule, case-insensitive labels, alpha independence, error paths and the dependent-check skip on malformed RGB.
+Gives linear channel ranges, nullable alpha and hex semantics, the quantized sRGB agreement rule, case-insensitive labels, alpha independence, error paths and the dependent-check skip on out-of-range RGB.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
@@ -26,4 +26,4 @@ Validates the caller's current mutable color once; there is no identity or conte
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-Retains no color or conversion result after return; the caller's collector owns at most one object-shape finding or one per invalid scalar/label field.
+Retains no color or conversion result after return; the caller's collector owns one finding per invalid scalar/label field.

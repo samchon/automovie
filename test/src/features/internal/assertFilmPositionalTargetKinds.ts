@@ -5,7 +5,7 @@ import type { IFilmPositionalTargetAssertionsInput } from "./IFilmPositionalTarg
 import { namedFacts } from "./predicates";
 
 /**
- * Run the positional-target unit's existing actor/set, all-missing/mixed/empty group, malformed/relative target, absent point-gesture aim and camera-as-actor comparisons. Authored ids and field paths define the expected refusals independently; the injected performers/diagnostic observers preserve those comparisons without adding admission logic. The discoverable positional unit owns these portable cases and its positive neighbors, while launch-specific recoil admission belongs to launch_camera.
+ * Run the positional-target unit's existing actor/set, all-missing/mixed/empty group, relative target, absent point-gesture aim and camera-as-actor comparisons. Authored ids and field paths define the expected refusals independently; the injected performers/diagnostic observers preserve those comparisons without adding admission logic. The discoverable positional unit owns these portable cases and its positive neighbors, while launch-specific recoil admission belongs to launch_camera.
  */
 export function assertFilmPositionalTargetKinds(
   input: IFilmPositionalTargetAssertionsInput,
@@ -101,24 +101,7 @@ export function assertFilmPositionalTargetKinds(
     ),
   );
 
-  // 5. the kinds that genuinely have no place: a point target whose point is
-  // absent, relative, unknown, malformed.
-  TestValidator.predicate(
-    "a point target with no point says so",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "point" } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      "a point target carries no point to resolve",
-    ),
-  );
+  // 5. the kinds that genuinely have no place: relative targets.
   TestValidator.predicate(
     "a direction target is refused as relative",
     says(
@@ -149,38 +132,6 @@ export function assertFilmPositionalTargetKinds(
       ]),
       "$input.draft[0].to",
       'a target of kind "offscreen" is relative',
-    ),
-  );
-  TestValidator.predicate(
-    "an unknown kind is refused by that kind",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: "elsewhere" } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      '"elsewhere" is not a positional target kind',
-    ),
-  );
-  TestValidator.predicate(
-    "a malformed kind is refused as malformed",
-    says(
-      perform([
-        {
-          verb: "lookAt",
-          actor: "knightA",
-          start: 0,
-          duration: 1,
-          to: { kind: 7 } as never,
-        },
-      ]),
-      "$input.draft[0].to",
-      '"malformed" is not a positional target kind',
     ),
   );
 

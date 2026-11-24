@@ -15,8 +15,8 @@ import { jumpAirborne } from "./jumpAirborne";
 /**
  * Prepare the jump's free-flight reader so a single canonical solve supplies
  * both its mass offset and its translated displayed posture for each query.
- * Original clinical joints and free leg demands stay in the posture; the
- * resolver alone admits or discards evidence of their prepared solution.
+ * Original clinical joints and free leg demands stay in the posture, and the
+ * placed solve travels with it (`HumanPosturePreparation.IPlaced`).
  *
  * @param body The plan's unchanged body.
  * @param model Its physical mass model.
@@ -51,7 +51,7 @@ export function prepareJumpFlight(
       centre: IAutoMovieVector3,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieMotionHumanPosture => {
+    ): HumanPosturePreparation.IPlaced => {
       const read: ReturnType<typeof prepareHumanPoseResolution> =
         prepareHumanPoseResolution(resolution);
       const prepared: HumanPosturePreparation.IPrepared = curve(
@@ -84,7 +84,7 @@ export namespace prepareJumpFlight {
       centre: IAutoMovieVector3,
       resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
       projection?: Parameters<typeof resolveHumanPosture.seeded>[6],
-    ): IAutoMovieMotionHumanPosture;
+    ): HumanPosturePreparation.IPlaced;
 
     /** Prepare the free shape's canonical continuation anchor after placement. */
     prepare(): void;

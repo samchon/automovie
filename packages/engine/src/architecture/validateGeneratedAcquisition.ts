@@ -22,9 +22,8 @@ import { SHA256_DIGEST_PATTERN } from "../validation/constants/SHA256_DIGEST_PAT
  * larger-magnitude values are refused before the presence/warning rules. The
  * actual provider's seed domain remains outside this metadata gate.
  *
- * Provider and model must be non-blank, present request ids and prompts
- * non-blank, and both digests lowercase `sha256:` hex. A supplied digest must
- * equal outputDigest. Findings use `$input` paths; an irreproducible seed is a
+ * Provider and model must be non-blank, a present prompt non-blank, and both
+ * digests lowercase `sha256:` hex. A supplied digest must equal outputDigest. Findings use `$input` paths; an irreproducible seed is a
  * non-blocking warning. Input slots, including holes, are visited by index and
  * checked for nonblank strings without resolving paths. Non-throwing collection
  * assumes the declared acquisition/container and string shapes; malformed
@@ -44,13 +43,6 @@ export const validateGeneratedAcquisition: (
   const root: string = "$input";
   out.nonEmpty(`${root}.provider`, acquisition.provider, "generator provider");
   out.nonEmpty(`${root}.model`, acquisition.model, "generator model");
-  if (acquisition.request !== null && acquisition.request.trim() === "")
-    out.push(
-      "type",
-      `${root}.request`,
-      "generator request id must be null or non-blank",
-      acquisition.request,
-    );
   if (acquisition.prompt !== null && acquisition.prompt.trim() === "")
     out.push(
       "type",

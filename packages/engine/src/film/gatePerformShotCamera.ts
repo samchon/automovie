@@ -12,16 +12,14 @@ import { describeInvalidValue } from "../validation/describeInvalidValue";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
  * Settle the shot's cameras once the live one is elected: fall back to a camera
  * when no `frame` action elected one, gate the blocking's coverage angles, and
  * gate every camera a move is compiled from.
  *
- * 1. Without an elected camera, the scene's first camera is live and locked off,
- *    its id gated as non-blank because it becomes `shot.camera`; a scene with
- *    no camera cannot be framed.
+ * 1. Without an elected camera, the scene's first camera is live and locked off;
+ *    a scene with no camera cannot be framed.
  * 2. Each coverage intent must name a staged camera that is neither the live
  *    camera nor one an earlier intent named, state a usable framing and move,
  *    and favour a subject that resolves; a coverage camera never becomes a
@@ -54,15 +52,7 @@ export function gatePerformShotCamera(
         "the staged scene has no camera, so the shot cannot be framed",
         context.performance.beat,
       );
-    else {
-      validatePerformShotId(
-        context.out,
-        first.id,
-        "$staged.scene.cameras[0].id",
-        "the fallback camera id",
-      );
-      liveCamera = first.id;
-    }
+    else liveCamera = first.id;
   }
   const coverageJobs: IAutoMoviePerformShotCoverageJob[] = gateCoverage(
     context,
@@ -115,12 +105,6 @@ function gateCoverage(
   coverage.forEach(
     (intent: IAutoMovieBlockingCoverage, index: number): void => {
       const path: string = `$blocking.coverage[${index}]`;
-      validatePerformShotId(
-        context.out,
-        intent.camera,
-        `${path}.camera`,
-        "coverage camera id",
-      );
       const camera: IAutoMovieCamera | undefined =
         context.staged.scene.cameras.find(
           (candidate: IAutoMovieCamera): boolean =>

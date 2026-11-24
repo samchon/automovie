@@ -127,12 +127,12 @@ const firstKey: (
  * 1. Check one static alternate, its channels/intent and hand-derived framed pose.
  * 2. Preserve blocking order and push-in endpoints for two alternates.
  * 3. Keep omitted/empty/unblocked coverage empty with an unchanged hero, and
- *    refuse invalid camera/framing/move/subject inputs while accepting point
+ *    refuse unresolved camera/subject references while accepting point
  *    targets.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs performShot and reads alternate identities, channels, pose, intents and located coverage faults, catching rival-camera election, wrong staged bearing or missing input gates. Hero equality is replay invariance, not a repository arrangement check.
  * @evidence contracts/development/testing.md#independent-expectations The fixture rig height 1.2, medium factors .72/.62 and 90-degree field of view determine aim .864 and framed distance .372; push-in endpoints are 1.25 and .8 times that distance. Expected poses use numerical closeness; comparison of repeated hero output checks coverage independence rather than an independent hero-solve oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves static and moving alternates, ordered cameras, omitted/empty/no blocking, unknown/blank/live/repeated camera, invalid framing/move and unknown subject, with distinct-camera and point-target neighbours.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves static and moving alternates, ordered cameras, omitted/empty/no blocking, unknown/live/repeated camera and unknown subject, with distinct-camera and point-target neighbours.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns portable numerical camera cases and directly calls source with existing authored data, opening no renderer, browser or GPU; it proves compiled camera values rather than a visible cut.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Check one static alternate, its channels/intent and hand-derived framed pose.).
  */
@@ -284,11 +284,6 @@ export function test_film_perform_shot_coverage(): void {
     "an unstaged coverage camera is a type violation",
     hasViolation(ghost, "type", "$blocking.coverage[0].camera"),
   );
-  const blank: IAutoMoviePerformedShot = perform([coverage({ camera: "" })]);
-  TestValidator.predicate(
-    "an empty coverage camera id is a type violation",
-    hasViolation(blank, "type", "$blocking.coverage[0].camera"),
-  );
   const hero: IAutoMoviePerformedShot = perform([
     coverage({ camera: "cam-main" }),
   ]);
@@ -300,20 +295,6 @@ export function test_film_perform_shot_coverage(): void {
   TestValidator.predicate(
     "a repeated coverage camera is a type violation at the later entry",
     hasViolation(repeated, "type", "$blocking.coverage[1].camera"),
-  );
-  const badFraming: IAutoMoviePerformedShot = perform([
-    coverage({ framing: "dutch" as never }),
-  ]);
-  TestValidator.predicate(
-    "a forged coverage framing is a type violation",
-    hasViolation(badFraming, "type", "$blocking.coverage[0].framing"),
-  );
-  const badMove: IAutoMoviePerformedShot = perform([
-    coverage({ move: "dolly" as never }),
-  ]);
-  TestValidator.predicate(
-    "a forged coverage move is a type violation",
-    hasViolation(badMove, "type", "$blocking.coverage[0].move"),
   );
   const stranger: IAutoMoviePerformedShot = perform([
     coverage({ on: { kind: "node", node: "ghost" } }),

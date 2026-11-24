@@ -39,8 +39,8 @@ interface IDeclaredNode {
  * of the contracts below at once. {@link forgeCast} forges the performers; this
  * forges the things they hold, open, and stack.
  *
- * The model contract: `node` is non-blank and `model.id` equals it (the staged
- * scene joins on it, as for a forged cast member); `origin` is `"generated"`
+ * The model contract: `model.id` equals `node` (the staged scene joins on it,
+ * as for a forged cast member); `origin` is `"generated"`
  * unless the spec names a `modelRef`, in which case the imported appearance is
  * gated as below; and `skeleton` is `null`, because a riggable actor goes
  * through `forgeCast` and a prop's moving parts are articulation nodes, not
@@ -69,13 +69,6 @@ interface IDeclaredNode {
 export function forgeProp(spec: IAutoMoviePropSpec): IAutoMovieForgedProp {
   const out: IAutoMovieViolationCollector = new ViolationCollector();
 
-  if (spec.node.trim().length === 0)
-    out.push(
-      "type",
-      "$input.node",
-      "prop node must be a non-empty scene node id",
-      spec.node,
-    );
   if (spec.model.id !== spec.node)
     out.push(
       "type",
@@ -150,13 +143,6 @@ function gateImportedAppearance(
   out: IAutoMovieViolationCollector,
 ): void {
   const path: string = "$input.model";
-  if (modelRef.trim().length === 0)
-    out.push(
-      "type",
-      "$input.modelRef",
-      "a prop's model reference must name a builder-owned model registration; an empty reference classifies nothing",
-      modelRef,
-    );
   if (model.origin !== "imported")
     out.push(
       "type",
@@ -354,13 +340,6 @@ function gateArticulation(
   const byId: Map<string, IDeclaredNode> = new Map();
   articulation.nodes.forEach((node: IAutoMovieNode, i: number): void => {
     const np: string = `${path}.nodes[${i}]`;
-    if (node.id.trim().length === 0)
-      out.push(
-        "type",
-        `${np}.id`,
-        "articulation node id must be non-empty",
-        node.id,
-      );
     const existing: IDeclaredNode | undefined = byId.get(node.id);
     if (existing !== undefined) {
       out.push(
@@ -440,10 +419,6 @@ function gateArticulation(
 
   for (const [key, mapped] of Object.entries(binding.boneMap)) {
     const bp: string = `${path}.binding.boneMap["${key}"]`;
-    if (mapped.trim().length === 0) {
-      out.push("type", bp, `boneMap maps "${key}" to an empty node id`, mapped);
-      continue;
-    }
     if (!byId.has(mapped))
       out.push(
         "type",

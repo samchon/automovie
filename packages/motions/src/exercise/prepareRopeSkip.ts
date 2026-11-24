@@ -66,16 +66,14 @@ export function prepareRopeSkip(
   if (
     ![length, radius, handleLength, handleDiameter].every(
       (metres: number): boolean => Number.isFinite(metres) && metres > 0,
-    ) ||
-    typeof subject !== "string" ||
-    subject.trim().length === 0
+    )
   )
     throw new HumanRefusal({
       kind: "parameter",
       axis: "rope",
       value: { subject, length, radius, handleLength, handleDiameter },
       reason:
-        "a skipping rope needs an identity and positive finite dimensions",
+        "a skipping rope needs positive finite dimensions",
       fix: "supply the measured cord and handle dimensions in metres",
     });
 

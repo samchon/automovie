@@ -9,6 +9,7 @@ import type { HumanArmGeometryTypes } from "./HumanArmGeometryTypes";
 import { HumanArmTrajectoryEvaluate } from "./HumanArmTrajectoryEvaluate";
 import { HumanArmTrajectoryInvalid } from "./HumanArmTrajectoryInvalid";
 import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
+import { HumanArmTrajectoryStep } from "./HumanArmTrajectoryStep";
 import { HumanArmTrajectorySweep } from "./HumanArmTrajectorySweep";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
@@ -407,33 +408,9 @@ export namespace HumanArmTrajectoryModel {
     return k > 0 && (k < c.n - 1 || (c.open && k === c.n - 1));
   }
 
-  /**
-   * The iterate after a step of the convex subproblem: each inner waypoint's
-   * free coordinates moved by the step, the others kept, then projected onto
-   * the hard ranges (`ranged`), which the subproblem meets only to its
-   * linearisation and its solver's tolerance.
-   *
-   * @param c The context.
-   * @param x Each arm's coordinates at each waypoint.
-   * @param step The subproblem's solution, by waypoint and then arm.
-   * @returns The new iterate.
-   */
-  export function stepped(
-    c: IContext,
-    x: readonly (readonly number[])[][],
-    step: Float64Array,
-  ): number[][][] {
-    return x.map((arm: readonly (readonly number[])[], a: number): number[][] =>
-      arm.map((v: readonly number[], k: number): number[] => {
-        const out: number[] = [...v];
-        if (!inner(c, k)) return out;
-        c.free[a]!.forEach((d: number, f: number): void => {
-          out[d] = out[d]! + step[(k - 1) * c.width + c.offset[a]! + f]!;
-        });
-        return ranged(c, a, out);
-      }),
-    );
-  }
+  /** The iterate after a step of the convex subproblem (`HumanArmTrajectoryStep`). */
+  export const stepped: typeof HumanArmTrajectoryStep =
+    HumanArmTrajectoryStep;
 
   /**
    * An arm's coordinates projected onto its hard ranges, the nearest point of

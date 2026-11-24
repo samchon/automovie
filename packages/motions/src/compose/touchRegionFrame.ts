@@ -15,10 +15,11 @@ import { AutoMovieMotionHumanTarget } from "./AutoMovieMotionHumanTarget";
 /** The alternatives of `TouchRegionFrameResult`'s site. */
 type TouchRegionFrameResult = "point" | "normal";
 
-/** The alternatives of `TouchRegionFrameEntry`'s site. */
-type TouchRegionFrameEntry =
-  | ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>
-  | (() => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>);
+/** The supplier of the bones a region off the trunk is read on. */
+type TouchRegionFrameEntry = () => ReadonlyMap<
+  AutoMovieHumanoidBone,
+  IAutoMovieResolvedBone
+>;
 
 /** The alternatives of `TouchRegionFrameContext`'s site. */
 type TouchRegionFrameContext = "aim" | "body";
@@ -33,8 +34,8 @@ type TouchRegionFrameContext = "aim" | "body";
  * @param target The target.
  * @param seconds Film seconds.
  * @param posture The posture so far.
- * @param entry The entry pose's resolved bones, or a supplier of the bones to
- *   read a region off the trunk on, called only for such a region.
+ * @param entry The supplier of the bones to read a region off the trunk on (the
+ *   entry pose's), called only for such a region.
  * @returns The point and the outward normal.
  */
 export function touchRegionFrame(
@@ -49,12 +50,12 @@ export function touchRegionFrame(
     const frame: IAutoMovieHumanoidSurfaces.IFrame =
       context.body.surfaces.regions[target.region];
     if (!AutoMovieMotionHumanTarget.TRUNK.has(frame.bone)) {
-      // The bones are read only here: a caller whose bones cost a pose
-      // lends a supplier, which a region on the trunk never calls.
+      // The bones are read only here, so a region on the trunk never calls
+      // the supplier.
       const placed: ReturnType<typeof resolveAutoMovieHumanoidSurfaces.place> =
         resolveAutoMovieHumanoidSurfaces.place(
           frame,
-          (typeof entry === "function" ? entry() : entry).get(frame.bone)!,
+          entry().get(frame.bone)!,
         );
       return { point: placed.point, normal: placed.normal };
     }

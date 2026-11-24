@@ -88,66 +88,6 @@ The body factory owns measure lifetime. Every actual sample supplies current hip
 
 One body and its strategy scalars live with the reader. Current angles, limbs and the synchronous FK source are never retained.
 
-# src/everyday/bendLower.ts#bendLower.pitch
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States the quantity solved, the search range, the reach model and the refusal with its feasible height.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The gap between the shoulder-to-target distance and the arm's reach (`REACH` of upper arm plus forearm, near full extension, plus the palm offset), the shoulder read from the lowered trunk's forward kinematics, is scanned every `SCAN` degrees for the first inclination that closes it, then bisected between that one and the one before. The gap does not fall all the way: the shoulder swings down past a target at counter height, so the gap at the deepest inclinations opens again, and a bisection over the whole range would refuse a counter a slight lean reaches. Each shoulder within reach across the floor also gives the lowest height the hand reaches there, the reach sphere's bottom under it, kept for the refusal.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One solve that reuses `lower` for the body and HumanTrunk for the shoulder.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The reach share is the measured `REACH` and the `DEEPEST` bound is a named provisional constant; an unreachable target is refused with what it can reach, not clamped.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-At most 31 scanned and 30 bisected gap evaluations, each one lowered posture and one trunk forward-kinematics pass; the 30 steps bound the error below 5e-9 degrees.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Each evaluation depends on its own inclination, so nothing repeats within a call.
-
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains nothing.
-
-# src/everyday/bendLower.ts#bendLower.fold
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-States what is read, on which pose and its unit.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The key lowered as `lower` lowers it, resolved once, read by the audit's own pose reader for the trunk-thigh pairs.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One key, one resolve, one pose reading.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-The audit's model and references are the measure; no depth is authored.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Read once per solved key at plan time, never per instant.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-Reuses `lower` and `AutoMovieMotionHumanAuditTangle.pose`.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains nothing.
-
 # src/everyday/bendLower.ts#bendLower.lateralTilt
 
 ## @evidence contracts/development/common.md#meaningful-documentation
@@ -177,13 +117,3 @@ The bend law's alignment and the pick-up's side lean share it.
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 Retains nothing.
-
-# src/everyday/bendLower.ts#bendLower.solve
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Project the centre onto the actual support hull along the author's heading. Convert that hip translation into the sine-scaled retreat of the lowered key and solve its inclination again only if necessary.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-A free or supported key needs one reach solve. Only an active, unsupported key asks for another at its corrected retreat.

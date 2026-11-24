@@ -12,7 +12,6 @@ import type {
   IAutoMovieMotionHumanPosture,
   IAutoMoviePhysicalShape,
   IAutoMovieQuaternion,
-  IAutoMovieResolvedBone,
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -21,17 +20,13 @@ import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanGrip } from "../handling/HumanGrip";
 import { HumanHand } from "../posture/HumanHand";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountReach } from "./HumanMountReach";
+import { HumanMountRiderFreeHands } from "./HumanMountRiderFreeHands";
 import type { HumanRideHands } from "./HumanRideHands";
 import { ankleRidePedalFoot } from "./ankleRidePedalFoot";
 import { placeRideReinPalm } from "./placeRideReinPalm";
-
-/** The alternatives of `FreeHandsArm`'s site. */
-type FreeHandsArm = "leftArm" | "rightArm";
 
 /**
  * What a seated rider's own body gives to stay on a mount's parts: the ankle
@@ -207,9 +202,13 @@ export namespace HumanMountRider {
       share,
       closed,
       () =>
-        freeHands(body, posture, FREE_HAND[side], resolution, projection).get(
-          `${side}Hand`,
-        )!,
+        HumanMountRiderFreeHands(
+          body,
+          posture,
+          FREE_HAND[side],
+          resolution,
+          projection,
+        ).get(`${side}Hand`)!,
     );
   }
 
@@ -219,12 +218,21 @@ export namespace HumanMountRider {
     posture: IAutoMovieMotionHumanPosture,
     share: number,
   ): Taking {
-    let free: ReadonlyMap<AutoMovieHumanoidBone, IFree> | undefined;
+    // An acquiring hand starts from its free wrist, read once for this query.
+    const free: ReadonlyMap<AutoMovieHumanoidBone, IFree> | undefined =
+      share < 1
+        ? HumanMountRiderFreeHands(body, posture, BOTH_HANDS)
+        : undefined;
     return (side, grip, closed) =>
-      held(body, side, posture, grip, share, closed, () => {
-        free ??= freeHands(body, posture, BOTH_HANDS);
-        return free.get(`${side}Hand`)!;
-      });
+      held(
+        body,
+        side,
+        posture,
+        grip,
+        share,
+        closed,
+        (): IFree => free!.get(`${side}Hand`)!,
+      );
   }
 
   /**
@@ -306,83 +314,10 @@ export namespace HumanMountRider {
   }
 
   /**
-   * The wrists as the posture shows them, before either grip is assigned: an
-   * arm the posture already places, such as a hand resting on a thigh, starts
-   * from there. A hand whose arm goal the posture gives in the world, turned,
-   * is where that goal puts it, the wrist on its point turned to its rotation,
-   * the arm fit's own closed-form answer, so no read fits that arm again; the
-   * others are read off the posture resolved without those arms.
-   */
-  function freeHands(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    requested: ReadonlySet<AutoMovieHumanoidBone>,
-    resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  ): ReadonlyMap<AutoMovieHumanoidBone, IFree> {
-    const out: Map<AutoMovieHumanoidBone, IFree> = new Map();
-    const rest: Set<AutoMovieHumanoidBone> = new Set();
-    const limbs: IAutoMovieMotionHumanPosture["limbs"] = { ...posture.limbs };
-    for (const bone of requested) {
-      const arm: FreeHandsArm = bone.startsWith("left")
-        ? "leftArm"
-        : "rightArm";
-      const goal: IAutoMovieHumanLimbGoal | undefined = posture.limbs[arm];
-      if (
-        goal !== undefined &&
-        goal.on === undefined &&
-        goal.rotation !== undefined
-      ) {
-        out.set(bone, {
-          position: goal.point,
-          rotation: goal.rotation,
-          pole: goal.bend,
-        });
-        delete limbs[arm];
-      } else rest.add(bone);
-    }
-    if (rest.size === 0) return out;
-    // The elbows the same fit places, read with their wrists: each is an ancestor of its wrist, so the fit computes it anyway.
-    const read = prepareHumanPoseResolution(resolution);
-    const elbows: Set<AutoMovieHumanoidBone> = new Set(rest);
-    for (const bone of rest)
-      elbows.add(bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm");
-    const bones: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-      poseBones(
-        body,
-        resolveHumanPosture.seeded(
-          body,
-          { ...posture, limbs },
-          undefined,
-          undefined,
-          read,
-          prepareHumanPoseResolution.isNativeSource(resolution)
-            ? rest
-            : undefined,
-          projection,
-        ).pose,
-        read(),
-        elbows,
-      );
-    for (const bone of rest) {
-      const found: IAutoMovieResolvedBone = bones.get(bone)!;
-      const elbow: IAutoMovieResolvedBone | undefined = bones.get(
-        bone.startsWith("left") ? "leftLowerArm" : "rightLowerArm",
-      );
-      out.set(bone, {
-        position: found.worldPosition,
-        rotation: found.worldRotation,
-        ...(elbow === undefined ? {} : { pole: elbow.worldPosition }),
-      });
-    }
-    return out;
-  }
-
-  /**
    * A free wrist as the posture shows it, and the point its elbow bends toward
    * there: the arm goal's own pole, or the elbow the fit placed.
    */
-  interface IFree extends IAutoMovieRigidTransform {
+  export interface IFree extends IAutoMovieRigidTransform {
     /**
      * The point the elbow bends toward, world metres; none when the fit did not
      * place the elbow.

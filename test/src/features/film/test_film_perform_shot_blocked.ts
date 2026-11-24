@@ -59,11 +59,11 @@ const run: (
  * Scenarios:
  * 1. Accept aligned anchors, including an auto-duration actor.
  * 2. Refuse beat/duration mismatch, a late uncovered knightB cue and wrong framing/move.
- * 3. Refuse unauthored follow intent and malformed action actor.
+ * 3. Refuse unauthored follow intent.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls performShot with supplied blocking and checks accepted alignment or located/named coherence findings, catching a dropped timing cue or camera intent despite valid individual stage data.
  * @evidence contracts/development/testing.md#independent-expectations Authored action spans determine whether anchor 1.9 is covered; identical beat/duration and first-frame framing/move are the blocking contract. Expected paths and flinch cue come from the inputs, not compiled output.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs aligned numeric/auto spans with mismatched beat, duration, uncovered late anchor, framing/move and missing frame; malformed actor remains refused before coverage iteration. Exact tolerance edges and overlapping content belong elsewhere.
+ * @evidence contracts/development/testing.md#distinguishing-cases Pairs aligned numeric/auto spans with mismatched beat, duration, uncovered late anchor, framing/move and missing frame. Exact tolerance edges and overlapping content belong elsewhere.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable unit owns portable blocking/performance comparisons over existing fixtures and direct source, with no director host, browser or GPU.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Accept aligned anchors, including an auto-duration actor.).
  */
@@ -233,36 +233,6 @@ export function test_film_perform_shot_blocked(): void {
             (v: IAutoMovieConstraintViolation): boolean =>
               String(v.expected).includes('asks for a "follow" camera'),
           ),
-      ],
-    ]),
-    { refused: true, violated: true },
-  );
-
-  const malformedActor: IAutoMoviePerformedShot = run(
-    makeBlockingWrite(),
-    makePerformanceWrite({
-      draft: [
-        {
-          verb: "locomote",
-          actor: {} as never,
-          start: 0,
-          duration: 1,
-          gait: "walk",
-          to: { kind: "point", point: { x: 1, y: 0, z: 0 } },
-        },
-      ],
-      revise: { review: "unchanged.", final: null },
-    }),
-  );
-  TestValidator.equals(
-    "blocked malformed actor rejected",
-    namedFacts([
-      ["refused", (): boolean => malformedActor.success === false],
-      [
-        "violated",
-        (): boolean =>
-          malformedActor.success === false &&
-          hasViolation(malformedActor, "type", "$input.draft[0].actor"),
       ],
     ]),
     { refused: true, violated: true },

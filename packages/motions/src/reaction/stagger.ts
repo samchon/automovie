@@ -266,8 +266,13 @@ export namespace stagger {
         ? { x: 0, y: 0, z: 0 }
         : Vector3.lerp(a, b, at - k);
     };
-    // The token the legs' writer knows its own plan's loans by.
+    // The token this plan's loans carry as their owner.
     const owner: object = {};
+
+    // The loan this plan has out for the read in progress (`lend`): its legs'
+    // writer honours that one alone, known by identity, and only during that
+    // synchronous read.
+    let lent: StaggerLoan | undefined;
     const legs: IAutoMovieMotionHumanPrimitive = {
       channels: ["root", "trunk", "leftLeg", "rightLeg"],
       from: 0,
@@ -293,10 +298,8 @@ export namespace stagger {
         const loan: IAutoMovieMotionHumanEvaluation.ILoan | undefined =
           evaluation?.loan;
         const solved: ReturnType<StaggerFeet["solve"]> =
-          loan instanceof StaggerLoan &&
-          loan.owner === owner &&
-          loan.seconds === seconds
-            ? loan.solved
+          lent !== undefined && loan === lent && lent.seconds === seconds
+            ? lent.solved
             : feet.solve(seconds, resolution, shift);
         const settled: ReturnType<StaggerFeet["solve"]>["settled"] =
           solved.settled;
@@ -365,12 +368,15 @@ export namespace stagger {
     ) => T = <T>(
       i: number,
       read: (evaluation: IAutoMovieMotionHumanEvaluation | undefined) => T,
-    ): T =>
-      read(
-        balanced.length === 0
-          ? { loan: new StaggerLoan(owner, samples[i]!, unshifted[i]!) }
-          : undefined,
-      );
+    ): T => {
+      if (balanced.length !== 0) return read(undefined);
+      lent = new StaggerLoan(owner, samples[i]!, unshifted[i]!);
+      try {
+        return read({ loan: lent });
+      } finally {
+        lent = undefined;
+      }
+    };
     const resolved: staggerResolved.IReader = staggerResolved(body);
     const needs: Record<AutoMovieHumanSide, number>[] = samples.map(
       (seconds: number, i: number): Record<AutoMovieHumanSide, number> =>

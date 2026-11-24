@@ -42,8 +42,7 @@ export namespace stretchHoldClock {
     const begin: number = Math.ceil(clock.at("reachEnd") / step);
     const end: number = Math.floor(clock.at("release") / step);
     if (begin >= end) return original;
-    const unchanged: (() => boolean) | undefined = stretchHoldInputs(context);
-    if (unchanged === undefined || context.params.kind === "neckSide")
+    if (!stretchHoldInputs(context) || context.params.kind === "neckSide")
       return original;
 
     const first: number = begin * step;
@@ -66,8 +65,7 @@ export namespace stretchHoldClock {
     const actual: Reader = original.posture;
     const hold: Reader = (seconds, channels, resolution, projection) =>
       !prepareHumanPoseResolution.isNativeSource(resolution) ||
-      (projection !== undefined && projection !== context.body.projection) ||
-      !unchanged()
+      (projection !== undefined && projection !== context.body.projection)
         ? actual(seconds, channels, resolution, projection)
         : compact.posture(local(seconds), channels, resolution, projection);
 
@@ -96,7 +94,7 @@ export namespace stretchHoldClock {
     Object.defineProperty(original, "still", {
       configurable: true,
       get: (): readonly [number, number] | undefined =>
-        HumanPreparedPlayback.owns(original, original.posture) && unchanged()
+        HumanPreparedPlayback.owns(original, original.posture)
           ? window
           : undefined,
       set: (value: Plan["still"]): void => {

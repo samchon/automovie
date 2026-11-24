@@ -6,8 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-
 /**
  * Admit shared support geometry before tracking or recovery can dereference a
  * carrier.
@@ -64,8 +62,6 @@ export function admitPhysicalSupportPattern(
     )
       throw new Error("Invalid physical support carrier or chain");
     endpoints.add(limb.bone);
-    if (limb.reach !== undefined && !isAutoMovieRecord(limb.reach))
-      throw new Error("Invalid physical two-link support reach");
     if (limb.reach) {
       const root: number = limb.chain.indexOf(limb.reach.root);
       if (

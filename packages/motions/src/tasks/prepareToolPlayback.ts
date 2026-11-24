@@ -10,7 +10,6 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
-import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 
 /** The record of `IPrepareToolPlaybackProps`'s site. */
 type IPrepareToolPlaybackProps = {
@@ -50,7 +49,6 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
     Object.is(posture.yaw, frame.yaw) &&
     Object.is(posture.pitch, frame.pitch) &&
     Object.is(posture.roll, frame.roll);
-  let rig: (() => boolean) | undefined;
   const profile: typeof body.profile = body.profile;
   const upperArm: number = body.measure.upperArm;
   const shoulder: IAutoMovieVector3 | undefined = body.rest.get(
@@ -85,8 +83,7 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
       current === undefined ||
       !Object.is(current.x, rest.x) ||
       !Object.is(current.y, rest.y) ||
-      !Object.is(current.z, rest.z) ||
-      rig?.() !== true
+      !Object.is(current.z, rest.z)
     )
       return undefined;
     return {
@@ -96,8 +93,6 @@ export function prepareToolPlayback(props: IPrepareToolPlaybackProps): void {
   HumanPreparedPlayback.attach(plan, body, {
     mode: "posture",
     prepare: (): void => {
-      rig = prepareHumanPostureRigCheck(body);
-      if (rig === undefined) return;
       bends = AutoMovieMotionHumanBend.prepare({ body, posture: frame, side });
       fixed = target(frame, ready, bends);
     },

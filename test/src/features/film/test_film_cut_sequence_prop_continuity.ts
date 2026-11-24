@@ -22,12 +22,10 @@ import { nclose } from "../internal/predicates";
  * 3. Detect a morph-state jump when the incoming STEP starts exactly at its trim.
  * 4. Refuse an incoming track that only starts after the boundary, an outgoing
  *    STEP change on the excluded edge, and a transition with no hard cut.
- * 5. Return field-specific failures for a JSON null requirement, a numeric
- *    prop id and a non-array requirement list.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls cutSequence with already-built tracks and checks accepted runtime, a measured continuity violation and distinct unsupported/missing cases through the public result.
  * @evidence contracts/development/testing.md#independent-expectations Position advances one metre per second. It is 1 metre at outgoing time 1 and incoming time 1.5, and 1.5 metres when the incoming trim instead starts at 2. At 2× and 0.5× the output spans are 0.375 and 2 seconds. The two unit quaternions denote identical orientations; the midpoint weights of both ramps are 0.5. An incoming STEP setting the weight to 0.125 jumps by 0.375.
- * @evidence contracts/development/testing.md#distinguishing-cases An interior trim shift isolates a position mismatch, while the active-channel and STEP cases distinguish absence from an unsupported outgoing boundary. JSON failures distinguish list, record and node id shapes.
+ * @evidence contracts/development/testing.md#distinguishing-cases An interior trim shift isolates a position mismatch, while the active-channel and STEP cases distinguish absence from an unsupported outgoing boundary.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable test supplies finite clip data to cutSequence synchronously without a render host, timers or global changes.
  * @evidence contracts/development/common.md#meaningful-documentation The scenarios identify source-time placements, channel units and meanings, hard cut versus overlap, and the independent arithmetic behind the measured jump.
  */
@@ -242,35 +240,5 @@ export function test_film_cut_sequence_prop_continuity(): void {
     "dissolve refusal points to the incoming entry",
     overlapping.success ? null : overlapping.violations[0]?.path,
     "$input.requiredPropContinuity[0].entry",
-  );
-
-  const malformed: IAutoMovieCut = cutSequence(
-    {
-      ...plan,
-      requiredPropContinuity: JSON.parse(
-        '[null,{"entry":1,"node":17,"component":"translation","tolerance":0}]',
-      ),
-    },
-    [outgoing, incoming],
-  );
-  TestValidator.equals(
-    "null requirement and numeric node id each get a violation",
-    malformed.success
-      ? []
-      : malformed.violations.map((item): string => item.path),
-    [
-      "$input.requiredPropContinuity[0]",
-      "$input.requiredPropContinuity[1].node",
-    ],
-  );
-
-  const malformedList: IAutoMovieCut = cutSequence(
-    { ...plan, requiredPropContinuity: JSON.parse("{}") },
-    [outgoing, incoming],
-  );
-  TestValidator.equals(
-    "a non-array requirement list receives a violation",
-    malformedList.success ? null : malformedList.violations[0]?.path,
-    "$input.requiredPropContinuity",
   );
 }

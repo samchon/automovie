@@ -55,8 +55,6 @@ export function compilePracticalLightMotion(
     objectMotions,
     on,
   }: typeof input = input;
-  if (id.length === 0 || light.id.length === 0)
-    throw new Error("practical light and clip ids must be nonempty");
   if (light.type !== "point" && light.type !== "spot")
     throw new Error("a practical light must be a point or spot");
   if (!Number.isFinite(duration) || duration <= 0)

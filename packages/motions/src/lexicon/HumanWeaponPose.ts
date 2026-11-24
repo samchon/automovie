@@ -29,7 +29,9 @@ import { StrikingTarget } from "../striking/StrikingTarget";
 import { HumanFirearmReady } from "./HumanFirearmReady";
 import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanWeaponHeld } from "./HumanWeaponHeld";
+import { HumanWeaponPoseReach } from "./HumanWeaponPoseReach";
 import { HumanWeaponPresent } from "./HumanWeaponPresent";
+import type { IHumanWeaponPosePosed } from "./IHumanWeaponPosePosed";
 
 /**
  * The most passes a held frame is stepped back along the line to bring the
@@ -39,22 +41,6 @@ import { HumanWeaponPresent } from "./HumanWeaponPresent";
 const PASSES: number = 3;
 /** The alternatives of `OfContext`'s site. */
 type OfContext = "params" | "body" | "aim";
-
-/**
- * The signed step along a line from a point to where the line meets a sphere
- * about a centre on its far side: the larger root of `|d + s u|^2 = r^2` for
- * the point's offset `d` from the centre and the unit direction `u`; undefined
- * when the line misses the sphere (a negative discriminant).
- */
-function reach(
-  d: IAutoMovieVector3,
-  u: IAutoMovieVector3,
-  r: number,
-): number | undefined {
-  const b: number = Vector3.dot(d, u);
-  const disc: number = b * b - Vector3.dot(d, d) + r * r;
-  return disc < 0 ? undefined : -b + Math.sqrt(disc);
-}
 
 /**
  * A presentation's stance and pose with the weapon as a setup holds it.
@@ -297,7 +283,7 @@ export function HumanWeaponPose(
         // `|w + s u - c|^2 = r^2` (the wrist `w`, the line `u`, the shoulder
         // `c`, the length `r`). A line the length never meets is refused.
         const outward = (from: IAutoMovieVector3, r: number): number => {
-          const step: number | undefined = reach(
+          const step: number | undefined = HumanWeaponPoseReach(
             Vector3.subtract(from, shoulder),
             sight,
             r,
@@ -505,43 +491,6 @@ export function HumanWeaponPose(
  * holds.
  */
 export namespace HumanWeaponPose {
-  /** A presentation's stance and pose. */
-  export interface IPosed {
-    /**
-     * The trunk's whole turn, degrees, positive toward the performer's left: a
-     * long gun's blade toward the firing side on foot, with a seated
-     * performer's turn toward the target.
-     */
-    turn: number;
-
-    /**
-     * The entry posture with the trunk turned and the supporting hand on its
-     * planned handle.
-     */
-    bladed: IAutoMovieMotionHumanPosture;
-
-    /** The sight line's start, world metres. */
-    eye: IAutoMovieVector3;
-
-    /** What is aimed at, world metres. */
-    target: IAutoMovieVector3;
-
-    /** The unit direction from the root to the target on the floor. */
-    line: IAutoMovieVector3;
-
-    /** How the weapon is carried. */
-    carriage: IAutoMovieMotionHumanWeaponPresent.Carriage;
-
-    /** The firing hand's grip frame the carriage asks. */
-    pose: IAutoMovieMotionHumanStrikingHeld.IHandFrame;
-
-    /**
-     * Tool geometry in the hand frame, using both prop ends for a one-hand
-     * shoulder carriage.
-     */
-    tool: IAutoMovieMotionHumanStrikingHeld.ITool;
-
-    /** Distance in metres from the tip to the point the stroke keeps. */
-    back: number;
-  }
+  /** {@link IHumanWeaponPosePosed}, read through this namespace. */
+  export type IPosed = IHumanWeaponPosePosed;
 }

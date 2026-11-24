@@ -12,8 +12,8 @@ import type { IAutoMovieTimingAnchor } from "../harness/IAutoMovieTimingAnchor";
  */
 export interface IAutoMovieBlockingActor {
   /**
-   * Non-blank staged scene node this intent belongs to; blockBeat refuses an id
-   * absent from scene.nodes, while duplicate intent rows remain permitted.
+   * Staged scene node this intent belongs to; blockBeat refuses an id absent
+   * from scene.nodes, while duplicate intent rows remain permitted.
    */
   node: string;
 

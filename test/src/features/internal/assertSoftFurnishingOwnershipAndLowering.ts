@@ -196,20 +196,6 @@ export function assertSoftFurnishingOwnershipAndLowering(
           solved.analysis.unsupported.length === 0,
       ],
       [
-        "unknownMode",
-        (): boolean => {
-          const odd: ReturnType<typeof lowerSoftFurnishing> = frame(
-            softFurnishing({ mode: "baked" as unknown as "rest" }),
-            panel(),
-          );
-          return (
-            odd.analysis.status === "not-run" &&
-            odd.state === null &&
-            odd.surface === null
-          );
-        },
-      ],
-      [
         "mismatchedDomain",
         (): boolean => {
           const odd: ReturnType<typeof lowerSoftFurnishing> = frame(
@@ -234,7 +220,6 @@ export function assertSoftFurnishingOwnershipAndLowering(
       unsupported: true,
       rest: true,
       solved: true,
-      unknownMode: true,
       mismatchedDomain: true,
       kind: true,
       furnishing: true,
@@ -270,18 +255,6 @@ export function assertSoftFurnishingOwnershipAndLowering(
           }).state?.step === 1_000,
       ],
       [
-        "notReal",
-        (): boolean => {
-          const odd: ReturnType<typeof lowerSoftFurnishing> =
-            lowerSoftFurnishing({
-              furnishing: softFurnishing(),
-              domain: panel(),
-              time: Number.NaN,
-            });
-          return odd.analysis.status === "not-run" && odd.state === null;
-        },
-      ],
-      [
         "beforeTheClock",
         (): boolean =>
           lowerSoftFurnishing({
@@ -294,7 +267,6 @@ export function assertSoftFurnishingOwnershipAndLowering(
     {
       past: true,
       lastReachable: true,
-      notReal: true,
       beforeTheClock: true,
     },
   );

@@ -9,6 +9,7 @@ import type {
 
 import { HumanChain } from "../../HumanChain";
 import { carry } from "../../carrying/carry";
+import { carryPlace } from "../../carrying/carryPlace";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { everydayVerdicts } from "./everydayVerdicts";
@@ -174,7 +175,7 @@ export function carryCases(
               Vector3.length(
                 Vector3.subtract(
                   surface(side, t),
-                  carry.place(who.body, posture, how, side, loaded)!.point,
+                  carryPlace(who.body, posture, how, side, loaded)!.point,
                 ),
               ),
             );

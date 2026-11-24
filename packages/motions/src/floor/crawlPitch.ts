@@ -10,7 +10,6 @@ import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { crawlFrame } from "./crawlFrame";
 
 /** The record of `ICrawlPitchResult`'s site. */
@@ -63,21 +62,13 @@ export function crawlPitch(
       );
       pose = source.pose;
     } else {
-      pose = resolveHumanPosture.seeded(
-        body,
-        HumanPosturePreparation.rigid(
-          source,
-          posture.root,
-          posture.yaw,
-          posture.pitch,
-          posture.roll,
-        ),
-        undefined,
-        undefined,
-        resolution,
-        undefined,
-        projection,
-      ).pose;
+      pose = HumanPosturePreparation.rigid(
+        source,
+        posture.root,
+        posture.yaw,
+        posture.pitch,
+        posture.roll,
+      ).fit().pose;
     }
     return read(pose, resolution());
   };

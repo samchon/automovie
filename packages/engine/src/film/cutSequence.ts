@@ -9,9 +9,6 @@ import type {
 } from "@automovie/interface";
 
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { validateArrayArtifact } from "../validation/validateArrayArtifact";
-import { validateNonEmptyId as validateIdArtifact } from "../validation/validateNonEmptyId";
-import { validateObjectArtifact } from "../validation/validateObjectArtifact";
 import { checkCutPropContinuity } from "./checkCutPropContinuity";
 import { sequenceEventTimeline } from "./sequenceEventTimeline";
 
@@ -33,7 +30,7 @@ type RequiredEvent = NonNullable<IAutoMovieEditPlan["requiredEvents"]>[number];
  * return every violation at once.
  *
  * The layout gates are editorial arithmetic. Built shot ids are unique; the
- * sequence id and each entry's shot id are non-blank; the frame rate is finite
+ * frame rate is finite
  * and positive; there is at least one entry; every entry names a built shot
  * whose duration is finite and positive; a trim has a finite positive duration
  * and a finite start, and lies inside `[0, shot.duration]`; the entry rate is
@@ -76,13 +73,6 @@ export function cutSequence(
     byId.set(shot.id, { shot, index });
   });
 
-  function validateNonEmptyId(id: string, path: string, label: string): void {
-    if (id.trim().length === 0)
-      out.push("type", path, `${label} must be a non-empty id`, id);
-  }
-
-  validateNonEmptyId(assemble.sequence.id, "$input.sequence.id", "sequence id");
-
   if (!Number.isFinite(assemble.fps) || !(assemble.fps > 0))
     out.push(
       "range",
@@ -116,13 +106,9 @@ export function cutSequence(
   function resolveEventBound(
     times: Map<string, number | null>,
     shot: IAutoMovieShot,
-    id: unknown,
+    id: string,
     path: string,
   ): number | undefined {
-    if (typeof id !== "string" || id.trim().length === 0) {
-      out.push("type", path, "trim event id must be a non-empty string", id);
-      return undefined;
-    }
     const time: number | null | undefined = times.get(id);
     if (time === undefined || time === null) {
       out.push(
@@ -170,7 +156,6 @@ export function cutSequence(
   let previousIncomingTransition: number = 0;
   assemble.entries.forEach(
     (entry: IAutoMovieEditPlan["entries"][number], i: number): void => {
-      validateNonEmptyId(entry.shot, `$input.entries[${i}].shot`, "shot id");
       const found: IBuiltShot | undefined = byId.get(entry.shot);
       if (found === undefined) {
         out.push(
@@ -198,17 +183,11 @@ export function cutSequence(
       let validPlayedSpan: boolean = validShotDuration;
       let incomingTransition: number = 0;
       let trim: IAutoMovieTrim | null = entry.trim;
-      const bounds: unknown = entry.trimByEvents;
+      const bounds: IAutoMovieEditPlan["entries"][number]["trimByEvents"] =
+        entry.trimByEvents;
       if (bounds !== undefined) {
         const path: string = `$input.entries[${i}].trimByEvents`;
-        if (
-          bounds === null ||
-          typeof bounds !== "object" ||
-          Array.isArray(bounds)
-        ) {
-          validPlayedSpan = false;
-          out.push("type", path, "event trim must be an object", bounds);
-        } else if (trim !== null) {
+        if (trim !== null) {
           validPlayedSpan = false;
           out.push(
             "type",
@@ -228,13 +207,13 @@ export function cutSequence(
           const start: number | undefined = resolveEventBound(
             times,
             shot,
-            "startEvent" in bounds ? bounds.startEvent : undefined,
+            bounds.startEvent,
             `${path}.startEvent`,
           );
           const end: number | undefined = resolveEventBound(
             times,
             shot,
-            "endEvent" in bounds ? bounds.endEvent : undefined,
+            bounds.endEvent,
             `${path}.endEvent`,
           );
           if (start === undefined || end === undefined) validPlayedSpan = false;
@@ -415,12 +394,6 @@ export function cutSequence(
     assemble.requiredEvents;
   if (
     requiredEvents !== undefined &&
-    validateArrayArtifact(
-      requiredEvents,
-      "$input.requiredEvents",
-      "event requirements",
-      out.items,
-    ) &&
     requiredEvents.length > 0
   ) {
     const counts: Map<number, Map<string, number>> = new Map();
@@ -431,17 +404,8 @@ export function cutSequence(
       counts.set(event.entry, entryCounts);
     }
     for (let index: number = 0; index < requiredEvents.length; index++) {
-      const requirement: RequiredEvent | undefined = requiredEvents[index];
+      const requirement: RequiredEvent = requiredEvents[index]!;
       const path: string = `$input.requiredEvents[${index}]`;
-      if (
-        !validateObjectArtifact(
-          requirement,
-          path,
-          "event requirement",
-          out.items,
-        )
-      )
-        continue;
       const validEntry: boolean =
         Number.isInteger(requirement.entry) &&
         requirement.entry >= 0 &&
@@ -453,14 +417,7 @@ export function cutSequence(
           "required event must address a playback entry by zero-based index",
           requirement.entry,
         );
-      const beforeIdCheck: number = out.items.length;
-      validateIdArtifact(
-        requirement.event,
-        `${path}.event`,
-        "event id",
-        out.items,
-      );
-      if (!validEntry || out.items.length !== beforeIdCheck) continue;
+      if (!validEntry) continue;
 
       const count: number =
         counts.get(requirement.entry)?.get(requirement.event) ?? 0;
@@ -477,12 +434,6 @@ export function cutSequence(
     assemble.requiredPropContinuity;
   if (
     requiredProps !== undefined &&
-    validateArrayArtifact(
-      requiredProps,
-      "$input.requiredPropContinuity",
-      "prop continuity requirements",
-      out.items,
-    ) &&
     requiredProps.length > 0
   )
     checkCutPropContinuity(

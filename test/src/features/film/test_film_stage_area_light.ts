@@ -49,16 +49,13 @@ const refusedAt: (
  *
  * 1. A complete panel lowers to an `area` scene light keeping its extent, its aim
  * as a rotation of local −Z, and its X/Y position. Z and intensity are supplied but not asserted here.
- * 2. Missing panel extent is refused, as are zero width, infinite height and a
- * nonnumeric width; extent on spot and directional inputs is refused at its own field.
- * 3. The parameters a panel cannot act on are refused rather than dropped: a
- * distance `range`, a spot `coneAngle`, and a shadow map `three.js` never renders for an analytically integrated source.
+ * 2. A zero width is refused, and a punctual shadow still requires its settings.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Stages an authored area panel and observes copied extent, aim and position plus located refusals for missing/invalid extent and fields unavailable to the chosen kind.
- * @evidence contracts/development/testing.md#independent-expectations Literal panel dimensions/position and local-minus-Z aimed along minus-X provide the expected quaternion; per-kind field rules provide refusal paths, while numerical lowering proves no GPU area-light or shadow-map appearance.
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps complete area input, missing axes, zero/non-finite/nonnumeric extent, extent on other kinds, unavailable range/cone/shadow and the adjacent punctual shadow requirement.
+ * @evidence contracts/development/testing.md#behavioral-verification Stages an authored area panel and observes copied extent, aim and position plus located refusals for a zero extent and a shadow without settings.
+ * @evidence contracts/development/testing.md#independent-expectations Literal panel dimensions/position and local-minus-Z aimed along minus-X provide the expected quaternion; field rules provide refusal paths, while numerical lowering proves no GPU area-light or shadow-map appearance.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps complete area input, zero extent and the adjacent punctual shadow requirement.
  * @evidence contracts/development/testing.md#execution-ownership The runner discovers test_film_stage_area_light and this entry owns its direct and delegated in-memory CPU assertions; it acquires no renderer, GPU, decoder, native build, installed consumer or completed-result cache. Numeric/byte observations do not prove hardware appearance or universal cross-host identity.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete panel lowers to an `area` scene light keeping its extent, its aim).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A complete panel lowers to an `area` scene light keeping its extent, its aim).
  */
 export function test_film_stage_area_light(): void {
   const staged: IAutoMovieStagedSet = stagedWith(WINDOW);
@@ -101,114 +98,9 @@ export function test_film_stage_area_light(): void {
   );
 
   TestValidator.equals(
-    "extent belongs to the panel alone and is held to a real size",
+    "a panel's extent is held to a real size and punctual shadows keep their settings",
     namedFacts([
-      [
-        "missingWidth",
-        (): boolean =>
-          refusedAt({ width: undefined }, "type", "$input.lights[0].width"),
-      ],
-      [
-        "missingHeight",
-        (): boolean =>
-          refusedAt({ height: undefined }, "type", "$input.lights[0].height"),
-      ],
       ["zeroWidth", (): boolean => refusedAt({ width: 0 }, "range", ".width")],
-      [
-        "infiniteHeight",
-        (): boolean => refusedAt({ height: Infinity }, "range", ".height"),
-      ],
-      [
-        "nonNumericWidth",
-        (): boolean => refusedAt({ width: "wide" }, "range", ".width"),
-      ],
-      [
-        "extentOnSpot",
-        (): boolean =>
-          hasViolation(
-            stagedWith({
-              node: "key",
-              type: "spot",
-              direction: { x: 0, y: -1, z: 0 },
-              position: { x: 0, y: 3, z: 0 },
-              intensity: 5,
-              width: 1,
-            }),
-            "type",
-            "$input.lights[0].width",
-          ),
-      ],
-      [
-        "extentOnDirectional",
-        (): boolean =>
-          hasViolation(
-            stagedWith({
-              node: "sun",
-              direction: { x: -1, y: -1, z: 0 },
-              intensity: 1,
-              height: 2,
-            }),
-            "type",
-            "$input.lights[0].height",
-          ),
-      ],
-    ]),
-    {
-      missingWidth: true,
-      missingHeight: true,
-      zeroWidth: true,
-      infiniteHeight: true,
-      nonNumericWidth: true,
-      extentOnSpot: true,
-      extentOnDirectional: true,
-    },
-  );
-
-  TestValidator.equals(
-    "a panel refuses every parameter it could not act on",
-    namedFacts([
-      [
-        "range",
-        (): boolean =>
-          refusedAt({ range: 8 }, "type", "$input.lights[0].range"),
-      ],
-      [
-        "coneAngle",
-        (): boolean =>
-          refusedAt({ coneAngle: 30 }, "type", "$input.lights[0].coneAngle"),
-      ],
-      [
-        "castShadow",
-        (): boolean =>
-          refusedAt(
-            {
-              castShadow: true,
-              shadow: {
-                mapSize: 512,
-                bias: 0,
-                normalBias: 0,
-                near: 0.1,
-                far: 50,
-              },
-            },
-            "type",
-            "$input.lights[0].castShadow",
-          ),
-      ],
-      [
-        "castShadowIsNotAskedForSettings",
-        (): boolean =>
-          hasViolation(
-            stagedWith({ ...WINDOW, castShadow: true }),
-            "type",
-            "$input.lights[0].castShadow",
-          ) &&
-          !hasViolation(
-            stagedWith({ ...WINDOW, castShadow: true }),
-            "type",
-            "$input.lights[0].shadow",
-          ),
-      ],
       [
         "punctualShadowStillRequired",
         (): boolean =>
@@ -227,10 +119,7 @@ export function test_film_stage_area_light(): void {
       ],
     ]),
     {
-      range: true,
-      coneAngle: true,
-      castShadow: true,
-      castShadowIsNotAskedForSettings: true,
+      zeroWidth: true,
       punctualShadowStillRequired: true,
     },
   );

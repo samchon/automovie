@@ -220,12 +220,12 @@ export function test_motion_posture_equipment_kinematics(): void {
     ...original,
     entry: { ...original.entry, holds: { right: "bar" } },
   };
-  const both = AutoMovieMotionHumanWorkout.WorkoutLoad.of(context, {
+  const both = AutoMovieMotionHumanWorkout.WorkoutLoad(context, {
     prop: "bar",
     handle: "gripRight",
     other: "gripLeft",
   });
-  const one = AutoMovieMotionHumanWorkout.WorkoutLoad.of(context, {
+  const one = AutoMovieMotionHumanWorkout.WorkoutLoad(context, {
     prop: "bar",
     handle: "gripRight",
   });

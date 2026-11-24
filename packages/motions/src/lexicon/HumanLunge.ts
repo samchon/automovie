@@ -293,6 +293,7 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
   // The displayed hand, as the course lays it, must lie on the line wherever a hand fully holds it.
   const shown: IAutoMovieMotionHumanActionPlan = {
     ...coursed,
+    goals,
     posture(
       at,
       channels,
@@ -345,7 +346,6 @@ function planHumanLunge(context: Context): IAutoMovieMotionHumanActionPlan {
       return posture;
     },
   };
-  courseArmGoal.SOURCES.set(shown, goals);
   return shown;
 }
 

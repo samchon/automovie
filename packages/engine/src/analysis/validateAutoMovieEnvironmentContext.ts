@@ -53,7 +53,6 @@ export const validateAutoMovieEnvironmentContext: (
   const root: string = "$input";
   const reserved: Set<string> = new Set<string>(props.reserved ?? []);
 
-  out.nonEmpty(`${root}.id`, context.id, "environment context id");
   if (context.version !== 1)
     out.push(
       "type",
@@ -111,7 +110,6 @@ export const validateAutoMovieEnvironmentContext: (
       );
       continue;
     }
-    out.nonEmpty(`${path}.id`, instant.id, "instant id");
     out.nonEmpty(`${path}.label`, instant.label, "instant label");
     if (instantIds.has(instant.id))
       out.push(
@@ -198,7 +196,6 @@ export const validateAutoMovieEnvironmentContext: (
       );
       continue;
     }
-    out.nonEmpty(`${path}.id`, occluder.id, "occluder id");
     out.nonEmpty(`${path}.kind`, occluder.kind, "occluder kind");
     if (occluderIds.has(occluder.id))
       out.push(

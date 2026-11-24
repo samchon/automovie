@@ -26,12 +26,12 @@ type Bone = "root" | "marker";
  * Scenarios:
  * 1. A source basis edited from implicit order to explicit order invalidates its normalized entry and leaves previous snapshots intact.
  * 2. Prepared articulated and skeleton FK preserve the order across source edits.
- * 3. The literal order admits omitted or distal placement and reports contradictory or unknown declarations on their own fields.
+ * 3. The literal order admits omitted or distal placement and reports a contradictory declaration on its own field.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the basis cache, prepared rig and refusal scenarios.
  * @evidence contracts/development/testing.md#behavioral-verification Reads frozen bases, prepared world frames and validation issues before and after source edits.
  * @evidence contracts/development/testing.md#independent-expectations Starting on +Y, the intrinsic X-Z-Y product of quarter turns acts as Y then Z then X on the marker, taking it to -X. The old proximal product takes it to +X. Optional declarations are checked directly.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers omitted order, explicit order with absent or distal twist placement, a conflicting proximal placement and a misspelled rotation order.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers omitted order, explicit order with absent or distal twist placement, and a conflicting proximal placement.
  * @evidence contracts/development/testing.md#execution-ownership One local test reads two rigid nodes and test-owned inputs without a renderer or host.
  */
 export function test_kinematics_joint_order_transport(): void {
@@ -142,13 +142,5 @@ export function test_kinematics_joint_order_transport(): void {
       path,
     ).map((issue) => issue.path),
   );
-  const malformed: IAutoMovieJointAxes = {
-    ...legacy,
-    rotationOrder: "flexion-twist-abduction",
-  } as unknown as IAutoMovieJointAxes;
-  TestValidator.equals(
-    "a locally typed record still validates an external order spelling",
-    [`${path}.rotationOrder`],
-    validateJointAxesBasis(malformed, path).map((issue) => issue.path),
-  );
+
 }

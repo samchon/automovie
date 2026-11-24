@@ -1,7 +1,5 @@
 import { resolveDrivers } from "@automovie/engine";
 import type {
-  IAutoMovieDrivenCurve,
-  IAutoMovieDrivenCurvePoint,
   IAutoMovieDrivenDriver,
   IAutoMovieDriver,
   IAutoMovieSampledChannel,
@@ -23,9 +21,8 @@ import { throwsError } from "./throwsError";
  * 3. Clamping pins source20 to output100, while omitted clamp permits output200.
  * 4. The degenerate input interval [5,5] selects output3.
  * 5. A curve supersedes linear fields, interpolates source8.5 to55 and holds endpoints below/above its domain.
- * 6. Malformed source arrays, linear range tuples, curve objects/points and nonfinite or non-increasing coordinates reject.
- * 7. A nonboolean clamp flag rejects rather than changing extrapolation through truthiness.
- * 8. Node TRS and nonscalar pointer outputs reject a scalar write.
+ * 6. Empty or vector source values, an empty curve and non-increasing coordinates reject.
+ * 7. Node TRS and nonscalar pointer outputs reject a scalar write.
  */
 export function runResolveDriversDrivenScenario(): void {
   const run: (driver: IAutoMovieDrivenDriver, source?: number) => number[] = (
@@ -74,13 +71,6 @@ export function runResolveDriversDrivenScenario(): void {
   TestValidator.predicate(
     "clamp pins past the range",
     sameValues(run(driven({ clamp: true }), 20), [100]),
-  );
-  TestValidator.predicate(
-    "driven driver rejects non-boolean clamp flag",
-    throwsError(
-      (): number[] => run(driven({ clamp: "false" as unknown as boolean }), 20),
-      ["driven driver clamp", "boolean", "false"],
-    ),
   );
   TestValidator.predicate(
     "degenerate input range maps to outRange[0]",
@@ -166,32 +156,6 @@ export function runResolveDriversDrivenScenario(): void {
     sameValues(run(curl, 20), [100]),
   );
   TestValidator.predicate(
-    "driven driver rejects NaN source",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveDrivers(
-          [driven({})],
-          seed([["ptr:/in", ptr("/in"), [Number.NaN]]]),
-          new Map(),
-        ),
-      ["driven driver source value", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects non-array source value",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveDrivers(
-          [driven({})],
-          seed([
-            ["ptr:/in", ptr("/in"), { 0: 5, length: 1 } as unknown as number[]],
-          ]),
-          new Map(),
-        ),
-      ["driven driver source value", "array"],
-    ),
-  );
-  TestValidator.predicate(
     "driven driver rejects empty source value",
     throwsError(
       (): IAutoMovieDriver[] =>
@@ -216,108 +180,10 @@ export function runResolveDriversDrivenScenario(): void {
     ),
   );
   TestValidator.predicate(
-    "driven driver rejects non-array input range",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            inRange: { 0: 0, 1: 10, length: 2 } as unknown as [number, number],
-          }),
-          5,
-        ),
-      ["driven driver inRange", "array"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects wrong-width output range",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({ outRange: [0, 100, 999] as unknown as [number, number] }),
-          5,
-        ),
-      ["driven driver outRange", "exactly 2", "3"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects NaN input range",
-    throwsError(
-      (): number[] => run(driven({ inRange: [Number.NaN, 1] })),
-      ["driven driver inRange[0]", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects infinite output range",
-    throwsError(
-      (): number[] => run(driven({ outRange: [0, Infinity] }), 1),
-      ["driven driver outRange[1]", "finite", "Infinity"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects array curve contract",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: [
-              { source: 0, output: 0 },
-              { source: 1, output: 1 },
-            ] as unknown as IAutoMovieDrivenCurve,
-          }),
-          1,
-        ),
-      ["driven driver curve", "object"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects missing curve points",
-    throwsError(
-      (): number[] =>
-        run(driven({ curve: {} as unknown as IAutoMovieDrivenCurve }), 1),
-      ["driven driver curve.points", "array"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects non-object curve point",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: {
-              points: [
-                { source: 0, output: 0 },
-                [1, 1] as unknown as IAutoMovieDrivenCurvePoint,
-              ],
-            },
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1]", "object"],
-    ),
-  );
-  TestValidator.predicate(
     "driven driver rejects empty curve",
     throwsError(
       (): number[] => run(driven({ curve: { points: [] } }), 1),
       ["driven driver curve.points", "at least one"],
-    ),
-  );
-  TestValidator.predicate(
-    "driven driver rejects non-finite curve coordinate",
-    throwsError(
-      (): number[] =>
-        run(
-          driven({
-            curve: {
-              points: [
-                { source: 0, output: 0 },
-                { source: 1, output: Number.NaN },
-              ],
-            },
-          }),
-          1,
-        ),
-      ["driven driver curve.points[1].output", "finite", "NaN"],
     ),
   );
   TestValidator.predicate(

@@ -62,7 +62,7 @@ const PRIMITIVE_POINTS: ReadonlyMap<string, { min: number; max: number }> =
  * Observed points are in frame units and must lie within the frame's `bounds`
  * (0 to width, 0 to height); each primitive family has its own point-count
  * bounds, and only `text` and `level-marker` carry literal text. Frames are
- * judged by {@link validateDesignSourceFrame}. Every id is unique and non-blank,
+ * judged by {@link validateDesignSourceFrame}. Every id is unique,
  * the digest is a lowercase `sha256:` hex digest, and the media is a supported
  * type. Findings are returned with `$input` paths and nothing throws; the asset
  * bytes behind `digest` are not read here.
@@ -79,7 +79,6 @@ export const validateDesignReference: (
   const out: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  out.nonEmpty(`${root}.id`, reference.id, "design reference id");
   if (reference.version !== 1)
     out.push(
       "type",

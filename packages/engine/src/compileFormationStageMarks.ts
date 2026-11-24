@@ -53,10 +53,8 @@ export function compileFormationStageMarks(
   const motions: IAutoMovieFormationSlotMotion[] = [];
   let end: number = 0;
   for (const set of sets) {
-    if (set.id.trim().length === 0 || ids.has(set.id))
-      throw new RangeError(
-        "Formation stage mark set ids must be nonblank and unique.",
-      );
+    if (ids.has(set.id))
+      throw new RangeError("Formation stage mark set ids must be unique.");
     ids.add(set.id);
     if (
       !Number.isFinite(set.start) ||

@@ -13,9 +13,9 @@ import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATT
 /**
  * Fold planned subject viewpoints against current observation receipts.
  *
- * Observations are the production verifier's typed receipts. One with a blank
- * identity, a target naming another subject, or another production's, shot's or
- * subject's view is counted as `foreign`. A complete view of this production,
+ * Observations are the production verifier's typed receipts. One whose target
+ * names another subject, or another production's, shot's or subject's view, is
+ * counted as `foreign`. A complete view of this production,
  * shot and subject is then sorted by its viewpoint and context: a planned
  * viewpoint observed in the current context is `observed` once and counted as a
  * duplicate after that; a planned viewpoint seen only in another context is
@@ -29,10 +29,9 @@ import { SHA256_DIGEST_PATTERN } from "./validation/constants/SHA256_DIGEST_PATT
  * but some were seen in another context, and `not-run` otherwise.
  *
  * Throws an `Error` when `current` does not exactly name the resolved unit
- * (blank production id, shot or runtime identity, a target or revision
- * differing from the unit, or a fingerprint or plan identity not in `sha256:`
- * hex form), and a `RangeError` for a plan with a blank or duplicated viewpoint
- * id, a distance that is not finite and positive, or a direction whose length
+ * (a target or revision differing from the unit, or a fingerprint or plan
+ * identity not in `sha256:` hex form), and a `RangeError` for a plan with a
+ * duplicated viewpoint id, a distance that is not finite and positive, or a direction whose length
  * is not within `1e-6` of one.
  */
 export const foldAutoMovieSubjectReviewCoverage = (
@@ -115,14 +114,11 @@ const validateCurrentContext = (
   current: IAutoMovieSubjectReviewCurrentContext,
 ): void => {
   if (
-    current.productionId.trim().length === 0 ||
-    current.target.shot.trim().length === 0 ||
     current.target.subject !== unit.description.id ||
     current.target.shot !== unit.target.shot ||
     current.revision !== unit.description.revision ||
     SHA256_DIGEST_PATTERN.test(current.compileFingerprint) === false ||
-    SHA256_DIGEST_PATTERN.test(current.planIdentity) === false ||
-    current.captureRuntimeIdentity.trim().length === 0
+    SHA256_DIGEST_PATTERN.test(current.planIdentity) === false
   )
     throw new Error(
       "Subject review current context must exactly name the resolved unit, current compile, ordered plan, and canonical runtime.",
@@ -130,7 +126,7 @@ const validateCurrentContext = (
 };
 
 /**
- * Throw unless every viewpoint has a unique non-blank id, a positive distance
+ * Throw unless every viewpoint has a unique id, a positive distance
  * and a unit direction.
  */
 const validateViewpointPlan = (
@@ -138,8 +134,6 @@ const validateViewpointPlan = (
 ): void => {
   const ids: Set<string> = new Set<string>();
   for (const viewpoint of viewpoints) {
-    if (viewpoint.id.trim().length === 0)
-      throw new RangeError("Subject review viewpoint id must not be blank.");
     if (ids.has(viewpoint.id))
       throw new RangeError(
         `Subject review viewpoint id "${viewpoint.id}" is duplicated.`,
@@ -158,27 +152,11 @@ const validateViewpointPlan = (
   }
 };
 
-/**
- * Whether every identity of the observation is non-blank and its target names
- * its own subject.
- */
+/** Whether the observation's target names its own subject. */
 const isComplete = (
   observation: IAutoMovieCurrentSubjectReviewObservation,
-): boolean =>
-  [
-    observation.subject,
-    observation.revision,
-    observation.viewpoint,
-    observation.artifact,
-    observation.digest,
-    observation.productionId,
-    observation.target.shot,
-    observation.target.subject,
-    observation.compileFingerprint,
-    observation.planIdentity,
-    observation.captureRuntimeIdentity,
-  ].every((id: string): boolean => id.trim().length !== 0) &&
-  observation.target.subject === observation.subject;
+): boolean => observation.target.subject === observation.subject;
+
 /**
  * Whether an observation was captured in exactly the current revision, compile,
  * plan and runtime.

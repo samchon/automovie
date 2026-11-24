@@ -15,7 +15,7 @@ import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBod
  * the bounds and their sources belong to the test.
  *
  * ```ts
- * const reader = HumanSignature.of(performance, "a", body, 0);
+ * const reader = HumanSignature(performance, "a", body, 0);
  * const lean =
  *   HumanSignature.trunk(reader, seconds) -
  *   HumanSignature.trunk(reader, 0);

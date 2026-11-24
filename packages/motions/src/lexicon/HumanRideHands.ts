@@ -24,6 +24,8 @@ import type {
 import { seated as seatSocket } from "../everyday/seated";
 import { HumanMountReach } from "./HumanMountReach";
 import { HumanMountRider } from "./HumanMountRider";
+import type { IHumanRideHandsHandle } from "./IHumanRideHandsHandle";
+import type { IHumanRideHandsHands } from "./IHumanRideHandsHands";
 import { closeRideHandGrips } from "./closeRideHandGrips";
 import { crossRideReinGrip } from "./crossRideReinGrip";
 import { fixedSeatGripPosture } from "./fixedSeatGripPosture";
@@ -476,66 +478,9 @@ export namespace HumanRideHands {
     posture: IAutoMovieMotionHumanPosture;
   }
 
-  /** A holding hand's affordance and resting geometry, fixed for this ride. */
-  export interface IHandle {
-    /** The holding hand. */
-    side: AutoMovieHumanSide;
+  /** {@link IHumanRideHandsHandle}, read through this namespace. */
+  export type IHandle = IHumanRideHandsHandle;
 
-    /**
-     * The hand's measured palm depth to the held surface, metres; absent until
-     * a full articulated frame has been observed.
-     */
-    palmDepth?: number;
-    /** The canonical palm frame retained for a rein over all pose reads. */
-    reinPalm?: IAutoMovieMotionHumanHand.IFrame;
-    /**
-     * The angle a rein crosses the palm at, degrees, chosen once where the ride
-     * begins (`IMaterialGrip.cross`).
-     */
-    cross?: number;
-    /** The named point within the support. */
-    id: string;
-
-    /** The point and normal in the support's frame at rest. */
-    rest: IAutoMovieMotionHumanProp["points"][string];
-
-    /** The handle's own aperture and orientation, when published. */
-    affordance?: IAutoMovieAffordance;
-  }
-
-  /** The ride's holding hands. */
-  export interface IHands {
-    /**
-     * The planted working-seat alternatives when pelvic inclination exceeds the
-     * legs' reach.
-     */
-    alternatives?: NonNullable<ReturnType<typeof fixedSeatWorkingPostures>>;
-    /**
-     * The trunk's forward lean that brings the holding hands in reach of what
-     * they hold, read by `gripAt` at a film second, the support in its frame
-     * then, degrees: the grips are followed as they move, as a rower leans to
-     * the catch the oar's handle comes to (`HumanMountReach.reach`).
-     */
-    posture(
-      grips: Grips,
-      frame: IAutoMovieRigidTransform,
-      taken: number,
-      heldAt?: number,
-    ): IAutoMovieMotionHumanPosture;
-
-    /**
-     * What each holding hand holds, where the support has it at a film second
-     * in its frame then.
-     */
-    gripsAt: (
-      film: number,
-      frame: IAutoMovieRigidTransform,
-      sample?: RigidCarrierSample.IRead,
-    ) => Grips;
-
-    /** Each holding hand's fingers, closed on the support's colliders. */
-    closures: Partial<
-      Record<AutoMovieHumanSide, IAutoMovieMotionHumanPosture["joints"]>
-    >;
-  }
+  /** {@link IHumanRideHandsHands}, read through this namespace. */
+  export type IHands = IHumanRideHandsHands;
 }

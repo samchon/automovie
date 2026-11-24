@@ -25,7 +25,7 @@ export function test_motion_ensemble_ensemble_population(): void {
     count: number,
     origin: number,
   ): IAutoMovieMotionHumanEnsemble.IEnsemble =>
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id,
       count,
       seed: "members",

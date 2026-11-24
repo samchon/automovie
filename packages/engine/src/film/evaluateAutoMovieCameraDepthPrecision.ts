@@ -23,7 +23,7 @@ function finiteOrNull(value: number): number | null {
  * so it reports codes 0 and 0 and a step of 0.
  *
  * The report echoes every input, with a non-finite number as null, and its
- * `status` is `invalid` for a blank camera, a negative or non-finite time, a
+ * `status` is `invalid` for a negative or non-finite time, a
  * clip range that is not `0 < near < far` and finite, an inverted or non-finite
  * required range, a bit depth that is not a positive integer whose level count
  * is a safe integer, a maximum step that is not finite and positive, or a step
@@ -64,7 +64,6 @@ export function evaluateAutoMovieCameraDepthPrecision(
   }
   const levels: number = 2 ** props.constraint.minimumDepthBits - 1;
   if (
-    props.camera.trim().length === 0 ||
     !Number.isFinite(props.time) ||
     props.time < 0 ||
     !Number.isFinite(props.near) ||

@@ -11,7 +11,6 @@ import type {
   IAutoMoviePhysicalSimulationInput,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalPointBounds } from "./admitPhysicalPointBounds";
 import { isPhysicalActuatorChain } from "./isPhysicalActuatorChain";
 import { isPhysicalProfilePairExcluded } from "./isPhysicalProfilePairExcluded";
@@ -110,8 +109,7 @@ export function admitPhysicalContactBindings(
     ids.add(binding.id);
     if (
       binding.target.normal !== undefined &&
-      (!isAutoMovieRecord(binding.target.normal) ||
-        ![
+      (![
           binding.target.normal.x,
           binding.target.normal.y,
           binding.target.normal.z,

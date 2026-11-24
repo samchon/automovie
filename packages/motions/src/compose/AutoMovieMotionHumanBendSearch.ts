@@ -245,7 +245,6 @@ export namespace AutoMovieMotionHumanBendSearch {
           neutral,
           strained,
           near,
-          undefined,
           true,
         ) ?? "the arm chain is degenerate"
       );

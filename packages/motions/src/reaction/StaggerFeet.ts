@@ -10,6 +10,7 @@ import type {
 
 import { walkFoot } from "../actions/walkFoot";
 import { walkReach } from "../actions/walkReach";
+import { walkReachGround } from "../actions/walkReachGround";
 import { walkReachHeld } from "../actions/walkReachHeld";
 import { HumanFrame } from "../posture/HumanFrame";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
@@ -63,7 +64,7 @@ type IStaggerFeetSwingsEntry = {
  * Every reading is a prepared curve evaluated at the second plus the walk's own
  * settling of the pelvis over its feet: the trunk leans and the root carries
  * the centre of mass's travel less the lean's shift of it (`staggerLean`),
- * lowered to the height its planted legs allow (`walkReach.ground`, a scalar
+ * lowered to the height its planted legs allow (`walkReachGround`, a scalar
  * root of each leg's closed-form reach claim, its heel rising about the ball
  * where the ankle runs out of room); a swinging foot follows its prepared
  * walking-foot curve (`walkFoot.prepareSwing`) between its two settled ends,
@@ -205,7 +206,7 @@ export class StaggerFeet {
       shift === undefined
         ? at.root
         : { x: at.root.x + shift.x, y: at.root.y, z: at.root.z + shift.z };
-    return walkReach.ground(
+    return walkReachGround(
       body,
       root,
       walkReach.pelvis(

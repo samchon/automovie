@@ -6,7 +6,7 @@ Compares each declared range with the eye joint's own range of motion on the axi
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One leaf owns gaze admission and reuses `getConstraint` and `finiteMinimum`, so validateModel only calls it in its fixed order.
+One leaf owns gaze admission and reuses `getConstraint` and the collector range, so validateModel only calls it in its fixed order.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

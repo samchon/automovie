@@ -51,7 +51,8 @@ function idempotent(bone: IAutoMovieBone): boolean {
   if (constraint === null) return true;
   if (constraint.swingTwist !== undefined && constraint.swingTwist !== null)
     return false;
-  if (typeof constraint.swingDeg !== "number") return true;
+  if (constraint.swingDeg === undefined || constraint.swingDeg === null)
+    return true;
   return holdsZero(constraint.flexion) && holdsZero(constraint.abduction);
 }
 

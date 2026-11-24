@@ -104,16 +104,16 @@ export interface IAutoMovieMotionHumanBody {
 
   /**
    * The body's quiet-stance alignment (`standUpright`): its plumb-line trunk,
-   * neck and level head and its forward lean, a property of the body solved on
-   * its first read, once, from the unchanged rig and profile.
+   * neck and level head and its forward lean, a property of the body solved
+   * once when the body is made, from its rig and profile.
    */
   upright: IAutoMovieMotionHumanStandUpright.IAlignment;
 
   /**
    * The relaxed hanging arms' and hands' clinical angles, degrees
    * (`standRelaxed`): the least shoulder abduction that leaves the relaxed
-   * digits clear of the quiet stance, a property of the body solved on its
-   * first read, once, from the unchanged rig and profile.
+   * digits clear of the quiet stance, a property of the body solved once when
+   * the body is made, from its rig and profile.
    */
   relaxed: Partial<
     Record<AutoMovieHumanoidBone, readonly [number, number, number]>

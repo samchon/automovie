@@ -1,32 +1,21 @@
 import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
-  AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBendLower,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanFrame,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanRefusal,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanAuditTangle } from "../audit/AutoMovieMotionHumanAuditTangle";
-import { HumanPhysics } from "../law/HumanPhysics";
-import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFrame } from "../posture/HumanFrame";
-import { HumanHand } from "../posture/HumanHand";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanBalance } from "./HumanBalance";
 import { HumanTrunk } from "./HumanTrunk";
 
 /** The body proportions fixed by the selected lowering strategy. */
@@ -85,7 +74,7 @@ export namespace bendLower {
    * rig's lumbopelvic rhythm converts that local flexion to trunk inclination.
    * The ratio below scales the key on the existing sine course.
    */
-  const STOOP_BACK: number =
+  export const STOOP_BACK: number =
     0.076 /
     1.57 /
     Math.sin(
@@ -408,158 +397,6 @@ export namespace bendLower {
   };
 
   /**
-   * The least trunk pitch that brings the shoulder within reach of the target
-   * under a strategy, over 0 to `DEEPEST` degrees of inclination: the first of
-   * every `SCAN` degrees that reaches, refined by bisection from the one
-   * before.
-   *
-   * @param body The body.
-   * @param posture The standing posture.
-   * @param target The target.
-   * @param side The hand.
-   * @param strategy The strategy.
-   * @param lean The balance shift per unit sine of the inclination, metres.
-   * @param reach How near the shoulder must come to the target, metres; `REACH`
-   *   of the arm plus the palm's offset when absent, a palm laid on the
-   *   target.
-   * @returns Degrees.
-   * @throws {HumanRefusal} When even `DEEPEST` degrees leaves the target out of
-   *   reach, with the lowest height the hand reaches above the target's floor
-   *   point over the inclinations tried as the feasible range, or none when the
-   *   point lies beyond the arm's reach across the floor at all of them.
-   */
-  export function pitch(
-    body: IAutoMovieMotionHumanBody,
-    posture: IAutoMovieMotionHumanPosture,
-    target: IAutoMovieVector3,
-    side: AutoMovieHumanSide,
-    strategy: Strategy,
-    lean: number,
-    reach: number = REACH * (body.measure.upperArm + body.measure.forearm) +
-      Vector3.length(HumanHand.offset(body, side, "palm").point),
-    wristAt?: WristAt,
-    lateral: number = 0,
-  ): number {
-    // The lowest height the hand reaches above the target's floor point over
-    // the inclinations tried: below a shoulder within reach across the floor,
-    // the reach's depth under it.
-    const read: ReturnType<typeof prepareHumanPoseResolution> =
-      prepareHumanPoseResolution();
-    const name: AutoMovieHumanoidBone = `${side}UpperArm`;
-    const shoulderAt: ReturnType<typeof HumanTrunk.prepareResolve> =
-      HumanTrunk.prepareResolve(body, new Set([name]));
-    const lowerAt: ReturnType<typeof prepare> = prepare(body, strategy);
-    let lowest: number = Infinity;
-    const gap: (deg: number) => number = (deg: number): number => {
-      const lowered: IAutoMovieMotionHumanPosture = lowerAt(
-        posture,
-        deg,
-        1,
-        lean * Math.sin((deg * Math.PI) / 180),
-        read,
-        lateral,
-      );
-      const shoulder: IAutoMovieVector3 = shoulderAt(lowered, read).get(
-        name,
-      )!.worldPosition;
-      const point: IAutoMovieVector3 =
-        wristAt === undefined ? target : wristAt(lowered, read);
-      const across: number = Math.hypot(
-        point.x - shoulder.x,
-        point.z - shoulder.z,
-      );
-      if (across <= reach)
-        lowest = Math.min(
-          lowest,
-          shoulder.y - Math.sqrt(reach * reach - across * across),
-        );
-      return Vector3.distance(point, shoulder) - reach;
-    };
-    if (gap(0) <= 0) return 0;
-    let hi: number = SCAN;
-    while (hi <= DEEPEST && gap(hi) > 0) hi += SCAN;
-    if (hi > DEEPEST) {
-      const feasible: IAutoMovieMotionHumanRefusal.IRange = {
-        kind: "range",
-        minimum: lowest,
-        maximum: null,
-        unit: "m",
-      };
-      throw new HumanRefusal({
-        kind: "reach",
-        axis: "target",
-        value: target.y,
-        ...(lowest === Infinity ? {} : { feasible }),
-        reason:
-          lowest === Infinity
-            ? `A ${strategy} cannot bring the hand over a point ${target.y.toFixed(3)} m high there: it lies beyond the arm's reach across the floor at every inclination`
-            : `A ${strategy} cannot bring the hand down to a point ${target.y.toFixed(3)} m high there; the lowest it reaches there is ${lowest.toFixed(3)} m`,
-        fix: "step closer to the target, or choose a deeper strategy",
-      });
-    }
-    let lo: number = hi - SCAN;
-    for (let i: number = 0; i < 30; i++) {
-      const mid: number = (lo + hi) / 2;
-      if (gap(mid) > 0) lo = mid;
-      else hi = mid;
-    }
-    return hi;
-  }
-
-  /**
-   * How deep a solved key folds the trunk into the thighs, metres beyond the
-   * rest pose as the tangle audit reads it: the trunk's segments above the
-   * pelvis against the thighs, on the key at its full depth. A lowering whose
-   * key is also its display (the pick-up's) refuses a fold past the audit's
-   * skin and lowers into a squat instead, the knees and hips lowering the trunk
-   * rather than the lumbar spine folding it on (Kingma et al. 2010, J Biomech
-   * 43:1440).
-   *
-   * @param body The body.
-   * @param upright The standing posture lowered.
-   * @param lateral The frontal inclination the key takes, degrees.
-   * @param solved The solved lowering.
-   * @returns Metres, 0 when the trunk clears the thighs.
-   */
-  export function fold(
-    body: IAutoMovieMotionHumanBody,
-    upright: IAutoMovieMotionHumanPosture,
-    lateral: number,
-    solved: IAutoMovieMotionHumanBendLower.ISolved,
-  ): number {
-    if (!(solved.pitch > 0)) return 0;
-    const key: IAutoMovieMotionHumanPosture = lower(
-      body,
-      upright,
-      solved.strategy,
-      solved.pitch,
-      1,
-      solved.lean * Math.sin((solved.pitch * Math.PI) / 180),
-      undefined,
-      lateral,
-    );
-    let deepest: number = 0;
-    for (const pair of AutoMovieMotionHumanAuditTangle.pose(
-      body,
-      poseBones(body, resolveHumanPosture(body, key)),
-    ))
-      if (
-        (TRUNK.has(pair.a) && HumanBoneGroups.THIGHS.has(pair.b)) ||
-        (TRUNK.has(pair.b) && HumanBoneGroups.THIGHS.has(pair.a))
-      )
-        deepest = Math.max(deepest, pair.depth);
-    return deepest;
-  }
-
-  /**
-   * The trunk's segments a lowering folds onto the thighs: those above the
-   * pelvis, which shares the hip joints with the thighs and so overlaps them by
-   * its build.
-   */
-  const TRUNK: ReadonlySet<AutoMovieHumanoidBone> =
-    new Set<AutoMovieHumanoidBone>(["spine", "chest", "upperChest"]);
-
-  /**
    * The frontal inclination that directs the upper trunk toward a target beside
    * the body: the target's lateral displacement from the hips over the
    * pelvis-to-shoulder lever, as the lowering's `lateral` takes it.
@@ -599,122 +436,4 @@ export namespace bendLower {
    * on it too.
    */
   export const REACH: number = 0.89;
-
-  /**
-   * The step of the inclination scan `pitch` closes the reach on, degrees
-   * (provisional: fine enough that the gap, which turns once over the range,
-   * cannot close and open again between two steps).
-   */
-  export const SCAN: number = 5;
-
-  /**
-   * The deepest trunk inclination `pitch` searches, degrees: all the pelvis can
-   * tilt before the hip passes its flexion (`HumanTrunk.HIP_FLEXION`) plus the
-   * 40 degrees of lumbar flexion at full forward bending (Esola et al. 1996,
-   * Spine 21:71), the most a standing trunk inclines.
-   */
-  export const DEEPEST: number = HumanTrunk.HIP_FLEXION + 40;
-
-  /** An actual instant and its action event clock for a static lower-key query. */
-  export interface IInstant {
-    /** Absolute film second at the start of the observed action. */
-    start: number;
-    /** Local action second at which the lowering is read. */
-    seconds: number;
-    /** The actual action duration and its named event shares. */
-    timing: Parameters<typeof HumanPhysics.prepare>[3];
-    /** Resolver of any bound declared on another action or cue. */
-    instant?: HumanPhysics.Instant;
-  }
-
-  /**
-   * Find the least inclination whose moving shoulder reaches the wrist. A
-   * low-level query describes one key; a caller observing it as part of a
-   * longer action supplies the action's clock and local second. A free key
-   * follows the measured stoop retreat or the squat's anchored leg geometry.
-   *
-   * @param balance Optional sagittal hip shift. Its weight scales only the
-   *   missing support displacement at the selected posture.
-   * @param instant Action clock for the queried key. The standalone key's start
-   *   and end coincide at zero when absent.
-   */
-  export function solve(
-    body: IAutoMovieMotionHumanBody,
-    upright: IAutoMovieMotionHumanPosture,
-    target: IAutoMovieVector3,
-    side: AutoMovieHumanSide,
-    strategy: Strategy,
-    reach?: number,
-    balance?: IAutoMovieMotionHumanBalance,
-    wristAt?: WristAt,
-    lateral: number = 0,
-    instant?: IInstant,
-  ): IAutoMovieMotionHumanBendLower.ISolved {
-    let lean: number =
-      strategy === "stoop" ? STOOP_BACK * body.measure.stature : 0;
-    let deg: number = pitch(
-      body,
-      upright,
-      target,
-      side,
-      strategy,
-      lean,
-      reach,
-      wristAt,
-      lateral,
-    );
-    if (balance === undefined) return { strategy, lean, pitch: deg };
-    const window: HumanPhysics.Window = HumanPhysics.prepare(
-      { balance },
-      {},
-      instant?.start ?? 0,
-      instant?.timing ?? { duration: 0, events: [] },
-      instant?.instant,
-    );
-    const weight: number = HumanPhysics.weightAt(window, instant?.seconds ?? 0);
-    if (window === null || weight === 0) return { strategy, lean, pitch: deg };
-    if (window.by !== "hips")
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis: "balance.by",
-        value: window.by,
-        reason:
-          "a lowering key represents the hips' retreat along the standing heading",
-        fix: "give hips for balance.by",
-      });
-    const sine: number = Math.sin((deg * Math.PI) / 180);
-    const key: IAutoMovieMotionHumanPosture = lower(
-      body,
-      upright,
-      strategy,
-      deg,
-      1,
-      lean * sine,
-      undefined,
-      lateral,
-    );
-    const support: IAutoMovieMotionHumanBalance.ISupport = HumanBalance.support(
-      body,
-      key,
-    );
-    const shift: HumanPhysics.SupportOffset = HumanPhysics.supportOffset(
-      support,
-      HumanFrame.forward(key.yaw),
-    );
-    if (sine !== 0 && shift !== null && shift !== 0) {
-      lean -= (weight * shift) / sine;
-      deg = pitch(
-        body,
-        upright,
-        target,
-        side,
-        strategy,
-        lean,
-        reach,
-        wristAt,
-        lateral,
-      );
-    }
-    return { strategy, lean, pitch: deg };
-  }
 }

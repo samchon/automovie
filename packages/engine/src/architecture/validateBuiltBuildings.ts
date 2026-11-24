@@ -10,7 +10,7 @@ import { collectDeclaredIds } from "../validation/collectDeclaredIds";
  * Validate a work's building units and that they own every element and space
  * exactly once.
  *
- * A work needs at least one unit, each with a unique non-blank id. A unit's
+ * A work needs at least one unit, each with a unique id. A unit's
  * root element and root space must resolve and have no parent, and no two units
  * may share a root. Then every element and every space must reach, through its
  * parents, a topmost record that is some unit's root; one that does not is

@@ -9,7 +9,6 @@ export const worldHeightfield: (
 ) => IAutoMovieWorldSurface = (
   input: IAutoMovieWorldHeightfield.IInput,
 ): IAutoMovieWorldSurface => {
-  assertText(input.id, "World heightfield id");
   if (
     Number.isFinite(input.spacing.x) === false ||
     input.spacing.x <= 0 ||
@@ -58,16 +57,4 @@ export const worldHeightfield: (
     },
     walkable: input.walkable,
   };
-};
-
-/**
- * Require non-whitespace terrain identity while preserving its authored
- * spelling.
- */
-const assertText: (value: string, field: string) => void = (
-  value: string,
-  field: string,
-): void => {
-  if (value.trim().length === 0)
-    throw new Error(`${field} must contain non-whitespace text.`);
 };

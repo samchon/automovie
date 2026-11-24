@@ -405,7 +405,7 @@ function formation(
   layout: IAutoMovieFormationLayout,
   z: number,
 ): IAutoMovieMotionHumanFormation {
-  return AutoMovieMotionHumanEnsemble.HumanFormation.of({
+  return AutoMovieMotionHumanEnsemble.HumanFormation({
     blocks: [{ layout, count: 4 }],
     frame: { kind: "fixed", at: point(0, z), heading: 0 },
   });

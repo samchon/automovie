@@ -10,10 +10,10 @@ import type { IAutoMovieVector3 } from "../geometry/IAutoMovieVector3";
  * child.
  */
 export interface IAutoMovieStageSetPiece {
-  /** Non-blank scene-node identity, unique across every node of the stage. */
+  /** Scene-node identity, unique across every node of the stage. */
   node: string;
 
-  /** Non-blank runtime model identity used to render the piece. */
+  /** Runtime model identity used to render the piece. */
   model: string;
 
   /** Finite world-space placement in metres. */

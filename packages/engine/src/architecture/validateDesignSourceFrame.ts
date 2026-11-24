@@ -20,7 +20,7 @@ const AXIS_EPSILON: number = 1e-12;
  *
  * A frame states its own sheet: a known view, a whole page number from 1, a
  * null or non-blank level, a finite positive width and height, and an anchor
- * inside those bounds. Its scale readings need unique non-blank ids, a finite
+ * inside those bounds. Its scale readings need unique ids, a finite
  * positive `metersPerUnit`, a confidence in [0, 1] and a non-blank basis, and a
  * settled `scale` must name one of them; leaving it null is how an unknown
  * scale is recorded. `axisX`, `axisY`, `up` and a present `north` must be

@@ -1,10 +1,8 @@
 import { validateSpace } from "@automovie/engine";
-import { IAutoMovieHeightRule } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { hasViolation, namedFacts } from "./predicates";
 import { validationSpaceFixtures } from "./validationSpaceFixtures";
-import { withoutArraySlot } from "./withoutArraySlot";
 
 /**
  * Pins exclusive ground spellings and finite constant, plane and lattice admission.
@@ -13,13 +11,12 @@ import { withoutArraySlot } from "./withoutArraySlot";
  * 1. Anchors and rules are mutually exclusive, and one ground spelling is required.
  * 2. Dense constant, plane and two-by-two lattice rules pass.
  * 3. Every invalid rule term, lattice dimension, pitch, length and sample is located.
- * 4. A missing lattice sample is refused at its stored slot; its dense twin still passes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the existing height-rule admission cases and detects missing lattice samples that forEach previously skipped.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs the existing height-rule admission cases.
  *
  * @evidence contracts/development/testing.md#independent-expectations Located errors follow the authored field paths and finite complete lattice contract, independently of the validator's implementation; this does not measure rendered ground.
  *
- * @evidence contracts/development/testing.md#distinguishing-cases Keeps all existing constant, plane, lattice and unknown-kind cases; malformed geometry and hole relationships remain in the parent test.
+ * @evidence contracts/development/testing.md#distinguishing-cases Keeps all existing constant, plane and lattice cases; malformed geometry and hole relationships remain in the parent test.
  *
  * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through assertValidationSpaceHeights; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
  */
@@ -267,30 +264,5 @@ export function assertValidationSpaceHeights(): void {
       latticeSamples: true,
       latticeSample: true,
     },
-  );
-
-  TestValidator.predicate(
-    "unknown height rule kind",
-    hasViolation(
-      validateSpace({
-        space: withHeight({
-          kind: "erosion",
-        } as unknown as IAutoMovieHeightRule),
-      }),
-      "type",
-      ".height.kind",
-    ),
-  );
-  TestValidator.predicate(
-    "a missing lattice sample is located",
-    hasViolation(
-      validateSpace({
-        space: withHeight(
-          lattice({ samples: withoutArraySlot([0, 1, 0, 1], 2) }),
-        ),
-      }),
-      "range",
-      ".height.samples[2]",
-    ),
   );
 }

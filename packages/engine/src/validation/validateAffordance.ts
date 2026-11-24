@@ -36,7 +36,7 @@ const DIMENSIONS: readonly (
 ];
 
 /**
- * Admit nonempty id and finite frame, require every optional dimension present
+ * Admit a finite frame, require every optional dimension present
  * to be finite and positive, admit a surface's drawable outline, then require
  * stack-top extent plan points to span area or point-like kinds to have null
  * extent.

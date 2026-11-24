@@ -9,7 +9,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { physicalShapeBounds } from "./physicalShapeBounds";
 import { physicalSupportPoint } from "./physicalSupportPoint";
 import { planPhysicalSupportTargets } from "./planPhysicalSupportTargets";
@@ -33,8 +32,6 @@ export function planPhysicalFloorSupportTargets(
     !Number.isFinite(input.floor) ||
     !Number.isFinite(input.maximumRootDrop) ||
     input.maximumRootDrop < 0 ||
-    (input.endpointHeights !== undefined &&
-      !isAutoMovieRecord(input.endpointHeights)) ||
     Object.entries(input.endpointHeights ?? {}).some(
       ([bone, height]: [string, number]): boolean =>
         !Number.isFinite(height) ||

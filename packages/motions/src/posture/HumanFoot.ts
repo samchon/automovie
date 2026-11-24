@@ -21,17 +21,13 @@ import { humanFootOffset } from "./humanFootOffset";
 import { prepareHumanFootAnkle } from "./prepareHumanFootAnkle";
 import { prepareHumanFootAt } from "./prepareHumanFootAt";
 import { prepareHumanFootHeight } from "./prepareHumanFootHeight";
+import { prepareHumanFootPivot } from "./prepareHumanFootPivot";
+import { prepareHumanFootPoint } from "./prepareHumanFootPoint";
 import { prepareHumanFootSole } from "./prepareHumanFootSole";
 import { readHumanFoot } from "./readHumanFoot";
 
-/** The alternatives of `PreparePointPoint`'s site. */
-type PreparePointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
 /** The alternatives of `PointPoint`'s site. */
 type PointPoint = "heel" | "ball" | "toe" | "sole" | "mtp";
-
-/** The alternatives of `PreparePivotPivot`'s site. */
-type PreparePivotPivot = "heel" | "ball" | "toe" | "sole" | "mtp";
 
 /** The record of `IHeadingPitchResult`'s site. */
 type IHeadingPitchResult = {
@@ -433,46 +429,10 @@ export namespace HumanFoot {
 
   /**
    * Prepare rigid sole geometry for repeated pitch trials under one fixed
-   * heading, toe flexion, roll and default contact. An explicit contact changes
-   * only the translation under that same prepared geometry.
-   *
-   * @param body The body owning the sole socket.
-   * @param side The foot.
-   * @param pivot Which socket stays fixed.
-   * @param at The socket's fixed world position, metres.
-   * @param heading The fixed foot heading, degrees about +Y.
-   * @param toes The fixed toe flexion, degrees; zero when absent.
-   * @param roll The fixed foot roll, degrees; zero when absent.
-   * @returns A reader of pitch in degrees, positive toes up, with pivot's
-   *   placement; an explicit world contact replaces only the default at under
-   *   the same fixed rotation/socket preparation.
+   * heading, toe flexion, roll and default contact (`prepareHumanFootPivot`).
    */
-  export function preparePivot(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    pivot: PreparePivotPivot,
-    at: IAutoMovieVector3,
-    heading: number,
-    toes: number = 0,
-    roll: number = 0,
-  ): (
-    pitch: number,
-    contact?: IAutoMovieVector3,
-  ) => IAutoMovieMotionHumanFoot.IPlacement {
-    const turned: ReturnType<typeof HumanFootRotation.prepare> =
-      HumanFootRotation.prepare(heading, roll);
-    const local: IAutoMovieVector3 = offset(body, side, pivot, toes);
-    return (
-      pitch: number,
-      contact: IAutoMovieVector3 = at,
-    ): IAutoMovieMotionHumanFoot.IPlacement => {
-      const r: IAutoMovieQuaternion = turned(pitch);
-      return {
-        ankle: Vector3.subtract(contact, Quaternion.rotateVector(r, local)),
-        rotation: r,
-      };
-    };
-  }
+  export const preparePivot: typeof prepareHumanFootPivot =
+    prepareHumanFootPivot;
 
   /**
    * Where the ankle goes, and how far the toes extend, when a planted foot
@@ -522,40 +482,15 @@ export namespace HumanFoot {
     foot: IAutoMovieMotionHumanFoot.IPlacement,
     toes: number = 0,
   ): IAutoMovieVector3 {
-    return pointAt(offset(body, side, point, toes), foot);
+    return prepareHumanFootPoint(body, side, point, toes)(foot);
   }
 
   /**
-   * Prepare a sole point whose body, socket and toe flexion remain fixed.
-   *
-   * @param body The socket's body.
-   * @param side The foot.
-   * @param point The socket to place.
-   * @param toes Fixed toe flexion, degrees; zero when absent.
-   * @returns A reader of foot placement yielding the same world point as
-   *   `point`.
+   * Prepare a sole point whose body, socket and toe flexion remain fixed
+   * (`prepareHumanFootPoint`).
    */
-  export function preparePoint(
-    body: IAutoMovieMotionHumanBody,
-    side: AutoMovieHumanSide,
-    point: PreparePointPoint,
-    toes: number = 0,
-  ): (foot: IAutoMovieMotionHumanFoot.IPlacement) => IAutoMovieVector3 {
-    const local: IAutoMovieVector3 = offset(body, side, point, toes);
-    return (foot: IAutoMovieMotionHumanFoot.IPlacement): IAutoMovieVector3 =>
-      pointAt(local, foot);
-  }
-
-  /** The common ankle translation and rigid rotation of a prepared local socket. */
-  function pointAt(
-    local: IAutoMovieVector3,
-    foot: IAutoMovieMotionHumanFoot.IPlacement,
-  ): IAutoMovieVector3 {
-    return Vector3.add(
-      foot.ankle,
-      Quaternion.rotateVector(foot.rotation, local),
-    );
-  }
+  export const preparePoint: typeof prepareHumanFootPoint =
+    prepareHumanFootPoint;
 }
 
 /** The unchanged world-up axis shared only as axis-angle scalar preparation. */

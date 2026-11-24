@@ -1,31 +1,20 @@
-import { Vector3 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanChannel,
-  IAutoMovieHumanLimbGoal,
-  IAutoMovieMotionClock,
   IAutoMovieMotionHumanLeanInto,
   IAutoMovieMotionHumanPosture,
-  IAutoMovieMotionHumanPrimitive,
   IAutoMovieMotionHumanRange,
   IAutoMovieMotionHumanReach,
-  IAutoMovieMotionHumanRise,
   IAutoMovieMotionHumanTouchStance,
-  IAutoMovieResolvedBone,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
-import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { lowerHumanPosture } from "../posture/lowerHumanPosture";
-import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanLeanInto } from "./AutoMovieMotionHumanLeanInto";
-import { AutoMovieMotionHumanLeg } from "./AutoMovieMotionHumanLeg";
 import { AutoMovieMotionHumanRange } from "./AutoMovieMotionHumanRange";
 import { AutoMovieMotionHumanReach } from "./AutoMovieMotionHumanReach";
-import { AutoMovieMotionHumanRise } from "./AutoMovieMotionHumanRise";
+import { AutoMovieMotionHumanTouchStanceMoves } from "./AutoMovieMotionHumanTouchStanceMoves";
+import { AutoMovieMotionHumanTouchStancePrimitives } from "./AutoMovieMotionHumanTouchStancePrimitives";
 
 /** The alternatives of `SolveShoulder`'s site. */
 type SolveShoulder = "leftShoulder" | "rightShoulder";
@@ -86,129 +75,21 @@ export namespace AutoMovieMotionHumanTouchStance {
       typeof AutoMovieMotionHumanReach.prepareCheck
     > = AutoMovieMotionHumanReach.prepareCheck(body, `${props.side}Arm`);
 
-    // A posture with the working girdle lifted and the heels raised.
-    const moved: (
-      posture: IAutoMovieMotionHumanPosture,
-      girdle: number,
-      degrees: number,
-      ankles?: IAutoMovieMotionHumanRise.Stance,
-      share?: number,
-    ) => IAutoMovieMotionHumanPosture = (
-      posture: IAutoMovieMotionHumanPosture,
-      girdle: number,
-      degrees: number,
-      ankles: IAutoMovieMotionHumanRise.Stance | undefined = feet,
-      share: number = 1,
-    ): IAutoMovieMotionHumanPosture => {
-      posture = props.girdles?.(posture, share) ?? posture;
-      const was: readonly [number, number, number] = posture.joints[
-        shoulder
-      ] ?? [0, 0, 0];
-      return {
-        ...posture,
-        root:
-          ankles === undefined || degrees === 0
-            ? posture.root
-            : Vector3.add(
-                posture.root,
-                AutoMovieMotionHumanRise.lift(body, ankles, degrees),
-              ),
-        joints:
-          girdle === 0
-            ? posture.joints
-            : {
-                ...posture.joints,
-                [shoulder]: [was[0], was[1] + girdle, was[2]],
-              },
-      };
-    };
-
-    // The trunk turned about its long axis, the lumbar and the thoracic spine
-    // each taking the share of the turn their own twist range holds.
-    const twisted = (
-      posture: IAutoMovieMotionHumanPosture,
-      degrees: number,
-    ): IAutoMovieMotionHumanPosture => {
-      if (degrees === 0) return posture;
-      const motion: IAutoMovieMotionHumanRange.Motion =
-        degrees > 0 ? "external" : "internal";
-      const spans: readonly number[] = TWISTED.map(
-        (bone: TwistedBone): number =>
-          AutoMovieMotionHumanRange.degrees(bone, motion, "full"),
-      );
-      const total: number = spans.reduce(
-        (sum: number, span: number): number => sum + span,
-        0,
-      );
-      const joints: IAutoMovieMotionHumanPosture["joints"] = {
-        ...posture.joints,
-      };
-      TWISTED.forEach((bone: TwistedBone, k: number): void => {
-        const was: readonly [number, number, number] = joints[bone] ?? [
-          0, 0, 0,
-        ];
-        joints[bone] = [was[0], was[1], was[2] + (degrees * spans[k]!) / total];
+    const {
+      moved,
+      twisted,
+      toward,
+      angleTo,
+      shoulders,
+      planted,
+    }: AutoMovieMotionHumanTouchStanceMoves.IMoves =
+      AutoMovieMotionHumanTouchStanceMoves({
+        props,
+        body,
+        feet,
+        shoulder,
+        checkReach,
       });
-      return { ...posture, joints };
-    };
-
-    // The turn toward a wrist off to the side: the heading's angle to the
-    // line from the shoulder to the wrist across the floor, positive toward
-    // the left as the spine's twist is, within the two bones' whole range.
-    const toward = (posture: IAutoMovieMotionHumanPosture): number => {
-      const wrist: IAutoMovieVector3 = props.wrist(posture, 0);
-      return angleTo(
-        posture,
-        checkReach(posture, wrist, prepareHumanPoseResolution()).root,
-        wrist,
-      );
-    };
-
-    // The heading's angle to the line from a point to another across the
-    // floor, within the two bones' whole range.
-    const angleTo = (
-      posture: IAutoMovieMotionHumanPosture,
-      from: IAutoMovieVector3,
-      point: IAutoMovieVector3,
-    ): number => {
-      const yaw: number = (posture.yaw * Math.PI) / 180;
-      const dx: number = point.x - from.x;
-      const dz: number = point.z - from.z;
-      const left: number = dx * Math.cos(yaw) - dz * Math.sin(yaw);
-      const ahead: number = dx * Math.sin(yaw) + dz * Math.cos(yaw);
-      const angle: number = (Math.atan2(left, ahead) * 180) / Math.PI;
-      const range: number = TWISTED.reduce(
-        (sum: number, bone: TwistedBone): number =>
-          sum +
-          Math.abs(
-            AutoMovieMotionHumanRange.degrees(
-              bone,
-              angle > 0 ? "external" : "internal",
-              "full",
-            ),
-          ),
-        0,
-      );
-      return Math.max(-range, Math.min(range, angle));
-    };
-
-    // The middle of the shoulder joints on a posture, world metres.
-    const shoulders = (
-      posture: IAutoMovieMotionHumanPosture,
-    ): IAutoMovieVector3 => {
-      const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-        poseBones(
-          body,
-          resolveHumanPosture(body, posture),
-          undefined,
-          HumanBoneGroups.SHOULDERS,
-        );
-      return Vector3.lerp(
-        bones.get("leftUpperArm")!.worldPosition,
-        bones.get("rightUpperArm")!.worldPosition,
-        0.5,
-      );
-    };
 
     // The worst of the stroke's start, middle and end on a posture: how far
     // the wrist lies beyond the kept share, and how far above the shoulder.
@@ -327,154 +208,21 @@ export namespace AutoMovieMotionHumanTouchStance {
       leaning,
       risen,
       reached,
-      primitives: (
-        clock: IAutoMovieMotionClock,
-        correction?: IAutoMovieMotionHumanTouchStance.ICorrection,
-      ): IAutoMovieMotionHumanPrimitive[] => {
-        if (
-          props.girdles === undefined &&
-          girdle === 0 &&
-          raise === 0 &&
-          turn === 0 &&
-          props.fixed !== true &&
-          correction === undefined
-        )
-          return leaning ? [lean.primitive(clock)] : [];
-        if (
-          props.girdles === undefined &&
-          girdle === 0 &&
-          raise === 0 &&
-          turn === 0 &&
-          !leaning
-        )
-          return correction === undefined
-            ? []
-            : [
-                {
-                  channels: [correction.channel],
-                  from: 0,
-                  to: clock.duration,
-                  write: correction.write,
-                },
-              ];
-        const share: (seconds: number) => number = (seconds: number): number =>
-          clock.envelope(["start", "ready"], ["relax", "end"], seconds);
-        const channels: AutoMovieMotionHumanChannel[] =
-          raise > 0
-            ? ["root", "trunk", "leftLeg", "rightLeg"]
-            : leaning
-              ? ["root", "trunk"]
-              : ["trunk"];
-        if (correction !== undefined && !channels.includes(correction.channel))
-          channels.push(correction.channel);
-        return [
-          {
-            channels,
-            from: 0,
-            to: clock.duration,
-            write: (
-              posture: IAutoMovieMotionHumanPosture,
-              seconds: number,
-              _before?: IAutoMovieMotionHumanPrimitive.Reader,
-              resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-              projection?: Parameters<
-                IAutoMovieMotionHumanPrimitive["write"]
-              >[4],
-            ): IAutoMovieMotionHumanPosture => {
-              const k: number = share(seconds);
-              const degrees: number =
-                raise * (props.heels?.(clock, seconds) ?? k);
-              const ankles: IAutoMovieMotionHumanRise.Stance | undefined =
-                degrees === 0
-                  ? undefined
-                  : (props.placements?.(posture) ?? feet);
-              const up: IAutoMovieMotionHumanPosture = twisted(
-                moved(posture, girdle * k, degrees, ankles, k),
-                turn * k,
-              );
-
-              // The lean is read at the full rise, so its angle does not
-              // change with the share of the rise shown.
-              const leaned: IAutoMovieMotionHumanPosture = leaning
-                ? lean.tip(
-                    up,
-                    k *
-                      (props.fixed === true
-                        ? arrival
-                        : lean.pitch(
-                            twisted(
-                              moved(posture, girdle, raise, ankles),
-                              turn,
-                            ),
-                            clock.progress("strokeStart", "strokeEnd", seconds),
-                            resolution,
-                          )),
-                  )
-                : up;
-              const settled: IAutoMovieMotionHumanPosture =
-                ankles !== undefined
-                  ? planted(leaned, ankles, degrees, resolution)
-                  : leaning
-                    ? {
-                        ...leaned,
-                        root: lowerHumanPosture(
-                          body,
-                          leaned,
-                          undefined,
-                          resolution,
-                        ).root,
-                      }
-                    : leaned;
-              return correction === undefined
-                ? settled
-                : correction.write(
-                    settled,
-                    seconds,
-                    _before,
-                    resolution,
-                    projection,
-                  );
-            },
-          },
-        ];
-      },
+      primitives: AutoMovieMotionHumanTouchStancePrimitives({
+        props,
+        body,
+        feet,
+        girdle,
+        raise,
+        turn,
+        leaning,
+        lean,
+        arrival,
+        moved,
+        twisted,
+        planted,
+      }),
     };
-
-    /** Fits the same raised feet for the planned key and for display. */
-    function planted(
-      posture: IAutoMovieMotionHumanPosture,
-      ankles: IAutoMovieMotionHumanRise.Stance,
-      degrees: number,
-      resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-    ): IAutoMovieMotionHumanPosture {
-      const left: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
-        body,
-        posture,
-        "left",
-        AutoMovieMotionHumanRise.foot(body, "left", ankles.left, degrees),
-        true,
-      );
-      const right: IAutoMovieHumanLimbGoal = AutoMovieMotionHumanLeg.goal(
-        body,
-        posture,
-        "right",
-        AutoMovieMotionHumanRise.foot(body, "right", ankles.right, degrees),
-        true,
-      );
-      const raised: IAutoMovieMotionHumanPosture = {
-        ...posture,
-        joints: {
-          ...posture.joints,
-          leftToes: [degrees, 0, 0],
-          rightToes: [degrees, 0, 0],
-        },
-        limbs: { ...posture.limbs, leftLeg: left, rightLeg: right },
-      };
-      return {
-        ...raised,
-        root: lowerHumanPosture(body, raised, undefined, resolution).root,
-      };
-    }
   }
 
   /**
@@ -627,15 +375,6 @@ const FACING: number = 6;
 
 /** The change of turn below which a facing has settled, degrees (provisional). */
 const SETTLED: number = 0.5;
-
-/**
- * The spine's bones a turn of the trunk toward a wrist off to the side twists:
- * the lumbar and the thoracic spine.
- */
-const TWISTED: readonly TwistedBone[] = ["spine", "chest"];
-
-/** A spine bone the trunk's turn twists. */
-type TwistedBone = "spine" | "chest";
 
 /**
  * A wrist's place against the arm on a posture, metres: beyond the kept share

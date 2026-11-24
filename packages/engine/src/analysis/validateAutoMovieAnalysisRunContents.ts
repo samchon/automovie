@@ -59,7 +59,6 @@ export const validateAutoMovieAnalysisRunContents: (
       `analysis run protocol must be "automovie.analysis-run.v1", but was ${String(run.protocol)}`,
       run.protocol,
     );
-  out.nonEmpty(`${root}.id`, run.id, "analysis run id");
   out.nonEmpty(`${root}.subject`, run.subject, "analysis run subject");
   out.nonEmpty(
     `${root}.inputRevision`,
@@ -67,7 +66,6 @@ export const validateAutoMovieAnalysisRunContents: (
     "analysis run input revision",
   );
 
-  out.nonEmpty(`${root}.solver.id`, run.solver.id, "solver id");
   out.nonEmpty(`${root}.solver.version`, run.solver.version, "solver version");
   out.nonEmpty(
     `${root}.solver.model`,
@@ -141,7 +139,6 @@ export const validateAutoMovieAnalysisRunContents: (
         );
         continue;
       }
-      out.nonEmpty(`${path}.id`, sample.id, "sample id");
       if (sampleIds.has(sample.id))
         out.push(
           "type",

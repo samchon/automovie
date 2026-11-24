@@ -17,7 +17,7 @@ import type { IAutoMovieMotionHumanActionContext } from "../law/IAutoMovieMotion
  * Distances are metres and angles degrees about +Y with 0 facing +Z. A
  * formation's `lateral` axis is the frame's right (-X when it faces +Z), so
  * file 0 stands on its left, and its `depth` axis runs toward its rear. Every
- * value is checked by `HumanFormation.of`.
+ * value is checked by `HumanFormation`.
  */
 export interface IAutoMovieMotionHumanFormation {
   /** The blocks, in member order: block 0's members first. */

@@ -138,12 +138,12 @@ The curl is not added to the thumb, whose flexion closes across the palm.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Remembered per body, side, surface, shape and curl.
+Reuses the body's forward kinematics, its surface frames and its collider placement.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-One forward kinematics, and for a pad one collider placement, per body, side, surface, shape and curl.
+One forward kinematics, and for a pad one collider placement, per call.
 
-## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
+## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
-The memo is weak in the body.
+Retains nothing; the frame is the caller's.

@@ -13,8 +13,8 @@ import { HumanPosture } from "./HumanPosture";
 /**
  * Select world limb fits needed by explicit bone observations. All directly
  * authored joints are already clamped/admitted by the caller. Any requested arm
- * solve, attached/reference/external goal, digit context or unsupported raw
- * field keeps the complete original fit request.
+ * solve, attached/reference/external goal or digit context keeps the complete
+ * original fit request.
  */
 export function selectHumanPostureGoals(
   body: IAutoMovieMotionHumanBody,
@@ -23,17 +23,9 @@ export function selectHumanPostureGoals(
 ): IAutoMovieMotionHumanPosture["limbs"] {
   const limbs: IAutoMovieMotionHumanPosture["limbs"] = posture.limbs;
   if (posture.digits !== undefined) return limbs;
-  try {
-    for (const [name, goal] of Object.entries(limbs)) {
-      if (
-        !LIMBS.has(name) ||
-        goal === undefined ||
-        !simple(goal, name.endsWith("Leg"))
-      )
-        return limbs;
-    }
-  } catch {
-    return limbs;
+  for (const limb of HumanPosture.LIMBS) {
+    const goal: IAutoMovieHumanLimbGoal | undefined = limbs[limb];
+    if (goal !== undefined && !simple(goal, limb.endsWith("Leg"))) return limbs;
   }
   const byName: Map<AutoMovieHumanoidBone, IAutoMovieBone> = new Map();
   for (const bone of body.skeleton.bones) byName.set(bone.bone, bone);
@@ -80,14 +72,20 @@ export function selectHumanPostureGoals(
 /** Admit only the fields whose free-world independence the selector proves. */
 function simple(goal: IAutoMovieHumanLimbGoal, leg: boolean): boolean {
   return (
-    Object.keys(goal).every(
-      (key: string): boolean => FIELDS.has(key) || (leg && LEG_FIELDS.has(key)),
-    ) &&
+    goal.elbow === undefined &&
+    goal.limits === undefined &&
+    goal.on === undefined &&
+    goal.reference === undefined &&
+    goal.seed === undefined &&
+    goal.clear === undefined &&
+    goal.clearExternal === undefined &&
+    goal.rests === undefined &&
+    goal.restsOwn === undefined &&
+    goal.clearanceOn === undefined &&
+    (leg || (goal.contact === undefined && goal.planted === undefined)) &&
     finite(goal.point) &&
     finite(goal.bend) &&
-    (goal.contact === undefined || (leg && finite(goal.contact))) &&
-    (goal.planted === undefined ||
-      (leg && typeof goal.planted === "boolean")) &&
+    (goal.contact === undefined || finite(goal.contact)) &&
     (goal.rotation === undefined ||
       [
         goal.rotation.x,
@@ -106,18 +104,3 @@ function finite(point: IAutoMovieVector3): boolean {
     Number.isFinite(point.z)
   );
 }
-
-/**
- * Canonical goal names; unknown raw properties conservatively keep full
- * resolution.
- */
-const LIMBS: ReadonlySet<string> = new Set(HumanPosture.LIMBS);
-
-/** Arm contacts, attachments, reference, strain and external geometry fall back. */
-const FIELDS: ReadonlySet<string> = new Set(["point", "bend", "rotation"]);
-
-/**
- * Foot re-aim and planting have no arm input; their actual fit remains
- * unchanged.
- */
-const LEG_FIELDS: ReadonlySet<string> = new Set(["contact", "planted"]);

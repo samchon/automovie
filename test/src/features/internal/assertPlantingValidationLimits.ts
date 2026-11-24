@@ -43,21 +43,6 @@ export function assertPlantingValidationLimits(
           ),
       ],
       [
-        "boxValue",
-        () =>
-          refuses(
-            {
-              pruning: {
-                kind: "box",
-                min: { x: Number.NaN, y: 0, z: 0 },
-                max: { x: 1, y: 1, z: 1 },
-              },
-            },
-            "range",
-            "pruning.min.x",
-          ),
-      ],
-      [
         "sphere",
         () =>
           refuses(
@@ -160,7 +145,6 @@ export function assertPlantingValidationLimits(
     ]),
     {
       box: true,
-      boxValue: true,
       sphere: true,
       density: true,
       minLevel: true,
@@ -300,21 +284,11 @@ export function assertPlantingValidationLimits(
   TestValidator.equals(
     "the cluster is named",
     namedFacts([
-      ["blankId", () => refusesCluster({ id: " " }, "type", "$input.id")],
       ["domain", () => refusesCluster({ domain: "" }, "type", "$input.domain")],
       ["count", () => refusesCluster({ count: 0 }, "type", "$input.count")],
       [
         "tooMany",
         () => refusesCluster({ count: 10_001 }, "type", "$input.count"),
-      ],
-      [
-        "anchor",
-        () =>
-          refusesCluster(
-            { anchor: { x: Number.NaN, y: 0, z: 0 } },
-            "range",
-            "$input.anchor.x",
-          ),
       ],
       [
         "extent",
@@ -381,11 +355,9 @@ export function assertPlantingValidationLimits(
       ],
     ]),
     {
-      blankId: true,
       domain: true,
       count: true,
       tooMany: true,
-      anchor: true,
       extent: true,
       extentZ: true,
       seed: true,

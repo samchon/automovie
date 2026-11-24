@@ -13,7 +13,7 @@ import { TestValidator } from "@nestia/e2e";
 import * as THREE from "three";
 
 import { IDENTITY_TRANSFORM, createModel } from "../internal/fixtures";
-import { namedFacts, nclose, throwsError } from "../internal/predicates";
+import { namedFacts, nclose } from "../internal/predicates";
 
 const buildTwoNodeScene: () => ReturnType<typeof buildScene> = (): ReturnType<
   typeof buildScene
@@ -71,13 +71,12 @@ const meshesOf: (root: THREE.Object3D) => THREE.Mesh[] = (
  * 4. Outline installs black fills and back-face shells with the selected edge width and skinning program chunks; restore removes them. Program text is observed, not native shader compilation.
  * 5. Mask assigns deterministic flat node colors on black and restores materials and background.
  * 6. Pose hides meshes and adds bone-to-child lines in a named overlay; restore removes it and unhides the meshes.
- * 7. An unknown mode is a caller bug and throws.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Applies each actual guide mode to a generic built scene and an InstancedMesh, reading temporary materials, generated shader fields, overlays and restored state; catches omitted instancing/skinning support and overrides left on borrowed sources.
  * @evidence contracts/development/testing.md#independent-expectations Supported mode classes, authored depth/edge values, original object identities and the fixture's 22 bone edges define expectations. The public mask palette is a delegation reference, while shader strings and CPU fields do not establish observed guide pixels.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers beauty, default/custom depth and edge width, normal, per-node mask distinction, pose hide/overlay/restoration and unknown-mode refusal; failure retirement and scene atmosphere have separate units.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers beauty, default/custom depth and edge width, normal, per-node mask distinction, and pose hide/overlay/restoration; failure retirement and scene atmosphere have separate units.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit calls maintained Viewer source and existing generic fixtures with real CPU-side Three graph/material objects, restores every temporary pass and starts no renderer, browser or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `beauty` is a no-op: materials keep their exact instances.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: `beauty` is a no-op: materials keep their exact instances.).
  */
 export function test_viewer_render_modes(): void {
   const { scene }: ReturnType<typeof buildScene> = buildTwoNodeScene();
@@ -593,12 +592,4 @@ export function test_viewer_render_modes(): void {
     { sceneGetObjectByNamePOSE_OVERLAY_NAME: true, meshesEveryMesh: true },
   );
 
-  TestValidator.predicate(
-    "unknown mode throws",
-    throwsError(
-      (): ReturnType<typeof applyRenderMode> =>
-        applyRenderMode(scene, "sketch" as never),
-      'unknown render mode "sketch"',
-    ),
-  );
 }

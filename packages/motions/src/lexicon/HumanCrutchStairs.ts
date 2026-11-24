@@ -22,10 +22,10 @@ import type { supportCourse } from "../actions/supportCourse";
 import { crawl } from "../floor/crawl";
 import { getUp } from "../floor/getUp";
 import { HumanContactWindow } from "../law/HumanContactWindow";
-import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { HumanCrutchStairsRefuse } from "./HumanCrutchStairsRefuse";
 import { carryCrutchHands } from "./carryCrutchHands";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 import { crutchStairsFlight } from "./crutchStairsFlight";
@@ -44,17 +44,6 @@ type LegJoint = "hip" | "knee";
  * degrees: the crutch walk's three-point gait's.
  */
 const HELD: Readonly<Record<LegJoint, number>> = { hip: 30, knee: 80 };
-
-/** Refuse a crutch setting with its reason. */
-function refuse(axis: string, value: unknown, reason: string): never {
-  throw new HumanRefusal({
-    kind: "affordance",
-    axis,
-    value,
-    reason,
-    fix: "stage both crutches on the floor level with the toes, each with a grip and a tip",
-  });
-}
 
 /**
  * Climbing stairs on two crutches: "up with the good, down with the bad"
@@ -146,13 +135,17 @@ export const HumanCrutchStairs: IAutoMovieMotionHumanCrutchStairs.ILaw = {
           affordances.some((a: IAutoMovieAffordance): boolean => a.id === id),
         )
       )
-        refuse(side, subject, "a crutch declares a grip and a tip");
+        HumanCrutchStairsRefuse(
+          side,
+          subject,
+          "a crutch declares a grip and a tip",
+        );
       if (
         Math.abs(
           context.prop(subject).frame(context.start).position.y - ground,
         ) > 0.01
       )
-        refuse(
+        HumanCrutchStairsRefuse(
           side,
           subject,
           "the crutch does not start on its tip on the floor",

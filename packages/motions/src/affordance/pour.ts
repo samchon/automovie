@@ -22,7 +22,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionClock } from "../compose/AutoMovieMotionClock";
 import { AutoMovieMotionHumanArm } from "../compose/AutoMovieMotionHumanArm";
 import { AutoMovieMotionHumanBase } from "../compose/AutoMovieMotionHumanBase";
 import { AutoMovieMotionHumanHeld } from "../compose/AutoMovieMotionHumanHeld";
@@ -32,6 +31,7 @@ import { HumanHand } from "../posture/HumanHand";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingRoll } from "../striking/StrikingRoll";
+import { pourClock } from "./pourClock";
 
 /** Upright admission allows five degrees of staged placement error. */
 const UPRIGHT: number = Math.cos((5 * Math.PI) / 180);
@@ -73,7 +73,7 @@ export namespace pour {
   ): IAutoMovieMotionHumanActionPlan {
     const params: IAutoMovieMotionHumanPour.IParams = context.params;
     validateVolumes(params);
-    const clock: IAutoMovieMotionClock = clockOf(params, context.tempo ?? 1);
+    const clock: IAutoMovieMotionClock = pourClock(params, context.tempo ?? 1);
     if (
       context.carrier !== undefined ||
       context.entry.base.kind !== "standing" ||
@@ -352,50 +352,6 @@ export namespace pour {
       spillMl: amount - caught,
     };
   }
-}
-/** The record of `IClockOfPhasesItem`'s site. */
-type IClockOfPhasesItem = { name: string; seconds: number };
-
-/** Admit a bounded, nonempty authored stage sequence and usable tip geometry. */
-function clockOf(
-  params: IAutoMovieMotionHumanPour.IParams,
-  tempo: number,
-): IAutoMovieMotionClock {
-  const { timing, gap, tilt } = params;
-  const phases: IClockOfPhasesItem[] = [
-    { name: "approachStart", seconds: timing.approach },
-    { name: "tipStart", seconds: timing.tip },
-    { name: "flowStart", seconds: timing.flow },
-    { name: "flowEnd", seconds: timing.right },
-    { name: "retreatStart", seconds: timing.retreat },
-  ];
-  let duration: number = 0;
-  for (const phase of phases)
-    duration +=
-      phase.seconds >= 0.2 &&
-      phase.seconds <= 3
-        ? phase.seconds
-        : NaN;
-  if (!(duration <= 10 && tempo > 0 && duration * tempo <= 10))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "timing",
-      value: duration,
-      reason:
-        "the five stages need 0.2 to 3 seconds each and at most 10 seconds in all, including tempo scaling",
-      fix: "shorten or lengthen the affected stage lengths",
-    });
-  if (!(tilt >= 35 && tilt <= 90 && gap >= 0.04 && gap <= 0.18))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "tilt/gap",
-      value: params.tilt,
-      reason:
-        "the pour needs a 35 to 90 degree tilt and a 0.04 to 0.18 metre gap",
-      fix: "author a tilt and lip clearance in those ranges",
-    });
-  for (const phase of phases) phase.seconds *= tempo;
-  return AutoMovieMotionClock.sequence(phases);
 }
 /** Admit finite quantities before arithmetic or planning. */
 function validateVolumes(params: IAutoMovieMotionHumanPour.IParams): void {

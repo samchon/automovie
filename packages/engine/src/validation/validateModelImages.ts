@@ -1,11 +1,10 @@
 import type {
+  IAutoMovieImage,
   IAutoMovieTextureImageFacts,
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { collectNonEmptyId } from "./collectNonEmptyId";
 import { AUTO_MOVIE_MAX_TEXTURE_EDGE } from "./constants/AUTO_MOVIE_MAX_TEXTURE_EDGE";
-import { isRecord } from "./isRecord";
 import { readAutoMovieImageFacts } from "./readAutoMovieImageFacts";
 import { validateUniqueValues } from "./validateUniqueValues";
 
@@ -26,9 +25,8 @@ const HEADER_CHARACTERS: number = 44;
 const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
 
 /**
- * Admit the images a model carries: a list of records with nonblank unique ids,
- * the PNG media type, strict base64 data, and a PNG header inside the subset
- * the viewer decodes.
+ * Admit the images a model carries: unique ids, strict base64 data, and a PNG
+ * header inside the subset the viewer decodes.
  *
  * The header is the IHDR chunk (W3C PNG, 2nd edition, section 11.2.2): a
  * 13-byte body whose bit depth must be 8, colour type 0, 2, 4 or 6,
@@ -39,45 +37,25 @@ const COLOUR_TYPES: ReadonlySet<number> = new Set([0, 2, 4, 6]);
  * image.
  */
 export const validateModelImages: (
-  images: unknown,
+  images: readonly IAutoMovieImage[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
 ) => void = (
-  images: unknown,
+  images: readonly IAutoMovieImage[] | undefined,
   path: string,
   collector: IAutoMovieViolationCollector,
 ): void => {
   if (images === undefined) return;
-  if (!Array.isArray(images)) {
-    collector.push("type", path, "images must be a list", images);
-    return;
-  }
   const ids: [string, string][] = [];
-  images.forEach((image: unknown, index: number): void => {
+  images.forEach((image: IAutoMovieImage, index: number): void => {
     const at: string = `${path}[${index}]`;
-    if (!isRecord(image)) {
-      collector.push("type", at, "an image must be a record", image);
-      return;
-    }
-    collectNonEmptyId(image.id, `${at}.id`, "image id", collector);
-    if (typeof image.id === "string") ids.push([image.id, `${at}.id`]);
-    if (image.mimeType !== "image/png")
-      collector.push(
-        "type",
-        `${at}.mimeType`,
-        'image media type must be "image/png"',
-        image.mimeType,
-      );
-    if (
-      typeof image.data !== "string" ||
-      image.data.length === 0 ||
-      !BASE64.test(image.data)
-    ) {
+    ids.push([image.id, `${at}.id`]);
+    if (image.data.length === 0 || !BASE64.test(image.data)) {
       collector.push(
         "type",
         `${at}.data`,
         "image data must be nonempty padded standard base64 without a data: prefix",
-        typeof image.data === "string" ? image.data.slice(0, 32) : image.data,
+        image.data.slice(0, 32),
       );
       return;
     }

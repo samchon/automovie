@@ -38,7 +38,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
  * @param person The person read.
  * @param subject The person's subject.
  * @param seconds The film second read.
- * @param axis The refusal's axis, or a reader of it.
+ * @param axis The reader of the refusal's axis.
  * @param meeting Whether the person belongs to the reader's own parallel group
  *   with their part still waiting; such a person's cycle is held, not refused.
  * @returns Whether the read holds the person's last placed pose at the second;
@@ -70,7 +70,7 @@ export function placeDemandedHumanPerformer(
     if (found === "cycle")
       throw new HumanRefusal({
         kind: "participant",
-        axis: typeof axis === "function" ? axis() : axis,
+        axis: axis(),
         value: subject,
         feasible: null,
         reason: `reading ${subject} at ${seconds.toFixed(2)} s needs ${subject}'s next actions placed, and those read this action in turn: the two read each other`,
@@ -81,5 +81,5 @@ export function placeDemandedHumanPerformer(
   return false;
 }
 
-/** The refusal's axis, or a reader of it. */
-type DemandAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type DemandAxis = () => string;

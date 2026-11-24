@@ -11,7 +11,6 @@ import type {
   IAutoMovieRigidTransform,
 } from "@automovie/interface";
 
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { HumanPerformanceGrips } from "./HumanPerformanceGrips";
@@ -26,14 +25,14 @@ import { placeDemandedHumanPerformer } from "./placeDemandedHumanPerformer";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readPlacedHumanPosture } from "./readPlacedHumanPosture";
 
-/** The alternatives of `AvailableAxis`'s site. */
-type AvailableAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type AvailableAxis = () => string;
 
-/** The alternatives of `WhenAxis`'s site. */
-type WhenAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type WhenAxis = () => string;
 
-/** The alternatives of `RootAxis`'s site. */
-type RootAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type RootAxis = () => string;
 
 /** The record of `IPropOwn`'s site. */
 type IPropOwn = {
@@ -43,11 +42,11 @@ type IPropOwn = {
   ) => ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone>;
 };
 
-/** The alternatives of `BonesAxis`'s site. */
-type BonesAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type BonesAxis = () => string;
 
-/** The alternatives of `PostureAxis`'s site. */
-type PostureAxis = string | (() => string);
+/** The reader of a refusal's axis, read only when the read is refused. */
+type PostureAxis = () => string;
 
 /**
  * What a performance is read by: a person's pose, posture and bones, a prop's
@@ -330,7 +329,7 @@ export namespace HumanPerformanceRead {
    *
    * @param subject The performer read.
    * @param seconds Film seconds.
-   * @param axis The refusal's axis, or a reader of it.
+   * @param axis The reader of the refusal's axis.
    * @param met The performer's meeting instant the reader recorded when it was
    *   placed, if it shares a parallel group with them.
    * @returns The second to read the performer at.
@@ -399,7 +398,7 @@ export namespace HumanPerformanceRead {
     if (!held && self.resolving && left > 0 && at > known + 1e-9)
       throw new HumanRefusal({
         kind: "participant",
-        axis: typeof axis === "function" ? axis() : axis,
+        axis: axis(),
         value: subject,
         feasible: {
           kind: "range",
@@ -462,13 +461,10 @@ export namespace HumanPerformanceRead {
     self: IAutoMovieMotionHumanPerformanceState,
     subject: string,
     seconds: number,
-    sweep: AutoMovieMotionHumanBendRepeat,
   ): IAutoMovieMotionHumanPosture["root"] {
     return readPlacedHumanPosture(
       HumanPerformanceRead.person(self, subject),
       seconds,
-      undefined,
-      [self, sweep],
     ).root;
   }
   /**

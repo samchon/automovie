@@ -102,7 +102,7 @@ export namespace crutchWalkCourse {
    *   or has no positive time.
    */
   export function clock(params: IAutoMovieMotionHumanCrutchWalk): IClock {
-    if (!Array.isArray(params.stations) || params.stations.length === 0)
+    if (params.stations.length === 0)
       return refuse("stations", 0, "a crutch walk needs at least one station");
     const ready: number = params.stations[0]!.seconds / 4;
     let t: number = ready;

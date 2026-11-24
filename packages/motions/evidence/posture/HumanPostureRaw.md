@@ -27,36 +27,6 @@ Only the same raw-domain predicate is shared by preparation and transport consum
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 
 The predicate retains no input, result, callback or resource.
-# src/posture/HumanPostureRaw.ts#HumanPostureRaw.signature
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines ordinary getter/toJSON order, signed-zero lowering and unreadable/cyclic refusal.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-The original JSON.stringify and replacer execute once over the supplied raw object; only numeric negative zero lowers to its existing sentinel string.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One serialization owner preserves actual observation while constructor-owned graph checks separately establish numerical reuse proof.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Performs no component early exit or alternate hook/proxy probing, and its string cannot independently certify a pose.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Ordinary JSON traversal visits the complete selected graph in O(S) serialized data and produces one string; no second serializer or cached callback result is used.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The serialization implementation is shared, while every invocation executes its original raw observations independently and retains no previous verdict.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Returns one string or undefined and retains no authoring object or callback.
-
 # src/posture/HumanPostureRaw.ts#HumanPostureRaw.translated
 
 ## @evidence contracts/development/common.md#meaningful-documentation

@@ -215,17 +215,17 @@ Repair a refusal at the axis it names. `HumanRefusal.Kind` lists the classes wit
 
 A composition that plans can still perform badly, so check a scene on three things before accepting it.
 
-1. `HumanVerdicts.of(performance)` reads every physical bound that holds for any human motion, such as a hand passing into the body, a foot skating and a joint leaving its range, and places each finding on the performer and the action it happens in. Accept only a clean report.
+1. `HumanVerdicts(performance)` reads every physical bound that holds for any human motion, such as a hand passing into the body, a foot skating and a joint leaving its range, and places each finding on the performer and the action it happens in. Accept only a clean report.
 2. `HumanSignature` reads what human-movement studies measure on a performer, such as the trunk's inclination, a joint's flexion, the centre of mass and the cadence. Assert the value your scene's act is known to have in a unit test.
 3. Look at stills of the performance. Numbers do not show a pose that reads wrongly.
 
 ```ts
 import { HumanSignature, HumanVerdicts } from "@automovie/motions";
 
-const report = HumanVerdicts.of(performance);
+const report = HumanVerdicts(performance);
 if (!report.clean) throw new Error(HumanVerdicts.describe(report));
 
-const reader = HumanSignature.of(performance, "a", body, 0);
+const reader = HumanSignature(performance, "a", body, 0);
 const lean = HumanSignature.trunk(reader, 1.5) - HumanSignature.trunk(reader, 0);
 ```
 

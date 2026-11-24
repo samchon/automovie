@@ -155,15 +155,6 @@ export function test_film_motion_object_admission(): void {
     ],
     'channel kind must be "node"',
   );
-  const invalid: IAutoMovieTrack["channel"] = {
-    kind: "node",
-    node: joint,
-    path: "opacity",
-  } as unknown as IAutoMovieTrack["channel"];
-  rejects(
-    [swingClip("fade", joint, 0, { channel: invalid, values: [1] })],
-    "channel path must be one of",
-  );
   for (const angle of [1, 90]) {
     const spec: IAutoMoviePropSpec = createDoorPropSpec();
     assert.ok(spec.articulation);

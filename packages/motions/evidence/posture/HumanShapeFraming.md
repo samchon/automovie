@@ -44,37 +44,7 @@ Reuses `sphere` and the engine's hull faces.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The framing belongs to the caller's room and is released with it; the face planes are the hull's own, kept with its points.
-
-# src/posture/HumanShapeFraming.ts#HumanShapeFraming.bendPlanes
-
-## @evidence contracts/development/common.md#meaningful-documentation
-
-Defines the original native plane backing and unproved fallback.
-
-## @evidence contracts/development/implementation.md#principled-implementation
-
-Requires the actual cache identity and native typed length before borrowing the array.
-
-## @evidence contracts/development/implementation.md#clear-and-simple-structure
-
-One ownership test and the descriptor chain of length.
-
-## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
-
-Never inspects unknown replacement array objects.
-
-## @evidence contracts/development/implementation.md#efficient-algorithms
-
-Constant work before the consumer reads its exact current plane words.
-
-## @evidence contracts/development/implementation.md#reuse-equivalent-work
-
-The room's scorer can compare live planes without reading unvisited exact hulls.
-
-## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
-
-Retains nothing.
+The framing, its face planes included, belongs to the caller's room and is released with it.
 
 # src/posture/HumanShapeFraming.ts#HumanShapeFraming.beyond
 

@@ -68,7 +68,7 @@ export function test_motion_prehension_grasp_for_use(): void {
       >,
     ): IAutoMovieMotionHumanActionPlan => {
       actual.push(
-        AutoMovieMotionHumanStrike.StrikingHeld.of(
+        AutoMovieMotionHumanStrike.StrikingHeld(
           context,
           "right",
           context.params.prop,

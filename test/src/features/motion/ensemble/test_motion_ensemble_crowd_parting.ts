@@ -84,7 +84,7 @@ export function test_motion_ensemble_crowd_parting(): void {
       );
   const scene = (dx: number, dz: number): IScene => {
     const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
-      AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      AutoMovieMotionHumanEnsemble.HumanEnsemble({
         id: "street",
         seed: "parting",
         count: 40,
@@ -220,7 +220,7 @@ export function test_motion_ensemble_crowd_parting(): void {
       );
   });
   const grouped: IAutoMovieMotionHumanEnsemble.IEnsemble =
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id: "walking-groups",
       seed: "parting",
       count: 6,

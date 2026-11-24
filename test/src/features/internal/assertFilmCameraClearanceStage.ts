@@ -30,21 +30,9 @@ export function assertFilmCameraClearanceStage(
     );
   }
   const malformed: ReturnType<typeof stageScene>[] = [
-    null,
-    { body: null, parentRig: null },
-    { body: { center: [], radius: 0.1 }, parentRig: null },
-    {
-      body: { center: { x: Number.NaN, y: 0, z: 0 }, radius: 0.1 },
-      parentRig: null,
-    },
     {
       body: { center: { x: 0, y: 0, z: 0 }, radius: 0 },
       parentRig: null,
-    },
-    { body: { center: { x: 0, y: 0, z: 0 }, radius: 0.1 } },
-    {
-      body: { center: { x: 0, y: 0, z: 0 }, radius: 0.1 },
-      parentRig: { center: { x: 0, y: Infinity, z: 0 }, radius: -1 },
     },
   ].map(
     (clearance: unknown): ReturnType<typeof stageScene> =>

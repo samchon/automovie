@@ -53,8 +53,6 @@ export function validateProductionFilmEffectRuntime(
     runtime.frameRate.numerator !== frameRate.numerator ||
     runtime.frameRate.denominator !== frameRate.denominator ||
     runtime.effect.version !== 1 ||
-    runtime.effect.id.trim().length === 0 ||
-    runtime.effect.zone.trim().length === 0 ||
     runtime.effect.intensity.from !== runtime.effect.intensity.to ||
     Number.isFinite(runtime.effect.intensity.from) === false ||
     runtime.effect.intensity.from < 0 ||

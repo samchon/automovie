@@ -130,7 +130,7 @@ export function test_motion_ensemble_ground_ensemble_cues(): void {
 
 /** Build a neutral straight row from the production formation vocabulary. */
 function row(space: number, z: number): IAutoMovieMotionHumanFormation {
-  return AutoMovieMotionHumanEnsemble.HumanFormation.of({
+  return AutoMovieMotionHumanEnsemble.HumanFormation({
     blocks: [
       {
         count: 5,
@@ -152,7 +152,7 @@ function assemble(variant: Variant): IRehearsal {
   const from: IAutoMovieMotionHumanFormation = row(NARROWER, 0);
   const to: IAutoMovieMotionHumanFormation = row(WIDER, ADVANCE);
   const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id: "cast",
       seed: "dress-rehearsal",
       count: 5,

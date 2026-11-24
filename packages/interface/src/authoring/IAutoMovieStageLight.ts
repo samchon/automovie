@@ -11,7 +11,7 @@ import type { IAutoMovieLightShadow } from "../scene/IAutoMovieLightShadow";
  * translating to `position`.
  */
 export type IAutoMovieStageLight = {
-  /** Non-blank light identity, unique across every node of the stage. */
+  /** Light identity, unique across every node of the stage. */
   node: string;
 
   /** Optional dramatic annotation for review; no engine stage reads it. */

@@ -39,7 +39,7 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
 ): IAutoMovieValidation => validateServiceNetwork({ network, environment });
 
 /**
- * Selected header, identity, vocabulary, load and spatial defects report their
+ * Selected header, identity, load and spatial defects report their
  * owning field rather than an unrelated network property.
  *
  * Cases alter the shared bathhouse design, sometimes changing several fields
@@ -51,19 +51,17 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  * branch that was run and then orphaned. Reporting either as the other would
  * point at the wrong end of the mistake.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, vocabulary, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
+ * @evidence contracts/development/testing.md#behavioral-verification Runs actual network validation and directional load measurement over selected header, identity, medium/unit, stub, capacity, root, spatial, operating-state and numeric defects; kind/path, selected exact counts and overshoots expose missing or unrelated findings.
  * @evidence contracts/development/testing.md#independent-expectations Authored graph references and schema tables supply diagnostic paths; inlet .0002, waste outlet .001 and capacities .01/.0005 yield independent load/overshoot expectations through nclose. Presence-only assertions permit additional findings where no count is asserted.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction, branch deletion, nonfinite placement without extra room accusation and unmeasurable capacity without load comparison; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves all fifteen numbered groups, both data/control tables, supply/drain direction and branch deletion; clean-network admission and detailed run/seal geometry belong to adjacent service tests.
  * @evidence contracts/development/testing.md#execution-ownership The named discoverable portable unit owns early cases and calls assertServiceNetworkSpatialDefects for the original later groups with the same clean network and refusal closure; no extra registration, renderer, native host or hydraulic/electrical simulation runs.
  *
  * Scenarios:
  *
- * 1. The record's own header is checked: schema version, units, the environment it
- *    claims to serve, and a blank identity.
+ * 1. The record's own header is checked: the environment it claims to serve.
  * 2. Identity is enforced separately for systems, nodes, ports, runs and sleeves,
  *    with ports unique across the whole network rather than per node.
- * 3. Closed vocabularies stay closed: discipline, medium, flow, node kind and port
- *    direction each refuse a word outside their union.
+ * 3. A zero system capacity is refused at its system.
  * 4. A discipline refuses a medium it does not carry, and a medium refuses a unit
  *    it is not measured in — at the system, and again at every port repeating
  *    it.
@@ -88,32 +86,25 @@ const refuse: (network?: IAutoMovieServiceNetwork) => IAutoMovieValidation = (
  * 13. A node is refused when its space does not resolve, when its element does not,
  *     and when it stands outside the space it claims.
  * 14. Operating state and access volumes are range-checked: a blank state name, an
- *     opening past 1, a collapsed envelope and a non-finite one.
- * 15. Non-finite and negative numbers are refused wherever a position, a demand or
- *     a section is required, and a point nobody can read is not additionally
- *     accused of standing in the wrong room.
+ *     opening past 1 and a collapsed envelope.
+ * 15. Negative or zero numbers are refused wherever a demand or a section is
+ *     required.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The record's own header is checked: schema version, units, the environment it).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: The record's own header is checked: the environment it claims to serve.).
  */
 export function test_service_network_defects(): void {
   const clean: IAutoMovieServiceNetwork = serviceNetwork();
 
   const header: IAutoMovieValidation = refuse({
     ...clean,
-    id: "  ",
-    version: 2 as unknown as 1,
-    units: "centimeter" as unknown as "meter",
     environment: "somewhere-else",
   });
   TestValidator.equals(
     "the record's own header is checked before anything it cites",
     namedFacts([
-      ["id", () => hasViolation(header, "type", "$input.id")],
-      ["version", () => hasViolation(header, "type", "$input.version")],
-      ["units", () => hasViolation(header, "type", "$input.units")],
       ["environment", () => hasViolation(header, "type", "$input.environment")],
     ]),
-    { id: true, version: true, units: true, environment: true },
+    { environment: true },
   );
 
   const identity: IAutoMovieValidation = refuse({
@@ -137,7 +128,6 @@ export function test_service_network_defects(): void {
             : entry,
       ),
       node({ id: "basin", position: { x: 1, y: 1, z: 1 } }),
-      node({ id: "  ", position: { x: 1, y: 1, z: 1 } }),
     ],
     segments: [...clean.segments, segment({ id: "cold-run" })],
     penetrations: [...clean.penetrations, sleeve({ id: "cold-bath-hall" })],
@@ -147,7 +137,7 @@ export function test_service_network_defects(): void {
     namedFacts([
       ["system", () => hasViolation(identity, "type", "$input.systems[7].id")],
       ["node", () => hasViolation(identity, "type", "$input.nodes[14].id")],
-      ["blank", () => hasViolation(identity, "type", "$input.nodes[15].id")],
+
       [
         "port",
         () => hasViolation(identity, "type", "$input.nodes[11].ports[1].id"),
@@ -164,7 +154,6 @@ export function test_service_network_defects(): void {
     {
       system: true,
       node: true,
-      blank: true,
       port: true,
       segment: true,
       penetration: true,
@@ -172,69 +161,25 @@ export function test_service_network_defects(): void {
   );
 
   const vocabulary: IAutoMovieValidation = refuse(
-    withPort(
-      withNode(
-        withSystem(
-          clean,
-          "cold",
-          (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
-            ...entry,
-            discipline: "acoustics" as unknown as "plumbing",
-            medium: "steam" as unknown as "cold-water",
-            flow: "sideways" as unknown as "from-root",
-            capacity: 0,
-          }),
-        ),
-        "cold-main",
-        (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-          ...entry,
-          kind: "gizmo" as unknown as "source",
-        }),
-      ),
-      "basin-cold",
-      (entry: IAutoMovieServicePort): IAutoMovieServicePort => ({
+    withSystem(
+      clean,
+      "cold",
+      (entry: IAutoMovieServiceSystem): IAutoMovieServiceSystem => ({
         ...entry,
-        direction: "sideways" as unknown as "in",
+        capacity: 0,
       }),
     ),
   );
   TestValidator.equals(
-    "closed vocabularies stay closed at every level",
+    "a zero capacity is refused at its system",
     namedFacts([
-      [
-        "discipline",
-        () => hasViolation(vocabulary, "type", "$input.systems[0].discipline"),
-      ],
-      [
-        "medium",
-        () => hasViolation(vocabulary, "type", "$input.systems[0].medium"),
-      ],
-      [
-        "flow",
-        () => hasViolation(vocabulary, "type", "$input.systems[0].flow"),
-      ],
       [
         "capacity",
         () => hasViolation(vocabulary, "range", "$input.systems[0].capacity"),
       ],
-      ["kind", () => hasViolation(vocabulary, "type", "$input.nodes[0].kind")],
-      [
-        "direction",
-        () =>
-          hasViolation(
-            vocabulary,
-            "type",
-            "$input.nodes[9].ports[0].direction",
-          ),
-      ],
     ]),
     {
-      discipline: true,
-      medium: true,
-      flow: true,
       capacity: true,
-      kind: true,
-      direction: true,
     },
   );
 

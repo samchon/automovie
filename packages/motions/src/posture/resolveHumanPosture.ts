@@ -11,7 +11,6 @@ import type {
 } from "@automovie/interface";
 
 import { HumanLimbFit } from "./HumanLimbFit";
-import { HumanPosturePreparation } from "./HumanPosturePreparation";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
 import { refitHumanPosture } from "./refitHumanPosture";
@@ -37,11 +36,10 @@ import { resolveHumanPostureSource } from "./resolveHumanPostureSource";
  * (`HumanDigitFit`).
  *
  * The seeded companion may restrict an explicit observation to requested bone
- * frames. Unsupported dependencies keep ordinary complete fitting. prepare
- * records an actual cold source for checked raw translation, and the
- * preparation's `translated` and `rigid` construct its original demands at a
- * new placement (`HumanPosturePreparation`). Raw composition retains ordinary
- * fitting; source identity alone cannot certify its current demand graph.
+ * frames. Unsupported dependencies keep ordinary complete fitting. A posture
+ * placed from a preparation carries its own solve
+ * (`HumanPosturePreparation.IPlaced`) for its reader to take instead of
+ * resolving it here.
  *
  * @param body The performer's body.
  * @param posture The posture.
@@ -91,16 +89,8 @@ export namespace resolveHumanPosture {
     requested?: ReadonlySet<AutoMovieHumanoidBone>,
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
   ): IAutoMovieMotionHumanResolveHumanPosture.ISeeded {
-    // A cold resolve with a native reader takes an issued preparation's
-    // proven solve (`HumanPosturePreparation.read`) where the posture has one.
     const native: boolean =
       prepareHumanPoseResolution.isNativeSource(resolution);
-    if (base === undefined && native && Object.keys(near).length === 0) {
-      const prepared:
-        | IAutoMovieMotionHumanResolveHumanPosture.ISeeded
-        | undefined = HumanPosturePreparation.read(body, posture);
-      if (prepared !== undefined) return prepared;
-    }
 
     // The owned route assembles fresh records from the raw demands and fits
     // them in place; a reader lends only exact FK, so a native one (this

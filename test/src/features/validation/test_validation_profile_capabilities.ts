@@ -55,11 +55,11 @@ const failsAt: (
  * Scenarios:
  *
  * 1. A complete mountable/destructible profile passes both the focused validator and validateModel.
- * 2. Profile identities are non-blank and unique, and trait kinds are unique.
+ * 2. Profile names are non-blank, identities are unique, and trait kinds are unique.
  * 3. Each mountable and destructible scalar family is independently rejected at its exact path.
  * 4. Impact hardness and penetrability above one are rejected. Profile admission uses (0,1], a stricter lower bound than resolveImpact's [0,1] physical coefficient domain.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls focused profile and model admission, requiring supported capability acceptance and located refusals for duplicate/blank identity, repeated trait kinds and each invalid capability scalar.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls focused profile and model admission, requiring supported capability acceptance and located refusals for a duplicate identity, a blank name, repeated trait kinds and each invalid capability scalar.
  * @evidence contracts/development/testing.md#independent-expectations Seats are positive bounded integers; payload, durability and mass are positive; restitution is in [0,1] and hardness/penetrability in (0,1]. Literal invalid values and trait paths derive from these declared domains, not a simulated response.
  * @evidence contracts/development/testing.md#distinguishing-cases Retains one complete mixed-trait profile, duplicate identity/kind and independently changed scalar fields including upper coefficient excess. Actual mounting, impacts, driver binding and gait execution are owned elsewhere.
  * @evidence contracts/development/testing.md#execution-ownership The named portable unit uses existing model records and local profile/finding adapters, with no physics host, actor installation or dynamically registered cases.
@@ -89,11 +89,11 @@ export function test_validation_profile_capabilities(): void {
   );
 
   TestValidator.equals(
-    "profile identity is non-blank and unique",
+    "profile name is non-blank and identity unique",
     namedFacts([
       [
         "failsAtProfileId",
-        (): boolean => failsAt([{ ...profile(), id: "", name: "" }], ".id"),
+        (): boolean => failsAt([{ ...profile(), name: "" }], ".name"),
       ],
       [
         "failsAtProfileProfile",

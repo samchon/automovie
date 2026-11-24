@@ -16,13 +16,12 @@ import { assertGrammarPositive } from "./assertGrammarPositive";
  * film-grammar read inspects.
  *
  * Throws an `Error` naming the offending field at the first defect, in this
- * order: a blank shot id; a duration that is not finite and positive; at each
+ * order: a duration that is not finite and positive; at each
  * camera boundary, a field of view outside `(0, 180)`, an aspect that is not
  * finite and positive, or a non-finite or missing position or rotation
- * component; then per subject in id order, a blank or repeated id, a non-finite
+ * component; then per subject in id order, a repeated id, a non-finite
  * or missing point component, a height that is not finite and positive, a
- * radius that is negative or not finite, or a blank eyeline target or
- * non-finite eyeline point; a primary subject that is not observed; an action
+ * radius that is negative or not finite, or a non-finite eyeline point; a primary subject that is not observed; an action
  * axis that repeats or misses an observed subject; and repeated style intents.
  *
  * @param input One observed shot as the production grammar pass built it.
@@ -33,7 +32,6 @@ import { assertGrammarPositive } from "./assertGrammarPositive";
 export function normalizeGrammarShot(
   input: IAutoMovieGrammarShotObservation,
 ): IAutoMovieNormalizedGrammarShot {
-  nonBlank(input.id, "shot.id");
   assertGrammarPositive(input.duration, `${input.id}.duration`);
   for (const boundary of ["start", "end"] as const) {
     const camera: IAutoMovieGrammarCameraObservation = input.camera[boundary];
@@ -56,7 +54,6 @@ export function normalizeGrammarShot(
   const subjectById: Map<string, IAutoMovieGrammarSubjectObservation> =
     new Map();
   for (const subject of subjects) {
-    nonBlank(subject.id, `${input.id}.subjects.id`);
     if (subjectById.has(subject.id))
       throw new Error(
         `Film grammar subject id "${subject.id}" is duplicated in "${input.id}".`,
@@ -69,7 +66,6 @@ export function normalizeGrammarShot(
     if (Number.isFinite(subject.radius) === false || subject.radius < 0)
       throw new Error(`${path}.radius must be finite and non-negative.`);
     if (subject.eyeline !== null) {
-      nonBlank(subject.eyeline.target, `${path}.eyeline.target`);
       finiteVector(subject.eyeline.start, `${path}.eyeline.start`);
       finiteVector(subject.eyeline.end, `${path}.eyeline.end`);
     }
@@ -99,11 +95,6 @@ export function normalizeGrammarShot(
   if (new Set(styleIntent).size !== styleIntent.length)
     throw new Error(`styleIntent in "${input.id}" must be unique.`);
   return { ...input, subjects, subjectById, actionAxis, styleIntent };
-}
-
-/** Throws unless the string carries a non-whitespace character. */
-function nonBlank(value: string, path: string): void {
-  if (value.trim().length === 0) throw new Error(`${path} must be non-blank.`);
 }
 
 /** Throws at the first of `x`, `y`, `z` that is missing or not finite. */

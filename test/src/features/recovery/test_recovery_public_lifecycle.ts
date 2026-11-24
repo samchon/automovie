@@ -19,8 +19,8 @@ import { TestValidator } from "@nestia/e2e";
  * 4. Cancellation accepted at a progress point returns no generated value.
  * 5. Valid cube observation retains saved courses and borrows its input unchanged.
  * 6. Undeclared caller mesh payloads never enter saved policy.
- * 7. Cancellation predicates fail on exceptions or nonboolean results, without being called again during failure classification.
- * 8. A progress callback that requests cancellation and then throws remains failed, and malformed predicates refuse before progress.
+ * 7. Cancellation predicates fail on exceptions, without being called again during failure classification.
+ * 8. A progress callback that requests cancellation and then throws remains failed.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls only the public memory operations and observes terminal tags, diagnostics, value absence, callback population, retained courses and input nonmutation; cancellation or a thrown observer must not appear as successful completion.
  * @evidence contracts/development/testing.md#independent-expectations Caller-owned abort state read through a predicate, literal callback errors and counted callback invocations independently determine cancellation/failure precedence. The cube has closed interior cuts, so a usable observation must retain section courses; no fitting residual, triangle snapshot or appearance oracle is inferred from this test.
@@ -256,45 +256,6 @@ export function test_recovery_public_lifecycle(): void {
     TestValidator.predicate(
       "progress failure has no value",
       !("value" in progressFailure),
-    );
-    for (const invalidResult of [undefined, null, "yes", 1]) {
-      let callbacks: number = 0;
-      const invalid: IAutoMovieRecoveryOptions = Object.defineProperty(
-        {
-          onProgress: (): void => {
-            callbacks++;
-          },
-        },
-        "cancelled",
-        { value: (): unknown => invalidResult },
-      );
-      const result: IAutoMovieRecoveryResult<unknown> = run(invalid);
-      TestValidator.equals(
-        "nonboolean predicate result fails",
-        result.status,
-        "failed",
-      );
-      TestValidator.equals(
-        "invalid predicate result precedes progress",
-        callbacks,
-        0,
-      );
-      TestValidator.predicate(
-        "invalid predicate result has no value",
-        !("value" in result),
-      );
-    }
-    const invalidPredicate: IAutoMovieRecoveryResult<unknown> = run(
-      JSON.parse('{"cancelled":null}'),
-    );
-    TestValidator.equals(
-      "invalid predicate refuses",
-      invalidPredicate.status,
-      "refused",
-    );
-    TestValidator.predicate(
-      "invalid predicate has no value",
-      !("value" in invalidPredicate),
     );
   }
 

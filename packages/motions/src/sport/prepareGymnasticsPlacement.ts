@@ -10,9 +10,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
-import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 
 /** The alternatives of `Heading2`'s site. */
 type Heading2 = "yaw" | "pitch" | "roll";
@@ -60,58 +58,31 @@ export function prepareGymnasticsPlacement(
       "Fixed gymnastic placement requires joint-only articulation",
     );
 
-  const joints: IAutoMovieMotionHumanPosture["joints"] = copyJoints(
-    posture.joints,
-  );
-  const source: ReturnType<typeof createHumanPostureCurve> =
-    createHumanPostureCurve({
+  const prepared: HumanPosturePreparation.IPrepared =
+    HumanPosturePreparation.prepare(body, {
       root: { x: 0, y: 0, z: 0 },
       yaw: 0,
       pitch: 0,
       roll: 0,
-      joints,
+      joints: copyJoints(posture.joints),
       limbs: {},
     });
-  let requested: Set<AutoMovieHumanoidBone> | undefined;
-  const prepare: () => IPlacement = (): IPlacement => {
-    const captured: createHumanPostureCurve.ICaptured | undefined =
-      createHumanPostureCurve.prepared(body, source);
-    const prepared: HumanPosturePreparation.IPrepared =
-      captured?.prepared ?? HumanPosturePreparation.prepare(body, source(0));
-    if (requested === undefined) {
-      requested = new Set();
-      for (const segment of model.segments) requested.add(segment.bone);
-    }
-    return {
-      prepared,
-      local: resolveAutoMovieCenterOfMass.place(
-        model,
-        HumanPosturePreparation.bones(prepared, requested),
-      ),
-      rig: body.poseResolution,
-      topology: body.topology,
-      unchanged: captured?.unchanged ?? prepareHumanPostureRigCheck(body),
-    };
-  };
-  let fixed: IPlacement = prepare();
+  const requested: Set<AutoMovieHumanoidBone> = new Set();
+  for (const segment of model.segments) requested.add(segment.bone);
+  // The neutral canonical centre of mass, metres in the body's root frame.
+  const local: IAutoMovieVector3 = resolveAutoMovieCenterOfMass.place(
+    model,
+    HumanPosturePreparation.bones(prepared, requested),
+  );
   return (
     heading: Heading,
     centre: IAutoMovieVector3,
   ): IAutoMovieMotionHumanPosture => {
     const rotation: ReturnType<typeof humanPostureHeading> =
       humanPostureHeading(heading);
-    if (
-      fixed.rig !== body.poseResolution ||
-      fixed.topology !== body.topology ||
-      fixed.unchanged?.() !== true
-    )
-      fixed = prepare();
-    const offset: IAutoMovieVector3 = Quaternion.rotateVector(
-      rotation,
-      fixed.local,
-    );
+    const offset: IAutoMovieVector3 = Quaternion.rotateVector(rotation, local);
     return HumanPosturePreparation.rigid(
-      fixed.prepared,
+      prepared,
       {
         x: centre.x - offset.x,
         y: centre.y - offset.y,
@@ -120,37 +91,9 @@ export function prepareGymnasticsPlacement(
       heading.yaw,
       heading.pitch,
       heading.roll,
-    );
+    ).posture;
   };
 }
-
-/**
- * One actual fixed-articulation preparation and the rig/ROM epoch its mass
- * offset belongs to.
- */
-interface IPlacement {
-  /** Genuine source capability, kept separate from mutable public pose views. */
-  prepared: HumanPosturePreparation.IPrepared;
-
-  /** Actual neutral canonical COM, metres in the body's root frame. */
-  local: IAutoMovieVector3;
-
-  /**
-   * The genuine immutable FK owner used for that actual canonical mass
-   * observation.
-   */
-  rig: IAutoMovieMotionHumanBody["poseResolution"];
-
-  /** The actual topology context of the same canonical preparation. */
-  topology: IAutoMovieMotionHumanBody["topology"];
-
-  /**
-   * Genuine current rig/ROM proof; absence requires ordinary preparation at
-   * every query.
-   */
-  unchanged: (() => boolean) | undefined;
-}
-
 /**
  * Copy the authored tuples so neither the input nor a returned posture owns
  * retained shape data.

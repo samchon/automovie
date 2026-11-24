@@ -350,10 +350,7 @@ export function prepareBendSquat(
     }
     if (!accepted) break;
   }
-  const peak: IAutoMovieMotionHumanPosture = trunk(
-    at.legs,
-    q,
-  );
+  const peak: IAutoMovieMotionHumanPosture = trunk(at.legs, q);
   return (p, share, standing) => {
     const joints = { ...p.joints };
     for (const bone of ["spine", "chest"] as const) {

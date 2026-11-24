@@ -13,11 +13,9 @@ import { armChainFault } from "../kinematics/armChainFault";
 import { classifyLocomoteGroundDisplacement } from "../motion/classifyLocomoteGroundDisplacement";
 import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_SHAPE";
 import { describeInvalidValue } from "../validation/describeInvalidValue";
-import { isRecord } from "../validation/isRecord";
-import { validateObjectArtifact } from "../validation/validateObjectArtifact";
+import { validateRotationArtifact } from "../validation/validateRotationArtifact";
 import { validateVectorArtifact } from "../validation/validateVectorArtifact";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
  * Gate the verb-specific fields of one non-`frame` action, and record the
@@ -34,7 +32,6 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *   and is not the projectile itself; `onHit` needs a node or bone aim naming a
  *   staged scene node, because a point or group identifies no struck actor and
  *   a camera cannot perform the injected recoil.
- * - `enact`: a non-blank clip id, since an empty one can never resolve.
  * - `react`: a force in `[0, 1]` and a blow source that resolves, because the
  *   reference synthesizer otherwise snaps the body back as if struck from the
  *   front.
@@ -82,7 +79,6 @@ export function gatePerformShotStageAction(
             );
         }
       const relative: boolean =
-        isRecord(action.to) &&
         (action.to.kind === "direction" || action.to.kind === "offscreen");
       if (relative) return;
       const destination: IAutoMovieVector3 | null = resolvePerformShotTarget(
@@ -135,12 +131,6 @@ export function gatePerformShotStageAction(
           `reaction force must be within [0, 1], but was ${describeInvalidValue(action.onHit.force)}`,
           action.onHit.force,
         );
-      validatePerformShotId(
-        out,
-        action.projectile,
-        `${path}.projectile`,
-        "launch projectile id",
-      );
       const target: IAutoMovieVector3 | null = resolvePerformShotTarget(
         context,
         {
@@ -153,9 +143,7 @@ export function gatePerformShotStageAction(
         },
       );
       const aimNode: string | null =
-        isRecord(action.at) &&
-        (action.at.kind === "node" || action.at.kind === "bone") &&
-        typeof action.at.node === "string"
+        action.at.kind === "node" || action.at.kind === "bone"
           ? action.at.node
           : null;
       // A recoil needs an identified struck actor, never a guessed group member.
@@ -195,7 +183,6 @@ export function gatePerformShotStageAction(
           action.projectile,
         );
       if (
-        isRecord(action.at) &&
         action.at.kind === "node" &&
         action.at.node === action.projectile
       )
@@ -215,9 +202,6 @@ export function gatePerformShotStageAction(
         });
       return;
     }
-    case "enact":
-      validatePerformShotId(out, action.clip, `${path}.clip`, "enact clip id");
-      return;
     case "react":
       if (
         typeof action.force !== "number" ||
@@ -296,34 +280,18 @@ export function gatePerformShotStageAction(
       if (action.offset !== undefined) {
         const at: string = `${path}.offset`;
         const label: string = "attachment offset";
-        if (validateObjectArtifact(action.offset, at, label, out.items)) {
-          validateVectorArtifact(
-            action.offset.position,
-            `${at}.position`,
-            `${label} position`,
-            out.items,
-          );
-          const rotation: string = `${at}.rotation`;
-          if (
-            validateObjectArtifact(
-              action.offset.rotation,
-              rotation,
-              `${label} rotation`,
-              out.items,
-            )
-          ) {
-            const q: typeof action.offset.rotation = action.offset.rotation;
-            if ([q.x, q.y, q.z, q.w].every(Number.isFinite))
-              out.unitQuaternion(rotation, q, `${label} rotation`);
-            else
-              out.push(
-                "range",
-                rotation,
-                `${label} quaternion components must be finite numbers`,
-                q,
-              );
-          }
-        }
+        validateVectorArtifact(
+          action.offset.position,
+          `${at}.position`,
+          `${label} position`,
+          out.items,
+        );
+        validateRotationArtifact(
+          action.offset.rotation,
+          `${at}.rotation`,
+          `${label} rotation`,
+          out,
+        );
       }
       for (const child of actors)
         if (child === action.parent)
@@ -333,12 +301,6 @@ export function gatePerformShotStageAction(
             `an attachTo child "${describeInvalidValue(child)}" cannot attach to itself`,
             child,
           );
-      validatePerformShotId(
-        out,
-        action.parent,
-        `${path}.parent`,
-        "attach parent id",
-      );
       if (!context.nodeIds.has(action.parent)) {
         out.push(
           "type",

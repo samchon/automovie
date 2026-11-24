@@ -6,23 +6,14 @@ import { AutoMovieFilmEffectRuntimeError } from "./AutoMovieFilmEffectRuntimeErr
 /**
  * Refuse a current film-effect identity that cannot address a runtime.
  *
- * The production and film ids must be non-blank and both builder identities
- * must be exact lowercase SHA-256 content digests. The writer checks this
- * before it stamps a runtime and the sampler before it compares one, so a
- * malformed identity is refused as `film-effect-input-invalid` rather than read
+ * Both builder identities must be exact lowercase SHA-256 content digests. The
+ * writer checks this before it stamps a runtime and the sampler before it
+ * compares one, so a malformed identity is refused as `film-effect-input-invalid` rather than read
  * as a stale match.
  */
 export const validateProductionFilmEffectIdentity = (
   identity: IAutoMovieFilmEffectCurrentIdentity,
 ): void => {
-  if (
-    identity.production.trim().length === 0 ||
-    identity.film.trim().length === 0
-  )
-    throw new AutoMovieFilmEffectRuntimeError(
-      "film-effect-input-invalid",
-      "Film effect production and film identities must be non-blank.",
-    );
   if (
     SHA256_DIGEST_PATTERN.test(identity.compileFingerprint) === false ||
     SHA256_DIGEST_PATTERN.test(identity.editFingerprint) === false

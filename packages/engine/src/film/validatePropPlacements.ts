@@ -118,7 +118,7 @@ const BUILDING_TARGET_LABELS: Readonly<Record<BuildingTarget["kind"], string>> =
  * fills at most one opening, every building relation stays in the occupied
  * space's environment, a supporting prop stays there too, and contact relations
  * may not form a cycle. Footprints and clearances need finite, positive extents
- * and clearance ids are non-blank and unique per prop.
+ * and clearance ids are unique per prop.
  *
  * A prop omitting placement makes no relation, containment, overlap or passage
  * claim of its own, but its staged occupancy can obstruct another prop's
@@ -339,7 +339,6 @@ const validatePlacement: (
   placement.clearance.forEach(
     (clearance: IAutoMovieClearanceBox, index: number): void => {
       const cp: string = `${path}.placement.clearance[${index}]`;
-      out.nonEmpty(`${cp}.id`, clearance.id, "clearance id");
       if (ids.has(clearance.id))
         out.push(
           "type",

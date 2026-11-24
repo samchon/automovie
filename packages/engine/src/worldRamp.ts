@@ -9,7 +9,6 @@ export const worldRamp: (
 ) => IAutoMovieWorldSurface = (
   input: IAutoMovieWorldRamp.IInput,
 ): IAutoMovieWorldSurface => {
-  assertText(input.id, "World ramp id");
   const dx: number = input.to.x - input.from.x;
   const dz: number = input.to.z - input.from.z;
   const lengthSquared: number = dx * dx + dz * dz;
@@ -47,13 +46,4 @@ export const worldRamp: (
     },
     walkable: input.walkable,
   };
-};
-
-/** Require non-whitespace ramp identity before deriving its footprint and plane. */
-const assertText: (value: string, field: string) => void = (
-  value: string,
-  field: string,
-): void => {
-  if (value.trim().length === 0)
-    throw new Error(`${field} must contain non-whitespace text.`);
 };

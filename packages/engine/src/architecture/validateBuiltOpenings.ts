@@ -19,7 +19,7 @@ import { validateBuiltOpeningOperation } from "./validateBuiltOpeningOperation";
 /**
  * Validate a building's openings: references, voids, operations and overlap.
  *
- * Each opening needs a unique non-blank id, a non-blank kind, a boundary that
+ * Each opening needs a unique id, a non-blank kind, a boundary that
  * resolves, and a fill element that resolves when it names one. A stated void
  * must sit on a boundary that declares a face, have at least 2 distinct finite
  * corners and one finite bulge in [-1, 1] per edge when bulges are stated, and

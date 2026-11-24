@@ -11,7 +11,6 @@ import { gatePerformShotStageAction } from "./gatePerformShotStageAction";
 import { performShotActors } from "./performShotActors";
 import { resolvePerformShotTarget } from "./resolvePerformShotTarget";
 import { validatePerformShotFraming } from "./validatePerformShotFraming";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
  * Gate every action of a beat's performance against the staged world and sort
@@ -19,7 +18,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *
  * Each action, at `<base>[i]`, is checked for:
  *
- * - Its actor: a non-blank id or a non-empty list of distinct ids, each a staged
+ * - Its actor: an id or a non-empty list of distinct ids, each a staged
  *   node or camera, and a camera only for a `frame` action;
  * - Its timing: a start inside `[0, duration]`, a positive finite duration or
  *   `"auto"`, a span inside the shot, an `"auto"` span that is not empty
@@ -155,14 +154,7 @@ function gateActors(
   actors: readonly string[],
   path: string,
 ): void {
-  if (typeof action.actor === "string")
-    validatePerformShotId(
-      context.out,
-      action.actor,
-      `${path}.actor`,
-      "action actor id",
-    );
-  else if (Array.isArray(action.actor)) {
+  if (typeof action.actor !== "string") {
     if (action.actor.length === 0)
       context.out.push(
         "type",
@@ -172,12 +164,6 @@ function gateActors(
       );
     const seen: Set<string> = new Set();
     action.actor.forEach((actor: string, slot: number): void => {
-      validatePerformShotId(
-        context.out,
-        actor,
-        `${path}.actor[${slot}]`,
-        "action actor id",
-      );
       if (seen.has(actor))
         context.out.push(
           "type",
@@ -187,13 +173,7 @@ function gateActors(
         );
       seen.add(actor);
     });
-  } else
-    context.out.push(
-      "type",
-      `${path}.actor`,
-      "action actor must be a staged scene node id or an array of ids",
-      action.actor,
-    );
+  }
   for (const actor of actors) {
     const isNode: boolean = context.nodeIds.has(actor);
     const isCamera: boolean = context.cameraIds.has(actor);

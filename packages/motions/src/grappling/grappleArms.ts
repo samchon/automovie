@@ -313,8 +313,8 @@ export function grappleArms(
       coursed = undefined;
       floor.settle?.();
     },
+    goals,
   };
-  courseArmGoal.SOURCES.set(plan, goals);
   return plan;
 }
 

@@ -55,7 +55,7 @@ export function test_motion_ensemble_crowd_group_walk(): void {
       0.25,
     );
   const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id: "quartet",
       seed: "quartet",
       count: 4,

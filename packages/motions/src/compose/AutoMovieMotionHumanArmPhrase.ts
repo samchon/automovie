@@ -12,7 +12,6 @@ import type {
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmMove } from "./AutoMovieMotionHumanArmMove";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 
 /** The alternatives of `SwingLimb`'s site. */
 type SwingLimb = "leftArm" | "rightArm";
@@ -21,9 +20,6 @@ type SwingLimb = "leftArm" | "rightArm";
 type IPreparedStrokeProps = {
   contact: NonNullable<IAutoMovieMotionHumanArmPhrase.IStrokeProps["contact"]>;
 };
-
-/** The alternatives of `StrokeContextualTrial`'s site. */
-type StrokeContextualTrial = 0 | 1;
 
 /** The alternatives of `BearingProps`'s site. */
 type BearingProps = "clock" | "side" | "contact";
@@ -139,17 +135,8 @@ export namespace AutoMovieMotionHumanArmPhrase {
    */
   export function stroke(
     props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
-    contextual?: (
-      posture: IAutoMovieMotionHumanPosture,
-      seconds: number,
-      progress: number,
-      trial: readonly [
-        AutoMovieMotionHumanBendRepeat.IRead,
-        StrokeContextualTrial,
-      ],
-    ) => IAutoMovieMotionHumanArmTarget.ITarget,
   ): IAutoMovieMotionHumanPrimitive {
-    return strokePrimitive(props, undefined, false, contextual);
+    return strokePrimitive(props, undefined, false);
   }
 
   /**
@@ -173,25 +160,25 @@ export namespace AutoMovieMotionHumanArmPhrase {
     props: IAutoMovieMotionHumanArmPhrase.IStrokeProps,
     validateOnset: Parameters<typeof preparedStroke>[1],
     prepared: boolean,
-    contextual?: Parameters<typeof stroke>[1],
   ): IAutoMovieMotionHumanPrimitive {
     const target = (
       posture: IAutoMovieMotionHumanPosture,
       seconds: number,
       resolution?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[2],
       projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
-      _evaluation?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[4],
-      trial?: AutoMovieMotionHumanBendRepeat.IRead,
     ): IAutoMovieMotionHumanArmTarget.ITarget => {
       const progress: number = props.clock.progress(
         "strokeStart",
         "strokeEnd",
         seconds,
       );
-      const at: IAutoMovieMotionHumanArmTarget.ITarget =
-        trial === undefined
-          ? props.path(posture, seconds, progress, resolution, projection)
-          : contextual!(posture, seconds, progress, [trial, 0]);
+      const at: IAutoMovieMotionHumanArmTarget.ITarget = props.path(
+        posture,
+        seconds,
+        progress,
+        resolution,
+        projection,
+      );
       if (progress <= 0) return at;
       if (prepared) {
         validateOnset?.(posture, seconds);
@@ -199,10 +186,7 @@ export namespace AutoMovieMotionHumanArmPhrase {
       }
       return extended(
         props,
-        (trial === undefined
-          ? props.path(posture, seconds, 0, resolution, projection)
-          : contextual!(posture, seconds, 0, [trial, 1])
-        ).point,
+        props.path(posture, seconds, 0, resolution, projection).point,
         at,
       );
     };
@@ -219,17 +203,6 @@ export namespace AutoMovieMotionHumanArmPhrase {
             props.clock.envelope(["start", "ready"], ["relax", "end"], seconds),
           curvature: props.manner?.curvature ?? 0,
         },
-        contextual === undefined
-          ? undefined
-          : (trial, posture, seconds, resolution, projection) =>
-              target(
-                posture,
-                seconds,
-                resolution,
-                projection,
-                undefined,
-                trial,
-              ),
       );
     return {
       ...move,

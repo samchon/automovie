@@ -8,7 +8,6 @@ import type {
 import { Quaternion } from "../math/Quaternion";
 import { Vector3 } from "../math/Vector3";
 import { ViolationCollector } from "./ViolationCollector";
-import { validateObjectArtifact } from "./validateObjectArtifact";
 import { validateRotationArtifact } from "./validateRotationArtifact";
 import { validateVectorArtifact } from "./validateVectorArtifact";
 
@@ -160,7 +159,7 @@ function measureGrip(
 }
 
 /**
- * Admit a rigid frame's object shape, finite position and unit rotation,
+ * Admit a rigid frame's finite position and unit rotation,
  * appending each failure at its field path.
  */
 function validateFrame(
@@ -169,7 +168,6 @@ function validateFrame(
   label: string,
   collector: ViolationCollector,
 ): void {
-  if (!validateObjectArtifact(frame, path, label, collector.items)) return;
   validateVectorArtifact(
     frame.position,
     `${path}.position`,

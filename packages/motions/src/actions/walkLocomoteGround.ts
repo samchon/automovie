@@ -17,6 +17,7 @@ import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
 import { walkLocomoteSwings } from "./walkLocomoteSwings";
 import { walkReach } from "./walkReach";
+import { walkReachGround } from "./walkReachGround";
 import { walkSupportHeight } from "./walkSupportHeight";
 import { walkSwing } from "./walkSwing";
 
@@ -284,7 +285,7 @@ function ground(
       -walkReach.CLAIM,
     );
   }
-  return walkReach.ground(
+  return walkReachGround(
     context.body,
     root,
     frame,

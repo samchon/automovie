@@ -193,7 +193,6 @@ const validateAirRequest: (request: IAutoMovieSpaceAirRequest) => void = (
   request: IAutoMovieSpaceAirRequest,
 ): void => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
   ] as const)

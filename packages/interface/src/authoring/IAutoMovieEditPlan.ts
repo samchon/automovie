@@ -13,10 +13,7 @@ import type { IAutoMovieNodeChannel } from "../core/IAutoMovieNodeChannel";
  * across a hard cut.
  */
 export interface IAutoMovieEditPlan {
-  /**
-   * Stable finished-film identity and display name; only the id is checked, and
-   * it must be non-blank.
-   */
+  /** Stable finished-film identity and display name. */
   sequence: IAutoMovieNamedId;
 
   /** Finite positive playback frame rate in frames per second. */
@@ -27,8 +24,8 @@ export interface IAutoMovieEditPlan {
     /**
      * Resolve both bounds in the referenced shot's built events before applying
      * the normal trim and seam rules. The edit gate requires `trim: null` with
-     * these bounds. Both ids must be non-blank and each must match exactly
-     * once. The end must follow the start on the shot clock.
+     * these bounds. Each id must match exactly once. The end must follow the
+     * start on the shot clock.
      */
     trimByEvents?: {
       /** Exact id of the event at the trim start. */
@@ -49,7 +46,7 @@ export interface IAutoMovieEditPlan {
     /** Zero-based index into `entries` in playback order. */
     entry: number;
 
-    /** Exact non-blank id of the shot interaction event. */
+    /** Exact id of the shot interaction event. */
     event: string;
   }[];
 
@@ -68,7 +65,7 @@ export interface IAutoMovieEditPlan {
     /** Zero-based index of the incoming play, at least 1. */
     entry: number;
 
-    /** Exact non-blank staged prop node id, including an articulation joint id. */
+    /** Exact staged prop node id, including an articulation joint id. */
     node: string;
 
     /** Component sampled from the same addressed node on both sides. */

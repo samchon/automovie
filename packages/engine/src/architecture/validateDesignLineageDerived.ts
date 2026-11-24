@@ -17,7 +17,7 @@ import { validateDeclaredReferences } from "../validation/validateDeclaredRefere
  * Validate the derived artifacts of one design lineage: their identity, their
  * freshness, and the fairness of every comparison they take part in.
  *
- * Each artifact needs a unique non-blank id that is not a subject's, a
+ * Each artifact needs a unique id that is not a subject's, a
  * non-blank kind, at least one input naming a subject or another artifact once,
  * and lowercase `sha256:` digests for its bytes and its configuration. It is
  * stale, and refused, when its stamp names a revision other than `head`, an

@@ -53,7 +53,7 @@ function edit(
  * Every graph and editorial payload gate reports the authored field that failed.
  *
  * Scenarios:
- * 1. Blank/duplicate ids, missing/multiple/wrong roots and a nonroot intent fail.
+ * 1. Duplicate ids, missing/multiple/wrong roots and a nonroot intent fail.
  * 2. Dangling parents, illegal parent kinds and cyclic chains fail.
  * 3. Self/dangling temporal and interaction edges fail at their respective fields.
  * 4. Unknown, duplicate and missing beat claims fail the one-to-one join.
@@ -63,22 +63,12 @@ function edit(
  *
  * @evidence contracts/development/testing.md#behavioral-verification Runs source script admission on independently malformed graph, join, anchor and editorial payloads and asserts violation kinds and exact authored paths; editorial and cycle regressions also require their reason so an unrelated graph fault cannot satisfy them.
  * @evidence contracts/development/testing.md#independent-expectations Expectations follow the allowed parent table, exactly one intent root, nonself resolved cross edges, one-to-one beat join, finite nonnegative anchors and nonblank exact header agreement; the hand-authored act-scene-group cycle determines each chain's first repeated parent independently of traversal.
- * @evidence contracts/development/testing.md#distinguishing-cases Owns each structural refusal, empty/duplicate identities, missing references and beat claims, two invalid anchor domains and every editorial field's blank/unequal case; valid five-kind, empty-beat and deep acyclic trees belong to test_validation_script_tree.
+ * @evidence contracts/development/testing.md#distinguishing-cases Owns each structural refusal, duplicate identities, missing references and beat claims, two invalid anchor domains and every editorial field's blank/unequal case; valid five-kind, empty-beat and deep acyclic trees belong to test_validation_script_tree.
  * @evidence contracts/development/testing.md#execution-ownership This discoverable synchronous unit function owns all mutations and private assertion helpers; shared fixtures contain portable authored data and require no host or dynamic registration.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Blank/duplicate ids, missing/multiple/wrong roots and a nonroot intent fail.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Duplicate ids, missing/multiple/wrong roots and a nonroot intent fail.).
  */
 export function test_validation_script_tree_gates(): void {
-  refusal(
-    "blank id",
-    edit(
-      "grp",
-      (node: IAutoMovieScriptNode): IAutoMovieScriptNode => ({
-        ...node,
-        id: " ",
-      }),
-    ),
-    "$input.tree[3].id",
-  );
+
   refusal(
     "duplicate id",
     edit(

@@ -9,7 +9,7 @@ import { compareCodeUnits } from "../text/compareCodeUnits";
  * Check a shot runtime's D010 physics advice before `compileDefinedShot` stages
  * anything, returning every `contract-mismatch` diagnostic at once.
  *
- * Each id must be non-blank and unique, and each decision must match its
+ * Each id must be unique, and each decision must match its
  * payload: pending keeps `selected` and `rationale` null, `accepted` selects a
  * response equal to the proposal, `modified` selects a different one,
  * `rejected` selects none, and every decided item states a non-blank rationale.
@@ -25,7 +25,7 @@ export function validateShotPhysicsAdvice(
   advice.forEach((item: IAutoMovieShotPhysicsAdvice, index: number): void => {
     const path: string = `$runtime.advice[${index}]`;
     const first: number | undefined = ids.get(item.id);
-    if (item.id.trim().length === 0 || first !== undefined)
+    if (first !== undefined)
       diagnostics.push({
         code: "contract-mismatch",
         phase: "performance",

@@ -11,7 +11,6 @@ import { POSITIONAL_TARGET_SHAPE } from "../perform/constants/POSITIONAL_TARGET_
 import { positionalTargetFault } from "../perform/positionalTargetFault";
 import { resolveTargetPoint } from "../perform/resolveTargetPoint";
 import { isFiniteStageVector3 } from "./staging/isFiniteStageVector3";
-import { validatePerformShotId } from "./validatePerformShotId";
 
 /**
  * Gate one positional target of a performance and resolve it to a world point,
@@ -29,8 +28,7 @@ import { validatePerformShotId } from "./validatePerformShotId";
  *    body for one point; checking membership first would hide that.
  * 2. A `bone` target's actor must be a staged node with an actor context and a
  *    rig carrying that bone; a `group` must have every member staged, and each
- *    formation it names must be one this shot compiled. Every id must be
- *    non-blank.
+ *    formation it names must be one this shot compiled.
  * 3. Missing nodes, malformed point vectors, empty groups and non-positional kinds
  *    are refused before invoking the live resolver.
  * 4. The point comes from the live resolver at `seconds` when it answers, and
@@ -122,31 +120,14 @@ function validateTargetIds(
 ): boolean {
   const out: IAutoMovieViolationCollector = context.out;
   const initial: number = out.items.length;
-  if (target.kind === "node") {
-    validatePerformShotId(out, target.node, `${path}.node`, `${label} node id`);
-    return out.items.length === initial;
-  }
   if (target.kind === "bone") {
-    validatePerformShotId(
-      out,
-      target.node,
-      `${path}.node`,
-      `${label} bone node id`,
-    );
-    validatePerformShotId(out, target.bone, `${path}.bone`, `${label} bone id`);
     validateBoneTarget(context, target.node, target.bone, path);
     return out.items.length === initial;
   }
   if (target.kind === "group") {
     for (let index: number = 0; index < target.nodes.length; index++) {
       const node: string = target.nodes[index]!;
-      validatePerformShotId(
-        out,
-        node,
-        `${path}.nodes[${index}]`,
-        `${label} group node id`,
-      );
-      if (node.trim().length > 0 && !context.nodePositions.has(node))
+      if (!context.nodePositions.has(node))
         out.push(
           "type",
           `${path}.nodes[${index}]`,
@@ -159,16 +140,7 @@ function validateTargetIds(
     // would fall back to its nodes and frame one figure instead of the crowd.
     for (let index: number = 0; index < target.formations.length; index++) {
       const formation: string = target.formations[index]!;
-      validatePerformShotId(
-        out,
-        formation,
-        `${path}.formations[${index}]`,
-        `${label} group formation id`,
-      );
-      if (
-        formation.trim().length > 0 &&
-        !context.formationById.has(formation)
-      )
+      if (!context.formationById.has(formation))
         out.push(
           "type",
           `${path}.formations[${index}]`,

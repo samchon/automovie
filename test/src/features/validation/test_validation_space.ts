@@ -1,5 +1,5 @@
 import { validateSpace } from "@automovie/engine";
-import { IAutoMovieSurface, IAutoMovieValidation } from "@automovie/interface";
+import { IAutoMovieValidation } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { assertValidationSpaceHeights } from "../internal/assertValidationSpaceHeights";
@@ -12,44 +12,40 @@ import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
  * Scenarios:
  *
  * 1. A well-formed flat + ramp space validates.
- * 2. An empty space id / surface id is a `type` violation.
- * 3. A duplicated surface id is a `type` violation on the duplicate.
- * 4. An unknown surface kind (runtime junk past the closed union) is rejected.
- * 5. A footprint of fewer than three points encloses no area.
- * 6. Collinear footprint points enclose no area. 6b. A concave footprint (an
+ * 2. A duplicated surface id is a `type` violation on the duplicate.
+ * 3. A footprint of fewer than three points encloses no area.
+ * 4. Collinear footprint points enclose no area. 4b. A concave footprint (an
  *    L-shape) is accepted, which is the exact inverse of what this case pinned
  *    before #1868: the ground query classifies against the ring rather than its
  *    hull, so the notch is the author's and no longer a shape the validator has
- *    to forbid on the query's behalf. 6c. A footprint with a collinear point on
- *    an edge is still allowed. 6d. A self-crossing footprint is refused: it has
+ *    to forbid on the query's behalf. 4c. A footprint with a collinear point on
+ *    an edge is still allowed. 4d. A self-crossing footprint is refused: it has
  *    no inside for a foot to be on, and its two spellings reach different
  *    checks: a symmetric bowtie's lobes cancel and it is caught as a ring
  *    enclosing no area, while a lopsided one encloses area and is caught as a
- *    ring that crosses itself. 6e. Holes: a well-formed void through a plate
+ *    ring that crosses itself. 4e. Holes: a well-formed void through a plate
  *    passes; a hole of fewer than three points, a collinear hole, a
  *    self-crossing hole, a hole reaching outside its plate, a hole flush
  *    against the outer ring, an outer ring reaching in to touch a hole, and two
  *    holes sharing plan area are each refused at the hole's own path, so an
  *    author is told which ring is wrong. A ring already refused on its own is
  *    not compared with the others, and the holes that survived still are.
- * 7. A non-finite footprint plan coordinate is a `range` violation (`y` is
+ * 5. A non-finite footprint plan coordinate is a `range` violation (`y` is
  *    documented-ignored and deliberately not checked).
- * 8. A non-finite height anchor is a `range` violation.
- * 9. A ramp whose `rampTo` sits at the anchor's XZ has a degenerate axis.
- * 10. A non-finite `rampTo` is caught by the anchor check (and safely skips the
+ * 6. A non-finite height anchor is a `range` violation.
+ * 7. A ramp whose `rampTo` sits at the anchor's XZ has a degenerate axis.
+ * 8. A non-finite `rampTo` is caught by the anchor check (and safely skips the
  *     degeneracy math).
- * 11. A walkable id that resolves to no surface (or is duplicated) is a `type`
+ * 9. A walkable id that resolves to no surface (or is duplicated) is a `type`
  *     violation.
- * 12. A surface states its ground exactly once: carrying a height rule beside the
+ * 10. A surface states its ground exactly once: carrying a height rule beside the
  *     anchors is refused, and carrying neither is refused. Two statements are
  *     two answers waiting to be edited apart; none is no ground at all.
- * 13. A constant, a plane, and a heightfield lattice each validate on their own.
- * 14. Every height-rule parameter is range-checked: a non-finite level, a
+ * 11. A constant, a plane, and a heightfield lattice each validate on their own.
+ * 12. Every height-rule parameter is range-checked: a non-finite level, a
  *     non-finite plane term, a non-finite lattice origin, a pitch at or below
  *     zero, a lattice under two lines on an axis, a sample array that is not
  *     exactly the lattice, and a non-finite sample.
- * 15. A height rule whose `kind` is runtime junk past the closed union is refused
- *     rather than read as a lattice whose fields do not exist.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Asserts acceptance of valid flat, ramp, concave and holed spaces and located rejection of malformed rings, anchors and references.
  *
@@ -58,7 +54,7 @@ import { validationSpaceFixtures } from "../internal/validationSpaceFixtures";
  * @evidence contracts/development/testing.md#distinguishing-cases Retains every previous positive, malformed, touching-hole, crossing-ring and bad-anchor case; the shared height helper keeps the rule cases and adds a missing sample.
  *
  * @evidence contracts/development/testing.md#execution-ownership Portable engine admission runs through test_validation_space; the discoverable test_validation_space entry owns every synchronous case without a browser or native renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 15 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed flat + ramp space validates.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 12 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A well-formed flat + ramp space validates.).
  */
 export function test_validation_space(): void {
   const { v, valid, withSurface }: ReturnType<typeof validationSpaceFixtures> =
@@ -70,22 +66,7 @@ export function test_validation_space(): void {
     true,
   );
 
-  TestValidator.predicate(
-    "empty space id",
-    hasViolation(
-      validateSpace({ space: { ...valid, id: " " } }),
-      "type",
-      "$input.id",
-    ),
-  );
-  TestValidator.predicate(
-    "empty surface id",
-    hasViolation(
-      validateSpace({ space: withSurface({ id: "" }) }),
-      "type",
-      ".id",
-    ),
-  );
+
   TestValidator.predicate(
     "duplicate surface id",
     hasViolation(
@@ -94,16 +75,7 @@ export function test_validation_space(): void {
       "surfaces[1].id",
     ),
   );
-  TestValidator.predicate(
-    "unknown surface kind",
-    hasViolation(
-      validateSpace({
-        space: withSurface({ kind: "lava" as IAutoMovieSurface["kind"] }),
-      }),
-      "type",
-      ".kind",
-    ),
-  );
+
   TestValidator.predicate(
     "footprint needs three points",
     hasViolation(

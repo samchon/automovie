@@ -10,13 +10,12 @@ import { TestValidator } from "@nestia/e2e";
  * 2. An open triangle identifies its published open report, while exhausted fitting reports a failed contour.
  * 3. Mutating a delivered face-ID copy leaves subsequent observation and source arrays unchanged.
  * 4. A thrown callback fails the whole operation; callback-triggered and prior cancellation publish no value.
- * 5. A nonfunction lineage observer is refused before progress.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Exercises public observation with and without lineage, checks original source ordinals and publication addresses, observes open and failed contour delivery, and checks error and cancellation terminal states.
  * @evidence contracts/development/testing.md#independent-expectations A tetrahedron's face 2 lies entirely at Y=0, while faces 0, 1 and 3 meet every interior horizontal cut. A single triangle has one open interior intersection. These authored incidence facts define expected lineage independently of extraction; matching enabled and disabled coefficient values verifies observational noninterference rather than source fidelity.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates closed, open and failed local contours; face-copy mutation, observer throw, cooperative abort, pre-abort and malformed callback distinguish source lifetime and terminal outcomes. Exact contact geometry and fitting accuracy remain owned by existing recovery observation tests.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates closed, open and failed local contours; face-copy mutation, observer throw, cooperative abort and pre-abort distinguish source lifetime and terminal outcomes. Exact contact geometry and fitting accuracy remain owned by existing recovery observation tests.
  * @evidence contracts/development/testing.md#execution-ownership The portable test_recovery_source_lineage entry uses tiny generic CPU meshes and synchronous callbacks, starts no process or renderer, and consumes no Human data. The central runner owns execution.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An interior tetrahedron cut identifies the three original side faces and its published closed curve.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An interior tetrahedron cut identifies the three original side faces and its published closed curve.).
  */
 export function test_recovery_source_lineage(): void {
   const input: Parameters<typeof observeAutoMovieRecovery>[0] = {
@@ -217,20 +216,4 @@ export function test_recovery_source_lineage(): void {
     "cancelled",
   );
   TestValidator.equals("pre-abort delivers no lineage", delivered, 2);
-  let progress: number = 0;
-  const refused: ReturnType<typeof observeAutoMovieRecovery> =
-    observeAutoMovieRecovery(input, {
-      onSourceLineage: 1 as unknown as (
-        record: IAutoMovieRecoverySourceLineage,
-      ) => void,
-      onProgress: (): void => {
-        progress++;
-      },
-    });
-  TestValidator.equals(
-    "nonfunction observer refused",
-    refused.status,
-    "refused",
-  );
-  TestValidator.equals("invalid observer starts no work", progress, 0);
 }

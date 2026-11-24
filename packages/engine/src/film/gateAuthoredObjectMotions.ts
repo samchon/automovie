@@ -1,11 +1,11 @@
 import {
   IAutoMovieCamera,
+  type IAutoMovieChannel,
   IAutoMovieClip,
   type IAutoMovieClipChannelGate,
   IAutoMovieConstraintViolation,
   IAutoMovieLight,
   IAutoMovieNode,
-  type IAutoMovieNodeChannel,
   type IAutoMovieObjectMotionGate,
   type IAutoMovieProfileApplication,
   IAutoMoviePropSpec,
@@ -20,7 +20,6 @@ import { placementNodePrefix } from "../resolve/placementNodePrefix";
 import { resolveFrame } from "../resolve/resolveFrame";
 import { sceneToNodes } from "../resolve/sceneToNodes";
 import { ViolationCollector } from "../validation/ViolationCollector";
-import { NODE_CHANNEL_PATHS } from "../validation/constants/NODE_CHANNEL_PATHS";
 import { pushViolation } from "../validation/pushViolation";
 import { validateClipArtifact } from "../validation/validateClipArtifact";
 import { validateHonorableChannel } from "../validation/validateHonorableChannel";
@@ -130,13 +129,13 @@ export function gateAuthoredObjectMotions(
   );
 
   const channelGate: IAutoMovieClipChannelGate = (
-    channel: Record<string, unknown>,
+    channel: IAutoMovieChannel,
     channelPath: string,
     violations: IAutoMovieConstraintViolation[],
   ): void => {
     validateHonorableChannel(channel, channelPath, violations);
-    const node: unknown = channel.node;
-    if (channel.kind !== "node" || typeof node !== "string") return;
+    if (channel.kind !== "node") return;
+    const node: string = channel.node;
     if (!drivable.has(node)) {
       pushViolation(
         violations,
@@ -149,12 +148,7 @@ export function gateAuthoredObjectMotions(
       );
       return;
     }
-    // An unknown path was already refused by the honorable-channel rule and
-    // has no canonical key to compare.
-    const path: IAutoMovieNodeChannel["path"] =
-      channel.path as IAutoMovieNodeChannel["path"];
-    if (!NODE_CHANNEL_PATHS.has(path)) return;
-    const key: string = channelKey({ kind: "node", node, path });
+    const key: string = channelKey(channel);
     if (bakedChannels.has(key))
       pushViolation(
         violations,

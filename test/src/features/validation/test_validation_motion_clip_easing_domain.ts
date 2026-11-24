@@ -8,19 +8,18 @@ import { TestValidator } from "@nestia/e2e";
 import { createSkeleton } from "../internal/createSkeleton";
 import { createValidMotion } from "../internal/createValidMotion";
 import { hasViolation } from "../internal/hasViolation";
-import { withoutArraySlot } from "../internal/withoutArraySlot";
 
 /**
  * Easing selects the control payload. Cubic X coordinates must be unit-interval values,
  * while finite Y values may overshoot.
  *
  * Scenarios:
- * 1. An unknown selector, stray controls and malformed cubic controls name their field.
+ * 1. Stray controls and missing or non-finite cubic controls name their field.
  * 2. Either cubic X coordinate is bounded at both ends. Finite Y overshoot is admitted.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Observes the public clip validator's field and kind.
  * @evidence contracts/development/testing.md#independent-expectations Four dense finite coefficients define a cubic and its X controls are times.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates selector, shape and coordinate range.
+ * @evidence contracts/development/testing.md#distinguishing-cases Separates control presence and coordinate range.
  * @evidence contracts/development/testing.md#execution-ownership Changes only the first key of a valid clip.
  * @evidence contracts/development/common.md#meaningful-documentation States the payload and coordinate rules.
  */
@@ -45,27 +44,9 @@ export function test_validation_motion_clip_easing_domain(): void {
   ): void => {
     TestValidator.predicate(path, hasViolation(check(patch), kind, path));
   };
-  refused(
-    { easing: "bounce" as IAutoMovieKeyframe["easing"] },
-    "type",
-    ".easing",
-  );
   refused({ easing: "linear", bezier: [0, 0, 1, 1] }, "type", ".bezier");
-  for (const controls of [
-    null,
-    [0, 0, 1],
-    [0, NaN, 1, 1],
-    withoutArraySlot([0, 0, 1, 1], 1),
-    new Array<number>(4),
-  ])
-    refused(
-      {
-        easing: "cubicBezier",
-        bezier: controls as IAutoMovieKeyframe["bezier"],
-      },
-      "type",
-      ".bezier",
-    );
+  for (const controls of [null, [0, NaN, 1, 1]] as IAutoMovieKeyframe["bezier"][])
+    refused({ easing: "cubicBezier", bezier: controls }, "type", ".bezier");
   for (const index of [0, 2])
     for (const outside of [-1, 2]) {
       const bezier: [number, number, number, number] = [0, 0, 1, 1];

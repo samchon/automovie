@@ -45,7 +45,7 @@ export function test_motion_ensemble_crowd_spacing(): void {
   // 1. The lattice.
   for (const dress of [0.04, 0]) {
     const f: IAutoMovieMotionHumanFormation =
-      AutoMovieMotionHumanEnsemble.HumanFormation.of(line(dress));
+      AutoMovieMotionHumanEnsemble.HumanFormation(line(dress));
     for (let i: number = 0; i < 4; ++i) {
       const rank: number = Math.floor(i / 2);
       const file: number = i % 2;
@@ -75,7 +75,7 @@ export function test_motion_ensemble_crowd_spacing(): void {
   if (
     !(
       AutoMovieMotionHumanEnsemble.HumanFormation.prepare(
-        AutoMovieMotionHumanEnsemble.HumanFormation.of(line(0)),
+        AutoMovieMotionHumanEnsemble.HumanFormation(line(0)),
       ).slot(0, 0).at.x > 0
     )
   )
@@ -114,7 +114,7 @@ export function test_motion_ensemble_crowd_spacing(): void {
  */
 function checkCrossing(): void {
   const body = motionHumanBody("m-average");
-  const ensemble = AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+  const ensemble = AutoMovieMotionHumanEnsemble.HumanEnsemble({
     id: "crossing",
     seed: "pairs",
     count: 2,

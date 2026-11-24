@@ -14,7 +14,6 @@ import type {
 import { HumanFrame } from "../posture/HumanFrame";
 import { AutoMovieMotionClock } from "./AutoMovieMotionClock";
 import { AutoMovieMotionHumanArmTarget } from "./AutoMovieMotionHumanArmTarget";
-import { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import { AutoMovieMotionHumanHand } from "./AutoMovieMotionHumanHand";
 
 /** The record of `IMoveShaped`'s site. */
@@ -41,10 +40,6 @@ export namespace AutoMovieMotionHumanArmMove {
    */
   export function move(
     props: IAutoMovieMotionHumanArmTarget.IMove,
-    contextual?: (
-      loan: AutoMovieMotionHumanBendRepeat.IRead,
-      ...args: Parameters<IAutoMovieMotionHumanArmTarget.IMove["target"]>
-    ) => IAutoMovieMotionHumanArmTarget.ITarget,
   ): IAutoMovieMotionHumanPrimitive {
     const limb: MoveLimb = `${props.side}Arm`;
     // The side is the move's; the shape is the target's at each second, so
@@ -79,15 +74,13 @@ export namespace AutoMovieMotionHumanArmMove {
       projection?: Parameters<IAutoMovieMotionHumanArmTarget.Frame>[3],
       evaluation?: IAutoMovieMotionHumanEvaluation,
     ): IAutoMovieMotionHumanPosture => {
-      // A contextual target takes the evaluation's bend loan when it has one.
-      const loan: AutoMovieMotionHumanBendRepeat.IRead | undefined =
-        contextual === undefined
-          ? undefined
-          : AutoMovieMotionHumanBendRepeat.loan(evaluation);
-      const target: IAutoMovieMotionHumanArmTarget.ITarget =
-        loan === undefined || contextual === undefined
-          ? props.target(posture, seconds, resolution, projection, evaluation)
-          : contextual(loan, posture, seconds, resolution, projection);
+      const target: IAutoMovieMotionHumanArmTarget.ITarget = props.target(
+        posture,
+        seconds,
+        resolution,
+        projection,
+        evaluation,
+      );
       const s: number = Math.min(1, Math.max(0, props.weight(seconds)));
       const placed: IAutoMovieMotionHumanArmTarget.ITarget =
         s >= 1

@@ -3,7 +3,6 @@ import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
-  IAutoMovieHumanLimbGoal,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -24,13 +23,16 @@ import { bendLower } from "../everyday/bendLower";
 import { pickUpPosture } from "../handling/pickUpPosture";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
-import { lowerHumanPosture } from "../posture/lowerHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
+import { HumanTravelLeafHolds } from "./HumanTravelLeafHolds";
+import { HumanTravelLeafPlants } from "./HumanTravelLeafPlants";
+import { HumanTravelLeafShown } from "./HumanTravelLeafShown";
 import { HumanTravelLeafWalk } from "./HumanTravelLeafWalk";
+import { HumanTravelLeafWrite } from "./HumanTravelLeafWrite";
 
 /** The record of `IOpenDoorWalkedResult`'s site. */
 type IOpenDoorWalkedResult = {
@@ -313,47 +315,12 @@ export namespace HumanTravelLeaf {
                 projection,
               );
 
-        // Whether the arm keeps the hand on the handle from a posture: its own
-        // fit shows the wrist within `HOLD` of where the hold asks it.
-        const handBone: ReadonlySet<AutoMovieHumanoidBone> =
-          new Set<AutoMovieHumanoidBone>([`${side}Hand`]);
-        const holds: (
-          posture: IAutoMovieMotionHumanPosture,
-          t: number,
-          resolution: ReturnType<typeof prepareHumanPoseResolution>,
-          projection: ReturnType<typeof prepareHumanPostureProjection>,
-        ) => boolean = (
-          posture: IAutoMovieMotionHumanPosture,
-          t: number,
-          resolution: ReturnType<typeof prepareHumanPoseResolution>,
-          projection: ReturnType<typeof prepareHumanPostureProjection>,
-        ): boolean => {
-          const goal: IAutoMovieHumanLimbGoal = HumanMountRider.hold(
-            body,
-            side,
-            posture,
-            grip(context.start + t),
-            1,
-            {},
-          ).arm;
-          const pose: ReturnType<typeof resolveHumanPosture.seeded>["pose"] =
-            resolveHumanPosture.seeded(
-              body,
-              { ...posture, limbs: { [`${side}Arm`]: goal } },
-              undefined,
-              {},
-              resolution,
-              handBone,
-              projection,
-            ).pose;
-          const wrist: IAutoMovieVector3 = poseBones(
-            body,
-            pose,
-            resolution(),
-            handBone,
-          ).get(`${side}Hand`)!.worldPosition;
-          return Vector3.length(Vector3.subtract(wrist, goal.point)) <= HOLD;
-        };
+        const holds: HumanTravelLeafHolds.Holds = HumanTravelLeafHolds({
+          context,
+          body,
+          side,
+          grip,
+        });
         const readings: number[] = [];
         for (let t: number = TAKE; t <= seconds + 1e-9; t += 1 / 24)
           readings.push(t);
@@ -389,54 +356,8 @@ export namespace HumanTravelLeaf {
                   };
                 },
               });
-        const shown: IAutoMovieMotionHumanActionPlan["posture"] = (
-          t: number,
-          channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-          resolution?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[2],
-          projection?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[3],
-        ): IAutoMovieMotionHumanPosture => {
-          if (walked === null) return base(t, channels, resolution, projection);
-          const walking: IAutoMovieMotionHumanPosture = walked.posture(
-            Math.min(walked.duration, t),
-            lowered === null ? channels : undefined,
-            resolution,
-            projection,
-          );
-          if (lowered === null) return walking;
-
-          // The lean the low handle asks moves the pelvis down and back from
-          // the walk's own, and the walk's swinging foot was planned for the
-          // walk's pelvis: the pelvis is lowered further, as the walk's own
-          // ground solve lowers it for a swinging leg's claim, until each leg,
-          // planted or swinging, reaches its foot with the knee's least bend
-          // (`resolveHumanPosture.lower` over both legs' goals).
-          const leant: IAutoMovieMotionHumanPosture = lowered.lower(
-            walking,
-            minimumJerk.share(Math.min(1, t / TAKE)),
-            resolution,
-            projection,
-          );
-          const legs: IAutoMovieMotionHumanPosture["limbs"] = {
-            ...leant.limbs,
-          };
-          for (const leg of ["leftLeg", "rightLeg"] as const) {
-            const goal: IAutoMovieMotionHumanPosture["limbs"][typeof leg] =
-              leant.limbs[leg];
-            if (goal !== undefined && goal.planted !== true)
-              legs[leg] = { ...goal, planted: true };
-          }
-          const reaching: IAutoMovieMotionHumanPosture = lowerHumanPosture(
-            body,
-            { ...leant, limbs: legs },
-            undefined,
-            resolution,
-          );
-          return { ...leant, root: reaching.root };
-        };
+        const shown: IAutoMovieMotionHumanActionPlan["posture"] =
+          HumanTravelLeafShown({ body, walked, lowered, base });
 
         // A swing the walk cannot follow is refused with the largest followed;
         // with no walk the standing check above already found where it lost.
@@ -490,28 +411,8 @@ export namespace HumanTravelLeaf {
                 door.prop.shapes!,
                 door.frame(context.start + TAKE),
               );
-        // The walk's plants, read on the action's clock.
         const plants: IAutoMovieMotionHumanContactWindow[] =
-          walked === null
-            ? standing.contacts
-            : walked.contacts
-                .filter(
-                  (c: IAutoMovieMotionHumanContactWindow): boolean =>
-                    c.part === "leftFoot" || c.part === "rightFoot",
-                )
-                .map(
-                  (
-                    c: IAutoMovieMotionHumanContactWindow,
-                  ): IAutoMovieMotionHumanContactWindow => ({
-                    ...c,
-                    from: Math.min(1, (c.from * walked.duration) / seconds),
-                    to: Math.min(1, (c.to * walked.duration) / seconds),
-                  }),
-                )
-                .filter(
-                  (c: IAutoMovieMotionHumanContactWindow): boolean =>
-                    c.to > c.from,
-                );
+          HumanTravelLeafPlants({ standing, walked, seconds });
         const contacts: IAutoMovieMotionHumanContactWindow[] = [
           ...plants,
           // The hand bears on the door, which the scene moves; a `grip` would make the door ride the hand instead.
@@ -523,54 +424,14 @@ export namespace HumanTravelLeaf {
             support: { kind: "prop", subject: context.params.door },
           },
         ];
-        const bare: IAutoMovieMotionHumanPosture["joints"] = {};
-        /**
-         * Read the body and handle on the action clock, with optional closed
-         * digits.
-         */
-        const write = (
-          at: number,
-          channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-          resolution?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[2],
-          projection?: Parameters<
-            IAutoMovieMotionHumanActionPlan["posture"]
-          >[3],
-          fingers?: IAutoMovieMotionHumanPosture["joints"],
-        ): IAutoMovieMotionHumanPosture => {
-          const heldDemand: boolean =
-            channels === undefined ||
-            channels.includes(`${side}Arm`) ||
-            channels.includes(`${side}Hand`);
-          const read: ReturnType<typeof prepareHumanPoseResolution> =
-            prepareHumanPoseResolution(resolution);
-          const posture: IAutoMovieMotionHumanPosture = shown(
-            at,
-            heldDemand ? undefined : channels,
-            read,
-            projection,
-          );
-          if (!heldDemand) return posture;
-          const held: ReturnType<typeof HumanMountRider.hold> =
-            HumanMountRider.hold(
-              body,
-              side,
-              posture,
-              grip(context.start + at),
-              fingers === undefined
-                ? minimumJerk.share(Math.min(1, at / TAKE))
-                : 1,
-              fingers === undefined ? closed : bare,
-              read,
-              projection,
-            );
-          return {
-            ...posture,
-            joints: { ...posture.joints, ...(fingers ?? held.fingers) },
-            limbs: { ...posture.limbs, [`${side}Arm`]: held.arm },
-          };
-        };
+        const write: HumanTravelLeafWrite.Write = HumanTravelLeafWrite({
+          context,
+          body,
+          side,
+          grip,
+          shown,
+          closed,
+        });
         const plan: IAutoMovieMotionHumanActionPlan = {
           ...standing,
           events: [{ name: "taken", share: TAKE / seconds }],

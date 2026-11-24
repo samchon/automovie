@@ -178,12 +178,12 @@ export function test_world_mounted_passage(): void {
 
   // 2. Formation identity from the entrance to the re-form.
   const entry: IAutoMovieMotionHumanFormation =
-    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+    AutoMovieMotionHumanEnsemble.HumanFormation({
       blocks: [{ layout: FILE, count: 2 }],
       frame: course([sample(0, 0, 0), sample(4, 0, 6)]),
     });
   const reform: IAutoMovieMotionHumanFormation =
-    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+    AutoMovieMotionHumanEnsemble.HumanFormation({
       blocks: [{ layout: FILE, count: 2 }],
       frame: course([sample(23, 0, 35), sample(27, 0, 45)]),
     });

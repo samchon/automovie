@@ -10,7 +10,7 @@ Lobe metadata admission lives here beside overlay admission, while binding admis
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Values are reported, never clamped; a non-record lobe is reported once at its path instead of being dereferenced or skipped.
+Values are reported, never clamped.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 

@@ -11,8 +11,10 @@ import type {
 
 import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanPreparedPlayback } from "../perform/HumanPreparedPlayback";
+import type { HumanPosturePreparation } from "../posture/HumanPosturePreparation";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { jumpAirborne } from "./jumpAirborne";
+import { jumpAirborneTurning } from "./jumpAirborneTurning";
 import type { jumpTouchdownRotation } from "./jumpTouchdownRotation";
 import { prepareJumpFlight } from "./prepareJumpFlight";
 
@@ -50,7 +52,7 @@ export function prepareJumpPosture(
     shape,
     phase.flightSeconds,
   );
-  const turning: jumpAirborne.ITurning = jumpAirborne.turning(
+  const turning: jumpAirborneTurning.ITurning = jumpAirborneTurning(
     rotation,
     phase.from,
     phase.to,
@@ -68,14 +70,16 @@ export function prepareJumpPosture(
   const launch: IAutoMovieVector3 = { ...phase.launch };
   /**
    * Preserve the exact touchdown evaluation and arithmetic of the native COM
-   * law.
+   * law: the flight's posture at a second and its solve.
    */
-  const flying: IAutoMovieMotionHumanActionPlan["posture"] = (
+  const placedAt: (
+    ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+  ) => HumanPosturePreparation.IPlaced = (
     t: number,
     _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
     resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
     projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
-  ): IAutoMovieMotionHumanPosture => {
+  ): HumanPosturePreparation.IPlaced => {
     const u: number = t === fixed.to ? fixed.flightSeconds : t - fixed.from;
     const at: IAutoMovieVector3 = {
       x: centre.x + launch.x * u,
@@ -87,6 +91,10 @@ export function prepareJumpPosture(
       t,
     );
   };
+  /** The flight's posture at a second. */
+  const flying: IAutoMovieMotionHumanActionPlan["posture"] = (
+    ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
+  ): IAutoMovieMotionHumanPosture => placedAt(...args).posture;
   const posture: IAutoMovieMotionHumanActionPlan["posture"] = (
     seconds: number,
     _channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
@@ -131,7 +139,14 @@ export function prepareJumpPosture(
         to: fixed.to,
         sample: (
           ...args: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>
-        ): HumanPreparedPlayback.ISample => ({ posture: flying(...args) }),
+        ): HumanPreparedPlayback.ISample => {
+          const placed: HumanPosturePreparation.IPlaced = placedAt(...args);
+          return {
+            posture: placed.posture,
+            takeFit: (): ReturnType<HumanPosturePreparation.IPlaced["fit"]> =>
+              placed.fit(),
+          };
+        },
       },
       { from: fixed.to, to: phase.settled, sample: landed },
       { from: phase.settled, to: fixed.duration, sample: landed },

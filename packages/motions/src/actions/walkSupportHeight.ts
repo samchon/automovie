@@ -7,6 +7,7 @@ import type {
 
 import { walkLeg } from "./walkLeg";
 import { walkReach } from "./walkReach";
+import { walkReachGround } from "./walkReachGround";
 import { walkRoot } from "./walkRoot";
 
 /** Walking pelvis height and the approaching ankle's claim at touchdown. */
@@ -66,7 +67,7 @@ export function walkSupportHeight(
       hips,
       feet,
     );
-    return walkReach.ground(
+    return walkReachGround(
       body,
       raw,
       frame,

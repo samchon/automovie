@@ -21,8 +21,8 @@ import { throwsError } from "./throwsError";
  * Scenarios:
  * 1. Full-influence translation, rotation and scale copying reads rest transforms and creates sampled channels.
  * 2. Translation-only half influence blends existing owner/source samples and leaves rotation absent.
- * 3. NaN, negative and above-one influence plus a nonboolean component flag reject.
- * 4. Missing sampled owner/source nodes, short translation, array-like rotation and extra rotation components reject.
+ * 3. Negative and above-one influence reject.
+ * 4. Missing sampled owner/source nodes, short translation and extra rotation components reject.
  */
 export function runResolveDriversCopyScenario(): void {
   const owner: IAutoMovieNode = node("o", {
@@ -90,18 +90,6 @@ export function runResolveDriversCopyScenario(): void {
 
   const validNodes: Map<string, IAutoMovieNode> = byId(node("o"), node("s"));
   TestValidator.predicate(
-    "copy driver rejects NaN influence",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveDrivers(
-          [copy({ translation: true, influence: Number.NaN })],
-          seed([]),
-          validNodes,
-        ),
-      ["copy driver influence", "finite", "NaN"],
-    ),
-  );
-  TestValidator.predicate(
     "copy driver rejects negative influence",
     throwsError(
       (): IAutoMovieDriver[] =>
@@ -123,18 +111,6 @@ export function runResolveDriversCopyScenario(): void {
           validNodes,
         ),
       ["copy driver influence", "between 0 and 1", "1.1"],
-    ),
-  );
-  TestValidator.predicate(
-    "copy driver rejects non-boolean component flag",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveDrivers(
-          [copy({ translation: "yes" as unknown as boolean })],
-          seed([]),
-          validNodes,
-        ),
-      ["copy driver translation", "boolean", "yes"],
     ),
   );
   const ghostTranslation: [string, IAutoMovieChannel, number[]] = [
@@ -182,24 +158,6 @@ export function runResolveDriversCopyScenario(): void {
           validNodes,
         ),
       ["copy driver source translation value", "exactly 3", "2"],
-    ),
-  );
-  TestValidator.predicate(
-    "copy driver rejects array-like sampled owner rotation",
-    throwsError(
-      (): IAutoMovieDriver[] =>
-        resolveDrivers(
-          [copy({ rotation: true })],
-          seed([
-            [
-              "node:o:rotation",
-              { kind: "node", node: "o", path: "rotation" },
-              { 0: 0, 1: 0, 2: 0, 3: 1, length: 4 } as unknown as number[],
-            ],
-          ]),
-          validNodes,
-        ),
-      ["copy driver owner rotation value", "array"],
     ),
   );
   TestValidator.predicate(

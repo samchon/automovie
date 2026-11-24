@@ -6,6 +6,7 @@ import {
 import {
   IAutoMovieAssetProvenance,
   IAutoMovieMaterial,
+  IAutoMovieMaterialOverlay,
   IAutoMovieModel,
   IAutoMovieModelPart,
   type IAutoMovieTextureImageFacts,
@@ -95,17 +96,17 @@ const model: (material: IAutoMovieMaterial) => IAutoMovieModel = (
 });
 
 /**
- * Exercise overlay image closure, UV-coordinate scale meaning and malformed overlay metadata through the owning validators.
+ * Exercise overlay image closure, UV-coordinate scale meaning and overlay factor ranges through the owning validators.
  *
  * Scenarios:
  * 1. A registered overlay image closes and an unregistered one reports its exact color slot.
  * 2. A normalized nine-by-four UV span is refused while source-uv coordinates remain exempt.
- * 3. Null colorFactor and a sparse overlay entry report type faults instead of throwing or silently disappearing.
+ * 3. A negative colorFactor channel is refused at its path.
  * 4. A finite nonnegative RGB factor, including zero and a value above one, remains admitted by the factor contract.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Call actual texture closure/scale and model validators, checking cited slots and malformed metadata reports so null dereferences and hole-skipping fail observably.
+ * @evidence contracts/development/testing.md#behavioral-verification Call actual texture closure/scale and model validators, checking cited slots and factor range reports.
  * @evidence contracts/development/testing.md#independent-expectations Manifest authorization supplies the image identity, authored UV extrema yield nine-by-four span, and optional RGB factor semantics require a record of nonnegative finite scalars rather than a null object or absent array element.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserve registered/unregistered and normalized/source-uv twins, then add null/sparse failures plus zero/positive/>1 factor controls; codec decoding and full material palettes are owned elsewhere.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserve registered/unregistered and normalized/source-uv twins, then add a negative factor failure plus zero/positive/>1 factor controls; codec decoding and full material palettes are owned elsewhere.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable exported unit calls portable engine seams with existing fixtures and a local facts callback, acquiring no file, process, browser or GPU resource.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A registered overlay image closes and an unregistered one reports its exact color slot.).
  */
@@ -157,38 +158,31 @@ export function test_validation_material_overlay_textures(): void {
     true,
   );
 
-  const structural: (overlays: unknown) => IAutoMovieValidation = (
-    overlays: unknown,
+  const structural: (
+    overlays: IAutoMovieMaterialOverlay[],
+  ) => IAutoMovieValidation = (
+    overlays: IAutoMovieMaterialOverlay[],
   ): IAutoMovieValidation => {
     const base: IAutoMovieModel = createModel();
     return validateModel({
       model: {
         ...base,
-        materials: [{ ...base.materials[0]!, overlays } as IAutoMovieMaterial],
+        materials: [{ ...base.materials[0]!, overlays }],
       },
     });
   };
-  const validOverlay: {
-    baseColorTexture: string;
-    blend: string;
-    strength: number;
-  } = {
+  const validOverlay: IAutoMovieMaterialOverlay = {
     baseColorTexture: VEINS,
     blend: "multiply",
     strength: 1,
   };
   TestValidator.predicate(
-    "null overlay color factors are reported instead of escaping as throws",
+    "a negative overlay color factor is refused",
     hasViolation(
-      structural([{ ...validOverlay, colorFactor: null }]),
-      "type",
-      "$input.materials[0].overlays[0].colorFactor",
+      structural([{ ...validOverlay, colorFactor: { r: -1, g: 0, b: 0 } }]),
+      "range",
+      "$input.materials[0].overlays[0].colorFactor.r",
     ),
-  );
-  const sparse: unknown[] = new Array<unknown>(1);
-  TestValidator.predicate(
-    "a sparse overlay slot is a malformed entry rather than an absent overlay",
-    hasViolation(structural(sparse), "type", "$input.materials[0].overlays[0]"),
   );
   TestValidator.equals(
     "a finite nonnegative overlay color factor remains admitted",

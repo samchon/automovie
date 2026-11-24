@@ -19,6 +19,7 @@ import { HumanFoot } from "../posture/HumanFoot";
 import { HumanFootRotation } from "../posture/HumanFootRotation";
 import { walkFoot } from "./walkFoot";
 import { walkLeg } from "./walkLeg";
+import { walkLegRise } from "./walkLegRise";
 
 /** The record of `IPrepareResult2`'s site. */
 type IPrepareResult2 = { end: walkFoot.IEnd; contact: IAutoMovieVector3 };
@@ -230,7 +231,7 @@ export namespace walkReachStance {
       // ankle's plantar limit. Raising the heel only brings the thigh forward,
       // so this room has no fold.
       if (about === "mtp") {
-        const risen: number = walkLeg.rise(
+        const risen: number = walkLegRise(
           (degrees: number): number => {
             // The search keeps no placement, so it reads the ankle alone; the
             // record is the reader's own, read here before its next pitch.

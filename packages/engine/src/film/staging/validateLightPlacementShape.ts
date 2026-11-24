@@ -1,5 +1,6 @@
 import {
   IAutoMovieLight,
+  type IAutoMovieLightShadow,
   IAutoMovieStageLight,
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
@@ -7,7 +8,6 @@ import {
 import { Vector3 } from "../../math/Vector3";
 import { withArticle } from "../../text/withArticle";
 import { describeInvalidValue } from "../../validation/describeInvalidValue";
-import { isRecord } from "../../validation/isRecord";
 import { validateColor } from "../../validation/validateColor";
 import { isFiniteStageVector3 } from "./isFiniteStageVector3";
 import { lightTypeOf } from "./lightTypeOf";
@@ -24,22 +24,18 @@ import { lightTypeOf } from "./lightTypeOf";
  *   `directional` light must not carry one, since it is infinitely distant.
  * - `range` belongs to the two punctual falloff kinds and must be finite and at
  *   least zero; `coneAngle` belongs to `spot` alone, within `(0, 90]`; `width`
- *   and `height` belong to `area` alone and must be finite and positive, and
- *   both are reported when both are wrong.
+ *   and `height` belong to `area` alone and must be positive, and both are
+ *   reported when both are wrong.
  * - `color`, when given, follows validateColor's canonical linear RGBA rule,
  *   including nullable alpha and an optional matching sRGB hex label.
- * - `castShadow` is a boolean, is refused on an `area` light, which renders no
- *   shadow map, and when `true` requires `shadow`; `shadow` requires
- *   `castShadow: true` and carries a positive safe-integer `mapSize`, finite
- *   biases, a positive `near` and a finite `far` beyond it.
+ * - `castShadow` is refused on an `area` light, which renders no shadow map, and
+ *   when `true` requires `shadow`; `shadow` requires `castShadow: true` and
+ *   carries a positive safe-integer `mapSize`, a positive `near` and a `far`
+ *   beyond it.
  *
  * A parameter that cannot act is refused rather than ignored, because silently
  * dropping a `coneAngle` on a point light stages a light that is not the one
- * authored. The caller supplies a light record; malformed ordinary JSON fields,
- * including null vectors, colors and shadows, produce located findings. A
- * failed string conversion uses `an uninspectable value` only in text and
- * retains the authored value. Throwing property accessors and nonterminating
- * conversion hooks are outside that guarantee.
+ * authored.
  */
 export const validateLightPlacementShape: (
   light: IAutoMovieStageLight,
@@ -156,8 +152,7 @@ export const validateLightPlacementShape: (
  *
  * Both axes are checked, not just the first missing one, so an author who typed
  * neither is told both rather than being walked through the same placement one
- * recompile at a time. Each axis is read as `unknown`, because an untyped
- * payload may carry anything there.
+ * recompile at a time.
  */
 const validateLightExtent: (
   light: IAutoMovieStageLight,
@@ -171,7 +166,7 @@ const validateLightExtent: (
   out: IAutoMovieViolationCollector,
 ): void => {
   for (const axis of ["width", "height"] as const) {
-    const value: unknown = light[axis];
+    const value: number | undefined = light[axis];
     if (value === undefined) {
       if (type === "area")
         out.push(
@@ -187,20 +182,20 @@ const validateLightExtent: (
         `only an area light has extent; a ${type} light takes no ${axis}`,
         value,
       );
-    else if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+    else if (value <= 0)
       out.push(
         "range",
         `${path}.${axis}`,
-        `area ${axis} must be a finite number greater than zero, but was ${describeInvalidValue(value)}`,
+        `area ${axis} must be greater than zero, but was ${describeInvalidValue(value)}`,
         value,
       );
   }
 };
 
 /**
- * `castShadow` and `shadow`: a boolean flag, refused on an area light, and
- * settings present exactly when the flag is `true`, each field finite and `far`
- * beyond `near`.
+ * `castShadow` and `shadow`: a flag refused on an area light, and settings
+ * present exactly when the flag is `true`, with a positive `near` and `far`
+ * beyond it.
  */
 const validateLightShadow: (
   light: IAutoMovieStageLight,
@@ -213,20 +208,13 @@ const validateLightShadow: (
   path: string,
   out: IAutoMovieViolationCollector,
 ): void => {
-  if (light.castShadow !== undefined && typeof light.castShadow !== "boolean")
-    out.push(
-      "type",
-      `${path}.castShadow`,
-      "castShadow must be boolean",
-      light.castShadow,
-    );
   // A rectangular area source is integrated analytically, so `three.js` renders
   // no shadow map for it. Accepting the flag would stage a light that says it
   // occludes and never does; the correction is a spot or directional key
   // beside the panel. The refusal replaces the shadow-settings demand rather
   // than joining it: asking an author to tune a map that will never be
   // rendered is worse advice than none.
-  else if (light.castShadow !== undefined && type === "area") {
+  if (light.castShadow !== undefined && type === "area") {
     out.push(
       "type",
       `${path}.castShadow`,
@@ -252,14 +240,9 @@ const validateLightShadow: (
       "shadow settings require castShadow to be true",
       light.shadow,
     );
-  const shadow: unknown = light.shadow;
-  if (!isRecord(shadow)) {
-    out.push("type", `${path}.shadow`, "shadow must be a JSON object", shadow);
-    return;
-  }
-  const mapSize: unknown = shadow.mapSize;
+  const shadow: IAutoMovieLightShadow = light.shadow;
+  const mapSize: number = shadow.mapSize;
   if (
-    typeof mapSize !== "number" ||
     !Number.isSafeInteger(mapSize) ||
     mapSize <= 0
   )
@@ -269,33 +252,20 @@ const validateLightShadow: (
       "shadow mapSize must be a positive safe integer",
       mapSize,
     );
-  for (const key of ["bias", "normalBias"] as const)
-    if (typeof shadow[key] !== "number" || !Number.isFinite(shadow[key]))
-      out.push(
-        "range",
-        `${path}.shadow.${key}`,
-        `shadow ${key} must be finite`,
-        shadow[key],
-      );
-  const near: unknown = shadow.near;
-  const far: unknown = shadow.far;
-  if (typeof near !== "number" || !Number.isFinite(near) || near <= 0)
+  const near: number = shadow.near;
+  const far: number = shadow.far;
+  if (near <= 0)
     out.push(
       "range",
       `${path}.shadow.near`,
-      "shadow near must be finite and greater than zero",
+      "shadow near must be greater than zero",
       near,
     );
-  if (
-    typeof far !== "number" ||
-    !Number.isFinite(far) ||
-    typeof near !== "number" ||
-    far <= near
-  )
+  if (far <= near)
     out.push(
       "range",
       `${path}.shadow.far`,
-      "shadow far must be finite and greater than near",
+      "shadow far must be greater than near",
       far,
     );
 };

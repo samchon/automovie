@@ -196,11 +196,11 @@ Linear in mass segments, with no forward kinematics.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Uses the existing weak per-body mass model, which assumes the body's skeleton and physical profile stay unchanged; actual placement always reads the supplied current bones.
+Uses the body's own mass model (`IAutoMovieMotionHumanBody.massModel`), which assumes the body's skeleton and physical profile stay unchanged; actual placement always reads the supplied current bones.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The existing WeakMap holds one numeric mass model per live body identity and permits collection with that body; placement returns a current centre and retains no posed bones.
+The mass model is the body's; placement returns a current centre and retains no posed bones.
 
 # src/posture/HumanFitBalance.ts#HumanFitBalance.velocities
 
@@ -230,4 +230,4 @@ Shares current segment world points and missing-bone decisions across variables,
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-World-point scratch lives only for this call and returns independent derivative vectors; the existing separate weak mass-model cache retains no current points, motions or pose.
+World-point scratch lives only for this call and returns independent derivative vectors; the body's mass model retains no current points, motions or pose.

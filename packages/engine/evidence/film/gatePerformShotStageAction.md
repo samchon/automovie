@@ -6,7 +6,7 @@ Checks optional attachment position and quaternion, verb domains, supplied gait 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The verb dispatch of the action gate, separate from the checks every action shares in `gatePerformShotActions`; target resolution is `resolvePerformShotTarget` and id checks `validatePerformShotId`, both shared.
+The verb dispatch of the action gate, separate from the checks every action shares in `gatePerformShotActions`; target resolution is the shared `resolvePerformShotTarget`.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

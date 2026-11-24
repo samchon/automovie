@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the per-query solve lifetime, original demand provenance, input frames and resolver-owned admission boundary.
+States the per-query solve lifetime, input frames and the placed solve handed on with the posture.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 

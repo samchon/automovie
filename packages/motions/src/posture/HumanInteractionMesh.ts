@@ -9,6 +9,7 @@ import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanInteractionMeshLaplacian as Laplacian } from "./HumanInteractionMeshLaplacian";
 import { HumanInteractionMeshSide as Side } from "./HumanInteractionMeshSide";
 import { HumanInteractionMeshStep as Step } from "./HumanInteractionMeshStep";
+import { humanInteractionMeshShape } from "./humanInteractionMeshShape";
 
 /**
  * Adapt the spatial relations of a multi-body key pose to bodies of other
@@ -256,7 +257,7 @@ export namespace HumanInteractionMesh {
       }
     }
     if (props.bones.length === 0 || props.start === undefined) {
-      const direct: Float64Array | undefined = alignedShape(
+      const direct: Float64Array | undefined = humanInteractionMeshShape(
         props.bones,
         props.contacts,
         reference,
@@ -365,72 +366,6 @@ export namespace HumanInteractionMesh {
         `The interaction mesh could not preserve its contacts and bone lengths: ${current.worst} m residual, ${current.flipped} inverted tetrahedra`,
       );
     return { points: points(x, n), mesh };
-  }
-
-  /** A fixed Cartesian edge to a mesh point. */
-  interface IOffsetEdge {
-    index: number;
-    by: readonly number[];
-  }
-
-  /**
-   * Propagate contact offsets and target-length bones along their reference
-   * directions, preserving the reference centroid.
-   */
-  function alignedShape(
-    bones: readonly IAutoMovieMotionHumanInteractionMesh.IBone[],
-    contacts: readonly IAutoMovieMotionHumanInteractionMesh.IContact[],
-    reference: Float64Array,
-  ): Float64Array | undefined {
-    const n: number = reference.length / 3;
-    if (bones.length + contacts.length < n - 1) return undefined;
-    const edges: IOffsetEdge[][] = Array.from(
-      { length: n },
-      (): IOffsetEdge[] => [],
-    );
-    function connect(from: number, to: number, by: readonly number[]): void {
-      edges[from]!.push({ index: to, by });
-      edges[to]!.push({ index: from, by: by.map((v: number): number => -v) });
-    }
-    for (const contact of contacts)
-      connect(contact.b, contact.a, offset(contact));
-    for (const bone of bones) {
-      const direction: number[] = AXES.map(
-        (axis: number): number =>
-          reference[3 * bone.to + axis]! - reference[3 * bone.from + axis]!,
-      );
-      const length: number = Math.hypot(...direction);
-      if (length === 0) return undefined;
-      connect(
-        bone.from,
-        bone.to,
-        direction.map((v: number): number => (v * bone.length) / length),
-      );
-    }
-    const found: Uint8Array = new Uint8Array(n);
-    const result: Float64Array = new Float64Array(reference.length);
-    const visited: number[] = [0];
-    found[0] = 1;
-    for (let q: number = 0; q < visited.length; q++) {
-      const p: number = visited[q]!;
-      for (const edge of edges[p]!) {
-        if (found[edge.index] === 1) continue;
-        for (const axis of AXES)
-          result[3 * edge.index + axis] =
-            result[3 * p + axis]! + edge.by[axis]!;
-        found[edge.index] = 1;
-        visited.push(edge.index);
-      }
-    }
-    if (visited.length !== n) return undefined;
-    for (const axis of AXES) {
-      let translate: number = 0;
-      for (let i: number = axis; i < result.length; i += 3)
-        translate += reference[i]! - result[i]!;
-      for (let i: number = axis; i < result.length; i += 3)
-        result[i]! += translate / n;
-    }
-    return result;
   }
 
   /** The solved Cartesian points, indexed as in the reference. */

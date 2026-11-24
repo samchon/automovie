@@ -56,4 +56,4 @@ While the plan is built, each sample's feet and pelvis with no balance shift are
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The plan holds its recovery, feet and authored geometric data; a loan lives only in the evaluation it was passed to, and no module or closure state carries it.
+The plan holds its recovery, feet and authored geometric data; a loan lives only in the evaluation it was passed to and in the plan's `lent` for that one synchronous read, released when the read returns; the writer knows it by identity, with no runtime type check.

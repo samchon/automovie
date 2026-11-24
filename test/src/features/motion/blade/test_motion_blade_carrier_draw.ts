@@ -789,7 +789,7 @@ function stage(
     },
   };
   const staging: IAutoMovieMotionHumanSheath.IStaging =
-    AutoMovieMotionHumanDress.HumanSheath.of(
+    AutoMovieMotionHumanDress.HumanSheath(
       worn,
       HumanObject.prop("blade", blade, { at: { x: 0, y: 0, z: 0 }, yaw: 0 }),
       { mouth, tip: "point", handle: "grip", clearance: CLEARANCE },

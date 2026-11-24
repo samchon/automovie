@@ -10,7 +10,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
-import type { HumanArmBendRoom } from "./HumanArmBendRoom";
 import { HumanArmOvershootRoom } from "./HumanArmOvershootRoom";
 import { HumanShapeFraming } from "./HumanShapeFraming";
 
@@ -83,10 +82,9 @@ export namespace HumanArmOvershoot {
     rival?: IAutoMovieVector3,
     hint?: IAutoMovieVector3,
     rests: readonly IAutoMovieMotionHumanColliders.IPlaced[] = [],
-    trial?: HumanArmBendRoom,
   ): (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3) => number {
     const room: IRoom = HumanArmOvershootRoom(shapes, others, rests, side);
-    const shared: IQueries = trial === undefined ? {} : { trial };
+    const shared: IQueries = {};
     return (elbow: IAutoMovieVector3, wrist: IAutoMovieVector3): number =>
       evaluate(body, room, elbow, wrist, goal, rival, hint, shared);
   }
@@ -103,9 +101,6 @@ type IDistanceReader = ReturnType<typeof physicalShapeSegmentDistance.prepare>;
 
 /** Operation-local holder, populated only when a candidate needs exact geometry. */
 interface IQueries {
-  /** Optional proof for the original ordinary elbow search. */
-  trial?: HumanArmBendRoom;
-
   /** Readers for unchanged shapes, without queried points or results. */
   readers?: Map<IShape, IDistanceReader>;
 }
@@ -127,7 +122,6 @@ function evaluate(
   shared?: IQueries,
 ): number {
   const radius: number = body.measure.forearmRadius;
-  shared?.trial?.read(room, radius);
 
   // The elbow's side: it goes no farther across the chest's median plane
   // than its goal asks, by the wrist or by the elbow's own hint, so a hand
@@ -283,13 +277,7 @@ function distance(
   const queries: Map<IShape, IDistanceReader> = (shared.readers ??= new Map());
   let query: IDistanceReader | undefined = queries.get(shape);
   if (query === undefined) {
-    if (shared.trial === undefined)
-      query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
-    else {
-      const pointQuery: (point: IAutoMovieVector3) => number =
-        shared.trial.trial.prepare(shape.pose, shape.shape);
-      query = (point: IAutoMovieVector3): number => pointQuery(point);
-    }
+    query = physicalShapeSegmentDistance.prepare(shape.pose, shape.shape);
     queries.set(shape, query);
   }
   return query(point, point);

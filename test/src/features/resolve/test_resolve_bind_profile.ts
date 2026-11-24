@@ -146,7 +146,7 @@ const makeBinding: (
 /**
  * `bindProfile` resolves every semantic node reference a profile's limits and
  * drivers carry through the binding's boneMap (then the placement prefix),
- * refusing silent drops: an unmapped or empty mapping throws instead of quietly
+ * refusing silent drops: an unmapped key throws instead of quietly
  * un-constraining the rig.
  *
  * Scenarios:
@@ -159,16 +159,14 @@ const makeBinding: (
  * 2. Limits remap the node channel and leave the pointer-channel limit untouched;
  *    with no prefix the mapped ids are the bare boneMap values.
  * 3. A semantic key missing from boneMap throws naming the profile and key.
- * 4. A key mapped to an empty id throws.
- * 5. A binding whose `profile` id does not match the applied profile throws.
- * 6. An unknown driver discriminator throws.
- * 7. Prototype spellings require explicit own mappings; declared own constructor and __proto__ names bind normally.
+ * 4. A binding whose `profile` id does not match the applied profile throws.
+ * 5. Prototype spellings require explicit own mappings; declared own constructor and __proto__ names bind normally.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual bindProfile across all supported driver/channel arms, prefix and refusal paths; inherited prototype names must take the missing-key diagnostic while declared own names remain valid bindings.
  * @evidence contracts/development/testing.md#independent-expectations The authored a/b/c/g/p map defines exact A/B/C/G/P ids after actor/ prefix. Object.fromEntries supplies constructor/__proto__ as own string entries, whereas an empty ordinary record declares neither despite its prototype properties.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers every remapped driver reference, pointer pass-through, null pole/center, bare/prefixed ids, absent/blank mapping, profile mismatch and unknown discriminator, plus own versus inherited reserved property spellings. Frame composition of bound profiles belongs to the profile frame suites.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers every remapped driver reference, pointer pass-through, null pole/center, bare/prefixed ids, absent mapping and profile mismatch, plus own versus inherited reserved property spellings. Frame composition of bound profiles belongs to the profile frame suites.
  * @evidence contracts/development/testing.md#execution-ownership The exported test_resolve_bind_profile owns synchronous portable data-binding cases and starts no consumer, Human scene or renderer; all assertions observe the real returned limits/drivers or thrown diagnostics.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every driver type's node fields remap through boneMap + `"actor/"` prefix:).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 5 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Every driver type's node fields remap through boneMap + `"actor/"` prefix:).
  */
 export function test_resolve_bind_profile(): void {
   const bound: IAutoMovieBoundProfile = bindProfile({
@@ -311,17 +309,6 @@ export function test_resolve_bind_profile(): void {
     ),
   );
   TestValidator.predicate(
-    "empty mapped id throws",
-    throwsError(
-      (): IAutoMovieBoundProfile =>
-        bindProfile({
-          profile: makeProfile([]),
-          binding: makeBinding({ ...MAP, a: "  " }),
-        }),
-      "empty node id",
-    ),
-  );
-  TestValidator.predicate(
     "binding/profile id mismatch throws",
     throwsError(
       (): IAutoMovieBoundProfile =>
@@ -330,19 +317,6 @@ export function test_resolve_bind_profile(): void {
           binding: { ...makeBinding(MAP), profile: "other" },
         }),
       ["other", "rig"],
-    ),
-  );
-  TestValidator.predicate(
-    "unknown driver type throws",
-    throwsError(
-      (): IAutoMovieBoundProfile =>
-        bindProfile({
-          profile: makeProfile([
-            { type: "warp" } as unknown as IAutoMovieDriver,
-          ]),
-          binding: makeBinding(MAP),
-        }),
-      'unknown driver type "warp"',
     ),
   );
 }

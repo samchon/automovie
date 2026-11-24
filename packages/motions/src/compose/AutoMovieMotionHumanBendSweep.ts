@@ -27,7 +27,6 @@ import type {
 import { HumanArmOvershoot } from "../posture/HumanArmOvershoot";
 import { AutoMovieMotionHumanBendBound } from "./AutoMovieMotionHumanBendBound";
 import type { AutoMovieMotionHumanBendChain } from "./AutoMovieMotionHumanBendChain";
-import type { AutoMovieMotionHumanBendRepeat } from "./AutoMovieMotionHumanBendRepeat";
 import type { AutoMovieMotionHumanBendSearch } from "./AutoMovieMotionHumanBendSearch";
 import { AutoMovieMotionHumanBendStrain } from "./AutoMovieMotionHumanBendStrain";
 
@@ -42,9 +41,6 @@ type IAutoMovieMotionHumanBendSweepResult = {
   candidate: ICandidate;
   seed: IAutoMovieSwivelSeed;
 };
-
-/** The alternatives of `AutoMovieMotionHumanBendSweepRepeat`'s site. */
-type AutoMovieMotionHumanBendSweepRepeat = 0 | 1;
 
 /**
  * The best elbow place of a prepared arm chain for a wrist's place under a
@@ -62,10 +58,8 @@ type AutoMovieMotionHumanBendSweepRepeat = 0 | 1;
  * @param score The ranking of a candidate.
  * @param near The seed of a nearby solve to refine instead of sweeping
  *   (`IAutoMovieSwivelNear`).
- * @param repeat The ordinary search's repeat trial, when its owner lends one
- *   (`AutoMovieMotionHumanBendRepeat`).
  * @param byStrain Whether `score` is `AutoMovieMotionHumanBendSearch.strained`,
- *   whose deviation is the strain: a cold sweep without a trial is then decided
+ *   whose deviation is the strain: a cold sweep is then decided
  *   by branch and bound on the strain's certified swivel-interval bound
  *   (`AutoMovieMotionHumanBendBound`).
  * @returns The chosen candidate with its true overshoot and its seed, or null
@@ -80,10 +74,6 @@ export function AutoMovieMotionHumanBendSweep(
   neutral: IAutoMovieResolvedJointAngles | null,
   score: (candidate: ICandidate) => IScore,
   near?: IAutoMovieSwivelNear,
-  repeat?: readonly [
-    AutoMovieMotionHumanBendRepeat.IRead,
-    AutoMovieMotionHumanBendSweepRepeat,
-  ],
   byStrain: boolean = false,
 ): IAutoMovieMotionHumanBendSweepResult | null {
   const prepared: AutoMovieMotionHumanBendChain.IChain["prepared"] =
@@ -98,8 +88,6 @@ export function AutoMovieMotionHumanBendSweep(
     chain.axes[upperBone] ?? DEFAULT_JOINT_AXES,
     "AutoMovieMotionHumanBendSearch axes",
   );
-  let hand: IAutoMovieJointConstraint | null = null;
-  let handAxes: IAutoMovieJointAxes | undefined;
   const strained: (
     u: IAutoMovieResolvedJointAngles,
     lowerWorld: () => IAutoMovieQuaternion,
@@ -110,15 +98,6 @@ export function AutoMovieMotionHumanBendSweep(
     rotation,
     neutral,
     lowerAxes,
-    repeat === undefined
-      ? undefined
-      : (
-          range: IAutoMovieJointConstraint | null,
-          axes: IAutoMovieJointAxes | undefined,
-        ): void => {
-          hand = range;
-          handAxes = axes;
-        },
   );
 
   const least: ((u: IAutoMovieResolvedJointAngles) => number) | null =
@@ -136,47 +115,8 @@ export function AutoMovieMotionHumanBendSweep(
   const lowerOvershoot: (joint: IAutoMovieJointPose) => number =
     jointRomOvershoot.prepare(lowerBone, prepared.lowerDomain.constraint);
 
-  const trial =
-    repeat !== undefined &&
-    near === undefined &&
-    rotation !== undefined &&
-    neutral !== null &&
-    handAxes !== undefined
-      ? repeat[0].start(repeat[1], {
-          chain,
-          body,
-          side,
-          point,
-          rotation,
-          neutral,
-          clinical: {
-            upperBone,
-            lowerBone,
-            handBone: `${side}Hand`,
-            upperBasis,
-            lowerBasis,
-            lowerAxes,
-            handAxes,
-            upperRange,
-            lowerRange: prepared.lowerDomain.constraint,
-            handRange: hand,
-          },
-        })
-      : undefined;
   const clear: ReturnType<typeof HumanArmOvershoot.prepare> =
-    trial === undefined
-      ? HumanArmOvershoot.prepare(body, chain.shapes, side)
-      : HumanArmOvershoot.prepare(
-          body,
-          chain.shapes,
-          side,
-          [],
-          true,
-          undefined,
-          undefined,
-          [],
-          trial.room,
-        );
+    HumanArmOvershoot.prepare(body, chain.shapes, side);
 
   // A branch's candidates share one lower rotation, the same record, and
   // differ only in the swivel of the upper arm, so the lower joint's
@@ -249,14 +189,13 @@ export function AutoMovieMotionHumanBendSweep(
         };
   };
   // The strain's certified bound over a bracket of swivels, for a cold sweep
-  // ranked by the strain itself; a trial's witness reads the full sweep's
-  // first score, so a search with one keeps the full sweep.
+  // ranked by the strain itself.
   const wrist: AutoMovieMotionHumanBendStrain.IHand =
     AutoMovieMotionHumanBendStrain.handOf(chain, body, side);
   const bound:
     | ReturnType<typeof AutoMovieMotionHumanBendBound.prepare>
     | undefined =
-    byStrain && near === undefined && trial === undefined && neutral !== null
+    byStrain && near === undefined && neutral !== null
       ? AutoMovieMotionHumanBendBound.prepare({
           basis: upperBasis,
           frame: HUMANOID_REST_FRAME[upperBone],
@@ -303,9 +242,7 @@ export function AutoMovieMotionHumanBendSweep(
         upper: IAutoMovieQuaternion,
         lower: IAutoMovieQuaternion,
       ): IScore => {
-        const ranked: IScore = score(read(upper, lower));
-        trial?.score(ranked);
-        return ranked;
+        return score(read(upper, lower));
       },
 
       // A solve continued from a nearby one refines that one's swivel on
@@ -322,7 +259,7 @@ export function AutoMovieMotionHumanBendSweep(
           seed: { swivel: solved.swivel, branch: solved.branch },
         };
   };
-  return trial === undefined ? complete() : trial.complete(complete);
+  return complete();
 }
 
 /** A place on the swivel circle, the search's. */

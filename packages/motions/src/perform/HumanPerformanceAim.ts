@@ -78,7 +78,7 @@ export namespace HumanPerformanceAim {
           self,
           target.subject,
           seconds - HumanPerception.REACTION,
-          "target.subject",
+          (): string => "target.subject",
           meetings?.get(target.subject),
         );
         const other: IAutoMovieMotionHumanSegment.IPerson =

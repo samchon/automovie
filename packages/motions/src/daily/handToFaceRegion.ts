@@ -70,7 +70,7 @@ export function handToFaceRegion(
         context.start + seconds,
         posture,
         context.carrier === undefined
-          ? bones
+          ? (): ReturnType<typeof poseBones> => bones
           : (): ReturnType<typeof poseBones> => {
               // Only the region's bone is read: the solve and the forward
               // kinematics are asked for it alone, whose frame equals the

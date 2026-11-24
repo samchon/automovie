@@ -9,7 +9,6 @@ import type {
   IAutoMovieMotionHumanActionPlan,
   IAutoMovieMotionHumanArmPlanned,
   IAutoMovieMotionHumanGrasp,
-  IAutoMovieMotionHumanGraspUse,
   IAutoMovieMotionHumanHandToFace,
   IAutoMovieMotionHumanHandToFaceArm,
   IAutoMovieMotionHumanHandToFaceRows,
@@ -48,6 +47,8 @@ import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { poseBones } from "../posture/poseBones";
 import { handToFaceArm } from "./handToFaceArm";
+import { handToFaceDrinkable } from "./handToFaceDrinkable";
+import { handToFaceMirrored } from "./handToFaceMirrored";
 import { handToFaceRegion } from "./handToFaceRegion";
 import { handToFaceRows } from "./handToFaceRows";
 import { handToFaceSheet } from "./handToFaceSheet";
@@ -124,26 +125,6 @@ export namespace handToFace {
   > = handToFaceRows.ROWS;
 
   /**
-   * The region a row names for a hand: the right hand's region, mirrored for
-   * the left.
-   *
-   * @param region The right hand's region.
-   * @param side The hand.
-   * @returns The region.
-   */
-  export function mirrored(
-    region: AutoMovieHumanoidRegion,
-    side: AutoMovieHumanSide,
-  ): AutoMovieHumanoidRegion {
-    if (side === "right") return region;
-    return region.endsWith("Right")
-      ? (region.replace(/Right$/, "Left") as AutoMovieHumanoidRegion)
-      : region.endsWith("Left")
-        ? (region.replace(/Left$/, "Right") as AutoMovieHumanoidRegion)
-        : region;
-  }
-
-  /**
    * Plan a hand-to-face task.
    *
    * @param context The action's context.
@@ -197,7 +178,10 @@ export namespace handToFace {
         ? AutoMovieMotionHumanTouchForm.curled(row.effector, row.kind)
         : (held ??= grasped(p.prop));
     const hands: [AutoMovieHumanSide, AutoMovieHumanoidRegion | null][] = [
-      [first, row.region === null ? null : mirrored(row.region, first)],
+      [
+        first,
+        row.region === null ? null : handToFaceMirrored(row.region, first),
+      ],
       // A second hand on the held prop takes the place of the row's other.
       ...(row.other === undefined || p.other !== undefined
         ? []
@@ -252,7 +236,7 @@ export namespace handToFace {
         ...p,
         ...(row.point === undefined ? {} : { point: p.point ?? row.point }),
       },
-      row.region === null ? null : mirrored(row.region, first),
+      row.region === null ? null : handToFaceMirrored(row.region, first),
     );
 
     // A kept vessel presents the named rim point captured at pickup. Other
@@ -275,7 +259,10 @@ export namespace handToFace {
       if (
         row.upright === true &&
         context.entry.holds[first] === subject &&
-        !drinkable(context.entry.uses[first], mirrored(row.region, first))
+        !handToFaceDrinkable(
+          context.entry.uses[first],
+          handToFaceMirrored(row.region, first),
+        )
       )
         throw new HumanRefusal({
           kind: "reach",
@@ -289,7 +276,7 @@ export namespace handToFace {
         seconds: number,
       ) => Pick<IAutoMovieMotionHumanTarget.IPlace, PlanGraspedAt> = region(
         first,
-        mirrored(row.region, first),
+        handToFaceMirrored(row.region, first),
       );
       if (row.upright !== true)
         return HumanHeld.steadiest(
@@ -497,18 +484,4 @@ export namespace handToFace {
       ? plan
       : HumanHeld.kept(context, plan, first, p.prop);
   }
-}
-
-/**
- * Whether a grip was chosen for a use at a region of the face: its `use` brings
- * the working point to that region, the mouth named as `mouth` or as the region
- * itself.
- */
-function drinkable(
-  use: IAutoMovieMotionHumanGraspUse.IUse | undefined,
-  region: AutoMovieHumanoidRegion,
-): boolean {
-  if (use === undefined || use.at === undefined || use.at === "ahead")
-    return false;
-  return use.at === "mouth" ? region === "mouth" : use.at.region === region;
 }

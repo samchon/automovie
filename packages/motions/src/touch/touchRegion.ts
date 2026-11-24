@@ -137,30 +137,31 @@ export namespace touchRegion {
           aimed,
           context.start + seconds,
           posture,
-          requested !== undefined
-            ? frames!(
-                resolveHumanPosture.seeded(
-                  body,
-                  {
-                    ...posture,
-                    limbs: {
-                      ...(posture.limbs.leftLeg === undefined
-                        ? {}
-                        : { leftLeg: posture.limbs.leftLeg }),
-                      ...(posture.limbs.rightLeg === undefined
-                        ? {}
-                        : { rightLeg: posture.limbs.rightLeg }),
+          (): ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =>
+            requested !== undefined
+              ? frames!(
+                  resolveHumanPosture.seeded(
+                    body,
+                    {
+                      ...posture,
+                      limbs: {
+                        ...(posture.limbs.leftLeg === undefined
+                          ? {}
+                          : { leftLeg: posture.limbs.leftLeg }),
+                        ...(posture.limbs.rightLeg === undefined
+                          ? {}
+                          : { rightLeg: posture.limbs.rightLeg }),
+                      },
                     },
-                  },
-                  undefined,
-                  {},
-                  resolution,
-                  requested,
-                  projection,
-                ).pose,
-                resolution?.(),
-              )
-            : bones,
+                    undefined,
+                    {},
+                    resolution,
+                    requested,
+                    projection,
+                  ).pose,
+                  resolution?.(),
+                )
+              : bones,
           resolution ?? source,
         );
         if (sited === undefined || aimed !== target) return frame;

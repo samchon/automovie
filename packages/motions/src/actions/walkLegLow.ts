@@ -12,7 +12,7 @@ const NARROWED: number = (2 / 3) ** 24;
 const GOLDEN: number = (Math.sqrt(5) - 1) / 2;
 
 /**
- * Narrow a bracket round the low of a planted foot's room (`walkLeg.rise`) by
+ * Narrow a bracket round the low of a planted foot's room (`walkLegRise`) by
  * golden-section search (Kiefer 1953, "Sequential minimax search for a
  * maximum").
  *

@@ -22,7 +22,7 @@ Constant work.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses `hingedArmSwivel` and the leg's rest chain, read once per body.
+Reuses `hingedArmSwivel` and the leg's rest chain from the body's prepared chain constants (`IAutoMovieMotionHumanBody.chains`).
 
 ## @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources
 

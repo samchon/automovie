@@ -48,7 +48,7 @@ An arm with a hand goal is the fit's to clear and is left alone.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Keeps all current arm fits, clearance and bisection readings and fresh outputs. In a call that needs both quiet-stance allowances, both read the same stance fit and collider placement. When all needed allowances already exist, it prepares no quiet stance.
+Keeps all current arm fits, clearance and bisection readings and fresh outputs. In a call that needs both quiet-stance allowances, both read the same stance fit and collider placement. The quiet stance is fitted once per call, at the first arm that reads it.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
@@ -56,7 +56,7 @@ Complete seeded pose and stance fits may borrow one same-operation FK workspace 
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 
-The existing weak stance map retains two scalars per body/arm only. Local/parent FK and ROM loans end with the synchronous operation; neither returned posture nor stance cache stores a reader, projector, current pose or callback.
+Retains nothing between calls. Local/parent FK and ROM loans end with the synchronous operation; the returned posture stores no reader, projector, current pose or callback.
 
 # src/posture/HumanArmSwing.ts#HumanArmSwing.Entered
 

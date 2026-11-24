@@ -18,6 +18,7 @@ import { HumanFoot } from "../../posture/HumanFoot";
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FootSlip } from "./FootSlip";
+import { locomotionCaseInstants } from "./locomotionCaseInstants";
 
 /** The record of `ILocomotionCasePartsResult`'s site. */
 type ILocomotionCasePartsResult = { h: number; p: number; r: number };
@@ -363,7 +364,7 @@ export function locomotionCase(
   });
   return {
     name: `${law}-${label}-${who}`,
-    times: instants(performance, end),
+    times: locomotionCaseInstants(performance, end),
     performers: names.map(
       (_, i: number): IMotionCaptureCase.IPerformer => ({
         id: `w${i}`,
@@ -448,31 +449,6 @@ export function locomotionCase(
   };
 }
 
-/** Every 0.2 s, and every heel strike and toe-off, labelled. */
-function instants(
-  performance: IAutoMovieMotionHumanPerformance,
-  end: number,
-): IMotionCaptureCase.ITime[] {
-  const segment = performance.segments("w0")[0]!;
-  const events: IMotionCaptureCase.ITime[] = segment.plan.events
-    .filter((e) => /HeelStrike|ToeOff/.test(e.name))
-    .map((e) => ({
-      seconds: segment.start + e.share * segment.plan.duration,
-      label: e.name.replace(/^(left|right)/, (m: string): string =>
-        m === "left" ? "L " : "R ",
-      ),
-    }));
-  const grid: IMotionCaptureCase.ITime[] = Array.from(
-    { length: Math.floor(end / 0.2) + 1 },
-    (_, k: number) => ({
-      seconds: k * 0.2,
-      label: `${(k * 0.2).toFixed(1)} s`,
-    }),
-  );
-  return [...grid, ...events, { seconds: end, label: "end" }].sort(
-    (a, b): number => a.seconds - b.seconds,
-  );
-}
 /** The alternatives of `LocomotionCaseInputExtra`'s site. */
 type LocomotionCaseInputExtra = "to" | "pace";
 

@@ -21,6 +21,7 @@ import { HumanColliders } from "../posture/HumanColliders";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { turnHumanPosture } from "../posture/turnHumanPosture";
+import { addHumanTrunkInclination } from "./addHumanTrunkInclination";
 import { authoredHumanTrunkPose } from "./authoredHumanTrunkPose";
 
 /** The record of `IRHYTHMItem`'s site. */
@@ -70,7 +71,7 @@ export namespace HumanTrunk {
     return poseBones(
       body,
       authoredHumanTrunkPose(body, posture, joints),
-      typeof resolution === "function" ? resolution() : resolution,
+      prepareHumanPoseResolution.read(resolution),
       requested,
     );
   }
@@ -109,7 +110,7 @@ export namespace HumanTrunk {
           skeleton: body.skeleton.id,
           root: Transform.of(turned.position, turned.rotation),
         },
-        typeof resolution === "function" ? resolution() : resolution,
+        prepareHumanPoseResolution.read(resolution),
       );
     };
   }
@@ -148,8 +149,8 @@ export namespace HumanTrunk {
     const spine: number = inclination - pelvis;
     const out: IAutoMovieMotionHumanPosture["joints"] = { ...joints };
     const share: number = RHYTHM.lumbar / (RHYTHM.lumbar + RHYTHM.thorax);
-    addInclination(out, "spine", share, spine);
-    addInclination(out, "chest", 1 - share, spine);
+    addHumanTrunkInclination(out, "spine", share, spine);
+    addHumanTrunkInclination(out, "chest", 1 - share, spine);
     return { pitch: pelvis, joints: out };
   }
 
@@ -485,19 +486,3 @@ function surfaceOf(
     resolveAutoMovieHumanoidSurfaces.place(frame, bone);
   return { point: placed.point, normal: placed.normal };
 }
-/** The alternatives of `AddInclinationBone`'s site. */
-type AddInclinationBone = "spine" | "chest";
-
-/** Add a share of the spine's flexion to one bone, keeping its other angles. */
-function addInclination(
-  joints: IAutoMovieMotionHumanPosture["joints"],
-  bone: AddInclinationBone,
-  part: number,
-  spine: number,
-): void {
-  const was: readonly [number, number, number] = joints[bone] ?? ZERO;
-  joints[bone] = [was[0] + part * spine, was[1], was[2]];
-}
-
-/** The angles of a bone the record holds none for. */
-const ZERO: readonly [number, number, number] = [0, 0, 0];

@@ -3,7 +3,6 @@ import type {
   IAutoMovieConstraintViolation,
   IAutoMovieFluidDomain,
   IAutoMovieServiceNetwork,
-  IAutoMovieServiceNode,
   IAutoMovieServicePort,
   IAutoMovieValidation,
   IAutoMovieWetZone,
@@ -11,7 +10,7 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts, nclose, throwsError } from "./predicates";
-import { withNode, withPort, withZone } from "./serviceFixtures";
+import { withPort, withZone } from "./serviceFixtures";
 
 /** Run the original stranded drain, drainage lowering, stranded supply and refusal cases of test_service_wet_zone_drainage in order. The same clean/immersed networks, floor constructor and refusal closure are supplied; no extra test, fixture values or fluid integration is introduced. */
 export function assertWetZoneDrainageLowering(
@@ -258,26 +257,6 @@ export function assertWetZoneDrainageLowering(
           ),
       ],
       [
-        "nonFinite",
-        () =>
-          throwsError(
-            () =>
-              lowerWetZoneDrainage({
-                network: withNode(
-                  clean,
-                  "bath-valve",
-                  (entry: IAutoMovieServiceNode): IAutoMovieServiceNode => ({
-                    ...entry,
-                    position: { x: Number.NaN, y: 2.5, z: 1 },
-                  }),
-                ),
-                zone: "bath-zone",
-                domain: bathFloor(),
-              }),
-            ["stands off the lattice"],
-          ),
-      ],
-      [
         "sourceCollision",
         () =>
           throwsError(
@@ -332,7 +311,6 @@ export function assertWetZoneDrainageLowering(
       unknownDrain: true,
       pastLattice: true,
       beforeLattice: true,
-      nonFinite: true,
       sourceCollision: true,
       drainCollision: true,
     },

@@ -4,7 +4,6 @@ import type {
   IAutoMovieViolationCollector,
 } from "@automovie/interface";
 
-import { isRecord } from "../../validation/isRecord";
 import { validateColor } from "../../validation/validateColor";
 import { validateFogPlacement } from "./validateFogPlacement";
 
@@ -29,10 +28,6 @@ export function resolveStagedFog(
   const path: string = "$input.fogVisibility";
   if (fog !== undefined)
     out.push("type", path, "author either fog or fogVisibility", reference);
-  if (!isRecord(reference)) {
-    out.push("type", path, "fogVisibility must be a JSON object", reference);
-    return undefined;
-  }
 
   const before: number = out.items.length;
   const {

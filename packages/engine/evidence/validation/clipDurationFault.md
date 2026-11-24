@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Type/finiteness admission precedes negativity so malformed numeric representation and negative finite duration retain their distinct established messages.
+Finiteness precedes negativity so a non-finite and a negative duration retain their distinct established messages.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
@@ -14,7 +14,7 @@ Nonfinite and negative values are reported unchanged; zero is an explicit suppor
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States unknown duration input, range-kind field addressing, first-fault order and the sampler/artifact asymmetry.
+States the duration input, range-kind field addressing, first-fault order and the sampler/artifact asymmetry.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

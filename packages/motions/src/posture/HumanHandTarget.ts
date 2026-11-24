@@ -12,7 +12,6 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanFrame } from "./HumanFrame";
 import { HumanHand } from "./HumanHand";
 import { assembleHumanHandTarget } from "./assembleHumanHandTarget";
@@ -208,9 +207,6 @@ export namespace HumanHandTarget {
   /** The alternatives of `HumanHandTargetPrepareMovingPlace2`'s site. */
   type HumanHandTargetPrepareMovingPlace2 = "point" | "normal";
 
-  /** The alternatives of `HumanHandTargetPrepareMovingTrial`'s site. */
-  type HumanHandTargetPrepareMovingTrial = 0 | 1;
-
   /** The alternatives of `HumanHandTargetPrepareMovingPlace`'s site. */
   type HumanHandTargetPrepareMovingPlace = "point" | "normal";
 
@@ -228,10 +224,6 @@ export namespace HumanHandTarget {
         HumanHandTargetPrepareMovingTargetPlaceResult
       >,
       forward?: IAutoMovieVector3,
-      trial?: readonly [
-        AutoMovieMotionHumanBendRepeat.IRead,
-        HumanHandTargetPrepareMovingTargetTrialResult,
-      ],
     ) => IAutoMovieMotionHumanArmTarget.ITarget;
     wrist: (
       posture: IPosture,
@@ -245,9 +237,6 @@ export namespace HumanHandTarget {
 
   /** The alternatives of `HumanHandTargetPrepareMovingWristPlaceResult`'s site. */
   type HumanHandTargetPrepareMovingWristPlaceResult = "point" | "normal";
-
-  /** The alternatives of `HumanHandTargetPrepareMovingTargetTrialResult`'s site. */
-  type HumanHandTargetPrepareMovingTargetTrialResult = 0 | 1;
 
   /** The alternatives of `HumanHandTargetPrepareMovingTargetPlaceResult`'s site. */
   type HumanHandTargetPrepareMovingTargetPlaceResult = "point" | "normal";
@@ -315,10 +304,6 @@ export namespace HumanHandTarget {
           HumanHandTargetPrepareMovingPlace
         >,
         forward?: IAutoMovieVector3,
-        trial?: readonly [
-          AutoMovieMotionHumanBendRepeat.IRead,
-          HumanHandTargetPrepareMovingTrial,
-        ],
       ): IAutoMovieMotionHumanArmTarget.ITarget => {
         const current: ReturnType<typeof frame> = frame(
           posture,
@@ -336,7 +321,6 @@ export namespace HumanHandTarget {
           current.rotation,
           (): IAutoMovieVector3 => current.place(place.point).point,
           emit,
-          trial,
         );
       },
       wrist: (

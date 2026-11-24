@@ -77,7 +77,6 @@ export const validateBuiltEnvironment: (
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
 
-  collector.nonEmpty(`${root}.id`, environment.id, "building id");
   if (environment.version !== 1)
     collector.push(
       "type",
@@ -107,7 +106,6 @@ export const validateBuiltEnvironment: (
   const referencedModelIds: Set<string> = new Set();
   environment.modelReferences.forEach((id: string, index: number): void => {
     const path: string = `${root}.modelReferences[${index}]`;
-    collector.nonEmpty(path, id, "runtime model reference");
     if (modelIds.has(id))
       collector.push(
         "type",
@@ -194,7 +192,6 @@ export const validateBuiltEnvironment: (
   (environment.populations ?? []).forEach(
     (population: IAutoMovieBuiltPopulation, index: number): void => {
       const path: string = `${root}.populations[${index}]`;
-      collector.nonEmpty(`${path}.set.id`, population.set.id, "population id");
       if (populationIds.has(population.set.id))
         collector.push(
           "type",

@@ -15,20 +15,26 @@ const TROOPERS: number = 96;
 /** The trumpet's film second. */
 const CUE: number = 4;
 
-/** Seconds every trooper's horse takes from its first response to the line: one course, so arrival differs only by response. */
+/**
+ * Seconds every trooper's horse takes from its first response to the line: one
+ * course, so arrival differs only by response.
+ */
 const RUN: number = 10;
 
 /**
- * A squadron's arrival at the line spreads as its cohesion preset says: each trooper answers the trumpet after its own drawn reaction, so an elite squadron arrives tighter than a militia one.
+ * A squadron's arrival at the line spreads as its cohesion preset says: each
+ * trooper answers the trumpet after its own drawn reaction, so an elite
+ * squadron arrives tighter than a militia one.
  *
  * Scenarios:
  *
  * 1. Every trooper arrives no earlier than the cue plus the run.
- * 2. The elite squadron's arrival spread, the standard deviation of its arrival seconds, is narrower than the militia's.
+ * 2. The elite squadron's arrival spread, the standard deviation of its arrival
+ *    seconds, is narrower than the militia's.
  * 3. The same seed draws the same arrivals again.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Lists the two squadrons, the trumpet and the three scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `AutoMovieMotionHumanEnsemble.HumanEnsemble.of` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
+ * @evidence contracts/development/testing.md#behavioral-verification Builds real ensembles from the shipped presets with `AutoMovieMotionHumanEnsemble.HumanEnsemble` and draws each member's warned reaction with `HumanResponse.latency` from its own skill, stream and attributes.
  * @evidence contracts/development/testing.md#independent-expectations The presets give the elite a higher, tighter discipline than the militia, and discipline replaces a member's reaction proficiency, so the elite's reactions vary less; one shared course makes arrival spread equal reaction spread.
  * @evidence contracts/development/testing.md#distinguishing-cases The two extreme presets and a replay. The ridden course from response to line is pinned by test_world_cavalry_squadron and test_world_mounted_cues.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
@@ -41,13 +47,13 @@ export function test_world_cavalry_cohesion(): void {
     preset: IAutoMovieMotionHumanEnsemblePreset.Name,
   ): number[] => {
     const squadron: IAutoMovieMotionHumanEnsemble.IEnsemble =
-      AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+      AutoMovieMotionHumanEnsemble.HumanEnsemble({
         id: `squadron-${preset}`,
         seed: "charge",
         count: TROOPERS,
         bodies: [body],
         preset,
-        formation: AutoMovieMotionHumanEnsemble.HumanFormation.of({
+        formation: AutoMovieMotionHumanEnsemble.HumanFormation({
           blocks: [
             {
               layout: {

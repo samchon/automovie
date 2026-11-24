@@ -59,7 +59,7 @@ export function test_motion_support_support_frame(): void {
       at: { x: 2 * seconds, y: 0.3, z: 1 },
       yaw: 90 * seconds,
     });
-  const carry = AutoMovieMotionHumanSupport.carry.of(frame, 0, 1);
+  const carry = AutoMovieMotionHumanSupport.carry(frame, 0, 1);
   const localStep = { x: 0.2, y: 0.3, z: 2 };
   const deckBody = motionHumanBody("m-average");
   const kneePole = deckBody.rest.get("leftLowerLeg")!;
@@ -90,12 +90,12 @@ export function test_motion_support_support_frame(): void {
   checks.check(
     "a released inert object takes the support frame at its event",
     vclose(
-      AutoMovieMotionHumanSupport.carry.of(frame, 0, 1).point(pickup),
+      AutoMovieMotionHumanSupport.carry(frame, 0, 1).point(pickup),
       { x: 3, y: 1, z: 1 },
       1e-9,
     ) &&
       vclose(
-        AutoMovieMotionHumanSupport.carry.of(frame, 0, 0).point(pickup),
+        AutoMovieMotionHumanSupport.carry(frame, 0, 0).point(pickup),
         pickup,
         1e-9,
       ),

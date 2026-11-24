@@ -106,7 +106,9 @@ export namespace standRelaxed {
       "leftUpperArm",
       "rightUpperArm",
     ]);
-    let placeCarried: ReturnType<typeof HumanColliders.preparePlaced> | undefined;
+    let placeCarried:
+      | ReturnType<typeof HumanColliders.preparePlaced>
+      | undefined;
     const shape: (
       resolved: IAutoMoviePose,
       joints: Partial<
@@ -121,7 +123,8 @@ export namespace standRelaxed {
       ...resolved,
       joints: resolved.joints.map(
         (j: IAutoMovieJointPose): IAutoMovieJointPose => {
-          const a: readonly [number, number, number] | undefined = joints[j.bone];
+          const a: readonly [number, number, number] | undefined =
+            joints[j.bone];
           return a === undefined || !DIGIT.test(j.bone)
             ? j
             : { bone: j.bone, flexion: a[0], abduction: a[1], twist: a[2] };
@@ -154,8 +157,10 @@ export namespace standRelaxed {
           );
           if (status !== undefined) return status;
         }
-        const moved: ReadonlyMap<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-          poseBones(body, turned, prepared(), carried);
+        const moved: ReadonlyMap<
+          AutoMovieHumanoidBone,
+          IAutoMovieResolvedBone
+        > = poseBones(body, turned, prepared(), carried);
         return HumanDigitFit.penetrates(body, moved, [
           ...first.still,
           ...placeCarried(moved),

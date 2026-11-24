@@ -30,7 +30,6 @@ export const resolveAutoMovieEnvelopeRequest: (
   request: IAutoMovieEnvelopeRequest,
 ): IAutoMovieEnvironmentInstant | null => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
   ] as const)
@@ -73,15 +72,9 @@ export const resolveAutoMovieEnvelopeRequest: (
     );
   const assemblies: Set<string> = new Set<string>();
   for (const assembly of request.assemblies) {
-    if (assembly.id.trim().length === 0)
-      throw new Error("every envelope assembly must carry a non-blank id");
     if (assemblies.has(assembly.id))
       throw new Error(`envelope assembly "${assembly.id}" is declared twice`);
     assemblies.add(assembly.id);
-    if (assembly.boundary.trim().length === 0)
-      throw new Error(
-        `envelope assembly "${assembly.id}" must name the boundary it realizes`,
-      );
     for (const key of ["interiorFilm", "exteriorFilm", "area"] as const)
       if (!Number.isFinite(assembly[key]) || assembly[key] <= 0)
         throw new Error(
@@ -98,10 +91,6 @@ export const resolveAutoMovieEnvelopeRequest: (
       );
     const layers: Set<string> = new Set<string>();
     for (const layer of assembly.layers) {
-      if (layer.id.trim().length === 0)
-        throw new Error(
-          `every layer of envelope assembly "${assembly.id}" must carry a non-blank id`,
-        );
       if (layers.has(layer.id))
         throw new Error(
           `layer "${layer.id}" of envelope assembly "${assembly.id}" is declared twice`,
@@ -116,8 +105,6 @@ export const resolveAutoMovieEnvelopeRequest: (
   }
   const bridges: Set<string> = new Set<string>();
   for (const bridge of request.bridges) {
-    if (bridge.id.trim().length === 0)
-      throw new Error("every thermal bridge must carry a non-blank id");
     if (bridges.has(bridge.id))
       throw new Error(`thermal bridge "${bridge.id}" is declared twice`);
     bridges.add(bridge.id);

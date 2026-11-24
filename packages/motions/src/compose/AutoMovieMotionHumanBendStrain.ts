@@ -94,10 +94,6 @@ export function AutoMovieMotionHumanBendStrain(
   rotation: IAutoMovieQuaternion | undefined,
   neutral: AutoMovieMotionHumanBendSearch.IAngles | null,
   lowerAxes: IAutoMovieJointAxes,
-  clinical?: (
-    hand: IAutoMovieJointConstraint | null,
-    axes: IAutoMovieJointAxes | undefined,
-  ) => void,
 ): (
   u: AutoMovieMotionHumanBendSearch.IAngles,
   lowerWorld: () => IAutoMovieQuaternion,
@@ -114,7 +110,6 @@ export function AutoMovieMotionHumanBendStrain(
   const hand: IAutoMovieJointConstraint | null = wristOf.range;
   const wrist: number | null = half(hand?.flexion ?? null);
   const handAxes: IAutoMovieJointAxes | undefined = wristOf.axes;
-  clinical?.(hand, handAxes);
   return (
     u: AutoMovieMotionHumanBendSearch.IAngles,
     lowerWorld: () => IAutoMovieQuaternion,

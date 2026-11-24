@@ -7,8 +7,8 @@ import type { IAutoMovieTrim } from "./IAutoMovieTrim";
  *
  * The retained source duration divided by the playback rate gives the output
  * span. The output start is the previous entry's end minus the incoming
- * transition's duration. `cutSequence` requires a nonblank built-shot id, a
- * positive source span inside the shot, a positive finite rate and a
+ * transition's duration. `cutSequence` requires a built-shot id, a positive
+ * source span inside the shot, a positive finite rate and a
  * representable output span. Each overlap must fit both adjacent output spans
  * and leave room for any other overlap in those spans.
  */

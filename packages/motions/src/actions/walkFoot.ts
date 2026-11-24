@@ -15,6 +15,7 @@ import type {
 
 import { AutoMovieMotionHumanAuditContact } from "../audit/AutoMovieMotionHumanAuditContact";
 import { HumanFoot } from "../posture/HumanFoot";
+import { walkFootTakeoff } from "./walkFootTakeoff";
 
 /** The record of `ISwingRates`'s site. */
 type ISwingRates = { pitch: number; toes: number };
@@ -337,8 +338,8 @@ export namespace walkFoot {
     const carriedSeconds: number = (1 - landing) * props.seconds;
     const turnSeconds: number = (stiff ? LEVEL : 0.5) * props.seconds;
     const levelSeconds: number = LEVEL * props.seconds;
-    const departure: IDeparture | undefined =
-      settle > 0 ? takeoffAnchor(body, side, props.from) : undefined;
+    const departure: walkFootTakeoff.IDeparture | undefined =
+      settle > 0 ? walkFootTakeoff(body, side, props.from) : undefined;
     return (share: number): IAutoMovieMotionHumanWalkFoot.IFoot => {
       const u: number = Math.min(1, Math.max(0, share));
       const travel: number = Math.min(1, u / (1 - landing));
@@ -491,36 +492,4 @@ export namespace walkFoot {
    * abstract was reachable.
    */
   export const CLEARANCE: number = 0.015;
-}
-
-/** The actual lowest authored sole socket and its starting position. */
-interface IDeparture {
-  socket: IAutoMovieMotionHumanFoot.Socket;
-  point: IAutoMovieVector3;
-}
-
-/** Pick the stationary sole point from the swing's authored release posture. */
-function takeoffAnchor(
-  body: IAutoMovieMotionHumanBody,
-  side: AutoMovieHumanSide,
-  from: walkFoot.IEnd,
-): IDeparture {
-  const anchor: IDeparture = {
-    socket: "heel",
-    point: HumanFoot.point(body, side, "heel", from),
-  };
-  for (const socket of ["ball", "toe"] as const) {
-    const point: IAutoMovieVector3 = HumanFoot.point(
-      body,
-      side,
-      socket,
-      from,
-      from.toes,
-    );
-    if (point.y < anchor.point.y) {
-      anchor.socket = socket;
-      anchor.point = point;
-    }
-  }
-  return anchor;
 }

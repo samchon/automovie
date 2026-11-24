@@ -13,17 +13,13 @@ type ISphereResult = { centre: IAutoMovieVector3; radius: number };
 
 /**
  * A hull's face planes packed four numbers each, the normal then the offset, in
- * the hull's own frame: the same for every posed frame of the same hull, so
- * packed once per hull's points and shared by every framing of it (a fit frames
- * a fresh pose's colliders, the planes do not move with it).
+ * the hull's own frame: the same for every posed frame of the same hull (a fit
+ * frames a fresh pose's colliders, the planes do not move with it).
  */
 function planes(points: readonly IAutoMovieVector3[]): Float64Array {
-  const known: Float64Array | undefined = PLANES.get(points);
-  if (known !== undefined) return known;
   const faces: IAutoMoviePhysicalHullFaces.IHull["faces"] =
     physicalHullFaces(points).faces;
-  const ArrayType: Float64ArrayConstructor = Float64Array;
-  const packed: Float64Array = new ArrayType(4 * faces.length);
+  const packed: Float64Array = new Float64Array(4 * faces.length);
   faces.forEach(
     (face: IAutoMoviePhysicalHullFaces.IFace, index: number): void => {
       packed[4 * index] = face.normal.x;
@@ -32,8 +28,6 @@ function planes(points: readonly IAutoMovieVector3[]): Float64Array {
       packed[4 * index + 3] = face.offset;
     },
   );
-  PLANES.set(points, packed);
-  if (ArrayType === DOUBLE) NATIVE_PLANES.add(packed);
   return packed;
 }
 
@@ -47,7 +41,7 @@ export function HumanShapeFraming(
   pose: IAutoMovieMotionHumanColliders.IPlaced["pose"],
   shape: IAutoMovieMotionHumanColliders.IPlaced["shapes"][number],
 ): HumanShapeFraming.IFramed {
-  const found: HumanShapeFraming.IFramed = {
+  return {
     ...HumanShapeFraming.sphere(pose, shape),
     lead: 0,
     ...(shape.kind === "hull"
@@ -63,25 +57,13 @@ export function HumanShapeFraming(
         }
       : {}),
   };
-  if (
-    found.faces !== undefined &&
-    found.origin !== undefined &&
-    found.inverse !== undefined
-  )
-    BEND_FRAMES.set(found, {
-      centre: found.centre,
-      origin: found.origin,
-      inverse: found.inverse,
-    });
-  return found;
 }
 
 /**
  * A placed collider shape's bounding sphere and, for a hull, its face planes in
  * its own frame: the bounds a clearance reading tests a point against before it
  * asks the exact distance (`HumanArmOvershoot`), and the sphere a trajectory's
- * shape list screens by (`HumanArmShapes`). Each posed frame's shapes are
- * framed once and kept while the frame lives.
+ * shape list screens by (`HumanArmShapes`).
  */
 export namespace HumanShapeFraming {
   /**
@@ -112,48 +94,6 @@ export namespace HumanShapeFraming {
      * tried first: a sweep's next point mostly lies beyond the same face.
      */
     lead: number;
-  }
-
-  /**
-   * Return the current packed planes only if their original indexed reads are
-   * plain.
-   */
-  export function bendPlanes(
-    points: readonly IAutoMovieVector3[],
-    frame: IFramed,
-  ): Float64Array | undefined {
-    const receipt: IAutoMovieBendFrame | undefined = BEND_FRAMES.get(frame);
-    if (
-      receipt === undefined ||
-      Object.getOwnPropertyDescriptor(frame, "centre")?.value !==
-        receipt.centre ||
-      Object.getOwnPropertyDescriptor(frame, "origin")?.value !==
-        receipt.origin ||
-      Object.getOwnPropertyDescriptor(frame, "inverse")?.value !==
-        receipt.inverse
-    )
-      return undefined;
-    const radius: PropertyDescriptor | undefined =
-      Object.getOwnPropertyDescriptor(frame, "radius");
-    const lead: PropertyDescriptor | undefined =
-      Object.getOwnPropertyDescriptor(frame, "lead");
-    if (
-      typeof radius?.value !== "number" ||
-      typeof lead?.value !== "number" ||
-      lead.writable !== true
-    )
-      return undefined;
-    const array: Float64Array | undefined = PLANES.get(points);
-    return array !== undefined &&
-      NATIVE_PLANES.has(array) &&
-      Object.getOwnPropertyDescriptor(frame, "faces")?.value === array &&
-      Object.getPrototypeOf(array) === DOUBLE.prototype &&
-      Object.getPrototypeOf(DOUBLE.prototype) === TYPED &&
-      !Object.hasOwn(array, "length") &&
-      !Object.hasOwn(DOUBLE.prototype, "length") &&
-      Object.getOwnPropertyDescriptor(TYPED, "length")?.get === LENGTH
-      ? array
-      : undefined;
   }
 
   /**
@@ -240,29 +180,3 @@ export namespace HumanShapeFraming {
   }
 }
 
-/**
- * Each hull's packed face planes in its own frame, by its points, kept while
- * the points live (`planes`).
- */
-const PLANES: WeakMap<readonly IAutoMovieVector3[], Float64Array> =
-  new WeakMap();
-
-/** The producer identity of the broad-phase planes. */
-const DOUBLE: Float64ArrayConstructor = Float64Array;
-const TYPED: object = Object.getPrototypeOf(DOUBLE.prototype);
-const LENGTH: (() => unknown) | undefined = Object.getOwnPropertyDescriptor(
-  TYPED,
-  "length",
-)?.get;
-const NATIVE_PLANES: WeakSet<Float64Array> = new WeakSet();
-
-/** Native broad frame vectors, checked by identity before inspection. */
-interface IAutoMovieBendFrame {
-  centre: IAutoMovieVector3;
-  origin: IAutoMovieVector3;
-  inverse: IAutoMovieQuaternion;
-}
-
-/** Original broad frame vectors retained only with their frame. */
-const BEND_FRAMES: WeakMap<HumanShapeFraming.IFramed, IAutoMovieBendFrame> =
-  new WeakMap();

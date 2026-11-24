@@ -1,9 +1,5 @@
-import {
-  samplePhysicalContactEvents,
-  validateClipArtifact,
-} from "@automovie/engine";
+import { samplePhysicalContactEvents } from "@automovie/engine";
 import type {
-  IAutoMovieConstraintViolation,
   IAutoMovieContactReceipt,
   IAutoMoviePhysicalFrame,
 } from "@automovie/interface";
@@ -18,14 +14,14 @@ import { IDENTITY_TRANSFORM } from "../internal/fixtures";
 import { nclose } from "../internal/predicates";
 
 /**
- * Observe a placed native scene, raw compiled track faults and separately
+ * Observe a placed native scene and separately
  * declared contact and continuity evidence at exact film seconds.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Describes actual native placement, independent source expectations and the witness clock.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public observer over a real Three graph and typed Engine clip/contact facts. Verifies malformed active transforms, a measured support gap despite received impulse, a declared native grip breach, and excluded or unsupported relations.
  * @evidence contracts/development/testing.md#independent-expectations The quarter-turn deck places a target at world (10,4,5). The socket is displaced by 0.125 m along its rotated normal, the prop is 0.25 m too far in the rotating hand, and all effect intervals and receipt clocks are explicit fixture values.
  * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a valid manual matrix with stale TRS against actual matrix corruption, an earlier seek against later completed impulse, and deliberate cut against eligible same-clock edge. Generated adapters and browser presentation belong to host tests.
- * @evidence contracts/development/testing.md#execution-ownership The named Engine/Render unit owns its in-memory scene graph, authored rules, track and completed receipts. It starts no solver, browser or renderer and does not replace any global.
+ * @evidence contracts/development/testing.md#execution-ownership The named Engine/Render unit owns its in-memory scene graph, authored rules and completed receipts. It starts no solver, browser or renderer and does not replace any global.
  */
 export function test_inspection_placed_scene(): void {
   const scene = new Scene();
@@ -130,25 +126,6 @@ export function test_inspection_placed_scene(): void {
     ],
   };
   const received = samplePhysicalContactEvents(receipt, time.filmSeconds)[0]!;
-  const track: IAutoMovieConstraintViolation[] = [];
-  const trackPath = "entries[2].objectMotions[0]";
-  validateClipArtifact(
-    {
-      id: "lantern-motion",
-      duration: 1,
-      loop: "once",
-      tracks: [
-        {
-          channel: { kind: "node", node: "lantern", path: "translation" },
-          times: [0, 1],
-          values: [0],
-          interpolation: "linear",
-        },
-      ],
-    },
-    trackPath,
-    track,
-  );
   const edge = {
     kind: "step",
     path: "lantern.transform",
@@ -199,11 +176,6 @@ export function test_inspection_placed_scene(): void {
     },
     { key: "lantern:continuous", required: true, input: edge },
     { key: "lantern:cut", required: true, input: { ...edge, boundary: "cut" } },
-    {
-      key: "lantern:track",
-      required: true,
-      input: { kind: "track", path: trackPath, violations: track },
-    },
   ];
   const placed = observeAutoMoviePlacedScene({ scene, camera, time, checks });
   const gap = placed.findings.find(({ check }) => check === "support");
@@ -243,15 +215,6 @@ export function test_inspection_placed_scene(): void {
       step.witness.time.outputFrame === undefined &&
       placed.coverage.some(
         ({ key, status }) => key === "lantern:cut" && status === "excluded",
-      ),
-  );
-  TestValidator.predicate(
-    "compiled raw-track error retains source paths after successful display placement",
-    () =>
-      placed.findings.some(
-        ({ check, paths }) =>
-          check === "authored-track" &&
-          paths.some((path) => path.startsWith(trackPath + ".tracks[0]")),
       ),
   );
   const earlier = observeAutoMoviePlacedScene({

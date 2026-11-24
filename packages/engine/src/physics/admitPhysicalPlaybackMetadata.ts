@@ -6,8 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-
 /**
  * Refuse malformed causal metadata even when an archive has a valid integrity
  * trailer.
@@ -166,8 +164,7 @@ export function admitPhysicalPlaybackMetadata(
           !Number.isFinite(sample.impulse) ||
           sample.impulse < 0 ||
           (sample.appliedImpulse !== undefined &&
-            (!isAutoMovieRecord(sample.appliedImpulse) ||
-              ![sample.appliedImpulse.a, sample.appliedImpulse.b].every(
+            (![sample.appliedImpulse.a, sample.appliedImpulse.b].every(
                 (impulse: number): boolean =>
                   Number.isFinite(impulse) && impulse >= 0,
               ))) ||

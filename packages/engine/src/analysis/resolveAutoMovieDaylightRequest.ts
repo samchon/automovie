@@ -41,7 +41,6 @@ export const resolveAutoMovieDaylightRequest: (
   request: IAutoMovieDaylightRequest,
 ): IAutoMovieResolveDaylightRequest.IResult => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
     ["sky model", request.sky],
@@ -109,8 +108,6 @@ export const resolveAutoMovieDaylightRequest: (
     );
   const luminaires: Set<string> = new Set<string>();
   for (const luminaire of request.luminaires) {
-    if (luminaire.id.trim().length === 0)
-      throw new Error("every luminaire must carry a non-blank id");
     if (luminaires.has(luminaire.id))
       throw new Error(`luminaire id "${luminaire.id}" is declared twice`);
     luminaires.add(luminaire.id);

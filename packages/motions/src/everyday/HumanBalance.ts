@@ -1,6 +1,4 @@
 import {
-  Quaternion,
-  Vector3,
   bracketedBisection,
   bracketedRoot,
   convexHull2D,
@@ -12,12 +10,10 @@ import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanBalance,
   IAutoMovieMotionHumanBody,
-  IAutoMovieMotionHumanFoot,
   IAutoMovieMotionHumanPosture,
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { HumanPhysics } from "../law/HumanPhysics";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
 import { poseBones } from "../posture/poseBones";
@@ -25,6 +21,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanBalanceExtrapolated } from "./HumanBalanceExtrapolated";
+import { HumanBalanceReading } from "./HumanBalanceReading";
 import { prepareHumanBalanceCentre } from "./prepareHumanBalanceCentre";
 
 /** The record of `IShiftDown`'s site. */
@@ -91,7 +88,7 @@ export namespace HumanBalance {
   ): number {
     // Each shift is read once within a call: the searches below revisit
     // their brackets' ends.
-    const read0: Map<number, IReading> = new Map();
+    const read0: Map<number, HumanBalanceReading.IReading> = new Map();
     const resolution: ReturnType<typeof prepareHumanPoseResolution> =
       prepareHumanPoseResolution();
     const projection: ReturnType<typeof prepareHumanPostureProjection> =
@@ -103,10 +100,12 @@ export namespace HumanBalance {
         model ??= prepareAutoMovieMassModel(body.massModel);
         return model;
       };
-    const at: (back: number) => IReading = (back: number): IReading => {
-      let r: IReading | undefined = read0.get(back);
+    const at: (back: number) => HumanBalanceReading.IReading = (
+      back: number,
+    ): HumanBalanceReading.IReading => {
+      let r: HumanBalanceReading.IReading | undefined = read0.get(back);
       if (r === undefined) {
-        r = read(
+        r = HumanBalanceReading.read(
           body,
           build(back),
           resolution,
@@ -125,7 +124,7 @@ export namespace HumanBalance {
       return r;
     };
     try {
-      const start: IReading = at(0);
+      const start: HumanBalanceReading.IReading = at(0);
       const span: number = range * body.measure.hipHeight;
       if (target === undefined && start.margin >= 0) return 0;
       const nearest: (back: number) => number = (back: number): number => {
@@ -144,7 +143,7 @@ export namespace HumanBalance {
         return supported;
       };
       if (start.candidate !== undefined && Math.abs(start.candidate) <= span) {
-        const landed: IReading = at(start.candidate);
+        const landed: HumanBalanceReading.IReading = at(start.candidate);
         if (landed.margin >= 0 && landed.flat === start.flat)
           return nearest(start.candidate);
       }
@@ -160,12 +159,12 @@ export namespace HumanBalance {
       const first: (
         from: number,
         sign: number,
-        error: (r: IReading) => number,
+        error: (r: HumanBalanceReading.IReading) => number,
         smooth: boolean,
       ) => IShiftFirst = (
         from: number,
         sign: number,
-        error: (r: IReading) => number,
+        error: (r: HumanBalanceReading.IReading) => number,
         smooth: boolean,
       ): IShiftFirstResult => {
         const near: number = error(at(from));
@@ -190,19 +189,20 @@ export namespace HumanBalance {
               ),
         };
       };
-      const ahead: (r: IReading) => number = (r: IReading): number =>
-        r.offset - (target ?? 0);
+      const ahead: (r: HumanBalanceReading.IReading) => number = (
+        r: HumanBalanceReading.IReading,
+      ): number => r.offset - (target ?? 0);
       // Flat feet first: a heel the planted leg lifted is brought down by
       // moving the hips back; on flat feet a centre ahead of the target is
       // brought back to it, and one behind it is left while it lies inside.
       const down: IShiftDown = first(
         0,
         1,
-        (r: IReading): number => (r.flat ? 0 : 1),
+        (r: HumanBalanceReading.IReading): number => (r.flat ? 0 : 1),
         false,
       );
       if (down.found) {
-        const landed: IReading = at(down.back);
+        const landed: HumanBalanceReading.IReading = at(down.back);
         if (ahead(landed) > 0)
           return nearest(first(down.back, 1, ahead, true).back);
         if (landed.margin > 0) return nearest(down.back);
@@ -212,7 +212,12 @@ export namespace HumanBalance {
       if (ahead(start) > 0) return nearest(first(0, 1, ahead, true).back);
       if (start.margin > 0) return 0;
       return nearest(
-        first(0, -1, (r: IReading): number => -ahead(r), true).back,
+        first(
+          0,
+          -1,
+          (r: HumanBalanceReading.IReading): number => -ahead(r),
+          true,
+        ).back,
       );
     } finally {
       if (model !== undefined) prepareAutoMovieMassModel.release(model);
@@ -233,7 +238,10 @@ export namespace HumanBalance {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): number {
-    const placed: IPlaced = placement(body, posture);
+    const placed: HumanBalanceReading.IPlaced = HumanBalanceReading.placement(
+      body,
+      posture,
+    );
     return resolveAutoMovieCenterOfMass.margin(placed.centre, placed.base);
   }
 
@@ -336,7 +344,7 @@ export namespace HumanBalance {
     projection?: ReturnType<typeof prepareHumanPostureProjection>,
     sides?: readonly AutoMovieHumanSide[],
   ): IAutoMovieMotionHumanBalance.ISupport {
-    const placed: IPlaced = placement(
+    const placed: HumanBalanceReading.IPlaced = HumanBalanceReading.placement(
       body,
       posture,
       resolution,
@@ -408,152 +416,9 @@ export namespace HumanBalance {
     body: IAutoMovieMotionHumanBody,
     posture: IAutoMovieMotionHumanPosture,
   ): number {
-    return projected(placement(body, posture), posture.yaw);
+    return HumanBalanceReading.projected(
+      HumanBalanceReading.placement(body, posture),
+      posture.yaw,
+    );
   }
-}
-
-/**
- * A posture's balance: `HumanBalance.offset` and `HumanBalance.margin`, metres,
- * and whether both heels bear.
- */
-interface IReading {
-  /**
-   * How far the centre of mass lies ahead of the base's middle along the
-   * heading, metres.
-   */
-  offset: number;
-
-  /** The static margin of stability, metres, positive inside the base. */
-  margin: number;
-
-  /** Whether both heels bear. */
-  flat: boolean;
-
-  /**
-   * Rigid backward translation to the closest reachable boundary, when
-   * requested.
-   */
-  candidate?: number;
-}
-
-/** A posture's balance, read on one solve of it. */
-function read(
-  body: IAutoMovieMotionHumanBody,
-  posture: IAutoMovieMotionHumanPosture,
-  resolution: ReturnType<typeof prepareHumanPoseResolution>,
-  projection: ReturnType<typeof prepareHumanPostureProjection>,
-  frames?: ReturnType<typeof poseBones.prepare>,
-  mass?: () => prepareAutoMovieMassModel.IPrepared,
-  propose: boolean = false,
-): IReading {
-  const placed: IPlaced = placement(
-    body,
-    posture,
-    resolution,
-    projection,
-    frames,
-    mass,
-  );
-  const margin: number = resolveAutoMovieCenterOfMass.margin(
-    placed.centre,
-    placed.base,
-  );
-  const candidate: HumanPhysics.SupportOffset =
-    propose && margin < 0
-      ? HumanPhysics.supportOffset(
-          { centre: placed.centre, points: placed.base },
-          heading(posture.yaw),
-        )
-      : null;
-  return {
-    offset: projected(placed, posture.yaw),
-    margin,
-    ...(candidate === null ? {} : { candidate: -candidate }),
-
-    // A heel bears within the bearing height of the lowest sole socket.
-    flat: (["left", "right"] as const).every(
-      (side: AutoMovieHumanSide): boolean => {
-        const sockets: readonly IAutoMovieMotionHumanFoot.ISocket[] =
-          placed.feet.sockets(side);
-        return (
-          sockets[0]!.point.y <=
-          Math.min(sockets[1]!.point.y, sockets[2]!.point.y) + HumanFoot.BEARING
-        );
-      },
-    ),
-  };
-}
-
-/** Common solved geometry needed by all static balance measurements. */
-interface IPlaced {
-  /** Borrowed sole geometry bound to this trial's complete displayed FK. */
-  feet: ReturnType<typeof HumanFoot.reading>;
-
-  /** Actual whole-body mass centre in world metres. */
-  centre: IAutoMovieVector3;
-
-  /** Original foot-outline bearing points in their original order. */
-  base: IAutoMovieVector3[];
-}
-
-/** Solve once and prepare only the common mass-centre and support geometry. */
-function placement(
-  body: IAutoMovieMotionHumanBody,
-  posture: IAutoMovieMotionHumanPosture,
-  resolution?: Parameters<typeof prepareHumanPoseResolution>[0],
-  projection?: ReturnType<typeof prepareHumanPostureProjection>,
-  frames?: ReturnType<typeof poseBones.prepare>,
-  mass?: () => prepareAutoMovieMassModel.IPrepared,
-  sides?: readonly AutoMovieHumanSide[],
-): IPlaced {
-  const read: ReturnType<typeof prepareHumanPoseResolution> =
-    prepareHumanPoseResolution(resolution);
-  const pose: ReturnType<typeof resolveHumanPosture> =
-    resolveHumanPosture.seeded(
-      body,
-      posture,
-      undefined,
-      {},
-      read,
-      undefined,
-      projection,
-    ).pose;
-  const bones: ReturnType<typeof poseBones> =
-    frames === undefined ? poseBones(body, pose, read()) : frames(pose, read());
-  const feet: ReturnType<typeof HumanFoot.reading> = HumanFoot.reading(
-    body,
-    bones,
-  );
-  return {
-    feet,
-    centre:
-      mass === undefined
-        ? resolveAutoMovieCenterOfMass.place(body.massModel, bones)
-        : prepareAutoMovieMassModel.place(mass(), bones),
-    base: feet.base(sides),
-  };
-}
-
-/**
- * Project the same mass centre and base on the heading without a hull or heel
- * query.
- */
-function projected(placed: IPlaced, yaw: number): number {
-  const forward: IAutoMovieVector3 = heading(yaw);
-  let rear: number = Infinity;
-  let front: number = -Infinity;
-  for (const p of placed.base) {
-    const along: number = Vector3.dot(p, forward);
-    rear = Math.min(rear, along);
-    front = Math.max(front, along);
-  }
-  return Vector3.dot(placed.centre, forward) - (rear + front) / 2;
-}
-
-/** World heading of a yaw, used by the support's directional reads. */
-function heading(yaw: number): IAutoMovieVector3 {
-  return Quaternion.rotateVector(
-    Quaternion.fromAxisAngle({ x: 0, y: 1, z: 0 }, yaw),
-    { x: 0, y: 0, z: 1 },
-  );
 }

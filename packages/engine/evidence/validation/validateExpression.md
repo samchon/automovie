@@ -6,7 +6,7 @@ Admit preset/channel membership, intensity/weight ranges and duplicate ARKit cha
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Module-fixed vocabularies and a request-local seen set separate closed menus from per-expression uniqueness.
+A request-local seen set owns per-expression uniqueness.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
@@ -18,7 +18,7 @@ Optional caller path/collector compose errors with parent validators; weights us
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-B blendshape rows cost expected O(B) membership work and O(B) seen storage.
+B blendshape rows cost expected O(B) seen lookups and storage.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

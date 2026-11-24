@@ -361,22 +361,13 @@ export function courseArmGoal(
     ...plan,
     posture: composed.posture,
     ...(composed.follows === undefined ? {} : { follows: composed.follows }),
+    goals: plan,
   };
-  courseArmGoal.SOURCES.set(coursed, plan);
   return coursed;
 }
 
 /** Companion types, records and readers of `courseArmGoal`. */
 export namespace courseArmGoal {
-  /**
-   * Each coursed plan's law plan, whose posture still writes the arm's goal
-   * (`goals`).
-   */
-  export const SOURCES: WeakMap<
-    IAutoMovieMotionHumanActionPlan,
-    IAutoMovieMotionHumanActionPlan
-  > = new WeakMap();
-
   /**
    * The plan whose posture writes the arm's goal: a coursed plan's law plan,
    * any other plan itself. A law-side judgement of the goal (a strike's event
@@ -389,7 +380,7 @@ export namespace courseArmGoal {
   export function goals(
     plan: IAutoMovieMotionHumanActionPlan,
   ): IAutoMovieMotionHumanActionPlan {
-    return SOURCES.get(plan) ?? plan;
+    return plan.goals ?? plan;
   }
   /** The alternatives of `CourseArmGoalArm`'s site. */
   type CourseArmGoalArm =

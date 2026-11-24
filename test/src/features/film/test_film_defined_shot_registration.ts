@@ -12,8 +12,8 @@ import { namedFacts } from "../internal/predicates";
 /**
  * The host capabilities the boundary carries.
  *
- * Every case here fails before the runtime is read -- registration, a throwing
- * boundary, a throwing builder -- so the shape only has to exist.
+ * Every case here fails before the runtime is read -- a throwing builder -- so
+ * the shape only has to exist.
  */
 const runtime: () => IAutoMovieEngineShotRuntime =
   (): IAutoMovieEngineShotRuntime =>
@@ -56,28 +56,18 @@ const codes: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (
         ): IAutoMovieAuthoringDiagnostic["code"] => diagnostic.code,
       );
 
-const paths: (compiled: IAutoMovieCompiledDefinedShot) => string[] = (
-  compiled: IAutoMovieCompiledDefinedShot,
-): string[] =>
-  compiled.success === true
-    ? []
-    : compiled.diagnostics.map(
-        (diagnostic: IAutoMovieAuthoringDiagnostic): string => diagnostic.path,
-      );
-
 /**
- * Shot registration faults and builder throws remain structured compilation diagnostics.
+ * Shot builder throws remain structured compilation diagnostics.
  *
  * Scenarios:
- * 1. Blank id, scene and contract beat identify their fields; three blanks produce three diagnostics.
- * 2. A missing contract becomes pipeline-failed at $shot, and a throwing builder becomes builder-failed carrying its thrown text.
- * 3. Re-registering preserves the new argument id, including refusal of a blank new id.
+ * 1. A throwing builder becomes builder-failed carrying its thrown text.
+ * 2. Re-registering preserves the new argument id.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls defineShot and compileDefinedShot and observes diagnostic codes, paths, counts and thrown text, catching an overwritten registration address or an exception escaping these early boundaries.
- * @evidence contracts/development/testing.md#independent-expectations The registration contract requires nonblank addresses and gives the explicit id argument precedence; exception translation names registration or build. Expected paths and messages are authored literals, not output snapshots. The partial runtime is never read by these failing phases.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers separate and combined blank fields, a missing contract, a throwing builder and valid/blank re-registration ids. Successful staging, performance and continuity are exercised by the defined-shot tests; this entry does not execute those later phases.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls defineShot and compileDefinedShot and observes diagnostic codes and thrown text, catching an overwritten registration address or an exception escaping the build boundary.
+ * @evidence contracts/development/testing.md#independent-expectations The registration contract gives the explicit id argument precedence; exception translation names the build. Expected codes and messages are authored literals, not output snapshots. The partial runtime is never read by these failing phases.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers a throwing builder and a re-registration id. Successful staging, performance and continuity are exercised by the defined-shot tests; this entry does not execute those later phases.
  * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns its named facts and calls portable engine source; namedFacts evaluates in order and stops at its first false fact. It starts no host, renderer or generated project.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Blank id, scene and contract beat identify their fields; three blanks produce three diagnostics.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A throwing builder becomes builder-failed carrying its thrown text.).
  */
 export function test_film_defined_shot_registration(): void {
   const thrown: IAutoMovieCompiledDefinedShot = compile(
@@ -90,48 +80,6 @@ export function test_film_defined_shot_registration(): void {
   TestValidator.equals(
     "the shot boundary reports author mistakes as diagnostics, never as stacks",
     namedFacts([
-      [
-        "blankIdIsRegistrationInvalid",
-        (): boolean => {
-          const compiled: IAutoMovieCompiledDefinedShot = compile(
-            registered({ id: "  " }),
-          );
-          return (
-            codes(compiled).join(",") === "registration-invalid" &&
-            paths(compiled).join(",") === "$shot.id"
-          );
-        },
-      ],
-      [
-        "blankSceneIsRegistrationInvalid",
-        (): boolean =>
-          paths(compile(registered({ scene: "" }))).join(",") === "$shot.scene",
-      ],
-      [
-        "blankBeatIsRegistrationInvalid",
-        (): boolean =>
-          paths(compile(registered({ contract: { beat: " " } }))).join(",") ===
-          "$shot.contract.beat",
-      ],
-      [
-        "everyBlankFieldIsReported",
-        (): boolean =>
-          paths(
-            compile(registered({ id: "", scene: "", contract: { beat: "" } })),
-          ).length === 3,
-      ],
-      [
-        "aThrowingBoundaryBecomesPipelineFailed",
-        (): boolean => {
-          const compiled: IAutoMovieCompiledDefinedShot = compile(
-            registered({ contract: undefined }) as IAutoMovieDefinedShot<null>,
-          );
-          return (
-            codes(compiled).join(",") === "pipeline-failed" &&
-            paths(compiled).join(",") === "$shot"
-          );
-        },
-      ],
       [
         "aThrowingBuilderBecomesBuilderFailed",
         (): boolean => codes(thrown).join(",") === "builder-failed",
@@ -147,23 +95,11 @@ export function test_film_defined_shot_registration(): void {
         (): boolean =>
           defineShot<null>("renamed", registered()).id === "renamed",
       ],
-      [
-        "aBlankReregisteredIdIsRegistrationInvalid",
-        (): boolean =>
-          paths(compile(defineShot<null>(" ", registered()))).join(",") ===
-          "$shot.id",
-      ],
     ]),
     {
-      blankIdIsRegistrationInvalid: true,
-      blankSceneIsRegistrationInvalid: true,
-      blankBeatIsRegistrationInvalid: true,
-      everyBlankFieldIsReported: true,
-      aThrowingBoundaryBecomesPipelineFailed: true,
       aThrowingBuilderBecomesBuilderFailed: true,
       theBuilderFailureCarriesItsText: true,
       theRegistrationIdOutranksTheDefinitionId: true,
-      aBlankReregisteredIdIsRegistrationInvalid: true,
     },
   );
 }

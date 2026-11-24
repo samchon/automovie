@@ -26,6 +26,7 @@ import { AutoMovieMotionHumanAuditSkin } from "./AutoMovieMotionHumanAuditSkin";
 import { AutoMovieMotionHumanAuditSpin } from "./AutoMovieMotionHumanAuditSpin";
 import { AutoMovieMotionHumanAuditStatics } from "./AutoMovieMotionHumanAuditStatics";
 import { AutoMovieMotionHumanAuditTiming } from "./AutoMovieMotionHumanAuditTiming";
+import { HumanVerdictsSpan } from "./HumanVerdictsSpan";
 import { solvedHumanAuditSpans } from "./solvedHumanAuditSpans";
 
 /** The alternatives of `OfPlaceResult`'s site. */
@@ -60,7 +61,7 @@ export function HumanVerdicts(
   HumanBound.within("span.from", from, 0, performance.duration, "s");
   HumanBound.within("span.to", to, from, performance.duration, "s");
   const remembered: IAutoMovieMotionHumanAuditMotion = remember(performance);
-  const motion: IAutoMovieMotionHumanAuditMotion = shifted(
+  const motion: IAutoMovieMotionHumanAuditMotion = HumanVerdictsSpan(
     remembered,
     from,
     to,
@@ -160,7 +161,7 @@ export function HumanVerdicts(
         from,
         to,
       )) {
-        const piece: IAutoMovieMotionHumanAuditMotion = shifted(
+        const piece: IAutoMovieMotionHumanAuditMotion = HumanVerdictsSpan(
           remembered,
           a,
           b,
@@ -371,52 +372,6 @@ const isAirborne = (
   spans.some((s): boolean =>
     HumanVerdicts.AIRBORNE.includes(s.law.family ?? s.name),
   );
-
-/**
- * A motion's span from `from` to `to` as a motion of its own: its seconds start
- * at `from`, and its actions' spans are moved by as much.
- */
-const shifted = (
-  motion: IAutoMovieMotionHumanAuditMotion,
-  from: number,
-  to: number,
-): IAutoMovieMotionHumanAuditMotion =>
-  from === 0 && to === motion.duration
-    ? motion
-    : {
-        duration: to - from,
-        bones: (
-          subject: string,
-          seconds: number,
-        ): ReturnType<IAutoMovieMotionHumanAuditMotion["bones"]> =>
-          motion.bones(subject, from + seconds),
-        ...(motion.support === undefined
-          ? {}
-          : {
-              support: (
-                support: IAutoMovieMotionHumanContactWindow.Support,
-                seconds: number,
-              ): IAutoMovieRigidTransform =>
-                motion.support!(support, from + seconds),
-            }),
-        ...(motion.water === undefined
-          ? {}
-          : {
-              water: (subject: string, seconds: number): boolean =>
-                motion.water!(subject, from + seconds),
-            }),
-        segments: (subject: string): IAutoMovieMotionHumanAuditMotion.ISpan[] =>
-          motion.segments(subject).map(
-            (
-              span: IAutoMovieMotionHumanAuditMotion.ISpan,
-            ): IAutoMovieMotionHumanAuditMotion.ISpan => ({
-              ...span,
-              start: span.start - from,
-              entryTime: span.entryTime - from,
-              end: span.end - from,
-            }),
-          ),
-      };
 
 /**
  * Whether an action carries a person in water at a film second: the action that

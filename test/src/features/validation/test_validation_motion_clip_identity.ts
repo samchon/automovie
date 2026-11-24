@@ -7,15 +7,15 @@ import { createValidMotion } from "../internal/createValidMotion";
 import { hasViolation } from "../internal/hasViolation";
 
 /**
- * Clip identity, rig selection and repetition are validated at the clip envelope.
+ * Rig selection is validated at the clip envelope.
  *
  * Scenarios:
  * 1. Either boolean repetition value admits the authored elbow movement.
- * 2. A blank identity, different rig or forged flag identifies the failing field.
+ * 2. A different rig identifies the failing field.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Observes public validation and exact field findings.
  * @evidence contracts/development/testing.md#independent-expectations The rig has a known id and repetition accepts booleans.
- * @evidence contracts/development/testing.md#distinguishing-cases Changes one field at a time against the same admitted clip.
+ * @evidence contracts/development/testing.md#distinguishing-cases Changes one field against the same admitted clip.
  * @evidence contracts/development/testing.md#execution-ownership Uses a single in-memory rig.
  * @evidence contracts/development/common.md#meaningful-documentation Lists accepted neighbors and independent refusals.
  */
@@ -29,9 +29,7 @@ export function test_validation_motion_clip_identity(): void {
       true,
     );
   const cases: Array<[Partial<IAutoMovieMotion>, string]> = [
-    [{ id: " " }, "$input.id"],
     [{ skeleton: skeleton.id + "-other" }, "$input.skeleton"],
-    [{ loop: "false" as unknown as boolean }, "$input.loop"],
   ];
   for (const [change, path] of cases) {
     const result = validateMotion({

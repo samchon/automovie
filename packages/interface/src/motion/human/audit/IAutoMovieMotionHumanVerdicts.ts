@@ -12,7 +12,7 @@ import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMoti
  * (`HumanSignature`) and the stills show no flaw.
  *
  * ```ts
- * const report = HumanVerdicts.of(performance);
+ * const report = HumanVerdicts(performance);
  * if (!report.clean) throw new Error(HumanVerdicts.describe(report));
  * ```
  *
@@ -37,8 +37,8 @@ import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMoti
  * - `unloaded`: a foot no plant on the ground holds dorsiflexes no further than
  *   an ankle bearing no weight does (`ANKLE_DORSIFLEXION.unloaded`), within
  *   `ROM_TOLERANCE`.
- * - `turn`: no bone snaps by more than 5 degrees, the turn left once an
- *   interval is halved until a smooth turn is gone
+ * - `turn`: no bone snaps by more than 5 degrees, the turn left once an interval
+ *   is halved until a smooth turn is gone
  *   (`AutoMovieMotionHumanAuditSpin.SNAP`).
  * - `partner`: two people do not pass more than 10 mm into each other.
  *
@@ -47,11 +47,11 @@ import type { IAutoMovieMotionHumanPerformance } from "../perform/IAutoMovieMoti
  *
  * Each reading is in its bound's own unit, the one its audit owner states:
  *
- * - metres: `tangle`, `floor`, `slip`, `lift`, `jump`, `reversal`, `balance`,
+ * - Metres: `tangle`, `floor`, `slip`, `lift`, `jump`, `reversal`, `balance`,
  *   `afloat`, `statics` and `partner`;
- * - metres per second: `speed`, `skate` and `loose`;
- * - degrees: `range`, `unloaded` and `turn`;
- * - none: `timing`, whose finding reads zero.
+ * - Metres per second: `speed`, `skate` and `loose`;
+ * - Degrees: `range`, `unloaded` and `turn`;
+ * - None: `timing`, whose finding reads zero.
  */
 export namespace IAutoMovieMotionHumanVerdicts {
   /** A bound that does not hold. */
@@ -112,8 +112,8 @@ export namespace IAutoMovieMotionHumanVerdicts {
 
   /**
    * Read every bound on a performance, or on one span of its film. Input span
-   * of HumanVerdicts.of. The film seconds the bounds are read over; the whole
-   * film when absent.
+   * of HumanVerdicts. The film seconds the bounds are read over; the whole film
+   * when absent.
    */
   export type IOfSpan = {
     /** Beginning of the judged interval, in performance seconds. */
@@ -151,4 +151,5 @@ export namespace IAutoMovieMotionHumanVerdicts {
 
     /** The film's canonical entity path of each performer, by subject. */
     paths: Readonly<Record<string, string>>;
-  }}
+  }
+}

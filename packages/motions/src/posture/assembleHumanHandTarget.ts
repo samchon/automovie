@@ -11,14 +11,11 @@ import type {
 import { AutoMovieMotionHumanArmTarget } from "../compose/AutoMovieMotionHumanArmTarget";
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanBendPreparation } from "../compose/AutoMovieMotionHumanBendPreparation";
-import type { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 
 /** Existing surface-offset emitter retained only by the prepared hand owner. */
 type ITargetEmitter = ReturnType<
   typeof AutoMovieMotionHumanArmTarget.prepareTarget
 >;
-/** The alternatives of `AssembleHumanHandTargetTrial`'s site. */
-type AssembleHumanHandTargetTrial = 0 | 1;
 
 /** Assemble a full hand target with its original default or authored elbow. */
 export function assembleHumanHandTarget(
@@ -32,24 +29,17 @@ export function assembleHumanHandTarget(
   rotation: IAutoMovieQuaternion,
   wrist: () => IAutoMovieVector3,
   emit?: ITargetEmitter,
-  trial?: readonly [
-    AutoMovieMotionHumanBendRepeat.IRead,
-    AssembleHumanHandTargetTrial,
-  ],
 ): IAutoMovieMotionHumanArmTarget.ITarget {
   const bend: IAutoMovieVector3 =
     options.bend === undefined && options.out === undefined
-      ? AutoMovieMotionHumanBendPreparation.defaultBend(
-          {
-            body,
-            posture,
-            side,
-            point: wrist(),
-            rotation,
-            fallback: "hang",
-          },
-          trial,
-        )
+      ? AutoMovieMotionHumanBendPreparation.defaultBend({
+          body,
+          posture,
+          side,
+          point: wrist(),
+          rotation,
+          fallback: "hang",
+        })
       : AutoMovieMotionHumanBend.arm(
           body,
           posture,

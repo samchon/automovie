@@ -25,8 +25,6 @@ import { validatePerformShotFraming } from "./validatePerformShotFraming";
  *
  * - The script's beat ids are unique, and the plan's beat is one of them;
  * - The beat duration is finite and positive;
- * - The plan's beat, actor node, coverage camera and node-kind camera target ids
- *   are nonblank;
  * - Every actor intent belongs to a staged scene node, and its timing anchors lie
  *   inside `[0, duration]` in the order listed, because the list order is the
  *   causal order ("the loose before the hit");
@@ -67,12 +65,6 @@ export function blockBeat(
     beatIds.set(beat.id, index);
   });
 
-  function validateNonEmptyId(id: string, path: string, label: string): void {
-    if (id.trim().length === 0)
-      out.push("type", path, `${label} must be a non-empty id`, id);
-  }
-
-  validateNonEmptyId(blocking.beat, "$input.beat", "beat id");
   if (!beatIds.has(blocking.beat))
     out.push(
       "type",
@@ -94,11 +86,6 @@ export function blockBeat(
   );
   blocking.actors.forEach(
     (intent: IAutoMovieBlockingActor, i: number): void => {
-      validateNonEmptyId(
-        intent.node,
-        `$input.actors[${i}].node`,
-        "actor node id",
-      );
       if (!nodeIds.has(intent.node))
         out.push(
           "type",
@@ -144,30 +131,21 @@ export function blockBeat(
     blocking.camera.move,
   );
 
-  if (blocking.camera.on.kind === "node") {
-    if (!placedIds.has(blocking.camera.on.node))
-      out.push(
-        "type",
-        "$input.camera.on.node",
-        `the camera must favour something staged (an actor, a set piece, or another camera), but "${blocking.camera.on.node}" is not placed`,
-        blocking.camera.on.node,
-      );
-    validateNonEmptyId(
-      blocking.camera.on.node,
+  if (
+    blocking.camera.on.kind === "node" &&
+    !placedIds.has(blocking.camera.on.node)
+  )
+    out.push(
+      "type",
       "$input.camera.on.node",
-      "camera target node id",
+      `the camera must favour something staged (an actor, a set piece, or another camera), but "${blocking.camera.on.node}" is not placed`,
+      blocking.camera.on.node,
     );
-  }
 
   // Coverage uses the same vocabulary gate as the hero intent and frame actions.
   const covered: Map<string, number> = new Map();
   (blocking.coverage ?? []).forEach(
     (intent: IAutoMovieBlockingCoverage, i: number): void => {
-      validateNonEmptyId(
-        intent.camera,
-        `$input.coverage[${i}].camera`,
-        "coverage camera id",
-      );
       if (!cameraIds.has(intent.camera))
         out.push(
           "type",
@@ -190,20 +168,13 @@ export function blockBeat(
         intent.framing,
         intent.move,
       );
-      if (intent.on.kind === "node") {
-        if (!placedIds.has(intent.on.node))
-          out.push(
-            "type",
-            `$input.coverage[${i}].on.node`,
-            `a coverage camera must favour something staged (an actor, a set piece, or another camera), but "${intent.on.node}" is not placed`,
-            intent.on.node,
-          );
-        validateNonEmptyId(
-          intent.on.node,
+      if (intent.on.kind === "node" && !placedIds.has(intent.on.node))
+        out.push(
+          "type",
           `$input.coverage[${i}].on.node`,
-          "coverage target node id",
+          `a coverage camera must favour something staged (an actor, a set piece, or another camera), but "${intent.on.node}" is not placed`,
+          intent.on.node,
         );
-      }
     },
   );
 
@@ -211,11 +182,6 @@ export function blockBeat(
     const carried: Map<string, number> = new Map();
     previous.actors.forEach(
       (actor: IAutoMovieBeatEndActorState, i: number): void => {
-        validateNonEmptyId(
-          actor.node,
-          `$previous.actors[${i}].node`,
-          "previous beat-end actor node id",
-        );
         const first: number | undefined = carried.get(actor.node);
         if (first !== undefined)
           out.push(

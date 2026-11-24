@@ -1,7 +1,10 @@
 import { sampleClip, validateClipArtifact } from "@automovie/engine";
-import {
+import type {
+  AutoMovieInterpolation,
+  IAutoMovieChannel,
   IAutoMovieClip,
   IAutoMovieConstraintViolation,
+  IAutoMovieNodeChannel,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
@@ -9,16 +12,16 @@ import { namedFacts, throwsError } from "../internal/predicates";
 
 /** A clip carrying one track, whose payload the caller states. */
 const clip: (
-  channel: Record<string, unknown>,
+  channel: IAutoMovieChannel,
   times: number[],
   values: number[],
-  interpolation?: string,
-) => unknown = (
-  channel: Record<string, unknown>,
+  interpolation?: AutoMovieInterpolation,
+) => IAutoMovieClip = (
+  channel: IAutoMovieChannel,
   times: number[],
   values: number[],
-  interpolation: string = "linear",
-): unknown => ({
+  interpolation: AutoMovieInterpolation = "linear",
+): IAutoMovieClip => ({
   id: "c",
   name: null,
   duration: 100,
@@ -26,16 +29,16 @@ const clip: (
   tracks: [{ channel, times, values, interpolation }],
 });
 
-const NODE: (path: string) => Record<string, unknown> = (
-  path: string,
-): Record<string, unknown> => ({
+const NODE: (path: IAutoMovieNodeChannel["path"]) => IAutoMovieChannel = (
+  path: IAutoMovieNodeChannel["path"],
+): IAutoMovieChannel => ({
   kind: "node",
   node: "n",
   path,
 });
 
-const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (
-  value: unknown,
+const faultOn: (value: IAutoMovieClip) => IAutoMovieConstraintViolation = (
+  value: IAutoMovieClip,
 ): IAutoMovieConstraintViolation => {
   const violations: IAutoMovieConstraintViolation[] = [];
   validateClipArtifact(value, "$input.clip", violations);
@@ -49,8 +52,8 @@ const faultOn: (value: unknown) => IAutoMovieConstraintViolation = (
 };
 
 /** Every fragment appears in the gate's message. */
-const says: (value: unknown, fragments: string[]) => boolean = (
-  value: unknown,
+const says: (value: IAutoMovieClip, fragments: string[]) => boolean = (
+  value: IAutoMovieClip,
   fragments: string[],
 ): boolean => {
   const { expected }: IAutoMovieConstraintViolation = faultOn(value);
@@ -112,7 +115,7 @@ const S05_VALUES: number[] = Array.from({ length: 195 }, (): number => 0);
  */
 export function test_validation_clip_stride_diagnostic(): void {
   // 1. the reproduction, with every number the author needed.
-  const uneven: unknown = clip(NODE("translation"), S05_TIMES, S05_VALUES);
+  const uneven: IAutoMovieClip = clip(NODE("translation"), S05_TIMES, S05_VALUES);
   TestValidator.predicate(
     "the stride fault names the counts, the width, and the target length",
     says(uneven, [
@@ -133,13 +136,13 @@ export function test_validation_clip_stride_diagnostic(): void {
     "the sampler's throw carries the same numbers",
     throwsError(
       (): ReturnType<typeof sampleClip> =>
-        sampleClip(uneven as IAutoMovieClip, 0),
+        sampleClip(uneven, 0),
       ["keyframe count 67", "195 does not", "values must hold 201"],
     ),
   );
 
   // 3. a channel that fixes no width claims none.
-  const weights: unknown = clip(NODE("weights"), [0, 1], [0, 0, 1]);
+  const weights: IAutoMovieClip = clip(NODE("weights"), [0, 1], [0, 0, 1]);
   const weightsFault: IAutoMovieConstraintViolation = faultOn(weights);
   TestValidator.equals(
     "a weights track states the counts and no invented width",

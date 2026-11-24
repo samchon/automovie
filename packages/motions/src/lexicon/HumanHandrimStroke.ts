@@ -31,6 +31,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HandrimMaterialTransfer } from "./HandrimMaterialTransfer";
 import { HumanHandrimStrokeForm } from "./HumanHandrimStrokeForm";
+import { HumanHandrimStrokeRefuseRim } from "./HumanHandrimStrokeRefuseRim";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
@@ -99,22 +100,6 @@ const carry = (
     normal: Quaternion.rotateVector(swing, grip.normal),
     axis: Quaternion.rotateVector(swing, grip.axis!),
   };
-};
-
-/** Refuse a wheel selection without a usable circumferential material point. */
-const refuseRim = (
-  on: string,
-  rim: string,
-  side: AutoMovieHumanSide,
-): never => {
-  throw new HumanRefusal({
-    kind: "affordance",
-    axis: `rims.${side}`,
-    value: rim,
-    feasible: null,
-    reason: `${on} has no eligible moving contact on rim ${rim}`,
-    fix: "name a distinct wheel rim with a radial material-point reader",
-  });
 };
 
 /**
@@ -203,7 +188,7 @@ function planHumanHandrimStroke(
   const active: readonly AutoMovieHumanSide[] =
     side === undefined ? HumanHandrimStrokeForm.SIDES : [side];
   if (side === undefined && rims?.left === rims?.right)
-    refuseRim(on, rims?.right ?? "", "right");
+    HumanHandrimStrokeRefuseRim(on, rims?.right ?? "", "right");
   const wheels: IRim[] = active.map((side: AutoMovieHumanSide): IRim => {
     const rim: string = rims?.[side];
     const geometry: IAutoMovieAffordance | undefined =
@@ -215,7 +200,7 @@ function planHumanHandrimStroke(
       geometry === undefined ||
       !(Number.isFinite(geometry.radius) && geometry.radius! > 0)
     )
-      return refuseRim(on, rim, side);
+      return HumanHandrimStrokeRefuseRim(on, rim, side);
     return { side, rim, geometry };
   });
 
@@ -281,7 +266,7 @@ function planHumanHandrimStroke(
   const hands: IHand[] = wheels.map(({ side, rim, geometry }: IRim): IHand => {
     const sideOffset: number =
       (side === "left" ? 1 : -1) * (geometry.frame.translation.x - seatCentre);
-    if (!(sideOffset > 0)) return refuseRim(on, rim, side);
+    if (!(sideOffset > 0)) return HumanHandrimStrokeRefuseRim(on, rim, side);
     const radius: number = geometry.radius!;
 
     /**
@@ -291,7 +276,7 @@ function planHumanHandrimStroke(
     const gripAt = (at: number, frame: IAutoMovieRigidTransform): Grip => {
       const hit: ReturnType<NonNullable<typeof chair.prop.point>> =
         chair.prop.point?.(rim, context.start + at);
-      if (hit === undefined) return refuseRim(on, rim, side);
+      if (hit === undefined) return HumanHandrimStrokeRefuseRim(on, rim, side);
       const centre: IAutoMovieVector3 = Vector3.add(
         frame.position,
         Quaternion.rotateVector(frame.rotation, geometry.frame.translation),
@@ -309,7 +294,7 @@ function planHumanHandrimStroke(
           Math.abs(Vector3.dot(axle, spoke)) <= tolerance
         )
       )
-        return refuseRim(on, rim, side);
+        return HumanHandrimStrokeRefuseRim(on, rim, side);
       return {
         point: hit.point,
         normal,

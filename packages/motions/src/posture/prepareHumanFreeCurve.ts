@@ -28,7 +28,6 @@ import { HumanPostureRaw } from "./HumanPostureRaw";
 import { poseBones } from "./poseBones";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "./prepareHumanPostureProjection";
-import { prepareHumanPostureRigCheck } from "./prepareHumanPostureRigCheck";
 
 /** The record of `ISeedAtKept`'s site. */
 type ISeedAtKept = { share: number; value: IAnchor };
@@ -44,8 +43,7 @@ type IPrepareHumanFreeCurveAnchorsEntry = { share: number; value: IAnchor };
  * supplied producer owns copied curve coefficients and never exposes or changes
  * them during this preparation.
  *
- * @param body The curve's actual canonical body; changed live rig prerequisites
- *   permanently return this curve to ordinary cold fitting.
+ * @param body The curve's canonical body, unchanged while the curve is read.
  * @param at Pure constructor-owned authoring at a phase in [0,1], with fresh
  *   records and closed direct-joint/free-world-leg goals only.
  * @param duration The physical duration in seconds, used by the existing
@@ -60,8 +58,6 @@ export function prepareHumanFreeCurve(
   at: (share: number) => IAutoMovieMotionHumanPosture,
   duration: number,
 ): prepareHumanFreeCurve.IReader {
-  const unchanged: (() => boolean) | undefined =
-    prepareHumanPostureRigCheck(body);
   const tolerance: number =
     Number.isFinite(duration) && duration > 0
       ? samplePoseVelocity.tolerance(1e-3, duration)
@@ -91,7 +87,6 @@ export function prepareHumanFreeCurve(
   let pivot: number = 0;
   let originRead: boolean = false;
   let supported: boolean =
-    unchanged !== undefined &&
     Number.isFinite(tolerance) &&
     tolerance > 0 &&
     tolerance < hingedArmSwivel.STEP;
@@ -538,14 +533,6 @@ export function prepareHumanFreeCurve(
   ): boolean {
     if (!supported || !prepareHumanPoseResolution.isNativeSource(resolution))
       return false;
-    if (!unchanged!()) {
-      supported = false;
-      origin = undefined;
-      anchors.clear();
-      intervals.clear();
-      checked.clear();
-      return false;
-    }
     if (!originRead) {
       originRead = true;
       const initial: IAutoMovieMotionHumanPosture = at(0);

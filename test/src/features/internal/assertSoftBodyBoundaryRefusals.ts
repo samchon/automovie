@@ -22,15 +22,6 @@ export function assertSoftBodyBoundaryRefusals(
     "anchors and named states are named",
     namedFacts([
       [
-        "blank",
-        (): boolean =>
-          refuses(
-            { anchors: [{ id: " ", particle: 0, position: null }], states: [] },
-            "type",
-            "anchors[0].id",
-          ),
-      ],
-      [
         "duplicateId",
         (): boolean =>
           refuses(
@@ -70,24 +61,6 @@ export function assertSoftBodyBoundaryRefusals(
             },
             "type",
             "anchors[1].particle",
-          ),
-      ],
-      [
-        "position",
-        (): boolean =>
-          refuses(
-            {
-              anchors: [
-                {
-                  id: "hook",
-                  particle: 0,
-                  position: { x: 0, y: Number.POSITIVE_INFINITY, z: 0 },
-                },
-              ],
-              states: [],
-            },
-            "range",
-            "anchors[0].position.y",
           ),
       ],
       [
@@ -148,15 +121,6 @@ export function assertSoftBodyBoundaryRefusals(
           ),
       ],
       [
-        "blankState",
-        (): boolean =>
-          refuses(
-            { states: [{ id: "", anchors: [] }] },
-            "type",
-            "states[0].id",
-          ),
-      ],
-      [
         "duplicateState",
         (): boolean =>
           refuses(
@@ -172,15 +136,12 @@ export function assertSoftBodyBoundaryRefusals(
       ],
     ]),
     {
-      blank: true,
       duplicateId: true,
       particleRange: true,
       duplicateParticle: true,
-      position: true,
       unknownAnchor: true,
       posedTwice: true,
       stateBudget: true,
-      blankState: true,
       duplicateState: true,
     },
   );
@@ -228,42 +189,6 @@ export function assertSoftBodyBoundaryRefusals(
             },
             "type",
             "colliders[0].normal",
-          ),
-      ],
-      [
-        "nonFiniteNormal",
-        (): boolean =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "flat",
-                  normal: { x: Number.NaN, y: 1, z: 0 },
-                  offset: 0,
-                },
-              ],
-            },
-            "range",
-            "colliders[0].normal.x",
-          ),
-      ],
-      [
-        "offset",
-        (): boolean =>
-          refuses(
-            {
-              colliders: [
-                {
-                  kind: "plane",
-                  id: "flat",
-                  normal: { x: 0, y: 1, z: 0 },
-                  offset: Number.NaN,
-                },
-              ],
-            },
-            "range",
-            "colliders[0].offset",
           ),
       ],
       [
@@ -362,8 +287,6 @@ export function assertSoftBodyBoundaryRefusals(
     {
       duplicate: true,
       zeroNormal: true,
-      nonFiniteNormal: true,
-      offset: true,
       radius: true,
       invertedBox: true,
       clearOnlyOnOneAxis: true,
@@ -398,15 +321,6 @@ export function assertSoftBodyBoundaryRefusals(
           ),
       ],
       [
-        "acceleration",
-        (): boolean =>
-          refuses(
-            wind({ acceleration: Number.NaN }),
-            "range",
-            "wind.acceleration",
-          ),
-      ],
-      [
         "gust",
         (): boolean =>
           refuses(
@@ -428,7 +342,6 @@ export function assertSoftBodyBoundaryRefusals(
     ]),
     {
       zeroDirection: true,
-      acceleration: true,
       gust: true,
       hz: true,
       absent: true,

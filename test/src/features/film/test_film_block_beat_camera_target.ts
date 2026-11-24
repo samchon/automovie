@@ -17,7 +17,7 @@ import {
 
 /**
  * Blocking accepts every staged placement as a camera subject and refuses plans
- * whose camera vocabulary cannot be compiled.
+ * whose camera references resolve to nothing.
  *
  * Scenarios:
  *
@@ -25,14 +25,12 @@ import {
  * 2. An absent subject is refused at the hero or coverage target path, with the
  *    accepted placement kinds stated in the message.
  * 3. An unstaged coverage camera is refused even when its subject is placed.
- * 4. Unknown hero and coverage framing and move are refused independently;
- *    adjacent supported medium/static intents remain accepted.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat against a real stageScene result and asserts subject acceptance, absent-placement refusals and both camera vocabulary paths; catches a blocked hero plan that would fail only when its camera is later compiled.
- * @evidence contracts/development/testing.md#independent-expectations Placement membership comes from the authored fixture and framing/move expectations come from the interface's closed unions, rather than reading the runtime grammar sets; refusal assertions require the exact owning path and useful message.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers camera, actor, set-piece and absent subjects for hero/coverage, an absent covering camera, and independently malformed framing/move pairs beside a supported pair; anchor order and carried actors belong to the other block-beat tests.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls blockBeat against a real stageScene result and asserts subject acceptance and absent-placement refusals.
+ * @evidence contracts/development/testing.md#independent-expectations Placement membership comes from the authored fixture; refusal assertions require the exact owning path and useful message.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers camera, actor, set-piece and absent subjects for hero/coverage and an absent covering camera; anchor order and carried actors belong to the other block-beat tests.
  * @evidence contracts/development/testing.md#execution-ownership This portable unit entry directly imports engine source and owns all scenarios synchronously through stageScene and blockBeat; it starts no process, browser or native renderer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Hero and coverage intents accept cameras, actors and set pieces as subjects.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Hero and coverage intents accept cameras, actors and set pieces as subjects.).
  */
 export function test_film_block_beat_camera_target(): void {
   const script: IAutoMovieScript = makeScriptWrite();
@@ -115,36 +113,6 @@ export function test_film_block_beat_camera_target(): void {
     ]),
     "$input.coverage[0].camera",
     "staged camera",
-  );
-  assertRefusal(
-    block({ framing: "invalid" as IAutoMovieBlockingCamera["framing"] }),
-    "$input.camera.framing",
-    "camera framing must be one of",
-  );
-  assertRefusal(
-    block({ move: "invalid" as IAutoMovieBlockingCamera["move"] }),
-    "$input.camera.move",
-    "camera move must be one of",
-  );
-  assertRefusal(
-    block({}, [
-      {
-        ...cover({ kind: "node", node: "knightB" })[0]!,
-        framing: "invalid" as IAutoMovieBlockingCoverage["framing"],
-      },
-    ]),
-    "$input.coverage[0].framing",
-    "camera framing must be one of",
-  );
-  assertRefusal(
-    block({}, [
-      {
-        ...cover({ kind: "node", node: "knightB" })[0]!,
-        move: "invalid" as IAutoMovieBlockingCoverage["move"],
-      },
-    ]),
-    "$input.coverage[0].move",
-    "camera move must be one of",
   );
 }
 

@@ -18,6 +18,7 @@ import type {
 
 import type { IMotionCaptureCase } from "../IMotionCaptureCase";
 import { StrikingLimb } from "./StrikingLimb";
+import { StrikingVerdictsGap } from "./StrikingVerdictsGap";
 
 /** The record of `IPenetrationDeepest`'s site. */
 type IPenetrationDeepest = { at: number };
@@ -220,12 +221,12 @@ export namespace StrikingVerdicts {
           : undefined;
     if (declared !== undefined) {
       let closest: StrikingLimb.IGap & IContactClosest = {
-        ...gap(strike, g.entryTime),
+        ...StrikingVerdictsGap(strike, g.entryTime),
         at: g.entryTime,
       };
       const until: number = peak(g);
       for (let t: number = g.entryTime; t <= until + 1e-9; t += 1 / 96) {
-        const now: StrikingLimb.IGap = gap(strike, t);
+        const now: StrikingLimb.IGap = StrikingVerdictsGap(strike, t);
         if (now.distance < closest.distance) closest = { ...now, at: t };
       }
       const measured: string = `closest ${(1000 * closest.distance).toFixed(1)} mm from ${closest.bone ?? "nothing"} (${closest.part}) at ${closest.at.toFixed(3)} s${strike.stop === undefined ? "" : `, stopped at ${strike.stop.toFixed(3)} s`}`;
@@ -267,10 +268,10 @@ export namespace StrikingVerdicts {
         detail: `declared to hit but met nothing${
           record === undefined
             ? ""
-            : ` (solve ${record.status}; the limb at its peak lies ${(1000 * gap(strike, peak(g)).distance).toFixed(1)} mm from the other body)`
+            : ` (solve ${record.status}; the limb at its peak lies ${(1000 * StrikingVerdictsGap(strike, peak(g)).distance).toFixed(1)} mm from the other body)`
         }`,
       };
-    const touch: StrikingLimb.IGap = gap(strike, strike.stop);
+    const touch: StrikingLimb.IGap = StrikingVerdictsGap(strike, strike.stop);
     const met: Class | undefined =
       touch.bone === undefined ? undefined : classify(touch.bone);
     const allowed: boolean =
@@ -341,7 +342,7 @@ export namespace StrikingVerdicts {
       at: g.entryTime,
     };
     for (let t: number = g.entryTime; t <= g.end + 1e-9; t += 1 / 96) {
-      const now: StrikingLimb.IGap = gap(strike, t);
+      const now: StrikingLimb.IGap = StrikingVerdictsGap(strike, t);
       if (now.distance < deepest.distance) deepest = { ...now, at: t };
     }
     return {
@@ -480,21 +481,5 @@ export namespace StrikingVerdicts {
           ? "the plan asks no ankle goal between the launch and the peak"
           : `the ankle lies at most ${(1000 * worst).toFixed(2)} mm from its goal (at ${when.toFixed(3)} s, ${samples} samples from ${from.toFixed(3)} to ${to.toFixed(3)} s); bound 2 mm`,
     };
-  }
-
-  /**
-   * The limb's gap to the other body at a film second; infinite when there is
-   * no other body.
-   */
-  function gap(strike: IStrike, seconds: number): StrikingLimb.IGap {
-    if (strike.other === undefined)
-      return { distance: Infinity, bone: undefined, part: "nothing" };
-    return StrikingLimb.gap(
-      strike.body,
-      strike.performance.bones(strike.id, seconds),
-      strike.limb,
-      strike.other.body,
-      strike.performance.bones(strike.other.id, seconds),
-    );
   }
 }

@@ -15,6 +15,7 @@ import { walkLeg } from "../actions/walkLeg";
 import { walkLegCapsules } from "../actions/walkLegCapsules";
 import { walkLegClearance } from "../actions/walkLegClearance";
 import { walkReach } from "../actions/walkReach";
+import { walkReachGround } from "../actions/walkReachGround";
 import { readHumanBone } from "../body/readHumanBone";
 import { HumanFoot } from "../posture/HumanFoot";
 import { HumanLegChain } from "../posture/HumanLegChain";
@@ -50,7 +51,7 @@ type IStaggerAdmissionWalk = {
  * (`staggerRecover`): at each, the pelvis carried by the centre of mass's
  * course less the trunk's shift of it (`staggerLean`; the hips read upright,
  * the trunk's tilt about them left out of the legs' reading) and lowered to the
- * height its planted legs allow (`walkReach.ground`, the walk's own closed-form
+ * height its planted legs allow (`walkReachGround`, the walk's own closed-form
  * claim of each leg's reach with its knee `walkReach`'s least bend), and every
  * planted leg then solved as the two-bone chain it is: its hip-to-ankle
  * distance within the thigh and shank, its knee's flexion inside the rig's knee
@@ -252,7 +253,7 @@ export function staggerAdmission(
     // The pelvis on the centre of mass's course less the trunk's shift of
     // it (`staggerLean`), lowered as the legs ask.
     const root: IAutoMovieVector3 = lean(t).root;
-    const ground: walkReach.IGround = walkReach.ground(
+    const ground: walkReach.IGround = walkReachGround(
       body,
       root,
       walkReach.pelvis(

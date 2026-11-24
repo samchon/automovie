@@ -78,7 +78,7 @@ A negative lying time throws; the knee and the lying arm are solved on the body'
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture under the rig check, without measuring the colliders again.
+Changing articulation retains its original fold and floor measurements. The prepared default lying hold reads a constant posture, without measuring the colliders again.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 

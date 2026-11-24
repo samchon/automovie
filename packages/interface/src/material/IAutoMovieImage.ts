@@ -16,7 +16,7 @@
  * 2nd edition), base64 (RFC 4648 section 4).
  */
 export interface IAutoMovieImage {
-  /** Id a texture binding's `asset` cites; nonblank and unique within the model. */
+  /** Id a texture binding's `asset` cites; unique within the model. */
   id: string;
 
   /** Media type of {@link data}; PNG is the one decoded format. */

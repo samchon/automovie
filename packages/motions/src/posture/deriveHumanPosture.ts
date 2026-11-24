@@ -213,24 +213,12 @@ export namespace deriveHumanPosture {
 }
 
 /**
- * Whether two values are equal value for value: Object.is on primitives, and
- * the same own enumerable members, in number and each, on arrays and plain
- * records.
+ * Whether two records of the assembly are equal value for value: the same
+ * members with the same values in the same order, as the assembly writes them.
  */
-function same(a: unknown, b: unknown): boolean {
-  if (Object.is(a, b)) return true;
-  if (
-    typeof a !== "object" ||
-    typeof b !== "object" ||
-    a === null ||
-    b === null
-  )
-    return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  const left: [string, unknown][] = Object.entries(a);
-  const right: Record<string, unknown> = { ...b };
-  if (left.length !== Object.keys(right).length) return false;
-  for (const [key, value] of left)
-    if (!(key in right) || !same(value, right[key])) return false;
-  return true;
+function same(
+  a: IAutoMoviePose["root"] | IAutoMovieHumanLimbGoal | undefined,
+  b: IAutoMoviePose["root"] | IAutoMovieHumanLimbGoal | undefined,
+): boolean {
+  return a === b || JSON.stringify(a) === JSON.stringify(b);
 }

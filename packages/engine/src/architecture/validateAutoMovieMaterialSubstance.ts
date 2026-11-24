@@ -19,10 +19,9 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * A null property is unmeasured and passes. A present one must be finite and in
  * range: density, specific heat and service life above 0, thermal conductivity
  * at least 0, sound absorption within [0, 1], and vapour resistance at least 1,
- * the factor of still air. The id and classification must be non-blank, and a
- * present name or surface id too. Every finding is returned with a `$input`
- * path; nothing throws, and the surface id is not resolved against any
- * material.
+ * the factor of still air. The classification must be non-blank, and a present
+ * name too. Every finding is returned with a `$input` path; nothing throws,
+ * and the surface id is not resolved against any material.
  *
  * @param props.substance Substance record to range-check.
  * @returns Success, or every violation found.
@@ -35,7 +34,6 @@ export const validateAutoMovieMaterialSubstance: (
   const substance: IAutoMovieMaterialSubstance = props.substance;
   const collector: IAutoMovieViolationCollector = new ViolationCollector();
   const root: string = "$input";
-  collector.nonEmpty(`${root}.id`, substance.id, "substance id");
   collector.nonEmpty(
     `${root}.classification`,
     substance.classification,
@@ -43,12 +41,6 @@ export const validateAutoMovieMaterialSubstance: (
   );
   if (substance.name !== null)
     collector.nonEmpty(`${root}.name`, substance.name, "substance name");
-  if (substance.surface !== null)
-    collector.nonEmpty(
-      `${root}.surface`,
-      substance.surface,
-      "substance surface id",
-    );
   above(
     substance.density,
     0,

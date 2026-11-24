@@ -15,6 +15,7 @@ import type {
 
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanFoot } from "../posture/HumanFoot";
+import { HumanSignatureGait } from "./HumanSignatureGait";
 
 /**
  * A reader of one performer.
@@ -350,43 +351,7 @@ export namespace HumanSignature {
     to: number,
     rate: number = 120,
   ): IAutoMovieMotionHumanSignature.IGait {
-    const ts: number[] = times(from, to, rate);
-    const strikes: IAutoMovieMotionHumanSignature.IGait["strikes"] = [];
-    let bearing: number = 0;
-    for (const side of ["left", "right"] as const) {
-      let before: boolean | undefined;
-      let last: number | undefined;
-      for (const t of ts) {
-        const now: boolean = bears(reader, t, side, 0, from);
-        if (now) bearing++;
-
-        // A foot strikes once a stride: a contact that flickers within a
-        // quarter second of the same foot's last strike (a heel handing the
-        // load to the ball) is the same footfall.
-        if (
-          before === false &&
-          now &&
-          (last === undefined || t - last >= STRIDE)
-        ) {
-          strikes.push({ seconds: t, side });
-          last = t;
-        }
-        before = now;
-      }
-    }
-    strikes.sort((a, b): number => a.seconds - b.seconds);
-    return {
-      duty: bearing / (2 * ts.length),
-
-      // Steps a minute from the mean interval between strikes, which a
-      // window a few steps long would quantise if strikes were counted.
-      cadence:
-        strikes.length < 2
-          ? 0
-          : (60 * (strikes.length - 1)) /
-            (strikes[strikes.length - 1]!.seconds - strikes[0]!.seconds),
-      strikes,
-    };
+    return HumanSignatureGait(reader, from, to, rate);
   }
 
   /**

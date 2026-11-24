@@ -16,10 +16,10 @@ import { validateSolidPlanes } from "./validateSolidPlanes";
  * faces, so it stops rather than producing one. Sharing the rule is what keeps
  * a neighbour's mass and the building's own canopy held to one standard.
  *
- * Throws an `Error` at the first blank id, the first id repeated within
- * `solids`, or the first plane violation of a solid, naming that solid and the
- * violation path. `label` names the kind of solid in every message and path,
- * and ids need to be unique only within this one list.
+ * Throws an `Error` at the first id repeated within `solids`, or the first
+ * plane violation of a solid, naming that solid and the violation path. `label`
+ * names the kind of solid in every message and path, and ids need to be unique
+ * only within this one list.
  *
  * Plane count and finite fields do not prove the intersection bounded or
  * nonempty; validateSolidPlanes deliberately leaves those geometric properties
@@ -38,8 +38,6 @@ export const assertAutoMovieAnalysisSolids: (
 ): void => {
   const seen: Set<string> = new Set<string>();
   for (const solid of solids) {
-    if (solid.id.trim().length === 0)
-      throw new Error(`every ${label} must carry a non-blank id`);
     if (seen.has(solid.id))
       throw new Error(`${label} id "${solid.id}" is declared twice`);
     seen.add(solid.id);

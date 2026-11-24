@@ -1,6 +1,5 @@
 import type { IAutoMoviePhysicalSimulationInput } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
 import { admitPhysicalSupportPattern } from "./admitPhysicalSupportPattern";
 import { resolvePhysicalPerformanceMode } from "./resolvePhysicalPerformanceMode";
 
@@ -16,24 +15,6 @@ export function admitPhysicalBody(
     Number.isFinite(value) && value > 0;
   const nonnegative: (value: number) => boolean = (value: number): boolean =>
     Number.isFinite(value) && value >= 0;
-  for (const policy of [
-    body.selfAvoidance,
-    body.rootTorque,
-    body.supportTracking,
-    body.balance,
-  ])
-    if (policy !== undefined && !isAutoMovieRecord(policy))
-      throw new Error(`${body.id}: invalid optional physical descriptor`);
-  if (
-    body.compensateGravity !== undefined &&
-    typeof body.compensateGravity !== "boolean"
-  )
-    throw new Error(`${body.id}: invalid gravity-compensation policy`);
-  if (
-    body.balance?.bracing !== undefined &&
-    !isAutoMovieRecord(body.balance.bracing)
-  )
-    throw new Error(`${body.id}: invalid bracing recovery envelope`);
   resolvePhysicalPerformanceMode(body.mode);
   const gravity: number =
     body.mode.kind === "exaggerated" ? body.mode.gravity : 1;
@@ -124,7 +105,6 @@ export function admitPhysicalBody(
       body.complianceStrength,
     ].every(nonnegative) ||
     body.complianceStrength > 1 ||
-    !Array.isArray(body.targets) ||
     body.targets.length !== input.duration * input.rate + 1
   )
     throw new Error(`${body.id}: invalid tracking settings or target count`);

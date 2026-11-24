@@ -154,9 +154,7 @@ export const materializeProductionFilmEffects = (
 
 const validateCue = (cue: FilmEffectCue): void => {
   if (
-    cue.id.trim().length === 0 ||
     cue.recipe !== "world-zone" ||
-    cue.zone.trim().length === 0 ||
     Number.isSafeInteger(cue.startFrame) === false ||
     cue.startFrame < 0 ||
     Number.isSafeInteger(cue.durationFrames) === false ||
@@ -168,7 +166,7 @@ const validateCue = (cue: FilmEffectCue): void => {
   )
     throw new AutoMovieFilmEffectRuntimeError(
       "film-effect-input-invalid",
-      `Film effect cue "${cue.id}" has an invalid id, recipe, zone, frame interval, or intensity.`,
+      `Film effect cue "${cue.id}" has an invalid recipe, frame interval, or intensity.`,
     );
 };
 
@@ -179,9 +177,6 @@ const groupShotIntervals = (
   const output: Map<string, IAutoMovieShotEffectFilmInterval[]> = new Map();
   for (const interval of intervals) {
     if (
-      interval.cue.trim().length === 0 ||
-      interval.shot.trim().length === 0 ||
-      interval.zone.trim().length === 0 ||
       Number.isSafeInteger(interval.startFrame) === false ||
       interval.startFrame < 0 ||
       Number.isSafeInteger(interval.endFrame) === false ||
@@ -189,7 +184,7 @@ const groupShotIntervals = (
     )
       throw new AutoMovieFilmEffectRuntimeError(
         "film-effect-input-invalid",
-        `Shot effect cue "${interval.cue}" has an invalid owner or film-frame interval.`,
+        `Shot effect cue "${interval.cue}" has an invalid film-frame interval.`,
       );
     const group: IAutoMovieShotEffectFilmInterval[] | undefined = output.get(
       interval.zone,
@@ -208,10 +203,10 @@ const uniqueMap = <T>(
   const output: Map<string, T> = new Map();
   for (const value of values) {
     const id: string = key(value);
-    if (id.trim().length === 0 || output.has(id))
+    if (output.has(id))
       throw new AutoMovieFilmEffectRuntimeError(
         "film-effect-input-invalid",
-        `Film effect world ${kind} id "${id}" must be non-blank and unique.`,
+        `Film effect world ${kind} id "${id}" must be unique.`,
       );
     output.set(id, value);
   }

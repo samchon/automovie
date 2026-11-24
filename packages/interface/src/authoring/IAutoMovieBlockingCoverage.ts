@@ -10,8 +10,8 @@ import type { IAutoMovieBlockingCamera } from "./IAutoMovieBlockingCamera";
  */
 export interface IAutoMovieBlockingCoverage extends IAutoMovieBlockingCamera {
   /**
-   * Non-blank staged camera id for this take, distinct from the elected hero
-   * camera and from every other coverage take.
+   * Staged camera id for this take, distinct from the elected hero camera and
+   * from every other coverage take.
    */
   camera: string;
 }

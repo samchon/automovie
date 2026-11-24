@@ -9,6 +9,7 @@ import { exercise } from "../exercise/exercise";
 import { workout } from "../exercise/workout";
 import { HumanActionRow } from "../law/HumanActionRow";
 import { HUMAN_STANCE_MOUNTAIN_POSE } from "../next/presets/HUMAN_STANCE_MOUNTAIN_POSE";
+import { HumanSportWorkoutBarSwing } from "./HumanSportWorkoutBarSwing";
 
 /**
  * Exercises, stretches, yoga poses, dance holds and turns, and a few sport acts
@@ -488,13 +489,7 @@ export namespace HumanSportWorkout {
     kind: "kneeRaise",
   });
 
-  /**
-   * A swing on a bar. Default 3 repetitions of 1.9 s after a 1 s entry;
-   * provisional ({@link WorkoutHanging.KINDS}).
-   */
-  export const barSwing: IAutoMovieMotionHumanActionLaw<
-    IAutoMovieMotionHumanLexiconParams["sportWorkout"]["barSwing"]
-  > = HumanActionRow("barSwing", workout, {
-    kind: "barSwing",
-  });
+  /** {@link HumanSportWorkoutBarSwing}, read through this namespace. */
+  export const barSwing: typeof HumanSportWorkoutBarSwing =
+    HumanSportWorkoutBarSwing;
 }

@@ -61,8 +61,7 @@ interface IPatternSpan {
  * {@link autoMoviePatternFindings}.
  *
  * Coordinates are the surface's planar (u, v) metres and angles are degrees. A
- * malformed declaration throws an `Error` naming the field: blank or duplicate
- * ids, non-finite or non-positive sizes, a non-convex region or exclusion,
+ * malformed declaration throws an `Error` naming the field: duplicate ids, non-finite or non-positive sizes, a non-convex region or exclusion,
  * overlapping zones or exclusions, ambiguous surviving occurrence ids, a zone
  * spanning more than `AUTOMOVIE_MAX_PATTERN_CELLS` lattice cells,
  * non-safe-integer derived lattice bounds, or a generated module reaching
@@ -238,7 +237,6 @@ const validatePattern: (
 ) => IAutoMoviePatternPoint[][] = (
   pattern: IAutoMovieSurfacePattern,
 ): IAutoMoviePatternPoint[][] => {
-  nonBlank(pattern.id, "pattern id");
   if (pattern.zones.length === 0)
     throw new Error("a surface pattern needs at least one zone");
   atLeast(pattern.joint, 0, "pattern joint");
@@ -260,7 +258,6 @@ const validatePattern: (
   const zoneIds: Set<string> = new Set();
   pattern.zones.forEach(
     (zone: IAutoMovieSurfacePatternZone, index: number): void => {
-      nonBlank(zone.id, `pattern zone[${index}] id`);
       if (zoneIds.has(zone.id))
         throw new Error(`pattern zone id "${zone.id}" must be unique`);
       zoneIds.add(zone.id);
@@ -278,7 +275,6 @@ const validatePattern: (
       exclusion: IAutoMoviePatternExclusion,
       index: number,
     ): IAutoMoviePatternPoint[] => {
-      nonBlank(exclusion.id, `pattern exclusion[${index}] id`);
       if (exclusionIds.has(exclusion.id))
         throw new Error(
           `pattern exclusion id "${exclusion.id}" must be unique`,
@@ -317,7 +313,6 @@ const validateCandidate: (
   origin: IAutoMoviePatternPoint,
   seen: Set<string>,
 ): IAutoMoviePatternPoint[] => {
-  nonBlank(candidate.id, `pattern zone "${zone.id}" module id`);
   if (seen.has(candidate.id))
     throw new Error(
       `pattern zone "${zone.id}" module id "${candidate.id}" must be unique`,
@@ -535,13 +530,6 @@ const finitePoint: (point: IAutoMoviePatternPoint, label: string) => void = (
 ): void => {
   if (!Number.isFinite(point.u) || !Number.isFinite(point.v))
     throw new Error(`${label} must be finite`);
-};
-
-const nonBlank: (value: string, label: string) => void = (
-  value: string,
-  label: string,
-): void => {
-  if (value.trim().length === 0) throw new Error(`${label} must be non-empty`);
 };
 
 const atLeast: (value: number, limit: number, label: string) => void = (

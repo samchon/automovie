@@ -3,8 +3,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { isAutoMovieRecord } from "../validation/isAutoMovieRecord";
-
 /**
  * Admit causal contact quantities and flatten completed solver samples without
  * promoting geometry to impulse authority.
@@ -80,8 +78,7 @@ export function samplePhysicalContactEvents(
       !Number.isFinite(sample.impulse) ||
       sample.impulse < 0 ||
       (sample.appliedImpulse !== undefined &&
-        (!isAutoMovieRecord(sample.appliedImpulse) ||
-          ![sample.appliedImpulse.a, sample.appliedImpulse.b].every(
+        (![sample.appliedImpulse.a, sample.appliedImpulse.b].every(
             (impulse: number): boolean =>
               Number.isFinite(impulse) && impulse >= 0,
           ))) ||

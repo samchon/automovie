@@ -42,7 +42,7 @@ export namespace HumanPerformanceTempo {
    *   the same refusal outside any group) still refuses after its `REPLANS`
    *   replans.
    */
-  export function plan<P>(
+  export function plan<P extends HumanPhysics.IBalanced>(
     law: Pick<IAutoMovieMotionHumanActionLaw<P>, "plan"> & HumanPhysics.ILaw,
     context: IAutoMovieMotionHumanActionContext<P>,
   ): IAutoMovieMotionHumanActionPlan {

@@ -29,26 +29,24 @@ function broken(
  *
  * Scenarios:
  *
- * 1. An empty prop node id is a `type` violation on `$input.node`.
- * 2. A model id differing from the node breaks the staging join.
- * 3. An imported origin violates the generated-prop contract.
- * 4. A model with a skeleton is an actor, not a prop: rejected toward forgeCast.
- * 5. An invalid model (zero-extent part) surfaces validateModel's violation remapped under `$input.model`.
- * 6. Empty articulation nodes violate.
- * 7. A duplicated joint node id violates at the duplicate's path.
- * 8. An empty joint node id violates.
- * 9. A parent naming an undeclared node violates.
- * 10. A cyclic parent chain violates.
- * 11. A binding targeting a different profile id violates.
- * 12. A boneMap value naming an undeclared node violates; an empty value violates separately.
- * 13. Both unmapped profile keys are listed in one round (pivot and mirror).
- * 14. Inherited constructor/toString/__proto__ properties do not supply a semantic mapping; an explicit own mapping of the same spelling passes.
+ * 1. A model id differing from the node breaks the staging join.
+ * 2. An imported origin violates the generated-prop contract.
+ * 3. A model with a skeleton is an actor, not a prop: rejected toward forgeCast.
+ * 4. An invalid model (zero-extent part) surfaces validateModel's violation remapped under `$input.model`.
+ * 5. Empty articulation nodes violate.
+ * 6. A duplicated joint node id violates at the duplicate's path.
+ * 7. A parent naming an undeclared node violates.
+ * 8. A cyclic parent chain violates.
+ * 9. A binding targeting a different profile id violates.
+ * 10. A boneMap value naming an undeclared node violates.
+ * 11. Both unmapped profile keys are listed in one round (pivot and mirror).
+ * 12. Inherited constructor/toString/__proto__ properties do not supply a semantic mapping; an explicit own mapping of the same spelling passes.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Forges fresh single-defect door mutations and asserts located type/range violations for staging identity, model proxy, articulation hierarchy, binding and missing profile keys; exact two-key reporting catches fail-fast loss.
  * @evidence contracts/development/testing.md#independent-expectations Paths follow the authored field positions, node/model equality joins staging, primitive widths must be positive, parents and bindings must name declared nodes, and both pivot/mirror profile keys require mappings. These authored contracts determine expected refusals without reading a generated error list.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers blank identities, wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent/blank mapped nodes and multiple unmapped keys. Reserved semantic spellings distinguish inherited properties from explicit own mappings, while unchanged articulated and rigid neighbours belong to test_film_forge_prop.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers wrong origin and rig kind, zero geometry extent, empty/duplicate/cyclic joint graphs, wrong profile, absent mapped nodes and multiple unmapped keys. Reserved semantic spellings distinguish inherited properties from explicit own mappings, while unchanged articulated and rigid neighbours belong to test_film_forge_prop.
  * @evidence contracts/development/testing.md#execution-ownership The discoverable synchronous entry owns its mutation cases over in-memory data and directly calls portable forgeProp; shared fixtures and violation predicates install no consumer or process.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 14 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An empty prop node id is a `type` violation on `$input.node`.).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 12 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model id differing from the node breaks the staging join.).
  */
 export function test_film_forge_prop_gates(): void {
   for (const key of ["constructor", "toString", "__proto__"]) {
@@ -82,14 +80,6 @@ export function test_film_forge_prop_gates(): void {
       true,
     );
   }
-  const emptyNode: IAutoMovieForgedProp = broken(
-    (s: IAutoMoviePropSpec): IAutoMoviePropSpec => ({ ...s, node: "  " }),
-  );
-  TestValidator.predicate(
-    "empty node id violates",
-    hasViolation(emptyNode, "type", "$input.node"),
-  );
-
   const wrongId: IAutoMovieForgedProp = broken(
     (s: IAutoMoviePropSpec): IAutoMoviePropSpec => ({
       ...s,
@@ -170,27 +160,6 @@ export function test_film_forge_prop_gates(): void {
     hasViolation(dupNode, "type", ".nodes[3].id"),
   );
 
-  const emptyId: IAutoMovieForgedProp = broken(
-    (s: IAutoMoviePropSpec): IAutoMoviePropSpec => ({
-      ...s,
-      articulation: {
-        ...s.articulation!,
-        nodes: s.articulation!.nodes.map(
-          (n: IAutoMovieNode, i: number): IAutoMovieNode =>
-            i === 2 ? { ...n, id: " " } : n,
-        ),
-        binding: {
-          ...s.articulation!.binding,
-          boneMap: { pivot: "hinge", mirror: "hinge" },
-        },
-      },
-    }),
-  );
-  TestValidator.predicate(
-    "empty joint node id violates",
-    hasViolation(emptyId, "type", ".nodes[2].id"),
-  );
-
   const badParent: IAutoMovieForgedProp = broken(
     (s: IAutoMoviePropSpec): IAutoMoviePropSpec => ({
       ...s,
@@ -254,10 +223,6 @@ export function test_film_forge_prop_gates(): void {
   TestValidator.predicate(
     "boneMap to an undeclared node violates",
     hasViolation(unknownMapped, "type", 'boneMap["pivot"]'),
-  );
-  TestValidator.predicate(
-    "boneMap to an empty id violates",
-    hasViolation(unknownMapped, "type", 'boneMap["mirror"]'),
   );
 
   const unmapped: IAutoMovieForgedProp = broken(

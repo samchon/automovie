@@ -3,8 +3,6 @@ import {
   integrateAirborneRotation,
 } from "@automovie/engine";
 import type {
-  AutoMovieHumanoidBone,
-  AutoMovieMotionHumanScheduledInstant,
   IAutoMovieCheckLegality,
   IAutoMovieComposition,
   IAutoMovieIntent,
@@ -20,26 +18,17 @@ import type {
   IAutoMovieMotionHumanPerformanceState,
   IAutoMovieMotionHumanPerformanceTrial,
   IAutoMovieMotionHumanPerformer,
-  IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanSegment,
-  IAutoMovieMotionHumanSkill,
   IAutoMovieMotionMeeting,
-  IAutoMovieMotionTarget,
   IAutoMovieSchedule,
   IAutoMovieScheduleContext,
   IAutoMovieScheduleCue,
 } from "@automovie/interface";
 
 import { HUMAN_ACTIONS } from "../actions/HUMAN_ACTIONS";
-import { stand } from "../actions/stand";
-import { HumanBendRead } from "../compose/HumanBendRead";
 import { HumanRefusal } from "../law/HumanRefusal";
-import { poseBones } from "../posture/poseBones";
-import { resolveHumanPosture } from "../posture/resolveHumanPosture";
-import { HumanSkill } from "../skill/HumanSkill";
-import { HumanPerformanceAim } from "./HumanPerformanceAim";
 import { HumanPerformanceBonds } from "./HumanPerformanceBonds";
 import { HumanPerformanceContacts } from "./HumanPerformanceContacts";
 import { HumanPerformanceFlight } from "./HumanPerformanceFlight";
@@ -52,16 +41,13 @@ import { HumanPerformanceSoftBudget } from "./HumanPerformanceSoftBudget";
 import { HumanPerformanceTether } from "./HumanPerformanceTether";
 import { HumanPreparedPlayback } from "./HumanPreparedPlayback";
 import { HumanSegment } from "./HumanSegment";
+import { anchorHumanPerformanceLayers } from "./anchorHumanPerformanceLayers";
+import { createHumanPerformancePerson } from "./createHumanPerformancePerson";
 import { readHumanSegmentLegs } from "./readHumanSegmentLegs";
 import { validateInitialPropMounts } from "./validateInitialPropMounts";
 
 /** The alternatives of `HumanPerformanceStateLayer2`'s site. */
 type HumanPerformanceStateLayer2 =
-  | IAutoMovieMotionHumanLayer
-  | IAutoMovieMotionHumanLayer.IScheduled;
-
-/** The alternatives of `HumanPerformanceStateLayer`'s site. */
-type HumanPerformanceStateLayer =
   | IAutoMovieMotionHumanLayer
   | IAutoMovieMotionHumanLayer.IScheduled;
 
@@ -366,91 +352,10 @@ export class HumanPerformanceState {
           reason: `two performers are named ${performer.subject}`,
           fix: "give every performer its own subject id",
         });
-      const initial: IAutoMovieMotionHumanPosture = stand.posture(
-        performer.body,
-        performer.at,
-        performer.yaw,
+      this.people.set(
+        performer.subject,
+        createHumanPerformancePerson(this, performer, input),
       );
-      const skill: IAutoMovieMotionHumanSkill = HumanSkill.resolve(
-        performer.proficiency,
-        input.seed,
-      );
-      const body = performer.body;
-      this.people.set(performer.subject, {
-        performer,
-        skill,
-        segments: [],
-        overlays: [],
-        initial,
-        cache: new Map(),
-        resolving: true,
-        holds: [],
-        stops: new Map(),
-        // A windowed layer waits until the schedule gives its instants.
-        layers: (input.layers?.[performer.subject] ?? []).flatMap(
-          (
-            layer: HumanPerformanceStateLayer,
-          ): IAutoMovieMotionHumanSegment.ILayered[] =>
-            "apply" in layer
-              ? [{ layer, from: -Infinity, to: Infinity, fade: 0 }]
-              : [],
-        ),
-        layer: {
-          subject: performer.subject,
-          body,
-          skill,
-          ...(performer.attributes === undefined
-            ? {}
-            : { attributes: performer.attributes }),
-          action: () => undefined,
-          aim: (target: IAutoMovieMotionTarget, seconds: number) => {
-            // Only a self target, the aiming performer named as a person, or
-            // a prop they may carry reads their bones, resolved from the
-            // whole posture; every other target reads at most the root and
-            // heading, so only the root channel is evaluated for it.
-            const posture: IAutoMovieMotionHumanPosture =
-              HumanPerformanceRead.posture(
-                this,
-                performer.subject,
-                seconds,
-                target.kind === "point" ||
-                  target.kind === "none" ||
-                  (target.kind === "person" &&
-                    target.subject !== performer.subject)
-                  ? ["root"]
-                  : undefined,
-              );
-            return HumanPerformanceAim.aim(
-              this,
-              target,
-              seconds,
-              HumanPerformanceAim.frame(
-                body,
-                posture,
-                (
-                  requested?: ReadonlySet<AutoMovieHumanoidBone>,
-                ): ReturnType<typeof poseBones> =>
-                  poseBones(
-                    body,
-                    resolveHumanPosture.seeded(
-                      body,
-                      posture,
-                      undefined,
-                      undefined,
-                      undefined,
-                      requested,
-                    ).pose,
-                    undefined,
-                    requested,
-                  ),
-                performer.subject,
-              ),
-            );
-          },
-          random: (channel: string) =>
-            HumanSkill.stream(skill, performer.subject, "layer", 0, channel),
-        },
-      });
     }
     // Listed before anything is placed, so a law that reads another
     // person's path can tell a finished chain from one still to be placed,
@@ -470,36 +375,7 @@ export class HumanPerformanceState {
     // An anchored layer whose window waits for no action has its instants
     // before anything is placed, so actions can be synced to them: they are
     // given to the resolver as one more cue track.
-    for (const [subject, layers] of Object.entries(input.layers ?? {}))
-      for (const scheduled of layers) {
-        if ("apply" in scheduled || scheduled.anchor === undefined) continue;
-        if (this.layered.has(scheduled.anchor) || scheduled.anchor in this.cues)
-          throw new HumanRefusal({
-            kind: "parameter",
-            performer: subject,
-            axis: "layers",
-            value: scheduled.anchor,
-            reason: `the layer anchor ${scheduled.anchor} is already the name of another layer or of a cue track (in use: ${[...this.layered.keys(), ...Object.keys(this.cues)].join(", ")})`,
-            fix: "give every anchored layer a name of its own, different from every cue track's",
-          });
-        const early = (
-          at: AutoMovieMotionHumanScheduledInstant | undefined,
-          absent: number | undefined,
-        ): number | undefined =>
-          at === undefined
-            ? absent
-            : typeof at === "number" || at.of in this.cues
-              ? HumanPerformanceLayers.instant(this, at)
-              : undefined;
-        const from: number | undefined = early(scheduled.from, 0);
-        const to: number | undefined = early(scheduled.to, undefined);
-        this.layered.set(
-          scheduled.anchor,
-          from === undefined || to === undefined
-            ? []
-            : HumanPerformanceLayers.instants(from, to, scheduled.fade),
-        );
-      }
+    anchorHumanPerformanceLayers(this, input);
     this.schedule = HumanPerformanceSchedule.resolve(this, input);
     for (const person of this.people.values())
       HumanPerformanceOverlays.validate(person);
@@ -590,6 +466,5 @@ export class HumanPerformanceState {
       for (const overlay of person.overlays)
         HumanPreparedPlayback.prepare(overlay.plan);
     }
-    HumanBendRead.resolved.add(this);
   }
 }

@@ -28,7 +28,6 @@ import { HumanFrame } from "../posture/HumanFrame";
 import { createHumanPostureCurve } from "../posture/createHumanPostureCurve";
 import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolution";
 import { prepareHumanPostureProjection } from "../posture/prepareHumanPostureProjection";
-import { prepareHumanPostureRigCheck } from "../posture/prepareHumanPostureRigCheck";
 import { StrikingTarget } from "../striking/StrikingTarget";
 import { KnockdownFloor } from "./KnockdownFloor";
 import { ReactionFeet } from "./ReactionFeet";
@@ -344,15 +343,10 @@ export namespace knockdown {
     // A directed fall still observes its source at the normal query.
     if (defaultSource && duration > DOWN) {
       let hold: IAutoMovieMotionHumanActionPlan["posture"] | undefined;
-      let unchanged: (() => boolean) | undefined;
       HumanPreparedPlayback.attach(out, body, {
         mode: "posture",
         prepare: (): void => {
-          unchanged = prepareHumanPostureRigCheck(body);
-          hold =
-            unchanged === undefined
-              ? undefined
-              : createHumanPostureCurve(plan.posture(DOWN));
+          hold = createHumanPostureCurve(plan.posture(DOWN));
         },
         phases: [
           {
@@ -362,9 +356,7 @@ export namespace knockdown {
               seconds,
               channels,
             ): IAutoMovieMotionHumanPlayback.ISample | undefined =>
-              channels === undefined &&
-              unchanged?.() === true &&
-              hold !== undefined
+              channels === undefined && hold !== undefined
                 ? { posture: hold(seconds) }
                 : undefined,
           },

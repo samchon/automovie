@@ -2,15 +2,15 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Describes the finite record and unit norm checks, their diagnostic paths and when the norm is evaluated.
+Describes the finite component and unit norm checks, their diagnostic paths and when the norm is evaluated.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Checks record shape and then all four components before invoking the collector's shared norm rule.
+Checks all four components before invoking the collector's shared norm rule.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Record shape is admitted before field access. The collector owns unit-norm policy.
+The declared quaternion type owns record shape. The collector owns unit-norm policy.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

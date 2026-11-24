@@ -13,7 +13,7 @@ import type { IAutoMovieCameraDepthPrecisionConstraint } from "../scene/IAutoMov
  * the live camera and authors its move from there.
  */
 export interface IAutoMovieStageCamera {
-  /** Non-blank unique scene camera identity that `frame` actions name. */
+  /** Unique scene camera identity that `frame` actions name. */
   node: string;
 
   /** Finite initial camera position in world metres. */

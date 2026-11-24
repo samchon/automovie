@@ -3,7 +3,7 @@
  * metadata.
  */
 export interface IAutoMovieEditorialMarker {
-  /** Nonblank id, unique within the owning shot. */
+  /** Id, unique within the owning shot. */
   id: string;
 
   /** Nonblank label copied to every retained play. */

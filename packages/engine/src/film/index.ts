@@ -131,7 +131,6 @@ export * from "./stageScene";
 export * from "./staging";
 export * from "./unionSubjectBoxes";
 export * from "./validatePerformShotFraming";
-export * from "./validatePerformShotId";
 export * from "./validatePropAffordanceTarget";
 export * from "./validatePropPlacementGeometry";
 export * from "./validatePropPlacements";

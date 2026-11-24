@@ -21,8 +21,8 @@ import type { AutoMovieInteractionEventSource } from "./AutoMovieInteractionEven
 export interface IAutoMovieInteractionEvent {
   /**
    * Intended event identity within the shot. Producers embed kind, participants
-   * and formatted time, which can collide; the artifact gate checks nonblank
-   * spelling without uniqueness.
+   * and formatted time, which can collide; the artifact gate does not check
+   * uniqueness.
    */
   id: string;
 

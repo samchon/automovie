@@ -84,7 +84,7 @@ export interface IAutoMovieMotionHumanEntryState {
   from?: IAutoMovieMotionHumanEntryState.IFrom;
 }
 
-/** Contracts used by jumpTakeoff, stand.feet, standFeet.of, walkFacing.share. */
+/** Contracts used by jumpTakeoff, stand.feet, standFeet, walkFacing.share. */
 export namespace IAutoMovieMotionHumanEntryState {
   /**
    * Whether an entry foot stands on the floor: planted, with its ankle within

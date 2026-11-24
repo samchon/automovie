@@ -1,7 +1,6 @@
 import {
   Quaternion,
   Vector3,
-  physicalShapeNearest,
   projectileAt,
   projectileFirstContact,
 } from "@automovie/engine";
@@ -13,8 +12,6 @@ import type {
   IAutoMovieMotionHumanProp,
   IAutoMovieMotionHumanPropFlight,
   IAutoMovieMotionHumanPropOutcome,
-  IAutoMovieMotionHumanTether,
-  IAutoMovieMotionPropLaunch,
   IAutoMoviePhysicalShape,
   IAutoMovieProjectile,
   IAutoMovieProjectileFirstContact,
@@ -26,11 +23,11 @@ import type {
 } from "@automovie/interface";
 
 import { AutoMovieMotionHumanAuditLimits } from "../audit/AutoMovieMotionHumanAuditLimits";
-import { AutoMovieMotionHumanBendRepeat } from "../compose/AutoMovieMotionHumanBendRepeat";
 import { HumanColliders } from "../posture/HumanColliders";
 import { HumanPerformanceRead } from "./HumanPerformanceRead";
 import { HumanPropCatchHands } from "./HumanPropCatchHands";
-import { HumanPropOutcome } from "./HumanPropOutcome";
+import { HumanPropSweepColliders } from "./HumanPropSweepColliders";
+import { HumanPropSweepHands } from "./HumanPropSweepHands";
 
 /**
  * The one sweep of a flying prop (`HumanPropFlight`): its flight from a film
@@ -109,8 +106,6 @@ export namespace HumanPropSweep {
     captureHands: readonly HumanPropCatchHands.IApproach[] = [],
     handback?: IHandback,
   ): IAutoMovieMotionHumanPropOutcome.IMeeting | null {
-    const bend: AutoMovieMotionHumanBendRepeat =
-      new AutoMovieMotionHumanBendRepeat();
     const colliders: IAutoMovieProjectileFirstContact.ICollider[] = [
       projectileFirstContact.plane(
         "ground",
@@ -123,7 +118,9 @@ export namespace HumanPropSweep {
     // its action, as a staged catch's hands are: its fit owns the meeting of
     // the instrument and the hand that carries it.
     const handedSides: readonly AutoMovieHumanSide[] =
-      handback === undefined ? [] : handbackSides(self, handback);
+      handback === undefined
+        ? []
+        : HumanPropSweepHands.handbackSides(self, handback);
     const approaches: readonly HumanPropCatchHands.IApproach[] =
       handback === undefined || handedSides.length === 0
         ? captureHands
@@ -144,7 +141,7 @@ export namespace HumanPropSweep {
 
     // How each opaque collider's surface moves at its point nearest a flight
     // segment, by the collider's id: a person's and a moving prop's.
-    const surfaces: Map<string, Surface> = new Map();
+    const surfaces: Map<string, HumanPropSweepColliders.Surface> = new Map();
     for (const person of self.people.values()) {
       const subject: string = person.performer.subject;
       if (subject === launcher || `person:${subject}` === leave) continue;
@@ -164,7 +161,7 @@ export namespace HumanPropSweep {
       if (bones !== allBones) maskedBones?.set(subject, bones);
       /** The original root-based rejection, with its centre for a full witness. */
       const frame = (t: number): IAutoMovieVector3 =>
-        HumanPerformanceRead.projectileRoot(self, subject, seconds + t, bend);
+        HumanPerformanceRead.projectileRoot(self, subject, seconds + t);
       /** The original signed lower bound before querying the collider union. */
       const distanceFromRoot = (
         a: IAutoMovieVector3,
@@ -177,17 +174,17 @@ export namespace HumanPropSweep {
         ) - reach;
       // The struck bone's motion carries the surface point, read on the
       // displayed pose the sweep reads.
-      const surface: Surface = (
+      const surface: HumanPropSweepColliders.Surface = (
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
         t: number,
-      ): ISurface => {
+      ): HumanPropSweepColliders.ISurface => {
         const near: ReturnType<typeof HumanColliders.nearest> =
           HumanColliders.nearest(body, bones(seconds + t), a, b);
         const only: ReadonlySet<AutoMovieHumanoidBone> = new Set([near.bone]);
         return {
           normal: near.normal,
-          velocity: pointVelocity(
+          velocity: HumanPropSweepColliders.pointVelocity(
             (at: number): IAutoMovieRigidTransform => {
               const bone: IAutoMovieResolvedBone = HumanPerformanceRead.bones(
                 self,
@@ -218,7 +215,12 @@ export namespace HumanPropSweep {
           options: IAutoMovieProjectileFirstContact.IOptions,
           contact: IAutoMovieResolveContactEvents.IInitialContact,
         ): IAutoMovieResolveContactEvents.Departure | undefined =>
-          separating(projectile, options, contact, surface),
+          HumanPropSweepColliders.separating(
+            projectile,
+            options,
+            contact,
+            surface,
+          ),
         distance: (a, b, t): number => {
           const bound: number = distanceFromRoot(a, b, frame(t));
           if (bound > (radius ?? 0)) return bound;
@@ -255,7 +257,7 @@ export namespace HumanPropSweep {
     for (const other of self.props.values()) {
       if (other.subject === prop.subject || other.shapes === undefined)
         continue;
-      if (launched(self, other.subject)) continue;
+      if (HumanPropSweepHands.launched(self, other.subject)) continue;
 
       // What the launcher holds or wears as the flight starts goes with the
       // launcher, who is no collider: a ball leaving a gun's muzzle starts
@@ -291,23 +293,30 @@ export namespace HumanPropSweep {
         );
       const pose = (t: number): IAutoMovieRigidTransform =>
         HumanPerformanceRead.prop(self, other.subject, seconds + t);
-      const fixed: IAutoMovieRigidTransform | undefined = still(
-        self,
-        other,
-        grips,
-        seconds,
-        seconds + horizon,
-      );
+      const fixed: IAutoMovieRigidTransform | undefined =
+        HumanPropSweepHands.still(
+          self,
+          other,
+          grips,
+          seconds,
+          seconds + horizon,
+        );
       // While a person holds or wears the prop, it lies within that person's
       // reach of their root and its own reach of the hand, twice its extent:
       // the same bounding-sphere reject the person's own collider uses, so a
       // flight far from the holder never reads the holder's pose for it.
       const carried: readonly IAutoMovieMotionHumanPerformanceState.IGrip[] =
         fixed === undefined
-          ? carriers(self, other, grips, seconds, seconds + horizon)
+          ? HumanPropSweepHands.carriers(
+              self,
+              other,
+              grips,
+              seconds,
+              seconds + horizon,
+            )
           : [];
-      const extent: number = 2 * reach(other.shapes);
-      const bound: Bound = (
+      const extent: number = 2 * HumanPropSweepColliders.reach(other.shapes);
+      const bound: HumanPropSweepColliders.Bound = (
         a: IAutoMovieVector3,
         b: IAutoMovieVector3,
         t: number,
@@ -322,7 +331,6 @@ export namespace HumanPropSweep {
           self,
           grip.subject,
           seconds + t,
-          bend,
         );
         return (
           Math.min(
@@ -342,19 +350,21 @@ export namespace HumanPropSweep {
           const shaped: IAutoMovieProjectileFirstContact.ICollider =
             projectileFirstContact.shape(id, shape, fixed ?? pose);
           const placed: IAutoMovieProjectileFirstContact.ICollider =
-            carried.length === 0 ? shaped : culled(shaped, bound, radius ?? 0);
+            carried.length === 0
+              ? shaped
+              : HumanPropSweepColliders.culled(shaped, bound, radius ?? 0);
 
           // A moving prop's surface carries the point its frame carries.
-          const surface: Surface = (
+          const surface: HumanPropSweepColliders.Surface = (
             a: IAutoMovieVector3,
             b: IAutoMovieVector3,
             t: number,
-          ): ISurface => {
+          ): HumanPropSweepColliders.ISurface => {
             const near: IAutoMovieProjectileFirstContact.INearest =
               placed.nearest(a, b, t);
             return {
               normal: near.normal,
-              velocity: pointVelocity(
+              velocity: HumanPropSweepColliders.pointVelocity(
                 (at: number): IAutoMovieRigidTransform =>
                   HumanPerformanceRead.prop(self, other.subject, at),
                 near.point,
@@ -373,10 +383,17 @@ export namespace HumanPropSweep {
                     options: IAutoMovieProjectileFirstContact.IOptions,
                     contact: IAutoMovieResolveContactEvents.IInitialContact,
                   ): IAutoMovieResolveContactEvents.Departure | undefined =>
-                    separating(projectile, options, contact, surface),
+                    HumanPropSweepColliders.separating(
+                      projectile,
+                      options,
+                      contact,
+                      surface,
+                    ),
                 };
           colliders.push(
-            handedBack ? until(collider, handback!.from - seconds) : collider,
+            handedBack
+              ? HumanPropSweepHands.until(collider, handback!.from - seconds)
+              : collider,
           );
         },
       );
@@ -391,7 +408,7 @@ export namespace HumanPropSweep {
         radius: radius ?? 0,
         ...(tip === undefined ? {} : { tail: tip }),
         ...(departing === undefined ? {} : { departing }),
-        thickness: thinnest(self, launcher, solid),
+        thickness: HumanPropSweepColliders.thinnest(self, launcher, solid),
       },
     );
     if (hit === null) return null;
@@ -414,7 +431,8 @@ export namespace HumanPropSweep {
 
     // A moving surface's velocity at the contact, which the bounce leaves
     // relative to; the floor and a prop standing still are at rest.
-    const reader: Surface | undefined = surfaces.get(id);
+    const reader: HumanPropSweepColliders.Surface | undefined =
+      surfaces.get(id);
     const state: IAutoMovieProjectileState = projectileAt(projectile, hit.time);
     return {
       hit,
@@ -473,397 +491,4 @@ export namespace HumanPropSweep {
      */
     hands: readonly AutoMovieHumanSide[];
   }
-
-  /**
-   * A collider present only before a flight second: from it on, the handback's
-   * fitted approach owns the meeting, so the collider is absent.
-   */
-  function until(
-    collider: IAutoMovieProjectileFirstContact.ICollider,
-    from: number,
-  ): IAutoMovieProjectileFirstContact.ICollider {
-    return {
-      id: collider.id,
-      ...(collider.departure === undefined
-        ? {}
-        : { departure: collider.departure }),
-      distance: (a, b, t): number =>
-        t >= from
-          ? Infinity
-          : collider.distance === undefined
-            ? collider.nearest(a, b, t).distance
-            : collider.distance(a, b, t),
-      nearest: (
-        a: IAutoMovieVector3,
-        b: IAutoMovieVector3,
-        t: number,
-      ): IAutoMovieProjectileFirstContact.INearest =>
-        t >= from
-          ? { distance: Infinity, point: a, normal: { x: 0, y: 1, z: 0 } }
-          : collider.nearest(a, b, t),
-    };
-  }
-
-  /**
-   * The handback launcher's hands its fit owns at the launch: the hands that
-   * touch the prop and the hands that hold a prop then (the instrument that
-   * strikes), each side once.
-   */
-  function handbackSides(
-    self: IAutoMovieMotionHumanPerformanceState,
-    handback: IHandback,
-  ): AutoMovieHumanSide[] {
-    const sides: Set<AutoMovieHumanSide> = new Set(handback.hands);
-    for (const other of self.props.values())
-      for (const grip of HumanPerformanceRead.grips(self, other.subject))
-        if (
-          grip.subject === handback.subject &&
-          grip.bone === undefined &&
-          grip.mount === undefined &&
-          grip.from <= handback.at &&
-          grip.to >= handback.at - 1e-6
-        )
-          sides.add(grip.side);
-    return [...sides];
-  }
-
-  /**
-   * A prop's frame when it stands still over a sweep: nothing moves it by
-   * itself, wears it, mounts it, pulls it on a line, and no grip holds it in
-   * the span (a fixture's grips bear on it and never carry it). Undefined when
-   * it may move.
-   */
-  function still(
-    self: IAutoMovieMotionHumanPerformanceState,
-    prop: IAutoMovieMotionHumanProp,
-    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
-    from: number,
-    to: number,
-  ): IAutoMovieRigidTransform | undefined {
-    if (
-      prop.motion !== undefined ||
-      prop.worn !== undefined ||
-      prop.mounted !== undefined ||
-      prop.soft !== undefined
-    )
-      return undefined;
-    for (const other of self.props.values())
-      if (
-        other.tethers?.some(
-          (line: IAutoMovieMotionHumanTether): boolean =>
-            line.to.prop === prop.subject,
-        )
-      )
-        return undefined;
-    if (
-      prop.fixed !== true &&
-      grips.some(
-        (grip: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-          grip.from < to && grip.to > from,
-      )
-    )
-      return undefined;
-    return HumanPerformanceRead.prop(self, prop.subject, from);
-  }
-
-  /**
-   * The people's grips that carry a prop over a sweep, when people's grips are
-   * all that move it: none when it moves by itself, rides another prop or a
-   * line pulls it.
-   */
-  function carriers(
-    self: IAutoMovieMotionHumanPerformanceState,
-    prop: IAutoMovieMotionHumanProp,
-    grips: readonly IAutoMovieMotionHumanPerformanceState.IGrip[],
-    from: number,
-    to: number,
-  ): IAutoMovieMotionHumanPerformanceState.IGrip[] {
-    if (
-      prop.motion !== undefined ||
-      prop.mounted !== undefined ||
-      prop.soft !== undefined ||
-      [...self.props.values()].some(
-        (other: IAutoMovieMotionHumanProp): boolean =>
-          other.tethers?.some(
-            (line: IAutoMovieMotionHumanTether): boolean =>
-              line.to.prop === prop.subject,
-          ) === true,
-      )
-    )
-      return [];
-    const spanned: IAutoMovieMotionHumanPerformanceState.IGrip[] = grips.filter(
-      (grip: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-        grip.from < to && grip.to > from,
-    );
-    return spanned.some(
-      (grip: IAutoMovieMotionHumanPerformanceState.IGrip): boolean =>
-        grip.mount !== undefined,
-    )
-      ? []
-      : spanned;
-  }
-
-  /**
-   * How far a prop's shapes reach from its frame's origin, metres: the largest
-   * over its shapes of the shape's offset and its own bounding radius.
-   */
-  function reach(shapes: readonly IAutoMoviePhysicalShape[]): number {
-    let far: number = 0;
-    for (const shape of shapes) {
-      const own: number =
-        shape.kind === "sphere"
-          ? shape.radius
-          : shape.kind === "capsule"
-            ? shape.halfLength + shape.radius
-            : shape.kind === "box"
-              ? Vector3.length(shape.halfExtents)
-              : Math.max(
-                  0,
-                  ...shape.points.map((point: IAutoMovieVector3): number =>
-                    Vector3.length(point),
-                  ),
-                );
-      far = Math.max(far, Vector3.length(shape.transform.position) + own);
-    }
-    return far;
-  }
-
-  /**
-   * A collider read only where a cheap lower bound on its distance allows a
-   * contact: farther than the projectile's radius by the bound, the bound
-   * stands for the distance, as the person's root reject does.
-   */
-  function culled(
-    collider: IAutoMovieProjectileFirstContact.ICollider,
-    bound: Bound,
-    radius: number,
-  ): IAutoMovieProjectileFirstContact.ICollider {
-    return {
-      ...collider,
-      distance: (
-        a: IAutoMovieVector3,
-        b: IAutoMovieVector3,
-        t: number,
-      ): number => {
-        const far: number = bound(a, b, t);
-        return far > radius
-          ? far
-          : collider.distance === undefined
-            ? collider.nearest(a, b, t).distance
-            : collider.distance(a, b, t);
-      },
-      nearest: (
-        a: IAutoMovieVector3,
-        b: IAutoMovieVector3,
-        t: number,
-      ): IAutoMovieProjectileFirstContact.INearest => {
-        const far: number = bound(a, b, t);
-        return far > radius
-          ? { distance: far, point: a, normal: { x: 0, y: 1, z: 0 } }
-          : collider.nearest(a, b, t);
-      },
-    };
-  }
-
-  /**
-   * A contact at the sweep's start that the flight leaves, classified by the
-   * surface's own motion: the flight's velocity relative to the surface's at
-   * its nearest point points out along the normal (a separating contact, Baraff
-   * 1989), and the pair's gap reads positive at the scan's next grid second,
-   * where the pair is clear. Undefined for a colliding or resting contact, or
-   * one still closed a step on, which stays a contact.
-   */
-  function separating(
-    projectile: IAutoMovieProjectile,
-    options: IAutoMovieProjectileFirstContact.IOptions,
-    contact: IAutoMovieResolveContactEvents.IInitialContact,
-    surface: Surface,
-  ): IAutoMovieResolveContactEvents.Departure | undefined {
-    const state: IAutoMovieProjectileState = projectileAt(
-      projectile,
-      contact.from,
-    );
-    const end: IAutoMovieVector3 =
-      options.tail === undefined || state.rotation === undefined
-        ? state.position
-        : Vector3.add(
-            state.position,
-            Quaternion.rotateVector(state.rotation, options.tail),
-          );
-    const at: ISurface = surface(state.position, end, contact.from);
-    if (
-      !(
-        Vector3.dot(Vector3.subtract(state.velocity, at.velocity), at.normal) >
-        0
-      )
-    )
-      return undefined;
-    const seconds: number =
-      contact.from +
-      projectileFirstContact.step(
-        projectile,
-        { from: contact.from, to: contact.to },
-        options,
-      );
-    if (!(seconds > contact.from && seconds <= contact.to)) return undefined;
-    const gap: number = contact.at(seconds);
-    return Number.isFinite(gap) && gap > 0
-      ? { kind: "clearance", seconds }
-      : undefined;
-  }
-
-  /**
-   * The velocity of a point a moving frame carries, world metres per second:
-   * the point fixed in the frame where it lies at a second, its central
-   * difference over a contact's time resolution.
-   */
-  function pointVelocity(
-    frame: (seconds: number) => IAutoMovieRigidTransform,
-    point: IAutoMovieVector3,
-    seconds: number,
-  ): IAutoMovieVector3 {
-    const now: IAutoMovieRigidTransform = frame(seconds);
-    const local: IAutoMovieVector3 = Quaternion.rotateVector(
-      Quaternion.inverse(now.rotation),
-      Vector3.subtract(point, now.position),
-    );
-    const placed: (at: number) => IAutoMovieVector3 = (
-      at: number,
-    ): IAutoMovieVector3 => {
-      const carried: IAutoMovieRigidTransform = frame(at);
-      return Vector3.add(
-        carried.position,
-        Quaternion.rotateVector(carried.rotation, local),
-      );
-    };
-    const h: number = HumanPropOutcome.CONTACT_SECOND;
-    return Vector3.scale(
-      Vector3.subtract(placed(seconds + h), placed(seconds - h)),
-      1 / (2 * h),
-    );
-  }
-
-  /** Whether any action launches a prop. */
-  function launched(
-    self: IAutoMovieMotionHumanPerformanceState,
-    subject: string,
-  ): boolean {
-    for (const person of self.people.values())
-      for (const segment of [...person.segments, ...person.overlays])
-        if (
-          (segment.plan.launches ?? []).some(
-            (l: IAutoMovieMotionPropLaunch): boolean => l.prop === subject,
-          )
-        )
-          return true;
-    return false;
-  }
-
-  /**
-   * The thinnest collider a flight may meet, metres: the least diameter of a
-   * round shape, least full extent of a box or inscribed width of a hull among
-   * the people but the launcher, finger bones aside, and the props that do not
-   * fly.
-   */
-  function thinnest(
-    self: IAutoMovieMotionHumanPerformanceState,
-    launcher: string,
-    props: readonly IAutoMoviePhysicalShape[],
-  ): number {
-    let least: number = Infinity;
-    for (const shape of props) least = Math.min(least, size(shape));
-    for (const person of self.people.values()) {
-      if (person.performer.subject === launcher) continue;
-      for (const segment of person.performer.body.profile.segments) {
-        if (FINGER.test(segment.bone)) continue;
-        for (const shape of segment.shapes ?? [])
-          least = Math.min(least, size(shape));
-      }
-    }
-
-    // With no thin collider, the floor permits a whole-span scan. A resolved
-    // departure's engine certificate still exposes its later plane entry.
-    return Number.isFinite(least) ? least : Number.MAX_VALUE;
-  }
-
-  /**
-   * A shape's least thickness, metres: a round shape's diameter, a box's least
-   * full extent, a hull's inscribed width (`width`).
-   */
-  function size(shape: IAutoMoviePhysicalShape): number {
-    return shape.kind === "sphere" || shape.kind === "capsule"
-      ? 2 * shape.radius
-      : shape.kind === "box"
-        ? 2 *
-          Math.min(
-            shape.halfExtents.x,
-            shape.halfExtents.y,
-            shape.halfExtents.z,
-          )
-        : width(shape);
-  }
-
-  /**
-   * A hull's least width bound, metres: twice its vertices' centroid's depth
-   * inside it, the diameter of the largest ball about that point within the
-   * hull, which no width of the hull is less than. A flat hull, whose centroid
-   * lies on its surface, is not counted, as a finger is not. Read once per
-   * sweep (`thinnest`).
-   */
-  function width(shape: IAutoMoviePhysicalShape): number {
-    let found: number = Infinity;
-    if (shape.kind === "hull" && shape.points.length !== 0) {
-      let sum: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
-      for (const point of shape.points) sum = Vector3.add(sum, point);
-      const centre: IAutoMovieVector3 = Vector3.add(
-        shape.transform.position,
-        Quaternion.rotateVector(
-          shape.transform.rotation,
-          Vector3.scale(sum, 1 / shape.points.length),
-        ),
-      );
-      const depth: number = -physicalShapeNearest(ORIGIN, shape, centre, centre)
-        .distance;
-      if (depth > 0) found = 2 * depth;
-    }
-    return found;
-  }
-
-  /** The world frame, a shape's parent placed at the origin unturned. */
-  const ORIGIN: IAutoMovieRigidTransform = {
-    position: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
-  };
-
-  /** A surface's outward normal and velocity at its point nearest a segment. */
-  interface ISurface {
-    /** The outward unit normal there, world. */
-    normal: IAutoMovieVector3;
-
-    /** The surface point's velocity, world metres per second. */
-    velocity: IAutoMovieVector3;
-  }
-
-  /**
-   * A lower bound on a collider's distance from a flight segment at seconds
-   * since the sweep's zero, metres; minus infinity where none is known.
-   */
-  type Bound = (
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    seconds: number,
-  ) => number;
-
-  /**
-   * Read a collider's surface at its point nearest a flight segment, at seconds
-   * since the sweep's zero.
-   */
-  type Surface = (
-    a: IAutoMovieVector3,
-    b: IAutoMovieVector3,
-    seconds: number,
-  ) => ISurface;
-
-  /** The finger bones, whose colliders a fast flight may pass. */
-  const FINGER: RegExp = /(Thumb|Index|Middle|Ring|Little)/;
 }

@@ -87,22 +87,6 @@ function course(
   start: IAutoMovieRigidTransform,
   props: IAutoMovieMotionHumanAidWalk,
 ): ICourse {
-  if (
-    props.kind !== "cane" &&
-    props.kind !== "crutch" &&
-    props.kind !== "walker"
-  )
-    return refuse(
-      "kind",
-      String(props.kind),
-      "the aid order must name a cane, a crutch or a walker",
-    );
-  if (!Array.isArray(props.stations))
-    return refuse(
-      "stations",
-      0,
-      "an aided route needs an array of floor stations",
-    );
   const first: IAutoMovieMotionHumanAidWalk.IStation | undefined =
     props.stations[0];
   if (first === undefined)

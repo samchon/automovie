@@ -22,8 +22,8 @@ import { nclose, throwsError } from "../internal/predicates";
  *    dry mix, and the ambience remains at its input gain.
  * 3. Fractional-rate and film-edge samples preserve absolute ramp anchors,
  *    including virtual anchors beyond the safe sample range.
- * 4. Both the planner and the public mixer reject a gain above unity, a fractional
- *    or negative ramp, and a raw null policy.
+ * 4. Both the planner and the public mixer reject a gain above unity and a
+ *    fractional or negative ramp.
  *
  * @evidence contracts/development/common.md#meaningful-documentation The four scenarios identify the audible time, bus, adoption and admission boundaries.
  * @evidence contracts/development/testing.md#behavioral-verification Calls the public production planner and mixer, then reads sample values from stereo output and checks public failure paths.
@@ -208,9 +208,6 @@ export function test_film_production_sound_score_ducking(): void {
     { ...policy, gain: 1.25 },
     { ...policy, attackFrames: 0.5 },
     { ...policy, releaseFrames: -1 },
-    null as unknown as NonNullable<
-      IAutoMovieProductionSoundPlan["scoreDucking"]
-    >,
   ];
   TestValidator.predicate(
     "malformed score policy is refused before mixing",

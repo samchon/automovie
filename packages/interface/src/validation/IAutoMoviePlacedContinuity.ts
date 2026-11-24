@@ -35,7 +35,7 @@ export namespace IAutoMoviePlacedContinuity {
          * exists.
          */
         readonly observation?:
-          | { readonly kind: "present"; readonly transform: unknown }
+          | { readonly kind: "present"; readonly transform: IAutoMovieTransform }
           | { readonly kind: "missing" };
       }
     | {

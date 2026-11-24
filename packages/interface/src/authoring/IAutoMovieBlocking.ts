@@ -13,7 +13,7 @@ import type { IAutoMovieBlockingCoverage } from "./IAutoMovieBlockingCoverage";
  * compare the hero intent's subject with the performed subject.
  */
 export interface IAutoMovieBlocking {
-  /** Non-blank script beat id realized by this plan; it must name a beat. */
+  /** Script beat id realized by this plan; it must name a beat. */
   beat: string;
 
   /** Dramatic purpose for later visual review; no engine gate reads it. */

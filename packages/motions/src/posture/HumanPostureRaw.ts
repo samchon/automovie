@@ -6,7 +6,7 @@ import type {
 } from "@automovie/interface";
 
 /**
- * Raw translation and the original observable serialization/admission policy.
+ * Raw translation and the original admission policy.
  * These operations establish no solved-pose or mutable-body capability.
  */
 export namespace HumanPostureRaw {
@@ -52,15 +52,6 @@ export namespace HumanPostureRaw {
         ].every(Number.isFinite))
     );
   }
-  /** Observe the existing complete JSON walk, distinguishing signed zero. */
-  export function signature(
-    posture: IAutoMovieMotionHumanPosture,
-  ): string | undefined {
-    return JSON.stringify(posture, (_key: string, value: unknown): unknown =>
-      typeof value === "number" && Object.is(value, -0) ? "number:-0" : value,
-    );
-  }
-
   /** Copy original demands and apply one world-metre displacement per goal. */
   export function translated(
     source: IAutoMovieMotionHumanPosture,

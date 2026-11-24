@@ -16,9 +16,9 @@ import { ViolationCollector } from "../validation/ViolationCollector";
  * A dangling document, a dangling candidate, or a blank rationale each turn the
  * citation into a decoration that survives the evidence it claims to rest on.
  *
- * A citation also needs a non-blank subject and at least one candidate, and may
+ * A citation also needs at least one candidate, and may
  * cite each (subject, document, candidate) once. A citation whose document does
- * not resolve skips candidate checks, while subject/rationale blank checks
+ * not resolve skips candidate checks, while rationale blank checks
  * still report findings. Findings use `$input.evidence[i]` paths and nothing
  * throws. Two references sharing an id are merged into one candidate set here
  * rather than refused; the production builder reports that collision as
@@ -48,7 +48,6 @@ export const validateDesignEvidence: (
   props.evidence.forEach(
     (evidence: IAutoMovieDesignEvidence, index: number): void => {
       const path: string = `${root}.evidence[${index}]`;
-      out.nonEmpty(`${path}.subject`, evidence.subject, "evidence subject");
       out.nonEmpty(
         `${path}.rationale`,
         evidence.rationale,

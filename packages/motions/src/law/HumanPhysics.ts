@@ -10,6 +10,10 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HumanPhysicsActionSecond } from "./HumanPhysicsActionSecond";
+import { HumanPhysicsAdmitWindow } from "./HumanPhysicsAdmitWindow";
+import { HumanPhysicsInvalid } from "./HumanPhysicsInvalid";
+import { HumanPhysicsMissing } from "./HumanPhysicsMissing";
 import { HumanRefusal } from "./HumanRefusal";
 
 /**
@@ -91,7 +95,7 @@ export namespace HumanPhysics {
    * An action's named events and duration are sufficient to resolve its own
    * bounds.
    */
-  interface ITiming {
+  export interface ITiming {
     /** The full duration of the action in seconds. */
     duration: number;
 
@@ -134,18 +138,13 @@ export namespace HumanPhysics {
    * applies when an author requests balance.
    */
   export function admitted(
-    params: unknown,
+    params: IBalanced,
     law: ILaw,
     plan: IAutoMovieMotionHumanActionPlan,
   ): void {
-    if (
-      plan.balanceWindow === undefined &&
-      typeof params === "object" &&
-      params !== null &&
-      "balance" in params
-    )
+    if (plan.balanceWindow === undefined)
       fixed(
-        params as IBalanced,
+        params,
         "this action did not prepare a correction for its own body and support phase",
         law,
       );
@@ -226,21 +225,21 @@ export namespace HumanPhysics {
       given.to ?? recommended.to;
     const ramp: IAutoMovieMotionHumanBalance.IRamp = given.ramp ??
       recommended.ramp ?? { in: 0, out: 0 };
-    if (by === undefined) throw missing("by");
-    if (from === undefined) throw missing("from");
-    if (to === undefined) throw missing("to");
+    if (by === undefined) throw HumanPhysicsMissing("by");
+    if (from === undefined) throw HumanPhysicsMissing("from");
+    if (to === undefined) throw HumanPhysicsMissing("to");
     if (by !== "hips" && by !== "trunk")
-      throw invalid("by", by, "name hips or trunk");
+      throw HumanPhysicsInvalid("by", by, "name hips or trunk");
     if (!Number.isFinite(weight) || !(weight >= 0 && weight <= 1))
-      throw invalid("weight", weight, "give a weight from 0 to 1");
+      throw HumanPhysicsInvalid("weight", weight, "give a weight from 0 to 1");
     if (!Number.isFinite(ramp.in) || ramp.in < 0)
-      throw invalid(
+      throw HumanPhysicsInvalid(
         "ramp.in",
         ramp.in,
         "give a nonnegative finite duration in seconds",
       );
     if (!Number.isFinite(ramp.out) || ramp.out < 0)
-      throw invalid(
+      throw HumanPhysicsInvalid(
         "ramp.out",
         ramp.out,
         "give a nonnegative finite duration in seconds",
@@ -261,21 +260,32 @@ export namespace HumanPhysics {
   ): Window {
     const active: Shift = shift(params, law);
     if (active === null || active.weight === 0) return null;
-    const from: number = actionSecond(
+    const from: number = HumanPhysicsActionSecond(
       active.from,
       "from",
       start,
       timing,
       resolve,
     );
-    const to: number = actionSecond(active.to, "to", start, timing, resolve);
+    const to: number = HumanPhysicsActionSecond(
+      active.to,
+      "to",
+      start,
+      timing,
+      resolve,
+    );
     if (!Number.isFinite(from))
-      throw invalid("from", from, "resolve to a finite film second");
+      throw HumanPhysicsInvalid(
+        "from",
+        from,
+        "resolve to a finite film second",
+      );
     if (!Number.isFinite(to))
-      throw invalid("to", to, "resolve to a finite film second");
-    if (to < from) throw invalid("to", to, "end at or after the opening bound");
+      throw HumanPhysicsInvalid("to", to, "resolve to a finite film second");
+    if (to < from)
+      throw HumanPhysicsInvalid("to", to, "end at or after the opening bound");
     if (to < 0 || timing.duration < from) return null;
-    return admitWindow(active, from, to);
+    return HumanPhysicsAdmitWindow(active, from, to);
   }
 
   /**
@@ -402,7 +412,7 @@ export namespace HumanPhysics {
     if (resolved === null || resolved.weight === 0) return 0;
     const from: number = resolve(instant(resolved.from, own));
     const to: number = resolve(instant(resolved.to, own));
-    return weightAt(admitWindow(resolved, from, to), seconds);
+    return weightAt(HumanPhysicsAdmitWindow(resolved, from, to), seconds);
   }
 
   /**
@@ -468,93 +478,5 @@ export namespace HumanPhysics {
       if (from <= to) result.push({ from, to });
     }
     return result;
-  }
-
-  /**
-   * Fit the requested edge durations to a numeric window, preserving their
-   * ratio.
-   */
-  function admitWindow(active: IShift, from: number, to: number): Window {
-    const span: number = to - from;
-    const ramp: IAutoMovieMotionHumanBalance.IRamp = active.ramp;
-    const longest: number = Math.max(ramp.in, ramp.out);
-    if (span < 0 || (span === 0 && longest > 0)) return null;
-    if (ramp.in + ramp.out <= span)
-      return { by: active.by, from, to, weight: active.weight, ramp };
-
-    // Normalize before adding so large finite durations retain their ratio.
-    const incoming: number = ramp.in / longest;
-    const outgoing: number = ramp.out / longest;
-    const unit: number = span / (incoming + outgoing);
-    return {
-      by: active.by,
-      from,
-      to,
-      weight: active.weight,
-      ramp: { in: incoming * unit, out: outgoing * unit },
-    };
-  }
-
-  /** Resolve one open or close bound in the current action's seconds. */
-  function actionSecond(
-    bound: IAutoMovieMotionHumanBalance.IBound,
-    field: string,
-    start: number,
-    timing: ITiming,
-    resolve: Instant | undefined,
-  ): number {
-    const index: number = bound.index ?? 0;
-    const offset: number = bound.offset ?? 0;
-    if (!Number.isInteger(index) || index < 0)
-      throw invalid(
-        field,
-        index,
-        "name a nonnegative integer event occurrence",
-      );
-    if (!Number.isFinite(offset))
-      throw invalid(field, offset, "give a finite offset in seconds");
-    if (bound.of !== undefined) {
-      if (resolve === undefined)
-        throw invalid(field, bound.of, "resolve that anchor in a performance");
-      return resolve(instant(bound, bound.of)) - start;
-    }
-    if (index === 0 && bound.event === "start") return offset;
-    if (index === 0 && bound.event === "end") return timing.duration + offset;
-    let occurrence: number = 0;
-    for (const event of timing.events)
-      if (event.name === bound.event && occurrence++ === index)
-        return event.share * timing.duration + offset;
-    throw invalid(
-      field,
-      bound.event,
-      "name an event and occurrence in the action's plan",
-    );
-  }
-
-  /** A parameter error with the balance term the author needs to correct. */
-  function invalid(field: string, value: unknown, fix: string): HumanRefusal {
-    return new HumanRefusal({
-      kind: "parameter",
-      axis: `balance.${field}`,
-      value,
-      feasible: null,
-      reason: `the balance cannot use this ${field}`,
-      fix,
-    });
-  }
-
-  /**
-   * The refusal of a balance missing a field neither the caller nor the law
-   * gives.
-   */
-  function missing(field: string): HumanRefusal {
-    return new HumanRefusal({
-      kind: "parameter",
-      axis: `balance.${field}`,
-      value: undefined,
-      feasible: null,
-      reason: `the balance needs its ${field}, and the law recommends none`,
-      fix: `give balance.${field}, or leave the balance out`,
-    });
   }
 }

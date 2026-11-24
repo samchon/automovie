@@ -9,23 +9,23 @@ import { TestValidator } from "@nestia/e2e";
  *
  * 1. An open (0,180) camera interval refuses both endpoints and accepts adjacent interior values with a matching mathematical diagnostic.
  * 2. The default interval and legacy open-lower (0,90] interval retain upper equality; the default retains lower equality too.
- * 3. An unbounded maximum accepts finite values under either endpoint policy; nonfinite or wrongly typed observations remain refused.
+ * 3. An unbounded maximum accepts finite values under either endpoint policy; nonfinite observations remain refused.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls validateRange and inspects appended findings for open/closed endpoints, admitted neighbors and finite unbounded values, catching endpoint-policy inversion or nonfinite admission.
  * @evidence contracts/development/testing.md#independent-expectations Literal interval arithmetic determines whether 0/180, interior camera values and 90 belong to the authored intervals. Bracket expectations express those mathematical policies, not snapshots of validator output.
- * @evidence contracts/development/testing.md#distinguishing-cases Retains endpoint equality, adjacent interior, above-bound, NaN/infinity/string and infinite-upper-bound cases under both maximum policies; scene_artifact owns actual camera/light field composition.
+ * @evidence contracts/development/testing.md#distinguishing-cases Retains endpoint equality, adjacent interior, above-bound, NaN/infinity and infinite-upper-bound cases under both maximum policies; scene_artifact owns actual camera/light field composition.
  * @evidence contracts/development/testing.md#execution-ownership This named portable unit directly invokes the scalar gate with caller-owned finding arrays; it starts no camera, renderer or dynamic registration.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: An open (0,180) camera interval refuses both endpoints and accepts adjacent interior values with a matching mathematical diagnostic.).
  */
 export function test_validation_range_open_upper(): void {
-  const camera: (value: unknown) => IAutoMovieConstraintViolation[] = (
-    value: unknown,
+  const camera: (value: number) => IAutoMovieConstraintViolation[] = (
+    value: number,
   ): IAutoMovieConstraintViolation[] => {
     const violations: IAutoMovieConstraintViolation[] = [];
     validateRange(value, "$camera", 0, 180, "field", violations, false, false);
     return violations;
   };
-  for (const value of [0, 180, 181, NaN, Infinity, "90"])
+  for (const value of [0, 180, 181, NaN, Infinity])
     TestValidator.predicate(
       "open perspective refusal",
       camera(value).some(

@@ -1,11 +1,9 @@
-import { Quaternion, Vector3, placeChainPlant } from "@automovie/engine";
+import { Quaternion, placeChainPlant } from "@automovie/engine";
 import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
   IAutoMovieHumanLimbGoal,
-  IAutoMovieHumanLimbReference,
-  IAutoMovieJointPose,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanColliders,
   IAutoMoviePlantChain,
@@ -25,6 +23,8 @@ import { HumanLimbAt } from "./HumanLimbAt";
 import { HumanLimbMirror } from "./HumanLimbMirror";
 import { HumanLimbVanishedRefusal } from "./HumanLimbVanishedRefusal";
 import { fitHumanLimbContact } from "./fitHumanLimbContact";
+import { humanLimbGoalWorld } from "./humanLimbGoalWorld";
+import { humanLimbReference } from "./humanLimbReference";
 import { poseBones } from "./poseBones";
 import { prepareHumanLimbFit } from "./prepareHumanLimbFit";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
@@ -72,123 +72,13 @@ export namespace HumanLimbFit {
   }
 
   /**
-   * A limb's reference solution read off a pose: the clinical angles of its
-   * upper and lower bones. A law solves the limb once at the instant its action
-   * is about (the grasp, the clasp, the placement) and hands the result to
-   * every goal of the stroke as `HumanPosture.IGoal.reference`.
-   *
-   * @param pose The pose the limb was solved in.
-   * @param limb The limb.
-   * @returns The reference.
+   * The joints a limb was solved to, as a reference for the strokes about it
+   * (`humanLimbReference`).
    */
-  export function reference(
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-  ): IAutoMovieHumanLimbReference {
-    const bones: IChain = chain(limb);
-    const read: (
-      bone: AutoMovieHumanoidBone,
-    ) => readonly [number, number, number] = (
-      bone: AutoMovieHumanoidBone,
-    ): readonly [number, number, number] => {
-      const joint: IAutoMovieJointPose | undefined = pose.joints.find(
-        (j: IAutoMovieJointPose): boolean => j.bone === bone,
-      );
-      return [joint?.flexion ?? 0, joint?.abduction ?? 0, joint?.twist ?? 0];
-    };
-    return { upper: read(bones.upper), lower: read(bones.lower) };
-  }
+  export const reference: typeof humanLimbReference = humanLimbReference;
 
-  /**
-   * A limb goal in world terms: unchanged when it has no `on` bone, otherwise
-   * its point and bend carried from the bone's posed frame to the world
-   * (`p_world = P + R p`) and its rotation composed after the bone's (`R q`),
-   * with the bone placed by the given pose. The attachment is refused for a
-   * bone of the limb's own chain (its upper bone, its lower bone or its end),
-   * because fitting the limb moves that bone and the goal would chase itself.
-   *
-   * @param body The performer's body.
-   * @param pose The pose that places the attachment bone, before the limb is
-   *   fitted.
-   * @param limb The limb the goal is for.
-   * @param goal The goal, attached or not.
-   * @param readAuthored Optional exact FK containing the attachment bone for
-   *   this body/pose and canonical mappings, shared only within the current fit
-   *   operation.
-   * @returns The goal with world point, bend and rotation and no `on`.
-   * @throws {Error} When the goal is attached to a bone of its own limb's
-   *   chain, or to a bone the rig lacks.
-   */
-  export function world(
-    body: IAutoMovieMotionHumanBody,
-    pose: IAutoMoviePose,
-    limb: AutoMovieHumanLimb,
-    goal: IAutoMovieHumanLimbGoal,
-    readAuthored?: () => ReadonlyMap<
-      AutoMovieHumanoidBone,
-      IAutoMovieResolvedBone
-    >,
-  ): IAutoMovieHumanLimbGoal {
-    const on: AutoMovieHumanoidBone | undefined = goal.on;
-    if (on === undefined) return goal;
-    const own: IChain = chain(limb);
-    if (on === own.upper || on === own.lower || on === own.effector)
-      throw new Error(
-        `A ${limb} goal cannot be attached to ${on}, a bone of its own chain`,
-      );
-    const frame: IAutoMovieResolvedBone | undefined = (
-      readAuthored === undefined
-        ? poseBones(body, pose, undefined, new Set([on]))
-        : readAuthored()
-    ).get(on);
-    if (frame === undefined)
-      throw new Error(
-        `A ${limb} goal is attached to ${on}, which the rig lacks`,
-      );
-    const place: (p: IAutoMovieVector3) => IAutoMovieVector3 = (
-      p: IAutoMovieVector3,
-    ): IAutoMovieVector3 =>
-      Vector3.add(
-        frame.worldPosition,
-        Quaternion.rotateVector(frame.worldRotation, p),
-      );
-    const {
-      on: _attached,
-      clearanceOn,
-      ...rest
-    }: IAutoMovieHumanLimbGoal = goal;
-    const collider: (
-      segment: IAutoMovieMotionHumanColliders.IPlaced,
-    ) => IAutoMovieMotionHumanColliders.IPlaced = (
-      segment: IAutoMovieMotionHumanColliders.IPlaced,
-    ): IAutoMovieMotionHumanColliders.IPlaced => ({
-      ...segment,
-      pose: {
-        position: place(segment.pose.position),
-        rotation: Quaternion.normalize(
-          Quaternion.multiply(frame.worldRotation, segment.pose.rotation),
-        ),
-      },
-    });
-    return {
-      ...rest,
-      point: place(goal.point),
-      bend: place(goal.bend),
-      ...(clearanceOn === undefined
-        ? {}
-        : {
-            clear: [...(rest.clear ?? []), ...clearanceOn.clear.map(collider)],
-            rests: [...(rest.rests ?? []), ...clearanceOn.rests.map(collider)],
-          }),
-      ...(goal.rotation === undefined
-        ? {}
-        : {
-            rotation: Quaternion.normalize(
-              Quaternion.multiply(frame.worldRotation, goal.rotation),
-            ),
-          }),
-    };
-  }
+  /** A limb goal in world terms (`humanLimbGoalWorld`). */
+  export const world: typeof humanLimbGoalWorld = humanLimbGoalWorld;
 
   /**
    * The fit of one limb by the engine's two-bone solver; with a contact, the

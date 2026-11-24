@@ -63,7 +63,7 @@ export function test_motion_dynamics_sample_keys(): void {
 }
 /** A prepared interval forwards later replacements on its own native clock. */
 function nativeReplacements(): void {
-  const clock: IAutoMovieMotionClock = C.of(8, [
+  const clock: IAutoMovieMotionClock = C(8, [
     { name: "open", seconds: 2 },
     { name: "peak", seconds: 4 },
     { name: "close", seconds: 6 },

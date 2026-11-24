@@ -43,7 +43,7 @@ export function test_motion_ensemble_synchronized_parade(): void {
     motionHumanBody("f-small"),
   ];
   const formation: IAutoMovieMotionHumanFormation =
-    AutoMovieMotionHumanEnsemble.HumanFormation.of({
+    AutoMovieMotionHumanEnsemble.HumanFormation({
       blocks: [
         {
           layout: {
@@ -67,7 +67,7 @@ export function test_motion_ensemble_synchronized_parade(): void {
       },
     });
   const ensemble: IAutoMovieMotionHumanEnsemble.IEnsemble =
-    AutoMovieMotionHumanEnsemble.HumanEnsemble.of({
+    AutoMovieMotionHumanEnsemble.HumanEnsemble({
       id: "parade",
       seed: "parade",
       count: 6,

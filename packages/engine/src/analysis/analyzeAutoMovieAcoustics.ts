@@ -377,7 +377,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   request: IAutoMovieAcousticRequest,
 ): void => {
   for (const [label, value] of [
-    ["id", request.id],
     ["subject", request.subject],
     ["input revision", request.inputRevision],
   ] as const)
@@ -391,8 +390,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     throw new Error("an acoustic study needs at least one absorbing surface");
   const surfaces: Set<string> = new Set<string>();
   for (const surface of request.surfaces) {
-    if (surface.id.trim().length === 0)
-      throw new Error("every acoustic surface must carry a non-blank id");
     if (surfaces.has(surface.id))
       throw new Error(`acoustic surface "${surface.id}" is declared twice`);
     surfaces.add(surface.id);
@@ -411,8 +408,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   }
   const partitions: Set<string> = new Set<string>();
   for (const partition of request.partitions) {
-    if (partition.id.trim().length === 0)
-      throw new Error("every acoustic partition must carry a non-blank id");
     if (partitions.has(partition.id))
       throw new Error(`acoustic partition "${partition.id}" is declared twice`);
     partitions.add(partition.id);
@@ -431,8 +426,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
   }
   const sources: Set<string> = new Set<string>();
   for (const source of request.sources) {
-    if (source.id.trim().length === 0)
-      throw new Error("every acoustic source must carry a non-blank id");
     if (sources.has(source.id))
       throw new Error(`acoustic source "${source.id}" is declared twice`);
     sources.add(source.id);
@@ -456,8 +449,6 @@ const validateAcousticRequest: (request: IAutoMovieAcousticRequest) => void = (
     );
   const receivers: Set<string> = new Set<string>();
   for (const receiver of request.receivers) {
-    if (receiver.id.trim().length === 0)
-      throw new Error("every acoustic receiver must carry a non-blank id");
     if (receivers.has(receiver.id))
       throw new Error(`acoustic receiver "${receiver.id}" is declared twice`);
     receivers.add(receiver.id);

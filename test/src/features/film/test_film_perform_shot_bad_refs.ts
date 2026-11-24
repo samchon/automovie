@@ -22,12 +22,12 @@ import { hasViolation, namedFacts } from "../internal/predicates";
  * Scenarios:
  * 1. Collect unknown beat, zero shot duration, unstaged actor and out-of-span start together.
  * 2. Refuse invalid action duration/repeat/list, force/intensity, targets and untargeted point.
- * 3. Preserve malformed actor-shape refusal and located relative/unstaged react-source errors.
+ * 3. Preserve the non-frame camera actor refusal and located relative/unstaged react-source errors.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls performShot on the original incoherent and single-field mutations and checks exact type/range paths, catching omitted input gates or escaped actor-shape iteration failures.
+ * @evidence contracts/development/testing.md#behavioral-verification Calls performShot on the original incoherent and single-field mutations and checks exact type/range paths, catching omitted input gates.
  * @evidence contracts/development/testing.md#independent-expectations The script/stage declare the legal ids and two-second span; positive duration/integer repeat, bounded force/intensity and resolvable targets define expected field refusals. Literal input indices determine paths without using output as an oracle.
- * @evidence contracts/development/testing.md#distinguishing-cases Preserves every original shot/action/actor/repeat/force/intensity/target case and the shared non-frame actor-shape cases; accepted performances and camera selection are owned by focused neighbouring entries.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns its original cases and delegates existing malformed actor cases to assertFilmNonFrameActorShapes, not a new driver; source validation runs in memory without a process or renderer.
+ * @evidence contracts/development/testing.md#distinguishing-cases Preserves every original shot/action/actor/repeat/force/intensity/target case and the shared non-frame camera actor case; accepted performances and camera selection are owned by focused neighbouring entries.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous discoverable entry owns its original cases and delegates the existing non-frame camera actor case to assertFilmNonFrameActorShapes, not a new driver; source validation runs in memory without a process or renderer.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Collect unknown beat, zero shot duration, unstaged actor and out-of-span start together.).
  */
 export function test_film_perform_shot_bad_refs(): void {

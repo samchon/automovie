@@ -6,15 +6,15 @@ States the diagnostic root, optional registry boundary and what targets and keys
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
-Shape checks guard field reads. Target pairs are unique, time begins at zero, and finite keys strictly increase within the half-open shot interval.
+Target pairs are unique, time begins at zero, and finite keys strictly increase within the half-open shot interval.
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Indexes target identities once and walks each track and its keys in source order. Leaf shape and failure reporting use the shared artifact helpers.
+Indexes target identities once and walks each track and its keys in source order. Failure reporting uses the shared violation helper.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Refuses ambiguous track targets, missing model parts or materials when a registry is available, and malformed time even when no registry is available. Does not sort, fill or replace source keys.
+Refuses ambiguous track targets, missing model parts or materials when a registry is available, and out-of-order time even when no registry is available. Does not sort, fill or replace source keys.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
