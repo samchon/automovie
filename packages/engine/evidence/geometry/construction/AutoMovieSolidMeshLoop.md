@@ -6,11 +6,11 @@ States each reading's measure and use.
 
 ## @evidence contracts/development/design.md#principled-representation
 
-Represents The trim-loop readings of a face's tessellation (`AutoMovieSolidMesh.face`): which grid vertices a loop keeps with a local metric margin, how chart-distance scores rank drawn-cell cycles, and the polyline-chord parameter and heuristic alignment the zipper (`AutoMovieSolidZip`) uses for stitching: companion namespace of 13 members (`keeps`, `prepare`, `Classifier`, `Chart`, `IState`, `snapshot`, ...); units and frames named in its text: local, world, radians. It has no optional member, so no absent-value state combines with another.
+Represents the trim-loop readings of one face: kept-side classification with a world-millimetre metric margin, raw chart distance for matching drawn cycles and the zipper's chord parameter in radians.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
-Owned by the module that declares `AutoMovieSolidMeshLoop` in packages/engine/src/geometry/construction/AutoMovieSolidMeshLoop.ts; its surface is the 13 members listed and the text shows 5 other files naming it, mostly packages/engine (3), test (2), so no member is declared for a presumed future need.
+The mesh face owns one prepared classifier. The original live classifier also serves mutable and accessor-driven charts. The zipper shares the separate chord and alignment readers.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
@@ -54,11 +54,11 @@ Uses the same parity, metric projection and margin comparisons as keeps; copied 
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One face-local closure owns each reached loop's chart box and the optional range of phase crossings.
+One face-local closure owns the copied chart, segment deltas, chart box and optional fixed range of phase crossings before any query. Unsupported charts use the live classifier.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-Preserves loop order, eager fallback, both distinct periodic rules, sqrt and equality; the metric scan of a loop is skipped only where a lower bound of the same metric to the loop's chart box strictly exceeds the margin, so the answer is the full scan's and no tolerance or curve is changed.
+Preserves loop order, both periodic rules, square root and margin equality. A strict chart-box lower bound permits skipping the full metric scan. Original accessors and malformed inputs retain the live short circuit and original exception identity.
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
@@ -70,7 +70,7 @@ Scalar preparation is O(S+L) for S edges and L loops. Grid preparation also inte
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Each new face owns new preparation after edits or rollback; eligible input and jet values stay unchanged while read.
+Each face owns its numeric preparation after edits or rollback. Metric coefficients are local to one query. A live query does not change the mode or state of later queries.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

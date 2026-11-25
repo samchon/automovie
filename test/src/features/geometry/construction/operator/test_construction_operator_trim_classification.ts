@@ -29,7 +29,8 @@ type Loop = IAutoMovieSolidMesh.ILoop;
  * 2. Winding cycles that turn back, seam aliases, half-period ties, degenerate
  *    charts/metrics and non-finite values, compared with the original arithmetic.
  * 3. Unreached accessor/malformed loops, a reached original exception, live jet
- *    accessors, fresh preparation after mutation and no reads from copied charts.
+ *    accessors, descriptor-only preparation before the first query, and an
+ *    independent regular query after a live fallback.
  * 4. A unit-cylinder face trimmed at u=1: exact shared ring, two retained grid
  *    rows, outward triangles, paired interior edges and the sole open top ring.
  * 5. A surface failure keeps its identity and station-major jet call order;
@@ -519,17 +520,75 @@ function effects(
   const owned: Loop = loop("island", counted);
   const read: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
     AutoMovieSolidMeshLoop.prepare([owned], undefined);
-  TestValidator.predicate("first copied reading", read(1, 1, frame, 0));
   const copied: number = probes;
+  TestValidator.predicate("first copied reading", read(1, 1, frame, 0));
   for (let k: number = 0; k < 10; k++)
     TestValidator.predicate(
       "repeated copied reading " + k,
       read(1, 1, frame, 0),
     );
-  TestValidator.predicate(
-    "chart source read once",
-    copied > 0 && probes === copied,
+  const eagerlyPrepared: boolean = copied > 0 && probes === copied;
+
+  // A live jet may need its own raw walk. The next regular query must still
+  // use the prepared numerical face, without reaching the chart proxy.
+  let originalCoordinates: number = 0;
+  const tracked: Loop = loop(
+    "island",
+    island.chart.map(
+      (p: Point): Point =>
+        new Proxy(p, {
+          get(target: Point, key: string | symbol): unknown {
+            if (key === "0" || key === "1") originalCoordinates++;
+            return Reflect.get(target, key);
+          },
+        }),
+    ),
   );
+  const mixed: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
+    AutoMovieSolidMeshLoop.prepare([tracked], undefined);
+  TestValidator.predicate(
+    "effectful query uses the live chart",
+    mixed(1, 1, accessor, 0) && originalCoordinates > 0,
+  );
+  originalCoordinates = 0;
+  const independent: boolean =
+    mixed(1, 1, frame, 0) && originalCoordinates === 0;
+  TestValidator.predicate(
+    "fixed chart preparation and independent live fallback",
+    eagerlyPrepared && independent,
+  );
+
+  // A phase hint may not introduce a read absent from the original walk.
+  const phaseHint: number[] = [1];
+  Object.defineProperty(phaseHint, "0", {
+    get: (): never => {
+      throw sentinel;
+    },
+  });
+  const winding: Loop = loop("start", [
+    [0, 0],
+    [0, 2],
+    [0, 4],
+  ]);
+  TestValidator.predicate(
+    "effectful phase hint leaves the scalar classification in charge",
+    AutoMovieSolidMeshLoop.prepare([winding], 2 * Math.PI, phaseHint)(
+      1,
+      1,
+      frame,
+      0,
+      0,
+    ) === AutoMovieSolidMeshLoop.keeps(winding, 1, 1, frame, 0, 2 * Math.PI),
+  );
+
+  const overflow: ReturnType<typeof AutoMovieSolidMeshLoop.prepare> =
+    AutoMovieSolidMeshLoop.prepare([hole], undefined);
+  for (const u of [Number.MAX_VALUE, Infinity, NaN])
+    TestValidator.predicate(
+      "unrepresentable metric bound preserves the live result " + u,
+      overflow(u, 1, frame, 0) ===
+        AutoMovieSolidMeshLoop.keeps(hole, u, 1, frame, 0, undefined),
+    );
   owned.chart = [
     [10, 10],
     [12, 10],
