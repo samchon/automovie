@@ -20,7 +20,8 @@ const ROUNDING: number = 2 * Number.EPSILON;
  *    Reappearing after an absent key opens a separate window.
  * 2. Replacing a grip splits its placement even when its target stays the same. A
  *    fresh hand placement opens at its own arriving key.
- * 3. A self-support names the performer and region rather than the ground.
+ * 3. A prop contact names its exact point, whether authored directly or
+ *    through the shared target. A self-support names the performer and region.
  */
 export function test_motions_actions_support_windows(): void {
   const heel: IAutoMovieMotionHumanSupport.IContact = {
@@ -74,10 +75,14 @@ export function test_motions_actions_support_windows(): void {
       oldFoot.socket === "heel" &&
       oldFoot.support.kind === "prop" &&
       oldFoot.support.subject === "step" &&
+      oldFoot.support.point === "top" &&
       nclose(oldFoot.from, 0, ROUNDING) &&
       nclose(oldFoot.to, 0.25, ROUNDING) &&
       oldHand !== undefined &&
       oldHand.kind === "grip" &&
+      oldHand.support.kind === "prop" &&
+      oldHand.support.subject === "rail" &&
+      oldHand.support.point === "end" &&
       nclose(oldHand.from, 0.5, ROUNDING) &&
       nclose(oldHand.to, 0.5, ROUNDING) &&
       newHand !== undefined &&

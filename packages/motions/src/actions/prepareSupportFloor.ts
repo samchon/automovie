@@ -33,7 +33,12 @@ function sameFrame(
   b: IAutoMovieMotionHumanContactWindow.Support,
 ): boolean {
   if (a.kind === "ground") return b.kind === "ground";
-  if (a.kind === "prop") return b.kind === "prop" && a.subject === b.subject;
+  if (a.kind === "prop")
+    return (
+      b.kind === "prop" &&
+      a.subject === b.subject &&
+      (a.point === undefined || b.point === undefined || a.point === b.point)
+    );
   return (
     b.kind === "person" &&
     a.subject === b.subject &&

@@ -102,7 +102,7 @@ export namespace supportWindows {
       contact.target === "on" ? context.params.on : contact.target;
     const support: IAutoMovieMotionHumanContactWindow.Support =
       target?.kind === "prop"
-        ? { kind: "prop", subject: target.subject }
+        ? { kind: "prop", subject: target.subject, point: target.point }
         : target?.kind === "person"
           ? { kind: "person", subject: target.subject, region: target.region }
           : target?.kind === "self"

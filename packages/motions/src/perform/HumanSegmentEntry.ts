@@ -278,8 +278,9 @@ export namespace HumanSegmentEntry {
 
   /**
    * What the body rests on as an action is left at a second: the supports its
-   * plan declares open there, a grip and a strike aside; both feet on the
-   * ground before any action.
+   * plan declares open there, preserving each one's frame, region, socket and
+   * load. Grips and strikes are excluded. Before any action, both feet bear
+   * on the ground.
    *
    * @param previous The action left, if any.
    * @param seconds The film second.
@@ -316,6 +317,9 @@ export namespace HumanSegmentEntry {
           part: c.part,
           kind: c.kind,
           support: c.support,
+          ...(c.region === undefined ? {} : { region: c.region }),
+          ...(c.socket === undefined ? {} : { socket: c.socket }),
+          ...(c.load === undefined ? {} : { load: c.load }),
         }),
       );
   }

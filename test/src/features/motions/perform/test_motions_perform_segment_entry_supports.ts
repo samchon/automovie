@@ -2,6 +2,9 @@ import type { IAutoMovieMotionHumanContactWindow } from "@automovie/interface";
 import { HumanSegmentEntry } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
+import { nclose } from "../../internal/nclose";
+import { vclose } from "../../internal/vclose";
+
 /** A contact window over shares of the plan. */
 function window(
   part: IAutoMovieMotionHumanContactWindow["part"],
@@ -16,7 +19,8 @@ function window(
  * `HumanSegmentEntry.supports` is what the body rests on as an action is left
  * at a second: the contact windows open at the second's share of the plan, `(t
  * − start) / duration` held within [0, 1], ends included, a grip and a strike
- * aside, each read as its part, kind and support; before any action, both feet
+ * aside. Each open contact keeps its support frame and optional anatomical
+ * region, sole socket and weight share. Before any action both feet are
  * planted on the ground.
  *
  * A plan from 2 s lasting 4 s: the left foot planted over shares 0 to 0.5, the
@@ -30,6 +34,9 @@ function window(
  * 3. At 4 s, share 0.5, the left foot's last share: both feet still.
  * 4. At 5 s, share 0.75: the right foot alone.
  * 5. At 1 s and 9 s the share is held at 0 and 1: the left foot, then the right.
+ * 6. The left foot keeps the named stirrup, sole region, ball socket and zero
+ *    load. The right foot keeps its explicit foot-local offset and leaves its
+ *    other optional fields unassigned.
  */
 export function test_motions_perform_segment_entry_supports(): void {
   // 1. No action.
@@ -48,8 +55,17 @@ export function test_motions_perform_segment_entry_supports(): void {
     plan: {
       duration: 4,
       contacts: [
-        window("leftFoot", "plant", 0, 0.5),
-        window("rightFoot", "plant", 0.25, 1),
+        {
+          ...window("leftFoot", "plant", 0, 0.5),
+          support: { kind: "prop", subject: "horse", point: "leftStirrup" },
+          region: "soleLeft",
+          socket: "ball",
+          load: 0,
+        },
+        {
+          ...window("rightFoot", "plant", 0.25, 1),
+          socket: { x: 0, y: -1 / 16, z: 1 / 8 },
+        },
         window("rightHand", "grip", 0, 1),
         window("leftHand", "strike", 0, 1),
       ],
@@ -70,5 +86,26 @@ export function test_motions_perform_segment_entry_supports(): void {
       ["leftFoot"],
       ["rightFoot"],
     ],
+  );
+
+  const [left, right] = HumanSegmentEntry.supports(previous, 3);
+  TestValidator.predicate(
+    "entry retains the material frame and the optional contact metadata",
+    left !== undefined &&
+      left.support.kind === "prop" &&
+      left.support.subject === "horse" &&
+      left.support.point === "leftStirrup" &&
+      left.region === "soleLeft" &&
+      left.socket === "ball" &&
+      left.load !== undefined &&
+      nclose(left.load, 0, 0) &&
+      right !== undefined &&
+      right.region === undefined &&
+      right.load === undefined &&
+      right.socket !== undefined &&
+      right.socket !== "heel" &&
+      right.socket !== "ball" &&
+      right.socket !== "toe" &&
+      vclose(right.socket, { x: 0, y: -1 / 16, z: 1 / 8 }, 0),
   );
 }
