@@ -21,7 +21,7 @@ type MissesOutAxis = "x" | "y" | "z";
 /** The alternatives of `RowsAxesItem`'s site. */
 type RowsAxesItem = "x" | "y" | "z";
 
-/** Effector constraints in a fixed world frame or a moving bone frame. */
+/** Effector constraints in world axes, a fixed frame or a moving bone frame. */
 export namespace HumanFitTargets {
   /**
    * What the target rows read of a body reading: each target's effector point
@@ -31,6 +31,12 @@ export namespace HumanFitTargets {
     HumanBodyFitRows.IReading,
     "points" | "turns" | "bones"
   >;
+
+  /** A target row and its reading on the target's own body coordinates. */
+  export type IRead = Pick<HumanBodyFitRows.IRead, "row"> & {
+    /** The actual scalar read in metres or radians. */
+    f: (r: IReading) => number;
+  };
 
   /**
    * What the target rows read of a step: its reading, the variables' motions
@@ -45,7 +51,7 @@ export namespace HumanFitTargets {
   };
 
   /**
-   * Append point, spherical point-bound, rotation and normal rows.
+   * Append point, point-bound, rotation and normal rows.
    *
    * @param step The current whole-body linearisation.
    * @param equal The row owner's interval builder, in metres or radians.
@@ -59,12 +65,12 @@ export namespace HumanFitTargets {
       f: (r: HumanFitTargets.IReading) => number,
       goal: number,
       coef: number[],
-      weight: number,
+      weight: number | undefined,
       upper?: number,
     ) => void,
     mm: number,
-  ): HumanBodyFitRows.IRead[] {
-    const rows: HumanBodyFitRows.IRead[] = [];
+  ): IRead[] {
+    const rows: IRead[] = [];
     const current: IReading = step.at;
     step.targets.forEach(
       (target: IAutoMovieMotionHumanBodyFitTypes.ITarget, k: number): void => {
@@ -92,7 +98,8 @@ export namespace HumanFitTargets {
             (motion: IAutoMovieMotionHumanJacobian.ITwist, i: number): number =>
               f(motion, i) * step.units[i]! * mm,
           );
-        const price: number = target.price ?? step.price;
+        const price: number | undefined =
+          target.required === true ? undefined : (target.price ?? step.price);
         if (target.bound === undefined) {
           for (const axis of axes)
             equal(
@@ -106,6 +113,26 @@ export namespace HumanFitTargets {
               ),
               price,
             );
+        } else if (axes.length === 1) {
+          const axis: RowsAxesItem = axes[0]!;
+          const delta: number = error(target, at.point)[axis];
+          rows.push({
+            row: {
+              key: `point-interval:${k}`,
+              index: step.index,
+              coef: scaled(
+                (motion: IAutoMovieMotionHumanJacobian.ITwist): number =>
+                  motion.linear[axis],
+              ),
+              l: (-target.bound - delta) * mm,
+              u: (target.bound - delta) * mm,
+              weight: price,
+            },
+            f: (r: HumanFitTargets.IReading): number =>
+              r === current
+                ? delta
+                : frame(target, r, k).point[axis] - target.goal[axis],
+          });
         } else {
           const delta: IAutoMovieVector3 = error(target, at.point);
           const distance: number = Vector3.length(delta);
@@ -192,7 +219,7 @@ export namespace HumanFitTargets {
   }
 
   /**
-   * Signed exact-point errors or excess outside a point ball, then turns.
+   * Signed exact-point errors or excess outside the point bound, then turns.
    *
    * @param target The goal and physical radius, if any.
    * @param r The current body reading.
@@ -312,7 +339,10 @@ export namespace HumanFitTargets {
 }
 /** The record of `IFrameAnchor`'s site. */
 type IFrameAnchor = {
-  bone: AutoMovieHumanoidBone;
+  /** The bone whose velocity carries the frame, when it moves. */
+  bone: AutoMovieHumanoidBone | undefined;
+
+  /** Rotation from the world into the goal frame. */
   inverse: IAutoMovieQuaternion;
 };
 
@@ -322,7 +352,7 @@ interface IFrame {
   turn: IAutoMovieQuaternion;
 
   /**
-   * Present only for a moving goal frame; its inverse also transforms this
+   * Present for a fixed or moving goal frame. Its inverse also transforms this
    * model's relative twists.
    */
   anchor?: IFrameAnchor;
@@ -341,20 +371,37 @@ function frame(
   k: number,
 ): IFrame {
   if (target.on === undefined)
-    return { point: r.points[k]!, turn: r.turns[k]! };
+    return target.frame === undefined
+      ? { point: r.points[k]!, turn: r.turns[k]! }
+      : expressed(r, k, target.frame.position, target.frame.rotation);
   const anchor: IAutoMovieResolvedBone | undefined = r.bones.get(target.on);
   if (anchor === undefined)
     throw new Error(`Target anchor ${target.on} is absent`);
-  const inverse: IAutoMovieQuaternion = Quaternion.inverse(
+  return expressed(
+    r,
+    k,
+    anchor.worldPosition,
     anchor.worldRotation,
+    target.on,
   );
+}
+
+/** Express the effector and its turn in the supplied goal frame. */
+function expressed(
+  r: HumanFitTargets.IReading,
+  k: number,
+  position: IAutoMovieVector3,
+  rotation: IAutoMovieQuaternion,
+  bone?: AutoMovieHumanoidBone,
+): IFrame {
+  const inverse: IAutoMovieQuaternion = Quaternion.inverse(rotation);
   return {
     point: Quaternion.rotateVector(
       inverse,
-      Vector3.subtract(r.points[k]!, anchor.worldPosition),
+      Vector3.subtract(r.points[k]!, position),
     ),
     turn: Quaternion.multiply(inverse, r.turns[k]!),
-    anchor: { bone: target.on, inverse },
+    anchor: { bone, inverse },
   };
 }
 
@@ -372,19 +419,22 @@ function relative(
     r.points[k]!,
   );
   if (at.anchor === undefined) return own;
-  const on: IAutoMovieMotionHumanJacobian.ITwist =
-    target.bone === at.anchor.bone
-      ? own
-      : HumanJacobian.twist(motion, at.anchor.bone, r.points[k]!);
+  const bone: AutoMovieHumanoidBone | undefined = at.anchor.bone;
+  const on: IAutoMovieMotionHumanJacobian.ITwist | undefined =
+    bone === undefined
+      ? undefined
+      : target.bone === bone
+        ? own
+        : HumanJacobian.twist(motion, bone, r.points[k]!);
   const inverse: IAutoMovieQuaternion = at.anchor.inverse;
   return {
     linear: Quaternion.rotateVector(
       inverse,
-      Vector3.subtract(own.linear, on.linear),
+      on === undefined ? own.linear : Vector3.subtract(own.linear, on.linear),
     ),
     angular: Quaternion.rotateVector(
       inverse,
-      Vector3.subtract(own.angular, on.angular),
+      on === undefined ? own.angular : Vector3.subtract(own.angular, on.angular),
     ),
   };
 }

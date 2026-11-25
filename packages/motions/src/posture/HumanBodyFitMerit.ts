@@ -15,6 +15,7 @@ import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
 import { HumanFloorReading } from "./HumanFloorReading";
+import { HumanSequentialConvex } from "./HumanSequentialConvex";
 import { prepareHumanPoseResolution } from "./prepareHumanPoseResolution";
 
 /** The record of `IOfReadBearers`'s site. */
@@ -252,14 +253,18 @@ export function HumanBodyFitMerit(
       for (const d of m.balance) add(beyond(d));
       for (const d of m.pairs) add(beyond(d));
       m.goals.forEach((g: number[], k: number): void => {
-        const share: number = (targets[k]!.price ?? price) / price;
+        const target: IAutoMovieMotionHumanBodyFitTypes.ITarget = targets[k]!;
+        const share: number =
+          target.required === true ? 1 : (target.price ?? price) / price;
         g.forEach((d: number, j: number): void => {
           // A physical maximum distance has no extra numerical radius.
           add(
             share *
-              (targets[k]!.bound !== undefined && j === 0
+              (target.bound !== undefined && j === 0
                 ? Math.max(0, d)
-                : beyond(Math.abs(d))),
+                : target.required === true
+                  ? Math.abs(d)
+                  : beyond(Math.abs(d))),
           );
         });
       });
@@ -293,13 +298,18 @@ export function HumanBodyFitMerit(
       all(m.pairs, inside) &&
       all(m.angles, close) &&
       all(m.centre, close) &&
-      m.goals.every((g: number[], k: number): boolean =>
-        g.every((d: number, j: number): boolean =>
-          targets[k]!.bound !== undefined && j === 0
+      m.goals.every((g: number[], k: number): boolean => {
+        const target: IAutoMovieMotionHumanBodyFitTypes.ITarget = targets[k]!;
+        const tolerance: number =
+          target.required === true
+            ? HumanBodyFitMerit.REQUIRED_TOLERANCE
+            : HumanBodyFitMerit.TOLERANCE;
+        return g.every((d: number, j: number): boolean =>
+          target.bound !== undefined && j === 0
             ? d <= 0
-            : Math.abs(d) <= HumanBodyFitMerit.TOLERANCE,
-        ),
-      ),
+            : Math.abs(d) <= tolerance,
+        );
+      }),
   };
 }
 
@@ -314,6 +324,10 @@ export function HumanBodyFitMerit(
 export namespace HumanBodyFitMerit {
   /** The tolerance under which a row holds, metres or radians. */
   export const TOLERANCE: number = 5e-4;
+
+  /** A hard equality's numerical acceptance, from SCO's solved row units. */
+  export const REQUIRED_TOLERANCE: number =
+    HumanSequentialConvex.DEFAULTS.cntTolerance / HumanBodyFitRows.MM;
 
   /**
    * What a reading misses each row by, metres or radians: positive where a

@@ -75,24 +75,23 @@ export function HumanBodyFitRows(
     f: (r: HumanBodyFitRows.IReading) => number,
     goal: number,
     coef: number[],
-    weight: number,
+    weight: number | undefined,
     upper?: number,
   ) => void = (
     key: string,
     f: (r: HumanBodyFitRows.IReading) => number,
     goal: number,
     coef: number[],
-    weight: number,
+    weight: number | undefined,
     upper: number = goal,
   ): void => {
     const value: number = f(at);
     const miss: number = (goal - value) * HumanBodyFitRows.MM;
 
-    // A goal of one value may be missed by the band unpriced, so a step
-    // that meets it to the solver's accuracy holds; a physical interval
-    // already has its width and is held to its own ends, as a target's
-    // physical bound is (`HumanBodyFitMerit`).
-    const band: number = upper > goal ? 0 : HumanBodyFitRows.BAND;
+    // A soft equality carries the numerical band. A required contact or a
+    // physical interval retains the specified ends (`HumanBodyFitMerit`).
+    const band: number =
+      weight === undefined || upper > goal ? 0 : HumanBodyFitRows.BAND;
     rows.push({
       row: {
         key,

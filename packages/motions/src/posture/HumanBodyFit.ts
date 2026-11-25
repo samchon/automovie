@@ -10,6 +10,8 @@ import type {
 
 import { HumanBodyFitMerit } from "./HumanBodyFitMerit";
 import { HumanBodyFitRows } from "./HumanBodyFitRows";
+import { HumanColliders } from "./HumanColliders";
+import { HumanFitExterior } from "./HumanFitExterior";
 import { HumanFitGoals } from "./HumanFitGoals";
 import { HumanFitPairs } from "./HumanFitPairs";
 import { HumanFitVariables } from "./HumanFitVariables";
@@ -26,11 +28,11 @@ type Fit = "body" | "posture";
  * A whole-body fit: the static posture nearest a preferred one in which points
  * of the body reach their goals, the parts that bear rest on the floor, nothing
  * passes under it, the centre of mass stands over the base of support and the
- * folded segments stay apart, all within the joint ranges and solved together:
- * the static multi-contact posture problem of Bouyarmane and Kheddar 2010 (IEEE
- * Humanoids, "Static multi-contact inverse problem for multiple humanoid robots
- * and manipulated objects") and Escande, Kheddar and Miossec 2013 (Robot Auton
- * Syst 61:428).
+ * folded segments and selected exterior pairs stay apart, all within the joint
+ * ranges and solved together: the static multi-contact posture problem of
+ * Bouyarmane and Kheddar 2010 (IEEE Humanoids, "Static multi-contact inverse
+ * problem for multiple humanoid robots and manipulated objects") and Escande,
+ * Kheddar and Miossec 2013 (Robot Auton Syst 61:428).
  *
  * The variables are any set of the posture's own (`HumanFitVariables`), the
  * whole body's when none is given, and the objective keeps them nearest the
@@ -44,18 +46,18 @@ type Fit = "body" | "posture";
  * inequality, without widening it by the equality rows' numerical band
  * (`HumanFitTargets`). A bearing part touches the floor at its lowest point and
  * every other point of it stays out of the floor, so a rigid curved part rests
- * on one point and a planar contact's normal lays it flat. Every row is an
- * exact penalty at the merit coefficient (an elastic l1 sequential quadratic
- * program; Fletcher 1985) linearised by the analytic Jacobian of the posed body
- * (`HumanJacobian`), and the merit (`HumanBodyFitMerit`) prices exactly what
- * the rows do. The steps are taken by trajopt's sequential convex loop
- * (`HumanSequentialConvex`, the port of `sco::BasicTrustRegionSQP::optimize`)
- * at sco's defaults, each convex model solved inside the trust box, intersected
- * with the joint ranges as `setTrustBoxConstraints` intersects it, by the
- * interior-point method (`HumanQuadraticProgram.interior`, Mehrotra's
- * predictor-corrector as HPIPM implements it, Frison and Diehl 2020); a model
- * that method cannot solve ends the fit failed, as sco's ends where its convex
- * solver fails.
+ * on one point and a planar contact's normal lays it flat. Required targets
+ * have hard rows. Other rows are exact penalties at the merit coefficient (an
+ * elastic l1 sequential quadratic program; Fletcher 1985) linearised by the
+ * analytic Jacobian of the posed body (`HumanJacobian`), and the merit
+ * (`HumanBodyFitMerit`) prices exactly what the rows do. The steps are taken by
+ * trajopt's sequential convex loop (`HumanSequentialConvex`, the port of
+ * `sco::BasicTrustRegionSQP::optimize`) at sco's defaults, each convex model
+ * solved inside the trust box, intersected with the joint ranges as
+ * `setTrustBoxConstraints` intersects it, by the interior-point method
+ * (`HumanQuadraticProgram.interior`, Mehrotra's predictor-corrector as HPIPM
+ * implements it, Frison and Diehl 2020); a model that method cannot solve ends
+ * the fit failed, as sco's ends where its convex solver fails.
  */
 export namespace HumanBodyFit {
   /**
@@ -107,7 +109,8 @@ export namespace HumanBodyFit {
     const angles: readonly IAutoMovieMotionHumanFitGoals.IAngle[] =
       props.angles ?? [];
     const bearing: readonly RegExp[] = props.bearing ?? [];
-    const pairs: HumanFitPairs.IPair[] = HumanFitPairs(body);
+    const pairs: HumanFitPairs.IPair[] =
+      props.self === false ? [] : HumanFitPairs(body);
     const n: number = variables.length;
     const hasJointVariables: boolean = variables.some(
       (variable: IAutoMovieMotionHumanJacobian.IVariable): boolean =>
@@ -137,6 +140,41 @@ export namespace HumanBodyFit {
       key,
       price: PRICE,
     });
+
+    let evaluate: (x: Float64Array) => IEvaluation = merit.evaluate;
+    const exterior: IAutoMovieMotionHumanBodyFitTypes.IExterior | undefined =
+      props.exterior;
+    if (
+      exterior !== undefined &&
+      ((exterior.bones.size > 0 && exterior.obstacles.length > 0) ||
+        (exterior.contacts?.length ?? 0) > 0)
+    ) {
+      const place: ReturnType<typeof HumanColliders.preparePlaced> =
+        HumanColliders.preparePlaced(body, exterior.bones);
+      const read: HumanFitExterior.Reader = HumanFitExterior.prepare(
+        exterior.obstacles,
+        NEAR,
+        exterior.contacts,
+        exterior.clearanceBones === undefined
+          ? undefined
+          : {
+              bones: exterior.clearanceBones,
+              distance: HumanBodyFitMerit.REQUIRED_TOLERANCE,
+            },
+      );
+      evaluate = (x: Float64Array): IEvaluation => {
+        const current: HumanBodyFitMerit.IEvaluation = merit.evaluate(x);
+        const gaps: HumanFitExterior.IPair[] = read(place(current.r.bones));
+        let violation: number = current.violation;
+        let greatest: number = current.greatest;
+        for (const pair of gaps) {
+          const miss: number = HumanFitExterior.miss(pair) * MM;
+          violation += miss;
+          greatest = Math.max(greatest, miss);
+        }
+        return { ...current, exterior: gaps, violation, greatest };
+      };
+    }
 
     // The objective's curvature in solved units, the same at every iterate:
     // diagonal, each variable's weight times its unit squared.
@@ -183,7 +221,7 @@ export namespace HumanBodyFit {
               Math.min(row.u, Math.max(row.l, 0)),
           ),
         ),
-      evaluate: merit.evaluate,
+      evaluate,
       convexify: (
         x: Float64Array,
         e: IEvaluation,
@@ -232,6 +270,9 @@ export namespace HumanBodyFit {
           if (-e.misses.pairs[k]! <= NEAR)
             rows.push(HumanFitPairs.row(step, pair, BAND, MM, e.gaps[k]!).row);
         });
+        if (e.exterior !== undefined)
+          for (const pair of e.exterior)
+            rows.push(HumanFitExterior.row(step, pair, MM));
 
         // The objective's slope at the iterate, in solved units.
         const q: Float64Array = Float64Array.from(
@@ -279,9 +320,43 @@ export namespace HumanBodyFit {
       HumanSequentialConvex.DEFAULTS,
     );
     const r: IReading = solved.evaluation.r;
-    const feasible: boolean = merit.holds(solved.evaluation.misses);
+    let exteriorClear: boolean = true;
+    let closest: HumanFitExterior.IPair | undefined;
+    let exteriorContacts:
+      | IAutoMovieMotionHumanBodyFitTypes.IExteriorContactResidual[]
+      | undefined;
+    if (solved.evaluation.exterior !== undefined)
+      for (const pair of solved.evaluation.exterior) {
+        const distance: number = pair.contact.distance;
+        if (pair.held === true) {
+          const { normal, pointA, pointB } = pair.contact;
+          (exteriorContacts ??= []).push({
+            ...exteriorResidual(pair),
+            normal,
+            pointA,
+            pointB,
+          });
+        }
+        if (
+          !(distance >= 0) ||
+          (pair.held === true &&
+            distance > HumanBodyFitMerit.REQUIRED_TOLERANCE)
+        )
+          exteriorClear = false;
+        if (
+          closest === undefined ||
+          pair.contact.distance < closest.contact.distance
+        )
+          closest = pair;
+      }
+    const feasible: boolean =
+      exteriorClear && merit.holds(solved.evaluation.misses);
     return {
       posture: r.written,
+      ...(closest === undefined
+        ? {}
+        : { exterior: exteriorResidual(closest) }),
+      ...(exteriorContacts === undefined ? {} : { exteriorContacts }),
       residuals: targets.map(
         (
           t: IAutoMovieMotionHumanBodyFitTypes.ITarget,
@@ -327,5 +402,20 @@ export namespace HumanBodyFit {
   type IRead = HumanBodyFitRows.IRead;
 
   /** An iterate's reading for the loop (`HumanBodyFitMerit`). */
-  type IEvaluation = HumanBodyFitMerit.IEvaluation;
+  type IEvaluation = HumanBodyFitMerit.IEvaluation & {
+    /** The active signed exterior gaps of this same pose. */
+    exterior?: readonly HumanFitExterior.IPair[];
+  };
+}
+
+/** Report a signed pair from the fit's already evaluated final pose. */
+function exteriorResidual(
+  pair: HumanFitExterior.IPair,
+): IAutoMovieMotionHumanBodyFitTypes.IExteriorResidual {
+  return {
+    separation: pair.contact.distance,
+    bone: pair.bone,
+    subject: pair.subject,
+    part: pair.part,
+  };
 }

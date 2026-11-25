@@ -16,6 +16,7 @@ export * from "./HumanQuadraticCholesky";
 export * from "./HumanColliderDistance";
 export * from "./prepareHumanJointRom";
 export * from "./HumanFitTargets";
+export * from "./HumanFitExterior";
 export * from "./humanRig";
 export * from "./HumanSequentialConvex";
 export * from "./HumanSequentialConvexFunctions";

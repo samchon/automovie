@@ -1,7 +1,9 @@
 import type { IAutoMovieQuaternion } from "../../../geometry/IAutoMovieQuaternion";
+import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
 import type { AutoMovieHumanoidBone } from "../../../skeleton/AutoMovieHumanoidBone";
 import type { IAutoMovieMotionHumanBody } from "../body/IAutoMovieMotionHumanBody";
+import type { IAutoMovieMotionHumanColliders } from "./IAutoMovieMotionHumanColliders";
 import type { IAutoMovieMotionHumanFitGoals } from "./IAutoMovieMotionHumanFitGoals";
 import type { IAutoMovieMotionHumanJacobian } from "./IAutoMovieMotionHumanJacobian";
 import type { IAutoMovieMotionHumanPosture } from "./IAutoMovieMotionHumanPosture";
@@ -29,29 +31,51 @@ import type { IAutoMovieMotionHumanSequentialConvex } from "./IAutoMovieMotionHu
  * inequality, without widening it by the equality rows' numerical band
  * (`HumanFitTargets`). A bearing part touches the floor at its lowest point and
  * every other point of it stays out of the floor, so a rigid curved part rests
- * on one point and a planar contact's normal lays it flat. Every row is an
- * exact penalty at its price (an elastic l1 sequential quadratic program;
- * Fletcher 1985) linearised by the analytic Jacobian of the posed body
- * (`HumanJacobian`), and the merit (`HumanBodyFitMerit`) prices exactly what
- * the rows do, so the model and the merit agree at every iterate (Nocedal and
- * Wright 2006, section 18.5). The steps are taken by the shared penalty
- * sequential convex loop (`HumanSequentialConvex`), its penalty steered at each
- * iterate (Byrd, Nocedal and Waltz 2008), each convex model solved by the
- * shared quadratic program (`HumanQuadraticProgram`) inside a trust region,
- * with one second-order correction of a rejected step (Nocedal and Wright 2006,
- * (15.36) and Algorithm 15.2).
+ * on one point and a planar contact's normal lays it flat. Required targets are
+ * hard bounds in each quadratic step. Other rows carry an exact penalty at
+ * their price (an elastic l1 sequential quadratic program; Fletcher 1985)
+ * linearised by the analytic Jacobian of the posed body (`HumanJacobian`), and
+ * the merit (`HumanBodyFitMerit`) prices exactly what the rows do, so the model
+ * and the merit agree at every iterate (Nocedal and Wright 2006, section 18.5).
+ * The steps are taken by the shared penalty sequential convex loop
+ * (`HumanSequentialConvex`), its penalty steered at each iterate (Byrd, Nocedal
+ * and Waltz 2008), each convex model solved by the shared quadratic program
+ * (`HumanQuadraticProgram`) inside a trust region, with one second-order
+ * correction of a rejected step (Nocedal and Wright 2006, (15.36) and Algorithm
+ * 15.2).
  */
 export namespace IAutoMovieMotionHumanBodyFitTypes {
-  /** One point or orientation goal on a bone. */
-  export interface ITarget {
+  /** One point or orientation goal on a bone in a fixed or carried frame. */
+  export type ITarget = ITargetGoal & (ITargetBoneFrame | ITargetFixedFrame);
+
+  /** A world goal or a goal in the current frame of a named bone. */
+  interface ITargetBoneFrame {
+    /** The bone carrying the goal frame. Omission leaves it in world axes. */
+    on?: AutoMovieHumanoidBone;
+
+    /** A bone-frame goal does not carry a fixed frame. */
+    frame?: never;
+  }
+
+  /** A goal in a rigid scene frame held fixed throughout this static fit. */
+  interface ITargetFixedFrame {
+    /**
+     * The world placement of the goal axes and coordinates, held constant
+     * during the fit.
+     */
+    frame: IAutoMovieRigidTransform;
+
+    /** A fixed-frame goal does not follow a moving bone. */
+    on?: never;
+  }
+
+  /** The point, axes and optional turns shared by all target frames. */
+  interface ITargetGoal {
     /** The bone. */
     bone: AutoMovieHumanoidBone;
 
     /** The point in the bone's frame, metres; its origin when absent. */
     point?: IAutoMovieVector3;
-
-    /** The bone carrying the goal frame; world coordinates when absent. */
-    on?: AutoMovieHumanoidBone;
 
     /** Where it goes, metres in the goal frame. */
     goal: IAutoMovieVector3;
@@ -69,8 +93,15 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
     bound?: number;
 
     /**
-     * Its price per millimetre missed, and per milliradian for a turn; `PRICE`,
-     * the floor's, when absent.
+     * Hold this target in each linearised step and verify it from the final
+     * pose. Start the fit close enough to meet the target within its trust
+     * box.
+     */
+    required?: true;
+
+    /**
+     * The soft goal's price per millimetre or milliradian missed; `PRICE`, the
+     * floor's, when absent.
      */
     price?: number;
 
@@ -94,8 +125,8 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
        */
       local: IAutoMovieVector3;
       /**
-       * Required normal direction in the goal frame: the on bone's frame when
-       * supplied, world coordinates otherwise; normalised for comparison.
+       * Required normal direction in the goal's world, fixed or carried frame,
+       * normalised for comparison.
        */
       world: IAutoMovieVector3;
     };
@@ -117,6 +148,12 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
      */
     residuals: IAutoMovieMotionHumanBodyFitTypes.IResidual[];
 
+    /** The closest exterior pair the fit read, when present. */
+    exterior?: IExteriorResidual;
+
+    /** Actual selected pairs of the requested exterior contacts, when present. */
+    exteriorContacts?: readonly IExteriorContactResidual[];
+
     /**
      * How far the centre of mass lies outside the base of support, millimetres;
      * nought when inside or unasked.
@@ -124,8 +161,8 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
     balance: number;
 
     /**
-     * Whether every requested physical constraint holds at the returned posture
-     * to the fit's existing row tolerance.
+     * Whether every requested constraint holds at the returned posture.
+     * Exterior colliders must have nonnegative signed separation.
      */
     feasible: boolean;
 
@@ -166,6 +203,65 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
     turn: number;
   }
 
+  /** Actual body and scene colliders kept apart during a static fit. */
+  export interface IExterior {
+    /** Body bones whose physical profile colliders must clear the obstacles. */
+    bones: ReadonlySet<AutoMovieHumanoidBone>;
+
+    /** Fixed scene colliders in the same world frame as the fitted posture. */
+    obstacles: readonly IAutoMovieMotionHumanColliders.IExternal[];
+
+    /** The named body-to-scene groups whose minimum signed gap must be zero. */
+    contacts?: readonly IExteriorContact[];
+
+    /**
+     * Nonbearing bones whose ordinary pairs aim one solver precision inside
+     * nonpenetration. Named contact groups keep their own contact bounds.
+     */
+    clearanceBones?: ReadonlySet<AutoMovieHumanoidBone>;
+  }
+
+  /** A required contact between body colliders and one named material part. */
+  export interface IExteriorContact {
+    /** Bones in the exterior selection whose actual shapes may bear together. */
+    bone:
+      | AutoMovieHumanoidBone
+      | readonly [AutoMovieHumanoidBone, ...AutoMovieHumanoidBone[]];
+
+    /** The fixed material's scene subject. */
+    subject: string;
+
+    /** The subject's physical part whose shapes may carry the contact. */
+    part: string;
+  }
+
+  /** One actual exterior separation read at the fitted posture. */
+  export interface IExteriorResidual {
+    /** Signed separation, metres. Negative measures penetration. */
+    separation: number;
+
+    /** The body bone carrying the measured collider. */
+    bone: AutoMovieHumanoidBone;
+
+    /** The obstacle's scene subject. */
+    subject: string;
+
+    /** The measured part of that subject. */
+    part: string;
+  }
+
+  /** A selected contact's surface witnesses read in the final world pose. */
+  export interface IExteriorContactResidual extends IExteriorResidual {
+    /** Unit normal from the body collider toward the material collider. */
+    normal: IAutoMovieVector3;
+
+    /** The point on the body collider's surface, world metres. */
+    pointA: IAutoMovieVector3;
+
+    /** The point on the named material's surface, world metres. */
+    pointB: IAutoMovieVector3;
+  }
+
   /** One whole-body static contact problem. */
   export interface IProps {
     /** The body. */
@@ -191,6 +287,15 @@ export namespace IAutoMovieMotionHumanBodyFitTypes {
 
     /** The goals. */
     targets?: readonly IAutoMovieMotionHumanBodyFitTypes.ITarget[];
+
+    /** Exterior collider pairs held at a signed gap of zero or more metres. */
+    exterior?: IExterior;
+
+    /**
+     * Omit the default deep-fold pairs when a larger plan fits those parts
+     * separately.
+     */
+    self?: false;
 
     /**
      * Included geometric angles constrained together with contacts and joint

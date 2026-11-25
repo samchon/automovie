@@ -5,6 +5,7 @@ import type {
   IAutoMovieMotionHumanJacobian,
   IAutoMovieQuaternion,
   IAutoMovieResolvedBone,
+  IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
 import { HumanFitTargets } from "@automovie/motions/internal";
@@ -53,9 +54,9 @@ interface IRow {
 function rows(
   target: IAutoMovieMotionHumanBodyFitTypes.ITarget,
   at: HumanFitTargets.IReading,
-): { equal: IRow[]; ball: ReturnType<typeof HumanFitTargets.rows> } {
+): { equal: IRow[]; bounded: ReturnType<typeof HumanFitTargets.rows> } {
   const equal: IRow[] = [];
-  const ball: ReturnType<typeof HumanFitTargets.rows> = HumanFitTargets.rows(
+  const bounded: ReturnType<typeof HumanFitTargets.rows> = HumanFitTargets.rows(
     {
       at,
       motions: MOTIONS,
@@ -74,7 +75,7 @@ function rows(
     },
     MM,
   );
-  return { equal, ball };
+  return { equal, bounded };
 }
 
 /** Whether two lists agree to the rounding. */
@@ -113,6 +114,9 @@ function agree(a: readonly number[], b: readonly number[]): boolean {
  *    normal as (0, π/2), a 90-degree residual.
  * 6. A goal on the hips, placed at (0, 1, 0) and turned 90 degrees about +Y, at
  *    the effector's place in the hips' frame, (−0.2, 0, 0.3): no miss.
+ * 7. The same fixed frame rotates world X translation into local Z and the
+ *    angular point velocity into local X and Z. The lateral interval keeps
+ *    its signed slope at its centre and measures excess at both ends.
  */
 export function test_motions_posture_fit_targets(): void {
   const at: HumanFitTargets.IReading = reading(P);
@@ -152,11 +156,11 @@ export function test_motions_posture_fit_targets(): void {
   TestValidator.predicate(
     "a contact within a radius",
     ball.equal.length === 0 &&
-      ball.ball.length === 1 &&
-      ball.ball[0]!.row.key === "point-ball:0" &&
-      nclose(ball.ball[0]!.row.u, -30, 1e-9) &&
-      ball.ball[0]!.row.l === -Infinity &&
-      agree(ball.ball[0]!.row.coef, [0, 300]) &&
+      ball.bounded.length === 1 &&
+      ball.bounded[0]!.row.key === "point-ball:0" &&
+      nclose(ball.bounded[0]!.row.u, -30, 1e-9) &&
+      ball.bounded[0]!.row.l === -Infinity &&
+      agree(ball.bounded[0]!.row.coef, [0, 300]) &&
       agree(HumanFitTargets.misses(within, at, 0), [0.03]),
   );
 
@@ -234,5 +238,63 @@ export function test_motions_posture_fit_targets(): void {
       ),
       [0, 0, 0],
     ),
+  );
+
+  // 7. The fixed frame's own points, velocities and orientation.
+  const material: IAutoMovieRigidTransform = {
+    position: { x: 0, y: 1, z: 0 },
+    rotation: hips,
+  };
+  const fixed: IAutoMovieMotionHumanBodyFitTypes.ITarget = {
+    bone: "leftHand",
+    frame: material,
+    goal: { x: 0, y: 0, z: 0.35 },
+    axes: ["y", "z"],
+    rotation: Quaternion.inverse(hips),
+    normal: { local: { x: 0, y: 0, z: 1 }, world: { x: -1, y: 0, z: 0 } },
+  };
+  const lateral: IAutoMovieMotionHumanBodyFitTypes.ITarget = {
+    bone: "leftHand",
+    frame: material,
+    goal: { x: -0.22, y: 0, z: 0 },
+    axes: ["x"],
+    bound: 0.005,
+  };
+  const exactRows: ReturnType<typeof rows> = rows(fixed, at);
+  const lateralRow: ReturnType<typeof rows>["bounded"][number] = rows(
+    lateral,
+    at,
+  ).bounded[0]!;
+  const attained: HumanFitTargets.IReading = reading({ x: 0.35, y: 1, z: 0.22 });
+  const centredRow: ReturnType<typeof rows>["bounded"][number] = rows(
+    lateral,
+    attained,
+  ).bounded[0]!;
+  const below: HumanFitTargets.IReading = reading({ ...P, z: 0.23 });
+  const requiredRow: ReturnType<typeof rows>["bounded"][number] = rows(
+    { ...lateral, required: true, price: 7 },
+    attained,
+  ).bounded[0]!;
+  TestValidator.predicate(
+    "fixed goal axes transform point, normal, rotation and Jacobian together",
+    agree(exactRows.equal[0]!.coef, [0, 0]) &&
+      agree(exactRows.equal[1]!.coef, [1000, 200]) &&
+      HumanFitTargets.misses(fixed, attained, 0).every(
+        (miss: number): boolean => nclose(miss, 0, ROUNDING),
+      ),
+  );
+  TestValidator.predicate(
+    "a lateral interval keeps both limits and the same signed slope at its centre",
+    lateralRow.row.key === "point-interval:0" &&
+      agree(lateralRow.row.coef, [0, 300]) &&
+      agree([lateralRow.row.l, lateralRow.row.u], [-25, -15]) &&
+      agree([lateralRow.f(at), lateralRow.f(below)], [0.02, -0.01]) &&
+      agree(centredRow.row.coef, [0, 350]) &&
+      agree([centredRow.row.l, centredRow.row.u], [-5, 5]) &&
+      requiredRow.row.weight === undefined &&
+      agree([requiredRow.row.l, requiredRow.row.u], [-5, 5]) &&
+      agree(HumanFitTargets.misses(lateral, at, 0), [0.015]) &&
+      agree(HumanFitTargets.misses(lateral, below, 0), [0.005]) &&
+      agree(HumanFitTargets.misses(lateral, attained, 0), [0]),
   );
 }
