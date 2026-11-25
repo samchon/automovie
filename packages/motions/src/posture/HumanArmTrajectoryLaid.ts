@@ -15,6 +15,7 @@ import { HumanArmTrajectoryEffector } from "./HumanArmTrajectoryEffector";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
+import { HumanArmTrajectoryRetime } from "./HumanArmTrajectoryRetime";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 import { HumanArmTrajectoryTravel as V } from "./HumanArmTrajectoryTravel";
 
@@ -473,6 +474,7 @@ export namespace HumanArmTrajectoryLaid {
       if (!moved) break;
       reading = M.evaluate(context, x, { reading, laid });
     }
+    reading = HumanArmTrajectoryRetime(context, x, reading, transports, mix);
     const worst: M.IEvaluation["worst"] = reading.worst;
     return {
       trajectories: problem.arms.map(

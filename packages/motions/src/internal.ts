@@ -1,6 +1,9 @@
 // The solver, posture and balance internals the test programme reads directly. They are not part of the public surface: a host reaches a motion through the family namespaces of the main entry.
 export * from "./posture/hipJoints";
 export * from "./posture/HumanArmClearance";
+export * from "./posture/HumanArmTrajectoryContext";
+export * from "./posture/HumanArmTrajectoryModel";
+export * from "./posture/HumanArmTrajectoryRetime";
 export * from "./everyday/HumanBalance";
 export * from "./posture/HumanBodyFit";
 export * from "./posture/HumanFrame";
