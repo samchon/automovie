@@ -18,6 +18,7 @@ import { stand } from "../actions/stand";
 import { standUpright } from "../actions/standUpright";
 import { walk } from "../actions/walk";
 import { HumanSupportFrame } from "../carrier/HumanSupportFrame";
+import { AutoMovieMotionHumanArmChain } from "../compose/AutoMovieMotionHumanArmChain";
 import { AutoMovieMotionHumanFootRelax } from "../compose/AutoMovieMotionHumanFootRelax";
 import { AutoMovieMotionManner } from "../compose/AutoMovieMotionManner";
 import { courseHumanLegs } from "../compose/courseHumanLegs";
@@ -32,6 +33,7 @@ import { humanPostureHeading } from "../posture/humanPostureHeading";
 import { HumanMount } from "./HumanMount";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanSwungLeg } from "./HumanSwungLeg";
+import { prepareMountOffFloor } from "./prepareMountOffFloor";
 
 /** The alternatives of `Frame2`'s site. */
 type Frame2 = "root" | "yaw" | "pitch" | "joints";
@@ -296,6 +298,7 @@ export namespace HumanMountOff {
         ),
       ),
     ];
+    const lastLanding: number = Math.max(flight.left[1], flight.right[1]);
     const over: IAutoMovieVector3 = HumanFrame.point(
       { origin: start, yaw },
       {
@@ -337,23 +340,37 @@ export namespace HumanMountOff {
       });
     }
     // The body getting off with its legs' goals at a second, before the hands.
-    const lower = (t: number): IAutoMovieMotionHumanPosture => {
+    const lower = (
+      t: number,
+      plants?: Readonly<Record<AutoMovieHumanSide, prepareMountOffFloor.Read>>,
+    ): IAutoMovieMotionHumanPosture => {
       const frame: Frame = frameAt(t);
-      const standing: IAutoMovieMotionHumanPosture["limbs"] = legged(
-        frame.root,
-        landing,
-      );
+      const needsGoal: boolean = plants === undefined || t < lastLanding;
+      const standing: IAutoMovieMotionHumanPosture["limbs"] | undefined =
+        needsGoal ? legged(frame.root, landing) : undefined;
       const limbs: IAutoMovieMotionHumanPosture["limbs"] = {};
-      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> = hipJoints(
-        body,
-        frame.root,
-        humanPostureHeading({ ...frame, roll: 0 }),
-        frame.joints.hips,
-      );
+      const joints: IAutoMovieMotionHumanPosture["joints"] = { ...frame.joints };
+      const hips: Record<AutoMovieHumanSide, IAutoMovieVector3> | undefined =
+        needsGoal
+          ? hipJoints(
+              body,
+              frame.root,
+              humanPostureHeading({ ...frame, roll: 0 }),
+              frame.joints.hips,
+            )
+          : undefined;
       for (const side of ["left", "right"] as const) {
         const limb: PlanLowerLimb = `${side}Leg`;
-        const down: IAutoMovieHumanLimbGoal = standing[limb]!;
         const [departs, arrives]: readonly [number, number] = flight[side];
+        const plant: prepareMountOffFloor.IPlaced | undefined =
+          t >= arrives ? plants?.[side](t) : undefined;
+        if (plant !== undefined) {
+          if (plant.goal !== undefined) limbs[limb] = plant.goal;
+          Object.assign(joints, plant.joints);
+          continue;
+        }
+        const down: IAutoMovieHumanLimbGoal = standing![limb]!;
+        const hip: IAutoMovieVector3 = hips![side];
         // A foot that bears nothing turns its toes down about its ball
         // within the unloaded ankle's range (`HumanMountPush.tip`). A held
         // foot eases into its flight pose while the seat bears the body. A
@@ -362,7 +379,7 @@ export namespace HumanMountOff {
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
-            hips[side],
+            hip,
             down,
             1 - AutoMovieMotionHumanFootRelax.load(t, Infinity, arrives),
           );
@@ -370,7 +387,7 @@ export namespace HumanMountOff {
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
-            hips[side],
+            hip,
             HumanMount.leg(body, side, holds[side], entry.feet[side].planted),
             entry.feet[side].planted
               ? minimumJerk.share(t / departs)
@@ -380,7 +397,7 @@ export namespace HumanMountOff {
           limbs[limb] = HumanMountPush.tip(
             body,
             side,
-            hips[side],
+            hip,
             HumanMount.leg(
               body,
               side,
@@ -400,18 +417,28 @@ export namespace HumanMountOff {
             1,
           );
       }
-      return { ...frame, roll: 0, limbs };
+      return { ...frame, roll: 0, limbs, joints };
     };
 
     // Prepare the leg goals and their joint-space fallback before a palm
     // observes either thigh.
     const breaks: readonly number[] = [seatOff, ...flight.left, ...flight.right];
+    const plants: Readonly<Record<AutoMovieHumanSide, prepareMountOffFloor.Read>> = {
+      left: prepareMountOffFloor(body, "left", flight.left[1], duration, lower),
+      right: prepareMountOffFloor(body, "right", flight.right[1], duration, lower),
+    };
+    const flying = (t: number): IAutoMovieMotionHumanPosture => {
+      const at: IAutoMovieMotionHumanPosture = lower(t, plants);
+      if (t >= flight.left[1]) delete at.limbs.leftLeg;
+      if (t >= flight.right[1]) delete at.limbs.rightLeg;
+      return at;
+    };
     const legs: courseHumanLegs.Seeded = courseHumanLegs({
       body,
-      posture: lower,
-      span: { start: 0, end: duration },
+      posture: flying,
+      span: { start: 0, end: lastLanding },
       instants: breaks.filter(
-        (t: number): boolean => t > 0 && t < duration,
+        (t: number): boolean => t > 0 && t < lastLanding,
       ),
       entry: context.entry.pose,
     });
@@ -427,7 +454,14 @@ export namespace HumanMountOff {
         base: { kind: "standing" },
         posture: (seconds: number): IAutoMovieMotionHumanPosture => {
           const t: number = Math.min(duration, Math.max(0, seconds));
-          return legs(lower(t), t);
+          const at: IAutoMovieMotionHumanPosture = lower(t, plants);
+          if (t >= lastLanding) return at;
+          const coursed: IAutoMovieMotionHumanPosture = legs(at, t);
+          if (t >= flight.left[1] && at.limbs.leftLeg !== undefined)
+            coursed.limbs.leftLeg = at.limbs.leftLeg;
+          if (t >= flight.right[1] && at.limbs.rightLeg !== undefined)
+            coursed.limbs.rightLeg = at.limbs.rightLeg;
+          return coursed;
         },
       },
       (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
@@ -438,7 +472,6 @@ export namespace HumanMountOff {
     // their carriage once, over the flight and its support changes, and ease
     // it in before the first foot leaves and out as the body stands.
     const firstRelease: number = flight[leader][0];
-    const lastLanding: number = Math.max(flight.left[1], flight.right[1]);
     const settle: number =
       lastLanding < duration ? Math.max(standing, lastLanding) : standing;
     const phases: readonly number[] = [
@@ -458,13 +491,43 @@ export namespace HumanMountOff {
       body,
       entry.posture,
     );
+    const hung = (
+      t: number,
+      posture: IAutoMovieMotionHumanPosture,
+    ): IAutoMovieMotionHumanPosture => {
+      const share: number =
+        minimumJerk.share(t / firstRelease) *
+        (1 - minimumJerk.share((t - settle) / (duration - settle)));
+      return share === 0
+        ? posture
+        : HumanArmSwing.carry(posture, {
+            left: share * carried.left,
+            right: share * carried.right,
+          });
+    };
+    // Release the hand onto the direct hanging joints at the final knot.
+    // A wrist fitted up to that instant can approach it with another elbow.
+    const arms: ReturnType<typeof AutoMovieMotionHumanArmChain.continued> =
+      AutoMovieMotionHumanArmChain.continued(
+        body,
+        handRelease,
+        (t: number): IAutoMovieMotionHumanPosture =>
+          seated.arms(
+            body,
+            hung(t, swung.posture(t)),
+            1 - minimumJerk.share(t / handRelease),
+            undefined,
+            undefined,
+            palms,
+          ),
+        ["left", "right"],
+        "angles",
+      );
     return {
       ...swung,
       posture: (
         seconds: number,
         channels?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[1],
-        resolution?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[2],
-        projection?: Parameters<IAutoMovieMotionHumanActionPlan["posture"]>[3],
       ): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
         const posture: IAutoMovieMotionHumanPosture = swung.posture(t);
@@ -479,22 +542,8 @@ export namespace HumanMountOff {
           )
         )
           return posture;
-        const share: number =
-          minimumJerk.share(t / firstRelease) *
-          (1 - minimumJerk.share((t - settle) / (duration - settle)));
-        return seated.arms(
-          body,
-          share === 0
-            ? posture
-            : HumanArmSwing.carry(posture, {
-                left: share * carried.left,
-                right: share * carried.right,
-              }),
-          1 - minimumJerk.share(t / handRelease),
-          resolution,
-          projection,
-          palms,
-        );
+        const hanging: IAutoMovieMotionHumanPosture = hung(t, posture);
+        return t < handRelease ? arms(t, hanging) : hanging;
       },
     };
   }

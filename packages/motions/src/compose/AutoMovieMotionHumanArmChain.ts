@@ -3,6 +3,7 @@ import type {
   AutoMovieHumanLimb,
   AutoMovieHumanSide,
   IAutoMovieMotionHumanArmAngles,
+  IAutoMovieMotionHumanArmClearance,
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanPosture,
   IAutoMovieMotionHumanResolveHumanPosture,
@@ -13,6 +14,7 @@ import { prepareHumanPoseResolution } from "../posture/prepareHumanPoseResolutio
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { AutoMovieMotionHumanArmAngles } from "./AutoMovieMotionHumanArmAngles";
 import { AutoMovieMotionHumanArmCourse } from "./AutoMovieMotionHumanArmCourse";
+import { AutoMovieMotionHumanArmPlayed } from "./AutoMovieMotionHumanArmPlayed";
 
 /** The alternatives of `ContinuedLimb`'s site. */
 type ContinuedLimb = "leftArm" | "rightArm";
@@ -48,6 +50,8 @@ export namespace AutoMovieMotionHumanArmChain {
    * @param duration The action's duration, seconds.
    * @param posture The law's posture at a second, its arms as goals.
    * @param sides The arms to fit along the course.
+   * @param playback Write the prepared arms and digits on a goal-free base
+   *   over the whole span when `angles`; otherwise write only active goals.
    * @returns The posture at a second, those arms written as joints with their
    *   goals removed; given the law's posture at that second already read, that
    *   posture is the one written.
@@ -57,6 +61,7 @@ export namespace AutoMovieMotionHumanArmChain {
     duration: number,
     posture: (seconds: number) => IAutoMovieMotionHumanPosture,
     sides: readonly AutoMovieHumanSide[] = ["left", "right"],
+    playback?: "angles",
   ): (
     seconds: number,
     now?: IAutoMovieMotionHumanPosture,
@@ -127,6 +132,29 @@ export namespace AutoMovieMotionHumanArmChain {
       previous = key;
     }
     const instant = (k: number): IInstant => course[k]!;
+    const tracks =
+      playback === undefined
+        ? undefined
+        : sides.map((side) => {
+            const angles = (
+              k: number,
+            ): IAutoMovieMotionHumanArmAngles.IAngles => instant(k).arms[side]!;
+            return {
+              side,
+              fingers: AutoMovieMotionHumanArmPlayed.prepare(
+                times,
+                times.map((_, k) => angles(k).fingers ?? {}),
+              ),
+              intervals: times.map((_, k) =>
+                blend(
+                  body,
+                  side,
+                  angles(k),
+                  angles(Math.min(k + 1, times.length - 1)),
+                ),
+              ),
+            };
+          });
     return (
       seconds: number,
       now?: IAutoMovieMotionHumanPosture,
@@ -142,6 +170,17 @@ export namespace AutoMovieMotionHumanArmChain {
               1,
               Math.max(0, (t - times[k]!) / (times[k + 1]! - times[k]!)),
             );
+      if (tracks !== undefined) {
+        let out: IAutoMovieMotionHumanPosture = at;
+        for (const track of tracks)
+          out = AutoMovieMotionHumanArmPlayed.written(
+            out,
+            track.side,
+            track.intervals[Math.max(0, k)]!(share),
+            track.fingers(t),
+          );
+        return out;
+      }
       const before: IInstant = instant(Math.max(0, k));
       const after: IInstant = k < 0 ? before : instant(k + 1);
       const joints: IAutoMovieMotionHumanPosture["joints"] = { ...at.joints };
@@ -154,28 +193,42 @@ export namespace AutoMovieMotionHumanArmChain {
         const to: IAutoMovieMotionHumanArmAngles.IAngles | undefined =
           after.arms[side] ?? before.arms[side];
         if (from === undefined || to === undefined) continue;
-        joints[`${side}UpperArm`] = blendHumanJoint.between(
-          body,
-          `${side}UpperArm`,
-          from.upper,
-          to.upper,
-        )(share);
-        joints[`${side}LowerArm`] = blendHumanJoint.between(
-          body,
-          `${side}LowerArm`,
-          from.lower,
-          to.lower,
-        )(share);
-        joints[`${side}Hand`] = blendHumanJoint.between(
-          body,
-          `${side}Hand`,
-          from.hand,
-          to.hand,
-        )(share);
+        const arm: IAutoMovieMotionHumanArmClearance.IArm =
+          blend(body, side, from, to)(share);
+        joints[`${side}UpperArm`] = arm.upper;
+        joints[`${side}LowerArm`] = arm.lower;
+        joints[`${side}Hand`] = arm.hand;
         delete limbs[limb];
       }
       return { ...at, joints, limbs };
     };
+  }
+
+  /** Prepare the three canonical joint blends of one arm interval. */
+  function blend(
+    body: IAutoMovieMotionHumanBody,
+    side: AutoMovieHumanSide,
+    from: IAutoMovieMotionHumanArmAngles.IAngles,
+    to: IAutoMovieMotionHumanArmAngles.IAngles,
+  ): (share: number) => IAutoMovieMotionHumanArmClearance.IArm {
+    const upper = blendHumanJoint.between(
+      body,
+      `${side}UpperArm`,
+      from.upper,
+      to.upper,
+    );
+    const lower = blendHumanJoint.between(
+      body,
+      `${side}LowerArm`,
+      from.lower,
+      to.lower,
+    );
+    const hand = blendHumanJoint.between(body, `${side}Hand`, from.hand, to.hand);
+    return (share: number): IAutoMovieMotionHumanArmClearance.IArm => ({
+      upper: upper(share),
+      lower: lower(share),
+      hand: hand(share),
+    });
   }
 
   /**
