@@ -25,6 +25,7 @@ export namespace HumanArmDifferential {
    * @param q The coordinates.
    * @param contact The point the hand carries, in its frame from the wrist.
    * @param r The displacement, metres.
+   * @param fixed Coordinates already at an active bound in this correction.
    * @returns The coordinates' step.
    */
   export function step(
@@ -33,6 +34,7 @@ export namespace HumanArmDifferential {
     q: readonly number[],
     contact: IAutoMovieVector3,
     r: IAutoMovieVector3,
+    fixed?: ReadonlySet<number>,
   ): number[] {
     const out: number[] = new Array(q.length).fill(0);
     if (Vector3.length(r) === 0) return out;
@@ -48,7 +50,7 @@ export namespace HumanArmDifferential {
     const up: number[] = [...q];
     const down: number[] = [...q];
     for (let d: number = 0; d < setup.free.length; ++d) {
-      if (!setup.free[d]!) continue;
+      if (!setup.free[d]! || fixed?.has(d)) continue;
       up[d] = q[d]! + H;
       down[d] = q[d]! - H;
       const index: number = 3 * free.length;

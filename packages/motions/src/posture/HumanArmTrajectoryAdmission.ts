@@ -1,4 +1,4 @@
-import { HumanArmRefine } from "./HumanArmRefine";
+import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 
 /**
@@ -28,19 +28,20 @@ export namespace HumanArmTrajectoryAdmission {
    * @param fine The context at the frame grid's instants over the same span,
    *   its first and last the knots'.
    * @param x Each arm's coordinates at each knot.
+   * @param rates The same bounded knot rates used in playback.
    * @returns The reading.
    */
   export function read(
     c: M.IContext,
     fine: M.IContext,
     x: readonly (readonly (readonly number[])[])[],
+    rates: HumanArmTrajectoryKnots.IRates,
   ): IReading {
-    const at: number[][][] = x.map(
-      (arm: readonly (readonly number[])[]): number[][] => {
-        const curve: ReturnType<typeof HumanArmRefine.prepareHermite> =
-          HumanArmRefine.prepareHermite(c.times, arm);
-        return fine.times.map((t: number): number[] => curve(t).coordinates);
-      },
+    const at: number[][][] = HumanArmTrajectoryKnots.read(
+      c.times,
+      fine.times,
+      x,
+      rates,
     );
     return {
       x: at,

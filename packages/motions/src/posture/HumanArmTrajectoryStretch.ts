@@ -239,7 +239,13 @@ export namespace HumanArmTrajectoryStretch {
       );
       at = next;
       if (pinned !== undefined)
-        pinned = HumanArmSeed.holds(at.problem, at.context, carried, pinned);
+        pinned = HumanArmSeed.holds(
+          at.problem,
+          at.context,
+          carried,
+          pinned,
+          grid.fine,
+        );
       solved = HumanArmOptimiser.optimise(
         at.context,
         carried,
@@ -341,6 +347,8 @@ export namespace HumanArmTrajectoryStretch {
    * @returns Each arm's reader, in the problem's order, and the solution.
    */
   export function played(solved: ISolved): HumanArmTrajectory.ISolved {
+    const rates: Knots.IRates =
+      solved.rates ?? Knots.bounded(solved.context, solved.x);
     return {
       trajectories: solved.problem.arms.map(
         (
@@ -352,7 +360,7 @@ export namespace HumanArmTrajectoryStretch {
             solved.context.times,
             solved.x,
             a,
-            solved.rates,
+            rates,
           ),
       ),
       state: {

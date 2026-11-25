@@ -16,9 +16,9 @@ import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
 /**
  * A laid course's time-optimal timing along its own path, and the course
  * retimed on it: TOPP-RA (`HumanPathParameterization`, Pham and Pham 2018) on
- * the path the course plays, its parameter the course's own seconds. The
- * joints stay within their velocity and acceleration limits, and each probe
- * against its base within the law's own pace (`M.IContext.speed`). The path's
+ * the path the course plays, its parameter the course's own seconds. The joints
+ * stay within their velocity and acceleration limits, and each probe against
+ * its base within the law's own pace (`M.IContext.speed`). The path's
  * derivatives at the gridpoints are those of the minimum-jerk path through the
  * course (`HumanMinimumJerkSpline`), the curve the course is played on. The
  * paper's premise is a fixed path: a retimed course is read again in full, so
@@ -43,7 +43,13 @@ export namespace HumanArmTrajectoryRetime {
         ...arm[k]!,
       ]),
     );
-    const path: S.IDerivatives = S.derivatives(s, coordinates);
+    const rates: Knots.IRates = Knots.bounded(c, x);
+    const first: number[][] = s.map((_, k: number): number[] =>
+      rates.velocities.flatMap((arm: number[][]): number[] => arm[k]!),
+    );
+    const second: number[][] = s.map((_, k: number): number[] =>
+      rates.accelerations.flatMap((arm: number[][]): number[] => arm[k]!),
+    );
 
     // Each speed-bounded probe's place against its base at each instant, and
     // that place's path derivative.
@@ -77,12 +83,12 @@ export namespace HumanArmTrajectoryRetime {
     const parametrization: TOPP.IResult = TOPP.parametrize({
       path: {
         gridpoints: s,
-        first: path.velocities,
-        second: path.accelerations,
+        first,
+        second,
       },
       velocities: [
         {
-          first: path.velocities,
+          first,
           lower: s.map((): number[] =>
             coordinates[0]!.map((_: number, i: number): number => -rate(i)),
           ),
@@ -103,12 +109,10 @@ export namespace HumanArmTrajectoryRetime {
       accelerations: [
         {
           lower: coordinates[0]!.map(
-            (_: number, i: number): number =>
-              -ACCELERATIONS[i % G.DIMENSIONS]!,
+            (_: number, i: number): number => -ACCELERATIONS[i % G.DIMENSIONS]!,
           ),
           upper: coordinates[0]!.map(
-            (_: number, i: number): number =>
-              ACCELERATIONS[i % G.DIMENSIONS]!,
+            (_: number, i: number): number => ACCELERATIONS[i % G.DIMENSIONS]!,
           ),
         },
       ],
@@ -159,16 +163,20 @@ export namespace HumanArmTrajectoryRetime {
         0.5 * dt * dt * timed.accelerations[interval]!
       );
     });
-    return x.map((arm: readonly (readonly number[])[]): number[][] => {
-      const path: S.IDerivatives = S.derivatives(s, arm);
-      const positions: (seconds: number) => Knots.IPosition = Knots.positions(
-        s,
-        arm,
-        path.velocities,
-        path.accelerations,
-      );
-      return at.map((seconds: number): number[] => positions(seconds).coordinates);
-    });
+    const rates: Knots.IRates = Knots.bounded(c, x);
+    return x.map(
+      (arm: readonly (readonly number[])[], a: number): number[][] => {
+        const positions: (seconds: number) => Knots.IPosition = Knots.positions(
+          s,
+          arm,
+          rates.velocities[a]!,
+          rates.accelerations[a]!,
+        );
+        return at.map(
+          (seconds: number): number[] => positions(seconds).coordinates,
+        );
+      },
+    );
   }
 
   /** A course's timing. */

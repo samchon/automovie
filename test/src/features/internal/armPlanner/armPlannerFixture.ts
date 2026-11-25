@@ -246,9 +246,9 @@ export namespace armPlannerFixture {
    * site's disc, an instant every 5 ms outside a joint's range to its
    * resolution (`ROM_TOLERANCE`), the model's reading of the played grid past
    * its tolerance (every pair, sweep, site, range and speed), and a knot where
-   * a played clinical angle's one-sided velocity or acceleration (second-order
-   * differences 10 µs apart) disagree past 0.1 % of their scale, or past 1 % of
-   * it and a degree a second squared.
+   * the displayed derivatives disagree. The nonlinear shoulder chart uses
+   * small-step differences. The distal angles use a degree-five stencil exact
+   * on each quintic, with only the arithmetic and clock rounding allowed.
    *
    * @param loaded The problem.
    * @param solved Its solution.
@@ -354,7 +354,8 @@ export namespace armPlannerFixture {
 
     // C2 across the knots.
     const h: number = 1e-5;
-    solved.state.times.slice(1, -1).forEach((t: number): void =>
+    const clock: readonly number[] = solved.state.times;
+    clock.slice(1, -1).forEach((t: number, i: number): void =>
       stored.problem.arms.forEach((_: IStoredArm, a: number): void => {
         const f: number[][] = [-3, -2, -1, 0, 1, 2, 3].map(
           (i: number): number[] => {
@@ -365,7 +366,7 @@ export namespace armPlannerFixture {
             return [...shown.upper, ...shown.lower, ...shown.hand];
           },
         );
-        f[3]!.forEach((_v: number, d: number): void => {
+        f[3]!.slice(0, 3).forEach((_v: number, d: number): void => {
           const v = (i: number): number => f[i + 3]![d]!;
           const left: number = (3 * v(0) - 4 * v(-1) + v(-2)) / (2 * h);
           const right: number = (-3 * v(0) + 4 * v(1) - v(2)) / (2 * h);
@@ -381,6 +382,18 @@ export namespace armPlannerFixture {
           )
             out.push(`a kink at ${t.toFixed(3)} s in angle ${d}`);
         });
+        const shortest: number = Math.min(t - clock[i]!, clock[i + 2]! - t);
+        const spacing: number = shortest / 8;
+        for (const d of distalKinks(
+          (at) => {
+            const shown: IAutoMovieMotionHumanArmClearance.IArm = played(a, at);
+            return [...shown.lower, ...shown.hand];
+          },
+          t,
+          spacing,
+          c.bounds[a]!.slice(3),
+        ))
+          out.push(`a kink at ${t.toFixed(3)} s in angle ${d + 3}`);
       }),
     );
     return out;
@@ -469,4 +482,66 @@ export namespace armPlannerFixture {
     /** Each planned arm's own reading. */
     arms?: IStoredArmBase[];
   }
+}
+
+/**
+ * Integer numerators of the first two derivatives of the degree-five Lagrange
+ * basis on 0, 1, 2, 3, 4, 5. The constant term is accounted for by subtracting
+ * the value at zero before multiplication.
+ */
+const DISTAL_STENCIL: readonly (readonly number[])[] = [
+  [300, -300, 200, -75, 12],
+  [-154, 214, -156, 61, -10],
+];
+
+/** A distal angle's two actual quintics must agree in both derivatives. */
+function distalKinks(
+  read: (t: number) => readonly number[],
+  t: number,
+  h: number,
+  bounds: readonly ([number, number] | null)[],
+): number[] {
+  const zero: readonly number[] = read(t);
+  const side = (sign: number): (readonly number[])[] =>
+    DISTAL_STENCIL[0]!.map((_, i: number): readonly number[] =>
+      read(t + sign * (i + 1) * h),
+    );
+  const left: (readonly number[])[] = side(-1);
+  const right: (readonly number[])[] = side(1);
+  return zero.flatMap((centre: number, d: number): number[] => {
+    const bound: [number, number] | null | undefined = bounds[d];
+    const scale: number = Math.max(
+      1,
+      Math.abs(centre),
+      ...(bound ?? []).map(Math.abs),
+      ...left.map((point) => Math.abs(point[d]!)),
+      ...right.map((point) => Math.abs(point[d]!)),
+    );
+    // The absolute sum of a quintic Bernstein-to-power expansion is below
+    // 3^5 times its largest control. Allow 20 rounded arithmetic operations
+    // per sample and stencil term. The derivative of a Bernstein quintic
+    // is bounded by 10 times the control magnitude over its segment span,
+    // at least 8h. Use that slope to bound rounding the sample seconds.
+    const clockError: number = 4 * Number.EPSILON * Math.max(1, Math.abs(t));
+    const sample: number =
+      scale * (20 * 3 ** 5 * Number.EPSILON + (10 * clockError) / (8 * h));
+    return DISTAL_STENCIL.some((weights, order: number): boolean => {
+      const weighted = (points: (readonly number[])[]): number =>
+        weights.reduce(
+          (sum: number, weight: number, i: number): number =>
+            sum + weight * (points[i]![d]! - centre),
+          0,
+        );
+      // The common denominator cancels when comparing the two derivatives.
+      // Each point and the shared centre round on both sides.
+      const uncertainty: number =
+        4 * sample * weights.reduce((sum, weight) => sum + Math.abs(weight), 0);
+      return (
+        Math.abs(weighted(right) - (order === 0 ? -1 : 1) * weighted(left)) >
+        uncertainty
+      );
+    })
+      ? [d]
+      : [];
+  });
 }

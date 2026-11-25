@@ -1,6 +1,7 @@
 import type { IAutoMovieMotionHumanArmTrajectory } from "@automovie/interface";
 
 import { HumanArmGeometry } from "./HumanArmGeometry";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPlayback } from "./HumanArmTrajectoryPlayback";
 
@@ -41,6 +42,7 @@ export function certifyHumanArmTracks(
     )
   )
     return undefined;
+  const rates: Knots.IRates = Knots.bounded(context, coordinates);
   return tracks.map(
     (
       _: IAutoMovieMotionHumanArmTrajectory.Trajectory,
@@ -51,6 +53,7 @@ export function certifyHumanArmTracks(
         context.times,
         coordinates,
         arm,
+        rates,
       ),
   );
 }

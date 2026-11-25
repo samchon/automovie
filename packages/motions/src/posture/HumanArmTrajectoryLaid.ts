@@ -10,6 +10,7 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryClear as Clear } from "./HumanArmTrajectoryClear";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryLay } from "./HumanArmTrajectoryLay";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -349,13 +350,20 @@ export namespace HumanArmTrajectoryLaid {
       reading = M.evaluate(context, x, { reading, laid });
     }
     const worst: M.IEvaluation["worst"] = reading.worst;
+    const rates: Knots.IRates = Knots.bounded(context, x);
     return {
       trajectories: problem.arms.map(
         (
           _: HumanArmTrajectory.IArm,
           a: number,
         ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-          HumanArmTrajectoryPlayback(context.setups, context.times, x, a),
+          HumanArmTrajectoryPlayback(
+            context.setups,
+            context.times,
+            x,
+            a,
+            rates,
+          ),
       ),
       admitted: worst.value <= M.TOLERANCE,
       refused: worst.value <= M.TOLERANCE ? "" : worst.term,

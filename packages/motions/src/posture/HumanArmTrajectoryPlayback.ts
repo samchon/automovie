@@ -6,7 +6,6 @@ import type {
 
 import { HumanArmBranch } from "./HumanArmBranch";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
-import { HumanArmRefine } from "./HumanArmRefine";
 import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
 
 /**
@@ -26,9 +25,8 @@ import { HumanArmTrajectoryKnots } from "./HumanArmTrajectoryKnots";
  * @param times The knots' seconds, ascending.
  * @param coordinates Each arm's coordinates at each knot.
  * @param arm The arm's index.
- * @param rates Each arm's velocity and acceleration at each knot, the knots'
- *   own (`HumanArmTrajectoryKnots`): the course is then the quintics that meet
- *   both knots' three; absent, the minimum-jerk spline through the positions.
+ * @param rates The bounded per-knot velocities and accelerations used by
+ *   admission. Each quintic meets both knots' position and rates.
  * @returns The arm at a second of the span, held at the first and the last knot
  *   outside it.
  */
@@ -37,7 +35,7 @@ export function HumanArmTrajectoryPlayback(
   times: readonly number[],
   coordinates: readonly (readonly (readonly number[])[])[],
   arm: number,
-  rates?: HumanArmTrajectoryKnots.IRates,
+  rates: HumanArmTrajectoryKnots.IRates,
 ): (seconds: number) => IAutoMovieMotionHumanArmClearance.IArm {
   const setup: IAutoMovieMotionHumanArmGeometry.ISetup = setups[arm]!;
   const rows: number[][] = coordinates[arm]!.map(
@@ -45,14 +43,12 @@ export function HumanArmTrajectoryPlayback(
   );
   const clock: number[] = [...times];
   const curve: (seconds: number) => HumanArmTrajectoryKnots.IPosition =
-    rates === undefined
-      ? HumanArmRefine.prepareHermite(clock, rows)
-      : HumanArmTrajectoryKnots.positions(
-          clock,
-          rows,
-          rates.velocities[arm]!,
-          rates.accelerations[arm]!,
-        );
+    HumanArmTrajectoryKnots.positions(
+      clock,
+      rows,
+      rates.velocities[arm]!,
+      rates.accelerations[arm]!,
+    );
   // Each knot's shoulder reading, each the nearest the knot before it.
   const known: [number, number, number][] = [];
   rows.forEach((c: readonly number[], i: number): void => {

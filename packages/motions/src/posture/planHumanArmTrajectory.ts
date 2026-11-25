@@ -12,6 +12,7 @@ import { HumanArmTrajectory } from "./HumanArmTrajectory";
 import { HumanArmTrajectoryAdmission as Admission } from "./HumanArmTrajectoryAdmission";
 import { HumanArmTrajectoryContactCircle } from "./HumanArmTrajectoryContactCircle";
 import { HumanArmTrajectoryContext } from "./HumanArmTrajectoryContext";
+import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryMirror as Mirror } from "./HumanArmTrajectoryMirror";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
@@ -121,17 +122,19 @@ export function planHumanArmTrajectory(
         span,
       );
       const evaluation: M.IEvaluation = M.evaluate(fine, x);
-      if (evaluation.worst.value <= M.TOLERANCE)
+      if (evaluation.worst.value <= M.TOLERANCE) {
+        const rates: Knots.IRates = Knots.bounded(fine, x);
         return {
           trajectories: problem.arms.map(
             (
               _: HumanArmTrajectory.IArm,
               a: number,
             ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-              HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+              HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a, rates),
           ),
           state: { times: [...fine.times], x, penalty: 0 },
         };
+      }
     } else if (stretches)
       throw new HumanRefusal({
         kind: "reach",
@@ -206,13 +209,14 @@ export function planHumanArmTrajectory(
       reading: verdict,
       laid: changed,
     });
+    const rates: Knots.IRates = Knots.bounded(fine, x);
     return {
       trajectories: problem.arms.map(
         (
           _: HumanArmTrajectory.IArm,
           a: number,
         ): IAutoMovieMotionHumanArmTrajectory.Trajectory =>
-          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a),
+          HumanArmTrajectoryPlayback(fine.setups, fine.times, x, a, rates),
       ),
       admitted: evaluation.worst.value <= M.TOLERANCE,
       refused:
@@ -255,10 +259,12 @@ export function planHumanArmTrajectory(
         );
       },
     );
-    const played: Admission.IReading = Admission.read(c, fine, seed);
+    const rates: Knots.IRates = Knots.bounded(c, seed);
+    const played: Admission.IReading = Admission.read(c, fine, seed, rates);
     earlier = {
       ...knotted,
       x: seed,
+      rates,
       evaluation: played.evaluation,
       penalty: warm.penalty,
       played,
@@ -270,16 +276,19 @@ export function planHumanArmTrajectory(
   // iterate or the laid course supplies seeds for the hold's IK; RRT-Connect
   // supplies the initial route when there is no earlier iterate.
   const from: Stretch.IKnots = earlier ?? initial;
+  const laid: number[][][] | undefined =
+    course === undefined
+      ? undefined
+      : Pace.coursed(from.context, course.trajectories);
   const pinned: HumanArmSeed.IHolds = HumanArmSeed.holds(
     from.problem,
     from.context,
-    earlier?.x ??
-      (course === undefined
-        ? undefined
-        : Pace.coursed(from.context, course.trajectories)),
+    earlier?.x ?? laid,
+    undefined,
+    fine,
   );
   const seed: number[][][] =
-    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine);
+    earlier?.x ?? HumanArmSeed.seed(from.context, pinned, fine, laid);
   const solved: Stretch.ISolved = Stretch.optimise(
     whole,
     from,

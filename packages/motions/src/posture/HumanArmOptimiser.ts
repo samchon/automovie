@@ -146,7 +146,7 @@ export namespace HumanArmOptimiser {
         x: it.x,
         ...(it.rates === undefined
           ? {}
-          : { rates: limited(context, it.rates) }),
+          : { rates: Projection(context, it.x, limited(context, it.rates)) }),
       }),
       evaluate: (x: IIterate): IReading => {
         const evaluation: M.IEvaluation = HumanArmTrajectoryEvaluate(

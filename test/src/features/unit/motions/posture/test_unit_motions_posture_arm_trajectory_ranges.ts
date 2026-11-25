@@ -33,6 +33,11 @@ const ROUNDING: number = 2 * 5_000 * Number.EPSILON;
  *    velocity 2 and acceleration 3: both are outward, so the knot is held
  *    still; with acceleration −3 (turning back inward) that is kept. The ends,
  *    which no solve moves, are left as given.
+ * 3. At an interior position 9 on a [0, 10] box, the outgoing second control is 13
+ *    before projection. Scale its derivative by 1/4 to put that control at 10.
+ *    The same derivative serves the incoming interval.
+ * 4. At 3/5 of the swing radius, a perpendicular second control can move 4/5 of
+ *    that radius before reaching the circle.
  */
 export function test_unit_motions_posture_arm_trajectory_ranges(): void {
   const scale: number = HumanArmGeometry.SCALE;
@@ -58,8 +63,11 @@ export function test_unit_motions_posture_arm_trajectory_ranges(): void {
   const knots: Parameters<typeof HumanArmTrajectoryRateProjection>[0] = {
     n: 3,
     open: false,
+    times: [0, 1, 2],
     free: [[0]],
     bounds: [[[-1, 1]]],
+    rest: [[0]],
+    back: [[0]],
   };
   const x: number[][][] = [[[0], [1], [0]]];
   const out: HumanArmTrajectoryKnots.IRates = HumanArmTrajectoryRateProjection(
@@ -82,5 +90,40 @@ export function test_unit_motions_posture_arm_trajectory_ranges(): void {
     "a knot on its bound is held",
     [out.velocities, out.accelerations, back.accelerations],
     [[[[5], [0], [5]]], [[[5], [0], [5]]], [[[5], [-3], [5]]]],
+  );
+
+  const zero: number[] = [0, 0, 0];
+  const interior: Parameters<typeof HumanArmTrajectoryRateProjection>[0] = {
+    ...knots,
+    free: [[0, 1, 2]],
+    bounds: [[null, null, [0, 10]]],
+    rest: [zero],
+    back: [zero],
+  };
+  const points: number[][][] = [[zero, [(3 * scale) / 5, 0, 9], zero]];
+  const raw: HumanArmTrajectoryKnots.IRates = {
+    velocities: [[zero, [0, (5 * scale) / 2, 10], zero]],
+    accelerations: [[zero, zero, zero]],
+  };
+  const fit: HumanArmTrajectoryKnots.IRates = HumanArmTrajectoryRateProjection(
+    interior,
+    points,
+    raw,
+  );
+  TestValidator.equals(
+    "both control limits preserve the shared feasible rates",
+    fit.velocities[0]![1],
+    [0, 2 * scale, 2.5],
+  );
+  const point = (rates: HumanArmTrajectoryKnots.IRates): number =>
+    HumanArmTrajectoryKnots.positions(
+      interior.times,
+      points[0]!,
+      rates.velocities[0]!,
+      rates.accelerations[0]!,
+    )(1.2).coordinates[2]!;
+  TestValidator.predicate(
+    "the between-knot curve stays within its box",
+    point(raw) > 10 && point(fit) < 10,
   );
 }

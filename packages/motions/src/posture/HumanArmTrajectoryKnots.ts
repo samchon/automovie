@@ -1,9 +1,10 @@
 import type { IAutoMovieMotionHumanQuadraticProgram } from "@automovie/interface";
 
 import { HumanArmRefine } from "./HumanArmRefine";
-import { HumanQuinticSegment } from "./HumanQuinticSegment";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryRateProjection } from "./HumanArmTrajectoryRateProjection";
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
+import { HumanQuinticSegment } from "./HumanQuinticSegment";
 
 /**
  * An arms' trajectory optimised on few knots and constrained on the whole frame
@@ -137,17 +138,17 @@ export namespace HumanArmTrajectoryKnots {
           ),
       );
     return (seconds: number): IPosition => {
-      if (seconds <= knots[0]!)
-        return { knot: 0, coordinates: [...x[0]!] };
+      if (seconds <= knots[0]!) return { knot: 0, coordinates: [...x[0]!] };
       if (seconds >= knots[last]!)
         return { knot: last, coordinates: [...x[last]!] };
       const knot: number = segment(knots, seconds);
       const elapsed: number = seconds - knots[knot]!;
       return {
         knot,
-        coordinates: elapsed === 0
-          ? [...x[knot]!]
-          : HumanQuinticSegment.position(segments[knot]!, elapsed),
+        coordinates:
+          elapsed === 0
+            ? [...x[knot]!]
+            : HumanQuinticSegment.position(segments[knot]!, elapsed),
       };
     };
   }
@@ -182,6 +183,24 @@ export namespace HumanArmTrajectoryKnots {
           s.accelerations.map((v: readonly number[]): number[] => [...v]),
       ),
     };
+  }
+
+  /**
+   * Prepare the laid course's rates within the arm's native continuous ROM.
+   *
+   * @param context The knot clock and the native coordinate ranges.
+   * @param x Each arm's coordinates at each knot.
+   * @returns The shared rates for admission and playback.
+   */
+  export function bounded(
+    context: Parameters<typeof HumanArmTrajectoryRateProjection>[0],
+    x: readonly (readonly (readonly number[])[])[],
+  ): IRates {
+    return HumanArmTrajectoryRateProjection(
+      context,
+      x,
+      rates(context.times, x),
+    );
   }
 
   /**
@@ -240,9 +259,15 @@ export namespace HumanArmTrajectoryKnots {
   ): number[][][] {
     return x.map(
       (arm: readonly (readonly number[])[], a: number): number[][] => {
-        const curve: (seconds: number) => IPosition = rates === undefined
-          ? HumanArmRefine.prepareHermite(knots, arm)
-          : positions(knots, arm, rates.velocities[a]!, rates.accelerations[a]!);
+        const curve: (seconds: number) => IPosition =
+          rates === undefined
+            ? HumanArmRefine.prepareHermite(knots, arm)
+            : positions(
+                knots,
+                arm,
+                rates.velocities[a]!,
+                rates.accelerations[a]!,
+              );
         return grid.map((t: number): number[] => curve(t).coordinates);
       },
     );

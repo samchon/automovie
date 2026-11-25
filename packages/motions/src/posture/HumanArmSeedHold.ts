@@ -29,6 +29,7 @@ type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
  * @param k The hold's knot index.
  * @param given The previous hold's coordinates or the caller's preferred seed.
  * @param proposed The course's proposed coordinates at this knot.
+ * @param joins Whether the static pose joins its settled adjacent grid poses.
  * @returns Each arm's admitted coordinates.
  * @throws {HumanRefusal} When the reach bound or the inverse kinematics
  *   refuses.
@@ -39,6 +40,9 @@ export function HumanArmSeedHold(
   k: number,
   given?: readonly (readonly number[])[],
   proposed?: readonly (readonly number[])[],
+  joins?: (
+    pose: readonly IAutoMovieMotionHumanArmGeometry.IPlaced[],
+  ) => boolean,
 ): number[][] {
   // The waypoint between its neighbours; the last one, where a hold lasts
   // to the end, with itself after it: a still configuration reads neither
@@ -126,12 +130,27 @@ export function HumanArmSeedHold(
   const anchored: M.IContext =
     predicted === undefined ? point : { ...point, anchor: predicted };
   let closest: IInstantAt | undefined;
+  let fallback: number[][] | undefined;
   const keep = (candidate: IInstantAt): void => {
     if (
       closest === undefined ||
       candidate.evaluation.worst.value < closest.evaluation.worst.value
     )
       closest = candidate;
+  };
+  const choose = (candidate: IInstantAt): number[][] | undefined => {
+    keep(candidate);
+    if (candidate.evaluation.worst.value > M.TOLERANCE) return undefined;
+    const q: number[][] = candidate.x.map((arm) => arm[1]!);
+    if (
+      joins === undefined ||
+      joins(candidate.evaluation.placed.map((arm) => arm[1]!))
+    )
+      return q;
+    // Keep the exact static candidate available to the trajectory solve if
+    // none of the local swivel alternatives clears the adjacent sweep.
+    if (fallback === undefined) fallback = q;
+    return undefined;
   };
   if (given !== undefined) {
     // A locally valid hold can lie on the other side of an obstacle from its
@@ -145,8 +164,12 @@ export function HumanArmSeedHold(
     );
     if (continued.every((arm): boolean => arm !== undefined)) {
       const joined: number[][] = continued.map((arm): number[] => arm!);
-      if (M.evaluate(point, frame(point, joined)).worst.value <= M.TOLERANCE)
-        return joined;
+      const x: number[][][] = frame(point, joined);
+      const admitted: number[][] | undefined = choose({
+        x,
+        evaluation: M.evaluate(point, x),
+      });
+      if (admitted !== undefined) return admitted;
     }
   }
   const starts: number[][][] = HumanArmSeedStarts(
@@ -187,13 +210,12 @@ export function HumanArmSeedHold(
     q: readonly (readonly number[])[],
   ): number[][] | undefined => {
     const candidate: number[][][] = frame(point, q);
-    if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
-      return candidate.map((arm: number[][]): number[] => arm[1]!);
-    const at: IInstantAt = hard(anchored, candidate);
-    if (at.evaluation.worst.value <= M.TOLERANCE)
-      return at.x.map((arm: number[][]): number[] => arm[1]!);
-    keep(at);
-    return undefined;
+    const evaluation: M.IEvaluation = M.evaluate(anchored, candidate);
+    return choose(
+      evaluation.worst.value <= M.TOLERANCE
+        ? { x: candidate, evaluation }
+        : hard(anchored, candidate),
+    );
   };
   for (const q of starts) {
     const admitted: number[][] | undefined = attempt(q);
@@ -211,10 +233,16 @@ export function HumanArmSeedHold(
           : HumanArmTrajectoryContactCircle(point, a, 1, q);
       },
     );
-    for (const q of HumanArmContactConfigurations(branches))
-      if (M.evaluate(point, frame(point, q)).worst.value <= M.TOLERANCE)
-        return q;
+    for (const q of HumanArmContactConfigurations(branches)) {
+      const x: number[][][] = frame(point, q);
+      const admitted: number[][] | undefined = choose({
+        x,
+        evaluation: M.evaluate(point, x),
+      });
+      if (admitted !== undefined) return admitted;
+    }
   }
+  if (fallback !== undefined) return fallback;
   // If the nearest projection pins a contact against an obstacle, use the
   // elastic TrajOpt step to find a different starting contact within the
   // authored region. Only a subsequent equality-constrained solve can admit
@@ -225,18 +253,16 @@ export function HumanArmSeedHold(
       frame(point, q),
     );
     const exact: IInstantAt = hard(anchored, predictedContact.x);
-    if (exact.evaluation.worst.value <= M.TOLERANCE)
-      return exact.x.map((arm: number[][]): number[] => arm[1]!);
-    keep(exact);
+    const admitted: number[][] | undefined = choose(exact);
+    if (admitted !== undefined) return admitted;
   }
   // Give clearance an independent choice of the contact's exact coordinates
   // inside the authored disc. A failed search of this inscribed region does
   // not rule out the rest of the disc.
   if (point.sites.some((sites) => (sites[1]?.disc ?? 0) > 0)) {
     const exact: IInstantAt = hard(anchored, closest!.x, "region");
-    if (exact.evaluation.worst.value <= M.TOLERANCE)
-      return exact.x.map((arm: number[][]): number[] => arm[1]!);
-    keep(exact);
+    const admitted: number[][] | undefined = choose(exact);
+    if (admitted !== undefined) return admitted;
   }
   // Test contacts at the ends of the disc's tangent diameters when the
   // nearest projection cannot clear. Each alternative fixes its own point
@@ -260,13 +286,16 @@ export function HumanArmSeedHold(
         const moved: M.IContext = pointAt(sites);
         const start: number[][][] = closest!.x;
         const exact: IInstantAt = hard(moved, start);
-        if (
-          exact.evaluation.worst.value <= M.TOLERANCE &&
-          M.evaluate(point, exact.x).worst.value <= M.TOLERANCE
-        )
-          return exact.x.map((arm: number[][]): number[] => arm[1]!);
+        if (exact.evaluation.worst.value <= M.TOLERANCE) {
+          const admitted: number[][] | undefined = choose({
+            x: exact.x,
+            evaluation: M.evaluate(point, exact.x),
+          });
+          if (admitted !== undefined) return admitted;
+        }
       }
   }
+  if (fallback !== undefined) return fallback;
   // A narrow basin can be reached by continuation from the current branch
   // before widening the search to dispersed configurations.
   const start: readonly (readonly number[])[] = given ?? proposed ?? point.rest;
@@ -282,11 +311,19 @@ export function HumanArmSeedHold(
       };
     },
   );
-  if (continued !== undefined) return continued;
+  if (continued !== undefined) {
+    const x: number[][][] = frame(point, continued);
+    const admitted: number[][] | undefined = choose({
+      x,
+      evaluation: M.evaluate(point, x),
+    });
+    if (admitted !== undefined) return admitted;
+  }
   for (const q of HumanArmSeedRestarts(point)) {
     const admitted: number[][] | undefined = attempt(q);
     if (admitted !== undefined) return admitted;
   }
+  if (fallback !== undefined) return fallback;
   throw new HumanRefusal({
     kind: "reach",
     axis: closest!.evaluation.worst.axis,
@@ -342,17 +379,41 @@ function follow(
     const displacement: IAutoMovieVector3 = nearest
       ? Vector3.scale(slide, (distance - site.disc) / distance)
       : slide;
-    const step: number[] = HumanArmDifferential.step(
-      c.setups[a]!,
-      c.frames[a]![1]!,
-      q,
-      site.contact,
+    const setup: IAutoMovieMotionHumanArmGeometry.ISetup = c.setups[a]!;
+    const frame: IAutoMovieMotionHumanArmGeometry.IFrame = c.frames[a]![1]!;
+    const target: IAutoMovieVector3 = Vector3.add(
+      P.pad(placed[a]!, site.contact),
       displacement,
     );
-    return M.ranged(
-      c,
-      a,
-      q.map((v: number, d: number): number => v + step[d]!),
-    );
+    const blocked: Set<number> = new Set();
+    let angles: readonly number[] = q;
+    let residual: IAutoMovieVector3 = displacement;
+    for (;;) {
+      const step: number[] = HumanArmDifferential.step(
+        setup,
+        frame,
+        angles,
+        site.contact,
+        residual,
+        blocked,
+      );
+      const trial: number[] = angles.map(
+        (v: number, d: number): number => v + step[d]!,
+      );
+      const ranged: number[] = M.ranged(c, a, trial);
+      if (!nearest) return ranged;
+      // Reallocate correction lost to active bounds among the remaining
+      // free joints. Each repeat fixes at least one new coordinate, so the
+      // operation ends when the active set stops changing.
+      const size: number = blocked.size;
+      for (const d of c.free[a]!) if (trial[d] !== ranged[d]) blocked.add(d);
+      if (blocked.size === size) return ranged;
+      residual = Vector3.subtract(
+        target,
+        P.pad(G.chain(setup, frame, ranged), site.contact),
+      );
+      if (Vector3.length(residual) <= M.TOLERANCE / 1000) return ranged;
+      angles = ranged;
+    }
   });
 }
