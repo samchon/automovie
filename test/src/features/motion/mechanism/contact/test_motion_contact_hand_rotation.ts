@@ -41,11 +41,12 @@ const at = (
  * 1. A forefinger goal at a reachable point (the tip under a known pinch) is
  *    met within 0.5 mm in the resolved pose, the issue's bound, on both sides.
  * 2. A goal on a bone rides it: the thumb's tip on the forefinger's pad
- *    (`on` its distal phalanx) is met within 0.5 mm.
+ *    (`on` its distal phalanx) is met within 0.5 mm, with the two surface
+ *    normals opposing.
  * 3. A posture with no digit goals resolves exactly as before: the same
  *    pose, to the bit, as one whose `digits` is empty.
- * @evidence contracts/development/testing.md#behavioral-verification Resolves postures with digit goals on a generated body and reads the actual tip and pad on the resolved pose.
- * @evidence contracts/development/testing.md#independent-expectations Goals are surface points of in-range poses, so reachable; the bound is the issue's.
+ * @evidence contracts/development/testing.md#behavioral-verification Resolves postures with digit goals on a generated body and reads the actual tip and pad points and normals on the resolved pose.
+ * @evidence contracts/development/testing.md#independent-expectations Goals are surface points of in-range poses, so reachable; the bound is the issue's. A negative dot product verifies that the thumb faces into the pad rather than facing away from it.
  * @evidence contracts/development/testing.md#distinguishing-cases Both sides, a world and a bone goal, empty and absent goals.
  * @evidence contracts/development/testing.md#execution-ownership A portable unit test preparing one polygon man; no host.
  * @evidence contracts/development/common.md#meaningful-documentation States the cast and the three scenarios.
@@ -133,16 +134,23 @@ export function test_motion_contact_hand_rotation(): void {
     },
   });
   const pinchedBones: ReturnType<typeof poseBones> = poseBones(body, pinched);
-  const opposition: number = Vector3.length(
-    Vector3.subtract(
-      at(body, pinchedBones, "thumbTipRight"),
-      at(body, pinchedBones, "indexPadRight"),
-    ),
+  const thumb: IAutoMovieHumanoidSurfaces.IFrame =
+    body.surfaces.regions.thumbTipRight;
+  const placedTip = resolveAutoMovieHumanoidSurfaces.place(
+    thumb,
+    pinchedBones.get(thumb.bone)!,
   );
+  const placedPad = resolveAutoMovieHumanoidSurfaces.place(
+    pad,
+    pinchedBones.get(pad.bone)!,
+  );
+  const opposition: number = Vector3.distance(placedTip.point, placedPad.point);
   if (!(opposition <= 5e-4))
     complaints.push(
       `the thumb's tip misses the forefinger's pad by ${(opposition * 1000).toFixed(3)} mm, within 0.5 mm expected`,
     );
+  if (!(Vector3.dot(placedTip.normal, placedPad.normal) < 0))
+    complaints.push("the thumb and forefinger contact normals must oppose");
 
   // 3. No digit goals: the pose as before.
   const plain: IAutoMoviePose = resolveHumanPosture(body, forward("right"));

@@ -156,14 +156,15 @@ export function descendDigitTasks(props: IAutoMovieFitDigitDescent.IProps): desc
     const { met, served, free, gram: G, right, secondary: J2f }: ILinearization =
       linearization;
 
-    // The primary's damped step and its damped null space.
+    // The damped complement can move the point. Use it for the secondary
+    // direction only after the existing primary admission has been met.
     const A1: number[][] = damped(G, mu);
     const solvePrimary: ((right: readonly number[]) => number[]) | null =
       prepareLinearSystem(A1);
     if (solvePrimary === null) break;
     const h1: number[] = solvePrimary(right);
     let h: number[] = h1;
-    if (J2.length !== 0) {
+    if (served) {
       const P: number[][] = free.map(
         (_c: number, c: number): number[] =>
           solvePrimary(
