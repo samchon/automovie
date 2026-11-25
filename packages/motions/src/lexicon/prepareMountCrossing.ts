@@ -3,7 +3,6 @@ import {
   ROM_TOLERANCE,
   Vector3,
   getConstraint,
-  minimumJerk,
   physicalShapeGjk,
   physicalShapePairDistance,
   polynomialUnitRoots,
@@ -34,12 +33,16 @@ import { humanRig } from "../posture/humanRig";
 import { poseBones } from "../posture/poseBones";
 import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { boundMountKnotJets } from "./boundMountKnotJets";
 import { crutchHeldLeg } from "./crutchHeldLeg";
 
 /** One model collider placed in the actor's profile frame. */
 type Placed = IAutoMovieMotionHumanColliders.IPlaced;
 /** The clinical coordinates of one fitted leg. */
 type Coordinates = readonly number[];
+
+/** Proximal flexion/abduction and unloaded knee flexion in a leg tuple. */
+const CONTROLLED: readonly number[] = [0, 1, 3];
 
 /**
  * Lay the unloaded far leg around the leading shank and the seat material. The
@@ -83,15 +86,22 @@ export function prepareMountCrossing(
   const own = index(shin);
   const other = index(near);
   const codec = poseJointCodec(humanRig(body));
-  const range = getConstraint(hip, body.bones.get(hip)?.constraint ?? null);
+  const hipRange = getConstraint(hip, body.bones.get(hip)?.constraint ?? null);
+  const kneeRange = getConstraint(
+    shin,
+    body.bones.get(shin)?.constraint ?? null,
+  );
   if (
     own < 0 ||
     other < 0 ||
-    range === null ||
-    range.flexion === null ||
-    range.abduction === null
+    hipRange === null ||
+    hipRange.flexion === null ||
+    hipRange.abduction === null ||
+    kneeRange === null ||
+    kneeRange.flexion === null
   )
     return identity;
+  const freeRanges = [hipRange.flexion, hipRange.abduction, kneeRange.flexion];
   const part = body.tangle.parts[own]!;
   const peer = body.tangle.parts[other]!;
   const beyond = Tangle.reference(body.tangle, own, other);
@@ -105,6 +115,7 @@ export function prepareMountCrossing(
   const prepare = (time: number, pose: IAutoMoviePose) => {
     const placed = bones(pose);
     const p = placed.get(hip)!;
+    const knee = placed.get(shin)!;
     const geometry = shapes(placed);
     const far = geometry.find(({ bone }) => bone === shin)!;
     const fixed = geometry.find(({ bone }) => bone === near)!;
@@ -127,30 +138,52 @@ export function prepareMountCrossing(
         codec.rotation(hip, [original[0]!, original[1]!, original[2]!]),
       ),
     );
+    const kneeInverse = Quaternion.inverse(knee.worldRotation);
+    const kneeParent = Quaternion.multiply(
+      knee.worldRotation,
+      Quaternion.inverse(
+        codec.rotation(shin, [original[3]!, original[4]!, original[5]!]),
+      ),
+    );
     const shift = (
       turn: IAutoMovieQuaternion,
+      pivot: IAutoMovieVector3,
       point: IAutoMovieVector3,
     ): IAutoMovieVector3 =>
       Vector3.add(
-        origin,
-        Quaternion.rotateVector(turn, Vector3.subtract(point, origin)),
+        pivot,
+        Quaternion.rotateVector(turn, Vector3.subtract(point, pivot)),
       );
-    const moved = (turn: IAutoMovieQuaternion, collider: Placed): Placed => ({
-      ...collider,
-      pose: {
-        position: shift(turn, collider.pose.position),
-        rotation: Quaternion.multiply(turn, collider.pose.rotation),
-      },
-    });
-    const reading = (angles: Coordinates): Coordinates => {
-      const turn = Quaternion.multiply(
+    const compound = (angles: Coordinates) => {
+      const hipTurn = Quaternion.multiply(
         Quaternion.multiply(
           parent,
           codec.rotation(hip, [angles[0]!, angles[1]!, original[2]!]),
         ),
         inverse,
       );
-      const shank = moved(turn, far);
+      const kneeTurn = Quaternion.multiply(
+        Quaternion.multiply(
+          kneeParent,
+          codec.rotation(shin, [angles[2]!, original[4]!, original[5]!]),
+        ),
+        kneeInverse,
+      );
+      const point = (world: IAutoMovieVector3): IAutoMovieVector3 =>
+        shift(hipTurn, origin, shift(kneeTurn, knee.worldPosition, world));
+      const rotation = Quaternion.multiply(hipTurn, kneeTurn);
+      const collider = (placed: Placed): Placed => ({
+        ...placed,
+        pose: {
+          position: point(placed.pose.position),
+          rotation: Quaternion.multiply(rotation, placed.pose.rotation),
+        },
+      });
+      return { point, collider };
+    };
+    const reading = (angles: Coordinates): Coordinates => {
+      const warped = compound(angles);
+      const shank = warped.collider(far);
       const largest = (probe: Float64Array, allowed: Float64Array): number =>
         probe.reduce((max, value, k) => Math.max(max, value - allowed[k]!), 0);
       const primary = largest(Tangle.depths(part.probes, shank, fixed), beyond);
@@ -160,7 +193,7 @@ export function prepareMountCrossing(
       );
       let contact = Infinity;
       for (const frame of free) {
-        const segment = frame === far ? shank : moved(turn, frame);
+        const segment = frame === far ? shank : warped.collider(frame);
         for (const shape of segment.shapes) {
           const occupied = physicalShapeGjk.solid(segment.pose, shape);
           for (let i = 0; i < object.length; ++i) {
@@ -178,7 +211,7 @@ export function prepareMountCrossing(
           }
         }
       }
-      const ground = Math.min(...sole.map((point) => shift(turn, point).y));
+      const ground = Math.min(...sole.map((point) => warped.point(point).y));
       return [
         primary - margin,
         secondary - margin,
@@ -188,18 +221,35 @@ export function prepareMountCrossing(
     };
     return { original, reading };
   };
+  // Match the existing arm-course clock's nanosecond coalescing, keeping
+  // the mount's authored event when a uniform waypoint rounds beside it.
+  const events = [...new Set([start, ...props.events, end])].filter(
+    (time) => time >= start && time <= end,
+  );
   const times = [
-    ...new Set([
-      start,
-      ...crutchHeldLeg.timesteps(start, end),
-      ...props.events,
-    ]),
-  ]
-    .filter((time) => time >= start && time <= end)
-    .sort((a, b) => a - b);
+    ...events,
+    ...crutchHeldLeg
+      .timesteps(start, end)
+      .filter(
+        (time) =>
+          time > start &&
+          time < end &&
+          events.every((event) => Math.abs(event - time) > 1e-9),
+      ),
+  ].sort((a, b) => a - b);
   const desired = times.map((time) =>
     joints(resolveHumanPosture(body, read(time))),
   );
+  const names = ["flexion", "abduction", "twist"] as const;
+  const limits = chain.flatMap((bone) => {
+    const constraint = getConstraint(
+      bone,
+      body.bones.get(bone)?.constraint ?? null,
+    );
+    return names.map((axis) =>
+      constraint === null ? undefined : constraint[axis],
+    );
+  });
   const jets = HumanMinimumJerkSpline.derivatives(times, desired);
   const edges = [
     { at: start, outward: -1, knot: 0 },
@@ -224,10 +274,16 @@ export function prepareMountCrossing(
       (x, i) => (second[i]! - 2 * x) / (step * step),
     );
   }
+  const bounded = boundMountKnotJets({
+    times,
+    positions: desired,
+    jets,
+    limits,
+  });
   const boundary = (i: number): HumanQuinticSegment.IBoundary => ({
     position: desired[i]!,
-    velocity: jets.velocities[i]!,
-    acceleration: jets.accelerations[i]!,
+    velocity: bounded.velocities[i]!,
+    acceleration: bounded.accelerations[i]!,
   });
   const segments = times
     .slice(1)
@@ -238,7 +294,7 @@ export function prepareMountCrossing(
         until - times[i]!,
       ),
     );
-  const reference = (t: number) => {
+  const segmentAt = (t: number): number => {
     let low = 0;
     let high = times.length - 1;
     while (high - low > 1) {
@@ -246,21 +302,23 @@ export function prepareMountCrossing(
       if (times[middle]! <= t) low = middle;
       else high = middle;
     }
-    return {
-      knot: low,
-      coordinates: HumanQuinticSegment.position(
-        segments[low]!,
-        t - times[low]!,
-      ),
-    };
+    return low;
+  };
+  const reference = (t: number): number[] => {
+    const i = segmentAt(t);
+    return HumanQuinticSegment.position(segments[i]!, t - times[i]!);
   };
   const count = times.length - 2;
   const rad = Quaternion.DEG2RAD;
+  const controls = CONTROLLED.length;
   const seed = desired
     .slice(1, -1)
-    .flatMap((row) => [row[0]! * rad, row[1]! * rad]);
-  const lo = [range.flexion.min * rad, range.abduction.min * rad];
-  const hi = [range.flexion.max * rad, range.abduction.max * rad];
+    .flatMap((row) => CONTROLLED.map((axis) => row[axis]! * rad));
+  const lo = freeRanges.map((range) => range.min * rad);
+  const hi = freeRanges.map((range) => range.max * rad);
+  // Convert angular violations to an upper bound on end-effector displacement,
+  // then express every row in units of the same material allowance.
+  const lever = body.measure.thigh + body.measure.shank;
   const poseAt = (
     posture: IAutoMovieMotionHumanPosture,
     coordinates: Coordinates,
@@ -277,55 +335,61 @@ export function prepareMountCrossing(
     });
     return { ...posture, limbs: goals, joints: written };
   };
-  const correction = (x: Coordinates, knot: number, axis: number): number =>
-    knot === 0 || knot === times.length - 1
-      ? 0
-      : (x[2 * (knot - 1) + axis]! - seed[2 * (knot - 1) + axis]!) / rad;
-  const hipAt = (
+  const correction = (
     x: Coordinates,
-    i: number,
+    knot: number,
+    control: number,
+  ): number => {
+    if (knot === 0 || knot === times.length - 1) return 0;
+    const i = controls * (knot - 1) + control;
+    return (x[i]! - seed[i]!) / rad;
+  };
+  const activeAt = (
+    x: Coordinates,
+    knot: number,
     share: number,
     angles: Coordinates,
-  ): [number, number] => {
-    const angle = (axis: number): number =>
-      angles[axis]! +
-      (1 - share) * correction(x, i, axis) +
-      share * correction(x, i + 1, axis);
-    return [angle(0), angle(1)];
-  };
+  ): number[] =>
+    CONTROLLED.map(
+      (axis, control) =>
+        angles[axis]! +
+        (1 - share) * correction(x, knot, control) +
+        share * correction(x, knot + 1, control),
+    );
   // Minimum-jerk corrections between adjacent via points leave the original
   // velocity and acceleration shared at each knot. The solver reads the
-  // actual interpolant, and each row touches only the two adjacent hips.
+  // actual interpolant, and each row touches only the two adjacent fit knots.
   const probes = times
     .slice(1)
     .flatMap((until, i) => [
       { time: (times[i]! + until) / 2, i, share: 0.5 },
       ...(until === end ? [] : [{ time: until, i, share: 1 }]),
     ]);
+  const variablesOf = (interior: number): number[] =>
+    CONTROLLED.map((_, control) => controls * interior + control);
   const rows = probes.map(({ time, i, share }) => {
-    const { coordinates } = reference(time);
+    const coordinates = reference(time);
     const frame = prepare(
       time,
       resolveHumanPosture(body, poseAt(read(time), coordinates)),
     );
     return {
       g: (x: Coordinates): Coordinates => {
-        const [flexion, abduction] = hipAt(x, i, share, coordinates);
+        const angles = activeAt(x, i, share, coordinates);
         return [
-          ...frame
-            .reading([flexion, abduction])
-            .map((distance) => distance * 1000),
-          lo[0]! - flexion * rad,
-          flexion * rad - hi[0]!,
-          lo[1]! - abduction * rad,
-          abduction * rad - hi[1]!,
+          ...frame.reading(angles).map((distance) => distance / margin),
+          ...angles.flatMap((degrees, control) => {
+            const angle = degrees * rad;
+            return [
+              ((lo[control]! - angle) * lever) / margin,
+              ((angle - hi[control]!) * lever) / margin,
+            ];
+          }),
         ];
       },
       equality: false,
-      variables: [i, i + 1].flatMap((knot) =>
-        knot === 0 || knot === times.length - 1
-          ? []
-          : [2 * (knot - 1), 2 * (knot - 1) + 1],
+      variables: (share === 1 ? [i + 1] : [i, i + 1]).flatMap((knot) =>
+        knot === 0 || knot === times.length - 1 ? [] : variablesOf(knot - 1),
       ),
     };
   });
@@ -333,13 +397,15 @@ export function prepareMountCrossing(
     Functions.problem({
       low: Array.from({ length: count }, () => lo).flat(),
       high: Array.from({ length: count }, () => hi).flat(),
-      costs: Array.from({ length: count }, (_, i) => ({
-        f: (x: Coordinates): number =>
-          (x[2 * i]! - seed[2 * i]!) ** 2 +
-          (x[2 * i + 1]! - seed[2 * i + 1]!) ** 2,
-        full: false,
-        variables: [2 * i, 2 * i + 1],
-      })),
+      costs: Array.from({ length: count }, (_, i) => {
+        const variables = variablesOf(i);
+        return {
+          f: (x: Coordinates): number =>
+            variables.reduce((sum, v) => sum + (x[v]! - seed[v]!) ** 2, 0),
+          full: false,
+          variables,
+        };
+      }),
       constraints: rows,
     }),
     seed,
@@ -347,75 +413,72 @@ export function prepareMountCrossing(
   );
   // Check every real extremum of the clinical quintics before publishing
   // them. Native posture projection must not become the path's range guard.
-  const names = ["flexion", "abduction", "twist"] as const;
-  const limits = chain.flatMap((bone) => {
-    const constraint = getConstraint(
-      bone,
-      body.bones.get(bone)?.constraint ?? null,
-    );
-    return names.map((axis) =>
-      constraint === null ? undefined : constraint[axis],
-    );
-  });
-  for (const [i, segment] of segments.entries())
-    for (const [axis, nominal] of segment.coefficients.entries()) {
-      const range = limits[axis];
-      if (range === undefined) continue;
-      const from = axis < 2 ? correction(solved.x, i, axis) : 0;
-      const delta = axis < 2 ? correction(solved.x, i + 1, axis) - from : 0;
-      const coefficients = [
-        nominal[0]! + from,
-        nominal[1]!,
-        nominal[2]!,
-        nominal[3]! + 10 * delta,
-        nominal[4]! - 15 * delta,
-        nominal[5]! + 6 * delta,
-      ];
-      const extrema = polynomialUnitRoots(
-        coefficients
-          .slice(1)
-          .map((coefficient, power) => coefficient * (power + 1)),
-      );
-      for (const u of [0, ...extrema, 1]) {
-        const angle = coefficients.reduceRight(
-          (value, coefficient) => coefficient + u * value,
-          0,
+  const finished: HumanQuinticSegment.ISegment[] = segments.map(
+    (segment, i) => ({
+      duration: segment.duration,
+      coefficients: segment.coefficients.map((nominal, axis) => {
+        const range = limits[axis];
+        if (range === undefined) return nominal;
+        const control = CONTROLLED.indexOf(axis);
+        const from = control < 0 ? 0 : correction(solved.x, i, control);
+        const delta =
+          control < 0 ? 0 : correction(solved.x, i + 1, control) - from;
+        const coefficients = [
+          nominal[0]! + from,
+          nominal[1]!,
+          nominal[2]!,
+          nominal[3]! + 10 * delta,
+          nominal[4]! - 15 * delta,
+          nominal[5]! + 6 * delta,
+        ];
+        const extrema = polynomialUnitRoots(
+          coefficients
+            .slice(1)
+            .map((coefficient, power) => coefficient * (power + 1)),
         );
-        if (
-          angle < (range?.min ?? 0) - ROM_TOLERANCE ||
-          angle > (range?.max ?? 0) + ROM_TOLERANCE
-        )
-          throw new HumanRefusal({
-            kind: "reach",
-            axis: "saddleCrossing",
-            value: angle,
-            feasible: {
-              kind: "range",
-              minimum: range?.min ?? 0,
-              maximum: range?.max ?? 0,
-              unit: "degrees",
-            },
-            reason:
-              "the unloaded leg reaches a joint limit between two prepared crossing poses",
-            fix: "give the rider more space beside the seat",
-          });
-      }
-    }
+        for (const u of [0, ...extrema, 1]) {
+          const angle = coefficients.reduceRight(
+            (value, coefficient) => coefficient + u * value,
+            0,
+          );
+          if (
+            angle < (range?.min ?? 0) - ROM_TOLERANCE ||
+            angle > (range?.max ?? 0) + ROM_TOLERANCE
+          )
+            throw new HumanRefusal({
+              kind: "reach",
+              axis: "saddleCrossing",
+              value: angle,
+              feasible: {
+                kind: "range",
+                minimum: range?.min ?? 0,
+                maximum: range?.max ?? 0,
+                unit: "degrees",
+              },
+              reason:
+                "the unloaded leg reaches a joint limit between two prepared crossing poses",
+              fix: "give the rider more space beside the seat",
+            });
+        }
+        return coefficients;
+      }),
+    }),
+  );
   const write: prepareMountCrossing.Write = (posture, seconds) => {
     if (seconds <= start || seconds >= end) return posture;
-    const { knot, coordinates } = reference(seconds);
-    const from = times[knot]!;
-    const share = minimumJerk.share(
-      (seconds - from) / (times[knot + 1]! - from),
+    const i = segmentAt(seconds);
+    return poseAt(
+      posture,
+      HumanQuinticSegment.position(finished[i]!, seconds - times[i]!),
     );
-    const [flexion, abduction] = hipAt(solved.x, knot, share, coordinates);
-    return poseAt(posture, [flexion, abduction, ...coordinates.slice(2)]);
   };
   const admit = (time: number): Coordinates => {
     const posture = write(read(time), time);
     const pose = resolveHumanPosture(body, posture);
     const frame = prepare(time, pose);
-    const tested = frame.reading(frame.original);
+    const tested = frame.reading(
+      CONTROLLED.map((axis) => frame.original[axis]!),
+    );
     const excess = Math.max(...tested);
     if (excess > 0)
       throw new HumanRefusal({
@@ -471,7 +534,7 @@ export namespace prepareMountCrossing {
     /** The original floor liftoff. */
     start: number;
 
-    /** End of the correction at the leading leg's material support. */
+    /** The far foot's original arrival on its material support. */
     end: number;
 
     /** Authored phase changes on the same clock. */
