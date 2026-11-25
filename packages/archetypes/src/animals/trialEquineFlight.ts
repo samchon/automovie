@@ -1,6 +1,10 @@
 import type { IAutoMovieVector3 } from "@automovie/interface";
 
-import type { AutoMovieArchetypeCourse, AutoMovieArchetypeRide } from "../core";
+import type {
+  AutoMovieArchetype,
+  AutoMovieArchetypeCourse,
+  AutoMovieArchetypeRide,
+} from "../core";
 import type { EquineJump } from "./EquineJump";
 import type { EquineObstacle } from "./EquineObstacle";
 import type { QuadrupedRideClock } from "./QuadrupedRideClock";
@@ -39,7 +43,8 @@ export function trialEquineFlight<
         plan.at(seconds),
         seconds,
       );
-      return { parts: shown.archetype.parts, placement: shown.placement };
+      const model: AutoMovieArchetype<Affordance, Dimension> = shown.archetype;
+      return { parts: model.parts, cells: model.convexCells, placement: shown.placement };
     },
   };
 }

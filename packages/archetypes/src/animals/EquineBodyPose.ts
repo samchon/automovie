@@ -337,15 +337,16 @@ export namespace EquineBodyPose {
             carriers.parts,
             carriers.contacts,
           );
+        const cells: AutoMovieArchetype["convexCells"] = model.convexCells;
         for (const part of model.parts) {
           if (part.transform === null || part.transform === undefined) continue;
-          const lowest: number = QuadrupedRestFloor({
-            ...part,
-            transform: AutoMovieArchetypeFrame.compose(
-              placement,
-              part.transform,
-            ),
-          });
+          const lowest: number = QuadrupedRestFloor(
+            {
+              ...part,
+              transform: AutoMovieArchetypeFrame.compose(placement, part.transform),
+            },
+            cells,
+          );
           if (!(lowest >= -1e-9))
             throw new RangeError(
               `The ${part.id} reaches ${-lowest} m under the floor in this pose`,

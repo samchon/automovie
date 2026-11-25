@@ -84,6 +84,7 @@ export function EquineBlend<Id extends string, D extends string>(
   );
 
   // Hold the blended body on the floor by its lowest part.
+  const cells: AutoMovieArchetype["convexCells"] = to.convexCells;
   const lowest: number = Math.min(
     ...parts
       .filter(
@@ -91,13 +92,16 @@ export function EquineBlend<Id extends string, D extends string>(
           part.transform !== undefined && part.transform !== null,
       )
       .map((part: IAutoMovieModelPart): number =>
-        QuadrupedRestFloor({
-          ...part,
-          transform: AutoMovieArchetypeFrame.compose(
-            toPlacement,
-            part.transform!,
-          ),
-        }),
+        QuadrupedRestFloor(
+          {
+            ...part,
+            transform: AutoMovieArchetypeFrame.compose(
+              toPlacement,
+              part.transform!,
+            ),
+          },
+          cells,
+        ),
       ),
   );
   const lift: IAutoMovieVector3 = Quaternion.rotateVector(inverse, {

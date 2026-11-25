@@ -121,7 +121,8 @@ export function AutoMovieArchetypeQuadrupedRest<
       ],
     ),
   );
-  for (const part of animal.parts) QuadrupedRestFloor(part);
+  const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
+  for (const part of animal.parts) QuadrupedRestFloor(part, cells);
   const trunk: IAutoMovieModelPart = bar("trunk");
   const restTurn: IAutoMovieTransform["rotation"] = Quaternion.fromAxisAngle(
     { x: 1, y: 0, z: 0 },
@@ -318,7 +319,7 @@ export function AutoMovieArchetypeQuadrupedRest<
     let lowest: number = Infinity;
     let belly: number = Infinity;
     for (const part of posed.parts) {
-      const clearance: number = QuadrupedRestFloor(part) - floorY;
+      const clearance: number = QuadrupedRestFloor(part, cells) - floorY;
       lowest = Math.min(lowest, clearance);
       if (part.id === "trunk") belly = clearance;
       if (clearance < -roundoff)

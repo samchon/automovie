@@ -8,6 +8,7 @@ import type {
 import {
   type AutoMovieArchetype,
   AutoMovieArchetypeBuilder,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeDrawSession,
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeSpan,
@@ -47,8 +48,8 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
    * @param saddled The horse with its riding saddle.
    * @param bare The same horse without it, untacked or bareback.
    * @returns The saddle prop.
-   * @throws {RangeError} When the saddled horse has no box saddle tree or a
-   *   saddle part is not a primitive box, bar or ball.
+   * @throws {RangeError} When the saddled horse lacks its bearing deck or a
+   *   saddle part is neither an admitted convex cell nor a supported solid.
    */
   export function of(
     saddled: AutoMovieArchetype<string, string>,
@@ -78,8 +79,16 @@ export namespace AutoMovieArchetypeEquineSaddleProp {
       const geometry: IAutoMovieModelPart["geometry"] = part.geometry;
       const frame: IAutoMovieTransform =
         part.transform ?? AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
+      const cell: AutoMovieArchetypeConvexCell.ICell | undefined =
+        saddled.convexCells.get(part.id);
+      if (cell !== undefined) {
+        builder.convex(part.id, cell, frame.translation, {
+          rotation: frame.rotation,
+        });
+        continue;
+      }
       if (geometry.type !== "primitive")
-        throw new RangeError(`The saddle part ${part.id} is not a primitive`);
+        throw new RangeError(`The saddle part ${part.id} has no admitted solid`);
       const shape: typeof geometry.shape = geometry.shape;
       if (shape.type === "box")
         builder.box(

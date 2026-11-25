@@ -5,12 +5,24 @@ import type {
 } from "@automovie/interface";
 
 import type { AutoMovieArchetype } from "../core/AutoMovieArchetype";
+import type { AutoMovieArchetypeConvexCell } from "../core/AutoMovieArchetypeConvexCell";
 import { AutoMovieArchetypeFrame } from "../core/AutoMovieArchetypeFrame";
 import type { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import { QuadrupedRigDelta } from "./QuadrupedRigDelta";
 
 /** Rigid carrier deltas applied to a quadruped's parts and contacts. */
 export namespace ApplyQuadrupedCarrierPose {
+  /** Copy mutable part data while retaining the admitted cell shared with it. */
+  export function copy(
+    part: IAutoMovieModelPart,
+    cells: AutoMovieArchetypeConvexCell.Table,
+  ): IAutoMovieModelPart {
+    if (part.geometry.type !== "mesh" || cells.get(part.id)?.geometry !== part.geometry)
+      return structuredClone(part);
+    const { geometry, ...metadata }: IAutoMovieModelPart = part;
+    return { ...structuredClone(metadata), geometry };
+  }
+
   /**
    * Move parts and contact frames through their carriers' rigid deltas from the
    * rest frames to the posed frames.
@@ -47,6 +59,7 @@ export namespace ApplyQuadrupedCarrierPose {
           ): [string, AutoMovieArchetypeQuadrupedBody.Bone] => [bone, bone],
         ),
       );
+    const cells: AutoMovieArchetypeConvexCell.Table = animal.convexCells;
     const moved: IAutoMovieModelPart[] = animal.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const bone: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
@@ -55,7 +68,7 @@ export namespace ApplyQuadrupedCarrierPose {
           part.transform ??
           AutoMovieArchetypeFrame.upright({ x: 0, y: 0, z: 0 });
         return {
-          ...structuredClone(part),
+          ...copy(part, cells),
           transform: QuadrupedRigDelta.move(frame, bone, deltas, part.id),
         };
       },

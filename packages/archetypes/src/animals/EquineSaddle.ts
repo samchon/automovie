@@ -7,6 +7,7 @@ import {
   AutoMovieArchetypeUnits,
 } from "../core";
 import { type AutoMovieArchetypeEquine } from "./AutoMovieArchetypeEquine";
+import { EquineSaddleTree } from "./EquineSaddleTree";
 import { EquineStirrup } from "./EquineStirrup";
 import type { EquineTack } from "./EquineTack";
 import { QuadrupedAttachments } from "./QuadrupedAttachments";
@@ -51,7 +52,7 @@ export namespace EquineSaddle {
   /** The gap between the cantle and a pillion pad's front, metres: an estimate. */
   export const SADDLE_GAP: number = 0.02;
 
-  /** The saddle's seat width, metres: an estimate, no source read gives it. */
+  /** Width of the legacy pillion and trick pieces, metres. */
   export const SEAT_WIDTH: number = 0.3;
 
   /**
@@ -81,6 +82,7 @@ export namespace EquineSaddle {
    * @param builder The equid under construction, its body laid.
    * @param d The equid's dimensions.
    * @param rig The equid's rest rig.
+   * @param trick Whether the pommel carries the trick saddle's outer grips.
    */
   export function lay(
     builder: AutoMovieArchetypeBuilder<
@@ -89,53 +91,25 @@ export namespace EquineSaddle {
     >,
     d: EquineTack.Dimensions,
     rig: AutoMovieArchetypeEquine.IRig,
+    trick: boolean,
   ): void {
     const v: typeof Vector3.create = Vector3.create;
     const back: number = rig.back;
     // The saddle on the back behind the withers, and what the rider holds and stands in.
     const top: number = back + 0.04;
     const centre: number = rig.hitch.z;
-    builder.box(
-      "saddle",
-      v(SEAT_WIDTH, 0.04, d.seatSize),
-      v(0, top - 0.02, centre),
-      { color: "#4a3324", share: (100 * WEIGHT) / d.mass },
-    );
-    builder.affordance({
-      id: "seat",
-      kind: "seat",
-      frame: AutoMovieArchetypeFrame.upright(
-        v(0, top, centre + d.seatSize / 2),
-      ),
-      extent: null,
-      depth: d.seatSize,
-      width: SEAT_WIDTH,
-      astride: true,
-
-      // A horse is mounted from its near side, the left.
-      mount: "left",
-    });
-    for (const [id, z] of [
-      ["pommel", centre + d.seatSize / 2],
-      ["cantle", centre - d.seatSize / 2],
-    ] as const) {
-      builder.rod(id, 0.015, v(-0.06, top + 0.03, z), v(0.06, top + 0.03, z), {
-        color: "#4a3324",
-        share: 0,
-      });
-      builder.affordance({
-        id,
-        kind: "handle",
-        symmetry: "none",
-        frame: AutoMovieArchetypeFrame.upright(v(0, top + 0.03, z)),
-        extent: null,
-        grip: "power",
-        aperture: 0.03,
-        length: 0.12,
-      });
-    }
+    const bar: number = centre + 0.05;
     const barrel: QuadrupedAttachments.ICapsule =
       QuadrupedAttachments.solids(rig).trunk;
+    const edge: EquineSaddleTree.IBar = EquineSaddleTree(builder, {
+      centre,
+      top,
+      length: d.seatSize,
+      bar,
+      trickGripHalf: trick ? SEAT_WIDTH / 2 : undefined,
+      barrel,
+      share: (100 * WEIGHT) / d.mass,
+    });
     for (const [side, sign] of [
       ["left", 1],
       ["right", -1],
@@ -145,11 +119,11 @@ export namespace EquineSaddle {
         tread: v(
           sign * (barrel.radius + 0.03),
           top - d.stirrupDrop,
-          centre + 0.05,
+          bar,
         ),
         width: d.stirrupWidth,
         drop: d.stirrupDrop,
-        saddle: { x: SEAT_WIDTH / 2, y: top - 0.02 },
+        saddle: edge,
         barrel,
         color: "#4a3324",
       });

@@ -8,6 +8,7 @@ import type {
 
 import {
   type AutoMovieArchetypeCourse,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
 } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
@@ -148,8 +149,9 @@ export namespace EquineObstacle {
       );
       for (const part of current.parts) {
         if (
-          part.geometry.type !== "primitive" ||
-          part.geometry.shape.type === "plane"
+          part.geometry.type === "primitive"
+            ? part.geometry.shape.type === "plane"
+            : current.cells?.get(part.id)?.geometry !== part.geometry
         )
           continue;
         const [low, rear, front]: readonly number[] = [
@@ -157,17 +159,20 @@ export namespace EquineObstacle {
           Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, -90),
           Quaternion.fromAxisAngle({ x: 1, y: 0, z: 0 }, 90),
         ].map((rotation: IAutoMovieQuaternion): number =>
-          QuadrupedRestFloor({
-            ...part,
-            transform: AutoMovieArchetypeFrame.compose(
-              {
-                rotation,
-                translation: { x: 0, y: 0, z: 0 },
-                scale: AutoMovieArchetypeFrame.UNIT,
-              },
-              AutoMovieArchetypeFrame.compose(frame, part.transform!),
-            ),
-          }),
+          QuadrupedRestFloor(
+            {
+              ...part,
+              transform: AutoMovieArchetypeFrame.compose(
+                {
+                  rotation,
+                  translation: { x: 0, y: 0, z: 0 },
+                  scale: AutoMovieArchetypeFrame.UNIT,
+                },
+                AutoMovieArchetypeFrame.compose(frame, part.transform!),
+              ),
+            },
+            current.cells,
+          ),
         );
         for (const obstacle of obstacles) {
           const short: number = obstacle.top + clearance - low!;
@@ -186,6 +191,8 @@ export namespace EquineObstacle {
   export interface ISample {
     /** Model-space parts. */
     parts: readonly IAutoMovieModelPart[];
+    /** Admitted solids with the same geometry identity as the displayed parts. */
+    cells?: AutoMovieArchetypeConvexCell.Table;
     /** The root's world placement. */
     placement: IAutoMovieTransform;
   }

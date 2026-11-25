@@ -1,5 +1,6 @@
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeQuadrupedBody as Body,
   AutoMovieArchetypeQuadrupedJoints,
@@ -58,6 +59,13 @@ export function observeQuadrupedAttachment<Id extends string, Dimension extends 
     ["grounded", settled, grounded],
     ["raised", posed, raised],
   ] as const) {
+    const cells: AutoMovieArchetypeConvexCell.Table = model.convexCells;
+    for (const [id, cell] of animal.convexCells)
+      TestValidator.predicate(
+        `${label}/${name}/${id} keeps its admitted convex material`,
+        cells.get(id) === cell &&
+          model.parts.find((part) => part.id === id)?.geometry === cell.geometry,
+      );
     const feet: ReturnType<typeof observe> = observe(
       animal,
       { archetype: model, placement },

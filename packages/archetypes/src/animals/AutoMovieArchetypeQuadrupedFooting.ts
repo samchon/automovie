@@ -13,6 +13,7 @@ import type {
 
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeRefusal,
 } from "../core";
@@ -139,7 +140,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
      * terrain.
      */
     verify: (
-      animal: Pick<AutoMovieArchetype, "parts">,
+      animal: Pick<AutoMovieArchetype, "parts"> &
+        Partial<Pick<AutoMovieArchetype, "convexCells">>,
       placement: IAutoMovieTransform,
     ) => void;
   }
@@ -285,20 +287,24 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
      * pole.
      */
     function verify(
-      animal: Pick<AutoMovieArchetype, "parts">,
+      animal: Pick<AutoMovieArchetype, "parts"> &
+        Partial<Pick<AutoMovieArchetype, "convexCells">>,
       placement: IAutoMovieTransform,
     ): void {
+      const cells: AutoMovieArchetypeConvexCell.Table | undefined = animal.convexCells;
       for (const record of animal.parts) {
         if (
           record.transform === null ||
           record.transform === undefined ||
-          record.geometry.type !== "primitive"
+          (record.geometry.type !== "primitive" &&
+            cells?.get(record.id)?.geometry !== record.geometry)
         )
           throw refusal(
-            "Footing needs transformed rigid primitive parts.",
+            "Footing needs transformed rigid parts with matching solids.",
             record.id,
           );
-        if (record.geometry.shape.type === "plane") continue;
+        if (record.geometry.type === "primitive" && record.geometry.shape.type === "plane")
+          continue;
         const part: IAutoMovieModelPart = {
           ...record,
           transform: AutoMovieArchetypeFrame.compose(
@@ -308,11 +314,15 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
         };
         const [minX, maxX, minZ, maxZ]: number[] = SIDES.map(
           (rotation: IAutoMovieQuaternion): number =>
-            lowest(part, {
-              rotation,
-              translation: { x: 0, y: 0, z: 0 },
-              scale: AutoMovieArchetypeFrame.UNIT,
-            }),
+            lowest(
+              part,
+              {
+                rotation,
+                translation: { x: 0, y: 0, z: 0 },
+                scale: AutoMovieArchetypeFrame.UNIT,
+              },
+              cells,
+            ),
         );
         const roundoff: number =
           256 *
@@ -324,8 +334,8 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
             -maxX! > plane.x[0] &&
             minZ! < plane.z[1] &&
             -maxZ! > plane.z[0] &&
-            lowest(part, frame) < -(plane.yield?.depth ?? 0) - roundoff &&
-            QuadrupedFootingClip(part, plane, frame) <
+            lowest(part, frame, cells) < -(plane.yield?.depth ?? 0) - roundoff &&
+            QuadrupedFootingClip(part, plane, frame, cells) <
               -(plane.yield?.depth ?? 0) - roundoff
           )
             throw refusal(
@@ -333,7 +343,7 @@ export namespace AutoMovieArchetypeQuadrupedFooting {
               plane.id,
             );
         if (poles.length === 0) continue;
-        const bounds: IAutoMoviePhysicalShape = QuadrupedObstacleShape(part);
+        const bounds: IAutoMoviePhysicalShape = QuadrupedObstacleShape(part, cells);
         for (const pole of poles)
           if (
             physicalShapeSegmentDistance(
@@ -395,10 +405,14 @@ function turn(
   );
 }
 
-/** Exact lowest coordinate of a transformed complete primitive. */
-function lowest(part: IAutoMovieModelPart, frame: IAutoMovieTransform): number {
-  return QuadrupedRestFloor({
-    ...part,
-    transform: AutoMovieArchetypeFrame.compose(frame, part.transform!),
-  });
+/** Exact lowest coordinate of a transformed complete solid. */
+function lowest(
+  part: IAutoMovieModelPart,
+  frame: IAutoMovieTransform,
+  cells: AutoMovieArchetypeConvexCell.Table | undefined,
+): number {
+  return QuadrupedRestFloor(
+    { ...part, transform: AutoMovieArchetypeFrame.compose(frame, part.transform!) },
+    cells,
+  );
 }

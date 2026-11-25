@@ -104,17 +104,22 @@ export namespace EquineRecumbency {
         ),
       ),
     };
+    const posed: AutoMovieArchetype<Id, D> = halt.archetype;
+    const cells: AutoMovieArchetype["convexCells"] = posed.convexCells;
     const lowest: number = Math.min(
-      ...halt.archetype.parts
+      ...posed.parts
         .filter(
           (part: IAutoMovieModelPart): boolean =>
             part.transform !== undefined && part.transform !== null,
         )
         .map((part: IAutoMovieModelPart): number =>
-          QuadrupedRestFloor({
-            ...part,
-            transform: AutoMovieArchetypeFrame.compose(turned, part.transform!),
-          }),
+          QuadrupedRestFloor(
+            {
+              ...part,
+              transform: AutoMovieArchetypeFrame.compose(turned, part.transform!),
+            },
+            cells,
+          ),
         ),
     );
     const lying: IAutoMovieTransform = {

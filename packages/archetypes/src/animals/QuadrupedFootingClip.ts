@@ -6,7 +6,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieArchetypeFrame } from "../core";
+import { type AutoMovieArchetypeConvexCell, AutoMovieArchetypeFrame } from "../core";
 import type { AutoMovieArchetypeQuadrupedFooting } from "./AutoMovieArchetypeQuadrupedFooting";
 import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
 
@@ -24,12 +24,14 @@ import { QuadrupedRestFloor } from "./QuadrupedRestFloor";
  * @param part The part with its world transform.
  * @param plane The plane, for its world rectangle.
  * @param frame The world-to-plane frame, whose Y is the height above the plane.
+ * @param cells The producer's convex solids, if supplied.
  * @returns Metres; Infinity when no sampled point lies over the rectangle.
  */
 export function QuadrupedFootingClip(
   part: IAutoMovieModelPart,
   plane: AutoMovieArchetypeQuadrupedFooting.IPlane,
   frame: IAutoMovieTransform,
+  cells?: AutoMovieArchetypeConvexCell.Table,
 ): number {
   const shape: IAutoMovieModelPart["geometry"] = part.geometry;
   if (
@@ -38,10 +40,10 @@ export function QuadrupedFootingClip(
       shape.shape.type !== "capsule" &&
       shape.shape.type !== "sphere")
   )
-    return QuadrupedRestFloor({
-      ...part,
-      transform: AutoMovieArchetypeFrame.compose(frame, part.transform!),
-    });
+    return QuadrupedRestFloor(
+      { ...part, transform: AutoMovieArchetypeFrame.compose(frame, part.transform!) },
+      cells,
+    );
   const radius: number = shape.shape.radius;
   const half: number =
     shape.shape.type === "sphere" ? 0 : shape.shape.height / 2;

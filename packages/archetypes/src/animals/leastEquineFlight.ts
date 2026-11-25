@@ -53,7 +53,7 @@ interface ILimit {
  * @param unflown The candidate's trial assembly without a hold, whose clock
  *   gives its contact seconds.
  * @param candidate The candidate's event phases.
- * @param parts The displayed model parts at the middle of a flight, where the
+ * @param midair The displayed model at the middle of a flight, where the
  *   trunk is level and the limbs tucked.
  * @param centre The body's rest centre of mass, model metres.
  * @param landed The unheld ride's displayed parts and placement at its first
@@ -69,7 +69,7 @@ export function leastEquineFlight(
   plan: AutoMovieArchetypeCourse.IPlan,
   unflown: EquineJump.ITrial,
   candidate: EquineJump.ICandidate,
-  parts: readonly IAutoMovieModelPart[],
+  midair: EquineObstacle.ISample,
   centre: IAutoMovieVector3,
   landed: EquineObstacle.ISample | undefined,
   shift: number,
@@ -90,26 +90,30 @@ export function leastEquineFlight(
   const g: number = AutoMovieGravity.STANDARD;
   const limits: ILimit[] = [];
   let launch: number = 0;
-  for (const part of parts) {
+  for (const part of midair.parts) {
     if (
-      part.geometry.type !== "primitive" ||
-      part.geometry.shape.type === "plane"
+      part.geometry.type === "primitive"
+        ? part.geometry.shape.type === "plane"
+        : midair.cells?.get(part.id)?.geometry !== part.geometry
     )
       continue;
-    const low: number = QuadrupedRestFloor(part);
+    const low: number = QuadrupedRestFloor(part, midair.cells);
     const [, , rearmost, negatedForemost]: readonly number[] = SIDES.map(
       (rotation: IAutoMovieQuaternion): number =>
-        QuadrupedRestFloor({
-          ...part,
-          transform: AutoMovieArchetypeFrame.compose(
-            {
-              rotation,
-              translation: { x: 0, y: 0, z: 0 },
-              scale: AutoMovieArchetypeFrame.UNIT,
-            },
-            part.transform!,
-          ),
-        }),
+        QuadrupedRestFloor(
+          {
+            ...part,
+            transform: AutoMovieArchetypeFrame.compose(
+              {
+                rotation,
+                translation: { x: 0, y: 0, z: 0 },
+                scale: AutoMovieArchetypeFrame.UNIT,
+              },
+              part.transform!,
+            ),
+          },
+          midair.cells,
+        ),
     );
     for (const obstacle of request.obstacles) {
       const need: number = obstacle.top + request.clearance - low;

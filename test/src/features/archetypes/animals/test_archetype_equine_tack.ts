@@ -1,4 +1,8 @@
-import { createHorse, createPony } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeEquineSaddleProp,
+  createHorse,
+  createPony,
+} from "@automovie/archetypes";
 import {
   Quaternion,
   Vector3,
@@ -28,6 +32,9 @@ import { nclose } from "../../internal/nclose";
  * 4. Side saddle: one stirrup on the near side (`+X`) with an open boot passage, a side rim one tread half-thickness wide and an exterior leather run anchored to the saddle; both heads on the near side of or at the spine, the leaping head lower than the fixed head and further out; the seat faces the near side and is not sat astride.
  * 5. Surcingle: exactly two handles, one each side of the spine, at most 240 mm apart (the harmonised FEI rule); a pad no thicker than 3 cm and reaching no more than 80 cm behind the surcingle (USEF); a seat astride on the pad.
  * 6. A pony takes the new tacks through the shared equid producer, under its own name.
+ * 7. The astride saddle's real flat deck, narrow twist, two panels and attached
+ *    metalwork preserve the same geometry when a handler carries it. A trick
+ *    saddle has actual material under its wider declared pommel grips.
  *
  * @evidence contracts/development/common.md#meaningful-documentation States the six scenarios and their sources.
  * @evidence contracts/development/testing.md#behavioral-verification Builds actual horses under every new tack and reads their parts, masses and contacts; a tack that moves the body, invents a weight, mirrors the side saddle or breaks a published limit fails.
@@ -190,7 +197,121 @@ export function test_archetype_equine_tack(): void {
   if (contact(pony, "fixedHead") === undefined || pony.name !== "pony")
     findings.push(`pony: side saddle missing or misnamed (${pony.name})`);
 
+  // 7. The astride deck and its connected material also travel off the horse.
+  const saddled: ReturnType<typeof createHorse> = createHorse(
+    { ...dims, tack: "saddle" },
+    7,
+  );
+  astrideMaterial(saddled, bare, findings);
+  const trick: ReturnType<typeof createHorse> = createHorse(
+    { ...dims, tack: "trick" },
+    7,
+  );
+  const crest: IAutoMoviePhysicalShape | undefined = trick.shapes().find(
+    (shape: IAutoMoviePhysicalShape): boolean => shape.id === "saddle-pommel",
+  );
+  const identity: IAutoMovieRigidTransform = {
+    position: Vector3.create(0, 0, 0),
+    rotation: Quaternion.identity(),
+  };
+  for (const id of ["leftHandhold", "rightHandhold"] as const) {
+    const point: IAutoMovieVector3 = trick.affordance(id).frame.translation;
+    const roundoff: number = 128 * Number.EPSILON * point.y;
+    if (
+      !nclose(Math.abs(point.x), 0.15, roundoff) ||
+      crest?.kind !== "hull" ||
+      physicalShapeSegmentDistance(identity, crest, point, point) > roundoff
+    )
+      findings.push(`trick saddle: ${id} is outside its connected pommel`);
+  }
+
   TestValidator.equals("alternative mounted tack", findings, []);
+}
+
+/** The deck, twist, panel channel and grip connections are actual solids. */
+function astrideMaterial(
+  horse: ReturnType<typeof createHorse>,
+  bare: ReturnType<typeof createHorse>,
+  findings: string[],
+): void {
+  const zero: IAutoMovieRigidTransform = {
+    position: Vector3.create(0, 0, 0),
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  };
+  const shapes: ReadonlyMap<string, IAutoMoviePhysicalShape> = new Map(
+    horse.shapes().map((shape) => [shape.id, shape]),
+  );
+  const deck: IAutoMoviePhysicalShape | undefined = shapes.get("saddle");
+  const twist: IAutoMoviePhysicalShape | undefined = shapes.get("saddle-twist");
+  const waist: IAutoMoviePhysicalShape | undefined = shapes.get("saddle-waist");
+  const pommel: IAutoMoviePhysicalShape | undefined = shapes.get("pommel");
+  const slope: IAutoMoviePhysicalShape | undefined = shapes.get("saddle-pommel");
+  const panel: IAutoMoviePhysicalShape | undefined = shapes.get(
+    "saddle-panel-pan-1",
+  );
+  const seat: IAutoMovieAffordance = horse.affordance("seat");
+  if (
+    deck?.kind !== "box" ||
+    twist?.kind !== "hull" ||
+    waist?.kind !== "hull" ||
+    pommel === undefined ||
+    slope?.kind !== "hull" ||
+    panel?.kind !== "hull" ||
+    seat.width === undefined ||
+    seat.depth === undefined
+  ) {
+    findings.push("astride saddle: missing the deck, shaped twist or panel");
+    return;
+  }
+  const ordinate: number = seat.frame.translation.y;
+  // Allow roundoff for the measured part bounds and composed material frames.
+  const roundoff: number = 128 * Number.EPSILON * ordinate;
+  const top: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, deck);
+  const throat: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, waist);
+  const approach: ReturnType<typeof physicalShapeBounds> = physicalShapeBounds(zero, slope);
+  const rise: number = physicalShapeBounds(zero, pommel).max.y - ordinate;
+  const taperZ: number = horse.affordance("leftStirrup").frame.translation.z;
+  const slot: IAutoMovieVector3[] = twist.points.filter(
+    (point: IAutoMovieVector3): boolean => nclose(point.z, taperZ, roundoff),
+  );
+  const across: number =
+    Math.max(...slot.map((point: IAutoMovieVector3) => point.x)) -
+    Math.min(...slot.map((point: IAutoMovieVector3) => point.x));
+  if (
+    !nclose(top.max.y, ordinate, roundoff) ||
+    !nclose(top.max.z, seat.frame.translation.z, roundoff) ||
+    !nclose(top.max.z - top.min.z, seat.depth, roundoff) ||
+    !nclose(top.max.x - top.min.x, seat.width, roundoff) ||
+    !nclose(seat.width, 0.26, roundoff) ||
+    !nclose(across, 0.125, roundoff) ||
+    !nclose(throat.min.z, taperZ, roundoff) ||
+    !nclose(throat.max.z, approach.min.z, roundoff) ||
+    !nclose(throat.max.y, ordinate, roundoff) ||
+    !nclose(approach.max.z - approach.min.z, rise, roundoff) ||
+    !nclose(physicalShapeBounds(zero, panel).min.x, 0.025, roundoff)
+  )
+    findings.push("astride saddle: the declared deck, twist or panel gap differs from its solid");
+
+  for (const [id, part] of [
+    ["pommel", "saddle-pommel"],
+    ["cantle", "saddle-cantle"],
+    ["stirrup-left-bar", "saddle-twist"],
+  ] as const) {
+    const metal: IAutoMoviePhysicalShape | undefined = shapes.get(id);
+    const tree: IAutoMoviePhysicalShape | undefined = shapes.get(part);
+    if (metal === undefined || tree === undefined) {
+      findings.push(`astride saddle: lacks ${id} or the tree under it`);
+      continue;
+    }
+    const point: IAutoMovieVector3 = metal.transform.position;
+    if (physicalShapeSegmentDistance(zero, tree, point, point) > roundoff)
+      findings.push(`astride saddle: ${id} floats away from its tree`);
+  }
+
+  const carried: ReturnType<typeof AutoMovieArchetypeEquineSaddleProp.of> =
+    AutoMovieArchetypeEquineSaddleProp.of(horse, bare);
+  if (carried.convexCells.get("saddle-twist") !== horse.convexCells.get("saddle-twist"))
+    findings.push("astride saddle: the carried twist loses its real solid");
 }
 
 /** Check the material tread, opening and leather of the existing side. */

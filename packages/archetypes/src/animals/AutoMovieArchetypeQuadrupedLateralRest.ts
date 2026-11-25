@@ -238,14 +238,15 @@ interface Bound {
   sites: readonly string[];
 }
 
-/** Find the exact set support over the transformed rigid primitives. */
+/** Find the exact set support over the transformed rigid solids. */
 function support(
-  animal: Pick<AutoMovieArchetype, "parts">,
+  animal: Pick<AutoMovieArchetype, "parts" | "convexCells">,
   placement: IAutoMovieTransform,
 ): Bound {
   let lowest: number = Infinity;
   let body: number = Infinity;
   const bounds: { id: string; height: number }[] = [];
+  const cells: AutoMovieArchetype["convexCells"] = animal.convexCells;
   for (const part of animal.parts) {
     if (part.transform === null || part.transform === undefined)
       throw new RangeError(`Lateral rest requires a posed part ${part.id}`);
@@ -253,7 +254,7 @@ function support(
       ...part,
       transform: AutoMovieArchetypeFrame.compose(placement, part.transform),
     };
-    const height: number = QuadrupedRestFloor(posed);
+    const height: number = QuadrupedRestFloor(posed, cells);
     lowest = Math.min(height, lowest);
     if (part.id === "trunk" || part.id === "hindquarters")
       body = Math.min(body, height);

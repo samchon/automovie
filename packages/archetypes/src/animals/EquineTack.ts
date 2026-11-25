@@ -55,7 +55,7 @@ export function EquineTack(
     tack === "double" ||
     tack === "trick"
   ) {
-    EquineSaddle.lay(builder, d, rig);
+    EquineSaddle.lay(builder, d, rig, tack === "trick");
     if (tack === "double") EquineSaddle.pillion(builder, d, rig);
     if (tack === "trick") EquineSaddle.trick(builder, d, rig);
     EquineSaddle.lead(builder, rig.nose, h);

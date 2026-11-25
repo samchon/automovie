@@ -8,34 +8,39 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import type { AutoMovieArchetypeConvexCell } from "../core";
+
 /**
- * Exact lowest world Y of one rigid primitive used by a rest cycle.
+ * Exact lowest world Y of one posed rigid solid used by a rest cycle.
  *
- * @param part Source or posed primitive with finite unit-scale transform.
+ * @param part Source or posed part with finite unit-scale transform.
+ * @param cells The producer-owned convex cells, when the model supplies them.
  * @returns The lowest surface height, metres; a drawing plane has no solid and
  *   gives Infinity.
- * @throws {RangeError} For unsupported non-primitive geometry or malformed
+ * @throws {RangeError} For an unregistered solid or malformed
  *   dimensions/transforms.
  */
-export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
-  if (
-    part.geometry.type !== "primitive" ||
-    part.transform === null ||
-    part.transform === undefined
-  )
-    throw new RangeError(`Rest requires a transformed primitive: ${part.id}`);
-  const shape: IAutoMoviePrimitiveShape = part.geometry.shape;
-  if (shape.type === "plane") return Infinity;
-  const dimensions: readonly number[] =
-    shape.type === "box"
-      ? [shape.width, shape.height, shape.depth]
-      : shape.type === "sphere"
-        ? [shape.radius]
-        : [shape.height, shape.radius];
-  if (dimensions.some((value: number): boolean => !(value > 0)))
-    throw new RangeError(
-      `Rest requires positive finite dimensions: ${part.id}`,
-    );
+export function QuadrupedRestFloor(
+  part: IAutoMovieModelPart,
+  cells?: AutoMovieArchetypeConvexCell.Table,
+): number {
+  if (part.transform === null || part.transform === undefined)
+    throw new RangeError(`Rest requires transformed rigid geometry: ${part.id}`);
+  const shape: IAutoMoviePrimitiveShape | undefined =
+    part.geometry.type === "primitive" ? part.geometry.shape : undefined;
+  if (shape?.type === "plane") return Infinity;
+  if (shape !== undefined) {
+    const dimensions: readonly number[] =
+      shape.type === "box"
+        ? [shape.width, shape.height, shape.depth]
+        : shape.type === "sphere"
+          ? [shape.radius]
+          : [shape.height, shape.radius];
+    if (dimensions.some((value: number): boolean => !(value > 0)))
+      throw new RangeError(
+        `Rest requires positive finite dimensions: ${part.id}`,
+      );
+  }
   for (const axis of ["x", "y", "z"] as const)
     if (part.transform.scale[axis] !== 1)
       throw new RangeError(`Rest requires a finite rigid part: ${part.id}`);
@@ -48,12 +53,23 @@ export function QuadrupedRestFloor(part: IAutoMovieModelPart): number {
   );
   if (!(Math.abs(norm - 1) <= 64 * Number.EPSILON))
     throw new RangeError(`Rest requires a unit rotation: ${part.id}`);
+  const unit: IAutoMovieQuaternion = Quaternion.normalize(rotation);
+  if (shape === undefined) {
+    const cell: AutoMovieArchetypeConvexCell.ICell | undefined = cells?.get(part.id);
+    if (cell === undefined || cell.geometry !== part.geometry)
+      throw new RangeError(`Rest requires matching convex material: ${part.id}`);
+    // A linear coordinate on a closed convex cell takes its minimum at a corner.
+    let minimum: number = Infinity;
+    for (const point of cell.points)
+      minimum = Math.min(minimum, Quaternion.rotateVectorY(unit, point));
+    return part.transform.translation.y + minimum;
+  }
   const base: Pick<IAutoMoviePhysicalShape, "id" | "material" | "transform"> = {
     id: part.id,
     material: "rest-bound",
     transform: {
       position: part.transform.translation,
-      rotation: Quaternion.normalize(part.transform.rotation),
+      rotation: unit,
     },
   };
   const placement: IAutoMovieRigidTransform = {

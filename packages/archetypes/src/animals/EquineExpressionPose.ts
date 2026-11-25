@@ -9,9 +9,11 @@ import type {
 
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   type AutoMovieArchetypeRide,
 } from "../core";
+import { ApplyQuadrupedCarrierPose } from "./ApplyQuadrupedCarrierPose";
 import type { AutoMovieArchetypeEquineExpressionCue } from "./AutoMovieArchetypeEquineExpressionCue";
 import { AutoMovieArchetypeQuadrupedBody } from "./AutoMovieArchetypeQuadrupedBody";
 import type { EquineHeadReach } from "./EquineHeadReach";
@@ -242,6 +244,7 @@ export namespace EquineExpressionPose {
       posed.get("head")!.rotation,
       Quaternion.inverse(prepared.head),
     );
+    const cells: AutoMovieArchetypeConvexCell.Table = animal.convexCells;
     const parts: IAutoMovieModelPart[] = animal.parts.map(
       (part: IAutoMovieModelPart): IAutoMovieModelPart => {
         const carrier: AutoMovieArchetypeQuadrupedBody.Bone | undefined =
@@ -282,7 +285,7 @@ export namespace EquineExpressionPose {
               -channels.lip,
             ),
           );
-        return { ...structuredClone(part), transform: frame };
+        return { ...ApplyQuadrupedCarrierPose.copy(part, cells), transform: frame };
       },
     );
     const frames: Map<string, IAutoMovieTransform> = new Map(

@@ -16,6 +16,7 @@ import type {
 
 import {
   type AutoMovieArchetype,
+  type AutoMovieArchetypeConvexCell,
   AutoMovieArchetypeFrame,
   AutoMovieArchetypeSpan,
 } from "../core";
@@ -138,6 +139,7 @@ function prepare<Id extends string, Dimension extends string>(
     (binding: IBinding): boolean => !limbParts.has(binding.part.id),
   );
   const spans: readonly AutoMovieArchetypeSpan.ISpan[] = source.spans;
+  const cells: AutoMovieArchetypeConvexCell.Table = source.convexCells;
   const lengths: Map<AutoMovieArchetypeQuadrupedBody.Bone, number> = new Map();
   for (const bone of reader.bones) {
     const part: IAutoMovieModelPart | undefined = sourceParts.get(bone);
@@ -240,7 +242,7 @@ function prepare<Id extends string, Dimension extends string>(
     let lowest: number = Infinity;
     for (const part of current) {
       if (limbParts.has(part.id)) continue;
-      const floor: number = QuadrupedRestFloor(part);
+      const floor: number = QuadrupedRestFloor(part, cells);
       if (
         floor === Infinity &&
         part.geometry.type === "primitive" &&

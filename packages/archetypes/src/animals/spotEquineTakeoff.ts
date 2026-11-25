@@ -1,5 +1,3 @@
-import type { IAutoMovieModelPart } from "@automovie/interface";
-
 import type { AutoMovieArchetypeCourse } from "../core";
 import type { AutoMovieArchetypeQuadrupedGait } from "./AutoMovieArchetypeQuadrupedGait";
 import { EquineJump } from "./EquineJump";
@@ -47,10 +45,10 @@ export function spotEquineTakeoff(
     candidate,
     EquineJump.LONGEST,
   );
-  const parts: readonly IAutoMovieModelPart[] = trial(
+  const midair: EquineObstacle.ISample = trial(
     candidate.moved,
     nominal,
-  ).sample(nominal.hold.start + nominal.hold.duration / 2).parts;
+  ).sample(nominal.hold.start + nominal.hold.duration / 2);
 
   // The adjustment's reach on each side, from the declared spread of stride time.
   const push: number = at(candidate.push);
@@ -83,7 +81,7 @@ export function spotEquineTakeoff(
       plan,
       unflown,
       candidate,
-      parts,
+      midair,
       unflown.centre,
       landed,
       shift,
