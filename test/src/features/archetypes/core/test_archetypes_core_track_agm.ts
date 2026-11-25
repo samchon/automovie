@@ -1,5 +1,9 @@
-import { AutoMovieArchetypeTrack } from "@automovie/archetypes";
+import {
+  AutoMovieArchetypeRefusal,
+  AutoMovieArchetypeTrack,
+} from "@automovie/archetypes";
 import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
 import { nclose } from "../../internal/nclose";
 
@@ -20,7 +24,10 @@ const SCALED_AGM_TOLERANCE: number = 4 * AGM_TOLERANCE;
  *    over pi, and agm(1, 2) = 1.4567910310469068.
  * 3. It is symmetric and homogeneous: agm(2, 1) = agm(1, 2) and agm(4, 8) = 4
  *    agm(1, 2).
- * 4. A zero or negative argument is refused.
+ * 4. In units of the least positive binary64 number, the mean of 1 and 4
+ *    lies strictly between its first geometric and arithmetic iterates,
+ *    2 and 2.5. It rounds to 2 in either input order.
+ * 5. A zero, negative, or infinite argument is refused.
  */
 export function test_archetypes_core_track_agm(): void {
   const agm = AutoMovieArchetypeTrack.agm;
@@ -38,6 +45,17 @@ export function test_archetypes_core_track_agm(): void {
     "homogeneous",
     nclose(agm(4, 8), 4 * agm(1, 2), SCALED_AGM_TOLERANCE),
   );
+  const min: number = Number.MIN_VALUE;
+  TestValidator.equals(
+    "rounded subnormal limit in both input orders",
+    [agm(min, 4 * min), agm(4 * min, min)],
+    [2 * min, 2 * min],
+  );
   TestValidator.error("a zero argument", (): unknown => agm(0, 1));
   TestValidator.error("a negative argument", (): unknown => agm(-1, 1));
+  assert.throws(
+    () => agm(1, Infinity),
+    (error: unknown): boolean =>
+      error instanceof AutoMovieArchetypeRefusal && error.axis === "agm",
+  );
 }
