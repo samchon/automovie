@@ -200,9 +200,9 @@ function obstaclesByNode(
 export function evaluateCameraClearance(
   input: IAutoMovieCameraClearanceEvaluation,
 ): IAutoMovieCameraClearanceReport {
-  if (!(input.sampleRate > 0))
+  if (!(input.sampleRate > 0 && input.sampleRate < Infinity))
     throw new Error("$input.sampleRate must be finite and greater than zero");
-  if (!(input.duration >= 0))
+  if (!(input.duration >= 0 && input.duration < Infinity))
     throw new Error("$input.duration must be finite and non-negative");
 
   if (input.revision !== input.currentRevision)

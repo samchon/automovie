@@ -5,6 +5,7 @@ import {
 } from "@automovie/engine";
 import {
   IAutoMovieCamera,
+  IAutoMovieCameraClearanceEvaluation,
   IAutoMovieCameraClearanceFinding,
   IAutoMovieCameraClearanceReport,
   IAutoMovieConstraintViolation,
@@ -14,6 +15,8 @@ import {
   type IAutoMovieViolationCollector,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
+
+import { nclose, throwsError } from "../../internal/predicates";
 
 /**
  * Camera clearance answers for its own work only, addresses a coverage take
@@ -27,6 +30,8 @@ import { TestValidator } from "@nestia/e2e";
  *    violation at that take's camera, not a thrown `TypeError`.
  * 3. Two contacted obstacles whose ids differ in letter case are reported in
  *    UTF-16 code-unit order, which a locale collation reverses.
+ * 4. A zero-duration take has one fixed-clock instant. Nonfinite clock input
+ *    reports its own field before sampling, including during a zero-duration take.
  */
 export function test_engine_film_camera_clearance_boundaries(): void {
   const hero: IAutoMovieCamera = {
@@ -57,16 +62,18 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     coverage: Parameters<
       typeof compileCameraClearanceReports
     >[0]["coverage"] = [],
+    duration: number = 1,
+    sampleRate: number = 4,
   ): IAutoMovieCameraClearanceReport[] | undefined =>
     compileCameraClearanceReports({
       scene,
       hero: { camera: hero, motion: null },
       coverage,
-      duration: 1,
+      duration,
       motions: {},
       objectMotions: [],
       models: [],
-      runtime: { revision: "r", currentRevision: "r", sampleRate: 4 },
+      runtime: { revision: "r", currentRevision: "r", sampleRate },
       out,
     });
 
@@ -104,6 +111,22 @@ export function test_engine_film_camera_clearance_boundaries(): void {
     ],
     [false, ["$input.coverage[0].camera"]],
   );
+  const instant: IAutoMovieCameraClearanceReport | undefined = compile(
+    new ViolationCollector(),
+    [],
+    0,
+  )?.[0];
+  const badRate: IAutoMovieViolationCollector = new ViolationCollector();
+  TestValidator.predicate(
+    "a valid single instant is preserved and an infinite rate is addressed",
+    instant?.status === "clear" &&
+      instant.intervals === 0 &&
+      instant.sampleTimes.length === 1 &&
+      nclose(instant.sampleTimes[0]!, 0, 0) &&
+      compile(badRate, [], 0, Infinity) === undefined &&
+      badRate.items.length === 1 &&
+      badRate.items[0]?.path === "$input.cameraClearance.sampleRate",
+  );
 
   const identity: IAutoMovieTransform = {
     translation: { x: 0, y: 0, z: 0 },
@@ -117,7 +140,7 @@ export function test_engine_film_camera_clearance_boundaries(): void {
   type ISample = Parameters<
     typeof evaluateCameraClearance
   >[0]["samples"][number];
-  const ordered: IAutoMovieCameraClearanceReport = evaluateCameraClearance({
+  const evaluation: IAutoMovieCameraClearanceEvaluation = {
     camera: "camera-main",
     envelope: {
       body: { center: { x: 0, y: 0, z: 0 }, radius: 0.1 },
@@ -137,12 +160,31 @@ export function test_engine_film_camera_clearance_boundaries(): void {
         ],
       }),
     ),
-  });
+  };
+  const ordered: IAutoMovieCameraClearanceReport =
+    evaluateCameraClearance(evaluation);
   TestValidator.equals(
     "findings follow code-unit order",
     ordered.findings.map(
       (finding: IAutoMovieCameraClearanceFinding): string => finding.obstacle,
     ),
     ["B-post", "a-post"],
+  );
+  TestValidator.predicate(
+    "the evaluator refuses nonfinite duration and rate on their own fields",
+    throwsError(
+      () => evaluateCameraClearance({ ...evaluation, duration: Infinity }),
+      "$input.duration",
+    ) &&
+      throwsError(
+        () =>
+          evaluateCameraClearance({
+            ...evaluation,
+            duration: 0,
+            sampleRate: Infinity,
+            samples: [evaluation.samples[0]!],
+          }),
+        "$input.sampleRate",
+      ),
   );
 }

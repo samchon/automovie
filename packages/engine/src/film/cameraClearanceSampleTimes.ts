@@ -51,6 +51,11 @@ export function cameraClearanceSampleTimes(
   }
   for (const clip of props.objectMotions)
     assertClipBoundable(clip, false, "its node translation and scale channels");
+  if (!(props.sampleRate > 0 && props.sampleRate < Infinity))
+    throw new Error("$input.sampleRate must be finite and greater than zero");
+  if (!(props.duration >= 0 && props.duration < Infinity))
+    throw new Error("$input.duration must be finite and non-negative");
+
   const shared: Set<number> = new Set(
     sampleTimes(props.duration, props.sampleRate),
   );
