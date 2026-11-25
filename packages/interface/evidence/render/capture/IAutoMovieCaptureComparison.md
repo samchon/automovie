@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The compared round, the matching rule, the tolerance in bytes and one entry per cell of either capture, each either a pair with its measured difference or an unmatched cell with its cause, so nothing is silently left out, and the finding diff with its outcome, kept apart from the pixel entries because a checker and a still answer different questions.
+The Render producer reports the matching rule, tolerance in bytes and each cell as part of a paired or unmatched entry. Cell mode uses second, selection, view, pass and any resolved cameras. Time mode uses second, pass and selection and pairs unique equal views when a key repeats. The finding diff records the checker outcome independently of the picture entries.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 

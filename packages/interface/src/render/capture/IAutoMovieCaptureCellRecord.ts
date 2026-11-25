@@ -48,6 +48,8 @@ export type IAutoMovieCaptureCellRecord = {
       /** Content hash of the still's pixels, from `hashAutoMovieRasterImage`. */
       hash: string;
 
+      fileSha256?: string;
+
       /** Identity of the renderer that drew it, or null when the host did not state it. */
       backend: string | null;
 

@@ -194,9 +194,9 @@ export interface IAutoMoviePerformShotProps {
   flames?: readonly IAutoMovieFlameCue[];
 
   /**
-   * Font sources the surface graphics' text layers may name, admitted from what
-   * the records state and carried onto `shot.fonts`. Omit when no layer letters
-   * text.
+   * Font sources that text layers explicitly name, admitted from their records
+   * and carried onto `shot.fonts`. Layers without a font id use the browser's
+   * system UI font and require no source here.
    */
   fonts?: readonly IAutoMovieFontSource[];
 

@@ -48,7 +48,7 @@ Place absolute time only at screenplay anchors. Compose the [production entity's
 
 Cast and crowds perform through the vocabulary. [Retarget](../../motion/retargeting.md) a supplied or user-chosen clip to its performer. Fix package [refusals](../../motion/compose/refusals.md) at the named axis.
 
-Select a [catalog case](../../motion/catalog-cases.md#record) accepted for the scene's body, load, support and partner conditions. Recheck affected capabilities after a repair or change of conditions.
+Verify the module in an interval that exhibits the scene's body, load, support and partner conditions. Use a [separate case](../../motion/catalog-cases.md) when those conditions need an independent check. Recheck affected capabilities after a repair or change of conditions.
 
 ## Living scene
 

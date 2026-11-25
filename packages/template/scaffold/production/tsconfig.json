@@ -4,6 +4,7 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
+    "rewriteRelativeImportExtensions": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "esModuleInterop": true,

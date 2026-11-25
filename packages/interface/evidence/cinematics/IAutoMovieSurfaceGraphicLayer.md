@@ -78,7 +78,7 @@ States the font reference, the layout rules and refusals, the em size unit, the 
 
 ## @evidence contracts/development/design.md#principled-representation
 
-The em size is a fraction of the face height so a layout scales with its face, which render converts to metres with the surface's depth; the font is an id into the shot's font sources, decoded once per shot rather than per layer.
+The em size is a fraction of the face height, converted to metres using the surface's depth. An explicit id selects a decoded shot font. Omission selects the browser's system UI font and host script fallback.
 
 ## @evidence contracts/development/design.md#minimal-and-owned-surface
 
@@ -86,7 +86,7 @@ Read by the engine layer check, which resolves the font id, and by the render te
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-No fallback font, glyph substitution or clipping field: an unmapped code point or overflow is refused by the layout.
+Both paths refuse overflow. The fixed-font layout also refuses an unmapped code point, and an unresolved explicit font id is an admission failure.
 
 # src/cinematics/IAutoMovieSurfaceGraphicLayer.ts#IAutoMovieSurfaceGraphicLayer.IFeed
 

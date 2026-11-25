@@ -29,9 +29,24 @@ export function readAutoMovieVideoProbe(log: string): {
   const size: RegExpMatchArray | null = stream.match(
     /[ ,](\d{2,5})x(\d{2,5})[ ,[]/u,
   );
-  const rate: RegExpMatchArray | null =
+  const exact: RegExpMatchArray | null =
+    /^\[Parsed_showinfo_\d+ @ [^\r\n]+?\] config in time_base:\s*\d+\/\d+,\s*frame_rate:\s*(\d+)\/(\d+)(?=\s|$)/mu.exec(
+      log,
+    );
+  const numerator: number = Number(exact?.[1]);
+  const denominator: number = Number(exact?.[2]);
+  const printed: RegExpMatchArray | null =
     stream.match(/([\d.]+) fps/u) ?? stream.match(/([\d.]+) tbr/u);
-  if (size === null || rate === null)
+  const fps: number | null =
+    Number.isSafeInteger(numerator) &&
+    numerator > 0 &&
+    Number.isSafeInteger(denominator) &&
+    denominator > 0
+      ? numerator / denominator
+      : printed === null
+        ? null
+        : Number(printed[1]);
+  if (size === null || fps === null)
     throw new Error(
       `FFmpeg reported no size or rate for the video stream: ${stream.trim()}`,
     );
@@ -40,7 +55,7 @@ export function readAutoMovieVideoProbe(log: string): {
       Number(duration[1]) * 3600 +
       Number(duration[2]) * 60 +
       Number(duration[3]),
-    fps: Number(rate[1]),
+    fps,
     width: Number(size[1]),
     height: Number(size[2]),
   };

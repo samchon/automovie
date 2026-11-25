@@ -21,7 +21,7 @@ export default createEvidenceConfig({ location: import.meta.dirname });
 | Exported test functions under `test/**/test_*.ts` | `contracts/development/testing.md` |
 | All of the above, except under `src/composition/` | `contracts/development/common.md` |
 
-Scenes, films and catalog cases under `src/composition/` realize a screenplay rather than serve callers, so they document that realization under their own checklists instead of `common.md`: scenes under `contracts/development/composition.md`, screenplay films under `contracts/development/films.md`, and the catalog under `contracts/development/catalog.md`.
+Scenes and films under `src/composition/` answer the `composition.md` and `films.md` checklists for their screenplay realization. Selected catalog cases and the review film answer `catalog.md` for what they exhibit. These checklists under `contracts/development/` own that documentation.
 
 A declaration answers a checklist in its doc comment, with one `@evidence <checklist>#<item>` tag per item followed by the answer.
 
@@ -70,7 +70,9 @@ The screenplay is one folder per film with one file per scene: `docs/body/screen
 
 With `narrative.mode: "short"`, the first study under `docs/research/` activates research by default. The top-level index alone does not activate it. Set `research` explicitly on other routes or when closing a research stage. Use `development` when a production builds entities, behaviors and scenes in code.
 
-When composition Evidence opens for programmed scenes or films, it expects case sources under `src/composition/scenes/catalog/`, the film at `src/composition/films/catalog.ts` and the record at `docs/acceptance/catalog.md`. The catalog answers `contracts/development/catalog.md`. Screenplay coverage comes from the production scenes and films. The director verifies the registered catalog plays and judges the tested conditions.
+Review a capability in the production scene when its interval exhibits the conditions the scene needs. Enable `development.catalog: "evidence"` for a separate review catalog. It requires case sources under `src/composition/scenes/catalog/`, the film at `src/composition/films/catalog.ts` and the record at `docs/acceptance/catalog.md`. Export the case and film functions or methods in their implementation modules. The director verifies the registered catalog plays and judges the tested conditions.
+
+Projects that enabled composition Evidence with existing catalog artifacts keep catalog validation by default. Set `development.catalog: "disabled"` to clear that selection.
 
 ```ts
 export default createEvidenceConfig({
@@ -89,7 +91,8 @@ export default createEvidenceConfig({
 | `research` | Each study in `docs/research/` | `contracts/story/principles/research.md` |
 | `development.entities` | Exports under `src/entities/` | `contracts/development/entities.md` |
 | `development.behaviors` | Exports under `src/laws/`, `src/interactions/` and `src/consequences/` | `contracts/development/behaviors.md` |
-| `development.composition` | Exports under `src/composition/` | `contracts/development/composition.md` for scenes, `films.md` for screenplay films and `catalog.md` for the catalog; scenes and films cite the screenplay scene files, sections and beats they realize |
+| `development.composition` | Screenplay scenes and films | `composition.md` and `films.md`, with citations to the scenes and beats they realize |
+| `development.catalog` | Review cases and catalog film | `catalog.md`, with a play and acceptance record for its cases |
 
 When entities or composition are submitted, entity types cite the subject files in `cast/`, `crowds/`, `props/` and `sets/` under a short's `docs/body/brief/` or a long work's `docs/body/settings/`. For example, `@evidence docs/body/brief/props/ball.md The ball uses the brief's red panels.`
 

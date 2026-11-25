@@ -1,11 +1,17 @@
 /**
- * One cell of either capture: paired with its counterpart, or unmatched with the cause.
+ * One cell of either capture: paired with its counterpart, or unmatched with
+ * the cause.
  *
- * Only pairs whose stills identify the same backend carry numerical pixel differences. Different or unstated backends produce side-by-side outcomes; unmatched outcomes preserve the cause rather than imply equality.
+ * Only pairs whose stills identify the same backend carry numerical pixel
+ * differences. Different or unstated backends produce side-by-side outcomes;
+ * unmatched outcomes preserve the cause rather than imply equality.
  */
 export type IAutoMovieCaptureCellComparison =
   | {
-      /** Both captures hold the cell and their stills were measured against each other. */
+      /**
+       * Both captures hold the cell and their stills were measured against each
+       * other.
+       */
       state: "paired";
 
       /** Both stills came from the same backend, so pixels are compared. */
@@ -26,7 +32,10 @@ export type IAutoMovieCaptureCellComparison =
       /** Largest channel difference in bytes. */
       maximum: number;
 
-      /** Smallest box holding every changed pixel, inclusive pixel bounds, or null when none changed. */
+      /**
+       * Smallest box holding every changed pixel, inclusive pixel bounds, or
+       * null when none changed.
+       */
       bounds: {
         /** Inclusive leftmost changed pixel column, from zero. */
         left: number;
@@ -48,7 +57,10 @@ export type IAutoMovieCaptureCellComparison =
       /** Both captures hold the cell, drawn by different or unstated backends. */
       state: "paired";
 
-      /** The stills are laid side by side without a difference image, because pixels from different backends are not compared. */
+      /**
+       * The stills are laid side by side without a difference image, because
+       * pixels from different backends are not compared.
+       */
       mode: "side-by-side";
 
       /** Cell name in this capture. */
@@ -58,7 +70,7 @@ export type IAutoMovieCaptureCellComparison =
       earlier: string;
     }
   | {
-      /** One capture holds the cell and the other does not, or one of them could not draw it. */
+      /** A compatible counterpart is absent, ambiguous or undrawn. */
       state: "unmatched";
 
       /** Cell name in this capture, or null when only the earlier round has it. */

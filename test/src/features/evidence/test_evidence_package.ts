@@ -42,10 +42,9 @@ import { repositoryRoot } from "../internal/repositoryRoot";
  *    without composition, and otherwise requires every instruction section
  *    realized: one realized section of two fails, excluding the other fails,
  *    and a film realizing it passes.
- * 10. Film composition reports all three missing catalog inputs together. A catalog
- *     case cannot supply a beat missing from the production scene, and a case
- *     answering the composition checklist instead of the catalog checklist
- *     fails.
+ * 10. An ordinary film answers composition without a catalog. An opted-in catalog
+ *     cannot supply a missing scene beat, and its cases answer the catalog
+ *     checklist.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Evaluates the public configuration's real source/test and narrative claims through native Evidence, preserving engineering selection, additional claim coverage, outline stage inheritance, discovery after a closed layer turns disabled and the scene-file composition relations.
  * @evidence contracts/development/testing.md#independent-expectations Explicitly authored answers satisfy the shipped common, design, implementation and testing checklists for one interface, one function and one test; an unrelated unfinished story creates no engineering obligation. Established one-scene fixtures supply reviewed content; removing the outline principle answer must fail when its omitted stage inherits active settings, just as an added unanswered work question must block a ready short pass. The route contract supplies the closed-layer expectation: a layer the user disabled after it closed must not break the layers still running, so its findings in the shared discovery record must still resolve. The layout contract supplies the composition expectations: each scene file maps to one scene composition and the film orders every scene file of its folder.
@@ -532,29 +531,6 @@ export async function test_evidence_package(): Promise<void> {
         " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b01 The scene realizes the feint.",
       ),
     );
-    assert.throws(
-      (): IEvidenceConfig =>
-        createEvidenceConfig({
-          location: production,
-          development: { composition: "evidence" },
-        }),
-      /Missing: src\/composition\/films\/catalog\.ts, docs\/acceptance\/catalog\.md, src\/composition\/scenes\/catalog/,
-    );
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/films/catalog.ts",
-      exhibit("catalog", ""),
-    );
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/scenes/catalog/step/case.ts",
-      exhibit("step", ""),
-    );
-    ProductionWorkflowFixture.write(
-      production,
-      "docs/acceptance/catalog.md",
-      "# Reviewed cases\n\n## Step\n\nFoot support observed in the catalog.\n",
-    );
     const composed: IEvidenceConfig = createEvidenceConfig({
       location: production,
       research: "evidence",
@@ -564,24 +540,6 @@ export async function test_evidence_package(): Promise<void> {
       createEvidenceConfigPlan(composed, stagedFile),
     );
     assert.equal(partial.report.success, false);
-    // A showcase cannot supply the actual scene's missing beat.
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/scenes/catalog/step/case.ts",
-      exhibit(
-        "step",
-        " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b02 The catalog exhibits this action.",
-      ),
-    );
-    const showcaseOnly: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
-      createEvidenceConfigPlan(composed, stagedFile),
-    );
-    assert.equal(showcaseOnly.report.success, false);
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/scenes/catalog/step/case.ts",
-      exhibit("step", ""),
-    );
     ProductionWorkflowFixture.write(
       production,
       "src/composition/scenes/bout/001-ring/ring.ts",
@@ -614,22 +572,6 @@ export async function test_evidence_package(): Promise<void> {
       "src/composition/films/bout.ts",
       play(film.join("\n")),
     );
-    // A catalog case answers the catalog checklist, not composition.
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/scenes/catalog/step/case.ts",
-      compose("step", ""),
-    );
-    const caseChecklist: IEvidenceCheckAnalysis =
-      await EvidenceChecker.evaluate(
-        createEvidenceConfigPlan(composed, stagedFile),
-      );
-    assert.equal(caseChecklist.report.success, false);
-    ProductionWorkflowFixture.write(
-      production,
-      "src/composition/scenes/catalog/step/case.ts",
-      exhibit("step", ""),
-    );
     const whole: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
       createEvidenceConfigPlan(composed, stagedFile),
     );
@@ -637,6 +579,108 @@ export async function test_evidence_package(): Promise<void> {
       whole.report.success,
       true,
       JSON.stringify(whole.report.diagnostics),
+    );
+
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/films/catalog.ts",
+      exhibit("catalog", ""),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      exhibit("step", ""),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "docs/acceptance/catalog.md",
+      "# Reviewed cases\n\n## Step\n\nFoot support observed in the catalog.\n",
+    );
+    const configureCatalog = (): IEvidenceConfig =>
+      createEvidenceConfig({
+        location: production,
+        research: "evidence",
+        development: {
+          behaviors: "evidence",
+          composition: "evidence",
+          catalog: "evidence",
+        },
+      });
+    const cataloged: IEvidenceConfig = configureCatalog();
+
+    // A valid film cannot supply the required executable case of its catalog.
+    const caseFile: string = "src/composition/scenes/catalog/step/case.ts";
+    const admitted: string[] = [];
+    for (const source of [
+      "export const placeholder = 1;\n",
+      "void `Preview text:\nexport function step() {}\n`;\n",
+    ]) {
+      ProductionWorkflowFixture.write(production, caseFile, source);
+      try {
+        const selectedCatalog: IEvidenceConfig = configureCatalog();
+        const result: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+          createEvidenceConfigPlan(selectedCatalog, stagedFile),
+        );
+        if (result.report.success) admitted.push(source);
+      } catch (error) {
+        assert.match(String(error), /src\/composition\/scenes\/catalog/);
+      }
+    }
+    assert.deepEqual(admitted, []);
+
+    // A catalog case cannot supply the actual scene's missing beat.
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/bout/001-ring/ring.ts",
+      compose(
+        "ring",
+        " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b01 The scene realizes the feint.",
+      ),
+    );
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      exhibit(
+        "step",
+        " * @evidence docs/body/screenplay/bout/001-ring.md#s01-b02 The catalog exhibits this action.",
+      ),
+    );
+    const showcaseOnly: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(cataloged, stagedFile),
+    );
+    assert.equal(showcaseOnly.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/bout/001-ring/ring.ts",
+      compose(
+        "ring",
+        " * @evidence docs/body/screenplay/bout/001-ring.md The scene realizes its whole scene file.",
+      ),
+    );
+
+    // A catalog case answers its own checklist.
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      compose("step", ""),
+    );
+    const caseChecklist: IEvidenceCheckAnalysis =
+      await EvidenceChecker.evaluate(
+        createEvidenceConfigPlan(cataloged, stagedFile),
+      );
+    assert.equal(caseChecklist.report.success, false);
+    ProductionWorkflowFixture.write(
+      production,
+      "src/composition/scenes/catalog/step/case.ts",
+      exhibit("step", ""),
+    );
+    const reviewed: IEvidenceCheckAnalysis = await EvidenceChecker.evaluate(
+      createEvidenceConfigPlan(cataloged, stagedFile),
+    );
+    assert.equal(
+      reviewed.report.success,
+      true,
+      JSON.stringify(reviewed.report.diagnostics),
     );
 
     // Under narrative mode none, the code must realize every instruction

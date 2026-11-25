@@ -68,21 +68,21 @@ export namespace IAutoMovieSurfaceGraphicLayer {
   }
 
   /**
-   * Flat lettering set in the box from a font the shot lists.
+   * Flat lettering set in the box from a shot font or the renderer's system UI
+   * font. The system font and script fallback depend on the host's fonts.
    *
-   * `engine` lays the text out from the decoded font: `\n` breaks a line, a
-   * line wider than the box wraps at its last space, the first baseline sits
-   * one scaled ascender below the box top, and an unmapped code point, a word
-   * wider than the box or lines taller than it are refused, never substituted
-   * or clipped. `render` decodes the shot's fonts before drawing any frame and
-   * draws the triangulated glyphs flat on the face in the layer's colour.
+   * A newline breaks a line and a line wider than the box wraps at spaces. A
+   * word wider than the box or lines taller than it are refused. An explicit
+   * font is decoded before drawing, then the engine lays out and triangulates
+   * its glyphs and refuses unmapped code points. When omitted, a browser canvas
+   * uses `system-ui` to shape and rasterize the text on the face.
    */
   export interface IText extends IBox {
     /** Discriminant. */
     kind: "text";
 
-    /** Id of a font source in the shot's `fonts` list. */
-    font: string;
+    /** Id in the shot's `fonts` list. Omit to use the browser's system UI font. */
+    font?: string;
 
     /** The text to set; nonempty. */
     text: string;
@@ -100,8 +100,8 @@ export namespace IAutoMovieSurfaceGraphicLayer {
     align?: "start" | "center" | "end";
 
     /**
-     * Line pitch as a positive multiple of the font's ascender minus descender
-     * plus line gap; default 1.
+     * Line pitch multiplier, default 1. The base is ascent plus descent and the
+     * line gap when an explicit font supplies one.
      */
     lineHeight?: number;
   }

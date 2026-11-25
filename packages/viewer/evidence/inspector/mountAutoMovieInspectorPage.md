@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States what is rendered, where the first request comes from, how the address follows it, that nothing global is read, and what `unmount` releases.
+States what is rendered, where the first request comes from, how the address follows it, which inputs including the optional command belong to the host, and what `unmount` releases.
 
 ## @evidence contracts/development/implementation.md#principled-implementation `createRoot` is React 19's client entry, and StrictMode runs the canvas effect twice in development, which the scene mount is built to survive, so a page always exercises that path.
 
@@ -12,7 +12,7 @@ Three steps: build the address writer, create the root, render the component wit
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-No subject, request or address is chosen here; they are the host's.
+The host supplies the subjects, first request text, address writer inputs and capture command prefix.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

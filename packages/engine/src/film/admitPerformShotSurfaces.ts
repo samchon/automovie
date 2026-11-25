@@ -19,7 +19,8 @@ import { appendSurfaceGraphicsArtifact } from "../validation/appendSurfaceGraphi
  * Practical surface tracks switch a part's material; surface graphic tracks
  * show pictures on a `surface` affordance. Both are checked with the models the
  * props supply, so a target must resolve on the prop's registered model, and a
- * text layer must name a font source the props list; the font sources are
+ * text layer that specifies a font must name a source the props list. An
+ * omitted font stays omitted for the renderer's default. Font sources are
  * admitted from what their records state. With `cameras`, a feed layer must
  * name one of the staged cameras `ids` other than `shot`, the live camera the
  * camera gate chose, so a feed of the shot's own camera is an authoring finding

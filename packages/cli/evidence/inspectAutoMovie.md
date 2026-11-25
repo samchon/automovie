@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States how options are read and checked, what is served and printed, which packages come from the production, how the command ends and its status.
+States how options are read and checked, what is served and printed, how the copied command gets the same module and props paths, which packages come from the production, and how the command ends.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -14,7 +14,7 @@ Read, serve, print, wait, close.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
-A request is read before the server starts, so a mistyped key never opens a page that silently ignores it.
+A request is read before serving. The validated module path and any supplied props path are passed as fixed capture arguments, including when a path contains spaces or a shell character.
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 

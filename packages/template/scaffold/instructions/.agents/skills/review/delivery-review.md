@@ -50,11 +50,13 @@ For text or a standalone asset, include the revision, checks, observations and r
 - disputed findings and their times, the evidence resolving them, and any open repairs or user-approved exclusions;
 - the director's decision on that cut.
 
+At an adopted handoff, read the required evidence with `pnpm run verify --subject <id> --require <stage>` and record the director's decision for the candidate and scope they reviewed.
+
 A retake verdict covers the interval checked. Promote only a cut with current whole-film approval. Retain withdrawn decisions as history. Keep these observations [outside the contract graph](../contracts/items.md#outside-the-graph).
 
 ## Repairs
 
-From the first playable draft through delivery, give the director the affected passage, its film time and what the viewer saw or heard. Compare the performance, framing and edit with the current screenplay. Where the production obscures or changes the intended action, correct it and replay the passage.
+From the first playable draft through delivery, give the director the affected passage, its film time and what the viewer saw or heard. On a published file, use `automovie review --file <video> --at <seconds> --note <text>` to mark that version. Reopen its frame and adjacent stills with `automovie review --mark <review.json>`. Keep the needed original file or clip with the accepted observations. If a retake moved or removed the passage, use the current file and an explicit new time to rebind only when the affected passage is known. Compare the performance, framing and edit with the current screenplay. Where the production obscures or changes the intended action, correct it and replay the passage.
 
 If the passage plays as written and the story still fails, the director gives the writer the observed loss to trace to its [earliest story decision](../story/correction/repair.md#upstream-defects). Changes to [user-fixed text](../story/workflow/routes.md#fixed-screenplay) go to the user. If a missing story decision prevents staging, follow [concretization](../story/correction/repair.md#concretization).
 

@@ -126,7 +126,7 @@ export async function test_physical_authored_locomotion(): Promise<void> {
       // The target's rate toward the neighbouring key frame, in the parent's
       // anchor frame: the rotation between them over their interval.
       const neighbour: number =
-        frames[index === frames.length - 1 ? index - 1 : index + 1]!;
+        frames[index + 1 < frames.length ? index + 1 : index - 1]!;
       const beside: Record<string, IAutoMovieRigidTransform> =
         targets[neighbour]!.segments;
       const interval: number = (neighbour - step) / 120;

@@ -20,6 +20,9 @@ export interface IAutoMovieCaptureStorage {
     },
   ): Promise<unknown>;
 
+  /** Resolve the actual path of an existing folder, including aliases. */
+  realpath?(path: string): Promise<string>;
+
   /**
    * The bytes of a file. Rejects when the file does not exist.
    */

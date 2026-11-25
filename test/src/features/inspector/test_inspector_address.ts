@@ -9,22 +9,35 @@ import {
   readAutoMovieInspectorAddress,
 } from "@automovie/viewer";
 import { TestValidator } from "@nestia/e2e";
+import { readAutoMovieCaptureHostOptions } from "automovie";
 
 /**
- * The inspector's request round-trips through its address text, the command it shows reads back to the same plan request through the command's own reader.
+ * The inspector's request round-trips through its address text, the command it
+ * shows reads back to the same plan request through the command's own reader.
  *
  * Scenarios:
  *
- * 1. Requests that set every kind of key, including a subject with `&`, a space and a quote, a fixed view starting with `-`, a focus and several views, read back equal after being written as an address, and the address keeps `,`, `:`, `;`, `/`, `@` and `=` readable while escaping `&` and the space.
- * 2. The request that asks for nothing is the empty address, and a leading `?` is accepted.
+ * 1. Requests that set every kind of key, including a subject with `&`, a space
+ *    and a quote, a fixed view starting with `-`, a focus and several views,
+ *    read back equal after being written as an address, and the address keeps
+ *    `,`, `:`, `;`, `/`, `@` and `=` readable while escaping `&` and the
+ *    space.
+ * 2. The request that asks for nothing is the empty address, and a leading `?` is
+ *    accepted.
  * 3. An address with an unknown key or an empty `views` is refused naming the key.
- * 4. Each request's command options, read by `readAutoMovieCaptureArguments` and the plan reader, give an equal request; the command text starts with `automovie capture`, and split as a POSIX shell splits single-quoted words it gives back the same arguments.
+ * 4. Each request's command options, read by `readAutoMovieCaptureArguments` and
+ *    the plan reader, give an equal request; the command text starts with
+ *    `automovie capture`, and split as a POSIX shell splits single-quoted words
+ *    it gives back the same arguments.
+ * 5. PowerShell text preserves a host module path and the request through shell,
+ *    host and request parsing. A production script can also provide the host
+ *    prefix.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Writes requests with the public address and command writers and reads them back with the inspector's address reader and the capture command's own argument reader.
- * @evidence contracts/development/testing.md#independent-expectations The requests are read from address texts written out in the test, so the oracle is the plan grammar's reader, not the writer under test; the shell split follows the POSIX single-quote rule, implemented in the test, and the readable characters are those RFC 3986 allows in a query.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts the empty request against full ones, a value needing escapes against plain ones, an argument needing quotes against plain ones, and accepted against refused addresses.
+ * @evidence contracts/development/testing.md#independent-expectations The requests come from written input texts; the shell split uses each shell's single-quote rule and the module path is written independently of the formatter. The readable characters are those RFC 3986 allows in a query.
+ * @evidence contracts/development/testing.md#distinguishing-cases Covers empty and full requests, both shell choices, default and host-provided prefixes, plain and quoted values including literal apostrophes and dollar signs, and accepted and refused addresses.
  * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_inspector_address`; no browser and no command is run. The reducer's edits belong to `test_inspector_reducer`, and the view text's round trip to render's own view tests.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each naming its input and the behaviour it pins.
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the scenarios, each naming its input and the behavior it pins.
  */
 export function test_inspector_address(): void {
   const texts: string[] = [
@@ -116,6 +129,61 @@ export function test_inspector_address(): void {
       `'--subject=a&b c'\\''s'`,
     ),
   );
+
+  // 5. The host path and request both survive the PowerShell command.
+  const module: string = "C:\\Scene Work\\O'Brien\\subjects.ts";
+  const props: string = "C:\\Scene Work\\director's $notes.json";
+  const subject: string = "director's \u201a$cut\u201b";
+  const request: IAutoMovieCapturePlanRequest =
+    parseAutoMovieCapturePlanRequest(
+      new URLSearchParams({
+        subject,
+        views: "front;film",
+        parts: 'hero/one"quoted cut',
+        section: "-x:0.2",
+        xray: "",
+      }),
+    );
+  const powershell: string = formatAutoMovieInspectorCommand(request, {
+    command: ["automovie", "capture", `--module=${module}`, `--props=${props}`],
+    shell: "powershell",
+  }).text;
+  const words: string[] = splitPowerShell(powershell);
+  TestValidator.equals("PowerShell command prefix", words.slice(0, 2), [
+    "automovie",
+    "capture",
+  ]);
+  const host: ReturnType<typeof readAutoMovieCaptureHostOptions> =
+    readAutoMovieCaptureHostOptions(
+      readAutoMovieCaptureArguments(words.slice(2)),
+    );
+  TestValidator.equals("host module path is literal", host.module, module);
+  TestValidator.equals("host props path is literal", host.props, props);
+  TestValidator.equals(
+    "PowerShell capture reverses the address's request",
+    parseAutoMovieCapturePlanRequest(host.request),
+    request,
+  );
+  const native: string = "C:\\Program Files\\nodejs\\node.exe";
+  const entry: string = "C:\\Scene Work\\node_modules\\automovie\\lib\\bin.js";
+  TestValidator.equals(
+    "PowerShell invokes the installed binary through a quoted executable",
+    splitPowerShell(
+      formatAutoMovieInspectorCommand(request, {
+        command: [native, entry, "capture", `--module=${module}`],
+        shell: "powershell",
+      }).text,
+    ).slice(0, 5),
+    ["&", native, entry, "capture", `--module=${module}`],
+  );
+  TestValidator.equals(
+    "production supplies its script and a plain argument needs no quotes",
+    formatAutoMovieInspectorCommand(
+      readAutoMovieInspectorAddress("subject=starter"),
+      { command: ["pnpm", "run", "capture"], shell: "powershell" },
+    ).text,
+    "pnpm run capture --subject=starter",
+  );
 }
 
 /** The message a call throws, or the empty string when it does not throw. */
@@ -128,7 +196,10 @@ function refusal(call: () => void): string {
   }
 }
 
-/** Split a command line into words as a POSIX shell splits plain and single-quoted words. */
+/**
+ * Split a command line into words as a POSIX shell splits plain and
+ * single-quoted words.
+ */
 function split(text: string): string[] {
   const words: string[] = [];
   let word: string | null = null;
@@ -152,4 +223,18 @@ function split(text: string): string[] {
   }
   if (word !== null) words.push(word);
   return words;
+}
+
+/** Split the plain and single-quoted words of the PowerShell command. */
+function splitPowerShell(text: string): string[] {
+  const words: string[] =
+    text.match(
+      /'(?:(['\u2018-\u201b])\1|[^'\u2018-\u201b])*'|[^\s'\u2018-\u201b]+/gu,
+    ) ?? [];
+  if (words.join(" ") !== text) throw new Error(`Unexpected command: ${text}`);
+  return words.map((word: string): string =>
+    word.startsWith("'")
+      ? word.slice(1, -1).replace(/(['\u2018-\u201b])\1/gu, "$1")
+      : word,
+  );
 }

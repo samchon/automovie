@@ -386,10 +386,14 @@ export function AutoMovieInspector(
             dispatch={dispatch}
           />
         </Section>
-        <Section title="Request" note="address and capture command">
+        <Section
+          title="Request"
+          note={props.captureCommand ? "address and capture command" : "address"}
+        >
           <AutoMovieInspectorRequestPanel
             request={request}
             dispatch={dispatch}
+            captureCommand={props.captureCommand}
           />
         </Section>
       </div>

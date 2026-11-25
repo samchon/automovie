@@ -50,9 +50,8 @@ export type IAutoMovieCaptureFindingDiff =
 /** Entries of a finding diff. */
 export namespace IAutoMovieCaptureFindingDiff {
   /**
-   * Why a finding only one round has is not called fixed or new: the other
-   * round's coverage status over its intervals, or `not-sampled` when that
-   * round has no coverage row over one of them.
+   * Why a finding is unmatched: one round's open coverage status over a needed
+   * interval, or `not-sampled` when its coverage leaves a gap.
    */
   export type Cause = "deferred" | "unsupported" | "excluded" | "not-sampled";
 
@@ -62,8 +61,10 @@ export namespace IAutoMovieCaptureFindingDiff {
    * `fixed` and `new` require the other round to have checked the finding's
    * obligation, its `scope`, `check` and `key`, over every interval of the
    * round that has it; otherwise the finding is `unmatched` with the cause. A
-   * finding both rounds have is `carried`, `worse`, `better` or `same` by its
-   * worst observation.
+   * finding both rounds have is `carried` only when both checked every interval
+   * of both rounds. It then has a `worse`, `better` or `same` change by its
+   * worst observations. Otherwise it is `unmatched` and keeps both
+   * observations.
    */
   export type IEntry = IIdentity &
     (
@@ -94,7 +95,7 @@ export namespace IAutoMovieCaptureFindingDiff {
           current: IAutoMovieInspectionDiagnostics.IObservation;
         }
       | {
-          /** Both rounds have it. */
+          /** Both rounds have it and checked every interval of both rounds. */
           state: "carried";
 
           /**
@@ -111,16 +112,19 @@ export namespace IAutoMovieCaptureFindingDiff {
         }
       | {
           /**
-           * One round has it and the other did not check its obligation over
-           * all its intervals.
+           * A round lacks checked coverage of at least one interval needed to
+           * decide the change.
            */
           state: "unmatched";
 
           /**
-           * The other round's coverage over the first interval it did not
-           * check.
+           * Open coverage over the first interval a round did not check, or a
+           * gap in its observations. For a shared identity, the current round's
+           * missing intervals take priority.
            */
           cause: Cause;
+
+          uncovered?: readonly IAutoMovieInspectionDiagnostics.IInterval[];
 
           /**
            * Its worst observation in the earlier round, or null when only this

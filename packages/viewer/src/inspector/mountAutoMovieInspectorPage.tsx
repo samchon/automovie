@@ -3,12 +3,15 @@ import { StrictMode } from "react";
 import { type Root, createRoot } from "react-dom/client";
 
 import { AutoMovieInspector } from "./AutoMovieInspector.js";
+import type { IAutoMovieInspectorProps } from "./IAutoMovieInspectorProps.js";
 import { createAutoMovieInspectorAddressWriter } from "./createAutoMovieInspectorAddressWriter.js";
 
 /**
  * Mount the inspector as a whole page in one call: render `AutoMovieInspector` into `root` under StrictMode, opening on the request `location`'s query names and keeping that query equal to the request through `history`.
  *
  * `location` and `history` are the host's, passed in rather than read from `window`, so the page's address is the only global state the inspector writes and a host decides which. The returned `unmount` disposes the scene and its renderer through the component's effect cleanup.
+ *
+ * A host that can reproduce its subjects in a terminal also supplies `captureCommand`.
  *
  * ```ts
  * mountAutoMovieInspectorPage({ root: document.getElementById("root")!, subjects, location, history });
@@ -26,6 +29,9 @@ export function mountAutoMovieInspectorPage(props: {
 
   /** The page's history, whose current entry follows the request. */
   history: Pick<History, "replaceState" | "state">;
+
+  /** Executable and fixed capture arguments from the host, when available. */
+  captureCommand?: IAutoMovieInspectorProps["captureCommand"];
 }): {
   /** Unmount the page and release everything it holds. */
   unmount: () => void;
@@ -42,6 +48,7 @@ export function mountAutoMovieInspectorPage(props: {
         subjects={props.subjects}
         initialText={props.location.search}
         onRequestChange={onRequestChange}
+        captureCommand={props.captureCommand}
       />
     </StrictMode>,
   );
