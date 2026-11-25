@@ -6,6 +6,7 @@ export * from "./composeHumanAdjustCuff";
 export * from "./composeHumanStraightenTie";
 export * from "./composeHumanStraightenPartnerTie";
 export * from "./wardrobeHands";
+export { HumanWorn } from "./HumanWorn";
 export * from "./HumanWornItem";
 export * from "./dressTurn";
 export * from "./wardrobe";

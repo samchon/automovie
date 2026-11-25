@@ -1,9 +1,22 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieMotionHumanBody, IAutoMovieMotionHumanHeld } from "@automovie/interface";
-import { HumanHand, HumanWornItem, dressTurn } from "@automovie/motions/internal";
+import type {
+  IAutoMovieMotionHumanActionContext,
+  IAutoMovieMotionHumanBody,
+  IAutoMovieMotionHumanDress,
+  IAutoMovieMotionHumanHeld,
+} from "@automovie/interface";
+import {
+  HumanHand,
+  HumanRefusal,
+  HumanWornItem,
+  dress,
+  dressTurn,
+} from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
+import { strict as assert } from "node:assert";
 
 import { humanFixtureBody } from "../../internal/fixtures/humanFixtureBody";
+import { motionActionContext } from "../../internal/motionActionContext";
 import { qclose } from "../../internal/qclose";
 import { vclose } from "../../internal/vclose";
 
@@ -33,6 +46,8 @@ const ROUNDING: number = 1e-12;
  * 3. A wearable at (0, 1, 0.5) turned 90 degrees about +Y held 0.1 m along +Z:
  *    held unturned the hand turns with it and grips at (-0.1, 1, 0.5); held
  *    turned the same the hand is unturned and grips at (0, 1, 0.4).
+ * 4. The right hand must hold the hat. An empty hand and one holding a
+ *    different prop refuse before the arm is planned.
  *
  * The body is built whole (`humanFixtureBody`) for the hand's grip socket.
  */
@@ -104,4 +119,33 @@ export async function test_motions_dressing_dress(): Promise<void> {
       qclose(turned.rotation, Quaternion.identity(), ROUNDING) &&
       vclose(turned.grip, { x: 0, y: 1, z: 0.4 }, ROUNDING),
   );
+
+  // 4. Missing possession refuses before any dressing geometry is read.
+  const params: IAutoMovieMotionHumanDress.IParams = {
+    item: "hat",
+    prop: "hat",
+    hand: "right",
+  };
+  const bare: IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanDress.IParams> =
+    motionActionContext(body, params);
+  for (const heldProp of [undefined, "cup"] as const) {
+    assert.throws(
+      () =>
+        dress.plan({
+          ...bare,
+          entry: {
+            ...bare.entry,
+            holds: heldProp === undefined ? {} : { right: heldProp },
+          },
+        }),
+      (error: unknown): boolean =>
+        error instanceof HumanRefusal &&
+        error.kind === "affordance" &&
+        error.axis === "prop" &&
+        error.value === "hat" &&
+        error.reason.includes(
+          heldProp === undefined ? "holds nothing" : "holds cup",
+        ),
+    );
+  }
 }

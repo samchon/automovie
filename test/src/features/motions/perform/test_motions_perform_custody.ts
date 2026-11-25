@@ -16,6 +16,8 @@ import { TestValidator } from "@nestia/e2e";
  * 3. Another performer's later grip takes the prop over (a handover).
  * 4. After every release, the last to let go left it.
  * 5. A socket grip closing at the second carries there only when asked.
+ * 6. A wearable leaves the hand for the head at the exact stroke. Once on
+ *    the head it keeps its carrier after the hand withdraws.
  */
 export function test_motions_perform_custody(): void {
   const grip = (
@@ -111,5 +113,30 @@ export function test_motions_perform_custody(): void {
     "a socket closing now carries only when asked",
     HumanPerformanceCustody([socket], 2, false).active === undefined &&
       HumanPerformanceCustody([socket], 2, true).active === socket,
+  );
+
+  // 6. A wear span carries at closure even though a grip does not.
+  const carry: IAutoMovieMotionHumanPerformanceState.IGrip = grip(
+    "ann",
+    "right",
+    1,
+    2,
+  );
+  const head: IAutoMovieMotionHumanPerformanceState.IGrip = {
+    subject: "ann",
+    side: "right",
+    bone: "head",
+    from: 2,
+    to: Infinity,
+  };
+  const wearable: readonly IAutoMovieMotionHumanPerformanceState.IGrip[] = [
+    carry,
+    head,
+  ];
+  TestValidator.predicate(
+    "the head takes the wearable at the stroke and keeps it",
+    HumanPerformanceCustody(wearable, 1.75, false).active === carry &&
+      HumanPerformanceCustody(wearable, 2, false).active === head &&
+      HumanPerformanceCustody(wearable, 3, false).active === head,
   );
 }
