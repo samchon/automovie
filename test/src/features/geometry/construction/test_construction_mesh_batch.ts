@@ -13,30 +13,32 @@ import type {
  *    opposite direction. The two faces share the exact IDs and oriented edge.
  * 2. With the cap reversed, the next face refuses the same-directed incidence and
  *    leaves the committed mesh unchanged.
+ * 3. A body declares an earlier private edge late. The complete incidence
+ *    refuses that repeated direction without changing the committed mesh.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Publishes a face, cap and another face on the same actual mesh and reads their emitted index order, endpoint identities and refusal atomicity.
  * @evidence contracts/development/testing.md#independent-expectations The positive planar island has precisely one triangle with edge from chart (0, 0) to (2, 0). The cap order independently determines the opposite or repeated direction.
  * @evidence contracts/development/testing.md#distinguishing-cases Reverses only the external cap. An append-only incidence that misses the interleaved output admits the repeated directed edge.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous in-memory engine unit discovered as construction_mesh_batch, independent of viewers, rendered subjects and reference data.
- * @evidence contracts/development/common.md#meaningful-documentation Names the two cap directions, their shared index receipt and the refusal that must preserve committed output.
+ * @evidence contracts/development/common.md#meaningful-documentation Names the two cap directions and late boundary declaration, their shared index receipt and the refusals that preserve committed output.
  */
 export function test_construction_mesh_batch(): void {
   const failures: string[] = [];
+  const surface: IAutoMovieSolidSurface = {
+    name: "planar-batch",
+    orientation: 1,
+    jet(u: number, v: number): IAutoMovieSolidSurface.IJet {
+      return {
+        p: [u, v, 0],
+        u: [1, 0, 0],
+        v: [0, 1, 0],
+        uu: [0, 0, 0],
+        uv: [0, 0, 0],
+        vv: [0, 0, 0],
+      };
+    },
+  };
   for (const inverted of [false, true]) {
-    const surface: IAutoMovieSolidSurface = {
-      name: "planar-batch",
-      orientation: 1,
-      jet(u: number, v: number): IAutoMovieSolidSurface.IJet {
-        return {
-          p: [u, v, 0],
-          u: [1, 0, 0],
-          v: [0, 1, 0],
-          uu: [0, 0, 0],
-          uv: [0, 0, 0],
-          vv: [0, 0, 0],
-        };
-      },
-    };
     const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
     const append: ReturnType<typeof faceAutoMovieSolidMesh.prepare> =
       faceAutoMovieSolidMesh.prepare(mesh);
@@ -93,5 +95,33 @@ export function test_construction_mesh_batch(): void {
         `opposite edges lost ownership or drawing order: ${diagnostics.join(", ")}`,
       );
   }
+
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const append = faceAutoMovieSolidMesh.prepare(mesh, true);
+  append({ surface, stations: [0, 1], phases: [0, 1], loops: [] });
+  const vertices: number[] = mesh.indices.slice(0, 3);
+  const chart: [number, number][] = vertices.map((vertex) => [
+    mesh.coordinates[3 * vertex + 1]!,
+    mesh.coordinates[3 * vertex + 2]!,
+  ]);
+  const before: string = JSON.stringify(mesh);
+  const diagnostics: string[] = [];
+  append({
+    surface,
+    stations: [0, 1],
+    phases: [0, 1],
+    loops: [{ kind: "island", vertices, chart }],
+    onFailure: (detail): void => {
+      diagnostics.push(detail);
+    },
+  });
+  if (
+    diagnostics.length !== 1 ||
+    !diagnostics[0]!.includes("directed incidence") ||
+    JSON.stringify(mesh) !== before
+  )
+    failures.push(
+      `late boundary reuse lost the original edge: ${diagnostics.join(", ")}`,
+    );
   if (failures.length !== 0) throw new Error(failures.join("\n"));
 }

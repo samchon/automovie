@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States the chart orientation, the ordinary-array and coherent-source premises, buffer atomicity and named versus thrown failures. Prepared draws retain the committed prefix and read interleaved cap or seam triangles. Face callbacks must preserve the buffers and run outside the draw's own write path.
+States the chart orientation, the ordinary-array and coherent-source premises, buffer atomicity and named versus thrown failures. Prepared draws retain the committed prefix and read interleaved cap or seam triangles. Body draws declare reused vertices in the native trim or domain loops. Face callbacks must preserve the buffers and run outside the draw's own write path.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -18,11 +18,11 @@ Admits the actual chart and its boundary IDs in the owning face's coordinates. A
 
 ## @evidence contracts/development/implementation.md#efficient-algorithms
 
-An isolated face reads the current prior triangles once. A prepared draw forms edge keys once per initial or newly appended triangle. Each face also pays for its own grid, residual triangulation, admission and staged indices.
+An isolated face reads the current prior triangles once. A prepared draw scans the initial or newly appended triangles once, recording incidence only on declared shared vertices in a body draw. A late declaration of an earlier private vertex rebuilds full incidence once and switches to unrestricted tracking. Each face also pays for its own grid, residual triangulation, admission and staged indices.
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the copied station-major jets, original boundary indices and returned split provenance. Each new vertex enters on its first committed use. All faces in a prepared draw share incidence of already committed output.
+Reuses the copied station-major jets, original boundary indices and returned split provenance. Each new vertex enters on its first committed use. The native cover and source-boundary census certify new edges. The global incidence test reads only edges with two reused vertices, where a prior face can already own the same directed edge.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

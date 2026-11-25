@@ -131,7 +131,7 @@ export namespace AutoMovieSolidBody {
   export function prepareFaces(
     mesh: IAutoMovieSolidMesh.IMesh,
   ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
-    const append = faceAutoMovieSolidMesh.prepare(mesh);
+    const append = faceAutoMovieSolidMesh.prepare(mesh, true);
     return (input): IAutoMovieSolidMesh.IOpen[] =>
       drawSplitParent(mesh, input, append);
   }

@@ -38,16 +38,41 @@ export namespace faceAutoMovieSolidMesh {
    * face, read just the new triangle tail, including caps or seams the caller
    * added between faces. Published triangles and their order must stay fixed
    * for the batch, and its face callbacks must not mutate or reenter the mesh.
+   * A body batch declares its shared vertices before each first face uses them.
+   * Reusing an earlier interior vertex falls back to complete incidence.
    */
   export function prepare(
     mesh: IAutoMovieSolidMesh.IMesh,
+    declaredBodyBoundaries: boolean = false,
   ): (input: IAutoMovieSolidMesh.IFace) => IAutoMovieSolidMesh.IOpen[] {
-    const incidence: IIncidence = edgesOf(mesh.indices);
+    const original: number = mesh.positions.length / 3;
+    const later = new Set<number>();
+    let admits: ((vertex: number) => boolean) | undefined =
+      declaredBodyBoundaries
+        ? (vertex): boolean => vertex < original || later.has(vertex)
+        : undefined;
+    let incidence: IIncidence = edgesOf(mesh.indices, admits);
     let scanned: number = mesh.indices.length;
+    let previouslyEmitted: number = original;
     return (input: IAutoMovieSolidMesh.IFace): IAutoMovieSolidMesh.IOpen[] => {
-      addEdges(incidence, mesh.indices, scanned);
+      if (admits !== undefined) {
+        const declared = [...input.loops, ...(input.domainLoops ?? [])].flatMap(
+          ({ vertices }) => vertices,
+        );
+        const known = admits;
+        // A late reuse of an already drawn interior may have skipped an edge.
+        // Use the complete historical incidence for this and later faces.
+        if (declared.some((id) => id < previouslyEmitted && !known(id))) {
+          admits = undefined;
+          incidence = edgesOf(mesh.indices);
+          scanned = mesh.indices.length;
+        } else for (const id of declared) if (id >= original) later.add(id);
+      }
+      addEdges(incidence, mesh.indices, scanned, admits);
       scanned = mesh.indices.length;
-      return append(mesh, input, incidence);
+      const result = append(mesh, input, incidence);
+      previouslyEmitted = mesh.positions.length / 3;
+      return result;
     };
   }
 }
@@ -74,7 +99,6 @@ function append(
   }
   for (const id of prepared.interior) active.set(id, prepared.chart.get(id)!);
   const { occupied, directed }: IIncidence = incidence ?? edgesOf(mesh.indices);
-  const fresh: Set<string> = new Set();
 
   /**
    * Last actual predicate reading; recording it neither changes nor repeats
@@ -217,17 +241,20 @@ function append(
   );
   const positive: boolean =
     input.surface.orientation * (input.inverted === true ? -1 : 1) > 0;
+  // The native incidence and unique cover above already certify every new
+  // edge. Resolving is injective, so only two reused IDs can already meet
+  // another published face.
   for (const triangle of indices)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = triangle[corner]!;
       const b: number = triangle[(corner + 1) % 3]!;
+      if (a >= prepared.base || b >= prepared.base) continue;
       const key: string = positive ? `${a}/${b}` : `${b}/${a}`;
-      if (directed.has(key) || fresh.has(key))
+      if (directed.has(key))
         return refuse(
           input,
           "published global edge already has this directed incidence",
         );
-      fresh.add(key);
     }
   for (const id of added)
     if (!prepared.samples.has(id))
@@ -265,9 +292,12 @@ interface IIncidence {
 }
 
 /** Build the incidence once from the operation's exact starting triangles. */
-function edgesOf(indices: readonly number[]): IIncidence {
+function edgesOf(
+  indices: readonly number[],
+  admits?: (vertex: number) => boolean,
+): IIncidence {
   const result: IIncidence = { occupied: new Set(), directed: new Set() };
-  addEdges(result, indices, 0);
+  addEdges(result, indices, 0, admits);
   return result;
 }
 
@@ -276,11 +306,13 @@ function addEdges(
   incidence: IIncidence,
   indices: readonly number[],
   start: number,
+  admits?: (vertex: number) => boolean,
 ): void {
   for (let index: number = start; index < indices.length; index += 3)
     for (let corner: number = 0; corner < 3; corner++) {
       const a: number = indices[index + corner]!;
       const b: number = indices[index + ((corner + 1) % 3)]!;
+      if (admits !== undefined && !(admits(a) && admits(b))) continue;
       incidence.occupied.add(`${Math.min(a, b)}/${Math.max(a, b)}`);
       incidence.directed.add(`${a}/${b}`);
     }

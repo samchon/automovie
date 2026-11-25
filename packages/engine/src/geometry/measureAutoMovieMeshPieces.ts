@@ -22,7 +22,8 @@ import { weldAutoMovieMeshCorners } from "./weldAutoMovieMeshCorners";
  * vertex. Orientability is asked of the triangles, not of their stored order: a
  * manifold piece is orientable when its triangles can be flipped so every
  * two-triangle edge is traversed oppositely, which a breadth-first
- * two-colouring decides, and it is null for a piece that is not manifold.
+ * two-colouring decides when the stored order does not already give a
+ * compatible orientation. It is null for a piece that is not manifold.
  * `consistentlyWound` asks whether the stored order already does so: every edge
  * shared by several triangles is traversed as often in each direction. The
  * genus, `(2 - euler - boundaryLoops) / 2` by the classification of compact
@@ -60,11 +61,11 @@ export const measureAutoMovieMeshPieces: (
       const key: number | string = edgeKey(low, high);
       let edge: IEdge | undefined = edges.get(key);
       if (edge === undefined) {
-        edge = { low, high, uses: [], forward: [] };
+        edge = { low, high, uses: [] };
         edges.set(key, edge);
       }
-      edge.uses.push(triangle);
-      edge.forward.push(from === low);
+      const ordinal: number = triangle + 1;
+      edge.uses.push(from === low ? ordinal : -ordinal);
     }
   }
 
@@ -83,8 +84,8 @@ export const measureAutoMovieMeshPieces: (
   };
   for (const edge of edges.values())
     for (let use: number = 1; use < edge.uses.length; ++use) {
-      const before: number = edge.uses[use - 1]!;
-      const after: number = edge.uses[use]!;
+      const before: number = triangleOf(edge.uses[use - 1]!);
+      const after: number = triangleOf(edge.uses[use]!);
       piece.join(before, after);
       fan.join(slot(before, edge.low), slot(after, edge.low));
       fan.join(slot(before, edge.high), slot(after, edge.high));
@@ -120,7 +121,7 @@ export const measureAutoMovieMeshPieces: (
     }
   }
   for (const edge of edges.values())
-    pieces[order.get(piece.find(edge.uses[0]!))!]!.edges.push(edge);
+    pieces[order.get(piece.find(triangleOf(edge.uses[0]!)))!]!.edges.push(edge);
   return pieces.map(summarize);
 };
 
@@ -136,12 +137,12 @@ interface IEdge {
   /** The higher welded vertex identity. */
   high: number;
 
-  /** The triangles using the edge, in ordinal order. */
+  /** One-based triangle ordinals in use order, positive from low to high. */
   uses: number[];
-
-  /** Per use, whether that triangle traverses the edge from low to high. */
-  forward: boolean[];
 }
+
+/** Recover the zero-based triangle ordinal from a directed edge use. */
+const triangleOf = (use: number): number => Math.abs(use) - 1;
 
 /** One vertex of a piece: its piece-local number and the fan of its first slot. */
 interface IVertexTally {
@@ -179,7 +180,7 @@ const summarize: (tally: IPieceTally) => IAutoMovieMeshPiece = (
   tally: IPieceTally,
 ): IAutoMovieMeshPiece => {
   // Boundary loops are the components of the edges one triangle uses.
-  const loops: UnionFind = new UnionFind(tally.vertices.size);
+  let loops: UnionFind | undefined;
   const rims: Set<number> = new Set();
   let manifold: boolean = !tally.fanless;
   let consistentlyWound: boolean = true;
@@ -187,21 +188,28 @@ const summarize: (tally: IPieceTally) => IAutoMovieMeshPiece = (
     if (edge.uses.length > 2) manifold = false;
     if (
       edge.uses.length > 1 &&
-      edge.forward.filter(Boolean).length * 2 !== edge.uses.length
+      edge.uses.reduce((count, use) => count + Number(use > 0), 0) * 2 !==
+        edge.uses.length
     )
       consistentlyWound = false;
     if (edge.uses.length !== 1) continue;
     const low: number = tally.vertices.get(edge.low)!.local;
     const high: number = tally.vertices.get(edge.high)!.local;
-    loops.join(low, high);
+    (loops ??= new UnionFind(tally.vertices.size)).join(low, high);
     rims.add(low).add(high);
   }
-  const boundaryLoops: number = new Set(
-    [...rims].map((vertex: number): number => loops.find(vertex)),
-  ).size;
+  let boundaryLoops: number = 0;
+  if (loops !== undefined) {
+    const components: Set<number> = new Set();
+    for (const vertex of rims) components.add(loops.find(vertex));
+    boundaryLoops = components.size;
+  }
   const euler: number =
     tally.vertices.size - tally.edges.length + tally.triangles.length;
-  const orientable: boolean | null = manifold ? orientableOf(tally) : null;
+  // The stored order already witnesses an orientation across every shared edge.
+  const orientable: boolean | null = manifold
+    ? consistentlyWound || orientableOf(tally)
+    : null;
   return {
     firstTriangle: tally.firstTriangle,
     vertices: tally.vertices.size,
@@ -237,9 +245,11 @@ const orientableOf: (tally: IPieceTally) => boolean = (
   };
   for (const edge of tally.edges) {
     if (edge.uses.length !== 2) continue;
-    const alike: boolean = edge.forward[0] === edge.forward[1];
-    link(edge.uses[0]!, edge.uses[1]!, alike);
-    link(edge.uses[1]!, edge.uses[0]!, alike);
+    const a: number = edge.uses[0]!;
+    const b: number = edge.uses[1]!;
+    const alike: boolean = (a > 0) === (b > 0);
+    link(triangleOf(a), triangleOf(b), alike);
+    link(triangleOf(b), triangleOf(a), alike);
   }
   const flip: Map<number, boolean> = new Map([[tally.firstTriangle, false]]);
   const queue: number[] = [tally.firstTriangle];
