@@ -63,3 +63,4 @@ export * from "./crossAnkleEntry";
 export * from "./look";
 export * from "./seatedHeelBounce";
 export * from "./shift";
+export { sitCarried } from "./sitCarried";
