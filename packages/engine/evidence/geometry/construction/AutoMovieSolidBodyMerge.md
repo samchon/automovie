@@ -70,7 +70,7 @@ Includes cycle/atlas snapshots, join and column solves, boundary allocation and 
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Adjoining faces share exact boundary vertex indices, and one published blend supplies its surface and trim records.
+Adjoining faces share exact boundary vertex indices, and one published blend supplies its surface and trim records. A traced join that selects native boundaries gives both source cuts and their adjoining blend edges reciprocal readers of the same prepared cubic rails.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

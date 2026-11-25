@@ -209,6 +209,7 @@ export namespace AutoMovieSolidClip {
    * @param rail The rail's points.
    * @param blend The blend face's index.
    * @param kind The rail's kind on a single face (`IAutoMovieSolidBlendChain.IBlend.host.kind`).
+   * @param exact Shared original boundary readers for an admitted single-face rail.
    * @returns Null, or why a face could not be trimmed.
    */
   export function trim(
@@ -216,6 +217,7 @@ export namespace AutoMovieSolidClip {
     rail: IAutoMovieSolidClip.IRailPoint[],
     blend: number,
     kind: IAutoMovieSolidCycle.ICycle["kind"],
+    exact?: IAutoMovieSolidCycle.IExact,
   ): string | null {
     const n: number = rail.length;
     const along = (
@@ -240,6 +242,7 @@ export namespace AutoMovieSolidClip {
     ) {
       body.faces[first]!.cycles.push({
         kind,
+        ...(exact === undefined ? {} : { exact }),
         vertices: rail.map(
           (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
         ),

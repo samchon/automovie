@@ -54,7 +54,7 @@ Splits a multi-face rail into crossing-to-crossing runs, inserts crossings in on
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-The single-face loop case is direct; multi-face runs delegate boundary insertion/candidate selection to one local clip operation.
+The single-face loop stores the caller's exact boundary readers when provided. Multi-face runs delegate boundary insertion and candidate selection to one local clip operation.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

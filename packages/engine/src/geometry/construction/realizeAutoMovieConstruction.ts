@@ -303,9 +303,11 @@ export function realizeAutoMovieConstruction(
       join: input,
       count: node.count,
       rows: node.rows,
-      ...(source?.kind === "ready" && source.railChord !== undefined
-        ? { railChord: source.railChord }
-        : {}),
+      ...(node.loop === undefined && node.nativeRailChord !== undefined
+        ? { railChord: node.nativeRailChord * S, nativeRailBoundaries: true }
+        : source?.kind === "ready" && source.railChord !== undefined
+          ? { railChord: source.railChord }
+          : {}),
     });
     absorb(node.name, merged.diagnostics);
     if (merged.blend === null || merged.join === null)

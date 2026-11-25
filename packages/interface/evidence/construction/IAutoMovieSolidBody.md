@@ -86,7 +86,7 @@ Valid indices, count/rows and callbacks remain caller/operator premises; the typ
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-States index versus descriptor input, column/row meaning and original callback ownership.
+States index versus descriptor input, column and row meaning, and original callback ownership. The paired traced mode uses the declared millimetre chord and gives its source curves both chart boundaries.
 
 # src/construction/IAutoMovieSolidBody.ts#IAutoMovieSolidBody.IMerged
 

@@ -351,6 +351,12 @@ export namespace AutoMovieHumanHeadTree {
       continuity: "G2",
       count: COUNT,
       rows: ROWS,
+      // Keep one source-chart boundary where the later nostril cuts can
+      // cross the nasal root. Use the campaign's 0.01 mm overlap scale for
+      // the mesh chord, independently of rail and intersection admission.
+      ...(feature.part.name === "nose"
+        ? { nativeRailChord: 0.01 * METRES }
+        : {}),
       tolerance: TOLERANCE * METRES,
       grazing: GRAZING,
     };

@@ -109,6 +109,12 @@ export namespace IAutoMovieSolidBody {
      * deflection in millimetres.
      */
     railChord?: number;
+
+    /**
+     * Give the traced join's paired rail curves custody of both chart
+     * boundaries. Requires `railChord`.
+     */
+    nativeRailBoundaries?: true;
   }
 
   /**

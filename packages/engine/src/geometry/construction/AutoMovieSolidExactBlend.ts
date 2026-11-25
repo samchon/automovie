@@ -14,6 +14,7 @@ import { AutoMovieSolidDomain } from "./AutoMovieSolidDomain";
 import { AutoMovieSolidRibbon } from "./AutoMovieSolidRibbon";
 import { AutoMovieSolidVector as Vec } from "./AutoMovieSolidVector";
 import { AutoMovieSplineCurve } from "./AutoMovieSplineCurve";
+import { prepareAutoMovieSolidExactRailBoundary } from "./prepareAutoMovieSolidExactRailBoundary";
 
 type Point = AutoMovieVector3Tuple;
 
@@ -27,6 +28,7 @@ export namespace AutoMovieSolidExactBlend {
     blend: IAutoMovieSolidBlendChain.IBlend,
     part: IAutoMovieSolidSurface,
     host: IAutoMovieSolidAtlas,
+    exactBoundaries: boolean = false,
   ) {
     const anchors = blend.rails;
     if (
@@ -78,7 +80,11 @@ export namespace AutoMovieSolidExactBlend {
         return null;
       const points = AutoMovieSplineCurve.interpolate(positions);
       const across = AutoMovieSplineCurve.interpolate(directions);
-      return (phase: number) => {
+      const boundary = exactBoundaries
+        ? prepareAutoMovieSolidExactRailBoundary(points, positions, period)
+        : undefined;
+      if (boundary === null) return null;
+      const read = (phase: number) => {
         const [u, v] = AutoMovieSplineCurve.evaluate(points, count, phase);
         const [du, dv] = AutoMovieSplineCurve.evaluate(across, count, phase);
         return {
@@ -86,13 +92,14 @@ export namespace AutoMovieSolidExactBlend {
           across: [du, dv] as [number, number],
         };
       };
+      return { read, boundary };
     };
     const parentLine = line(parent, blend.host.chart, blend.across);
     const partLine = line(part, blend.part.chart, blend.partAcross);
     if (parentLine === null || partLine === null) return null;
     const at = (phase: number) => {
-      const h = parentLine(phase);
-      const a = partLine(phase);
+      const h = parentLine.read(phase);
+      const a = partLine.read(phase);
       const b = AutoMovieSolidDomain.jet(parent, ...h.chart);
       const p = AutoMovieSolidDomain.jet(part, ...a.chart);
       if (b === null || p === null) return null;
@@ -154,7 +161,14 @@ export namespace AutoMovieSolidExactBlend {
         },
       };
     };
-    return { at, column };
+    const boundaries =
+      parentLine.boundary === undefined || partLine.boundary === undefined
+        ? undefined
+        : {
+            host: { ...parentLine.boundary, at: parentLine.read },
+            part: { ...partLine.boundary, at: partLine.read },
+          };
+    return { at, column, boundaries };
   }
 
   /** Select one angular partition for both rails and the adjoining ribbon. */

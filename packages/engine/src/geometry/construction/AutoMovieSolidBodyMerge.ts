@@ -250,11 +250,19 @@ export namespace AutoMovieSolidBodyMerge {
     const native =
       input.railChord === undefined
         ? null
-        : AutoMovieSolidExactBlend.prepare(join, original, partSurface, host);
+        : AutoMovieSolidExactBlend.prepare(
+            join,
+            original,
+            partSurface,
+            host,
+            input.nativeRailBoundaries,
+          );
     if (input.railChord !== undefined && native === null)
       return fail(
         "native rail grid",
-        "closed rails must occupy one chart per original",
+        input.nativeRailBoundaries === true
+          ? "both closed rail curves must be regular in single retained charts"
+          : "closed rails must occupy one chart per original",
       );
     const basis =
       native === null
@@ -379,9 +387,22 @@ export namespace AutoMovieSolidBodyMerge {
 
     /** The shared column's physical phase, radians. */
     const phase = (k: number): number => phases[k]!;
+    const boundaries = native?.boundaries;
+    const exact = (
+      boundary: NonNullable<typeof boundaries>["host"],
+      kind: IAutoMovieSolidCycle.ICycle["kind"],
+      station: number,
+    ): IAutoMovieSolidCycle.IExact => ({
+      count: phases.length,
+      kept: (u, v) => boundary.side(u, v) * (kind === "hole" ? 1 : -1) >= 0,
+      across: (u, v) => [station, boundary.clock(u, v)],
+    });
 
     const partCycle: IAutoMovieSolidCycle.ICycle = {
       kind: blend.part.kind,
+      ...(boundaries === undefined
+        ? {}
+        : { exact: exact(boundaries.part, blend.part.kind, blend.length) }),
       vertices: partVertices,
       chart: blend.part.chart.map(([u, v]): [number, number] => [u, v]),
       neighbours: partVertices.map(
@@ -423,6 +444,14 @@ export namespace AutoMovieSolidBodyMerge {
     body.faces[blendFace]!.cycles.push(
       {
         kind: "start",
+        ...(boundaries === undefined
+          ? {}
+          : {
+              exact: {
+                count: phases.length,
+                across: (_u: number, v: number) => boundaries.host.at(v).chart,
+              },
+            }),
         vertices: rail.map(
           (r: IAutoMovieSolidClip.IRailPoint): number => r.vertex,
         ),
@@ -452,6 +481,14 @@ export namespace AutoMovieSolidBodyMerge {
       },
       {
         kind: "end",
+        ...(boundaries === undefined
+          ? {}
+          : {
+              exact: {
+                count: phases.length,
+                across: (_u: number, v: number) => boundaries.part.at(v).chart,
+              },
+            }),
         // Its own copy: a later clip splices vertices into one face's cycle in place, which must not reach the other's.
         vertices: partVertices.slice(),
         chart: partVertices.map((_: number, k: number): [number, number] => [
@@ -479,6 +516,9 @@ export namespace AutoMovieSolidBodyMerge {
       rail,
       blendFace,
       blend.host.kind,
+      boundaries === undefined
+        ? undefined
+        : exact(boundaries.host, blend.host.kind, 0),
     );
     if (clipped !== null) return fail("trim", clipped);
     body.blends.push(blend);

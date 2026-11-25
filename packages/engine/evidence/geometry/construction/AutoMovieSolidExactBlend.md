@@ -2,7 +2,7 @@
 
 ## @evidence contracts/development/common.md#meaningful-documentation
 
-Names the original chart owner and the admitted anchors used by the returned phase readers. The mixed join must already be admitted. World points and transverse stations are in millimetres, and phase is in radians.
+Names the original chart owner and the admitted anchors used by the returned phase readers. The join must already be admitted. World points and transverse stations are in millimetres, and phase is in radians.
 
 ## @evidence contracts/development/implementation.md#principled-implementation
 
@@ -10,7 +10,7 @@ Fits periodic chart coordinates and transverse directions through the admitted a
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-Prepares the chart lines once. One paired reader evaluates both source jets and makes the ribbons for the continuous surface and trim records.
+Prepares the chart lines once. One paired reader evaluates both source jets and makes the ribbons for the continuous surface and trim records. The traced boundary option also prepares classification and correspondence from those same chart coefficients.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 

@@ -62,6 +62,13 @@ export interface IAutoMovieConstructionJoin {
   /** Rows of the blend's tessellation between its rails, a positive integer. */
   rows: number;
 
+  /**
+   * Use paired source-chart rail curves for a traced join, with this
+   * tessellation chord in metres. Both rails must be regular enclosed curves on
+   * single charts.
+   */
+  nativeRailChord?: number;
+
   /** Largest distance accepted between the two surfaces at a traced point, metres, positive. */
   tolerance: number;
 

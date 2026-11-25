@@ -6,7 +6,7 @@ One recursive walk applies the operators the tree names in the tree's own contai
 
 ## @evidence contracts/development/implementation.md#clear-and-simple-structure
 
-One walk serves both skin requests; overloads preserve a required default mesh, explicit false narrows to null, and a runtime boolean returns their union.
+One walk serves both skin requests; overloads preserve a required default mesh, explicit false narrows to null, and a runtime boolean returns their union. The traced join's native chord is converted from metres and forwarded to body assembly, which owns the paired rail geometry.
 
 ## @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts
 
