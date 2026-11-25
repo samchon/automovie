@@ -19,7 +19,16 @@ export namespace AutoMovieConstructionSplitRadial {
   type Pace = readonly [speed: number, tangential: number, normal: number];
   type Quintic = [P3, P3, P3, P3, P3, P3];
 
-  /** Hold both observed tangent planes and their normal accelerations. */
+  /**
+   * Hold both observed tangent planes and their normal accelerations.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation In the physical radial plane, a quintic carries both endpoint positions and two-jets. Projected derivative controls and half-space controls use Dougherty et al.'s shape-preserving Hermite bounds, doi:10.1090/S0025-5718-1989-0962209-1.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The endpoint construction supplies its handles and the progress transfer changes the parameter speeds while carrying the normal accelerations.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The source tangent planes, chord and divider half-spaces determine the handle lengths. The caller checks the completed controls for forward progress, sidedness and positive radial reach.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Work and temporary storage grow with the number of supplied divider half-spaces. Each adds two fixed-degree inequality checks at each endpoint.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The source point, target point and their common clock produce one chord and ray for both endpoints of the same course.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources A call returns six controls and their receiving phase. Intermediate endpoint and half-space records have call lifetime.
+   */
   export function course(
     source: Source,
     target: Solid.IJet & { phase: number },
@@ -149,7 +158,16 @@ export namespace AutoMovieConstructionSplitRadial {
     return [c[0], a, b, e, d, c[5]];
   }
 
-  /** Inherit a physical transverse jet in the authored medial course field. */
+  /**
+   * Inherit a physical transverse jet in the authored medial course field.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Read the incident physical angular derivatives at both ends. Scale the original normal acceleration by squared speed and let the cubic taper and its first two derivatives vanish at the central saddle.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure Prepare both boundary paces once. A query reads the medial course and uses the boundary of its own half.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts The positive speed follows its stated quadratic equation and the caller checks the resulting control bounds. The exact endpoints and central saddle still come from the original medial reader.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Preparation uses a fixed number of incident course evaluations. Each query evaluates one medial course and updates a fixed number of controls.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work Every phase query on this prepared median consumes the same two boundary paces for its supplied clock and incident courses.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The returned closure retains two boundary records, the median reader and its clock over this one prepared medial span.
+   */
   export function inherit(
     previous: CourseAt,
     median: CourseAt,

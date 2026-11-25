@@ -23,7 +23,16 @@ export namespace AutoMovieConstructionSplitCubic {
     rate: (p: P3, d: P3) => number;
     /** Exact native receiving jet and its chart phase in radians. */
     read: (angle: number) => Solid.IJet & { phase: number };
-    /** The positive radial direction from the source-owned visibility axis. */
+    /**
+     * The positive radial direction from the source-owned visibility axis.
+     *
+     * @evidence contracts/development/implementation.md#principled-implementation The callback supplies a world-space origin in millimetres and the unit direction on the clock's physical ray through the queried source point.
+     * @evidence contracts/development/implementation.md#clear-and-simple-structure The clock owns angle, rate and ray together so the course uses the same plane for each read.
+     * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Radial construction refuses a clock without the actual source ray. The other construction reads its existing clock operations.
+     * @evidenceExclude contracts/development/implementation.md#efficient-algorithms This declaration borrows a callback. The clock provider and radial course own the cost.
+     * @evidence contracts/development/implementation.md#reuse-equivalent-work The same prepared clock provides the ray and angular address of its fixed receiving rail.
+     * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources The callback slot owns no additional state or lifetime.
+     */
     ray?: (p: P3) => { origin: P3; direction: P3 };
   };
   /** One generating curve and its exact receiving address. */

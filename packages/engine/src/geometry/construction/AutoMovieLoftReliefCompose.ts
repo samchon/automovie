@@ -18,7 +18,16 @@ type V = AutoMovieVector3Tuple;
  * shift and phase-turn evaluation remain owned by AutoMovieLoftRelief.
  */
 export namespace AutoMovieLoftReliefCompose {
-  /** Read the unchanged height nets and exact graphs in source order. */
+  /**
+   * Read the unchanged height nets and exact graphs in source order.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Coordinates are native station millimetres. Every callable graph must declare a finite increasing interval before the point and jet evaluators can rely on its bounded support.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure One source reader admits the same sequence for point, phase and world-two-jet consumers.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Invalid support refuses before any graph query. Existing height nets retain their original evaluation and order.
+   * @evidence contracts/development/implementation.md#efficient-algorithms Admission scans only the graph declarations. Joining the two lists, when needed, is linear in the number of entries.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work A reader can retain its admitted sequence for subsequent phase queries. The existing array is borrowed when no original graph is present.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources Only the original source references are retained by the caller that prepared the current reader.
+   */
   export function sources({
     reliefs,
     originalGraphs,
@@ -40,7 +49,16 @@ export namespace AutoMovieLoftReliefCompose {
       : [...(reliefs ?? []), ...originalGraphs];
   }
 
-  /** Strict exclusion establishes an open neighborhood with no graph. */
+  /**
+   * Strict exclusion establishes an open neighborhood with no graph.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation A station strictly outside finite closed support lies in an open interval where the graph has no displacement or derivatives at any phase.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The same check owns exclusion for graph readers and the mixed-order native boundary certificate.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts A touching station or malformed support provides no exclusion proof. The boundary owner refuses those cases.
+   * @evidence contracts/development/implementation.md#efficient-algorithms The check reads two interval endpoints and uses constant arithmetic and space.
+   * @evidenceExclude contracts/development/implementation.md#reuse-equivalent-work The scalar predicate is evaluated directly on the caller's station and bounds.
+   * @evidenceExclude contracts/development/implementation.md#bound-retention-and-release-resources This predicate retains no objects or results.
+   */
   export function excludesStation(
     { stations: [lo, hi] }: IAutoMovieLoftRelief.IGraph,
     s: number,
