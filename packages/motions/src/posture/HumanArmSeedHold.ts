@@ -5,6 +5,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanArmDifferential } from "./HumanArmDifferential";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmOptimiser } from "./HumanArmOptimiser";
 import type { HumanArmSeed } from "./HumanArmSeed";
@@ -13,6 +14,7 @@ import { HumanArmSeedInstant } from "./HumanArmSeedInstant";
 import { HumanArmSeedRestarts } from "./HumanArmSeedRestarts";
 import { HumanArmSeedStarts } from "./HumanArmSeedStarts";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
+import { HumanArmTrajectoryPairs as P } from "./HumanArmTrajectoryPairs";
 
 /** The record of `IInstantAt`'s site. */
 type IInstantAt = { x: number[][][]; evaluation: M.IEvaluation };
@@ -78,7 +80,7 @@ export function HumanArmSeedHold(
     (sites: readonly (M.ISite | undefined)[], a: number): void => {
       const site: M.ISite | undefined = sites[1];
       if (site === undefined || site.on !== undefined) return;
-      const shoulder: IAutoMovieVector3 = G.placed(
+      const shoulder: IAutoMovieVector3 = G.chain(
         point.setups[a]!,
         point.frames[a]![1]!,
         point.rest[a]!,
@@ -113,9 +115,16 @@ export function HumanArmSeedHold(
         });
     },
   );
+  // A carried pose within the site disc can still leave a staircase of pose
+  // jumps as the target moves. Predict this knot from its target displacement
+  // before testing the carried or authored poses (Wampler 1986).
+  const predicted: number[][] | undefined =
+    given === undefined ? undefined : follow(point, given);
+  const anchored: M.IContext =
+    predicted === undefined ? point : { ...point, anchor: predicted };
   let closest: M.IEvaluation | undefined;
   const starts: number[][][] = HumanArmSeedStarts(
-    given,
+    predicted,
     problem.arms.every(
       (arm: HumanArmSeed.IProblem["arms"][number]): boolean =>
         arm.guess !== undefined,
@@ -129,15 +138,15 @@ export function HumanArmSeedHold(
   );
   if (proposed !== undefined)
     starts.splice(
-      given === undefined ? 0 : 1,
+      predicted === undefined ? 0 : 1,
       0,
       proposed.map((arm: readonly number[]): number[] => [...arm]),
     );
   const attempt = (q: readonly (readonly number[])[]): number[][] | undefined => {
     const candidate: number[][][] = frame(point, q);
-    if (M.evaluate(point, candidate).worst.value <= M.TOLERANCE)
+    if (M.evaluate(anchored, candidate).worst.value <= M.TOLERANCE)
       return candidate.map((arm: number[][]): number[] => arm[1]!);
-    const at: IInstantAt = HumanArmOptimiser.optimise(point, candidate);
+    const at: IInstantAt = HumanArmOptimiser.optimise(anchored, candidate);
     if (at.evaluation.worst.value <= M.TOLERANCE)
       return at.x.map((arm: number[][]): number[] => arm[1]!);
     if (
@@ -151,14 +160,12 @@ export function HumanArmSeedHold(
     const admitted: number[][] | undefined = attempt(q);
     if (admitted !== undefined) return admitted;
   }
-  for (const q of HumanArmSeedRestarts(point)) {
-    const admitted: number[][] | undefined = attempt(q);
-    if (admitted !== undefined) return admitted;
-  }
-  // A solution no restart reaches: the site walked in from the rest.
+  // A narrow basin can be reached by continuation from the current branch
+  // before widening the search to dispersed configurations.
+  const start: readonly (readonly number[])[] = given ?? proposed ?? point.rest;
   const continued: number[][] | undefined = HumanArmSeedContinuation(
     point,
-    point.rest,
+    start,
     pointAt,
     (c: M.IContext, q: readonly (readonly number[])[]) => {
       const at: IInstantAt = HumanArmOptimiser.optimise(c, frame(c, q));
@@ -169,6 +176,10 @@ export function HumanArmSeedHold(
     },
   );
   if (continued !== undefined) return continued;
+  for (const q of HumanArmSeedRestarts(point)) {
+    const admitted: number[][] | undefined = attempt(q);
+    if (admitted !== undefined) return admitted;
+  }
   throw new HumanRefusal({
     kind: "reach",
     axis: closest!.worst.axis,
@@ -176,5 +187,38 @@ export function HumanArmSeedHold(
     feasible: null,
     reason: `no configuration of the ${problem.arms.map((arm: HumanArmSeed.IProblem["arms"][number]): string => arm.side).join(" and ")} arm keeps the hand on its site and the arm clear at ${context.times[k]!.toFixed(3)} s, from its seed; the closest: ${closest!.worst.what}`,
     fix: "put the hand on a site its arm reaches with the body clear",
+  });
+}
+
+/**
+ * Predict the next hold pose using the site and the carried pose in this
+ * knot's frames. A riding site is read from the other arm in the same pose.
+ */
+function follow(
+  c: M.IContext,
+  previous: readonly (readonly number[])[],
+): number[][] {
+  const placed: IAutoMovieMotionHumanArmGeometry.IPlaced[] = previous.map(
+    (q: readonly number[], a: number): IAutoMovieMotionHumanArmGeometry.IPlaced =>
+      G.placed(c.setups[a]!, c.frames[a]![1]!, q),
+  );
+  return previous.map((q: readonly number[], a: number): number[] => {
+    const site: M.ISite | undefined = c.sites[a]![1];
+    if (site === undefined) return [...q];
+    const located: P.ILocated = P.located(
+      c,
+      (b: number): IAutoMovieMotionHumanArmGeometry.IPlaced => placed[b]!,
+      a,
+      1,
+      site,
+    );
+    const step: number[] = HumanArmDifferential.step(
+      c.setups[a]!,
+      c.frames[a]![1]!,
+      q,
+      site.contact,
+      Vector3.subtract(located.point, P.pad(placed[a]!, site.contact)),
+    );
+    return M.ranged(c, a, q.map((v: number, d: number): number => v + step[d]!));
   });
 }

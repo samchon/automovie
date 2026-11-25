@@ -360,14 +360,14 @@ async function replay(props: {
       Math.min(frameCount - 1, endFrame),
     ]),
   ];
-    const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
-      root,
-      "@automovie/render",
-    );
+  const render: typeof Render = loadAutoMovieProductionModule<typeof Render>(
+    root,
+    "@automovie/render",
+  );
   const ffmpeg: string = resolveAutoMovieFfmpeg({
     env: props.env,
-      load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
-        loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
+    load: (id: "ffmpeg-static"): AutoMovieFfmpegStaticPath =>
+      loadAutoMovieProductionModule<AutoMovieFfmpegStaticPath>(root, id),
   });
   await fs.mkdir(out, { recursive: true });
   const directory: string = await fs.mkdtemp(path.join(out, "frames-"));

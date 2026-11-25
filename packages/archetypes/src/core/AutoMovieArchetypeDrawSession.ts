@@ -4,6 +4,7 @@ import { ArchetypeDraw } from "./ArchetypeDraw";
 import type { AutoMovieArchetypeBandUnit } from "./AutoMovieArchetypeBandUnit";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import type { IAutoMovieArchetypeBand } from "./IAutoMovieArchetypeBand";
+import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
 
 /**
  * One producer's draws for one archetype: the dimensions it draws from its
@@ -173,7 +174,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
           });
 
     const values: Partial<Record<Drawn, number>> = {};
-    for (const name in bands) {
+    for (const name of ownArchetypeRecordKeys(bands)) {
       const band: IAutoMovieArchetypeBand | undefined = bands[name];
       if (band === undefined) continue;
       if (band.unit !== this.#units[name])
@@ -267,8 +268,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
         >
       | undefined,
   ): AutoMovieArchetypeDrawSession.IModel<Name, Dimension> {
-    const names: Name[] = [];
-    if (models !== undefined) for (const named in models) names.push(named);
+    const names: Name[] = models === undefined ? [] : ownArchetypeRecordKeys(models);
     if (names.length === 0) {
       if (value !== undefined)
         ArchetypeDraw.choice(this.archetype, axis, value, names);
@@ -294,7 +294,8 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
             ]!;
     const figures: Readonly<Partial<Record<Dimension, number>>> =
       models![name]!;
-    for (const dimension in figures)
+    const dimensions: Dimension[] = ownArchetypeRecordKeys(figures);
+    for (const dimension of dimensions)
       if (this.#fixed[dimension] !== undefined)
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
@@ -305,7 +306,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
           reason: `${dimension} is the ${axis} ${name}'s own figure, ${figures[dimension]}`,
           fix: `leave ${dimension} out, and give the ${axis} whose ${dimension} you want`,
         });
-    for (const dimension in figures) {
+    for (const dimension of dimensions) {
       const unit: AutoMovieArchetypeDrawSession.Unit = this.#units[dimension];
       this.#values[dimension] = figures[dimension];
       this.#figures[dimension] = axis;

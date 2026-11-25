@@ -168,6 +168,24 @@ export namespace StrikingGuardYield {
         );
       return least;
     };
+    return separate(axis, apart, gap);
+  }
+
+  /**
+   * Find the least clear separation on a floor axis, and share its displacement
+   * equally between two animated bodies. The starting overlap sets the first
+   * search scale and expansion stops at the separation of the bodies.
+   *
+   * @param axis The horizontal unit axis toward the other body.
+   * @param apart The initial separation of the bodies, metres.
+   * @param gap The signed clearance after one total separating move, metres.
+   * @returns The first body's half displacement, or null when already clear.
+   */
+  export function separate(
+    axis: IAutoMovieVector3,
+    apart: number,
+    gap: (step: number) => number,
+  ): IAutoMovieVector3 | null {
     const inside: number = gap(0);
     if (inside >= 0) return null;
     let clear: number = -inside;

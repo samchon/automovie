@@ -11,6 +11,7 @@ export * from "./film/assertSingleGuidePass.js";
 export * from "./film/normalizeRenderTier.js";
 export * from "./film/validDigest.js";
 export * from "./picture/crcAutoMoviePngChunk.js";
+export * from "./scene/applySampledObjectMotion.js";
 export * from "./scene/autoMovieVisemeChannelWeights.js";
 export * from "./scene/inspection/crossesAutoMovieFrustumPlane.js";
 export * from "./scene/matchesAutoMovieShadowTextureProfile.js";

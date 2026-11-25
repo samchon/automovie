@@ -125,6 +125,9 @@ function solve3(
     m12,
     m22,
   );
+  // Damping makes the system positive definite when the Jacobian has any
+  // nonzero column. A zero determinant has no displacement direction.
+  if (whole === 0) return [0, 0, 0];
   return [
     determinant(bx, m01, m02, by, m11, m12, bz, m12, m22) / whole,
     determinant(m00, bx, m02, m01, by, m12, m02, bz, m22) / whole,

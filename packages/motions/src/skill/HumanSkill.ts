@@ -86,9 +86,21 @@ export namespace HumanSkill {
     const p: number =
       "level" in proficiency ? LEVELS[proficiency.level] : proficiency.p;
     if (!(p >= 0 && p <= 1)) throw new Error("A proficiency lies in [0, 1]");
-    const axes = {} as Record<IAutoMovieProficiency.Axis, number>;
+    const axes: Record<IAutoMovieProficiency.Axis, number> = {
+      timing: p,
+      path: p,
+      balance: p,
+      guard: p,
+      power: p,
+      speed: p,
+      recovery: p,
+      reaction: p,
+      anticipation: p,
+      sequencing: p,
+    };
     for (const axis of AXES) {
-      const value: number = proficiency.axes?.[axis] ?? p;
+      const value: number | undefined = proficiency.axes?.[axis];
+      if (value === undefined) continue;
       if (!(value >= 0 && value <= 1))
         throw new Error(`Proficiency axis ${axis} lies in [0, 1]`);
       axes[axis] = value;

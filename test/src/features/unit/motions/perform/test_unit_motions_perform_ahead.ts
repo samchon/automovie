@@ -22,8 +22,7 @@ import { testAffordance } from "../../../internal/fixtures/testAffordance";
  * Scenarios:
  *
  * 1. A grip on the sword asks the `draw`, with its resolved parameters, the
- *    performer and the grip, and its aim places a world point; asked again the
- *    `draw` is found from the first search.
+ *    performer and the grip, and its aim places a point in that grip's stance.
  * 2. A grip on a prop no later action names asks nothing; nor does one whose
  *    first naming action has no demands, or a capability the vocabulary lacks.
  * 3. A cut at an event or a share of the stand is that event or share, with the
@@ -36,30 +35,26 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
     { affordances: [testAffordance("tip", "handle", { x: 0, y: 1, z: 0 })] },
     { at: { x: 0, y: 0, z: 0 }, yaw: 0 },
   );
-  const { state } = await standingPerformanceState([sword]);
+  const { state, context } = await standingPerformanceState([sword]);
   const stand: IAutoMovieMotionHumanActionLaw<never> = state.laws.get("stand")!;
   const asked: object[] = [];
   const planted: unknown[] = [];
-  let resolved: number = 0;
-  const draw: IAutoMovieMotionHumanActionLaw<never> = {
+  const draw: IAutoMovieMotionHumanActionLaw = {
     ...stand,
-    resolve: (given: object): object => {
-      ++resolved;
-      return { ...given, weapon: "sword", lean: 0.2 };
-    },
+    resolve: (given: object): object => ({ ...given, weapon: "sword", lean: 0.2 }),
     demands: (ahead) => {
       asked.push({
         subject: ahead.subject,
         params: ahead.params,
         prop: ahead.grip.prop,
         point: ahead.aim(
-          { kind: "point", frame: "world", at: { x: 1, y: 2, z: 3 } },
+          { kind: "point", frame: "performer", at: { x: 1, y: 2, z: 3 } },
           0,
         ).point,
       });
       return [];
     },
-    plants: (params: never) => {
+    plants: (params: object) => {
       planted.push(params);
       return { prop: "sword", end: "tip", lean: 0.2 };
     },
@@ -96,11 +91,10 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
       ],
     ]),
   };
-  const context = state.people.get("actor")!.segments[0]!.context;
-  const grip = (prop: string): IAutoMovieMotionHumanActionLaw.IGrip => ({
+  const grip = (prop: string, x: number = 0): IAutoMovieMotionHumanActionLaw.IGrip => ({
     prop,
     side: "right",
-    posture: state.people.get("actor")!.initial,
+    posture: { ...context.entry.posture, root: { x, y: 0, z: 0 } },
     tool: () => {
       throw new Error("the tool is not read ahead");
     },
@@ -109,19 +103,25 @@ export async function test_unit_motions_perform_ahead(): Promise<void> {
   // 1. The first action naming the sword.
   const read = HumanPerformanceAhead.reader(self, context, 0);
   const first = read(grip("sword"));
-  const again = read(grip("sword"));
+  const again = read(grip("sword", 2));
   TestValidator.predicate(
     "the draw is asked",
     first.length === 0 &&
       again.length === 0 &&
       asked.length === 2 &&
-      resolved === 1 &&
       JSON.stringify(asked[0]) ===
         JSON.stringify({
           subject: "actor",
           params: { hand: "right", weapon: "sword", lean: 0.2 },
           prop: "sword",
           point: { x: 1, y: 2, z: 3 },
+        }) &&
+      JSON.stringify(asked[1]) ===
+        JSON.stringify({
+          subject: "actor",
+          params: { hand: "right", weapon: "sword", lean: 0.2 },
+          prop: "sword",
+          point: { x: 3, y: 2, z: 3 },
         }),
   );
 

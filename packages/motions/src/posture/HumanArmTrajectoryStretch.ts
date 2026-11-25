@@ -176,11 +176,20 @@ export namespace HumanArmTrajectoryStretch {
         undefined,
         pinned,
       );
-    while (
-      solved.evaluation.worst.value > M.TOLERANCE &&
-      !at.context.still &&
-      grid.fine.n > at.context.n
-    ) {
+    let played: Admission.IReading;
+    for (;;) {
+      const knotted: boolean = !at.context.still && grid.fine.n > at.context.n;
+      const x: number[][][] = knotted
+        ? Knots.read(at.context.times, grid.fine.times, solved.x, solved.rates)
+        : solved.x;
+      // The SQP reads contact pairs only at its knots. Certify the candidate's
+      // point and reverse-corner contacts at every frame before admitting it.
+      const evaluation: M.IEvaluation =
+        knotted && solved.evaluation.worst.value <= M.TOLERANCE
+          ? M.evaluate(grid.fine, x)
+          : solved.evaluation;
+      played = { x, evaluation };
+      if (!knotted || evaluation.worst.value <= M.TOLERANCE) break;
       const knots: number[] = at.knots;
       // Each interval whose course fails between its knots past the
       // tolerance: one of whose sweeps fails (the reading keeps an
@@ -189,12 +198,12 @@ export namespace HumanArmTrajectoryStretch {
       const affected: Set<number> = new Set();
       knots.forEach((g: number, i: number): void => {
         if (i + 1 >= knots.length || knots[i + 1]! - g < 2) return;
-        for (const arm of solved.evaluation.swept)
+        for (const arm of evaluation.swept)
           for (const sweep of arm[g] ?? [])
             if (1000 * (sweep.lower - sweep.clear) > M.TOLERANCE)
               affected.add(i);
         for (let h: number = g + 1; h < knots[i + 1]!; ++h)
-          if (solved.evaluation.failing[h]) affected.add(i);
+          if (evaluation.failing[h]) affected.add(i);
       });
       if (affected.size === 0) break;
       const next: IKnots = on(grid, HumanArmRefine.split(knots, [...affected]));
@@ -242,18 +251,6 @@ export namespace HumanArmTrajectoryStretch {
         pinned,
       );
     }
-    const played: Admission.IReading = {
-      x:
-        !at.context.still && grid.fine.n > at.context.n
-          ? Knots.read(
-              at.context.times,
-              grid.fine.times,
-              solved.x,
-              solved.rates,
-            )
-          : solved.x,
-      evaluation: solved.evaluation,
-    };
     return {
       ...at,
       ...solved,

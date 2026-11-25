@@ -26,20 +26,25 @@ export function HumanArmSeedInstant(
     bases: around.map(
       (j: number): IProblem["bases"][number] => problem.bases[j]!,
     ),
+    ...(problem.material === undefined ? {} : { material: problem.material }),
+    ...(problem.share === undefined ? {} : { share: problem.share }),
     arms: problem.arms.map(
       (
         arm: IProblem["arms"][number],
+        a: number,
       ): HumanArmTrajectoryContext.IProblem["arms"][number] => ({
         side: arm.side,
         rest: arm.rest,
         ...(arm.back === undefined ? {} : { back: arm.back }),
         ...(arm.rests === undefined ? {} : { rests: arm.rests }),
         ...(arm.grasp === undefined ? {} : { grasp: arm.grasp }),
+        ...(arm.guess === undefined ? {} : { guess: arm.guess }),
+        ...(arm.anchor === undefined ? {} : { anchor: arm.anchor }),
         sites: around.map(
           (j: number): IProblem["arms"][number]["sites"][number] =>
             moved === undefined || arm.sites[j] === undefined
               ? arm.sites[j]
-              : moved[problem.arms.indexOf(arm)],
+              : moved[a],
         ),
       }),
     ),

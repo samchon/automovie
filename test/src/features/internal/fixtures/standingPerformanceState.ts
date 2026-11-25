@@ -94,6 +94,7 @@ export async function standingPerformanceState(
       skill: read.skill,
       aim: read.aim,
       action: () => undefined,
+      random: read.random,
     },
     holds: [],
     stops: new Map(),

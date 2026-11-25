@@ -8,6 +8,7 @@ export { ArchetypeTrackRange } from "./core/ArchetypeTrackRange";
 export { AutoMovieArchetypePassageSearch } from "./core/AutoMovieArchetypePassageSearch";
 export { deriveArchetypeSeed } from "./core/deriveArchetypeSeed";
 export { limitMonotoneTangents } from "./core/limitMonotoneTangents";
+export { ownArchetypeRecordKeys } from "./core/ownArchetypeRecordKeys";
 export { admitQuadrupedPhase } from "./animals/admitQuadrupedPhase";
 export { solveQuadrupedSupportPlane } from "./animals/solveQuadrupedSupportPlane";
 export { liftStopHeights } from "./environments/lifts/liftStopHeights";

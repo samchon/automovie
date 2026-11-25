@@ -1,4 +1,3 @@
-import { resolveAutoMovieCenterOfMass } from "@automovie/engine";
 import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanCourse,
@@ -13,8 +12,11 @@ import { TestValidator } from "@nestia/e2e";
 import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
 import { nclose } from "../../../internal/nclose";
 
-/** Rounding of the segmental centre and the exponential, metres. */
-const ROUNDING: number = 1e-6;
+/** A one-second course at half film frames has 48 knot intervals. */
+const INTERVALS: number = 48;
+
+/** Clamping reads the same knot or the same cubic input, preserving its bits. */
+const CLAMP_TOLERANCE: number = 0;
 
 /**
  * `AutoMovieMotionHumanCourse.solve` courses the hips so the body's
@@ -33,12 +35,14 @@ const ROUNDING: number = 1e-6;
  * 1. At every knot the hips are at `0.3 − k + (k − 0.3) e^(−ω t)`: the centre
  *    relaxes to the target with the time constant 1 / ω.
  * 2. Past the span the course holds its last place; before it, its first.
- * 3. Solved through 0.5 s, it holds its value at 0.5 s afterwards.
+ * 3. Clipping inside an interval retains both cubic neighbours and holds the value
+ *    at the cut afterwards, without evaluating the target on reads.
  * 4. Halfway between knots the course is the Catmull-Rom cubic of its knots.
  * 5. A target ramping at 0.3 m/s is held at each step's midpoint in the exact
  *    recurrence `c ← T + (c − T) e^(−ω Δt)`.
- * 6. With hips that carry the centre 1.1 times as far, the centre stands within
- *    5e-5 m of its filter at every knot after the two corrections.
+ * 6. With hips that carry the centre 1.1 times as far, each correction reduces the
+ *    remaining centre error tenfold.
+ * 7. An instant-long course holds its starting position at every read.
  */
 export async function test_unit_motions_compose_human_course(): Promise<void> {
   const body: IAutoMovieMotionHumanBody = await humanFixtureBody("m-average");
@@ -51,9 +55,7 @@ export async function test_unit_motions_compose_human_course(): Promise<void> {
     limbs: {},
   });
   const k: number = HumanBalance.centre(body, posture(0, 0)).z;
-  const omega: number = resolveAutoMovieCenterOfMass.frequency(
-    resolveAutoMovieCenterOfMass.pendulum(body.measure.hipHeight),
-  );
+  const omega: number = Math.sqrt(9.80665 / (1.34 * body.measure.hipHeight));
   const props: IAutoMovieMotionHumanCourse.IProps = {
     body,
     yaw: 0,
@@ -65,7 +67,19 @@ export async function test_unit_motions_compose_human_course(): Promise<void> {
   };
   const course: (seconds: number) => number =
     AutoMovieMotionHumanCourse.solve(props);
-  const count: number = Math.ceil(1 / AutoMovieMotionHumanCourse.STEP);
+  const dt: number = 1 / INTERVALS;
+  const decay: number = Math.exp(-omega * dt);
+  /**
+   * Rounding envelope in metres for the fixture. The translated coordinates
+   * stay below 2 m, allowing 64 rounded arithmetic terms per segment and knot
+   * for rest placement, mass reduction, recurrence and interpolation.
+   */
+  const courseRounding: number =
+    2 *
+    Number.EPSILON *
+    64 *
+    (body.massModel.segments.length + 1) *
+    (INTERVALS + 1);
   const expected = (t: number): number =>
     0.3 - k + (k - 0.3) * Math.exp(-omega * t);
 
@@ -73,40 +87,53 @@ export async function test_unit_motions_compose_human_course(): Promise<void> {
   TestValidator.predicate(
     "the hips at the filtered centre at every knot",
     Array.from(
-      { length: count + 1 },
-      (_: unknown, i: number): number => i / count,
-    ).every((t: number): boolean => nclose(course(t), expected(t), ROUNDING)),
+      { length: INTERVALS + 1 },
+      (_: unknown, i: number): number => i / INTERVALS,
+    ).every((t: number): boolean =>
+      nclose(course(t), expected(t), courseRounding),
+    ),
   );
 
   // 2. Outside the span.
   TestValidator.predicate(
     "held outside the span",
-    nclose(course(2), course(1), 0) && nclose(course(-1), 0, ROUNDING),
+    nclose(course(2), course(1), CLAMP_TOLERANCE) &&
+      nclose(course(-1), 0, CLAMP_TOLERANCE),
   );
 
   // 3. Solved through a second.
+  const cut: number = (24 + 0.5) / INTERVALS;
+  const preparedTargets: number[] = [];
   const through: (seconds: number) => number = AutoMovieMotionHumanCourse.solve(
-    props,
-    0.5,
+    {
+      ...props,
+      target: (seconds: number): number => {
+        preparedTargets.push(seconds);
+        return 0.3;
+      },
+    },
+    cut,
   );
   TestValidator.predicate(
-    "held after the second it was solved through",
-    nclose(through(0.8), through(0.5), 0) &&
-      nclose(through(0.5), course(0.5), ROUNDING),
+    "the clipped course retains both neighbours and does no work on reads",
+    nclose(through(0.8), through(cut), CLAMP_TOLERANCE) &&
+      nclose(through(cut), course(cut), CLAMP_TOLERANCE) &&
+      nclose(through(-1), course(-1), CLAMP_TOLERANCE) &&
+      preparedTargets.length === 26,
   );
 
   // 4. Between knots, the Catmull-Rom cubic at s = ½: (a + b)/2 + (ma − mb)/8.
   const knot = (i: number): number =>
-    expected(Math.min(count, Math.max(0, i)) / count);
+    expected(Math.min(INTERVALS, Math.max(0, i)) / INTERVALS);
   TestValidator.predicate(
     "the cubic between knots",
-    [0, 7, count - 1].every((i: number): boolean => {
+    [0, 7, INTERVALS - 1].every((i: number): boolean => {
       const ma: number = (knot(i + 1) - knot(i - 1)) / 2;
       const mb: number = (knot(i + 2) - knot(i)) / 2;
       return nclose(
-        course((i + 0.5) / count),
+        course((i + 0.5) / INTERVALS),
         (knot(i) + knot(i + 1)) / 2 + (ma - mb) / 8,
-        ROUNDING,
+        courseRounding,
       );
     }),
   );
@@ -116,36 +143,55 @@ export async function test_unit_motions_compose_human_course(): Promise<void> {
     ...props,
     target: (seconds: number): number => 0.3 * seconds,
   });
-  const dt: number = 1 / count;
-  const decay: number = Math.exp(-omega * dt);
   let c: number = k;
   const ramped: boolean[] = [];
-  for (let i: number = 1; i <= count; ++i) {
+  for (let i: number = 1; i <= INTERVALS; ++i) {
     const target: number = 0.3 * (i * dt - dt / 2);
     c = target + (c - target) * decay;
-    ramped.push(nclose(ramp(i * dt), c - k, ROUNDING));
+    ramped.push(nclose(ramp(i * dt), c - k, courseRounding));
   }
   TestValidator.predicate(
     "the target held at each step's midpoint",
     ramped.every((ok: boolean): boolean => ok),
   );
 
-  // 6. Hips that carry the centre 1.1 times as far: each correction shrinks
-  //    the place's error tenfold (the fixed point's slope 1 − 1.1), so two
-  //    leave a hundredth of a first guess off by a tenth of a ~2 cm step.
+  // 6. An independently bounded centre error at every corrected knot.
+  const gain: number = 1.1;
+  const slope: number = gain - 1;
+  /**
+   * Two corrections contract the error by `slope²`. The carried prediction adds
+   * at most `slope·|T − k|·(1 − decay)` of centre error each step. Summing that
+   * geometric series and allowing binary64 rounding bounds every knot.
+   */
+  const correctionTolerance: number =
+    (slope ** 3 * Math.abs(0.3 - k) * (1 - decay)) / (1 - slope ** 2) +
+    courseRounding;
   const geared: (seconds: number) => number = AutoMovieMotionHumanCourse.solve({
     ...props,
     posture: (seconds: number, along: number): IAutoMovieMotionHumanPosture =>
-      posture(seconds, 1.1 * along),
+      posture(seconds, gain * along),
   });
   TestValidator.predicate(
     "the corrections settle the centre on its filter",
     Array.from(
-      { length: count },
-      (_: unknown, i: number): number => (i + 1) / count,
-    ).every(
-      (t: number): boolean =>
-        Math.abs(1.1 * geared(t) + k - (expected(t) + k)) < 5e-5,
+      { length: INTERVALS },
+      (_: unknown, i: number): number => (i + 1) / INTERVALS,
+    ).every((t: number): boolean =>
+      nclose(gain * geared(t), expected(t), correctionTolerance),
+    ),
+  );
+
+  // 7. A course with no positive time interval.
+  const held: (seconds: number) => number = AutoMovieMotionHumanCourse.solve({
+    ...props,
+    from: 1,
+    to: 1,
+    start: 0.125,
+  });
+  TestValidator.predicate(
+    "a zero-span course holds where it starts",
+    [0, 1, 2].every((seconds: number): boolean =>
+      nclose(held(seconds), 0.125, courseRounding),
     ),
   );
 }

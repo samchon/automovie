@@ -1,7 +1,13 @@
-import type { IAutoMovieMotionHumanBody } from "@automovie/interface";
+import type { IAutoMovieBodyMeasure } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
+import { humanFixture } from "../../../internal/fixtures/humanFixture";
+
+/** The horizontal shoulder-to-apex gap after the greatest clear step, metres. */
+const GAP: number = 0.65;
+
+/** The apex height above the standing shoulder, metres. */
+const HEIGHT: number = 0.32;
 
 /**
  * Why `placeOverHeadStance` refuses the small woman setting a ribbon from in
@@ -24,30 +30,21 @@ import { humanFixtureBody } from "../../../internal/fixtures/humanFixtureBody";
  *    bound is the small body's, not the layout's alone.
  */
 export async function test_unit_motions_dressing_place_over_head_reach(): Promise<void> {
-  const nearest = (body: IAutoMovieMotionHumanBody): number => {
-    const trunk: number = body.measure.shoulderHeight - body.measure.hipHeight;
-    let least: number = Infinity;
-    for (let degrees: number = 0; degrees <= 90; degrees += 0.5) {
-      const r: number = (degrees * Math.PI) / 180;
-      least = Math.min(
-        least,
-        Math.hypot(
-          0.65 - trunk * Math.sin(r),
-          0.32 + trunk * (1 - Math.cos(r)),
-        ),
-      );
-    }
-    return least;
+  const nearest = (measure: IAutoMovieBodyMeasure): number => {
+    const trunk: number = measure.shoulderHeight - measure.hipHeight;
+
+    // Viewed from the hip, the target lies inside the first quadrant. Its
+    // nearest shoulder on the quarter circle is on the same ray.
+    return Math.hypot(GAP, HEIGHT + trunk) - trunk;
   };
-  const small: IAutoMovieMotionHumanBody = await humanFixtureBody("f-small");
-  const reach = (body: IAutoMovieMotionHumanBody): number =>
-    body.measure.upperArm + body.measure.forearm;
+  const small: IAutoMovieBodyMeasure = (await humanFixture("f-small")).measure;
+  const reach = (measure: IAutoMovieBodyMeasure): number =>
+    measure.upperArm + measure.forearm;
   TestValidator.predicate(
     "out of the small woman's reach at every hinge",
     nearest(small) > reach(small),
   );
-  const average: IAutoMovieMotionHumanBody =
-    await humanFixtureBody("m-average");
+  const average: IAutoMovieBodyMeasure = (await humanFixture("m-average")).measure;
   TestValidator.predicate(
     "within the average man's",
     nearest(average) <= reach(average),

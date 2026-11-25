@@ -56,6 +56,14 @@ const ROLL: number = 15;
 /** World up. */
 const UP: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
 
+/** Capitalized digit names used in the canonical rig's phalanx identifiers. */
+const PHALANX_NAME: Readonly<
+  Record<
+    IAutoMovieMotionHumanSlipRing.Finger,
+    Capitalize<IAutoMovieMotionHumanSlipRing.Finger>
+  >
+> = { index: "Index", middle: "Middle", ring: "Ring", little: "Little" };
+
 /**
  * Slip a ring onto a partner's finger. The partner's presented hand is read
  * where it is at the action's start, so the partner presents it first
@@ -103,13 +111,12 @@ function planSlipRing(
   );
 
   // The finger's axis where the partner presents it at the start.
-  const Finger: string = finger[0]!.toUpperCase() + finger.slice(1);
-  const base: AutoMovieHumanoidBone =
-    `${hand}${Finger}Proximal` as AutoMovieHumanoidBone;
-  const middle: AutoMovieHumanoidBone =
-    `${hand}${Finger}Intermediate` as AutoMovieHumanoidBone;
+  const phalanx: Capitalize<IAutoMovieMotionHumanSlipRing.Finger> =
+    PHALANX_NAME[finger];
+  const base: AutoMovieHumanoidBone = `${hand}${phalanx}Proximal`;
+  const middle: AutoMovieHumanoidBone = `${hand}${phalanx}Intermediate`;
   const tipRegion: AutoMovieHumanoidRegion =
-    `${finger}Tip${hand === "left" ? "Left" : "Right"}` as AutoMovieHumanoidRegion;
+    `${finger}Tip${hand === "left" ? "Left" : "Right"}`;
   const palmRegion: AutoMovieHumanoidRegion =
     hand === "left" ? "palmLeft" : "palmRight";
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =

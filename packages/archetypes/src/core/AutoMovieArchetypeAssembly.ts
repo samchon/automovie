@@ -16,6 +16,7 @@ import { AutoMovieArchetypeMass } from "./AutoMovieArchetypeMass";
 import type { AutoMovieArchetypeMaterial } from "./AutoMovieArchetypeMaterial";
 import { AutoMovieArchetypeRefusal } from "./AutoMovieArchetypeRefusal";
 import { AutoMovieArchetypeSpan } from "./AutoMovieArchetypeSpan";
+import { ownArchetypeRecordKeys } from "./ownArchetypeRecordKeys";
 
 /**
  * Several archetypes as one placed and ridden object: a chariot of a platform,
@@ -86,8 +87,7 @@ export class AutoMovieArchetypeAssembly<
   public static of<
     M extends Readonly<Record<string, AutoMovieArchetypeAssembly.IMember>>,
   >(id: string, name: string, members: M): AutoMovieArchetypeAssembly<M> {
-    const keys: (keyof M & string)[] = [];
-    for (const named in members) keys.push(named);
+    const keys: (keyof M & string)[] = ownArchetypeRecordKeys(members);
     const refuse = (
       axis: string,
       value: unknown,

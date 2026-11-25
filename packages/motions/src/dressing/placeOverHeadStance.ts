@@ -76,10 +76,14 @@ export function placeOverHeadStance(
             shoulders,
           );
     const from: IAutoMovieMotionHumanActionContext<object> = on(stance);
-    for (const [arm, target] of [
+    const targets: readonly (readonly [
+      AutoMovieHumanSide,
+      IAutoMovieMotionHumanArmTarget.ITarget,
+    ])[] = [
       [side, holding(path.apex)],
       [other, grasping(path.apex)],
-    ] as const) {
+    ];
+    for (const [arm, target] of targets) {
       const shoulder: IAutoMovieVector3 = placed.get(
         `${arm}UpperArm`,
       )!.worldPosition;

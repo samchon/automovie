@@ -75,6 +75,49 @@ export namespace KickCarriage {
     rise: number;
   }
 
+  /** The scalar timing driving the three independent carriage motions. */
+  export interface IMotion {
+    /** Share of the turn, lean and shift onto the support foot. */
+    weight: number;
+
+    /** Travel retained after the support foot has stepped, metres. */
+    stepped: number;
+
+    /** Travel of the pelvis ahead of the support foot, metres. */
+    driven: number;
+  }
+
+  /**
+   * Read the carriage's three minimum-jerk tracks. The step remains on the
+   * original clock when a withdrawal reverses the turn or drive.
+   *
+   * @param timing The phase boundaries, seconds since launch of the action.
+   * @param carriage The step and drive at their full displacements, metres.
+   * @param seconds Seconds on the step's clock.
+   * @param turning Seconds on the turn and drive's clock.
+   * @returns The share of the plate's turn and the two travel displacements.
+   */
+  export function motion(
+    timing: Pick<IAutoMovieMotionHumanKickGeometry.ITiming, "prep" | "chamber" | "impact" | "duration">,
+    carriage: Pick<IAutoMovieMotionHumanKickGeometry.ICarriage, "step" | "drive">,
+    seconds: number,
+    turning: number,
+  ): IMotion {
+    const recovery: number = minimumJerk.share(
+      (turning - timing.impact) / (timing.duration - timing.impact),
+    );
+    const weight: number = minimumJerk.share(turning / timing.chamber) - recovery;
+    const stepped: number = carriage.step * minimumJerk.share(
+      (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
+    );
+    const driven: number = carriage.drive === 0
+      ? 0
+      : carriage.drive * (minimumJerk.share(
+          (turning - timing.chamber) / Math.max(1e-3, timing.impact - timing.chamber),
+        ) - recovery);
+    return { weight, stepped, driven };
+  }
+
   /**
    * The body's posture without the kicking leg's goal.
    *
@@ -105,30 +148,7 @@ export namespace KickCarriage {
     const { body, entry, feet, side, line, timing } = props;
     const support: AutoMovieHumanSide = side === "left" ? "right" : "left";
     const up: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
-    const w: number =
-      minimumJerk.share(turning / timing.chamber) -
-      minimumJerk.share(
-        (turning - timing.impact) / (timing.duration - timing.impact),
-      );
-    const stepped: number =
-      carriage.step *
-      minimumJerk.share(
-        (seconds - timing.prep) / Math.max(1e-3, timing.chamber - timing.prep),
-      );
-
-    // A push kick's pelvis is held back through the chamber and driven along
-    // the line into the contact, then drawn back with the recoil.
-    const driven: number =
-      carriage.drive === 0
-        ? 0
-        : carriage.drive *
-          (minimumJerk.share(
-            (turning - timing.chamber) /
-              Math.max(1e-3, timing.impact - timing.chamber),
-          ) -
-            minimumJerk.share(
-              (turning - timing.impact) / (timing.duration - timing.impact),
-            ));
+    const { weight: w, stepped, driven }: IMotion = motion(timing, carriage, seconds, turning);
 
     // The root travels toward the support ankle and rides the step and the
     // drive.
@@ -243,7 +263,7 @@ export namespace KickCarriage {
       resolution,
       HIPS[side],
       projection,
-    ).get(`${side}UpperLeg` as AutoMovieHumanoidBone)!.worldPosition;
+    ).get(`${side}UpperLeg`)!.worldPosition;
   }
 
   /**

@@ -64,11 +64,11 @@ export namespace PlaygroundAddress {
         `The address carries a composition of version ${String(version)}; this page reads versions ${READS.join(" and ")}`,
       );
     const composition: IPlaygroundComposition = value as IPlaygroundComposition;
+    const objects: IPlaygroundComposition.IObject[] | undefined = readObjects(
+      composition.objects,
+    );
     if (
       typeof composition.seed !== "string" ||
-      (composition.objects !== undefined &&
-        (!Array.isArray(composition.objects) ||
-          !composition.objects.every(object))) ||
       !Array.isArray(composition.performers) ||
       !composition.performers.every(performer) ||
       !Array.isArray(composition.mutuals) ||
@@ -82,7 +82,24 @@ export namespace PlaygroundAddress {
     )
       throw new Error("The address carries a composition that cannot be read");
     admitForces(composition);
-    return composition;
+    return objects === undefined ? composition : { ...composition, objects };
+  }
+
+  /** Admit the object list with legacy text seeds converted at the address boundary. */
+  function readObjects(value: unknown): IPlaygroundComposition.IObject[] | undefined {
+    if (value === undefined) return undefined;
+    if (!Array.isArray(value))
+      throw new Error("The address carries a composition that cannot be read");
+    const objects: unknown[] = value.map(migrateObjectSeed);
+    if (!objects.every(object))
+      throw new Error("The address carries a composition that cannot be read");
+    return objects;
+  }
+
+  /** Numeric conversion formerly done by the producer for saved text seeds. */
+  function migrateObjectSeed(value: unknown): unknown {
+    if (!record(value) || (!token(value.seed) && value.seed !== "")) return value;
+    return { ...value, seed: Number(value.seed) };
   }
 
   /**
@@ -191,13 +208,14 @@ export namespace PlaygroundAddress {
     );
   }
 
-  const object: (value: unknown) => boolean = (value: unknown): boolean =>
+  const object: (value: unknown) => value is IPlaygroundComposition.IObject = (
+    value: unknown,
+  ): value is IPlaygroundComposition.IObject =>
     record(value) &&
     typeof value.subject === "string" &&
     typeof value.producer === "string" &&
     (value.kind === undefined || typeof value.kind === "string") &&
-    (value.seed === undefined || typeof value.seed === "number" ||
-      token(value.seed) || value.seed === "") &&
+    (value.seed === undefined || typeof value.seed === "number") &&
     (value.params === undefined ||
       (record(value.params) &&
         Object.values(value.params).every(
@@ -246,14 +264,7 @@ export namespace PlaygroundAddress {
             typeof (value.sheath as Record<string, unknown>)[k] === "string",
         ) &&
         typeof value.sheath.clearance === "number")) &&
-    typeof value.yaw === "number" &&
-    normalizeSeed(value);
-
-  /** Convert an already admitted seed on the fresh record owned by decode. */
-  function normalizeSeed(value: Record<string, unknown>): true {
-    if (value.seed !== undefined) value.seed = Number(value.seed);
-    return true;
-  }
+    typeof value.yaw === "number";
 
   /** Whether a value has the members the editor reads of a performer. */
   const performer: (value: unknown) => boolean = (value: unknown): boolean =>

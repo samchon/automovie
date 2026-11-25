@@ -156,7 +156,7 @@ export namespace HumanPathParameterization {
     }
 
     // TOPPRA::computeForwardPass.
-    parametrization[0] = problem.start;
+    parametrization[0] = problem.start * problem.start;
     for (let i: number = 0; i < n; ++i) {
       const delta: number = stages.deltas[i]!;
       const x: number = parametrization[i]!;
@@ -276,15 +276,16 @@ function prepare(problem: HumanPathParameterization.IProblem): IStages {
             )
           : [...path.first[n]!];
       const tailB: readonly number[] = path.second[Math.min(i + 1, n)]!;
-      for (const [ai, bi] of [
+      const sides: readonly (readonly [readonly number[], readonly number[]])[] = [
         [a, b],
         [tailA, tailB],
-      ] as const) {
+      ];
+      for (const [ai, bi] of sides) {
         ai.forEach((v: number, k: number): void => {
-          rows[i]!.push([v, bi[k]!, -limit.upper[k]!]);
-        });
-        ai.forEach((v: number, k: number): void => {
-          rows[i]!.push([-v, -bi[k]!, limit.lower[k]!]);
+          const upper: number = limit.upper[k]!;
+          const lower: number = limit.lower[k]!;
+          if (upper < Infinity) rows[i]!.push([v, bi[k]!, -upper]);
+          if (lower > -Infinity) rows[i]!.push([-v, -bi[k]!, lower]);
         });
       }
     }

@@ -41,7 +41,10 @@ export function createCaptureFolderDouble(props: {
     claim: async (names: readonly string[]): Promise<void> => {
       claimed.push(...names);
     },
-    write: async (name: string, data: Uint8Array | string): Promise<void> => {
+    write: async (
+      name: string,
+      data: Parameters<IAutoMovieCaptureFolder["write"]>[1],
+    ): Promise<void> => {
       files.set(
         name,
         typeof data === "string" ? new TextEncoder().encode(data) : data,

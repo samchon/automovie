@@ -11,7 +11,7 @@ import type {
 /** Companion types of {@link HumanContactWindow}. */
 export namespace HumanContactWindow {
   /** The body parts a contact window can name, as data. */
-  export const PARTS = [
+  export const PARTS: readonly IAutoMovieMotionHumanContactWindow["part"][] = [
     "leftFoot",
     "rightFoot",
     "leftHand",
@@ -28,16 +28,14 @@ export namespace HumanContactWindow {
     "rightLowerLeg",
     "head",
     "chest",
-  ] as const satisfies readonly NonNullable<
-    IAutoMovieMotionHumanContactWindow["part"]
-  >[];
+  ];
 
   /**
    * The ways a part bears, as data. `bear` is a part that carries weight
    * without being a foot's plant: a knee or a shin on the floor, a palm on a
    * vault, a forearm on a table.
    */
-  export const KINDS = [
+  export const KINDS: readonly IAutoMovieMotionHumanContactWindow["kind"][] = [
     "plant",
     "pivot",
     "grip",
@@ -45,9 +43,7 @@ export namespace HumanContactWindow {
     "lie",
     "strike",
     "bear",
-  ] as const satisfies readonly NonNullable<
-    IAutoMovieMotionHumanContactWindow["kind"]
-  >[];
+  ];
 
   /**
    * The surface region each part touches with when a window names no `region`:
@@ -171,7 +167,8 @@ export namespace HumanContactWindow {
       Math.min(props.duration, sample / RATE);
     const kept: IAutoMovieMotionHumanContactWindow[] = props.windows.filter(
       (w: IAutoMovieMotionHumanContactWindow): boolean =>
-        !(FEET.includes(w.part as Foot) && BEARING.includes(w.kind)),
+        !((w.part === "leftFoot" || w.part === "rightFoot") &&
+          BEARING.includes(w.kind)),
     );
     // Both toes at every sample, read once.
     const sampled: readonly Toes[] = Array.from(

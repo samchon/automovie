@@ -4,6 +4,7 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
+import { HUMAN_ARM_COORDINATE_ACCELERATIONS as ACCELERATIONS } from "./HUMAN_ARM_COORDINATE_ACCELERATIONS";
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
@@ -14,9 +15,8 @@ import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
 /**
  * A laid course's time-optimal timing along its own path, and the course
  * retimed on it: TOPP-RA (`HumanPathParameterization`, Pham and Pham 2018) on
- * the path the course plays, its parameter the course's own seconds, under two
- * first-order constraints. Each joint coordinate stays within its velocity
- * limit (`HUMAN_ARM_COORDINATE_RATES`), and each speed-bounded probe moves
+ * the path the course plays, its parameter the course's own seconds. The
+ * joints stay within their velocity and acceleration limits, and each probe
  * against its base within the law's own pace (`M.IContext.speed`). The path's
  * derivatives at the gridpoints are those of the minimum-jerk path through the
  * course (`HumanMinimumJerkSpline`), the curve the course is played on. The
@@ -99,7 +99,18 @@ export namespace HumanArmTrajectoryRetime {
           ),
         },
       ],
-      accelerations: [],
+      accelerations: [
+        {
+          lower: coordinates[0]!.map(
+            (_: number, i: number): number =>
+              -ACCELERATIONS[i % G.DIMENSIONS]!,
+          ),
+          upper: coordinates[0]!.map(
+            (_: number, i: number): number =>
+              ACCELERATIONS[i % G.DIMENSIONS]!,
+          ),
+        },
+      ],
       start: 0,
       end: 0,
     });

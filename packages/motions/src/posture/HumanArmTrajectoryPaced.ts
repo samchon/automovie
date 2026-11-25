@@ -2,6 +2,7 @@ import { HumanRefusal } from "../law/HumanRefusal";
 import type { HumanArmTrajectory } from "./HumanArmTrajectory";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryPace as Pace } from "./HumanArmTrajectoryPace";
+import { HumanArmTrajectoryRetime } from "./HumanArmTrajectoryRetime";
 import { HumanArmTrajectoryStretch as Stretch } from "./HumanArmTrajectoryStretch";
 
 /**
@@ -44,6 +45,10 @@ export function HumanArmTrajectoryPaced(
   if (!Stretch.met(loose)) return undefined;
   const at: readonly number[] = loose.context.times;
   const span: number = at[at.length - 1]! - at[0]!;
+  const timing: HumanArmTrajectoryRetime.ITiming =
+    HumanArmTrajectoryRetime.timing(grid.fine, loose.played.x);
+  const least: number =
+    timing.status === "ok" ? timing.timed.times.at(-1)! : Infinity;
   told.state = { times: [...at], x: loose.x, penalty: loose.penalty };
   return new HumanRefusal({
     kind: "reach",
@@ -51,7 +56,9 @@ export function HumanArmTrajectoryPaced(
     value: span,
     feasible: {
       kind: "range",
-      minimum: Pace.duration(span * Pace.slower(grid.fine, loose.played.x)),
+      minimum: Pace.duration(
+        Math.max(least, span * Pace.slower(grid.fine, loose.played.x)),
+      ),
       maximum: null,
       unit: "s",
     },

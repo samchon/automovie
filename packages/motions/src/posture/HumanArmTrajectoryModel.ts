@@ -423,7 +423,7 @@ export namespace HumanArmTrajectoryModel {
    * @returns The coordinates in range.
    */
   export function ranged(
-    c: IContext,
+    c: RangeContext,
     a: number,
     v: readonly number[],
   ): number[] {
@@ -441,6 +441,9 @@ export namespace HumanArmTrajectoryModel {
     });
     return out;
   }
+
+  /** The chart and coordinate ranges needed to project one arm. */
+  type RangeContext = Pick<IContext, "rest" | "back" | "free" | "bounds">;
 
   /** The chart radius owned by HumanArmTrajectoryInvalid.swing. */
   export const swing: typeof HumanArmTrajectoryInvalid.swing =

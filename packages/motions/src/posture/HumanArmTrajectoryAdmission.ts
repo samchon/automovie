@@ -7,14 +7,9 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
  * every instant of the frame grid and read by the trajectory model's own
  * evaluation (`HumanArmTrajectoryModel.evaluate`) as the optimiser reads its
  * iterates: every motion term at every grid instant, with every site, allowance
- * and base of that instant, and the clearance at the knots and over the
- * intervals between them, widened by the played course's stray, which admits
- * the path at every instant between.
+ * and base of that instant, and the clearance at and between frame instants.
  *
- * The optimiser reads the same thing at every iterate
- * (`HumanArmTrajectoryKnots`), so a trajectory it returns carries this reading
- * already; this entry reads a trajectory that did not come from an optimisation
- * on that grid: an earlier plan's solution tried as it stands.
+ * This entry validates an earlier plan's solution before reusing it.
  */
 export namespace HumanArmTrajectoryAdmission {
   /** A trajectory read on the frame grid. */
@@ -47,15 +42,9 @@ export namespace HumanArmTrajectoryAdmission {
         return fine.times.map((t: number): number[] => curve(t).coordinates);
       },
     );
-    const knots: Set<number> = new Set(c.times);
     return {
       x: at,
-      evaluation: M.evaluate(
-        fine,
-        at,
-        undefined,
-        fine.times.map((t: number): boolean => knots.has(t)),
-      ),
+      evaluation: M.evaluate(fine, at),
     };
   }
 }

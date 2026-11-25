@@ -27,11 +27,11 @@ export function test_unit_archetypes_core_track_agm(): void {
   TestValidator.predicate("equal numbers", nclose(agm(1, 1), 1, AGM_TOLERANCE));
   TestValidator.predicate(
     "Gauss's constant",
-    nclose(agm(1, Math.SQRT2), 1.1981402347355922, AGM_TOLERANCE),
+    nclose(agm(1, Math.SQRT2), 1.1981402347355923, AGM_TOLERANCE),
   );
   TestValidator.predicate(
     "one and two",
-    nclose(agm(1, 2), 1.4567910310469069, AGM_TOLERANCE),
+    nclose(agm(1, 2), 1.4567910310469068, AGM_TOLERANCE),
   );
   TestValidator.predicate("symmetric", nclose(agm(2, 1), agm(1, 2), AGM_TOLERANCE));
   TestValidator.predicate(

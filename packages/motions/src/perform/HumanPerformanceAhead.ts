@@ -1,4 +1,5 @@
 import type {
+  AutoMovieHumanoidBone,
   IAutoMovieIntent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
@@ -12,6 +13,16 @@ import { HumanPerformanceAim } from "./HumanPerformanceAim";
 
 /** The alternatives of `ReaderContext`'s site. */
 type ReaderContext = "subject" | "body" | "skill" | "prop" | "start";
+
+/** An authored parameter payload after defaulting a missing value. */
+type ParametersValue = NonNullable<unknown>;
+
+/** The methods selected by an authored action's vocabulary key. */
+interface ILookAheadLaw
+  extends Pick<IAutoMovieMotionHumanActionLaw<ParametersValue>, "demands" | "plants"> {
+  /** Resolve the composition's payload according to the selected law. */
+  resolve?(given: ParametersValue): object;
+}
 
 /**
  * What a performer's next action on a prop demands of a grip an earlier action
@@ -35,9 +46,7 @@ export namespace HumanPerformanceAhead {
    * before that action is planned (`IHumanActionLaw.IAhead`): its resolved
    * parameters, the performer's body and skill, the props, and its aiming from
    * the posture the grip leaves the body in, read at the earlier action's
-   * start. The caller keeps the body and candidate posture unchanged during
-   * this synchronous demand call; retained aiming callbacks may read later
-   * changes.
+   * start. Candidate-dependent bones are resolved when the target needs them.
    *
    * @param self The performance being placed.
    * @param context The earlier action's context.
@@ -51,68 +60,49 @@ export namespace HumanPerformanceAhead {
   ): (
     grip: IAutoMovieMotionHumanActionLaw.IGrip,
   ) => readonly IAutoMovieMotionHumanActionLaw.IDemand[] {
-    const found: Map<string, INext | null> = new Map();
-    const next: (prop: string) => INext | null = (
-      prop: string,
-    ): INext | null => {
-      if (!found.has(prop))
-        found.set(prop, find(self, context.subject, ordinal, prop));
-      return found.get(prop)!;
-    };
     return (
       grip: IAutoMovieMotionHumanActionLaw.IGrip,
     ): readonly IAutoMovieMotionHumanActionLaw.IDemand[] => {
-      const asked: INext | null = next(grip.prop);
+      const asked: INext | null = find(
+        self,
+        context.subject,
+        ordinal,
+        grip.prop,
+      );
       if (asked === null || asked.law.demands === undefined) return [];
 
-      // Every aim in this demand reads the same candidate posture. Resolve
-      // its bones lazily here, so another grip question starts independently.
-      let querying: boolean = true;
-      let bones: ReturnType<typeof poseBones> | undefined;
-      let frame: IAutoMovieMotionHumanPerformanceAim.IFrame | undefined;
-      const freshBones: () => ReturnType<typeof poseBones> = (): ReturnType<
-        typeof poseBones
-      > =>
-        poseBones(
-          context.body,
-          resolveHumanPosture(context.body, grip.posture),
-        );
       const ownBones: IAutoMovieMotionHumanPerformanceAim.IFrame["bones"] =
-        (): ReturnType<typeof poseBones> =>
-          querying ? (bones ??= freshBones()) : freshBones();
-      try {
-        return asked.law.demands({
-          subject: context.subject,
-          body: context.body,
-          params: asked.params as never,
-          skill: context.skill,
-          prop: context.prop,
-          aim: (
-            target: Parameters<IAutoMovieMotionHumanActionContext["aim"]>[0],
-            seconds: number,
-          ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> => {
-            const current: IAutoMovieMotionHumanPerformanceAim.IFrame =
-              querying && frame !== undefined
-                ? frame
-                : HumanPerformanceAim.frame(
-                    context.body,
-                    grip.posture,
-                    ownBones,
-                    context.subject,
-                  );
-            if (querying) frame = current;
-            return HumanPerformanceAim.aim(self, target, seconds, current);
-          },
-          start: context.start,
-          grip,
-        });
-      } finally {
-        // A law may retain its existing aim callback. Outside this query
-        // it must keep the original fresh-read behavior and retain no FK.
-        querying = false;
-        bones = undefined;
-        frame = undefined;
-      }
+        (requested?: ReadonlySet<AutoMovieHumanoidBone>): ReturnType<typeof poseBones> =>
+          poseBones(
+            context.body,
+            resolveHumanPosture(context.body, grip.posture),
+            undefined,
+            requested,
+          );
+      return asked.law.demands({
+        subject: context.subject,
+        body: context.body,
+        params: asked.params,
+        skill: context.skill,
+        prop: context.prop,
+        aim: (
+          target: Parameters<IAutoMovieMotionHumanActionContext["aim"]>[0],
+          seconds: number,
+        ): ReturnType<IAutoMovieMotionHumanActionContext["aim"]> =>
+          HumanPerformanceAim.aim(
+            self,
+            target,
+            seconds,
+            HumanPerformanceAim.frame(
+              context.body,
+              grip.posture,
+              ownBones,
+              context.subject,
+            ),
+          ),
+        start: context.start,
+        grip,
+      });
     };
   }
 
@@ -139,11 +129,11 @@ export namespace HumanPerformanceAhead {
     const next: IAutoMovieIntent | undefined = (self.intended.get(
       intent.subject,
     ) ?? [])[ordinal + 1];
-    const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+    const law: ILookAheadLaw | undefined =
       next === undefined ? undefined : self.laws.get(next.capability);
-    const given: object = next === undefined ? {} : params(next);
+    const given: ParametersValue = next?.parameters?.params ?? {};
     const plant: IAutoMovieMotionHumanActionLaw.IPlant | undefined =
-      law?.plants?.((law.resolve?.(given) ?? given) as never);
+      law?.plants?.(law.resolve?.(given) ?? given);
     return {
       ...("event" in until ? { event: until.event } : { share: until.share }),
       ...(plant === undefined ? {} : { plant }),
@@ -153,10 +143,10 @@ export namespace HumanPerformanceAhead {
   /** An action asked for its demands: its law and its resolved parameters. */
   interface INext {
     /** Its law. */
-    law: IAutoMovieMotionHumanActionLaw<never>;
+    law: ILookAheadLaw;
 
     /** Its parameters, as its law resolves them. */
-    params: object;
+    params: ParametersValue;
   }
 
   /**
@@ -172,20 +162,16 @@ export namespace HumanPerformanceAhead {
     for (const intent of (self.intended.get(subject) ?? []).slice(
       ordinal + 1,
     )) {
-      const law: IAutoMovieMotionHumanActionLaw<never> | undefined =
+      const law: ILookAheadLaw | undefined =
         self.laws.get(intent.capability);
       // An action the vocabulary lacks is refused where it is placed.
       if (law === undefined) return null;
-      const given: object = params(intent);
-      const resolved: object = law.resolve?.(given) ?? given;
+      const given: ParametersValue = intent.parameters?.params ?? {};
+      const resolved: ParametersValue = law.resolve?.(given) ?? given;
       if (Object.values(resolved).includes(prop))
         return { law, params: resolved };
     }
     return null;
   }
 
-  /** The parameters an intent gives its action. */
-  function params(intent: IAutoMovieIntent): object {
-    return (intent.parameters?.params as object | undefined) ?? {};
-  }
 }

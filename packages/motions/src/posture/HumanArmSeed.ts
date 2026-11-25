@@ -55,8 +55,10 @@ export namespace HumanArmSeed {
           (sites: readonly (M.ISite | undefined)[]): boolean =>
             sites[k] !== undefined,
         )
-      )
+      ) {
+        previous = undefined;
         continue;
+      }
       const seconds: number = context.times[k]!;
       const proposed: readonly (readonly number[])[] | undefined = from?.map(
         (arm: readonly (readonly number[])[]): readonly number[] => arm[k]!,
@@ -104,7 +106,7 @@ export namespace HumanArmSeed {
           : path(space, fine, start, destination, begin, end, held !== undefined);
         for (let j: number = previous + 1; j < k; ++j) {
           const share: number = (times[j]! - begin) / (end - begin);
-          knots[j] = Space.split(Space.at(route, share).slice(0, -1));
+          knots[j] = Space.split(Space.at(route, share));
         }
       }
       knots[k] = destination;

@@ -47,6 +47,8 @@ const RADIUS: number = 0.5;
  *    pass (`controllable`).
  * 6. A velocity box excluding zero on a quantity that does not move is refused,
  *    and so are gridpoints that do not ascend.
+ * 7. Half a metre per second at entry gives squared velocity 0.25, and the
+ *    first forward ramp adds 2 Δ.
  */
 export function test_unit_motions_posture_path_parameterization(): void {
   // 1. The straight path.
@@ -205,5 +207,15 @@ export function test_unit_motions_posture_path_parameterization(): void {
           }),
         "Invalid times.",
       ),
+  );
+
+  // 7. The first state stores squared path velocity.
+  const moving: HumanPathParameterization.IResult =
+    HumanPathParameterization.parametrize({ ...line, start: 0.5 });
+  TestValidator.predicate(
+    "nonzero entry speed seeds the squared state",
+    moving.status === "ok" &&
+      nclose(moving.parametrization[0]!, 0.25, ROUNDING) &&
+      nclose(moving.parametrization[1]!, 0.25 + 2 * SPACING, ROUNDING),
   );
 }

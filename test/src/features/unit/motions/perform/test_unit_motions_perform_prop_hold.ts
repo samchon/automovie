@@ -7,8 +7,7 @@ import type {
   IAutoMovieRigidTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
-import { HumanPerformance } from "@automovie/motions";
-import { HumanPropHold } from "@automovie/motions/internal";
+import { HumanPropHold, poseBones } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
 
 import { standingPerformanceState } from "../../../internal/fixtures/standingPerformanceState";
@@ -129,7 +128,7 @@ export async function test_unit_motions_perform_prop_hold(): Promise<void> {
   const { context } = await standingPerformanceState();
   const body: IAutoMovieMotionHumanBody = context.body;
   const bones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
-    new HumanPerformance(input).bones("actor", 0.5);
+    poseBones(body, context.entry.pose);
   const head: IAutoMovieResolvedBone = bones.get("head")!;
   const worn: IAutoMovieRigidTransform = HumanPropHold.frame(body, bones, {
     side: "right",

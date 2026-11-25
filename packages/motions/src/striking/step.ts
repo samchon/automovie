@@ -29,6 +29,12 @@ type IPlanProgressResult = {
   first: boolean;
 };
 
+/** Each foot's swing interval as shares of one step. */
+type SwingWindows = Readonly<Record<AutoMovieHumanSide, readonly [number, number]>>;
+
+/** Both canonical feet, in contact publication order. */
+const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
+
 /**
  * Fighting-stance footwork: steps that keep the stance, the foot on the side of
  * travel moving first and the other following to restore the stance without
@@ -85,7 +91,9 @@ export namespace step {
    * @returns Seconds.
    */
   export function period(
-    body: IAutoMovieMotionHumanActionContext["body"],
+    body: {
+      measure: Pick<IAutoMovieMotionHumanActionContext["body"]["measure"], "hipHeight">;
+    },
   ): number {
     return (
       PERIOD * Math.sqrt(body.measure.hipHeight / AutoMovieGravity.STANDARD)
@@ -177,26 +185,7 @@ export namespace step {
       IAutoMovieMotionHumanFoot.IPlacement
     > = StrikingTarget.feet(context.entry);
     const lift: number = 0.015 * body.measure.stature;
-    const windows: Record<AutoMovieHumanSide, readonly [number, number]> =
-      first === "left"
-        ? { left: [0, 0.5], right: [0.45, 0.95] }
-        : { left: [0.45, 0.95], right: [0, 0.5] };
-    // Finish an inherited swing before the old bearing foot lifts. A cut in
-    // the overlap of two swings continues that already unsupported interval.
-    const cutFirst: AutoMovieHumanSide =
-      support?.bearing === undefined
-        ? first
-        : StrikingStance.rear({ lead: support.bearing });
-    const cutFollow: readonly [number, number] = [
-      support?.bearing === undefined ? 0 : 0.5,
-      0.95,
-    ];
-    const opening: typeof windows =
-      support === undefined
-        ? windows
-        : cutFirst === "left"
-          ? { left: [0, 0.5], right: cutFollow }
-          : { left: cutFollow, right: [0, 0.5] };
+    const planted: IPlants = supportWindows(first, count, support);
 
     // A foot's progress: whole steps done plus the current step's share.
     const progress = (
@@ -205,7 +194,7 @@ export namespace step {
     ): IPlanProgressResult => {
       const k: number = Math.min(count - 1, Math.floor(t / stride));
       const local: number = (t - k * stride) / stride;
-      const [a, b] = (k === 0 ? opening : windows)[side];
+      const [a, b] = (k === 0 ? planted.opening : planted.windows)[side];
       const s: number = minimumJerk.share((local - a) / (b - a));
       return {
         travelled: (k + s) * length,
@@ -216,30 +205,6 @@ export namespace step {
         first: k === 0,
       };
     };
-    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
-    for (let k: number = 0; k < count; k++)
-      for (const side of ["left", "right"] as const) {
-        const [a, b] = (k === 0 ? opening : windows)[side];
-        if (k !== 0 || support?.landings[side] === undefined)
-          contacts.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from:
-              k === 0
-                ? 0
-                : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
-            to: (k + a) / count,
-            support: { kind: "ground" },
-          });
-        if (k === count - 1)
-          contacts.push({
-            part: `${side}Foot`,
-            kind: "plant",
-            from: (k + b) / count,
-            to: 1,
-            support: { kind: "ground" },
-          });
-      }
     const events: IAutoMovieMotionEvent[] = Array.from(
       { length: count },
       (_: unknown, k: number): IAutoMovieMotionEvent => ({
@@ -250,15 +215,12 @@ export namespace step {
     return {
       duration,
       events,
-      contacts,
+      contacts: planted.contacts,
       posture: (seconds: number): IAutoMovieMotionHumanPosture => {
         const t: number = Math.min(duration, Math.max(0, seconds));
-        const placed = {} as Record<
-          AutoMovieHumanSide,
-          IAutoMovieMotionHumanFoot.IPlacement
-        >;
-        const down = {} as Record<AutoMovieHumanSide, boolean>;
-        for (const side of ["left", "right"] as const) {
+        const placed: Record<AutoMovieHumanSide, IAutoMovieMotionHumanFoot.IPlacement> = { ...feet };
+        const down: Record<AutoMovieHumanSide, boolean> = { left: true, right: true };
+        for (const side of SIDES) {
           const g = progress(side, t);
           const fromY: number = feet[side].ankle.y;
           const toY: number = support?.landings[side]?.ankle.y ?? fromY;
@@ -307,5 +269,71 @@ export namespace step {
         };
       },
     };
+  }
+
+  /** Preparation of a straight sequence's swing and support windows. */
+  export interface IPlants {
+    /** Each foot's swing in a regular beat. */
+    windows: SwingWindows;
+
+    /** Each foot's swing in the first beat, which can finish a cut. */
+    opening: SwingWindows;
+
+    /** The stationary spans, as shares of the complete sequence. */
+    contacts: IAutoMovieMotionHumanContactWindow[];
+  }
+
+  /**
+   * Prepare the stationary intervals between swings. On a cut, the airborne
+   * foot finishes landing before the bearing foot lifts. An inherited overlap
+   * continues without a bearing foot until the first landing.
+   *
+   * @param first The foot due to swing first in a regular beat.
+   * @param count The positive integer number of beats.
+   * @param support The entry's still-airborne feet and any bearing foot.
+   * @returns The regular and opening swing windows and the complementary contacts.
+   */
+  export function supportWindows(
+    first: AutoMovieHumanSide,
+    count: number,
+    support?: Pick<strikingStepSupport.ISupport, "landings" | "bearing">,
+  ): IPlants {
+    const windows: SwingWindows = first === "left"
+      ? { left: [0, 0.5], right: [0.45, 0.95] }
+      : { left: [0.45, 0.95], right: [0, 0.5] };
+    const cutFirst: AutoMovieHumanSide = support?.bearing === undefined
+      ? first
+      : StrikingStance.rear({ lead: support.bearing });
+    const cutFollow: readonly [number, number] = [
+      support?.bearing === undefined ? 0 : 0.5,
+      0.95,
+    ];
+    const opening: SwingWindows = support === undefined
+      ? windows
+      : cutFirst === "left"
+        ? { left: [0, 0.5], right: cutFollow }
+        : { left: cutFollow, right: [0, 0.5] };
+    const contacts: IAutoMovieMotionHumanContactWindow[] = [];
+    for (let k: number = 0; k < count; k++)
+      for (const side of SIDES) {
+        const [a, b]: readonly [number, number] = (k === 0 ? opening : windows)[side];
+        if (k !== 0 || support?.landings[side] === undefined)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from: k === 0 ? 0 : (k - 1 + (k === 1 ? opening : windows)[side][1]) / count,
+            to: (k + a) / count,
+            support: { kind: "ground" },
+          });
+        if (k === count - 1)
+          contacts.push({
+            part: `${side}Foot`,
+            kind: "plant",
+            from: (k + b) / count,
+            to: 1,
+            support: { kind: "ground" },
+          });
+      }
+    return { windows, opening, contacts };
   }
 }
