@@ -58,7 +58,7 @@ interface ISpan {
  * 3. Opposite palm and thumb probes see the same signed clearance at the
  *    two radial support planes halfway up the cylinder.
  */
-export function test_archetype_props_drinkware_contact_frames(): void {
+export function test_archetypes_props_drinkware_contact_frames(): void {
   const failures: Map<string, string> = new Map();
   const kinds: readonly ("glass" | "mug")[] = ["glass", "mug"];
   for (const kind of kinds) {
