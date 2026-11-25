@@ -13,6 +13,7 @@ import {
   AutoMovieHumanDigitNails as Nails,
   AutoMovieHumanNailContact as Paired,
 } from "@automovie/human";
+import { AutoMovieHumanNailExteriorClearance } from "@automovie/human/capture";
 import type {
   IAutoMovieConstructionJoin,
   IAutoMovieConstructionRealization,
@@ -69,6 +70,17 @@ export namespace FamilyConicMpfbNailJoin {
       ...direction,
       maximumMm: Math.max(direction.maximumMm, patch.inward),
     };
+    const exteriorProjection = AutoMovieHumanNailExteriorClearance.report(
+      {
+        positions: mesh.positions.map((m): number => m * 1000),
+        indices: mesh.indices,
+        groups: [
+          { name: made.original.name + "/solid", start: 0 },
+          { name: patch.plateChain.name + "/solid", start: plateFrom },
+        ],
+      },
+      [patch.plateChain],
+    );
     const distalBoundary: number = Mesh.boundary(
       mesh,
       bedId,
@@ -102,6 +114,7 @@ export namespace FamilyConicMpfbNailJoin {
       incidence,
       crossings,
       clearance,
+      exteriorProjection,
       nominalInward: patch.nominalInward,
       retained,
       columns: patch.columns,

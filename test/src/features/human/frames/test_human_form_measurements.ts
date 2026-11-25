@@ -3,9 +3,11 @@ import {
   AutoMovieHumanArmSources,
   AutoMovieHumanFootToeSources,
 } from "@automovie/human";
+import { AutoMovieHumanNailExteriorClearance as NailClearance } from "@automovie/human/capture";
 import type {
   AutoMovieVector3Tuple,
   IAutoMovieConstructionRealization,
+  IAutoMovieHumanLoftMesh,
   IAutoMovieLoftChain,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
@@ -36,6 +38,9 @@ import { FamilyConicSurfaceMeasurements as Surface } from "../../../reference-co
  *    whereas missing cutter and nail observations stay unavailable. All twenty
  *    exact-limit clipping receipts qualify. Missing, duplicate, nonfinite,
  *    unknown and excessive readings each retain their own failure.
+ * 6. A planar skin and crown share three oppositely oriented edges. Their
+ *    witnessed depth is zero. Missing plate data and wrong winding are
+ *    unmeasured.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls the actual capture form report with original index and source charts.
  * @evidence contracts/development/testing.md#independent-expectations The simplex has four outward faces, six edges and four vertices. The disjoint faces approach within two metres, and the source plane offset is in millimetres. The overlapping edge contains (0.5, 0.25, 0.25), strictly inside the face x + y + z = 1. The clipping boundary is fixed by the campaign's made-figure check.
@@ -122,6 +127,36 @@ export function test_human_form_measurements(): void {
 
   verifyExplicitSurfaces();
   verifyRetainedNeutralForm();
+  verifyNailClearance();
+}
+
+/** Distinguish a closed planar contact with true witnesses from absence. */
+function verifyNailClearance(): void {
+  const plate: IAutoMovieLoftChain = chain("nail.finger.left.index", 0);
+  const mesh: IAutoMovieHumanLoftMesh.IContext = {
+    positions: [0, 0, 0, 0, 2, 0, 0, 0, 2, 0, 1, -1, 0, 2, 2, 0, -1, 1],
+    indices: [1, 0, 3, 2, 1, 4, 0, 2, 5, 0, 1, 2],
+    groups: [
+      { name: "finger.left.index/solid", start: 0 },
+      { name: `${plate.name}/solid`, start: 9 },
+    ],
+  };
+  const contact = NailClearance.report(mesh, [plate]);
+  const wrongWinding: IAutoMovieHumanLoftMesh.IContext = {
+    ...mesh,
+    indices: [0, 1, ...mesh.indices.slice(2)],
+  };
+  if (
+    contact?.length !== 1 ||
+    contact[0]!.digit !== "finger.left.index" ||
+    contact[0]!.maximumMm !== 0 ||
+    contact[0]!.plateSkin.witnesses === 0 ||
+    NailClearance.report(mesh, []) !== undefined ||
+    NailClearance.report(wrongWinding, [plate]) !== undefined
+  )
+    throw new Error(
+      "only the oppositely indexed planar nail has a measured zero",
+    );
 }
 
 /** The neutral gate uses real buffers, source walls, and explicit absence. */

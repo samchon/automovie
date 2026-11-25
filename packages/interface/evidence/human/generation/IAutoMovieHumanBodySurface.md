@@ -48,7 +48,7 @@ Returned by AutoMovieHumanBodySurface.generate.
 
 ## @evidence contracts/development/design.md#prohibited-design-shortcuts
 
-Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`. Optional `nailClipping` carries the actual emitted skin's per-digit maximum in mm when its producer observed clipping. An omitted receipt leaves that measurement unavailable.
+Required fields are `mesh`, `normals`, `coordinates`, `construction`, `rims`. Optional `nailClipping` carries the largest observed inward depth in mm for each measured nail contact on the emitted exterior. A complete contact with projection witnesses can measure zero. An omitted site leaves its measurement unavailable.
 
 # src/human/generation/IAutoMovieHumanBodySurface.ts#IAutoMovieHumanBodySurface.GenerateDetails
 

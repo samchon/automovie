@@ -20,6 +20,7 @@ import { AutoMovieHumanBodySurfaceOpening } from "./AutoMovieHumanBodySurfaceOpe
 import { AutoMovieHumanBodySurfacePoles } from "./AutoMovieHumanBodySurfacePoles";
 import { AutoMovieHumanBodySurfaceRead } from "./AutoMovieHumanBodySurfaceRead";
 import { AutoMovieHumanBodySurfaceSolids } from "./AutoMovieHumanBodySurfaceSolids";
+import { AutoMovieHumanNailExteriorClearance } from "./nail/AutoMovieHumanNailExteriorClearance";
 
 const { ringBlend, surfaceNormals } = AutoMovieHumanBodySurfaceNormals;
 const { contact, held } = AutoMovieHumanBodySurfaceContact;
@@ -188,10 +189,21 @@ export namespace AutoMovieHumanBodySurface {
     construction.push(...context.webPaths);
 
     const faces: number[] = AutoMovieHumanLoftMesh.normals(context.mesh);
+    const nailClipping: NonNullable<
+      IAutoMovieHumanBodySurface.IOutput["nailClipping"]
+    > =
+      AutoMovieHumanNailExteriorClearance.report(
+        context.mesh,
+        calibration.chains,
+      )?.flatMap(
+        ({ digit, maximumMm }): { digit: string; maximumMm: number }[] =>
+          maximumMm === null ? [] : [{ digit, maximumMm }],
+      ) ?? [];
     return {
       mesh: context.mesh,
       construction,
       rims: context.rims,
+      ...(nailClipping.length === 0 ? {} : { nailClipping }),
       normals: domed(
         context.domeNormals,
         held(

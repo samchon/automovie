@@ -271,6 +271,7 @@ export namespace FamilyConicMpfbNailPatch {
     };
     return {
       mesh,
+      plateChain: plate.chain,
       seam,
       plateFrom,
       columns: count,

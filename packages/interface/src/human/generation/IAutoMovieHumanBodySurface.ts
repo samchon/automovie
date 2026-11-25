@@ -48,7 +48,7 @@ export namespace IAutoMovieHumanBodySurface {
     /** Aperture paths sampled by the actual skin generation, in millimetres. */
     construction: IAutoMovieHumanConstructionPath[];
 
-    /** Observed nail-bed and strip clipping from this skin, when produced. */
+    /** Observed nail-bed and strip clipping from the retained exterior. */
     nailClipping?: {
       /** Name of the retained digit owner. */
       digit: string;
