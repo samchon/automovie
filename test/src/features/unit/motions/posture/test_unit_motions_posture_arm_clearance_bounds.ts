@@ -36,6 +36,9 @@ const TIME_ROUNDING: number = 4 * 3 * Number.EPSILON;
  *    obstacle is half a metre from the centre chord, and the probes can
  *    protrude another eighth. The widened gap is `1/4 − 9π²/256` metres,
  *    between the allowances −1/8 and −1/16. Missing material does not certify.
+ * 6. A quarter-metre capsule's axis stays an eighth of a metre from a point.
+ *    Its signed clearance is −1/8. An allowance of −3/8 must still locate
+ *    the separating direction. A point on the axis has no core separation.
  */
 export function test_unit_motions_posture_arm_clearance_bounds(): void {
   const clock: Parameters<typeof HumanArmTrajectorySweepBound.chords>[0] = {
@@ -149,5 +152,23 @@ export function test_unit_motions_posture_arm_clearance_bounds(): void {
       -1 / 8,
     ),
     false,
+  );
+
+  const capsule: Parameters<typeof HumanArmTrajectoryLinks.certifiesTurn>[0] = [
+    { points: [{ x: -1, y: 0, z: 0 }, { x: 1, y: 0, z: 0 }], radius: 1 / 4 },
+  ];
+  const separated = (y: number): boolean =>
+    HumanArmTrajectoryLinks.certifiesTurn(
+      capsule,
+      capsule,
+      start,
+      0,
+      { points: [{ x: 0, y, z: 0 }], radius: 0 },
+      0,
+      -3 / 8,
+    );
+  TestValidator.predicate(
+    "negative allowance still requires separation of the convex cores",
+    separated(1 / 8) && !separated(0),
   );
 }

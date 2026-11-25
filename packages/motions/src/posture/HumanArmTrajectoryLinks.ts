@@ -9,7 +9,6 @@ import { HumanArmGeometry as G } from "./HumanArmGeometry";
 import { HumanArmShapes as S } from "./HumanArmShapes";
 import { HumanArmTrajectoryHalfStep } from "./HumanArmTrajectoryHalfStep";
 import type { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
-import { HumanAuditModel } from "./HumanAuditModel";
 
 /**
  * An arm's parts at a placement with its collider probes.
@@ -206,8 +205,10 @@ export namespace HumanArmTrajectoryLinks {
    * translates affinely and the part follows its shortest endpoint rotation.
    * A point at radius `r` from that pivot strays from its synchronous chord
    * by at most `r angle² / 8` (Schulman et al. 2014, §4.2 equation 21).
-   * Widen each solid's endpoint hull by its own bound, then use the audit's
-   * allowance and probe-offset certificate.
+   * Widen each solid's endpoint hull by its own bound and set aside the audit
+   * probe offset. The signed lower bound requires separated GJK cores. A
+   * margin already met by the initial zero core bound cannot stop the search
+   * before that separation is established (`physicalShapeGjk`).
    *
    * @param start The original solids at the first frame.
    * @param swept The corresponding endpoint hulls in the encounter frame.
@@ -229,19 +230,23 @@ export namespace HumanArmTrajectoryLinks {
     floor: number,
   ): boolean {
     if (start.length === 0 || start.length !== swept.length) return false;
-    const expanded: physicalShapeGjk.ISolid[] = swept.map(
-      (solid: physicalShapeGjk.ISolid, i: number): physicalShapeGjk.ISolid => {
-        const first: physicalShapeGjk.ISolid = start[i]!;
-        let reach: number = 0;
-        for (const point of first.points)
-          reach = Math.max(reach, Vector3.distance(point, pivot));
-        return {
-          points: solid.points,
-          radius: solid.radius + ((reach + first.radius) * angle * angle) / 8,
-        };
-      },
-    );
-    return HumanAuditModel.certify(expanded, offset, obstacle, floor) >= floor;
+    const margin: number = floor + offset;
+    for (let i: number = 0; i < swept.length; ++i) {
+      const solid: physicalShapeGjk.ISolid = swept[i]!;
+      const first: physicalShapeGjk.ISolid = start[i]!;
+      let reach: number = 0;
+      for (const point of first.points)
+        reach = Math.max(reach, Vector3.distance(point, pivot));
+      const radius: number =
+        solid.radius + ((reach + first.radius) * angle * angle) / 8;
+      const bound: physicalShapeGjk.IBound = physicalShapeGjk(
+        { points: solid.points, radius },
+        obstacle,
+        margin > -(radius + obstacle.radius) ? margin : undefined,
+      );
+      if (!(bound.lower >= margin)) return false;
+    }
+    return true;
   }
 
   /**
