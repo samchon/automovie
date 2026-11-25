@@ -14,10 +14,11 @@ import { validateColor } from "./validateColor";
  * or a valid linear colour. A layer box needs finite `x` and `y` of at least
  * zero, positive `width` and `height`, and `x + width` and `y + height` of at
  * most one, so every layer stays on its face. A `rect` needs a valid colour; a
- * `text` needs a font id among `context.fonts` when given, nonempty text, a
- * positive size and a valid colour. Whether an image resolves to a carried or a
- * registered project image is texture closure's check, because only it holds
- * the asset ledger.
+ * `text` needs nonempty text, a positive size and a valid colour; if given, its
+ * font id must be nonblank and belong to `context.fonts` when the caller
+ * supplies that set. Whether an image resolves to a carried or a registered
+ * project image is texture closure's check, because only it holds the asset
+ * ledger.
  */
 export function appendSurfaceGraphicArtifact(
   graphic: IAutoMovieSurfaceGraphic,
@@ -61,10 +62,11 @@ export function appendSurfaceGraphicArtifact(
 }
 
 /**
- * Check one text layer's own fields: a font id the shot lists, nonempty text, a
- * positive em size in face heights, a valid colour, and an optional positive
- * line height. Whether the font maps every code point and the text fits its box
- * is the layout's check, because only the decoded font knows.
+ * Check one text layer's own fields: an optional font id the shot lists,
+ * nonempty text, a positive em size in face heights, a valid colour, and an
+ * optional positive line height. Whether the font maps every code point and the
+ * text fits its box is the layout's check, because only the decoded font
+ * knows.
  */
 function appendTextLayer(
   layer: IAutoMovieSurfaceGraphicLayer.IText,
@@ -72,13 +74,22 @@ function appendTextLayer(
   fonts: ReadonlySet<string> | undefined,
   collector: IAutoMovieViolationCollector,
 ): void {
-  if (fonts !== undefined && !fonts.has(layer.font))
-    collector.push(
-      "type",
-      `${path}.font`,
-      "text layer font must name a font source the shot lists",
-      layer.font,
-    );
+  if (layer.font !== undefined) {
+    if (layer.font.trim().length === 0)
+      collector.push(
+        "type",
+        `${path}.font`,
+        "text layer font must be a nonblank id when given",
+        layer.font,
+      );
+    else if (fonts !== undefined && !fonts.has(layer.font))
+      collector.push(
+        "type",
+        `${path}.font`,
+        "text layer font must name a font source the shot lists",
+        layer.font,
+      );
+  }
   if (layer.text.length === 0)
     collector.push(
       "type",

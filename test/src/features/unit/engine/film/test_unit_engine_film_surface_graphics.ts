@@ -36,17 +36,19 @@ import {
  *    staged, a surface id that is not a `surface` affordance, two tracks for
  *    one node and surface, keys out of order and a first key after zero, a
  *    negative layer corner, a nonpositive layer size, a layer past the face's
- *    right edge, a negative luminance, a text layer
- *    naming a font the shot does not list, a feed of the shot's own camera,
- *    reported as an authoring finding rather than thrown as an engine defect,
- *    and a feed of a camera the scene does not stage.
+ *    right edge, a negative luminance, a text layer naming a font the shot does
+ *    not list or a blank font, a feed of the shot's own camera, reported as an
+ *    authoring finding rather than thrown as an engine defect, and a feed of a
+ *    camera the scene does not stage.
  * 3. A track on the book's `face`, which rides the `hinge` articulation, is
  *    refused with the articulated-surface diagnostic.
+ * 4. A text layer without a font passes shot admission and artifact validation
+ *    without adding a font source or rewriting the text.
  *
  * @evidence contracts/development/common.md#meaningful-documentation Names the phone and book fixtures, the sampled times and each refusal the test expects.
  * @evidence contracts/development/testing.md#behavioral-verification Runs the public performShot gate and the public key sampler and asserts admitted output, sampled indices and the diagnostic paths and texts.
  * @evidence contracts/development/testing.md#independent-expectations The expected keys follow from the authored key times and the inclusive key rule in the track contract; refusals follow the admission lists in issues #4096 and #4099.
- * @evidence contracts/development/testing.md#distinguishing-cases Samples just before, at and after a key and seeks backwards; each malformed input changes one field of an otherwise valid track; the book case isolates the articulated surface.
+ * @evidence contracts/development/testing.md#distinguishing-cases Samples around a key and seeks backwards. Explicit unknown and omitted font ids distinguish rejection from default admission. The book case isolates the articulated surface.
  * @evidence contracts/development/testing.md#execution-ownership Synchronous in-memory shot compilation; no host, renderer or pixels. Drawing belongs to test_render_surface_graphics.
  */
 export function test_unit_engine_film_surface_graphics(): void {
@@ -212,6 +214,34 @@ export function test_unit_engine_film_surface_graphics(): void {
         "font source the shot lists",
       ],
       [
+        "text in a blank font",
+        [
+          {
+            ...track,
+            keys: [
+              {
+                time: 0,
+                graphic: graphic([
+                  {
+                    kind: "text",
+                    x: 0,
+                    y: 0,
+                    width: 1,
+                    height: 1,
+                    font: " ",
+                    text: "LO",
+                    size: 0.1,
+                    color: { r: 1, g: 1, b: 1, a: null, hex: null },
+                  },
+                ]),
+              },
+            ],
+          },
+        ],
+        "$input.surfaceGraphics[0].keys[0].graphic.layers[0].font",
+        "nonblank",
+      ],
+      [
         "a feed of the shot's own camera",
         [feedTrack(track, performed.shot.camera)],
         "$input.surfaceGraphics[0].keys[0].graphic.layers[0].camera",
@@ -245,6 +275,48 @@ export function test_unit_engine_film_surface_graphics(): void {
         ),
     );
   }
+
+  // 4. An omitted font survives both admission boundaries as authored.
+  const defaultTrack: IAutoMovieSurfaceGraphicTrack = {
+    ...track,
+    keys: [
+      {
+        time: 0,
+        graphic: graphic([
+          {
+            kind: "text",
+            x: 0,
+            y: 0,
+            width: 1,
+            height: 1,
+            text: "서울역",
+            size: 0.1,
+            color: { r: 1, g: 1, b: 1, a: null, hex: null },
+          },
+        ]),
+      },
+    ],
+  };
+  const defaultResult: IAutoMoviePerformedShot = performShot({
+    ...props,
+    surfaceGraphics: [defaultTrack],
+  });
+  if (!defaultResult.success)
+    throw new Error(JSON.stringify(defaultResult.violations));
+  TestValidator.equals(
+    "omitted font stays omitted",
+    defaultResult.shot.surfaceGraphics,
+    [defaultTrack],
+  );
+  TestValidator.equals(
+    "no project font sources",
+    defaultResult.shot.fonts,
+    undefined,
+  );
+  TestValidator.predicate(
+    "artifact validation accepts the omitted font",
+    validateShotArtifact(defaultResult.shot, staged.scene, null).success,
+  );
 }
 
 /** The track with one red rect layer whose box fields are overridden. */
