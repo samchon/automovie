@@ -22,7 +22,7 @@ An isolated face reads the current prior triangles once. A prepared draw scans t
 
 ## @evidence contracts/development/implementation.md#reuse-equivalent-work
 
-Reuses the copied station-major jets, original boundary indices and returned split provenance. Each new vertex enters on its first committed use. The native cover and source-boundary census certify new edges. The global incidence test reads only edges with two reused vertices, where a prior face can already own the same directed edge.
+Reuses the copied station-major jets, original boundary indices and returned split provenance. One indexed-face incidence preparation validates the unique cover and supplies original directed occurrences for the boundary census. Each new vertex enters on its first committed use. The global incidence test reads only edges with two reused vertices, where a prior face can already own the same directed edge.
 
 ## @evidence contracts/development/implementation.md#bound-retention-and-release-resources
 

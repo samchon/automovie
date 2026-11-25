@@ -141,48 +141,18 @@ function append(
     ...prepared.full,
     ...plan.triangles,
   ];
-  const projected: Map<string, number> = new Map();
-  const period: number | undefined = input.surface.period;
-  for (const triangle of triangles) {
-    if (period !== undefined) {
-      const phases: number[] = triangle.vertices.map(
-        (id: number, k: number): number =>
-          prepared.chart.get(id)![1] + triangle.lifts[k]! * period,
-      );
-      if (
-        !phases.every(Number.isFinite) ||
-        Math.max(...phases) - Math.min(...phases) >= period / 2
-      )
-        return refuse(
-          input,
-          "indexed triangle has no unique sub-half-period cover",
-        );
-    }
-    for (let k: number = 0; k < 3; k++) {
-      const next: number = (k + 1) % 3;
-      const a: number = triangle.vertices[k]!;
-      const b: number = triangle.vertices[next]!;
-      const pair: string = `${Math.min(a, b)}/${Math.max(a, b)}`;
-      const turn: number =
-        (triangle.lifts[next]! - triangle.lifts[k]!) * (a < b ? 1 : -1);
-      const known: number | undefined = projected.get(pair);
-      if (known !== undefined && known !== turn)
-        return refuse(
-          input,
-          "distinct cover edges project onto one straight global mesh edge",
-        );
-      projected.set(pair, turn);
-    }
-  }
-  const opened: IAutoMovieOpenSolidMeshResult | string = openAutoMovieSolidMesh(
+  const boundary = openAutoMovieSolidMesh.prepareIndexed(
     prepared.chart,
     triangles,
+    input.surface.period,
+  );
+  if (typeof boundary === "string") return refuse(input, boundary);
+  const opened: IAutoMovieOpenSolidMeshResult | string = boundary(
     plan.constraints,
     prepared.trim.length,
     prepared.domain.length,
     input.stations[0]!,
     input.stations[input.stations.length - 1]!,
-    input.surface.period,
   );
   if (typeof opened === "string") return refuse(input, opened);
   if (opened.partial) {

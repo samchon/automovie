@@ -2,6 +2,7 @@ import {
   AutoMovieSolidCycle,
   AutoMovieSolidMesh,
   AutoMovieSolidMeshConstraints,
+  faceAutoMovieSolidMesh,
   openAutoMovieSolidMesh,
 } from "@automovie/engine";
 import type {
@@ -11,6 +12,7 @@ import type {
   IAutoMovieSolidMeshPlan,
   IAutoMovieSolidSurface,
 } from "@automovie/interface";
+import { createHash } from "node:crypto";
 
 import { nclose } from "../../internal/nclose";
 
@@ -31,12 +33,18 @@ import { nclose } from "../../internal/nclose";
  *    signed subnormals agree with their independently known station sides.
  * 6. A cylinder with original rim points on either side of the grid cover
  *    retains every indexed rim vertex and draws the same complete surface.
+ * 7. The indexed path reports projection first, then the first native
+ *    incidence refusal, then the missing or incompatible boundary source.
+ *    Its prepared reader uses the projected period to classify a partial rim.
+ * 8. With `AUTOMOVIE_PROFILE_SOLID_FACE_INCIDENCE=1`, three fixed periodic
+ *    faces retain all their triangles and endpoint cycles. The digest covers
+ *    emitted buffers and the native occurrences in publication order.
  *
  * @evidence contracts/development/testing.md#behavioral-verification Calls actual Mesh.face/close and reads IOpen chart/winding/end, world triangles, shared edge incidence and failure atomicity with no foreign replacement.
  * @evidence contracts/development/testing.md#independent-expectations A unit cylinder has known radial normals and opposite endpoint traversals. A bottom-contact rectangle removes exactly 0.6 chart area from 4 times 2pi, while only the untouched top remains a full endpoint.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers chart reflection, cutter inversion, three units, full/partial endpoints, source period translation, callback presence/absence and original source IDs.
  * @evidence contracts/development/testing.md#execution-ownership Discoverable synchronous CPU test through construction_mesh_boundary_occurrences; it generates no person, host, render, process or independent triangulator.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cylinders at three units and both chart orientations return two complete).
+ * @evidence contracts/development/common.md#meaningful-documentation Lists the 8 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Cylinders at three units and both chart orientations return two complete).
  */
 export function test_construction_mesh_boundary_occurrences(): void {
   const failures: string[] = [];
@@ -48,10 +56,142 @@ export function test_construction_mesh_boundary_occurrences(): void {
   occurrences(failures);
   cycleSeams(failures);
   wrappedDomain(failures);
+  indexedRefusals(failures);
+  if (process.env.AUTOMOVIE_PROFILE_SOLID_FACE_INCIDENCE === "1")
+    profileFaces(failures);
   if (failures.length !== 0)
     throw new Error(
       `Mesh endpoint occurrence findings:\n${failures.join("\n")}`,
     );
+}
+
+/** Keep the prior projection priority even when the native reading fails first. */
+function indexedRefusals(failures: string[]): void {
+  const chart = new Map<number, [number, number]>([
+    [0, [0, 0]],
+    [1, [1, 0]],
+    [2, [1, 0.25]],
+    [3, [0, 0.25]],
+    [4, [1, 3]],
+  ]);
+  const root: IAutoMovieSolidMeshPlan.ITriangle = {
+    vertices: [0, 1, 2],
+    lifts: [0, 0, 0],
+  };
+  const opposite: IAutoMovieSolidMeshPlan.ITriangle = {
+    vertices: [1, 0, 3],
+    lifts: [0, 0, 0],
+  };
+  const otherCover: IAutoMovieSolidMeshPlan.ITriangle = {
+    vertices: [0, 1, 3],
+    lifts: [0, 1, 0],
+  };
+  const wide: IAutoMovieSolidMeshPlan.ITriangle = {
+    vertices: [0, 1, 4],
+    lifts: [0, 0, 0],
+  };
+  const unsafe: IAutoMovieSolidMeshPlan.ITriangle = {
+    vertices: [0, 1, 2],
+    lifts: [0, Number.MAX_SAFE_INTEGER + 1, 0],
+  };
+  const edgeFailure = "triangle edge has nonmanifold or equally directed incidence";
+  const unsafeFailure = "triangle boundary cover is not representable";
+  const projectionCases: {
+    triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[];
+    period?: number;
+    detail: string;
+  }[] = [
+    {
+      triangles: [root, root, otherCover],
+      detail: "distinct cover edges project onto one straight global mesh edge",
+    },
+    {
+      triangles: [root, root, wide],
+      period: 6,
+      detail: "indexed triangle has no unique sub-half-period cover",
+    },
+  ];
+  for (const { triangles, period, detail } of projectionCases)
+    if (openAutoMovieSolidMesh.prepareIndexed(chart, triangles, period) !== detail)
+      failures.push(`indexed projection did not report ${detail} first`);
+
+  const nativeCases: {
+    triangles: readonly IAutoMovieSolidMeshPlan.ITriangle[];
+    detail: string;
+  }[] = [
+    { triangles: [root, root], detail: edgeFailure },
+    { triangles: [root, opposite, root], detail: edgeFailure },
+    { triangles: [unsafe], detail: unsafeFailure },
+    { triangles: [root], detail: "unpaired triangle edge has no source constraint" },
+  ];
+  for (const { triangles, detail } of nativeCases) {
+    const prepared = openAutoMovieSolidMesh.prepareIndexed(chart, triangles);
+    if (
+      typeof prepared === "string" ||
+      prepared([], 0, 0, 0, 1) !== detail ||
+      openAutoMovieSolidMesh(chart, triangles, [], 0, 0, 0, 1) !== detail
+    )
+      failures.push(`indexed and native plans did not report ${detail}`);
+  }
+
+  const periodic = openAutoMovieSolidMesh.prepareIndexed(chart, [root], 6);
+  const partial =
+    typeof periodic === "string"
+      ? periodic
+      : periodic(
+          [
+            { a: 0, b: 1, turn: 0, sources: [0] },
+            { a: 1, b: 2, turn: 0, sources: [1] },
+            { a: 0, b: 2, turn: 0, sources: [2] },
+          ],
+          0,
+          3,
+          0,
+          1,
+        );
+  if (typeof partial === "string" || !partial.partial || partial.cycles.length)
+    failures.push("the indexed boundary reader lost its prepared period");
+}
+
+/** Fixed production face batch for a matched incidence profile. */
+function profileFaces(failures: string[]): void {
+  const mesh: IAutoMovieSolidMesh.IMesh = AutoMovieSolidMesh.create();
+  const surface: IAutoMovieSolidSurface = cylinder(1, 1);
+  const append = faceAutoMovieSolidMesh.prepare(mesh, true);
+  const resolution: number = 160;
+  const phases: number[] = Array.from(
+    { length: resolution },
+    (_, index): number => (index * surface.period!) / resolution,
+  );
+  const stationSpans: number[] = [120, 144, 168];
+  const opened: IAutoMovieSolidMesh.IOpen[][] = stationSpans.map(
+    (spans, face): IAutoMovieSolidMesh.IOpen[] =>
+      append({
+        surface,
+        stations: Array.from(
+          { length: spans + 1 },
+          (_, index): number => 5 * face + (4 * index) / spans,
+        ),
+        phases,
+        loops: [],
+      }),
+  );
+  const triangles: number = mesh.indices.length / 3;
+  if (
+    triangles !== 2 * resolution * stationSpans.reduce((sum, n) => sum + n, 0) ||
+    opened.some(
+      (cycles) =>
+        cycles.length !== 2 ||
+        !cycles.some((cycle) => cycle.end === "bottom" && cycle.winding === -1) ||
+        !cycles.some((cycle) => cycle.end === "top" && cycle.winding === 1) ||
+        cycles.some((cycle) => cycle.vertices.length !== resolution),
+    )
+  )
+    failures.push("the profiled periodic faces lost triangles or endpoint cycles");
+  const digest: string = createHash("sha256")
+    .update(JSON.stringify([mesh, opened]))
+    .digest("hex");
+  console.log(JSON.stringify({ faces: opened.length, triangles, digest }));
 }
 
 /** An exact rim may start on either side of the regular grid's seam. */
