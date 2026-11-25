@@ -51,6 +51,14 @@ export namespace inspectAutoMovieMeshTopology {
    * Request `pieces()` after reading `topology` when both reports are needed.
    * The prepared function owns only the corner identities and retains no census
    * result. Invalid meshes produce the same standalone refusals.
+   *
+   * @evidence contracts/development/implementation.md#principled-implementation Both diagnostics use the same explicit incidence identities. CGAL Polygon Soup Repair documents that representation at https://doc.cgal.org/6.2/PMP_Mesh_repair/index.html.
+   * @evidence contracts/development/implementation.md#clear-and-simple-structure The topology value and piece reader share corner identities. Each report retains its established edge and winding algorithm.
+   * @evidence contracts/development/implementation.md#prohibited-implementation-shortcuts Both diagnostics use the existing index, physical-source, finiteness and degeneracy rules. The whole-mesh edge counts do not replace the piece winding test.
+   * @evidence contracts/development/implementation.md#efficient-algorithms This preparation validates and represents every corner once. The piece census performs its ordinary incidence work only when called.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The two reports share the weld created for this mesh inspection. No mesh-keyed lookup or piece result is retained.
+   * @evidence contracts/development/implementation.md#bound-retention-and-release-resources The piece reader holds the identity array and count but no mesh attribute or incidence map. Dropping the reader releases that state.
+   * @evidence contracts/development/common.md#meaningful-documentation States when to prepare both reports, what they share and how malformed input is refused.
    */
   export function prepare(mesh: IAutoMovieMesh): {
     readonly topology: IAutoMovieMeshTopology;
