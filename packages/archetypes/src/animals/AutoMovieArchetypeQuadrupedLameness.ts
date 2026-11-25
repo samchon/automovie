@@ -133,11 +133,12 @@ export namespace AutoMovieArchetypeQuadrupedLameness {
         "Lameness is measured at the walk and trot only; name walk or trot on every leg",
       );
     const fore: boolean = lameness.limb.endsWith("Fore");
-    const side: string = lameness.limb.startsWith("left") ? "left" : "right";
     const nodder: AutoMovieArchetypeQuadrupedBody.Limb | undefined = fore
       ? lameness.limb
       : lameness.compensation === true
-        ? (`${side}Fore` as AutoMovieArchetypeQuadrupedBody.Limb)
+        ? lameness.limb.startsWith("left")
+          ? "leftFore"
+          : "rightFore"
         : undefined;
     const withers: number = (limbs.leftFore[0]!.z + limbs.rightFore[0]!.z) / 2;
     const rear: IAutoMovieVector3 = centre(parts, "hindquarters");

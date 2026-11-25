@@ -201,15 +201,21 @@ export function fitAutoMovieRecoveryImageLoft(
         3 * t * t * (1 - t),
         t ** 3,
       ];
-      return (["radiusX", "radiusZ", "centreX", "centreZ"] as const).map(
-        (field: "radiusX" | "radiusZ" | "centreX" | "centreZ"): number =>
-          1000 *
-          span[field].reduce(
-            (sum: number, control: number, index: number): number =>
-              sum + weights[index] * control,
-            0,
-          ),
-      ) as [number, number, number, number];
+      const evaluate = (
+        field: "radiusX" | "radiusZ" | "centreX" | "centreZ",
+      ): number =>
+        1000 *
+        span[field].reduce(
+          (sum: number, control: number, index: number): number =>
+            sum + weights[index] * control,
+          0,
+        );
+      return [
+        evaluate("radiusX"),
+        evaluate("radiusZ"),
+        evaluate("centreX"),
+        evaluate("centreZ"),
+      ];
     };
     let last: string = "maximum span count exhausted";
     for (

@@ -39,6 +39,15 @@ import { mergeAutoMovieInspectionLegends } from "./mergeAutoMovieInspectionLegen
 import { placeAutoMovieInspectionLabels } from "./placeAutoMovieInspectionLabels.js";
 import { resolveAutoMovieInspectionColors } from "./resolveAutoMovieInspectionColors.js";
 
+/** Every mesh defect kind the palette colours, in the palette's order. */
+const DEFECT_KINDS: readonly IAutoMovieMeshDefect.Kind[] = [
+  "open",
+  "non-manifold",
+  "inconsistent",
+  "degenerate",
+  "sliver",
+];
+
 /**
  * Turn a built scene into the picture an inspection request asks for, in place,
  * and return the handle that keeps its shade and marks current and puts the
@@ -121,26 +130,20 @@ export function applyAutoMovieInspection(
 
   // Kind admission includes names declared for frames outside the current one.
   const supplied: readonly IAutoMovieMark[] = props.marks ?? [];
-  const defects: IAutoMovieMeshDefect.Kind[] = (
-    Object.keys(
-      AUTO_MOVIE_INSPECTION_PALETTE.defect,
-    ) as IAutoMovieMeshDefect.Kind[]
-  ).filter(
+  const defects: IAutoMovieMeshDefect.Kind[] = DEFECT_KINDS.filter(
     (kind: IAutoMovieMeshDefect.Kind): boolean =>
       kind !== "sliver" || request.sliver !== null,
   );
   const admitPaths: ReturnType<typeof admitAutoMovieInspectionPatterns> =
     admitAutoMovieInspectionPatterns(request, supplied, props.markKinds);
-  const asks: (kind: string) => boolean = memo((kind: string): boolean =>
+  const asks: (kind: string) => boolean = (kind: string): boolean =>
     request.marks.some((pattern: string): boolean =>
       matchAutoMovieInspectionPath(kind, pattern),
-    ),
-  );
-  const hidden: (path: string) => boolean = memo((path: string): boolean =>
+    );
+  const hidden: (path: string) => boolean = (path: string): boolean =>
     request.hide.some((pattern: string): boolean =>
       matchAutoMovieInspectionPath(path, pattern),
-    ),
-  );
+    );
 
   // Measured marks on every drawn, visible mesh the request does not hide, read before any state changes.
   const drawn: IAutoMovieInspectionPath[] = listAutoMovieInspectionPaths(scene);
@@ -159,14 +162,12 @@ export function applyAutoMovieInspection(
   });
 
   admitPaths(drawn, measured, asks);
-  const selects: (path: string) => boolean = memo(
-    (path: string): boolean =>
-      (request.parts.length === 0 ||
-        request.parts.some((pattern: string): boolean =>
-          matchAutoMovieInspectionPath(path, pattern),
-        )) &&
-      !hidden(path),
-  );
+  const selects: (path: string) => boolean = (path: string): boolean =>
+    (request.parts.length === 0 ||
+      request.parts.some((pattern: string): boolean =>
+        matchAutoMovieInspectionPath(path, pattern),
+      )) &&
+    !hidden(path);
   const anchors: Map<string, THREE.Object3D> = new Map<
     string,
     THREE.Object3D
@@ -483,19 +484,6 @@ interface IPlaced {
 
   /** Its anchor. */
   anchor: THREE.Object3D | null;
-}
-
-/** A one-argument predicate that decides each distinct argument once. */
-function memo(decide: (key: string) => boolean): (key: string) => boolean {
-  const verdicts: Map<string, boolean> = new Map<string, boolean>();
-  return (key: string): boolean => {
-    let verdict: boolean | undefined = verdicts.get(key);
-    if (verdict === undefined) {
-      verdict = decide(key);
-      verdicts.set(key, verdict);
-    }
-    return verdict;
-  };
 }
 
 /**

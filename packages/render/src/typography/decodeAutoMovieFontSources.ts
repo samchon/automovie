@@ -82,7 +82,7 @@ export async function decodeAutoMovieFontSources(props: {
         bytes = await props.readAsset(source.asset);
       } catch (error) {
         throw new Error(
-          `Font source "${source.id}" cannot read asset "${source.asset}": ${(error as Error).message}`,
+          `Font source "${source.id}" cannot read asset "${source.asset}": ${error instanceof Error ? error.message : String(error)}`,
           { cause: error },
         );
       }
@@ -92,7 +92,7 @@ export async function decodeAutoMovieFontSources(props: {
       fonts.set(source.id, decodeAutoMovieTrueTypeFont(bytes));
     } catch (error) {
       throw new Error(
-        `Font source "${source.id}" cannot be decoded: ${(error as Error).message}`,
+        `Font source "${source.id}" cannot be decoded: ${error instanceof Error ? error.message : String(error)}`,
         { cause: error },
       );
     }

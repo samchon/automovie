@@ -275,7 +275,7 @@ export class AutoMovieArchetypeDrawSession<Dimension extends string> {
       // No figures: an empty record, which a generic Dimension cannot type-check as empty without being told.
       return {
         name: undefined,
-        figures: {} as Readonly<Partial<Record<Dimension, number>>>,
+        figures: {},
       };
     }
     const name: Name =

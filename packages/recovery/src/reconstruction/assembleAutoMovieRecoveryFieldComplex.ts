@@ -354,8 +354,7 @@ export function assembleAutoMovieRecoveryFieldComplex(
       );
       patches.push({
         ...patch,
-        controlIds:
-          remapped as IAutoMovieBicubicAtlasGeometry["patches"][number]["controlIds"],
+        controlIds: remapped,
       });
     }
     boundaryBindings.push(...candidate.result.recipe.boundaryBindings!);

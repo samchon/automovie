@@ -223,7 +223,7 @@ function supportsRay(mesh: Mesh): boolean {
     material.depthFunc === LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (!("displacementMap" in material) || material.displacementMap === null)
+    (material.displacementMap ?? null) === null
   );
 }
 

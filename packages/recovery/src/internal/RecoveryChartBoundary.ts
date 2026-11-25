@@ -56,8 +56,7 @@ export function RecoveryChartBoundary(
     const points: Readonly<AutoMovieVector3Tuple>[] = reversed
       ? [...pointsMm].reverse()
       : [...pointsMm];
-    const cornerIds: [string, string] = [0, word.length - 1].map(
-      (i: number): string => {
+    const registerCorner = (i: number): string => {
         const previous:
           | { id: string; point: Readonly<AutoMovieVector3Tuple> }
           | undefined = corners.get(word[i]!);
@@ -77,8 +76,11 @@ export function RecoveryChartBoundary(
           };
         corners.set(word[i]!, corner);
         return corner.id;
-      },
-    ) as [string, string];
+    };
+    const cornerIds: [string, string] = [
+      registerCorner(0),
+      registerCorner(word.length - 1),
+    ];
     let value: Value | undefined = registry.get(key);
     if (
       value &&

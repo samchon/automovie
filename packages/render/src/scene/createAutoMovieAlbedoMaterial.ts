@@ -30,7 +30,7 @@ import * as THREE from "three";
 export function createAutoMovieAlbedoMaterial(
   original: THREE.Material,
 ): THREE.MeshBasicMaterial {
-  const source: IBaseColorSource = original as IBaseColorSource;
+  const source: IBaseColorSource = original;
   const color: THREE.Color = source.color?.clone() ?? new THREE.Color(0, 0, 0);
   const cutout: boolean = original.alphaTest > 0;
   return new THREE.MeshBasicMaterial({

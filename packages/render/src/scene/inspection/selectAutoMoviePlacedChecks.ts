@@ -289,6 +289,6 @@ function admitted(
       observation,
     });
   return result.status === "checked" && result.violations.length === 0
-    ? (observation.transform as IAutoMovieTransform)
+    ? observation.transform
     : undefined;
 }

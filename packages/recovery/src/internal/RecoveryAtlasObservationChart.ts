@@ -202,12 +202,13 @@ export function RecoveryAtlasObservationChart(
       anchorTurningDegrees: disk.cornerRule.anchorTurningDegrees,
       sourceAreaDifferenceMm2,
     };
-  } else
-    sides = ordered.map((run: Run, i: number): number[] =>
-      (i < 2 ? run.nodes : [...run.nodes].reverse()).map(
+  } else {
+    const side = (i: 0 | 1 | 2 | 3): number[] =>
+      (i < 2 ? ordered[i]!.nodes : [...ordered[i]!.nodes].reverse()).map(
         (id: string): number => slots.get(id)!,
-      ),
-    ) as [number[], number[], number[], number[]];
+      );
+    sides = [side(0), side(1), side(2), side(3)];
+  }
   if (input.inventoryOnly) {
     inventory.push({
       chart: name,

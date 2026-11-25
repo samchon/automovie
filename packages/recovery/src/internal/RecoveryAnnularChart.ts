@@ -246,16 +246,20 @@ export function RecoveryAnnularChart(
     verticesMm.push(input.verticesMm[vertex]!);
     vertexKeys.push(input.vertexKeys[vertex]!);
   }
+  const relabel = (vertex: number, face: number): number =>
+    labels.has(vertex) && labels.get(vertex)!.get(face) !== left
+      ? duplicate.get(vertex)!
+      : vertex;
   const triangles: [number, number, number][] = input.triangles.map(
     (
       triangle: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      triangle.map((vertex: number): number =>
-        labels.has(vertex) && labels.get(vertex)!.get(face) !== left
-          ? duplicate.get(vertex)!
-          : vertex,
-      ) as [number, number, number],
+      [
+        relabel(triangle[0], face),
+        relabel(triangle[1], face),
+        relabel(triangle[2], face),
+      ],
   );
   const sides: [number[], number[], number[], number[]] = [
     [...bottom, duplicate.get(start)!],

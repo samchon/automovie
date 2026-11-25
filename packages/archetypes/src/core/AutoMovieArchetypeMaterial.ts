@@ -215,9 +215,9 @@ export namespace AutoMovieArchetypeMaterial {
   // Freeze nested ranges and rows as well as the catalogue itself: these
   // measured constants are borrowed by every producer and part query.
   for (const row of Object.values(FRICTION)) {
-    if (typeof row.static !== "number") Object.freeze(row.static);
-    if (row.kinetic !== null && typeof row.kinetic !== "number")
-      Object.freeze(row.kinetic);
+    // Freezing a bare number is a no-op, so only ranges are changed.
+    Object.freeze(row.static);
+    if (row.kinetic !== null) Object.freeze(row.kinetic);
     Object.freeze(row);
   }
   Object.freeze(FRICTION);

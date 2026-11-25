@@ -189,22 +189,20 @@ export function RecoveryFeatureChartCutsSeams(
         banks[bank]!.push(to);
       }
     }
+    const bind = (path: number[]): { chart: number; path: number[] } => {
+      const chart: number = chartOf.get(path[0]!)!;
+      if (
+        path.some((id: number): boolean => chartOf.get(id) !== chart) ||
+        (arc.closed && path[0] !== path.at(-1))
+      )
+        fail("a maximal feature bank is not one supported chart path");
+      return {
+        chart,
+        path: path.map((id: number): number => localOf.get(id)!),
+      };
+    };
     const bindings: ReturnType<IAutoMovieRecoveryFeatureChartCuts.Operation>["seams"][number]["banks"] =
-      banks.map((path: number[]): { chart: number; path: number[] } => {
-        const chart: number = chartOf.get(path[0]!)!;
-        if (
-          path.some((id: number): boolean => chartOf.get(id) !== chart) ||
-          (arc.closed && path[0] !== path.at(-1))
-        )
-          fail("a maximal feature bank is not one supported chart path");
-        return {
-          chart,
-          path: path.map((id: number): number => localOf.get(id)!),
-        };
-      }) as [
-        { chart: number; path: number[] },
-        { chart: number; path: number[] },
-      ];
+      [bind(banks[0]), bind(banks[1])];
     seams.push({
       id: `feature-arc.${seams.length}`,
       kind: "crease",

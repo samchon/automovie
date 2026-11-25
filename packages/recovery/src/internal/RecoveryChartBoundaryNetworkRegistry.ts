@@ -188,11 +188,11 @@ export function RecoveryChartBoundaryNetworkRegistry(
           ...t,
         ],
       ),
-      sides: chart.sides.map((s: number[]): number[] => [...s]) as [
-        number[],
-        number[],
-        number[],
-        number[],
+      sides: [
+        [...chart.sides[0]],
+        [...chart.sides[1]],
+        [...chart.sides[2]],
+        [...chart.sides[3]],
       ],
       boundaries: [],
     });

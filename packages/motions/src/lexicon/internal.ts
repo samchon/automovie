@@ -57,3 +57,5 @@ export * from "./humanHandrimStrokePhases";
 export * from "./humanBicycleEffortTimeline";
 export * from "./humanFloatBesideAdmit";
 export * from "./HumanRide";
+export * from "./humanRidePosting";
+export * from "./humanRideWindows";

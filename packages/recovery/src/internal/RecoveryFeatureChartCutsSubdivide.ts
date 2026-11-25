@@ -98,13 +98,16 @@ export function RecoveryFeatureChartCutsSubdivide(
     const feature: IAutoMovieRecoveryIndexedCrease = features.get(word)!,
       a: number = feature.a,
       b: number = feature.b,
-      point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-        (k: number): number =>
-          roundedHalfUnits(
-            integer(vertices[a]![k]!) + integer(vertices[b]![k]!),
-            false,
-          ),
-      ) as [number, number, number];
+      midpoint = (k: 0 | 1 | 2): number =>
+        roundedHalfUnits(
+          integer(vertices[a]![k]!) + integer(vertices[b]![k]!),
+          false,
+        ),
+      point: Readonly<AutoMovieVector3Tuple> = [
+        midpoint(0),
+        midpoint(1),
+        midpoint(2),
+      ];
     if (
       point.some(
         (value: number): boolean => value === Infinity || value === -Infinity,
@@ -135,9 +138,10 @@ export function RecoveryFeatureChartCutsSubdivide(
       )
     )
       fail("a rounded midpoint is not a strict interior edge observation");
-    const edgeKeys: [string, string] = [physical[a]!, physical[b]!].sort(
-        lex,
-      ) as [string, string],
+    const edgeKeys: [string, string] =
+        lex(physical[a]!, physical[b]!) <= 0
+          ? [physical[a]!, physical[b]!]
+          : [physical[b]!, physical[a]!],
       key: string = `feature-midpoint:${JSON.stringify([feature.sourceEdge, ...edgeKeys])}`,
       occurrence: string = `feature-midpoint-occurrence:${JSON.stringify([feature.sourceEdge, ...[occurrences[a]!, occurrences[b]!].sort(lex)])}`;
     const previous: Readonly<AutoMovieVector3Tuple> | undefined =

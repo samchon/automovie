@@ -36,7 +36,8 @@ export function observeRecoverySection(
     a: number,
     b: number,
   ): string => (a < b ? `${a},${b}` : `${b},${a}`);
-  const section: IAutoMovieContourLoft64.ISection = { coordinateMm, loops: [] };
+  const loops: { curve: IAutoMovieCubicBezierCurve64; winding: 1 | -1 }[] = [];
+  const section: IAutoMovieContourLoft64.ISection = { coordinateMm, loops };
   const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
     coordinateMm,
     fits: [],
@@ -80,7 +81,7 @@ export function observeRecoverySection(
       }
       let winding: 1 | -1 = 1;
       if (contour.closed) {
-        winding = orientation(plane, contour) as 1 | -1;
+        winding = orientation(plane, contour) < 0 ? -1 : 1;
         const area: number = signedArea(
           points.map((p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
             (p[0] - plane.origin[0]) * plane.u[0] +
@@ -157,12 +158,7 @@ export function observeRecoverySection(
             loopIndex: section.loops.length,
             curveName: fit.curve.name,
           };
-        (
-          section.loops as {
-            curve: IAutoMovieCubicBezierCurve64;
-            winding: 1 | -1;
-          }[]
-        ).push({
+        loops.push({
           curve: fit.curve,
           winding,
         });

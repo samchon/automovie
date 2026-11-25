@@ -295,10 +295,10 @@ export function RecoveryMultiBoundaryChart(
       triangle: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      triangle.map((vertex: number): number => remap[vertex]!.get(face)!) as [
-        number,
-        number,
-        number,
+      [
+        remap[triangle[0]]!.get(face)!,
+        remap[triangle[1]]!.get(face)!,
+        remap[triangle[2]]!.get(face)!,
       ],
   );
   const result: ReturnType<typeof analyze> = analyze(verticesMm, triangles),

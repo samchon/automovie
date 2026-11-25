@@ -1,4 +1,3 @@
-import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -17,31 +16,16 @@ import { sit } from "../everyday/sit";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanObject } from "../perform/HumanObject";
 import { HumanFoot } from "../posture/HumanFoot";
-import { HumanFrame } from "../posture/HumanFrame";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountOff } from "./HumanMountOff";
-
-/** Contact tolerance in metres for the stage's floor. */
-const FLOOR: number = 0.01;
-
-/**
- * Frame comparison tolerance during the stopped transfer, in metres or
- * unit-vector length.
- */
-const STILL: number = 1e-6;
+import { humanBikeTransferLine } from "./humanBikeTransferLine";
 
 /** Number of intervals over which the authored stationary segment is probed. */
 const INTERVALS: number = 8;
 
 /** The selected bicycle's pedal sides. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
-
-/** Two independent axes exposed by the bicycle's rigid frame. */
-const AXES: readonly IAutoMovieVector3[] = [
-  { x: 0, y: 1, z: 0 },
-  { x: 0, y: 0, z: 1 },
-];
 
 /**
  * Enter or leave the same stopped bicycle at a race boundary, using the
@@ -130,28 +114,21 @@ function planHumanBikeTransfer(
   for (let index: number = 1; index <= INTERVALS; ++index) {
     const film: number = start + (plan.duration * index) / INTERVALS;
     const frame: IAutoMovieRigidTransform = bicycle.frame(film);
+    const now: Partial<Record<AutoMovieHumanSide, IAutoMovieVector3>> = {};
+    for (const side of SIDES) {
+      const point: IAutoMovieVector3 | undefined = bicycle.prop.point?.(
+        `${side}Pedal`,
+        film,
+      )?.point;
+      if (point !== undefined) now[side] = point;
+    }
     if (
-      Vector3.length(Vector3.subtract(frame.position, stopped.position)) <=
-        STILL &&
-      AXES.every(
-        (axis: IAutoMovieVector3): boolean =>
-          Vector3.length(
-            Vector3.subtract(
-              Quaternion.rotateVector(frame.rotation, axis),
-              Quaternion.rotateVector(stopped.rotation, axis),
-            ),
-          ) <= STILL,
-      ) &&
-      SIDES.every((side: AutoMovieHumanSide): boolean => {
-        const now: IAutoMovieVector3 | undefined = bicycle.prop.point?.(
-          `${side}Pedal`,
-          film,
-        )?.point;
-        return (
-          now !== undefined &&
-          Vector3.length(Vector3.subtract(now, pedals[side]!)) <= STILL
-        );
-      })
+      humanBikeTransferLine.still(
+        stopped,
+        frame,
+        { left: pedals.left, right: pedals.right },
+        now,
+      )
     )
       continue;
     throw new HumanRefusal({
@@ -164,11 +141,8 @@ function planHumanBikeTransfer(
     });
   }
 
-  const onward: IAutoMovieVector3 = Quaternion.rotateVector(
-    HumanFrame.turn(line.heading),
-    { x: 0, y: 0, z: 1 },
-  );
-  const origin: IAutoMovieVector3 = { x: line.x, y: 0, z: line.z };
+  const beyond: (sole: readonly IAutoMovieVector3[]) => boolean =
+    humanBikeTransferLine(line, mount);
   /**
    * Whether an entire displayed sole is on the floor on the required side of
    * the line.
@@ -177,15 +151,11 @@ function planHumanBikeTransfer(
     side: AutoMovieHumanSide,
     bone: IAutoMovieResolvedBone,
   ): boolean =>
-    HumanFoot.sole(body, side, {
-      ankle: bone.worldPosition,
-      rotation: bone.worldRotation,
-    }).every(
-      (point: IAutoMovieVector3): boolean =>
-        Math.abs(point.y) <= FLOOR &&
-        (mount ? 1 : -1) *
-          Vector3.dot(Vector3.subtract(point, origin), onward) >
-          0,
+    beyond(
+      HumanFoot.sole(body, side, {
+        ankle: bone.worldPosition,
+        rotation: bone.worldRotation,
+      }),
     );
   const entryBones: Map<AutoMovieHumanoidBone, IAutoMovieResolvedBone> =
     poseBones(body, entry.pose);

@@ -153,10 +153,10 @@ export function observeAutoMovieRecoverySections<
       if (cancelled()) throw new Error("Section observation cancelled");
       const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
         ...frame,
-        origin: frame.n.map((x: number): number => x * coordinateMm) as [
-          number,
-          number,
-          number,
+        origin: [
+          frame.n[0] * coordinateMm,
+          frame.n[1] * coordinateMm,
+          frame.n[2] * coordinateMm,
         ],
       };
       const observed: ReturnType<IAutoMovieRecoverySectionObservationOperation.Operation> =

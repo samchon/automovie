@@ -202,7 +202,7 @@ function cube(
 /** Rewrite a cube's segment coordinates in place around a new centre. */
 function place(mark: IAutoMovieMark, centre: IAutoMovieVector3): void {
   if (mark.shape.type !== "segments") return;
-  const points: number[] = mark.shape.points as number[];
+  const points: number[] = mark.shape.points;
   EDGES.forEach(
     (
       [ax, ay, az, bx, by, bz]: readonly [

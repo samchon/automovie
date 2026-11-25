@@ -83,18 +83,19 @@ export function compileAutoMovieRecoverySupportLoft(
         (
           span: IAutoMovieConvexSupportLoft["spans"][number],
         ): IAutoMovieConvexSupportLoft["spans"][number] => ({
-          interval: span.interval.map(
-            (y: number): number =>
-              anchor + (y - anchor) * recipe.dimensions.heightScale,
-          ) as [number, number],
+          interval: [
+            anchor +
+              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
+            anchor +
+              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
+          ],
           offsets: span.offsets.map(
-            (q: number[], i: number): [number, number, number, number] =>
-              q.map((h: number): number => h / lengths[i]) as [
-                number,
-                number,
-                number,
-                number,
-              ],
+            (q: number[], i: number): [number, number, number, number] => [
+              q[0]! / lengths[i]!,
+              q[1]! / lengths[i]!,
+              q[2]! / lengths[i]!,
+              q[3]! / lengths[i]!,
+            ],
           ),
         }),
       ),

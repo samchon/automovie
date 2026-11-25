@@ -1,8 +1,10 @@
 import {
+  AutoMoviePhysicalBalance,
   Quaternion,
   physicalStanceBalance,
   physicalStanceSwing,
 } from "@automovie/engine";
+import type { IAutoMovieVector3 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 /**
@@ -34,6 +36,11 @@ import { TestValidator } from "@nestia/e2e";
  * 6. Swing drive: the path's feed-forward alone, m (g y + a), carried by the
  *    limb's effective mass; at rest on its path the leg is held against its
  *    weight, and no position error enters it.
+ * 7. Bounds: the swing's acceleration bound is the hip's torque over `m_eff l`,
+ *    160 / (2 x 0.8); a swing lasts at least 0.3 s, and over 0.5 m at 10 m/s^2
+ *    `sqrt(MINIMUM_JERK 0.5 / 10)`; the clearance a stance can carry is
+ *    `min(h, LIFT_SHARE m g T^2 / CLEARANCE)`; angular momentum k shifts the
+ *    capture point by `omega / (m g) k x y`.
  */
 export function test_unit_engine_physics_physical_stance_swing(): void {
   const failures: string[] = [];
@@ -196,5 +203,36 @@ export function test_unit_engine_physics_physical_stance_swing(): void {
       `an accelerating swing is driven by ${JSON.stringify(moving)}`,
     );
 
+  // 7. Bounds.
+  const near = (name: string, actual: number, expected: number): void => {
+    if (!(Math.abs(actual - expected) <= 1e-9 * Math.max(1, Math.abs(expected))))
+      failures.push(`${name}: ${actual} against ${expected}`);
+  };
+  near(
+    "hip-bound swing",
+    physicalStanceSwing.swingBound({ effective: 2, length: 0.8, torque: 160 }),
+    160 / (2 * 0.8),
+  );
+  near("shortest swing", AutoMoviePhysicalBalance.duration(0.01, 0, 100), 0.3);
+  near(
+    "distance-bound swing",
+    AutoMoviePhysicalBalance.duration(0.5, 0, 10),
+    Math.sqrt((AutoMoviePhysicalBalance.MINIMUM_JERK * 0.5) / 10),
+  );
+  near(
+    "lowered clearance",
+    physicalStanceSwing.clearance(0.3, 8, 1, 9.81, 0.1),
+    (physicalStanceSwing.LIFT_SHARE * 8 * 9.81 * 0.09) /
+      AutoMoviePhysicalBalance.CLEARANCE,
+  );
+  near("kept clearance", physicalStanceSwing.clearance(1, 8, 1, 9.81, 0.1), 0.1);
+  const shifted: IAutoMovieVector3 = physicalStanceSwing.spin(
+    { x: 2, y: 0, z: -1 },
+    3,
+    80,
+    9.81,
+  );
+  near("spin x", shifted.x, (1 * 3) / (80 * 9.81));
+  near("spin z", shifted.z, (2 * 3) / (80 * 9.81));
   TestValidator.equals("recovery timing", failures, []);
 }

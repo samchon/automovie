@@ -120,9 +120,11 @@ export function observeAutoMovieRecoverySlabs(
     const sections: IAutoMovieRecoverySlabs["sections"] = [];
     for (const [sectionIndex, saved] of input.savedSections.entries()) {
       checkpoint();
-      const origin: [number, number, number] = frame.n.map(
-        (value: number): number => value * saved.coordinateMm,
-      ) as [number, number, number];
+      const origin: [number, number, number] = [
+        frame.n[0] * saved.coordinateMm,
+        frame.n[1] * saved.coordinateMm,
+        frame.n[2] * saved.coordinateMm,
+      ];
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,

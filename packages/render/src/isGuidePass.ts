@@ -10,4 +10,4 @@ import { AUTOMOVIE_GUIDE_PASSES } from "./AUTOMOVIE_GUIDE_PASSES.js";
 export const isGuidePass: (value: string) => value is AutoMovieGuidePass = (
   value: string,
 ): value is AutoMovieGuidePass =>
-  (AUTOMOVIE_GUIDE_PASSES as readonly string[]).includes(value);
+  AUTOMOVIE_GUIDE_PASSES.some((pass: AutoMovieGuidePass): boolean => pass === value);

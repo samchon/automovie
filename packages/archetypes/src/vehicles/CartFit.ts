@@ -56,8 +56,10 @@ export namespace CartFit {
     if (models === undefined || withers === undefined) return models;
     return Object.fromEntries(
       Object.entries(models).filter(([name]: [string, unknown]): boolean => {
-        const band: IAutoMovieArchetypeBand | undefined =
-          CART_MODELS.ranges[name as createCart.Model]?.withersHeight;
+        const band: IAutoMovieArchetypeBand | undefined = Object.entries(
+          CART_MODELS.ranges,
+        ).find(([known]: [string, unknown]): boolean => known === name)?.[1]
+          ?.withersHeight;
         return (
           band === undefined ||
           (band.minimum <= withers && withers <= band.maximum)

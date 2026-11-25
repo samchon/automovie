@@ -95,10 +95,11 @@ export function RecoveryChartFitPrepare(
             sum + term.weight,
           0,
         );
-        return [0, 1, 2].map(
-          (k: number): number =>
-            (expression.constant[k]! + origin[k]! * (mass - 1)) / scale,
-        ) as [number, number, number];
+        return [
+          (expression.constant[0]! + origin[0]! * (mass - 1)) / scale,
+          (expression.constant[1]! + origin[1]! * (mass - 1)) / scale,
+          (expression.constant[2]! + origin[2]! * (mass - 1)) / scale,
+        ];
       },
     );
   for (const patch of input.patches)

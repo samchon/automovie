@@ -32,7 +32,7 @@ export function captureAutoMovieMetricFrame(input: {
     );
   const maximum: number = input.renderer
     .getContext()
-    .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE) as number;
+    .getParameter(input.renderer.getContext().MAX_RENDERBUFFER_SIZE);
   if (
     maximum <= 0 ||
     input.renderer.getContext().isContextLost() ||

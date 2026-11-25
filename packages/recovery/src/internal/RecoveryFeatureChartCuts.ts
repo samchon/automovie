@@ -225,10 +225,10 @@ export function RecoveryFeatureChartCuts(
       t: readonly [number, number, number],
       face: number,
     ): [number, number, number] =>
-      t.map((id: number): number => remap[id]!.get(face)!) as [
-        number,
-        number,
-        number,
+      [
+        remap[t[0]]!.get(face)!,
+        remap[t[1]]!.get(face)!,
+        remap[t[2]]!.get(face)!,
       ],
   );
   const actual: IAutoMovieRecoveryObservedMeshTopology = analyze(
@@ -361,10 +361,10 @@ export function RecoveryFeatureChartCuts(
       ),
       triangles: faces.map(
         (face: number): [number, number, number] =>
-          cutTriangles[face]!.map((id: number): number => local.get(id)!) as [
-            number,
-            number,
-            number,
+          [
+            local.get(cutTriangles[face]![0])!,
+            local.get(cutTriangles[face]![1])!,
+            local.get(cutTriangles[face]![2])!,
           ],
       ),
       physicalKeys: ids.map((id: number): string => cutPhysical[id]!),

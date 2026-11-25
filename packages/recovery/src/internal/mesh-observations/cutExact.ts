@@ -306,7 +306,8 @@ export namespace cutExact {
           record(point, [ti], true);
         }
         if (hits.size === 2) {
-          const ends: [string, string] = [...hits] as [string, string];
+          const [first, second]: string[] = [...hits];
+          const ends: [string, string] = [first!, second!];
           // Only a plane-coincident physical source edge is shared across faces.
           const onEdge: boolean =
             t.filter((i: number): boolean => distance(i) === 0).length === 2;

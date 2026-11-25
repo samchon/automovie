@@ -39,11 +39,9 @@ export namespace AutoMovieRecoveryOpenContinuation {
       bundle.loft.sections.length < 2
     )
       throw new Error("Aligned saved section observations are required");
+    const inputFields: Record<string, unknown> = { ...input };
     for (const [key, value] of Object.entries(bundle.policy))
-      if (
-        JSON.stringify(value) !==
-        JSON.stringify(input[key as keyof IAutoMovieRecoveryInput])
-      )
+      if (JSON.stringify(value) !== JSON.stringify(inputFields[key]))
         throw new Error(
           "Saved fitting and station policy must remain unchanged",
         );

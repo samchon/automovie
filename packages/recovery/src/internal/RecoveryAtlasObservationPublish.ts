@@ -96,6 +96,14 @@ export function RecoveryAtlasObservationPublish(
       physicalGradientLengthMm: input.physicalGradientLengthMm,
     },
   });
+  const fitReports: {
+    id: string;
+    qualified: boolean;
+    externalBoundaryAuthorityQualified: boolean;
+    patches: string[];
+    joint: { maximumMm: number; diagnostics: string[] };
+    sourceAreaMm2: number | null;
+  }[] = [];
   for (const result of batch) {
     const prepared: IAutoMovieRecoveryPendingChartObservation | undefined =
       pendingByName.get(result.name);
@@ -201,6 +209,18 @@ export function RecoveryAtlasObservationPublish(
       externalJoins:
         "all-selected-families-share-declared-physical-subarcs; physical-gradient-fit-is-not-exact-G1; global-neighbor-and-cut-bank-qualification-remains-explicit",
     });
+    fitReports.push({
+      id: result.name,
+      qualified: fit.qualified,
+      externalBoundaryAuthorityQualified:
+        prepared.externalBoundaryAuthorityQualified &&
+        result.sharedBoundaryQualified,
+      patches: fit.patches.map(
+        (patch: (typeof fit.patches)[number]): string => patch.id,
+      ),
+      joint: fit.joint,
+      sourceAreaMm2: fit.areaObservation.sourceAreaMm2,
+    });
     for (const face of prepared.sourceFaces) representedFaces.add(face);
     prepared.outcomes.push({
       component: prepared.component,
@@ -267,19 +287,6 @@ export function RecoveryAtlasObservationPublish(
       ],
     };
   }
-  const fitReports: {
-    id: string;
-    qualified: boolean;
-    externalBoundaryAuthorityQualified: boolean;
-    patches: string[];
-    joint: { maximumMm: number; diagnostics: string[] };
-  }[] = charts as {
-    id: string;
-    qualified: boolean;
-    externalBoundaryAuthorityQualified: boolean;
-    patches: string[];
-    joint: { maximumMm: number; diagnostics: string[] };
-  }[];
   const assemblyDifferenceMm: number =
     assembled === undefined
       ? 0
@@ -382,10 +389,9 @@ export function RecoveryAtlasObservationPublish(
         "entire immutable input mesh, not the scalar-window or head denominator",
       sharedBoundaries: boundaryOwner.size(),
       boundaryAssembly: assembly,
-      chartAreasMm2: charts.map(
-        (chart: object): number | null =>
-          (chart as { areaObservation: { sourceAreaMm2: number | null } })
-            .areaObservation.sourceAreaMm2,
+      chartAreasMm2: fitReports.map(
+        (report: (typeof fitReports)[number]): number | null =>
+          report.sourceAreaMm2,
       ),
       intervalWidthsMm: visitedIntervalIds.map(
         (id: number): number => input.levelsMm[id + 1]! - input.levelsMm[id]!,

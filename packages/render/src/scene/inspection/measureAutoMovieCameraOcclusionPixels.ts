@@ -103,17 +103,17 @@ export function measureAutoMovieCameraOcclusionPixels(
   )
     return unsupported("unsupported delivery render state");
 
-  const depthBits: number = context.getParameter(context.DEPTH_BITS) as number;
+  const depthBits: number = context.getParameter(context.DEPTH_BITS);
   const maxRenderbuffer: number = context.getParameter(
     context.MAX_RENDERBUFFER_SIZE,
-  ) as number;
+  );
   const maximum: number = Math.min(
     maxRenderbuffer,
     renderer.capabilities.maxTextureSize,
   );
   const viewport: ArrayLike<number> = context.getParameter(
     context.MAX_VIEWPORT_DIMS,
-  ) as Int32Array;
+  );
   if (
     depthBits < 16 ||
     depthBits > 32 ||
@@ -366,7 +366,7 @@ function nativeOpaqueMaterial(material: THREE.Material): boolean {
     material.depthFunc === THREE.LessEqualDepth &&
     material.colorWrite &&
     !material.clippingPlanes?.length &&
-    (!("displacementMap" in material) || material.displacementMap === null)
+    (material.displacementMap ?? null) === null
   );
 }
 

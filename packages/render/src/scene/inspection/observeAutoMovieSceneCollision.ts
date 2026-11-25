@@ -94,10 +94,23 @@ export function observeAutoMovieSceneCollision(
     observeLayer(props, layer, budget, findings, coverage);
   }
   if (props.spent !== undefined)
-    for (const kind of Object.keys(budget) as (keyof ILimits)[])
-      props.spent[kind] = props.limits[kind]! - budget[kind]!;
+    for (const kind of LIMIT_KINDS) {
+      const limit: number | undefined = props.limits[kind];
+      const left: number | undefined = budget[kind];
+      if (limit !== undefined && left !== undefined)
+        props.spent[kind] = limit - left;
+    }
   return { findings, coverage };
 }
+
+/** Every kind of work an observation may spend. */
+const LIMIT_KINDS: readonly (keyof ILimits)[] = [
+  "comparisons",
+  "posedVertices",
+  "surfaceTriangles",
+  "sweptCells",
+  "parts",
+];
 
 /** Collect, search and witness one layer, then check its motion cells. */
 function observeLayer(

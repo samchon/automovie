@@ -315,10 +315,11 @@ export function refineRecoveryCameraMapFeasible(
               at: number,
             ): IAutoMovieRecoveryMapLandmark => ({
               ...landmark,
-              point: landmark.point.map(
-                (value: number, axis: number): number =>
-                  value + step[cameraWidth + 3 * at + axis]!,
-              ) as [number, number, number],
+              point: [
+                landmark.point[0] + step[cameraWidth + 3 * at]!,
+                landmark.point[1] + step[cameraWidth + 3 * at + 1]!,
+                landmark.point[2] + step[cameraWidth + 3 * at + 2]!,
+              ],
             }),
           ),
         };

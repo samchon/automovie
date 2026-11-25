@@ -106,11 +106,13 @@ export function RecoveryChartLeafFit(
                 Array.from(
                   { length: 4 },
                   (_: unknown, i: number): [number, number, number] =>
-                    [
-                      ...previous!.controlsMm[
+                    ((
+                      c: Readonly<AutoMovieVector3Tuple>,
+                    ): [number, number, number] => [c[0], c[1], c[2]])(
+                      previous!.controlsMm[
                         previous!.patches[old]!.controlIds[4 * j + i]!
                       ]!,
-                    ] as [number, number, number],
+                    ),
                 ),
                 u[0]!,
                 u[1]!,
@@ -225,10 +227,10 @@ export function RecoveryChartLeafFit(
                 0,
               ) / 3,
           ),
-          [0, 1, 2].map((k: number): number => (a[k]! + b[k]! + c[k]!) / 3) as [
-            number,
-            number,
-            number,
+          [
+            (a[0]! + b[0]! + c[0]!) / 3,
+            (a[1]! + b[1]! + c[1]!) / 3,
+            (a[2]! + b[2]! + c[2]!) / 3,
           ],
           area,
         );
@@ -246,22 +248,26 @@ export function RecoveryChartLeafFit(
           ): p is Readonly<AutoMovieVector3Tuple> => p !== null,
         ),
       ];
-      const lower: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-        (k: number): number =>
-          all.reduce(
-            (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
-              Math.min(x, p[k]!),
-            Infinity,
-          ),
-      ) as [number, number, number];
-      const upper: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-        (k: number): number =>
-          all.reduce(
-            (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
-              Math.max(x, p[k]!),
-            -Infinity,
-          ),
-      ) as [number, number, number];
+      const extreme = (
+        pick: (a: number, b: number) => number,
+        seed: number,
+        k: 0 | 1 | 2,
+      ): number =>
+        all.reduce(
+          (x: number, p: Readonly<AutoMovieVector3Tuple>): number =>
+            pick(x, p[k]),
+          seed,
+        );
+      const lower: Readonly<AutoMovieVector3Tuple> = [
+        extreme(Math.min, Infinity, 0),
+        extreme(Math.min, Infinity, 1),
+        extreme(Math.min, Infinity, 2),
+      ];
+      const upper: Readonly<AutoMovieVector3Tuple> = [
+        extreme(Math.max, -Infinity, 0),
+        extreme(Math.max, -Infinity, 1),
+        extreme(Math.max, -Infinity, 2),
+      ];
       // The initial problem owns the box; restricted boundary hulls cannot shrink it.
       retainedEnclosureMm ??= { lower, upper };
       let area:

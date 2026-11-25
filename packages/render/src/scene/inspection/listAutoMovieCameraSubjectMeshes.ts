@@ -74,6 +74,6 @@ function keepsVertices(input: Material | Material[]): boolean {
       !AutoMovieThreeKind.isShaderMaterial(material) &&
       material.onBeforeCompile === Material.prototype.onBeforeCompile &&
       material.onBeforeRender === Material.prototype.onBeforeRender &&
-      (!("displacementMap" in material) || material.displacementMap === null),
+      (material.displacementMap ?? null) === null,
   );
 }

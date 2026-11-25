@@ -288,16 +288,17 @@ export namespace EquineLibertyRows {
     floor: number,
   ): number {
     const tail: IAutoMovieModelPart = part(standing, "tail");
-    const [root, tip] = bar(tail).map(
-      (point: IAutoMovieVector3): IAutoMovieVector3 =>
-        EquineBodyPose.point(
-          to,
-          Quaternion.rotateVector(
-            Quaternion.inverse(from.rotation),
-            Vector3.subtract(point, from.translation),
-          ),
+    const ends = bar(tail);
+    const carry = (point: IAutoMovieVector3): IAutoMovieVector3 =>
+      EquineBodyPose.point(
+        to,
+        Quaternion.rotateVector(
+          Quaternion.inverse(from.rotation),
+          Vector3.subtract(point, from.translation),
         ),
-    ) as [IAutoMovieVector3, IAutoMovieVector3];
+      );
+    const root: IAutoMovieVector3 = carry(ends[0]!);
+    const tip: IAutoMovieVector3 = carry(ends[1]!);
     const offset: IAutoMovieVector3 = Vector3.subtract(tip, root);
     const z: number = Vector3.dot(offset, forward);
     const length: number = Math.hypot(z, offset.y);

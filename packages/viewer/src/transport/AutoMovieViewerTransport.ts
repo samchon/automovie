@@ -55,10 +55,7 @@ export class AutoMovieViewerTransport {
     if (available[0] < 0 || available[0] >= available[1] || !(options.fps > 0))
       throw new Error("Invalid transport range or frame rate");
     this.options = options;
-    this.available = Object.freeze([available[0], available[1]] as [
-      number,
-      number,
-    ]);
+    this.available = Object.freeze([available[0], available[1]]);
     this.seconds = available[0];
     this.interval = [available[0], available[1]];
   }

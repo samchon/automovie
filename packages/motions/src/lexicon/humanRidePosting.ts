@@ -3,8 +3,8 @@ import { HumanRefusal } from "../law/HumanRefusal";
 
 /**
  * A rising trot's posting: the seat lifts off the saddle along the mount's own
- * up by `post · sin²(π s)` over each stride's progress `s` and comes back once a
- * stride, the stride read from a stride time or between the instants of a cue
+ * up by `post · sin²(π s)` over each stride's progress `s` and comes back once
+ * a stride, the stride read from a stride time or between the instants of a cue
  * track (the mount's own strides); outside a cue track's strides, and without a
  * rising, the seat stays down.
  *

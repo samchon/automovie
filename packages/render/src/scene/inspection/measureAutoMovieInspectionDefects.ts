@@ -91,9 +91,9 @@ export function measureAutoMovieInspectionDefects(props: {
   const posed: THREE.Vector3 = new THREE.Vector3();
   const refresh: () => void = (): void => {
     marks.forEach((mark: IAutoMovieMark, m: number): void => {
-      const points: number[] = (
-        mark.shape as IAutoMovieMark.ISegments | IAutoMovieMark.IPolyline
-      ).points;
+      if (mark.shape.type !== "segments" && mark.shape.type !== "polyline")
+        return;
+      const points: number[] = mark.shape.points;
       runs[m]!.forEach((vertex: number, k: number): void => {
         mesh.getVertexPosition(vertex, posed);
         points[k * 3] = posed.x;

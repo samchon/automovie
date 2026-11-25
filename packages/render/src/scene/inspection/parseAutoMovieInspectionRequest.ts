@@ -24,6 +24,11 @@ const REACH: number = 1;
  */
 const TICKS: number = 5;
 
+/** Whether a text names a shade, narrowing it to the shade it names. */
+const isShade: (text: string) => text is AutoMovieInspectionShade = (
+  text: string,
+): text is AutoMovieInspectionShade => Object.hasOwn(SHADES, text);
+
 /** Every shade, keyed so the compiler refuses a list that misses one. */
 const SHADES: Record<AutoMovieInspectionShade, true> = {
   beauty: true,
@@ -80,14 +85,14 @@ export function parseAutoMovieInspectionRequest(
   read: (key: string) => string | null | undefined,
 ): IAutoMovieInspectionRequest {
   const shade: string = read("shade") ?? "beauty";
-  if (!Object.hasOwn(SHADES, shade))
+  if (!isShade(shade))
     throw new Error(
       `Inspection shade "${shade}" is not one of ${Object.keys(SHADES).join(", ")}`,
     );
   return {
     parts: list(read("parts")),
     hide: list(read("hide")),
-    shade: shade as AutoMovieInspectionShade,
+    shade,
     surface: flag("surface", read("surface"), true),
     marks: list(read("marks")),
     sliver: positive("sliver", read("sliver")),

@@ -13,13 +13,15 @@ import type {
   IAutoMovieProductionSoundPlan,
   IAutoMovieRenderedProductionSound,
   IAutoMovieShotContract,
+  IAutoMovieShotEventContract,
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/predicates";
+import { shotContractFixture } from "../../../internal/shotContractFixture";
 
 const digest: string =
-  "sha256:0000000000000000000000000000000000000000000000000000000000000000" as string;
+  "sha256:0000000000000000000000000000000000000000000000000000000000000000";
 
 /** Construct the authored identity-oriented emitter placement. */
 const transform: (
@@ -132,9 +134,9 @@ const CLOSE_RANKS: IAutoMovieFormationMotion[] = [
  * planner test.
  */
 const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
-  ({
-    id: "spread-shot",
-    events: [
+  shotContractFixture(
+    "spread-shot",
+    [
       { id: "rest", subjects: ["crowd"] },
       { id: "closed", subjects: ["crowd"] },
       { id: "mixed", subjects: ["lone", "crowd"] },
@@ -143,23 +145,17 @@ const contract: () => IAutoMovieShotContract = (): IAutoMovieShotContract =>
       (event: {
         id: string;
         subjects: string[];
-      }): {
-        kind: "arrival";
-        window: { from: number; to: number };
-        predicates: {}[];
-        id: string;
-        subjects: string[];
-      } => ({
+      }): IAutoMovieShotEventContract => ({
         ...event,
         // One kind throughout, and the one whose procedural voice carries no
         // seeded noise, so two events compared at the same offset differ by their
         // level factors and by nothing else.
         kind: "arrival",
         window: { from: 0, to: 4 },
-        predicates: [{}],
+        predicates: [],
       }),
     ),
-  }) as IAutoMovieShotContract;
+  );
 
 /**
  * Build the original crowd, lone emitter and spacing-only cue inputs consumed
@@ -232,8 +228,7 @@ const compiled: () => IAutoMovieCompiledShotSource =
     }) satisfies IAutoMovieCompiledShotSource;
 
 /** Declare the original spread shot duration and empty auxiliary tracks. */
-const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
-  ({
+const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline => ({
     version: 1,
     builder: "test",
     inputFingerprint: digest,
@@ -256,7 +251,7 @@ const timeline: () => IAutoMovieFilmTimeline = (): IAutoMovieFilmTimeline =>
     ],
     omissions: [],
     tracks: { audio: [], captions: [], effects: [] },
-  }) as IAutoMovieFilmTimeline;
+  });
 
 /**
  * Read the required planned event by its authored id; a missing event fails the

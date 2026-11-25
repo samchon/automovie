@@ -161,10 +161,25 @@ export function observeAutoMovieCollisionMotion(
       "motion-subdivision-limit",
     );
   if (props.spent !== undefined)
-    for (const kind of Object.keys(budget) as (keyof typeof budget)[])
-      props.spent[kind] = props.limits[kind]! - budget[kind]!;
+    for (const kind of LIMIT_KINDS) {
+      const limit: number | undefined = props.limits[kind];
+      const left: number | undefined = budget[kind];
+      if (limit !== undefined && left !== undefined)
+        props.spent[kind] = limit - left;
+    }
   return { findings, coverage };
 }
+
+/** Every kind of work an observation may spend. */
+const LIMIT_KINDS: readonly (keyof observeAutoMovieCollisionMotion.ILimits)[] =
+  [
+    "placements",
+    "depth",
+    "comparisons",
+    "posedVertices",
+    "surfaceTriangles",
+    "parts",
+  ];
 
 /** The span, placement, layers and limits of one motion observation. */
 export namespace observeAutoMovieCollisionMotion {

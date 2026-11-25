@@ -459,11 +459,14 @@ export namespace AutoMovieArchetypeQuadrupedGait {
     > = of(species, stride.gait).phases;
     if (stride.lead === "left" || !LEADED.includes(stride.gait))
       return phases[limb];
-    const mirror: AutoMovieArchetypeQuadrupedBody.Limb = (
-      limb.startsWith("left")
-        ? limb.replace("left", "right")
-        : limb.replace("right", "left")
-    ) as AutoMovieArchetypeQuadrupedBody.Limb;
+    const mirror: AutoMovieArchetypeQuadrupedBody.Limb =
+      limb === "leftFore"
+        ? "rightFore"
+        : limb === "rightFore"
+          ? "leftFore"
+          : limb === "leftHind"
+            ? "rightHind"
+            : "leftHind";
     const shifted: number = phases[mirror] - phases.rightFore;
     return shifted < 0 ? shifted + 1 : shifted;
   }

@@ -63,10 +63,11 @@ export function solveRecoveryMapJointStep(
           right -= rows[row]![column]! * scaled[column]!;
         scaled[row] = right / rows[row]![row]!;
       }
-      return scaled.map(
-        (value: number, column: number): number =>
-          value / pointScales[at]![column]!,
-      ) as [number, number, number];
+      return [
+        scaled[0]! / pointScales[at]![0]!,
+        scaled[1]! / pointScales[at]![1]!,
+        scaled[2]! / pointScales[at]![2]!,
+      ];
     },
   );
   return {

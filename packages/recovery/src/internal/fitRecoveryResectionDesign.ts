@@ -224,17 +224,20 @@ export function fitRecoveryResectionDesign(
   // After projecting A to sR, undo centering with R: t=C/s-R*c. Using the raw
   // projective A here would shift t by -(A/s)*offset rather than -R*offset when
   // the same noisy observations are expressed in another world-origin chart.
-  const translation: [number, number, number] = centeredTranslation.map(
-    (value: number, row: number): number =>
-      (sign * value) / scale -
-      rotation
-        .slice(3 * row, 3 * row + 3)
-        .reduce(
-          (sum: number, entry: number, column: number): number =>
-            sum + entry * centroid[column]!,
-          0,
-        ),
-  ) as [number, number, number];
+  const translationRow = (row: 0 | 1 | 2): number =>
+    (sign * centeredTranslation[row]!) / scale -
+    rotation
+      .slice(3 * row, 3 * row + 3)
+      .reduce(
+        (sum: number, entry: number, column: number): number =>
+          sum + entry * centroid[column]!,
+        0,
+      );
+  const translation: [number, number, number] = [
+    translationRow(0),
+    translationRow(1),
+    translationRow(2),
+  ];
   if (trace) {
     trace.stage = "projection";
     trace.projectionError = projectionError;

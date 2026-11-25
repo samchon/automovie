@@ -4,6 +4,15 @@ import * as THREE from "three";
 import { AUTO_MOVIE_INSPECTION_KINDS } from "./AUTO_MOVIE_INSPECTION_KINDS.js";
 import type { IAutoMovieInspectionMeasured } from "./IAutoMovieInspectionMeasured.js";
 
+/** The three sides of one triangle, each as its two corner indices. */
+function sides(a: number, b: number, c: number): [number, number][] {
+  return [
+    [a, b],
+    [b, c],
+    [c, a],
+  ];
+}
+
 /**
  * Read a mesh's triangle edges and return them as one mark lying on the mesh as
  * it is posed, so the triangles are drawn over the shaded surface or alone.
@@ -49,11 +58,7 @@ export function measureAutoMovieInspectionEdges(props: {
   const seen: Set<number> = new Set<number>();
   const ends: number[] = [];
   for (let k: number = 0; k + 2 < count; k += 3)
-    for (const [a, b] of [
-      [at(k), at(k + 1)],
-      [at(k + 1), at(k + 2)],
-      [at(k + 2), at(k)],
-    ] as [number, number][]) {
+    for (const [a, b] of sides(at(k), at(k + 1), at(k + 2))) {
       if (a === b) continue;
       const key: number = Math.min(a, b) * position.count + Math.max(a, b);
       if (seen.has(key)) continue;

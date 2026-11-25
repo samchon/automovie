@@ -84,6 +84,8 @@ export namespace AutoMovieArchetypeFriction {
    * @returns The value.
    */
   export function value(value: number | readonly [number, number]): number {
-    return typeof value === "number" ? value : (value[0] + value[1]) / 2;
+    // A bare number is its own one-element range.
+    const range: readonly number[] = [value].flat();
+    return (range[0]! + range[range.length - 1]!) / 2;
   }
 }

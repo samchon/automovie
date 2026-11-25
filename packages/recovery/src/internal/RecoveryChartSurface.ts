@@ -191,7 +191,7 @@ export namespace RecoveryChartSurface {
       triangles: input.triangles,
       parameters: map.parameters,
       curves,
-      knots: partitions as [number[], number[], number[], number[]],
+      knots: [partitions[0]!, partitions[1]!, partitions[2]!, partitions[3]!],
       toleranceMm: input.toleranceMm,
       maxPatches: input.maxPatches,
       maxIterations: input.maxIterations,

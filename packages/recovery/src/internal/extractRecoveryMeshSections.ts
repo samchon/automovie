@@ -164,10 +164,10 @@ export function extractRecoveryMeshSections(
   for (const coordinateMm of retainedLevels) {
     const plane: ReturnType<IAutoMoviePlaneFrameConstruction.Operation> = {
       ...frame,
-      origin: frame.n.map((x: number): number => x * coordinateMm) as [
-        number,
-        number,
-        number,
+      origin: [
+        frame.n[0] * coordinateMm,
+        frame.n[1] * coordinateMm,
+        frame.n[2] * coordinateMm,
       ],
     };
     const contours: ReturnType<typeof slice> = slice(
@@ -175,9 +175,11 @@ export function extractRecoveryMeshSections(
       coordinateMm,
       scalarIndex.cut(coordinateMm),
     );
+    const loops: { curve: IAutoMovieCubicBezierCurve64; winding: 1 | -1 }[] =
+      [];
     const section: IAutoMovieContourLoft64.ISection = {
       coordinateMm,
-      loops: [],
+      loops,
     };
     const report: IAutoMovieRecoveryMeshSections["reports"][number] = {
       coordinateMm,
@@ -216,7 +218,7 @@ export function extractRecoveryMeshSections(
         }
         let winding: 1 | -1 = 1;
         if (contour.closed) {
-          winding = orientation(plane, contour) as 1 | -1;
+          winding = orientation(plane, contour) < 0 ? -1 : 1;
           const area: number = signedArea(
             points.map(
               (p: Readonly<AutoMovieVector3Tuple>): [number, number] => [
@@ -276,12 +278,7 @@ export function extractRecoveryMeshSections(
               loopIndex: section.loops.length,
               curveName: fit.curve.name,
             };
-          (
-            section.loops as {
-              curve: IAutoMovieCubicBezierCurve64;
-              winding: 1 | -1;
-            }[]
-          ).push({
+          loops.push({
             curve: fit.curve,
             winding,
           });

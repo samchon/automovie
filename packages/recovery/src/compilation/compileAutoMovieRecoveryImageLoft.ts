@@ -8,6 +8,14 @@ import type {
   IAutoMovieRecoveryResult,
 } from "@automovie/interface";
 
+/** Scale each coefficient of one four-coefficient span row. */
+function scale4(
+  row: Readonly<[number, number, number, number]>,
+  factor: number,
+): [number, number, number, number] {
+  return [row[0] * factor, row[1] * factor, row[2] * factor, row[3] * factor];
+}
+
 /**
  * Generate an ordinary AutoMovie bicubic model and its actual construction from
  * saved section coefficients alone. Positive axis scales preserve the other two
@@ -53,22 +61,16 @@ export function compileAutoMovieRecoveryImageLoft(
         (
           span: IAutoMovieEllipticLoft["spans"][number],
         ): IAutoMovieEllipticLoft["spans"][number] => ({
-          interval: span.interval.map(
-            (y: number): number =>
-              anchor + (y - anchor) * recipe.dimensions.heightScale,
-          ) as [number, number],
-          radiusX: span.radiusX.map(
-            (value: number): number => value * recipe.dimensions.widthScale,
-          ) as [number, number, number, number],
-          radiusZ: span.radiusZ.map(
-            (value: number): number => value * recipe.dimensions.depthScale,
-          ) as [number, number, number, number],
-          centreX: span.centreX.map(
-            (value: number): number => value * recipe.dimensions.widthScale,
-          ) as [number, number, number, number],
-          centreZ: span.centreZ.map(
-            (value: number): number => value * recipe.dimensions.depthScale,
-          ) as [number, number, number, number],
+          interval: [
+            anchor +
+              (span.interval[0] - anchor) * recipe.dimensions.heightScale,
+            anchor +
+              (span.interval[1] - anchor) * recipe.dimensions.heightScale,
+          ],
+          radiusX: scale4(span.radiusX, recipe.dimensions.widthScale),
+          radiusZ: scale4(span.radiusZ, recipe.dimensions.depthScale),
+          centreX: scale4(span.centreX, recipe.dimensions.widthScale),
+          centreZ: scale4(span.centreZ, recipe.dimensions.depthScale),
         }),
       ),
     };

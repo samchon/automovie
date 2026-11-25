@@ -62,7 +62,7 @@ export function RecoveryFeatureChartCutsTopology(
         if (!(area > 0)) fail("a triangle area or normal is unrepresentable");
         areas.push(area);
         normals.push(
-          n.map((x: number): number => x / length) as [number, number, number],
+          [n[0] / length, n[1] / length, n[2] / length],
         );
         for (let k: number = 0; k < 3; k++) {
           const from: number = t[k]!,

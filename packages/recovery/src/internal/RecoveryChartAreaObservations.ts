@@ -167,10 +167,11 @@ export function RecoveryChartAreaObservations(
         uv[axis] = bound;
         output.push({
           uv,
-          point: [0, 1, 2].map(
-            (k: number): number =>
-              a.point[k]! + t * (b.point[k]! - a.point[k]!),
-          ) as [number, number, number],
+          point: [
+            a.point[0]! + t * (b.point[0]! - a.point[0]!),
+            a.point[1]! + t * (b.point[1]! - a.point[1]!),
+            a.point[2]! + t * (b.point[2]! - a.point[2]!),
+          ],
         });
       }
     }
@@ -267,12 +268,17 @@ export function RecoveryChartAreaObservations(
                 beta * (b.uv[axis]! - a.uv[axis]!) +
                 gamma * (c.uv[axis]! - a.uv[axis]!),
             );
-            const pointMm: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-              (axis: number): number =>
-                a.point[axis]! +
-                beta * (b.point[axis]! - a.point[axis]!) +
-                gamma * (c.point[axis]! - a.point[axis]!),
-            ) as [number, number, number];
+            const pointMm: Readonly<AutoMovieVector3Tuple> = [
+              a.point[0]! +
+                beta * (b.point[0]! - a.point[0]!) +
+                gamma * (c.point[0]! - a.point[0]!),
+              a.point[1]! +
+                beta * (b.point[1]! - a.point[1]!) +
+                gamma * (c.point[1]! - a.point[1]!),
+              a.point[2]! +
+                beta * (b.point[2]! - a.point[2]!) +
+                gamma * (c.point[2]! - a.point[2]!),
+            ];
             const weight: number =
               2 * childArea * x * weights[r]! * weights[s]!;
             if (!(weight > 0))

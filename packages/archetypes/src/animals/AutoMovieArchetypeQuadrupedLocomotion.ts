@@ -261,7 +261,10 @@ export namespace AutoMovieArchetypeQuadrupedLocomotion {
     if (
       Object.keys(table.gaits).some(
         (key: string): boolean =>
-          !declared.includes(key as AutoMovieArchetypeQuadrupedGait.Gait),
+          !declared.some(
+            (gait: AutoMovieArchetypeQuadrupedGait.Gait): boolean =>
+              gait === key,
+          ),
       )
     )
       refuse(

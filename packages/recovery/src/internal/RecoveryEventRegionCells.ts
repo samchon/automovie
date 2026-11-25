@@ -158,7 +158,7 @@ export function RecoveryEventRegionCells(
       id: result.cells.length,
       face,
       dimension,
-      sourceGeometryRank: ranks[face] as 0 | 1 | 2,
+      sourceGeometryRank: ranks[face]! < 1 ? 0 : ranks[face] === 1 ? 1 : 2,
       scalarKind:
         dimension < 2
           ? "boundary-contact"

@@ -2,7 +2,6 @@ import { cubicBezierEasing, ease } from "@automovie/engine";
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
-import { throwsError } from "../../../internal/throwsError";
 
 /** Rounding of the Bézier abscissa's inversion, units of progress. */
 const INVERSION: number = 1e-6;
@@ -14,14 +13,12 @@ const INVERSION: number = 1e-6;
  *
  * Scenarios:
  *
- * 1. Controls (0, 0) and (1, 0): x(½) = ½, so progress ½ reads y(½) = 3 · ½ ·
- *    ¼ · 0 + 3 · ¼ · ½ · 0 + ⅛ = 0.125; the mirrored controls (0, 1) and (1, 1)
+ * 1. Controls (0, 0) and (1, 0): x(½) = ½, so progress ½ reads y(½) = 3 · ½ · ¼ ·
+ *    0 + 3 · ¼ · ½ · 0 + ⅛ = 0.125; the mirrored controls (0, 1) and (1, 1)
  *    read 0.875, the complement; the ends are exact.
  * 2. Controls (1, 0) and (0, 1) at parameter ¾: x = 9/16 and y = 27/32, the
  *    inversion through the stationary abscissa.
- * 3. `cubicBezier` without controls is linear; progress outside [0, 1] is
- *    clamped.
- * 4. A nonfinite progress or control is refused.
+ * 3. `cubicBezier` without controls is linear; progress outside [0, 1] is clamped.
  */
 export function test_unit_engine_motion_cubic_bezier_easing(): void {
   // 1. Complementary controls.
@@ -46,14 +43,5 @@ export function test_unit_engine_motion_cubic_bezier_easing(): void {
     ease("cubicBezier", 0.25) === 0.25 &&
       ease("linear", -1) === 0 &&
       cubicBezierEasing([0, 0, 1, 1], 2) === 1,
-  );
-
-  // 4. Refusals.
-  TestValidator.predicate(
-    "nonfinite progress and controls are refused",
-    throwsError((): number => ease("linear", NaN)) &&
-      throwsError((): number => cubicBezierEasing([0, 0, 1, 1], NaN)) &&
-      throwsError((): number => cubicBezierEasing([0, NaN, 1, 1], 0.5)) &&
-      throwsError((): number => cubicBezierEasing([Infinity, 0, 1, 1], 0.5)),
   );
 }

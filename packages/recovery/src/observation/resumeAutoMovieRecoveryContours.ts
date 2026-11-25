@@ -133,9 +133,11 @@ export function resumeAutoMovieRecoveryContours<
     const sections: IAutoMovieRecoveryContourResume["sections"] = [];
     for (const [sectionIndex, saved] of input.savedSections.entries()) {
       checkpoint();
-      const origin: [number, number, number] = frame.n.map(
-        (value: number): number => value * saved.coordinateMm,
-      ) as [number, number, number];
+      const origin: [number, number, number] = [
+        frame.n[0] * saved.coordinateMm,
+        frame.n[1] * saved.coordinateMm,
+        frame.n[2] * saved.coordinateMm,
+      ];
       const contours: ReturnType<typeof cut> = cut(
         { ...frame, origin },
         saved.coordinateMm,
@@ -289,9 +291,11 @@ export function resumeAutoMovieRecoveryContours<
             coordinateMm: target.coordinateMm,
             plane: {
               ...frame,
-              origin: frame.n.map(
-                (value: number): number => value * target.coordinateMm,
-              ) as [number, number, number],
+              origin: [
+                frame.n[0] * target.coordinateMm,
+                frame.n[1] * target.coordinateMm,
+                frame.n[2] * target.coordinateMm,
+              ],
             },
             contours: [raw],
             faceEdges: prepared.faceEdges,

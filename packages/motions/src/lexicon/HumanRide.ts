@@ -30,6 +30,8 @@ import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
 import { RideRestingHands } from "./RideRestingHands";
 import { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
+import { humanRidePosting } from "./humanRidePosting";
+import { humanRideWindows } from "./humanRideWindows";
 import { placeRideFeet } from "./placeRideFeet";
 import { prepareHumanEquestrianRide } from "./prepareHumanEquestrianRide";
 
@@ -71,12 +73,6 @@ type IRideRising = { cue: string };
 export namespace HumanRide {
   /** Seconds a hand takes to reach the point it is to hold (provisional). */
   export const TAKE: number = 0.6;
-
-  /**
-   * The sole socket a foot bears on its rest by: the ball, which the seat
-   * places on the tread.
-   */
-  const BALL: IAutoMovieMotionHumanContactWindow.Socket = "ball";
 
   /**
    * How far a rising trot lifts the seat off the saddle, thigh lengths
@@ -123,39 +119,25 @@ export namespace HumanRide {
       const kept: HeldRideArms.IKept = HeldRideArms(context);
       const seated: IAutoMovieMotionHumanPosture = kept.posture;
       const origin: IAutoMovieRigidTransform = support.frame(context.start);
-      const bears = (
-        part: IAutoMovieMotionHumanContactWindow["part"],
-        kind: IAutoMovieMotionHumanContactWindow["kind"],
-      ): IAutoMovieMotionHumanContactWindow => ({
-        part,
-        kind,
-        from: 0,
-        to: 1,
-        support: { kind: "prop", subject: on },
-        ...(kind === "plant" ? { socket: BALL } : {}),
-      });
-
       // A rising trot stands in the stirrups, so it needs both.
       const rising: RideRising = context.params.rising;
-      const strides: readonly number[] =
-        typeof rising === "object"
-          ? context
-              .cue(rising.cue)
-              .map((c: IRideStridesC): number => c.seconds)
-              .sort((a: number, b: number): number => a - b)
-          : [];
+      const posting: humanRidePosting.IPosting = humanRidePosting(
+        rising === undefined
+          ? undefined
+          : typeof rising === "number"
+            ? { kind: "period", seconds: rising }
+            : {
+                kind: "strides",
+                cue: rising.cue,
+                strides: context
+                  .cue(rising.cue)
+                  .map((c: IRideStridesC): number => c.seconds)
+                  .sort((a: number, b: number): number => a - b),
+              },
+        context.start,
+        POST * context.body.measure.thigh,
+      );
       if (rising !== undefined) {
-        if (typeof rising === "number")
-          HumanBound.above("rising", rising, 0, "s");
-        else if (strides.length < 2)
-          throw new HumanRefusal({
-            kind: "parameter",
-            axis: "rising",
-            value: rising.cue,
-            feasible: null,
-            reason: `the cue track ${rising.cue} holds ${strides.length} instants, and a stride lies between two`,
-            fix: "give a cue track with the mount's strides, or the stride time in seconds",
-          });
         if (
           !context.entry.feet.left.planted ||
           !context.entry.feet.right.planted
@@ -184,7 +166,7 @@ export namespace HumanRide {
         pedals.find(
           (pedal: (typeof pedals)[number]): boolean => pedal.side === side,
         );
-      const contacts: IAutoMovieMotionHumanContactWindow[] = [...kept.contacts];
+      const resting: humanRideWindows.IResting[] = [];
       for (const side of ["left", "right"] as const) {
         if (
           !context.entry.feet[side].planted ||
@@ -192,32 +174,10 @@ export namespace HumanRide {
         )
           continue;
         const pedal: (typeof pedals)[number] | undefined = turning(side);
-        contacts.push(
-          pedal === undefined
-            ? bears(`${side}Foot`, "plant")
-            : {
-                ...bears(`${side}Foot`, "plant"),
-                support: { kind: "prop", subject: on, point: pedal.id },
-              },
+        resting.push(
+          pedal === undefined ? { side } : { side, pedal: pedal.id },
         );
       }
-      const post: number = POST * context.body.measure.thigh;
-
-      // How far through a stride a second of the ride is, 0 to 1; none outside the strides of a cue track.
-      const stride = (at: number): number | undefined => {
-        if (typeof rising === "number") return (at / rising) % 1;
-        const film: number = context.start + at;
-        for (let i: number = 0; i + 1 < strides.length; ++i)
-          if (film >= strides[i]! && film < strides[i + 1]!)
-            return (film - strides[i]!) / (strides[i + 1]! - strides[i]!);
-        return undefined;
-      };
-
-      for (const foot of placed)
-        contacts.push({
-          ...bears(foot.side === "left" ? "leftFoot" : "rightFoot", "plant"),
-          from: TAKE / seconds,
-        });
 
       // The hands: the points they hold, the lean that brings them in reach and the fingers closed on the support (`HumanRideHands`).
       const {
@@ -265,13 +225,20 @@ export namespace HumanRide {
                   context.params.hands?.[side] === undefined,
               ),
             );
-      if (equestrian?.offSeat !== undefined) {
-        const [lift, settle]: readonly [number, number] = equestrian.offSeat;
-        contacts.unshift(
-          { ...bears("seat", "seat"), to: lift / seconds },
-          { ...bears("seat", "seat"), from: settle / seconds },
-        );
-      } else if (rising === undefined) contacts.unshift(bears("seat", "seat"));
+      const contacts: IAutoMovieMotionHumanContactWindow[] = humanRideWindows({
+        on,
+        seconds,
+        kept: kept.contacts,
+        resting,
+        placed: placed.map(
+          (foot: (typeof placed)[number]): AutoMovieHumanSide => foot.side,
+        ),
+        take: TAKE,
+        ...(equestrian?.offSeat === undefined
+          ? {}
+          : { offSeat: equestrian.offSeat }),
+        rising: rising !== undefined,
+      });
 
       // How far a part of the support has left the place the support alone would have carried it to from where it was when the ride began.
       const strayed = (
@@ -338,10 +305,8 @@ export namespace HumanRide {
           );
 
         // Rising, the seat lifts off the saddle along the mount's own up and comes back once a stride; the feet stay on their rests.
-        const through: number | undefined =
-          rising === undefined ? undefined : stride(at);
-        const lift: number =
-          through === undefined ? 0 : post * Math.sin(Math.PI * through) ** 2;
+        const lift: number = posting.lift(at);
+
         const up: IAutoMovieVector3 = Quaternion.rotateVector(now.rotation, {
           x: 0,
           y: 1,

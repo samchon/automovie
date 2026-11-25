@@ -37,7 +37,7 @@ export const decodeAutoMovieImage: (
   const refuse: (reason: string) => Error = (reason: string): Error =>
     new Error(`Carried image "${image.id}" ${reason}.`);
   const binary: string = atob(image.data);
-  const bytes: Uint8Array = Uint8Array.from(
+  const bytes: Uint8Array<ArrayBuffer> = Uint8Array.from(
     binary,
     (character: string): number => character.charCodeAt(0),
   );
@@ -45,14 +45,17 @@ export const decodeAutoMovieImage: (
     throw refuse("is not a PNG");
   const view: DataView = new DataView(bytes.buffer);
   let header: { width: number; height: number; channels: number } | null = null;
-  const data: Uint8Array[] = [];
+  const data: Uint8Array<ArrayBuffer>[] = [];
   let offset: number = 8;
   while (offset + 8 <= bytes.length) {
     const length: number = view.getUint32(offset);
     const type: string = String.fromCharCode(
       ...bytes.subarray(offset + 4, offset + 8),
     );
-    const body: Uint8Array = bytes.subarray(offset + 8, offset + 8 + length);
+    const body: Uint8Array<ArrayBuffer> = bytes.subarray(
+      offset + 8,
+      offset + 8 + length,
+    );
     if (body.length !== length) throw refuse("ends inside a chunk");
     if (type === "IHDR") {
       const channels: number | undefined = CHANNELS.get(body[9]!);
@@ -86,7 +89,7 @@ export const decodeAutoMovieImage: (
   const stride: number = width * channels;
   const raw: Uint8Array = new Uint8Array(
     await new Response(
-      new Blob(data as BlobPart[])
+      new Blob(data)
         .stream()
         .pipeThrough(new DecompressionStream("deflate")),
     ).arrayBuffer(),

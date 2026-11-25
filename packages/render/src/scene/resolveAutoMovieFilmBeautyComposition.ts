@@ -32,10 +32,8 @@ export const resolveAutoMovieFilmBeautyComposition: <
     return layers[0]!.weight === 1
       ? { kind: "direct", layer: layers[0]! }
       : { kind: "fade", layer: layers[0]!, weight: layers[0]!.weight };
-  const [outgoing, incoming]: readonly [Layer, Layer] = layers as readonly [
-    Layer,
-    Layer,
-  ];
+  const outgoing: Layer = layers[0]!;
+  const incoming: Layer = layers[1]!;
   if (outgoing.weight + incoming.weight !== 1)
     throw new Error(
       `Film dissolve layer weights must sum to one, but received ${outgoing.weight} and ${incoming.weight}.`,

@@ -379,8 +379,10 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
       const label: string = `${count} contacts, ${outcome}`;
       try {
         verifyCase(label, Span({ ...input(velocity, 0), feet }), outcome);
-      } catch (error) {
-        failures.push(`${label}: ${(error as Error).message}`);
+      } catch (error: unknown) {
+        failures.push(
+          `${label}: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
   }

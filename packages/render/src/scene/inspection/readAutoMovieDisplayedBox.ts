@@ -189,7 +189,7 @@ export namespace readAutoMovieDisplayedBox {
       !material.alphaHash &&
       material.alphaTest === 0 &&
       !material.clippingPlanes?.length &&
-      (!("displacementMap" in material) || material.displacementMap === null) &&
+      (material.displacementMap ?? null) === null &&
       material.side !== THREE.BackSide &&
       material.onBeforeRender === THREE.Material.prototype.onBeforeRender
     );

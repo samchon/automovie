@@ -36,8 +36,7 @@ const STRIDE_DEPTH: number = 0.012;
  * The gaits whose breaths lock 1:1 to the stride (Attenburrow 1982; Lafortuna
  * et al. 1996, J Exp Biol 166:19 on 1:1 coupling at the canter and gallop).
  */
-const LOCKED: ReadonlySet<AutoMovieArchetypeQuadrupedGait.Gait> =
-  new Set<AutoMovieArchetypeQuadrupedGait.Gait>(["canter", "gallop"]);
+const LOCKED: ReadonlySet<string> = new Set<string>(["canter", "gallop"]);
 
 /**
  * The rate at which the nostrils flare fully on each breath, breaths per
@@ -180,7 +179,7 @@ export namespace AutoMovieArchetypeEquineBreathing {
       );
       const free: IBreath = clock(efforts, seconds);
       if (
-        LOCKED.has(gait as AutoMovieArchetypeQuadrupedGait.Gait) &&
+        LOCKED.has(gait) &&
         previous !== undefined &&
         next !== undefined
       )

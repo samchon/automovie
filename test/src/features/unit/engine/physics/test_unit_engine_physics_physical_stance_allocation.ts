@@ -1,11 +1,8 @@
 import {
-  AutoMoviePhysicalBalance,
   AutoMovieXpbdBody,
   physicalStanceAllocation,
   physicalStanceBalance,
   physicalStanceHip,
-  physicalStanceSupport,
-  physicalStanceSwing,
   trackPhysicalRoot,
 } from "@automovie/engine";
 import type {
@@ -55,12 +52,6 @@ export function test_unit_engine_physics_physical_stance_allocation(): void {
       failures.push(`${name}: ${actual} against ${expected}`);
   };
   const k: number = physicalStanceBalance.GAIN;
-  const square: IAutoMovieVector3[] = [
-    { x: -0.1, y: 0, z: -0.1 },
-    { x: 0.1, y: 0, z: -0.1 },
-    { x: 0.1, y: 0, z: 0.1 },
-    { x: -0.1, y: 0, z: 0.1 },
-  ];
   const origin: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };
 
   // 1. The command with a bias.

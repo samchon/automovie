@@ -257,10 +257,11 @@ export function refineRecoveryCameraMap(
         at: number,
       ): IAutoMovieRecoveryMapLandmark => ({
         ...landmark,
-        point: landmark.point.map(
-          (value: number, axis: number): number =>
-            value + solution.pointSteps[at]![axis]!,
-        ) as [number, number, number],
+        point: [
+          landmark.point[0] + solution.pointSteps[at]![0],
+          landmark.point[1] + solution.pointSteps[at]![1],
+          landmark.point[2] + solution.pointSteps[at]![2],
+        ],
       }),
     );
     charge(512);

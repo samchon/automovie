@@ -16,14 +16,14 @@ export function restoreAutoMovieRenderModeState(
 ): void {
   const failures: unknown[] = primary === undefined ? [] : [primary.error];
   const append: (error: unknown) => void = (error: unknown): void => {
-    const active: Set<object> = new Set();
+    const active: Set<unknown> = new Set();
     const pending: { error: unknown; leave: boolean }[] = [
       { error, leave: false },
     ];
     while (pending.length !== 0) {
       const current: { error: unknown; leave: boolean } = pending.pop()!;
       if (current.leave) {
-        active.delete(current.error as object);
+        active.delete(current.error);
         continue;
       }
       const values: unknown[] | undefined =
@@ -36,7 +36,7 @@ export function restoreAutoMovieRenderModeState(
         failures.push(current.error);
         continue;
       }
-      active.add(current.error as object);
+      active.add(current.error);
       pending.push({ error: current.error, leave: true });
       for (let index: number = values.length - 1; index >= 0; --index)
         pending.push({ error: values[index], leave: false });

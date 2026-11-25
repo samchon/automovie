@@ -286,11 +286,14 @@ export function observeAutoMovieRecoveryAtlas(
                 b: number = node.vertices[1]!,
                 t: number =
                   (node.scalar - heights[a]!) / (heights[b]! - heights[a]!);
-              return [0, 1, 2].map(
-                (k: number): number =>
-                  input.verticesMm[a]![k]! +
-                  (input.verticesMm[b]![k]! - input.verticesMm[a]![k]!) * t,
-              ) as [number, number, number];
+              const from: Readonly<AutoMovieVector3Tuple> =
+                  input.verticesMm[a]!,
+                to: Readonly<AutoMovieVector3Tuple> = input.verticesMm[b]!;
+              return [
+                from[0] + (to[0] - from[0]) * t,
+                from[1] + (to[1] - from[1]) * t,
+                from[2] + (to[2] - from[2]) * t,
+              ];
             },
           );
           const triangles: [number, number, number][] = [];

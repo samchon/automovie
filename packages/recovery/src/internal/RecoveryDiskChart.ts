@@ -262,11 +262,13 @@ export function RecoveryDiskChart(
     if (!(fraction > 0 && fraction < 1))
       fail("an interior boundary quarter is not representable");
     const key: string = `disk-boundary:${JSON.stringify([input.vertexKeys[first], input.vertexKeys[last]])}:${fraction}`;
-    const point: Readonly<AutoMovieVector3Tuple> = [0, 1, 2].map(
-      (k: number): number =>
-        input.verticesMm[first]![k]! +
-        fraction * (input.verticesMm[last]![k]! - input.verticesMm[first]![k]!),
-    ) as [number, number, number];
+    const from: Readonly<AutoMovieVector3Tuple> = input.verticesMm[first]!,
+      to: Readonly<AutoMovieVector3Tuple> = input.verticesMm[last]!;
+    const point: Readonly<AutoMovieVector3Tuple> = [
+      from[0] + fraction * (to[0] - from[0]),
+      from[1] + fraction * (to[1] - from[1]),
+      from[2] + fraction * (to[2] - from[2]),
+    ];
     if (
       point.some(
         (value: number): boolean => value === Infinity || value === -Infinity,

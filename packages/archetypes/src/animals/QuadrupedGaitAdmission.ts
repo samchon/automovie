@@ -62,8 +62,13 @@ export namespace QuadrupedGaitAdmission {
       >
     > = {};
     for (const [kind, parent] of Object.entries(collected)) {
+      const gait: AutoMovieArchetypeQuadrupedGait.Gait | undefined =
+        explicit.find(
+          (known: AutoMovieArchetypeQuadrupedGait.Gait): boolean =>
+            known === kind,
+        );
       if (
-        !explicit.includes(kind as AutoMovieArchetypeQuadrupedGait.Gait) ||
+        gait === undefined ||
         parent === undefined ||
         !order.includes(parent)
       )
@@ -72,7 +77,7 @@ export namespace QuadrupedGaitAdmission {
           parent,
           "collect an explicit gait out of an ordered gait",
         );
-      copy[kind as AutoMovieArchetypeQuadrupedGait.Gait] = parent;
+      copy[gait] = parent;
     }
     return { collected: copy };
   }

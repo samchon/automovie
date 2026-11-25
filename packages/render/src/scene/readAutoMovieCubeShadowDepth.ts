@@ -53,7 +53,7 @@ export const readAutoMovieCubeShadowDepth: (
         gl.FRAMEBUFFER,
         gl.DEPTH_ATTACHMENT,
         gl.FRAMEBUFFER_ATTACHMENT_OBJECT_NAME,
-      ) as WebGLTexture | null;
+      );
   } catch (error) {
     failure = { error };
   }

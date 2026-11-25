@@ -107,22 +107,21 @@ export function RecoveryChartFitSolve(
   const x: Float64Array = solved.values,
     iterations: number = solved.iterations,
     projectedGradient: number = solved.projectedGradient;
+  const solveAxis = (id: number, k: 0 | 1 | 2): number =>
+    reduced.expressions[id]!.terms.reduce(
+      (sum: number, term: { id: number; weight: number }): number =>
+        sum +
+        term.weight * (origin[k]! + scale * x[3 * slots[term.id]! + k]!),
+      reduced.expressions[id]!.constant[k]!,
+    );
   const controls: Readonly<AutoMovieVector3Tuple>[] = input.controls.map(
     (
       p: Readonly<AutoMovieVector3Tuple> | null,
       id: number,
     ): Readonly<AutoMovieVector3Tuple> =>
       p === null
-        ? ([0, 1, 2].map((k: number): number =>
-            reduced.expressions[id]!.terms.reduce(
-              (sum: number, term: { id: number; weight: number }): number =>
-                sum +
-                term.weight *
-                  (origin[k]! + scale * x[3 * slots[term.id]! + k]!),
-              reduced.expressions[id]!.constant[k]!,
-            ),
-          ) as [number, number, number])
-        : [...p],
+        ? [solveAxis(id, 0), solveAxis(id, 1), solveAxis(id, 2)]
+        : [p[0], p[1], p[2]],
   );
   if (
     controls.some((p: Readonly<AutoMovieVector3Tuple>): boolean => !finite(p))

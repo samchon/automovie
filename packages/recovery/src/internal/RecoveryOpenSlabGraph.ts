@@ -254,7 +254,7 @@ export namespace RecoveryOpenSlabGraph {
             ends.push({ side, slot });
           }
         }
-        nodes.push(pair as [string, string]);
+        nodes.push([pair[0]!, pair[1]!]);
       }
       const components: {
         faces: Set<number>;
