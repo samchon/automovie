@@ -148,6 +148,7 @@ function planPlaceOverHead(
       z: 0,
     }),
   );
+  const inner: number = (opening.width ?? 0) / 2;
   const along = (
     from: IAutoMovieRigidTransform,
     handGap?: placeOverHeadPath.IProps["handGap"],
@@ -157,6 +158,7 @@ function planPlaceOverHead(
       wear: site("wear").frame.translation,
       front: site("front").frame.translation,
       centre,
+      halfBreadth: inner,
       body: partner.body,
       bones,
       ...(handGap === undefined ? {} : { handGap }),
@@ -189,7 +191,6 @@ function planPlaceOverHead(
       rotation,
     };
   })();
-  const inner: number = (opening.width ?? 0) / 2;
   if (inner <= partner.body.measure.headRadius)
     throw new HumanRefusal({
       kind: "affordance",

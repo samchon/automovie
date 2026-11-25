@@ -12,6 +12,7 @@ import type {
 import { AutoMovieMotionHumanAuditSkin } from "../audit/AutoMovieMotionHumanAuditSkin";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanHand } from "../posture/HumanHand";
+import { minimizeHumanBrent } from "../posture/minimizeHumanBrent";
 import { StrikingBody } from "../striking/StrikingBody";
 
 /**
@@ -28,6 +29,9 @@ const REST: number = 0.003;
 
 /** How finely the front's fall is searched, degrees. */
 const STEP: number = 1;
+
+/** A thousandth of a degree moves a neck loop's grips by less than 0.01 mm. */
+const ROLL_PRECISION: number = 0.001;
 
 /** The model's up, along which a loop's normal lies. */
 const NORMAL: IAutoMovieVector3 = { x: 0, y: 1, z: 0 };
@@ -46,10 +50,11 @@ const FORWARD: IAutoMovieVector3 = { x: 0, y: 0, z: 1 };
  * minimum-jerk share of its own segment, the segments shared out by the
  * distance their pivot travels: the loop as the hands hold it; level above the
  * crown, `CLEAR` over it, its centre on the neck's axis and its front toward
- * the face; level around the neck, centred on the axis; slid back till its back
- * point lies on the nape; turned about the nape's side-to-side axis until its
- * front clears the chest and both grips clear the shoulders and chest. The first three
- * segments pivot on the loop's centre, the last two on its back point.
+ * the face; level around the neck, centred on the axis; slid back till its
+ * back point lies on the nape; turned until its front clears the chest and
+ * both grips clear the shoulders. Where the grips require a roll, move from
+ * the neck frame to the rolled nape frame in one segment. Its front and nape
+ * retain their final places during the axial roll.
  */
 export namespace placeOverHeadPath {
   /** What the path is prepared from. */
@@ -65,6 +70,9 @@ export namespace placeOverHeadPath {
 
     /** The loop's centre, the middle of its `opening`, in its own frame, metres. */
     centre: IAutoMovieVector3;
+
+    /** Half the opening's clear breadth, metres. */
+    halfBreadth: number;
 
     /** The partner's body. */
     body: IAutoMovieMotionHumanBody;
@@ -153,6 +161,71 @@ export namespace placeOverHeadPath {
   }
 
   /**
+   * The roll limit that leaves the loop at least a head's breadth across.
+   * The perpendicular projection of the half-breadth is its length times
+   * the cosine of the roll.
+   */
+  export function rollLimit(halfBreadth: number, headRadius: number): number {
+    return (Math.acos(Math.min(1, headRadius / halfBreadth)) * 180) / Math.PI;
+  }
+
+  /** Turn the loop about its line through the front and nape points. */
+  export function roll(
+    frame: IAutoMovieRigidTransform,
+    wear: IAutoMovieVector3,
+    front: IAutoMovieVector3,
+    degrees: number,
+  ): IAutoMovieRigidTransform {
+    const axis: IAutoMovieVector3 = Vector3.normalize(
+      Quaternion.rotateVector(frame.rotation, Vector3.subtract(front, wear)),
+    );
+    return aligned(
+      Quaternion.normalize(
+        Quaternion.multiply(Quaternion.fromAxisAngle(axis, degrees), frame.rotation),
+      ),
+      wear,
+      pivotOf(frame, wear),
+    );
+  }
+
+  /**
+   * Find a small axial roll that clears the partner. Find each direction's
+   * geometric maximum with Brent's method before tightening its first
+   * admitted bracket towards zero.
+   */
+  export function settledRoll(
+    limit: number,
+    gap: (degrees: number) => number,
+  ): number | undefined {
+    const skin: number = AutoMovieMotionHumanAuditSkin.BUILT;
+    if (gap(0) >= skin) return 0;
+    if (!(limit > 0)) return undefined;
+    let nearest: number | undefined;
+    for (const sign of [1, -1]) {
+      const margin = (degrees: number): number => gap(sign * degrees);
+      let safe: number = limit;
+      if (margin(safe) < skin) {
+        const best: minimizeHumanBrent.IMinimum = minimizeHumanBrent(
+          (degrees: number): number => -margin(degrees),
+          0,
+          limit,
+          ROLL_PRECISION,
+        );
+        if (-best.value < skin) continue;
+        safe = best.at;
+      }
+      let blocked: number = 0;
+      while (safe - blocked > ROLL_PRECISION) {
+        const next: number = (safe + blocked) / 2;
+        if (margin(next) >= skin) safe = next;
+        else blocked = next;
+      }
+      if (nearest === undefined || safe < Math.abs(nearest)) nearest = sign * safe;
+    }
+    return nearest;
+  }
+
+  /**
    * Prepare the path.
    *
    * @param props The loop and the partner.
@@ -179,18 +252,6 @@ export namespace placeOverHeadPath {
       { normal: NORMAL, forward: FORWARD },
       { normal: up, forward },
     );
-    const placed = (
-      rotation: IAutoMovieQuaternion,
-      local: IAutoMovieVector3,
-      world: IAutoMovieVector3,
-    ): IAutoMovieRigidTransform => ({
-      position: Vector3.subtract(
-        world,
-        Quaternion.rotateVector(rotation, local),
-      ),
-      rotation,
-    });
-
     // The front's fall about the nape's side-to-side axis.
     const side: IAutoMovieVector3 = Quaternion.rotateVector(level, {
       x: 1,
@@ -202,7 +263,7 @@ export namespace placeOverHeadPath {
         Quaternion.multiply(Quaternion.fromAxisAngle(side, degrees), level),
       );
     const atFall = (degrees: number): IAutoMovieRigidTransform =>
-      placed(
+      aligned(
         tilted(degrees),
         props.wear,
         nape,
@@ -250,59 +311,83 @@ export namespace placeOverHeadPath {
         break;
       }
     const handGap: IProps["handGap"] = props.handGap;
+    let rolled: IAutoMovieRigidTransform | undefined;
     if (handGap !== undefined) {
       const settled: number | undefined = settledFall(
         fall,
         (degrees: number): number => handGap(atFall(degrees)),
       );
-      if (settled === undefined)
-        throw new HumanRefusal({
-          kind: "reach",
-          axis: "prop",
-          value: handGap(atFall(0)),
-          reason: "the loop's grips cannot settle clear of the partner's chest and upper arms",
-          fix: "use a loop whose grips lie farther from the partner or adjust their entry pose",
-        });
-      fall = settled;
+      if (settled !== undefined) fall = settled;
+      else {
+        // Grips near the clasp can meet a shoulder even while the loop is
+        // level. Try a roll with both the front and nape still fixed.
+        const limit: number = rollLimit(props.halfBreadth, props.body.measure.headRadius);
+        for (const degrees of [fall, fall / 2, 0]) {
+          const frame: IAutoMovieRigidTransform = atFall(degrees);
+          const turn = (angle: number): IAutoMovieRigidTransform =>
+            roll(frame, props.wear, props.front, angle);
+          const angle: number | undefined = settledRoll(
+            limit,
+            (value: number): number => handGap(turn(value)),
+          );
+          if (angle === undefined) continue;
+          rolled = turn(angle);
+          break;
+        }
+        if (rolled === undefined)
+          throw new HumanRefusal({
+            kind: "reach",
+            axis: "prop",
+            value: handGap(atFall(0)),
+            reason: "the loop's grips cannot settle clear of the partner's chest and upper arms",
+            fix: "use a loop whose grips lie farther from the partner or adjust their entry pose",
+          });
+      }
     }
-    const keys: readonly IKey[] = [
+    const worn: IAutoMovieRigidTransform = rolled ?? atFall(fall);
+    const keys: IKey[] = [
       { frame: props.start, pivot: props.centre },
       {
-        frame: placed(
+        frame: aligned(
           level,
           props.centre,
           Vector3.add(crown, Vector3.scale(up, CLEAR)),
         ),
         pivot: props.centre,
       },
-      { frame: placed(level, props.centre, neck), pivot: props.wear },
-      { frame: placed(level, props.wear, nape), pivot: props.wear },
-      { frame: atFall(fall), pivot: props.wear },
+      { frame: aligned(level, props.centre, neck), pivot: props.wear },
     ];
+    // The rolled route approaches the nape directly from the neck frame.
+    // A stop at the level nape would make the grips cross the shoulder.
+    if (rolled === undefined)
+      keys.push({ frame: atFall(0), pivot: props.wear });
+    keys.push({ frame: worn, pivot: props.wear });
 
     // A translating segment is measured at its pivot. The final segment has
     // a fixed pivot at the nape, and the front travels its circular arc.
-    const turnLength: number = fallArc(props.front, props.wear, fall);
+    const turnLength: number =
+      rolled === undefined
+        ? fallArc(props.front, props.wear, fall)
+        : Vector3.distance(props.front, props.wear) *
+          Quaternion.angle(level, worn.rotation);
     const lengths: number[] = keys
       .slice(0, -1)
-      .map((key: IKey, i: number): number =>
-        Math.max(
-          1e-6,
-          i + 2 === keys.length
-            ? turnLength
-            : Vector3.distance(
-                pivotOf(key.frame, key.pivot),
-                pivotOf(keys[i + 1]!.frame, key.pivot),
-              ),
-        ),
-      );
+      .map((key: IKey, i: number): number => {
+        const final: boolean = i + 2 === keys.length;
+        if (final && rolled === undefined) return Math.max(1e-6, turnLength);
+        const travel: number = Vector3.distance(
+          pivotOf(key.frame, key.pivot),
+          pivotOf(keys[i + 1]!.frame, key.pivot),
+        );
+        return Math.max(1e-6, travel + (final ? turnLength : 0));
+      });
     const total: number = lengths.reduce(
       (a: number, b: number): number => a + b,
       0,
     );
     return {
       apex: keys[1]!.frame,
-      worn: keys[4]!.frame,
+      worn,
       length: total,
       at: (progress: number): IAutoMovieRigidTransform => {
         let left: number = Math.min(1, Math.max(0, progress)) * total;
@@ -323,14 +408,26 @@ export namespace placeOverHeadPath {
               pivotOf(b.frame, a.pivot),
               s,
             );
-            return placed(rotation, a.pivot, pivot);
+            return aligned(rotation, a.pivot, pivot);
           }
           left -= lengths[i]!;
         }
-        return keys[4]!.frame;
+        return worn;
       },
     };
   }
+}
+
+/** Put a loop's local pivot on the world anchor under the chosen rotation. */
+function aligned(
+  rotation: IAutoMovieQuaternion,
+  local: IAutoMovieVector3,
+  world: IAutoMovieVector3,
+): IAutoMovieRigidTransform {
+  return {
+    position: Vector3.subtract(world, Quaternion.rotateVector(rotation, local)),
+    rotation,
+  };
 }
 
 /** A loop point's world place on a frame. */
