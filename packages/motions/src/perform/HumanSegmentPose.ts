@@ -120,27 +120,29 @@ export namespace HumanSegmentPose {
     const rig: IAutoMoviePoseRig = humanRig(person.performer.body);
     const codec: () => IAutoMoviePoseJointCodec.ICodec =
       poseJointCodec.prepare(rig);
-    return inertializePose(
-      continued(
-        (t: number, near?: INear): ISeeded =>
-          seeded(person, transition.source, t, near, prepared),
-        transition.cut,
-        "before",
-        rig,
-        transition.blend,
-        codec,
-      ).state,
-      // Include the target's carry and overlays; a bare-posture offset
-      // would add their arm placement a second time.
-      continued(
-        (t: number, near?: INear): ISeeded =>
-          readHumanSegmentLeaf(person, segment, t, near, undefined, prepared),
-        transition.cut,
-        "after",
-        rig,
-        transition.blend,
-        codec,
-      ).state,
+    const source = continued(
+      (t: number, near?: INear): ISeeded =>
+        seeded(person, transition.source, t, near, prepared),
+      transition.cut,
+      "before",
+      rig,
+      transition.blend,
+      codec,
+    ).state;
+    // Include the target's carry and overlays; a bare-posture offset would
+    // add their arm placement a second time.
+    const target = continued(
+      (t: number, near?: INear): ISeeded =>
+        readHumanSegmentLeaf(person, segment, t, near, undefined, prepared),
+      transition.cut,
+      "after",
+      rig,
+      transition.blend,
+      codec,
+    ).state;
+    const decay = inertializePose(
+      source,
+      target,
       transition.blend,
       // A joint cut as it passes the next action's pose keeps its rate and
       // follows through; stopped short it would lose that rate at once.
@@ -150,6 +152,43 @@ export namespace HumanSegmentPose {
       rig,
       codec,
     );
+    const entry = segment.context.entry;
+    if (entry.base.kind !== "seated") return decay;
+    const previous = entry.supports.find(
+      (contact) => contact.part === "seat" && contact.kind === "seat",
+    )?.support;
+    if (previous === undefined) return decay;
+    const first = source.pose.root?.translation;
+    const next = target.pose.root?.translation;
+    const coincides =
+      first !== undefined &&
+      next !== undefined &&
+      first.x === next.x &&
+      first.y === next.y &&
+      first.z === next.z;
+    const from = (transition.cut - segment.start) / segment.plan.duration;
+    const until = from + transition.blend / segment.plan.duration;
+    const carriedSeat = segment.plan.contacts.some(
+      (contact) =>
+        contact.part === "seat" &&
+        contact.kind === "seat" &&
+        contact.support.kind === "prop" &&
+        contact.from <= from &&
+        contact.to >= until &&
+        (previous.kind === "ground"
+          ? coincides
+          : previous.kind === "prop" &&
+            previous.subject === contact.support.subject &&
+            (previous.point === undefined ||
+              contact.support.point === undefined ||
+              previous.point === contact.support.point)),
+    );
+    // A seat held through the cut carries the authored root. A world offset
+    // would leave the saddle while the grounded limbs refit to it. A seat
+    // staged in world coordinates can hand over when the two roots coincide.
+    return carriedSeat
+      ? (elapsed, pose) => ({ ...decay(elapsed, pose), root: pose.root })
+      : decay;
   }
 
   /**
@@ -325,12 +364,13 @@ export namespace HumanSegmentPose {
     // declared window: neither a fade, an offset nor the range clamp can
     // move them. The ordinary resolver owns attachment order and arm pairs.
     const fitted: IAutoMoviePose = pose;
-    const shownPose = (current: IAutoMoviePose): IAutoMoviePose => {
-      const playback = segment.plan.playback;
-      if (playback?.located !== segment.plan.posture || playback.body !== body)
-        return current;
-      return playback.placed?.(seconds - segment.start, current, observed) ?? current;
-    };
+    const playback = segment.plan.playback;
+    const placed =
+      playback?.placed !== undefined &&
+      playback.located === segment.plan.posture &&
+      playback.body === body
+        ? playback.placed
+        : undefined;
     // In the plain case every record of the pose is the range clamp's own
     // at the joints whose clamp gives it back (`IHumanBody.settled`), so
     // those are kept and the rest clamped; otherwise every joint is.
@@ -362,7 +402,10 @@ export namespace HumanSegmentPose {
       posture.rotation === undefined &&
       HumanSegmentPlant.settled(fitted, pose, posture.limbs, seeds)
     )
-      return { pose: shownPose(pose), seeds };
+      return {
+        pose: placed?.(seconds - segment.start, pose, observed) ?? pose,
+        seeds,
+      };
     // Each plant is placed at this very read's leaf fit of the same goal
     // (`leafed`), displaced only by what came after the leaf.
     const planted: IAutoMovieMotionHumanResolveHumanPosture.ISeeded =
@@ -375,7 +418,11 @@ export namespace HumanSegmentPose {
       );
     for (const [limb, seed] of Object.entries(planted.seeds))
       seeds.set(`planted:${limb}`, seed ?? null);
-    return { pose: shownPose(planted.pose), seeds };
+    return {
+      pose:
+        placed?.(seconds - segment.start, planted.pose, observed) ?? planted.pose,
+      seeds,
+    };
   }
 
   /**
