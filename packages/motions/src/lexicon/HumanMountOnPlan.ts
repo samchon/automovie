@@ -7,6 +7,7 @@ import type {
   IAutoMovieMotionHumanBody,
   IAutoMovieMotionHumanContactWindow,
   IAutoMovieMotionHumanPosture,
+  IAutoMovieMotionHumanPropReader,
   IAutoMovieMotionHumanSeated,
   IAutoMovieMotionHumanSit,
   IAutoMovieSwivelSeed,
@@ -33,6 +34,7 @@ import { HumanMountPlace } from "./HumanMountPlace";
 import { HumanMountPush } from "./HumanMountPush";
 import { HumanMountTrack } from "./HumanMountTrack";
 import { HumanSwungLeg } from "./HumanSwungLeg";
+import { prepareMountCrossing } from "./prepareMountCrossing";
 
 /** Where the pelvis is at an instant of getting on (`HumanMountOnFrame`). */
 type Frame = HumanMountOnFrame.Frame;
@@ -522,16 +524,62 @@ export function HumanMountOnPlan(
     },
   };
 
+  const swing = (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
+    side === push && keys !== null ? null : swingOf(side);
+  const startFlight: number | undefined = flying?.[0];
+  let plan: IAutoMovieMotionHumanActionPlan = mounted;
+  let swung: typeof swing = swing;
+  if (
+    keys !== null &&
+    startFlight !== undefined &&
+    places[lead].tread &&
+    startFlight < bearing[lead]
+  ) {
+    const owner: IAutoMovieMotionHumanPropReader | undefined =
+      seat.carrier === undefined ? undefined : context.prop(seat.carrier);
+    const shapes = owner?.prop.shapes;
+    const fixed = seat.solid;
+    const solid: prepareMountCrossing.IProps["solid"] | undefined =
+      owner !== undefined && shapes !== undefined && shapes.length !== 0
+        ? (t) => ({ frame: owner.frame(context.start + t), shapes })
+        : fixed === undefined
+          ? undefined
+          : () => fixed;
+    if (solid !== undefined) {
+      // The near leg may already have required joint keys. Bind its actual
+      // prepared course once, before the collision rows or the palms read it.
+      const shown: IAutoMovieMotionHumanActionPlan = HumanSwungLeg.plan(
+        body,
+        mounted,
+        swing,
+      );
+      const crossingCourse: prepareMountCrossing.Write = prepareMountCrossing({
+        body,
+        side: push,
+        start: startFlight,
+        end: bearing[lead],
+        events: [crossing[0]],
+        read: shown.posture,
+        solid,
+        floor: under,
+      });
+      plan = {
+        ...shown,
+        posture: (t) => crossingCourse(shown.posture(t), t),
+      };
+      swung = () => null;
+    }
+  }
+
   // The swung legs and the hands are laid as courses over the climb (`HumanMountOnCourses`).
   return HumanMountOnCourses({
     body,
-    plan: mounted,
+    plan,
     pose: context.entry.pose,
     palms,
     climb,
     duration,
     ...(keys === null ? {} : { crossing: { side: push, landing: keys.end } }),
-    swing: (side: AutoMovieHumanSide): HumanSwungLeg.Swing | null =>
-      side === push && keys !== null ? null : swingOf(side),
+    swing: swung,
   });
 }

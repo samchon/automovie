@@ -240,7 +240,7 @@ export namespace HumanObject {
       found,
       world,
     );
-    return {
+    const seat: IAutoMovieMotionHumanSeated.ISeat = {
       at: Vector3.add(
         world.position,
         Quaternion.rotateVector(world.rotation, found.frame.translation),
@@ -262,6 +262,20 @@ export namespace HumanObject {
           }),
       ...(carrier === undefined ? {} : { carrier, point: found.id }),
     };
+    // A static astride seat can supply its own model without a prop identity.
+    // Named carriers already retain the model and its live frame as a prop.
+    if (found.astride === true && carrier === undefined) {
+      const shapes: readonly IAutoMoviePhysicalShape[] | undefined =
+        model.shapes?.();
+      if (shapes !== undefined && shapes.length !== 0)
+        Object.defineProperty(seat, "solid", {
+          value: {
+            frame: world,
+            shapes,
+          } satisfies IAutoMovieMotionHumanSeated.IStaticSolid,
+        });
+    }
+    return seat;
   }
 
   /**
