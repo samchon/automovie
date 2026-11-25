@@ -287,9 +287,9 @@ export function test_unit_engine_geometry_conic_projective(): void {
           );
           if (ray === null || next === null) continue;
           TestValidator.predicate(
-            `${label} finite`,
+            `${label} bounded`,
             [...ray.point, ...ray.tangent, ...ray.radial].every(
-              (v: number): boolean => Number.isFinite(v),
+              (v: number): boolean => Math.abs(v) <= Number.MAX_VALUE,
             ),
           );
           TestValidator.predicate(

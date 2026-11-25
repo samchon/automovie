@@ -194,7 +194,7 @@ catalogs:
       version: 1.62.0
     playwright-core:
       specifier: ^1.60.0
-      version: 1.60.0
+      version: 1.62.0
     pngjs:
       specifier: ^7.0.0
       version: 7.0.0
@@ -242,11 +242,11 @@ catalogs:
       version: 15.4.1
   three:
     '@types/three':
-      specifier: ^0.186.0
-      version: 0.186.0
+      specifier: ^0.187.0
+      version: 0.187.0
     three:
-      specifier: ^0.186.0
-      version: 0.186.0
+      specifier: ^0.187.0
+      version: 0.187.0
   typescript:
     '@trivago/prettier-plugin-sort-imports':
       specifier: ^5.2.2
@@ -263,7 +263,7 @@ catalogs:
   utils:
     '@types/node':
       specifier: ^22.19.17
-      version: 22.19.20
+      version: 22.20.5
     bumpp:
       specifier: ^12.3.0
       version: 12.3.0
@@ -330,7 +330,7 @@ importers:
         version: 6.0.5
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -363,7 +363,7 @@ importers:
         version: 6.1.3
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       ttsc:
         specifier: catalog:samchon
         version: 0.37.1(typescript@7.0.2)
@@ -424,7 +424,7 @@ importers:
         version: 22.20.5
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -445,7 +445,7 @@ importers:
         version: 6.1.3
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       ttsc:
         specifier: catalog:samchon
         version: 0.37.1(typescript@7.0.2)
@@ -581,7 +581,7 @@ importers:
         version: 22.19.20
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       automovie:
         specifier: workspace:^
         version: link:../cli
@@ -599,7 +599,7 @@ importers:
         version: 6.1.3
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
@@ -694,7 +694,7 @@ importers:
         version: 22.19.20
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -715,7 +715,7 @@ importers:
         version: 6.1.3
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       ttsc:
         specifier: catalog:samchon
         version: 0.37.1(typescript@7.0.2)
@@ -773,7 +773,7 @@ importers:
         version: link:../interface
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -786,7 +786,7 @@ importers:
         version: 22.20.5
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -841,7 +841,7 @@ importers:
         version: link:../render
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
     devDependencies:
       '@ttsc/evidence':
         specifier: catalog:samchon
@@ -860,7 +860,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -944,7 +944,7 @@ importers:
         version: 7.0.0
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       tstl:
         specifier: catalog:samchon
         version: 3.0.0
@@ -975,7 +975,7 @@ importers:
         version: 6.0.5
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       '@wrtnlabs/evidence':
         specifier: catalog:samchon
         version: 0.11.1(ttsc@0.37.1(typescript@7.0.2))
@@ -1056,7 +1056,7 @@ importers:
         version: 19.3.1(react@19.3.1)
       three:
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
     devDependencies:
       '@types/gh-pages':
         specifier: ^6.1.0
@@ -1072,7 +1072,7 @@ importers:
         version: 19.3.0(@types/react@19.3.0)
       '@types/three':
         specifier: catalog:three
-        version: 0.186.0
+        version: 0.187.0
       gh-pages:
         specifier: ^6.3.0
         version: 6.3.0
@@ -2442,8 +2442,8 @@ packages:
   '@types/stats.js@0.17.4':
     resolution: {integrity: sha512-jIBvWWShCvlBqBNIZt0KAshWpvSjhkwkEu4ZUcASoAvhmrgAUI2t1dXrjSL4xXVLB4FznPrIsX3nKXFl/Dt4vA==}
 
-  '@types/three@0.186.0':
-    resolution: {integrity: sha512-mxYSBpDC+D0pLfSP6sW4WZTcT+nrtmZcimMqnVmy36Hte3XpeYSrvgg4TRdaM1GemGog1AWzI5qL2VoIfMXbJQ==}
+  '@types/three@0.187.0':
+    resolution: {integrity: sha512-v+vKNarUtk4n2QRZ4+CN5ygMM0ARUjXjIQl0R/unMUfmStFeVqGbgqarbrpoGTXRZoulSH16ePrVJVxPJEbMUA==}
 
   '@types/tough-cookie@4.0.5':
     resolution: {integrity: sha512-/Ad8+nIOV7Rl++6f1BdKxFSMgmoqEoYbHRpPcx3JEfv8VRsQe9Z4mCXeJBzxs7mbHY/XOZZuXlRNfhpVPbs6ZA==}
@@ -4638,8 +4638,8 @@ packages:
     engines: {node: '>=10'}
     hasBin: true
 
-  three@0.186.0:
-    resolution: {integrity: sha512-cr/fIM2ddMSVbYVgkfD4jLJv7Fh/8ZTjvo+7gQeSVGUZHxpx9FDwoL5iC7hUz/LiRA8wMbqfnb90xKfm1/HHkQ==}
+  three@0.187.0:
+    resolution: {integrity: sha512-Qiu7R+Cmh8CstZsY1uJOSWnVlfo7ZtNLV7mF8Jltk3LB3AtDu9cRZlcnRKkAk8Y4z6KKw35z7Y7Urd7jWY8etA==}
 
   tinyexec@1.3.1:
     resolution: {integrity: sha512-GCvB3aoys96IuDFBMcTB46JOR6mdMtAToqwiW8JlWhsoh1mhHi/xn9ss/Dg7N555GiJyEt2qzoG/NHCwM6h1EA==}
@@ -6071,7 +6071,7 @@ snapshots:
 
   '@types/stats.js@0.17.4': {}
 
-  '@types/three@0.186.0':
+  '@types/three@0.187.0':
     dependencies:
       '@dimforge/rapier3d-compat': 0.12.0
       '@tweenjs/tween.js': 23.1.3
@@ -8677,7 +8677,7 @@ snapshots:
       commander: 2.20.3
       source-map-support: 0.5.21
 
-  three@0.186.0: {}
+  three@0.187.0: {}
 
   tinyexec@1.3.1: {}
 

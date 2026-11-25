@@ -49,42 +49,50 @@ export async function test_unit_motions_sport_martial_art_plan_tai_chi(): Promis
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody(name);
     const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const away: number = lead === "left" ? -1 : 1;
-    const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
-      motionActionContext(body, { kind: "taiChiTransfer", hold: 0.24, lead }),
-    );
-    plan.prepare?.();
-    const at = (mark: string): number =>
-      plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === mark)!
-        .share * plan.duration;
-    const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
-      plan.contacts.find(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
-      )!;
-    TestValidator.predicate(
-      `${name}: the phrase and its plants`,
-      nclose(plan.duration, 9.24, ROUNDING) &&
-        nclose(at("ready"), 2, ROUNDING) &&
-        nclose(at("stroke"), 4.5, ROUNDING) &&
-        nclose(at("strokeEnd"), 7, ROUNDING) &&
-        nclose(at("relax"), 7.24, ROUNDING) &&
-        plant(`${rear}Foot`).from === 0 &&
-        plant(`${rear}Foot`).to === 1 &&
-        nclose(plant(`${lead}Foot`).from, 2 / 9.24, ROUNDING) &&
-        nclose(plant(`${lead}Foot`).to, 7.24 / 9.24, ROUNDING),
-    );
-    TestValidator.predicate(
-      `${name}: the pelvis turns`,
-      nclose(plan.posture(at("stroke")).yaw, away * 0, ROUNDING) &&
-        nclose(plan.posture(at("strokeEnd")).yaw, away * 0, ROUNDING),
-    );
-    for (let s: number = 0; s < plan.duration; s += 0.3) plan.posture(s);
-    TestValidator.predicate(
-      `${name}: the return`,
-      vclose(
-        plan.posture(plan.duration).root,
-        plan.posture(0).root,
-        ROUNDING,
-      ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
-    );
+    // A refusal names its staging, so a failure tells the stagings apart.
+    try {
+      const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
+        motionActionContext(body, { kind: "taiChiTransfer", hold: 0.24, lead }),
+      );
+      plan.prepare?.();
+      const at = (mark: string): number =>
+        plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === mark,
+        )!.share * plan.duration;
+      const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
+        plan.contacts.find(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
+        )!;
+      TestValidator.predicate(
+        `${name}: the phrase and its plants`,
+        nclose(plan.duration, 9.24, ROUNDING) &&
+          nclose(at("ready"), 2, ROUNDING) &&
+          nclose(at("stroke"), 4.5, ROUNDING) &&
+          nclose(at("strokeEnd"), 7, ROUNDING) &&
+          nclose(at("relax"), 7.24, ROUNDING) &&
+          plant(`${rear}Foot`).from === 0 &&
+          plant(`${rear}Foot`).to === 1 &&
+          nclose(plant(`${lead}Foot`).from, 2 / 9.24, ROUNDING) &&
+          nclose(plant(`${lead}Foot`).to, 7.24 / 9.24, ROUNDING),
+      );
+      TestValidator.predicate(
+        `${name}: the pelvis turns`,
+        nclose(plan.posture(at("stroke")).yaw, away * 0, ROUNDING) &&
+          nclose(plan.posture(at("strokeEnd")).yaw, away * 0, ROUNDING),
+      );
+      for (let s: number = 0; s < plan.duration; s += 0.3) plan.posture(s);
+      TestValidator.predicate(
+        `${name}: the return`,
+        vclose(
+          plan.posture(plan.duration).root,
+          plan.posture(0).root,
+          ROUNDING,
+        ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
+      );
+    } catch (error) {
+      throw new Error(
+        `${name} leading ${lead}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

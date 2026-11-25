@@ -52,46 +52,54 @@ export async function test_unit_motions_sport_martial_art_plan_karate(): Promise
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody(name);
     const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const away: number = lead === "left" ? -1 : 1;
-    const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
-      motionActionContext(body, {
-        kind: "karateStanceTransfer",
-        hold: 0.24,
-        lead,
-      }),
-    );
-    plan.prepare?.();
-    const at = (mark: string): number =>
-      plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === mark)!
-        .share * plan.duration;
-    const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
-      plan.contacts.find(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
-      )!;
-    TestValidator.predicate(
-      `${name}: the phrase and its plants`,
-      nclose(plan.duration, 2.18, ROUNDING) &&
-        nclose(at("ready"), 0.55, ROUNDING) &&
-        nclose(at("stroke"), 0.97, ROUNDING) &&
-        nclose(at("strokeEnd"), 1.39, ROUNDING) &&
-        nclose(at("relax"), 1.63, ROUNDING) &&
-        plant(`${rear}Foot`).from === 0 &&
-        plant(`${rear}Foot`).to === 1 &&
-        nclose(plant(`${lead}Foot`).from, 0.55 / 2.18, ROUNDING) &&
-        nclose(plant(`${lead}Foot`).to, 1.63 / 2.18, ROUNDING),
-    );
-    TestValidator.predicate(
-      `${name}: the pelvis turns`,
-      nclose(plan.posture(at("stroke")).yaw, away * 5, ROUNDING) &&
-        nclose(plan.posture(at("strokeEnd")).yaw, away * 25, ROUNDING),
-    );
-    for (let s: number = 0; s < plan.duration; s += 0.1) plan.posture(s);
-    TestValidator.predicate(
-      `${name}: the return`,
-      vclose(
-        plan.posture(plan.duration).root,
-        plan.posture(0).root,
-        ROUNDING,
-      ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
-    );
+    // A refusal names its staging, so a failure tells the stagings apart.
+    try {
+      const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
+        motionActionContext(body, {
+          kind: "karateStanceTransfer",
+          hold: 0.24,
+          lead,
+        }),
+      );
+      plan.prepare?.();
+      const at = (mark: string): number =>
+        plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === mark,
+        )!.share * plan.duration;
+      const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
+        plan.contacts.find(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
+        )!;
+      TestValidator.predicate(
+        `${name}: the phrase and its plants`,
+        nclose(plan.duration, 2.18, ROUNDING) &&
+          nclose(at("ready"), 0.55, ROUNDING) &&
+          nclose(at("stroke"), 0.97, ROUNDING) &&
+          nclose(at("strokeEnd"), 1.39, ROUNDING) &&
+          nclose(at("relax"), 1.63, ROUNDING) &&
+          plant(`${rear}Foot`).from === 0 &&
+          plant(`${rear}Foot`).to === 1 &&
+          nclose(plant(`${lead}Foot`).from, 0.55 / 2.18, ROUNDING) &&
+          nclose(plant(`${lead}Foot`).to, 1.63 / 2.18, ROUNDING),
+      );
+      TestValidator.predicate(
+        `${name}: the pelvis turns`,
+        nclose(plan.posture(at("stroke")).yaw, away * 5, ROUNDING) &&
+          nclose(plan.posture(at("strokeEnd")).yaw, away * 25, ROUNDING),
+      );
+      for (let s: number = 0; s < plan.duration; s += 0.1) plan.posture(s);
+      TestValidator.predicate(
+        `${name}: the return`,
+        vclose(
+          plan.posture(plan.duration).root,
+          plan.posture(0).root,
+          ROUNDING,
+        ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
+      );
+    } catch (error) {
+      throw new Error(
+        `${name} leading ${lead}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }

@@ -67,6 +67,9 @@ type IHumanArmTrajectoryEvaluateKept = {
  * @param contact The waypoints the clearance is read at, `contact[k]` true: an
  *   optimiser's knots; absent, every waypoint. The arms' collider probes, which
  *   only the clearance pairs read, are placed only at those waypoints.
+ * @param sampled Whether the objective holds the waypoints' sampled squared
+ *   accelerations; false where the trajectory's knots carry their own squared
+ *   jerk instead (`HumanArmTrajectoryJerk`).
  * @returns The arms placed, the objective, the summed violation and the worst
  *   one past its slack, with the pairs, sweeps and crossings the reading found
  *   and the waypoints that take part in a violation past the tolerance.

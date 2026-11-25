@@ -20,7 +20,7 @@ catalogs:
     prettier: ^3.5.3
     prettier-plugin-jsdoc: ^1.8.1
   three:
-    three: &three ^0.186.0
+    three: &three ^0.187.0
     "@types/three": *three
   gltf:
     "@gltf-transform/core": ^4.5.0

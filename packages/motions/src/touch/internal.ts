@@ -28,3 +28,4 @@ export * from "./highFive";
 export * from "./lungeGrab";
 export * from "./legTouch";
 export * from "./armWrestle";
+export * from "./kissHandMeeting";

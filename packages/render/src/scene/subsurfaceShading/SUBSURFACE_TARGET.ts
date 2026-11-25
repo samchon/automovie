@@ -1,3 +1,7 @@
-/** The direct diffuse line of three's physical lighting model this replaces. */
+/**
+ * The direct diffuse line of three's physical lighting model this replaces: the
+ * light's cosine-weighted irradiance through the diffuse BRDF three chose,
+ * Lambert or, with diffuse roughness, Oren-Nayar.
+ */
 export const SUBSURFACE_TARGET =
-  "reflectedLight.directDiffuse += irradiance * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );";
+  "reflectedLight.directDiffuse += irradiance * diffuseBRDF * ( 1.0 - F );";

@@ -23,3 +23,4 @@ export * from "./zip";
 export * from "./write";
 export * from "./handOver";
 export * from "./receive";
+export * from "./HumanClasp";

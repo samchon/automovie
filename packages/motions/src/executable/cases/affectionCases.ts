@@ -20,6 +20,7 @@ import { MotionBodies } from "../MotionBodies";
 import type { humanPolygonMan } from "../humanPolygonMan";
 import { FamilyCaseKit } from "./FamilyCaseKit";
 import { TouchVerdicts } from "./TouchVerdicts";
+import { affectionCasePerformers } from "./affectionCasePerformers";
 import { everydayVerdicts } from "./everydayVerdicts";
 
 /**
@@ -291,7 +292,7 @@ export function affectionCases(
           (): IAutoMovieMotionHumanPerformance =>
             new HumanPerformance({
               seed: "affection",
-              performers: performers(body, true, 0.7),
+              performers: affectionCasePerformers(body, true, 0.7),
               composition: new AutoMovieChain({
                 kind: "parallel",
                 parts: [
@@ -350,33 +351,6 @@ export function affectionCases(
   return out;
 }
 
-/**
- * The two performers: `a` at the origin heading +Z, `b` ahead facing `a` or
- * turned away.
- */
-function performers(
-  body: IAutoMovieMotionHumanBody,
-  facing: boolean,
-  gap: number,
-): IAutoMovieMotionHumanPerformance.IInput["performers"] {
-  return [
-    {
-      subject: "a",
-      body,
-      at: { x: 0, y: 0, z: 0 },
-      yaw: 0,
-      proficiency: { level: "trained" as const },
-    },
-    {
-      subject: "b",
-      body,
-      at: { x: 0, y: 0, z: gap },
-      yaw: facing ? 180 : 0,
-      proficiency: { level: "trained" as const },
-    },
-  ];
-}
-
 /** A performance of `b` standing and `a` acting, side by side in time. */
 function pair(
   body: IAutoMovieMotionHumanBody,
@@ -387,7 +361,7 @@ function pair(
 ): IAutoMovieMotionHumanPerformance {
   return new HumanPerformance({
     seed: "affection",
-    performers: performers(body, facing, gap),
+    performers: affectionCasePerformers(body, facing, gap),
     composition: new AutoMovieChain({
       kind: "parallel",
       parts: [b.node, a.node],

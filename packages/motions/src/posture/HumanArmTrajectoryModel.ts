@@ -402,9 +402,11 @@ export namespace HumanArmTrajectoryModel {
     return k > 0 && (k < c.n - 1 || (c.open && k === c.n - 1));
   }
 
-  /** The iterate after a step of the convex subproblem (`HumanArmTrajectoryStep`). */
-  export const stepped: typeof HumanArmTrajectoryStep =
-    HumanArmTrajectoryStep;
+  /**
+   * The iterate after a step of the convex subproblem
+   * (`HumanArmTrajectoryStep`).
+   */
+  export const stepped: typeof HumanArmTrajectoryStep = HumanArmTrajectoryStep;
 
   /**
    * An arm's coordinates projected onto its hard ranges, the nearest point of
@@ -457,6 +459,8 @@ export namespace HumanArmTrajectoryModel {
    *   coordinates changed since it; absent, every waypoint is read.
    * @param contact The waypoints whose clearance pairs are read
    *   (`HumanArmTrajectoryEvaluate`); absent, every waypoint's.
+   * @param sampled Whether the objective holds the waypoints' sampled squared
+   *   accelerations (`HumanArmTrajectoryEvaluate`).
    * @returns The arms placed, the objective, the summed violation and the worst
    *   one past its slack.
    */

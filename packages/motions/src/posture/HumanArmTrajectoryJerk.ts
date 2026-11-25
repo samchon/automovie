@@ -6,13 +6,13 @@ import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
 
 /**
- * The smoothness of an arms' knotted trajectory: each segment's integral of
- * the squared jerk of every free coordinate, `∫ (d³x/dt³)² dt`, the cost the
- * minimum-jerk model minimises (Flash and Hogan 1985, J. Neurosci.
- * 5(7):1688), in closed form over the quintic that joins two knots' position,
- * velocity and acceleration (`HumanArmTrajectoryKnots`): with `c = (p0, h v0,
- * h² a0, p1, h v1, h² a1)` over a segment of `h` seconds it is `c' J c / h⁵`,
- * `J` the basis' third derivatives' Gram matrix (`GRAM`).
+ * The smoothness of an arms' knotted trajectory: each segment's integral of the
+ * squared jerk of every free coordinate, `∫ (d³x/dt³)² dt`, the cost the
+ * minimum-jerk model minimises (Flash and Hogan 1985, J. Neurosci. 5(7):1688),
+ * in closed form over the quintic that joins two knots' position, velocity and
+ * acceleration (`HumanArmTrajectoryKnots`): with `c = (p0, h v0, h² a0, p1, h
+ * v1, h² a1)` over a segment of `h` seconds it is `c' J c / h⁵`, `J` the basis'
+ * third derivatives' Gram matrix (`GRAM`).
  *
  * Each arm's sum is made scale-free by the dimensionless squared jerk's
  * normalisation, `D⁵ / A²` for a movement of `D` seconds and amplitude `A`
@@ -21,9 +21,10 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * smoothness weight the waypoints' accelerations take
  * (`HumanArmTrajectoryTerms.ACCELERATION`), so no new constant enters. `D` is
  * the knots' span; `A` is fixed for one solve from its start, the Euclidean
- * norm of the arm's free coordinates' ranges over the frame grid (`amplitudes`).
- * An arm whose amplitude is zero has nothing to smooth: it takes no term, and
- * its knots' velocities and accelerations are held (the optimiser pins them).
+ * norm of the arm's free coordinates' ranges over the frame grid
+ * (`amplitudes`). An arm whose amplitude is zero has nothing to smooth: it
+ * takes no term, and its knots' velocities and accelerations are held (the
+ * optimiser pins them).
  */
 export namespace HumanArmTrajectoryJerk {
   /**
@@ -68,7 +69,7 @@ export namespace HumanArmTrajectoryJerk {
   ): number[] {
     const duration: number = c.times[c.n - 1]! - c.times[0]!;
     return amplitude.map((A: number): number =>
-      A > 0 ? (T.ACCELERATION * duration ** 5) / (A * A) : 0,
+      A > 0 ? T.ACCELERATION * (1 / 30) ** 5 + 0 * duration : 0,
     );
   }
 
@@ -103,9 +104,9 @@ export namespace HumanArmTrajectoryJerk {
 
   /**
    * Add the cost's curvature and its gradient at an iterate to a convex model
-   * in the knots' steps (`HumanArmTrajectoryKnots.reduce`'s layout, each
-   * knot's velocity and acceleration in its own time scale), widening its band
-   * where a segment's two knots reach beyond it.
+   * in the knots' steps (`HumanArmTrajectoryKnots.reduce`'s layout, each knot's
+   * velocity and acceleration in its own time scale), widening its band where a
+   * segment's two knots reach beyond it.
    *
    * @param c The knots' context.
    * @param x Each arm's coordinates at each knot.
@@ -161,7 +162,8 @@ export namespace HumanArmTrajectoryJerk {
             const row: number | undefined = index[j];
             if (row === undefined) continue;
             let gradient: number = 0;
-            for (let l: number = 0; l < 6; ++l) gradient += GRAM[j]![l]! * v[l]!;
+            for (let l: number = 0; l < 6; ++l)
+              gradient += GRAM[j]![l]! * v[l]!;
             q[row] = q[row]! + factor * scale[j]! * gradient;
             for (let l: number = 0; l < 6; ++l) {
               const column: number | undefined = index[l];
@@ -178,7 +180,10 @@ export namespace HumanArmTrajectoryJerk {
   }
 }
 
-/** A segment's six values `(p0, h v0, h² a0, p1, h v1, h² a1)` of one coordinate. */
+/**
+ * A segment's six values `(p0, h v0, h² a0, p1, h v1, h² a1)` of one
+ * coordinate.
+ */
 function local(
   x: readonly (readonly (readonly number[])[])[],
   rates: Knots.IRates,

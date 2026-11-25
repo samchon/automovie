@@ -5,6 +5,7 @@ import type {
 
 import { HUMAN_ARM_COORDINATE_RATES as RATES } from "./HUMAN_ARM_COORDINATE_RATES";
 import { HumanArmTrajectoryConvex } from "./HumanArmTrajectoryConvex";
+import { HumanArmTrajectoryJerk as Jerk } from "./HumanArmTrajectoryJerk";
 import { HumanArmTrajectoryKnots as Knots } from "./HumanArmTrajectoryKnots";
 import { HumanArmTrajectoryModel as M } from "./HumanArmTrajectoryModel";
 import { HumanArmTrajectorySmooth } from "./HumanArmTrajectorySmooth";
@@ -183,8 +184,7 @@ export namespace HumanArmOptimiser {
             : {
                 ...sampled,
                 objective:
-                  sampled.objective +
-                  Jerk.cost(context, x.x, x.rates, jerk),
+                  sampled.objective + Jerk.cost(context, x.x, x.rates, jerk),
               };
         if (changing !== undefined && kept.fixed === undefined)
           kept.fixed = { reading: evaluation, laid: changing };
@@ -239,6 +239,7 @@ export namespace HumanArmOptimiser {
         x,
         model.n,
         grid !== undefined,
+        jerk,
       );
       const trust: IAutoMovieMotionHumanQuadraticProgram.IRow[] = ranges.map(
         (
@@ -289,10 +290,6 @@ export namespace HumanArmOptimiser {
       };
     };
 
-    const first: number[][][] = start.map(
-      (arm: readonly (readonly number[])[]): number[][] =>
-        arm.map((v: readonly number[]): number[] => [...v]),
-    );
     const solved: IAutoMovieMotionHumanSequentialConvex.IResult<
       IIterate,
       IReading
@@ -300,9 +297,7 @@ export namespace HumanArmOptimiser {
       problem,
       {
         x: first,
-        ...(grid === undefined
-          ? {}
-          : { rates: rates ?? Knots.rates(context.times, first) }),
+        ...(initial === undefined ? {} : { rates: initial }),
       },
       {
         ...SCO.DEFAULTS,
@@ -365,6 +360,7 @@ export namespace HumanArmOptimiser {
     it: IIterate,
     n: number,
     knotted: boolean,
+    jerk: readonly number[],
   ): IRange[] {
     const out: IRange[] = Array.from(
       { length: n },
@@ -385,6 +381,12 @@ export namespace HumanArmOptimiser {
             out[base] = { low: b[0] - value, high: b[1] - value, scale: 1 };
           }
           if (!knotted || it.rates === undefined) return;
+          // A still arm's knots hold no rate (`HumanArmTrajectoryJerk`).
+          if (jerk[a] === 0) {
+            out[base + c.width] = { low: 0, high: 0, scale: 1 };
+            out[base + 2 * c.width] = { low: 0, high: 0, scale: 1 };
+            return;
+          }
           // The velocity within the coordinate's own rate, the limit the
           // retiming holds it to (`HUMAN_ARM_COORDINATE_RATES`, TOPP-RA's
           // first-order constraint); the acceleration, which the retiming

@@ -5,6 +5,9 @@ import { HumanArmTrajectoryTerms as T } from "./HumanArmTrajectoryTerms";
  * A context's quadratic terms and their curvature.
  *
  * @param c The context.
+ * @param sampled Whether the terms hold the waypoints' sampled squared
+ *   accelerations; false where the trajectory's knots carry their own squared
+ *   jerk instead (`HumanArmTrajectoryJerk`).
  * @returns The record, owned by the caller.
  */
 export function HumanArmTrajectorySmooth(

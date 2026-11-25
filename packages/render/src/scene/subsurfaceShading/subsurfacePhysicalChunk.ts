@@ -32,7 +32,7 @@ vec3 subsurfaceDiffuse( const in float dotNL ) {
 ` +
     pars.replace(
       SUBSURFACE_TARGET,
-      "reflectedLight.directDiffuse += directLight.color * subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) ) * BRDF_Lambert( material.diffuseContribution ) * ( 1.0 - F );",
+      "reflectedLight.directDiffuse += directLight.color * subsurfaceDiffuse( dot( geometryNormal, directLight.direction ) ) * diffuseBRDF * ( 1.0 - F );",
     )
   );
 }

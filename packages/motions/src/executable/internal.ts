@@ -4,6 +4,7 @@ export * from "./cases/FootSlip";
 export * from "./IMotionCaptureCase";
 export * from "./IMotionCaptureProps";
 export * from "./planMotionCaptureProps";
+export * from "./cases/affectionCasePerformers";
 export * from "./cases/ballStrikeCaseBall";
 export * from "./cases/climbCaseLadder";
 export * from "./cases/colliderCaseInside";

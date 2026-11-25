@@ -1,6 +1,7 @@
 import type * as THREE from "three";
 
 import type { IFormationTierRepresentation } from "./IFormationTierRepresentation.js";
+import { selectFormationShadowPalette } from "./selectFormationShadowPalette.js";
 
 /**
  * Bind one resident tier's cycle to its mesh and supported shadow projections.
@@ -40,15 +41,11 @@ export const bindFormationTierCycle: (
       THREE.BufferGeometryEventMap
     >,
     material: THREE.Material<THREE.MaterialEventMap>,
-    // three's shadow map passes the drawn entry of `geometry.groups`, or
-    // null for an ungrouped draw, so the palette is that group's material.
     group: THREE.Group | THREE.GeometryGroup | null,
   ): void => {
-    const drawn: THREE.GeometryGroup | undefined = geometry.groups.find(
-      (entry: THREE.GeometryGroup): boolean => entry === group,
+    shadows.beforeDraw(
+      material,
+      selectFormationShadowPalette(geometry, representation.materials, group),
     );
-    const palette: THREE.Material<THREE.MaterialEventMap> =
-      representation.materials[drawn?.materialIndex ?? 0]!;
-    shadows.beforeDraw(material, palette);
   };
 };

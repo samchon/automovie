@@ -61,78 +61,86 @@ export async function test_unit_motions_sport_martial_art_plan_muay_thai(): Prom
     const body: IAutoMovieMotionHumanBody = await humanFixtureBody(name);
     const rear: AutoMovieHumanSide = lead === "left" ? "right" : "left";
     const away: number = lead === "left" ? -1 : 1;
-    const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
-      motionActionContext(body, {
-        kind: "muayThaiStanceReset",
-        hold: 0.24,
-        lead,
-      }),
-    );
-    plan.prepare?.();
-    const at = (mark: string): number =>
-      plan.events.find((e: IAutoMovieMotionEvent): boolean => e.name === mark)!
-        .share * plan.duration;
-    const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
-      plan.contacts.find(
-        (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
-      )!;
-    TestValidator.predicate(
-      `${name}: the phrase and its plants`,
-      nclose(plan.duration, 2.98, ROUNDING) &&
-        nclose(at("ready"), 0.72, ROUNDING) &&
-        nclose(at("stroke"), 1.42, ROUNDING) &&
-        nclose(at("strokeEnd"), 2.02, ROUNDING) &&
-        nclose(at("relax"), 2.26, ROUNDING) &&
-        plant(`${rear}Foot`).from === 0 &&
-        plant(`${rear}Foot`).to === 1 &&
-        nclose(plant(`${lead}Foot`).from, 0.72 / 2.98, ROUNDING) &&
-        nclose(plant(`${lead}Foot`).to, 2.26 / 2.98, ROUNDING),
-    );
-    TestValidator.predicate(
-      `${name}: the pelvis turns`,
-      nclose(plan.posture(at("stroke")).yaw, away * 2, ROUNDING) &&
-        nclose(plan.posture(at("strokeEnd")).yaw, away * 2, ROUNDING),
-    );
-    // The guard reads at the first mark: both wrists over 3 cm, six times the
-    // 5 mm sole-contact tolerance, above their shoulder joints.
-    const bones: ReturnType<typeof poseBones> = poseBones(
-      body,
-      resolveHumanPosture(body, plan.posture(at("stroke"))),
-    );
-    const raised = (side: AutoMovieHumanSide): number =>
-      bones.get(`${side}Hand`)!.worldPosition.y -
-      bones.get(`${side}UpperArm`)!.worldPosition.y;
-    TestValidator.predicate(
-      `${name}: the guard above the shoulders`,
-      raised("left") > 0.03 && raised("right") > 0.03,
-    );
-    const bladed: IAutoMovieMotionHumanActionPlan = martialArt.plan(
-      motionActionContext(body, {
-        kind: "taekwondoStanceReset",
-        hold: 0.24,
-        lead,
-      }),
-    );
-    bladed.prepare?.();
-    const drop = (of: IAutoMovieMotionHumanActionPlan): number =>
-      of.posture(0).root.y -
-      of.posture(
-        of.events.find(
-          (e: IAutoMovieMotionEvent): boolean => e.name === "stroke",
-        )!.share * of.duration,
-      ).root.y;
-    TestValidator.predicate(
-      `${name}: lower than the taekwondo reset`,
-      drop(plan) - drop(bladed) > 0.02,
-    );
-    for (let s: number = 0; s < plan.duration; s += 0.1) plan.posture(s);
-    TestValidator.predicate(
-      `${name}: the return`,
-      vclose(
-        plan.posture(plan.duration).root,
-        plan.posture(0).root,
-        ROUNDING,
-      ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
-    );
+    // A refusal names its staging, so a failure tells the stagings apart.
+    try {
+      const plan: IAutoMovieMotionHumanActionPlan = martialArt.plan(
+        motionActionContext(body, {
+          kind: "muayThaiStanceReset",
+          hold: 0.24,
+          lead,
+        }),
+      );
+      plan.prepare?.();
+      const at = (mark: string): number =>
+        plan.events.find(
+          (e: IAutoMovieMotionEvent): boolean => e.name === mark,
+        )!.share * plan.duration;
+      const plant = (part: string): IAutoMovieMotionHumanContactWindow =>
+        plan.contacts.find(
+          (w: IAutoMovieMotionHumanContactWindow): boolean => w.part === part,
+        )!;
+      TestValidator.predicate(
+        `${name}: the phrase and its plants`,
+        nclose(plan.duration, 2.98, ROUNDING) &&
+          nclose(at("ready"), 0.72, ROUNDING) &&
+          nclose(at("stroke"), 1.42, ROUNDING) &&
+          nclose(at("strokeEnd"), 2.02, ROUNDING) &&
+          nclose(at("relax"), 2.26, ROUNDING) &&
+          plant(`${rear}Foot`).from === 0 &&
+          plant(`${rear}Foot`).to === 1 &&
+          nclose(plant(`${lead}Foot`).from, 0.72 / 2.98, ROUNDING) &&
+          nclose(plant(`${lead}Foot`).to, 2.26 / 2.98, ROUNDING),
+      );
+      TestValidator.predicate(
+        `${name}: the pelvis turns`,
+        nclose(plan.posture(at("stroke")).yaw, away * 2, ROUNDING) &&
+          nclose(plan.posture(at("strokeEnd")).yaw, away * 2, ROUNDING),
+      );
+      // The guard reads at the first mark: both wrists over 3 cm, six times the
+      // 5 mm sole-contact tolerance, above their shoulder joints.
+      const bones: ReturnType<typeof poseBones> = poseBones(
+        body,
+        resolveHumanPosture(body, plan.posture(at("stroke"))),
+      );
+      const raised = (side: AutoMovieHumanSide): number =>
+        bones.get(`${side}Hand`)!.worldPosition.y -
+        bones.get(`${side}UpperArm`)!.worldPosition.y;
+      TestValidator.predicate(
+        `${name}: the guard above the shoulders`,
+        raised("left") > 0.03 && raised("right") > 0.03,
+      );
+      const bladed: IAutoMovieMotionHumanActionPlan = martialArt.plan(
+        motionActionContext(body, {
+          kind: "taekwondoStanceReset",
+          hold: 0.24,
+          lead,
+        }),
+      );
+      bladed.prepare?.();
+      const drop = (of: IAutoMovieMotionHumanActionPlan): number =>
+        of.posture(0).root.y -
+        of.posture(
+          of.events.find(
+            (e: IAutoMovieMotionEvent): boolean => e.name === "stroke",
+          )!.share * of.duration,
+        ).root.y;
+      TestValidator.predicate(
+        `${name}: lower than the taekwondo reset`,
+        drop(plan) - drop(bladed) > 0.02,
+      );
+      for (let s: number = 0; s < plan.duration; s += 0.1) plan.posture(s);
+      TestValidator.predicate(
+        `${name}: the return`,
+        vclose(
+          plan.posture(plan.duration).root,
+          plan.posture(0).root,
+          ROUNDING,
+        ) && nclose(plan.posture(plan.duration).yaw, 0, ROUNDING),
+      );
+    } catch (error) {
+      throw new Error(
+        `${name} leading ${lead}: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
   }
 }
