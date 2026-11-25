@@ -34,11 +34,6 @@ const ID: string = "body";
  *    it); a sample half a metre off its bone fails provenance; a landed step
  *    whose leg never left the floor fails.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each record and the verdict it must get.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `PhysicalDisturbance.judge` and `.audit` on in-memory records and reads their decisions and failures.
- * @evidence contracts/development/testing.md#independent-expectations The records are built from the fixture's standing pose by hand: a weight of m g carried by the floor balances a body at rest, half of it does not, and the step and tilt facts are written into the records.
- * @evidence contracts/development/testing.md#distinguishing-cases Each failure mode, a needless step, no step, two steps, a false recovery, an unrecorded force, a misattributed contact and a landing without a lift, has its passing neighbour; the simulated runs are the `test_physical_disturbance_*` cases.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory records; no simulation, viewer or file host.
  */
 export function test_unit_engine_physics_physical_disturbance_verdicts(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(

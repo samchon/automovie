@@ -27,11 +27,6 @@ import { nclose } from "../../../internal/predicates";
  * 4. Direct flight construction rejects nonfinite vector components and an
  *    overflowing drag factor.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Uses actual trajectory and contact readers; the falling point must hit a thin sphere that the former zero-speed scan skipped. Direct invalid reads must throw before chunk allocation.
- * @evidence contracts/development/testing.md#independent-expectations With y=1-5t² the sphere's top at y=0.1 is reached at sqrt(0.18); contact time tolerance is 1e-5 seconds. Constant velocity (3,4,0) has speed five. Infinity expresses the unbounded accelerating trajectory rather than a sampled maximum.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers coefficient, area and density zero, gravity present/absent, NaN and signed infinite times, finite prelaunch reads, invalid direct vectors and derived coefficient overflow. Existing drag tests cover nonzero-drag accuracy.
- * @evidence contracts/development/testing.md#execution-ownership Portable entry calls numerical flight and geometric collider APIs with local records and creates no native world or host.
- * @evidence contracts/development/common.md#meaningful-documentation States the four cases and their analytic contact and speed expectations.
  */
 export function test_unit_engine_physics_projectile_drag_flight(): void {
   for (const zero of ["coefficient", "area", "density"] as const) {

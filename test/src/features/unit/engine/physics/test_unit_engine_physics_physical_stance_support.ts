@@ -35,11 +35,6 @@ const [WIDTH, LENGTH, HEIGHT] = [0.05, 0.08, 0.02];
  * 4. A leg's effective swing mass (`physicalStanceSwing.swingMass`) is its first
  *    moment about the hip over the endpoint's distance, within the leg's mass.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the bearing-face rule and both poses.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSupportFootprint` on a fixture profile whose support carries a box-shaped hull, at fixed poses.
- * @evidence contracts/development/testing.md#independent-expectations The expected corners follow from the hull's own dimensions and the roll by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates an outline that projects every vertex (eight points flat, eight rolled) from one that keeps the bearing face (four flat, two rolled on the low side).
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_support(): void {
   const failures: string[] = [];

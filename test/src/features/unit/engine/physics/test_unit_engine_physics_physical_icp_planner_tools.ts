@@ -24,11 +24,6 @@ import { TestValidator } from "@nestia/e2e";
  *    left sole on its left; facing +x for soles side by side along z; and the
  *    fallback's axis for coincident soles.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each closed form's defining property and scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Calls each closed form and checks the property its definition implies.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the capture point's dynamics, the Hermite cubic's boundary and midpoint values and the corner points' backward recursion written from their definitions, not the port's formulas; a wrong sign, exponent, split or coefficient misses by more than 1e-12.
- * @evidence contracts/development/testing.md#distinguishing-cases On and off the pivot, inside and outside the cubic's time, a zero duration, and steps with and without a swing; the planners built from them belong to the single-support and standing tests.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory values.
  */
 export function test_unit_engine_physics_physical_icp_planner_tools(): void {
   const tools = physicalIcpPlannerTools;

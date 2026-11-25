@@ -1,6 +1,8 @@
+import { HumanKnotTimingExcess } from "./HumanKnotTimingExcess";
 import { HumanMinimumJerkSpline } from "./HumanMinimumJerkSpline";
 import { HumanPathParameterization as TOPP } from "./HumanPathParameterization";
 import { HumanQuinticSegment } from "./HumanQuinticSegment";
+import { HumanSeidelProgram as LP } from "./HumanSeidelProgram";
 
 /**
  * The time-optimal timing of one rest-to-rest piece of a knot path under
@@ -32,10 +34,11 @@ import { HumanQuinticSegment } from "./HumanQuinticSegment";
  *
  * TOPP-RA meets the limits at the gridpoints only. Between two of them the
  * excess is bounded by the interpolation error of the method's own time map
- * (`excess`), largest near a piece's rest ends, where the path barely moves in
- * s and the path velocity is high; so, in the error-bounded spirit of
- * AutoKnots, every interval whose bound passes the caller's `overshoot` is
- * bisected and the piece solved again, until none does.
+ * (`HumanKnotTimingExcess`), largest near a piece's rest ends, where the path
+ * barely moves in s and the path velocity is high; so, in the error-bounded
+ * spirit of AutoKnots, every interval whose bound passes the caller's
+ * `overshoot` is bisected and the piece solved again, until none does or the
+ * interval reaches the resolution floor (`floor`).
  */
 export namespace HumanKnotTiming {
   /** A box on every coordinate's rate and acceleration. */
@@ -73,8 +76,8 @@ export namespace HumanKnotTiming {
     /**
      * The greatest share of a limit a coordinate's rate or acceleration may
      * pass it by between gridpoints, positive: the grid is refined until the
-     * method's own bound on that excess (`excess`) is within it on every
-     * interval.
+     * method's own bound on that excess (`HumanKnotTimingExcess`) is within it
+     * on every interval above the resolution floor (`floor`).
      */
     overshoot: number;
   }
@@ -165,15 +168,17 @@ export namespace HumanKnotTiming {
     const gridpoints: number[] = propose(stations, curve, problem.precision);
 
     // TOPP-RA holds the limits at the gridpoints; bisect every interval whose
-    // excess between them, by the bound of `excess`, passes the requirement,
-    // and solve again, until none does.
+    // excess between them (`HumanKnotTimingExcess`) passes the requirement and
+    // whose halves stay above the floor, and solve again, until none does.
+    const least: number = floor(stations[stations.length - 1]!);
     for (let pass: number = 0; ; ++pass) {
       const timed: TOPP.ITimed = solve(problem, stations, curve, gridpoints);
       const split: number[] = [];
       for (let i: number = 0; i + 1 < gridpoints.length; ++i) {
+        if ((gridpoints[i + 1]! - gridpoints[i]!) / 2 < least) continue;
         const j: number = below(stations, gridpoints[i]!, path.length - 1);
         const limit: ILimit = segments[j]!;
-        const bound: IExcess = excess(
+        const bound: HumanKnotTimingExcess.IExcess = HumanKnotTimingExcess(
           path[j]!,
           gridpoints[i]! - stations[j]!,
           gridpoints[i + 1]! - stations[j]!,
@@ -268,86 +273,31 @@ export namespace HumanKnotTiming {
   }
 
   /**
-   * The method's own bound on how far a grid interval's acceleration and
-   * squared speed pass the larger of their values at its two gridpoints.
+   * The shortest grid interval the refinement makes over a piece of length S in
+   * s: the larger of two resolution floors, below which an interval's excess is
+   * the arithmetic's and not the motion's.
    *
-   * Over an interval of length Δ the path acceleration u is constant
-   * (`ConstAccel`), so x = ṡ² runs linearly in s and the coordinate's
-   * acceleration is f = q' u + q'' x and its squared speed h = q'² x, smooth
-   * functions of s whose departure from the chord of their end values is at
-   * most Δ² / 8 times their greatest second derivative: f'' = 5 q''' u + q''''
-   * x and h'' = 2 (q''² + q' q''') x + 8 q' q'' u. Each derivative's greatest
-   * magnitude over the interval is bounded the same way from its own ends, the
-   * quintic's fifth derivative constant, so the bound is closed-form and never
-   * below the true excess.
+   * - The path's: at a rest end the quintic's rate grows as (s / S)², so within
+   *   √ε S of the end it is at rounding level against its peak, and the path
+   *   does not move there to the precision of its own parameter.
+   * - The stage programs': each TOPP-RA stage weighs the path acceleration by 2 Δ
+   *   against the squared path velocity, bounded by `INITIAL_X` (100), and the
+   *   two-variable solver refuses a row whose coefficient falls under
+   *   `REL_TOLERANCE` (1e-10) of its bound (toppra's Seidel solver), so an
+   *   interval under REL_TOLERANCE · 100 / 2 = 5e-9 leaves its stages
+   *   unresolved and the backward pass infeasible.
    *
-   * @param segment The path's quintic over the interval, its duration in s.
-   * @param a The interval's start in the quintic's own s.
-   * @param b Its end.
-   * @param xa The squared path velocity at its start.
-   * @param xb At its end.
-   * @param u The constant path acceleration over it.
-   * @returns The acceleration's and the squared speed's greatest excess over
-   *   the coordinates.
+   * An interval at the floor is accepted whatever its excess: at a rest end it
+   * lasts a sub-frame instant.
+   *
+   * @param length The piece's length in s.
+   * @returns The floor, in s.
    */
-  export function excess(
-    segment: HumanQuinticSegment.ISegment,
-    a: number,
-    b: number,
-    xa: number,
-    xb: number,
-    u: number,
-  ): IExcess {
-    const delta: number = b - a;
-    const chord: number = (delta * delta) / 8;
-    const T: number = segment.duration;
-    const start: HumanQuinticSegment.IState = HumanQuinticSegment.state(
-      segment,
-      a,
+  export function floor(length: number): number {
+    return Math.max(
+      Math.sqrt(Number.EPSILON) * length,
+      (LP.REL_TOLERANCE * TOPP.INITIAL_X[1]) / 2,
     );
-    const end: HumanQuinticSegment.IState = HumanQuinticSegment.state(
-      segment,
-      b,
-    );
-    const x: number = Math.max(xa, xb);
-    let acceleration: number = 0;
-    let speed: number = 0;
-    segment.coefficients.forEach((c: readonly number[], k: number): void => {
-      const snap = (s: number): number =>
-        Math.abs((24 * c[4]! + 120 * c[5]! * (s / T)) / T ** 4);
-      const fifth: number = Math.abs((120 * c[5]!) / T ** 5);
-      const m4: number = Math.max(snap(a), snap(b));
-      const m3: number =
-        Math.max(Math.abs(start.jerk[k]!), Math.abs(end.jerk[k]!)) +
-        chord * fifth;
-      const m2: number =
-        Math.max(
-          Math.abs(start.acceleration[k]!),
-          Math.abs(end.acceleration[k]!),
-        ) +
-        chord * m4;
-      const m1: number =
-        Math.max(Math.abs(start.velocity[k]!), Math.abs(end.velocity[k]!)) +
-        chord * m3;
-      acceleration = Math.max(
-        acceleration,
-        chord * (5 * m3 * Math.abs(u) + m4 * x),
-      );
-      speed = Math.max(
-        speed,
-        chord * (2 * (m2 * m2 + m1 * m3) * x + 8 * m1 * m2 * Math.abs(u)),
-      );
-    });
-    return { acceleration, speed };
-  }
-
-  /** A grid interval's bound on its excess between gridpoints (`excess`). */
-  export interface IExcess {
-    /** The acceleration's, the coordinate's units per second squared. */
-    acceleration: number;
-
-    /** The squared speed's, the coordinate's units squared per second squared. */
-    speed: number;
   }
 }
 

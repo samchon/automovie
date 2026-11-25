@@ -20,11 +20,6 @@ import { TestValidator } from "@nestia/e2e";
  *    `AutoMoviePhysicalBalance.CLEARANCE` h / T^2 at lift-off.
  * 4. Before and after the swing the acceleration is zero.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the consistency, the closed-form peak and the bounds.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `samplePhysicalRecoveryGoal` and reads its velocity and acceleration.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the numerical derivative of the sampled velocity and the quintic's closed-form peak.
- * @evidence contracts/development/testing.md#distinguishing-cases Detects a missing or mis-scaled feed-forward, a wrong sign on the clearance's curvature and an acceleration left on outside the swing.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_sample_physical_recovery_goal(): void {
   const failures: string[] = [];

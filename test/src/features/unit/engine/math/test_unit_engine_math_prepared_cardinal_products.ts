@@ -3,6 +3,7 @@ import {
   normalizeJointAxes,
 } from "@automovie/engine";
 import type {
+  AutoMovieJointTwistPlacement,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -12,6 +13,20 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose } from "../../../internal/qclose";
+
+/** Both places a joint's twist can sit along its segment. */
+const PLACEMENTS: readonly AutoMovieJointTwistPlacement[] = [
+  "proximal",
+  "distal",
+];
+
+/** The four components of a quaternion, in storage order. */
+const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
+  "x",
+  "y",
+  "z",
+  "w",
+];
 
 /**
  * Public prepared cardinal composition retains the actual noncommuting product,
@@ -96,12 +111,13 @@ export function test_unit_engine_math_prepared_cardinal_products(): void {
         output: IAutoMovieQuaternion;
         expected: IAutoMovieQuaternion;
       }[] = [];
-      for (const [flexion, abduction, expected] of [
+      const turns: ReadonlyArray<[number, number, IAutoMovieQuaternion]> = [
         [90, 90, a],
         [-90, 90, b],
         [0, -0, { x: 0, y: 0, z: 0, w: 1 }],
         [90, 90, a],
-      ] as const) {
+      ];
+      for (const [flexion, abduction, expected] of turns) {
         current.flexion = flexion;
         current.abduction = abduction;
         const actual: IAutoMovieQuaternion = read(current);
@@ -166,7 +182,7 @@ function outer(): void {
   ];
   const s: number = Math.SQRT1_2;
   for (const cycle of [0, 1, 2])
-    for (const placement of ["proximal", "distal"] as const) {
+    for (const placement of PLACEMENTS) {
       const basis: IAutoMovieJointAxes = normalizeJointAxes(
         {
           flexion: axes[cycle]!,
@@ -407,8 +423,8 @@ function raw(
   actual: IAutoMovieQuaternion,
   expected: IAutoMovieQuaternion,
 ): boolean {
-  return (["x", "y", "z", "w"] as const).every(
-    (axis: "x" | "y" | "z" | "w"): boolean =>
+  return COMPONENTS.every(
+    (axis: keyof IAutoMovieQuaternion): boolean =>
       Object.is(actual[axis], expected[axis]),
   );
 }

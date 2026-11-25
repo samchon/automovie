@@ -34,12 +34,13 @@ import { nclose } from "../../../internal/nclose";
 export function test_unit_engine_math_quaternion_geodesic_semantics(): void {
   const a: IAutoMovieQuaternion = zturn((170 * Math.PI) / 180);
   const b: IAutoMovieQuaternion = zturn((-170 * Math.PI) / 180);
-  for (const [left, right] of [
+  const pairs: ReadonlyArray<[IAutoMovieQuaternion, IAutoMovieQuaternion]> = [
     [a, b],
     [b, a],
     [negative(a), b],
     [a, negative(b)],
-  ] as const)
+  ];
+  for (const [left, right] of pairs)
     TestValidator.predicate(
       "cardinal distance uses the shorter physical arc",
       nclose(Quaternion.angle(left, right), Math.PI / 9, 1e-12),
@@ -78,13 +79,14 @@ export function test_unit_engine_math_quaternion_geodesic_semantics(): void {
     nclose(Quaternion.angle(a, a), 0, 1e-14) &&
       nclose(Quaternion.angle(a, negative(a)), 0, 1e-14),
   );
-  for (const [rotation, ordinate] of [
+  const ordinates: ReadonlyArray<[IAutoMovieQuaternion, number]> = [
     [x, -5],
     [y, 3],
     [xy, 2],
     [yx, -5],
     [identity, 3],
-  ] as const)
+  ];
+  for (const [rotation, ordinate] of ordinates)
     for (const turn of [rotation, negative(rotation)])
       TestValidator.predicate(
         "scalar world-Y observes the independently composed physical turn",

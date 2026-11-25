@@ -30,11 +30,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A plan at rest, the centre of pressure driven into a rectangle corner.
  * 3. Scenario 1 just after `initialize`, which drops the bounds (l.385).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the independent program, the enumeration and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the controller and compares its feedback pair with the brute-force minimizer, and checks that rows bind.
- * @evidence contracts/development/testing.md#independent-expectations The reference program is rebuilt from the reference's cost and constraint definitions and minimized by exhaustive active-set enumeration with its own linear solver, never from the port's matrices; a wrong task term, a missing double count, a misplaced row or an inexact solver misses by more than 1e-9 m.
- * @evidence contracts/development/testing.md#distinguishing-cases Bounded and unbounded runs of the same inputs, a moving and a resting plan; the closed-form gains and the zero error belong to the feedback and zero-error tests.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory states.
  */
 export function test_unit_engine_physics_physical_icp_controller_optimality(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

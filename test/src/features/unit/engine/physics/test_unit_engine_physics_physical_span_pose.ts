@@ -30,11 +30,6 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
  *    millimetre: the swing foot on its curve, the stance foot where it stands.
  * 3. Planted: the stance foot's endpoint does not move through the swing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the input and each geometric condition.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSpanPose` on samples of `preparePhysicalDisturbanceSpan` and reads the segment poses it returns.
- * @evidence contracts/development/testing.md#independent-expectations The joint anchors from the profile's own joint frames, the feet from the response's own samples, and a stance foot at rest are the requirements of a rigid chain on a planted foot; the millimetre is ten times the leg fit's tolerance.
- * @evidence contracts/development/testing.md#distinguishing-cases A segment carried without its parent fails 1, a leg fit that misses its foot fails 2, and a stance foot dragged by the carried pelvis fails 3; the response's own curves are `test_physical_disturbance_span`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on the synthetic primitive profile; no figure build, world, simulation, viewer or file host.
  */
 export function test_unit_engine_physics_physical_span_pose(): void {
   const subject: PhysicalDisturbance.ISubject = PhysicalDisturbance.planted(

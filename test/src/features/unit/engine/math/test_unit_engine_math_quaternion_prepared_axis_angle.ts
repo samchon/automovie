@@ -8,6 +8,14 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 import { qunit } from "../../../internal/qunit";
 
+/** The four components of a quaternion, in storage order. */
+const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
+  "x",
+  "y",
+  "z",
+  "w",
+];
+
 /**
  * A fixed-axis reader reuses its magnitude work without retaining rotations.
  *
@@ -75,7 +83,7 @@ export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
     direct: IAutoMovieQuaternion,
   ): void {
     if (
-      !(["x", "y", "z", "w"] as const).every(
+      !COMPONENTS.every(
         (component: keyof IAutoMovieQuaternion): boolean =>
           Object.is(actual[component], direct[component]),
       )
@@ -83,7 +91,7 @@ export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
       findings.push(`${label}: direct raw semantics changed`);
   }
 
-  for (const [label, axis, direction] of [
+  const axes: ReadonlyArray<[string, IAutoMovieVector3, IAutoMovieVector3]> = [
     ["unequal", { x: 2, y: -3, z: 6 }, { x: 2 / 7, y: -3 / 7, z: 6 / 7 }],
     ["equal normal", { x: 1, y: 1, z: 1 }, unit],
     ["equal tiny", { x: 1e-300, y: 1e-300, z: 1e-300 }, unit],
@@ -93,7 +101,8 @@ export function test_unit_engine_math_quaternion_prepared_axis_angle(): void {
       { x: Number.MIN_VALUE, y: Number.MIN_VALUE, z: Number.MIN_VALUE },
       unit,
     ],
-  ] as const) {
+  ];
+  for (const [label, axis, direction] of axes) {
     const read: ReturnType<typeof Quaternion.prepareAxisAngle> =
       Quaternion.prepareAxisAngle(axis);
     let first: IAutoMovieQuaternion | undefined;

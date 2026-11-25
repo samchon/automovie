@@ -22,18 +22,21 @@ const FLOOR_FRICTION: number = 0.3;
 /** Friction of the box's material. */
 const BOX_FRICTION: number = 0.9;
 
-/** Support witnesses must be touching downward-facing floor constraints the solver kept, with the solver's own combined friction.
+/**
+ * `collectPhysicalSupports` reads a body's supports from one solver step: the
+ * floor points that step's manifold found pressing under a downward-facing
+ * normal, with the pair's own combined friction, and a support loaded only by
+ * a positive floor impulse.
  *
- * Scenarios:
- * 1. Both collider creation orders admit contacts on the floor's top face and refuse contacts on its underside.
- * 2. A box a kinematic lifter turns during the step keeps every floor point the step found pressing as a witness, read where the contact was found, even at the end the lifter raises.
- * 3. Every sample carries the pair's combined friction, the mean of 0.9 and 0.3, never the 0.7 floor the receipt path assumes.
+ * Scenarios, one step of 1/960 s:
  *
- * @evidence contracts/development/testing.md#behavioral-verification Steps a real solver world with a box on a floor and asserts `collectPhysicalSupports` against that step's floor manifold through 1x TestValidator.equals over every finding. A collector that admitted an underside contact or another friction, or dropped a point the step found pressing, adds a finding.
- * @evidence contracts/development/testing.md#independent-expectations The admitted points are the step's floor manifold points that pressed where the step found them (the world reports each point's separation there, before any correction) when the normal from the box points down, the support definition itself; the friction 0.6 is the mean combine rule `AutoMovieXpbdCollider` documents. The fixture check confirms a pressing manifold exists, so the case is not vacuous.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers the top and the underside of the floor in both creation orders and a manifold whose box a second contact turns within the step; compliant receipt support belongs to `test_physical_support_receipts`.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_support_witnesses`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins.
+ * 1. Both collider creation orders admit contacts on the floor's top face and
+ *    refuse contacts on its underside.
+ * 2. A box a kinematic lifter turns during the step keeps every floor point the
+ *    step found pressing, read where the contact was found.
+ * 3. Every sample carries the pair's combined friction, the mean of 0.9 and 0.3.
+ * 4. A sphere resting half the allowed error deep under an upward force that
+ *    cancels gravity is collected unloaded; without the force it is loaded.
  */
 export async function test_unit_engine_physics_collect_physical_supports(): Promise<void> {
   const findings: string[] = [];
@@ -46,6 +49,10 @@ export async function test_unit_engine_physics_collect_physical_supports(): Prom
     findings,
     [],
   );
+  TestValidator.equals("loaded only by a positive impulse", landing(), [
+    false,
+    true,
+  ]);
 
   /** Step one world and compare the collected samples with its floor manifold. */
   function inspect(
@@ -219,6 +226,102 @@ export async function test_unit_engine_physics_collect_physical_supports(): Prom
             `${label}: combined friction ${combined} replaced by ${sample.friction}`,
           );
   }
+}
+
+/** Contact depth the world leaves uncorrected in the landing case, metres. */
+const ALLOWED: number = 1e-5;
+
+/**
+ * Whether a resting sphere's one support is loaded, with gravity cancelled by
+ * an upward force and then without it.
+ */
+function landing(): boolean[] {
+  const profile: P = PhysicalFixtures.sphere(0.125);
+  profile.segments[0]!.neutral.position.y = 0.125;
+  profile.centerOfMass.y = 0.125;
+  const pattern: Pattern = {
+    id: "one-carrier",
+    minimumSupports: 0,
+    limbs: [
+      {
+        bone: "root",
+        chain: ["root"],
+        localPoint: { x: 0, y: -0.125, z: 0 },
+        phase: 0,
+        duty: 1,
+        offset: { forward: 0, left: 0 },
+        stride: [],
+      },
+    ],
+  };
+  const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({
+    x: 0,
+    y: -9.81,
+    z: 0,
+  });
+  world.timestep = 1 / 960;
+  world.allowedError = ALLOWED;
+  const rigid: AutoMovieXpbdBody = world.createBody(true, {
+    position: { x: 0, y: 0.125 - ALLOWED / 2, z: 0 },
+    rotation: { x: 0, y: 0, z: 0, w: 1 },
+  });
+  rigid.setMass(
+    1,
+    { x: 0, y: 0, z: 0 },
+    profile.segments[0]!.inertia,
+    profile.segments[0]!.inertiaRotation,
+  );
+  const source: AutoMovieXpbdCollider = world.createCollider(
+    rigid,
+    profile.segments[0]!.shapes[0]!,
+    0,
+    0,
+    false,
+  );
+  const floor: AutoMovieXpbdCollider = world.createCollider(
+    world.createBody(false, {
+      position: { x: 0, y: -0.5, z: 0 },
+      rotation: { x: 0, y: 0, z: 0, w: 1 },
+    }),
+    box("floor", { x: 2, y: 0.5, z: 2 }),
+    0.7,
+    0,
+    false,
+  );
+  const colliders: Map<number, Receipt["a"]> = new Map([
+    [
+      source.handle,
+      { body: "assembly", bone: "root", shape: "surface", material: "solid" },
+    ],
+    [
+      floor.handle,
+      { body: "floor", bone: "floor", shape: "floor", material: "floor" },
+    ],
+  ]);
+  rigid.addForce({ x: 0, y: 9.81, z: 0 });
+  const loaded: boolean[] = [];
+  for (const tick of [1, 2]) {
+    if (tick === 2) rigid.resetForces();
+    world.step();
+    const supports = collect({
+      world,
+      body: "assembly",
+      profile,
+      pattern,
+      segments: new Map([["root", rigid]]),
+      colliders,
+      contacts: [],
+      seconds: tick / 960,
+      dt: 1 / 960,
+    });
+    loaded.push(
+      supports.length === 1 &&
+        supports[0]!.samples.length > 0 &&
+        supports[0]!.samples.every((point) => point.carrier === "root") &&
+        supports[0]!.loaded,
+    );
+  }
+  return loaded;
 }
 
 /** A box shape of the given half extents centred on its body. */

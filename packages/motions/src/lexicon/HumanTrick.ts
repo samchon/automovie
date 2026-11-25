@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   IAutoMovieMotionHumanActionContext,
@@ -15,11 +15,11 @@ import type {
 } from "@automovie/interface";
 
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { mixHumanPosture } from "../posture/mixHumanPosture";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanUnseatPose } from "./HumanUnseatPose";
+import { humanTrickSchedule } from "./humanTrickSchedule";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanTrick>;
@@ -63,37 +63,10 @@ export const HumanTrick: IAutoMovieMotionHumanActionLaw<IAutoMovieMotionHumanTri
     interrupts: {},
     plan: planHumanTrick,
   };
-/** The record of `IPlanAtResult`'s site. */
-type IPlanAtResult = { index: number; share: number };
-
 /** Admit, lay the keys and sample. */
 function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const { on, frame, figures }: IAutoMovieMotionHumanTrick = context.params;
-  if (figures.length === 0 || figures[figures.length - 1]!.kind !== "seat")
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "figures",
-      value: figures.map((f) => f.kind),
-      feasible: null,
-      reason:
-        "trick riding holds at least one figure and ends back in the seat",
-      fix: "end on a seat figure",
-    });
-  figures.forEach(
-    (figure: IAutoMovieMotionHumanTrick.IFigure, i: number): void => {
-      HumanBound.above(`figures.${i}.transfer`, figure.transfer, 0, "s");
-      HumanBound.least(`figures.${i}.seconds`, figure.hold, 0, "s");
-      if (figure.kind === "pickup" && figure.object === undefined)
-        throw new HumanRefusal({
-          kind: "parameter",
-          axis: `figures.${i}.object`,
-          value: undefined,
-          feasible: null,
-          reason: "a pickup takes a prop from the ground, and none is named",
-          fix: "name the prop the pickup takes",
-        });
-    },
-  );
+  const schedule: humanTrickSchedule.ISchedule = humanTrickSchedule(figures);
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
@@ -110,24 +83,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     key(context.body, entry, figure),
   );
 
-  // The clock: each figure's transfer then its hold.
-  const starts: number[] = [];
-  let clock: number = 0;
-  for (const figure of figures) {
-    starts.push(clock);
-    clock += figure.transfer + figure.hold;
-  }
-  const duration: number = clock;
-  const at = (t: number): IPlanAtResult => {
-    let index: number = 0;
-    while (index + 1 < figures.length && t >= starts[index + 1]!) ++index;
-    return {
-      index,
-      share: minimumJerk.share(
-        Math.min(1, (t - starts[index]!) / figures[index]!.transfer),
-      ),
-    };
-  };
+  const { starts, duration } = schedule;
+  const at: (t: number) => humanTrickSchedule.IAt = schedule.at;
   const point = (
     contact: string,
     figure: IAutoMovieMotionHumanTrick.IFigure,
@@ -202,10 +159,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   });
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
-    events: figures.map((figure, i: number) => ({
-      name: `${figure.kind}:${i}`,
-      share: (starts[i]! + figure.transfer) / duration,
-    })),
+    events: schedule.events,
+
     contacts,
     base: context.entry.base,
     posture: (time: number): IAutoMovieMotionHumanPosture => {

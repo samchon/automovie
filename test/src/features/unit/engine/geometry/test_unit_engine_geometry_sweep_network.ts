@@ -26,6 +26,11 @@ import { sweepManifold } from "../../../internal/sweepManifold";
  * 3. Reshaping the branched body (breadth 1.15, branch 0.9) keeps every face, UV
  *    face, corner and ring of the cage at the lowest and high tiers while its
  *    target points move by more than 1e-3.
+ * 4. The branched body, built mirror-symmetric across x = 0, samples at every
+ *    tier to targets and controls whose mirror images are again targets and
+ *    controls within 1e-9, through one involution that carries every face to a
+ *    face of opposite winding: points shared by strips of different spacing
+ *    are where an order-dependent rule would break it.
  */
 export function test_unit_engine_geometry_sweep_network(): void {
   const tiers: AutoMovieSurfaceTier[] = ["lowest", "low", "medium", "high"];
@@ -81,6 +86,48 @@ export function test_unit_engine_geometry_sweep_network(): void {
       a.targets.some(
         (x: number, k: number): boolean => Math.abs(x - b.targets[k]!) > 1e-3,
       ),
+    );
+  }
+
+  // 4.
+  const canonical = (q: number[]): string => {
+    const k: number = q.indexOf(Math.min(...q));
+    return [0, 1, 2, 3].map((i: number): number => q[(k + i) % 4]!).join(",");
+  };
+  const mirror = (points: ArrayLike<number>): number[] | null => {
+    const grid = (x: number, y: number, z: number): string =>
+      `${Math.round(x * 1e7)},${Math.round(y * 1e7)},${Math.round(z * 1e7)}`;
+    const at: Map<string, number> = new Map();
+    for (let i: number = 0; i < points.length / 3; ++i)
+      at.set(grid(points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!), i);
+    const map: number[] = [];
+    for (let i: number = 0; i < points.length / 3; ++i) {
+      const j: number | undefined = at.get(grid(-points[3 * i]!, points[3 * i + 1]!, points[3 * i + 2]!));
+      if (j === undefined) return null;
+      map.push(j);
+    }
+    return map;
+  };
+  const mirrored = (points: ArrayLike<number>, map: number[]): boolean =>
+    map.every(
+      (j: number, i: number): boolean =>
+        Math.abs(points[3 * j]! + points[3 * i]!) <= 1e-9 &&
+        Math.abs(points[3 * j + 1]! - points[3 * i + 1]!) <= 1e-9 &&
+        Math.abs(points[3 * j + 2]! - points[3 * i + 2]!) <= 1e-9,
+    );
+  for (const tier of ["lowest", "low", "medium", "high"] satisfies AutoMovieSurfaceTier[]) {
+    const cage: IAutoMovieSurfaceCage = sampleAutoMovieSurfaceNetwork({ network: sweepBranchedBody(), tier });
+    const map: number[] | null = mirror(cage.targets);
+    if (map === null) throw new Error(`${tier}: a target has no mirror`);
+    const faces: Set<string> = new Set(cage.cage.faces.map(canonical));
+    TestValidator.predicate(`${tier} mirrored targets`, mirrored(cage.targets, map));
+    TestValidator.predicate(`${tier} mirrored controls`, mirrored(cage.cage.positions, map));
+    TestValidator.predicate(
+      `${tier} mirrored faces`,
+      map.every((j: number, i: number): boolean => map[j] === i) &&
+        cage.cage.faces.every((q: number[]): boolean =>
+          faces.has(canonical([q[3]!, q[2]!, q[1]!, q[0]!].map((v: number): number => map[v]!))),
+        ),
     );
   }
 }

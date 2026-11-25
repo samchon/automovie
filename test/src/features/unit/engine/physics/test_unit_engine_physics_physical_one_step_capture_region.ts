@@ -24,11 +24,6 @@ import { TestValidator } from "@nestia/e2e";
  * 5. With 0.5 s left and the capture point at (0, -0.5) every prediction is out of
  *    reach: the region is empty and its area zero.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the region, the fixture and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Computes the region and tests points against it with the polygon helpers.
- * @evidence contracts/development/testing.md#independent-expectations The fan's side and radius, the capture point at zero time and the exponential predictions are Koolen's capture-region definition evaluated by hand; the empty case is predictions beyond the range.
- * @evidence contracts/development/testing.md#distinguishing-cases A fan on the wrong side fails 1; a region ignoring the time left fails 3 and 4; a region not cut by reach fails 5.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory polygons.
  */
 export function test_unit_engine_physics_physical_one_step_capture_region(): void {
   const foot: Polygon.IPoint[] = Polygon.hull([

@@ -31,11 +31,6 @@ import { nclose } from "../../../internal/nclose";
  *    one with 0.05 s left, nor one with a small error, which counts toward
  *    safe.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rules, the fixture and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Calls each operation on in-memory states and reads the swing, the time, the footstep and the flags.
- * @evidence contracts/development/testing.md#independent-expectations The swing sides follow the reference's distance rule by hand; 0.48 s is where cop + (xi - cop) e^(3.2 t) from the small foot first falls within 0.6 m; the guards are the reference's thresholds.
- * @evidence contracts/development/testing.md#distinguishing-cases Swinging the closer foot, breaking the tie the other way, a safe filter of another window, a time not shrunk by tenths, adjusting twice or near touchdown each fails a scenario.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory states and polygons.
  */
 export function test_unit_engine_physics_physical_push_recovery(): void {
   const box = (

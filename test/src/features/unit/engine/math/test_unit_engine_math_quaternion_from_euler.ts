@@ -1,5 +1,8 @@
 import { Quaternion } from "@automovie/engine";
-import type { IAutoMovieQuaternion } from "@automovie/interface";
+import type {
+  IAutoMovieEuler,
+  IAutoMovieQuaternion,
+} from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { qclose, vclose } from "../../../internal/predicates";
@@ -96,11 +99,12 @@ export function test_unit_engine_math_quaternion_from_euler(): void {
     ),
   );
   const s: number = Math.SQRT1_2;
-  for (const [order, expected] of [
+  const orders: ReadonlyArray<[IAutoMovieEuler["order"], IAutoMovieQuaternion]> = [
     ["XYZ", { x: s, y: 0, z: s, w: 0 }], ["YZX", { x: s, y: s, z: 0, w: 0 }],
     ["ZXY", { x: 0, y: s, z: s, w: 0 }], ["XZY", { x: 0, y: 0, z: s, w: s }],
     ["YXZ", { x: s, y: 0, z: 0, w: s }], ["ZYX", { x: 0, y: s, z: 0, w: s }],
-  ] as const) {
+  ];
+  for (const [order, expected] of orders) {
     const angles: Parameters<typeof Quaternion.fromEuler>[0] = { x: 90, y: 90, z: 90, order };
     const first: IAutoMovieQuaternion = Quaternion.fromEuler(angles);
     TestValidator.predicate(`literal three-quarter-turn quaternion at intrinsic${order}`, qclose(first, expected, 1e-12));

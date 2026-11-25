@@ -13,13 +13,11 @@ import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { nclose } from "../../../internal/nclose";
-import {
-  filmEffectIdentity,
-  filmEffectRefusal,
-  filmEffectTimeline,
-  materializedFilmEffects,
-  resealFilmEffect,
-} from "./filmEffectRuntimeFixtures";
+import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
+import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
+import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { materializedFilmEffects } from "../../../internal/materializedFilmEffects";
+import { resealFilmEffect } from "../../../internal/resealFilmEffect";
 
 /**
  * Film sampling preserves half-open cue ownership and rejects stale or malformed runtime data.

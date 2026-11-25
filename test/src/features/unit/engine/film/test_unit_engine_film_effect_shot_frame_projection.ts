@@ -15,10 +15,8 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
-import {
-  filmEffectRefusal,
-  filmEffectWorld,
-} from "./filmEffectRuntimeFixtures";
+import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
+import { filmEffectWorld } from "../../../internal/filmEffectWorld";
 
 const segment: (
   shot: string,

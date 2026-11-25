@@ -22,7 +22,6 @@ import type {
 
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
@@ -31,6 +30,7 @@ import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
+import { humanLassoAdmit } from "./humanLassoAdmit";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanLasso>;
@@ -48,13 +48,6 @@ const SWING: Readonly<Record<SWINGEntryItem, number>> = {
   wrap: 0.08,
   turn: 0.5,
 };
-
-/**
- * The elbow's flexion through the swing, degrees: the roper's raised elbow bent
- * off the straight arm's reach singularity, which sets the wrist's distance
- * from the shoulder (provisional).
- */
-const ELBOW: number = 60;
 
 /** The farthest a loop is thrown, metres (provisional). */
 const REACH: number = 12;
@@ -102,29 +95,7 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: `a rope is swung from the saddle, and the performer is ${entered.kind}`,
       fix: "ride the horse first",
     });
-  if (!(params.swings >= 1))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "swings",
-      value: params.swings,
-      feasible: null,
-      reason: "a loop swings a whole number of turns from one",
-      fix: "give a whole number of swings",
-    });
-  const flight: number = params.flight ?? 0.8;
-  HumanBound.above("flight", flight, 0, "s");
-  if (
-    params.dally !== undefined &&
-    !(params.dally.turns >= 1)
-  )
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "dally.turns",
-      value: params.dally.turns,
-      feasible: null,
-      reason: "a dally wraps a whole number of turns from one",
-      fix: "give a whole number of turns",
-    });
+  const flight: number = humanLassoAdmit(params);
 
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
@@ -162,11 +133,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   ).get("rightUpperArm")!.worldPosition;
   const upper: number = context.body.measure.upperArm;
   const fore: number = context.body.measure.forearm;
-  const wristReach: number = Math.sqrt(
-    upper * upper +
-      fore * fore +
-      2 * upper * fore * Math.cos((ELBOW * Math.PI) / 180),
-  );
+  const wristReach: number = humanLassoAdmit.wristReach(upper, fore);
+
   const heading: IAutoMovieQuaternion = humanPostureHeading(local);
   const forward: IAutoMovieVector3 = Vector3.normalize({
     ...Quaternion.rotateVector(heading, { x: 0, y: 0, z: 1 }),

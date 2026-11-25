@@ -69,6 +69,8 @@ const refusedAt: (images: IAutoMovieImage[], path: string) => boolean = (
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A model carrying one RGBA PNG bound by its base colour validates, and the texture closure with an empty ledger reports nothing for it,...).
  */
 export function test_unit_engine_validation_model_images(): void {
+  /** Greyscale, RGB and greyscale-alpha: the PNG colour types besides RGBA. */
+  const ADMITTED_COLOUR_TYPES: ReadonlyArray<0 | 2 | 4> = [0, 2, 4];
   const facts: (asset: string) => IAutoMovieTextureImageFacts | undefined = ():
     | IAutoMovieTextureImageFacts
     | undefined => undefined;
@@ -208,7 +210,7 @@ export function test_unit_engine_validation_model_images(): void {
       [
         "colourTypes",
         (): boolean =>
-          ([0, 2, 4] as const).every((colourType: 0 | 2 | 4): boolean =>
+          ADMITTED_COLOUR_TYPES.every((colourType: 0 | 2 | 4): boolean =>
             admitted([
               image({
                 data: encodeTestPng({

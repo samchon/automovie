@@ -32,11 +32,6 @@ import { TestValidator } from "@nestia/e2e";
  *    within 1e-12 m; each segment end reads its brute-force signed distance
  *    within 1e-12 m, at a surface point that far from it.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public point and shape queries on hull shapes and reads their distance, point, normal and segment point; a parameter off the nearest point, a missed entry, a wrong side or a point off the surface fails.
- * @evidence contracts/development/testing.md#independent-expectations The box readings are closed forms written here; the random readings compare against a brute force over every face's polygon and a golden-section search over it, both written in the spec.
- * @evidence contracts/development/testing.md#distinguishing-cases Parallel, crossing and skew hand cases; random segments apart, through, wholly inside, starting on a face and lying in a face, on hulls from a tetrahedron to thirty points; points outside, inside and on faces.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 2 scenarios and what each pins.
  */
 export function test_unit_engine_physics_physical_hull_nearest(): void {
   const still: IAutoMovieRigidTransform = {

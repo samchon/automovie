@@ -348,9 +348,9 @@ export function test_unit_engine_film_camera_clearance(): void {
     tracks: [
       {
         channel: {
-          kind: "node" as const,
+          kind: "node",
           node: heroCamera.id,
-          path: "translation" as const,
+          path: "translation",
         },
         times: [0, 1 / 48, 1 / 24, 2],
         values: [
@@ -367,17 +367,17 @@ export function test_unit_engine_film_camera_clearance(): void {
           contact.y,
           contact.z,
         ],
-        interpolation: "linear" as const,
+        interpolation: "linear",
       },
       {
         channel: {
-          kind: "node" as const,
+          kind: "node",
           node: heroCamera.id,
-          path: "rotation" as const,
+          path: "rotation",
         },
         times: [0, 2],
         values: [0, 0, 0, 1, 0, 0, 0, -1],
-        interpolation: "linear" as const,
+        interpolation: "linear",
       },
     ],
   };

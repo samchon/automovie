@@ -22,11 +22,6 @@ import { PhysicalModelFixtures } from "../../../internal/PhysicalModelFixtures";
  *    Section V; Pratt et al., M2V2, IX-B).
 
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each bound, its closed form and its source.
- * @evidence contracts/development/testing.md#behavioral-verification Computes `PhysicalDisturbance.bounds`, `.window` and `.impulse` on the two subjects and compares them with closed forms.
- * @evidence contracts/development/testing.md#independent-expectations The ceiling is the linear inverted pendulum's closed form with the centre of pressure at the edge; the anchor is Koolen et al.'s Eq. 25 at literature step times; neither is computed by the bound under test.
- * @evidence contracts/development/testing.md#distinguishing-cases A bound integrated past the edge fails the ceiling, a recover push outside the one-step window fails the order, and a step time outside 0.3 to 0.6 s fails the anchor; the simulated outcomes are the `test_physical_disturbance_*` runs.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on the synthetic primitive profile, two and four supports; no figure build, simulation, viewer or file host.
  */
 export function test_unit_engine_physics_physical_disturbance_bounds(): void {
   const failures: string[] = [];

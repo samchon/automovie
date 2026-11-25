@@ -26,11 +26,6 @@ import { vclose } from "../../../internal/vclose";
  * 5. Mutating a source vertex after reflection but before the first hull
  *    read cannot move the already returned independent reflected geometry.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States metre/cubic-metre/unit-mass units, reflection/source ownership, pre-first-use invalidation and independent plane/winding/mass expectations in five scenarios.
- * @evidence contracts/development/testing.md#behavioral-verification Runs public mirrorX, faces and mass consumers, checks literal reflected points, each supporting plane and loop winding, positive analytic mass properties, source/fresh-output ownership, changed pre-admission output and flat-volume refusal.
- * @evidence contracts/development/testing.md#independent-expectations Reflection maps each coordinate to(-x,y,z). Cuboid dimensions2,3,4 give volume24 and sorted principal moments(3²+2²,4²+2²,4²+3²)/12. The edited dimensions4,3,4 give volume48 and moments(25,25,32)/12. Literal axis-aligned support planes and right-hand cross products independently determine outwardness and winding.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers asymmetric translated geometry, redundant coplanar and buried points, six signed face planes, fresh reflected ownership, edited issued output or changed source before first hull admission and the adjacent flat case. General hull nearest/segment algorithms remain with existing geometry specifications.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable portable numerical unit owns all small point arrays and invokes existing public hull APIs. It starts no renderer/viewer/compiler or process, replaces no foreign function and makes no visual or anatomical claim.
  */
 export function test_unit_engine_physics_physical_hull_mass(): void {
   const source: IAutoMovieVector3[] = [];

@@ -32,11 +32,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Every joint's anchor gap stays under a micron and no larger at the finer
  *    substep.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the chain, its start, the motors and each condition.
- * @evidence contracts/development/testing.md#behavioral-verification Steps a real `AutoMovieXpbdWorld` substep by substep with motors set through `configurePhysicalJointMotor`, and reads the bodies' angular velocities and joint anchors.
- * @evidence contracts/development/testing.md#independent-expectations A substep refines a converged motion rather than changing it, so readings at h and h/2 agree; a micron is a thousandth of the millimetre the joint tests allow and a hard joint's gap shrinks with the substep.
- * @evidence contracts/development/testing.md#distinguishing-cases A motor reading the shoulder's limits in independent twist coordinates asks e / h of it every substep, spinning the phalanges up to tens of radians per second within the frame, differently at each substep, with gaps near a tenth of a millimetre; both scenarios fail.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on a synthetic seven-body chain, a few hundred substeps in milliseconds; no figure, compute call, viewer or file host.
  */
 export function test_unit_engine_physics_xpbd_light_chain(): void {
   const coarse: IReading = frame(32);

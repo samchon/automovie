@@ -34,11 +34,6 @@ const START: number = 20;
  * 3. Support wrenches and diagnostics up to 20 / 120 s and the ownership changes
  *    the checkpoint counted are kept, the later ones dropped.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the previous bake's ledgers, the resume point and what each ledger keeps.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `restorePhysicalSimulationCheckpoint` on an in-memory previous bake and reads the destination cache and diagnostics it fills.
- * @evidence contracts/development/testing.md#independent-expectations What a fresh bake held at interval 20 is written into the fixture itself: the checkpoint's contact count, episode receipt and sample count, and each record's second against 20 / 120 s.
- * @evidence contracts/development/testing.md#distinguishing-cases Every ledger has an entry on each side of the snapshot and the open episode has samples on each side; a restore that kept later entries, dropped earlier ones, reused the grown episode or shared the checkpoint's state fails. The frame prefix and the restored world are `test_physical_checkpoint_prefix`'s; choosing the snapshot is `test_physical_checkpoint_resume`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation over in-memory data and one empty solver snapshot; no simulation, viewer or file host runs.
  */
 export function test_unit_engine_physics_restore_physical_simulation_checkpoint(): void {
   const input: IAutoMoviePhysicalSimulationInput.IInput =

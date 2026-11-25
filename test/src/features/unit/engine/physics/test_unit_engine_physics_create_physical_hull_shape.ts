@@ -48,11 +48,6 @@ import assert from "node:assert/strict";
  *    overlapping capsules, two cubes face to face, and two cubes turned so that
  *    a pair of skew edges are their nearest features, as boxes and as hulls.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public hull owners and the shape queries and reads their results; a missing face, a wrong moment, a wrong contact point or normal, a loose bound or a pair distance read from vertices only fails.
- * @evidence contracts/development/testing.md#independent-expectations Face and vertex counts, the cuboid and tetrahedron mass properties, the point distances, the spans and the pair distances are closed forms written here; the 200 segments compare two separately written branches of the query, the box's clamp and the hull's planes.
- * @evidence contracts/development/testing.md#distinguishing-cases Surface and buried extra points, a moved box and a tetrahedron, outside, inside and corner points, composed turns, all four kinds for the span, an erosion that leaves a volume and one that does not, and a skew edge pair whose nearest vertices are 0.5 m off the true nearest points.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 6 scenarios and what each pins.
  */
 export function test_unit_engine_physics_create_physical_hull_shape(): void {
   const still: IAutoMovieRigidTransform = {

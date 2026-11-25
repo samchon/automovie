@@ -42,11 +42,6 @@ import { nclose } from "../../../internal/nclose";
  *
  *    - 0.5 * 3 = 3.5 m/s.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Bounces, rolls, sticks and passes read actual continuation outputs. Both bounded shares must refuse unsupported inputs, while zero/one/interior responses and the other coefficients' unbounded nonnegative domains remain observable.
- * @evidence contracts/development/testing.md#independent-expectations The rebound height e²h, the three explicit heights straddling the radius and the stopping distance v²/(2cg) are written here. Three impacts are derived from those heights, not a production bounce cap. An incoming (2,-1,0) becomes (2,e,0) under frictionless restitution e, or (2*(1-loss),-(1-loss),0) after a pass; friction two removes its tangential speed, resistance two gives deceleration 2g and depth two embeds two metres. A rigid ball's sliding stops at J* = |s| k / (1 + k), so a gripping shell keeps 1 / (1 + 2/3) = 3/5 of it and turns at J / (k r); Newton's law on the relative normal speed gives the moving surface's 3.5 m/s.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a bounce, a chain into a roll, a roll, a stick and a pass, a gripping and a sliding ball, a spinning ball's second bounce and a moving surface; negative/upper/nonfinite share failures, exact endpoints/interior shares and values above one for the three coefficients without that upper bound.
- * @evidence contracts/development/testing.md#execution-ownership The named unit calls the engine's contact and continuation directly.
- * @evidence contracts/development/common.md#meaningful-documentation Lists six scenarios with their physical inputs, independent expectations, numeric bounds and the distinction between bounded shares and other nonnegative coefficients.
  */
 export function test_unit_engine_physics_projectile_continue_bounce(): void {
   const ground: IAutoMovieProjectileFirstContact.ICollider =

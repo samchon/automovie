@@ -9,12 +9,10 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
-import {
-  filmEffectRecipe,
-  filmEffectWorld,
-  filmEffectZone,
-  nodeCanonicalDigest,
-} from "./filmEffectRuntimeFixtures";
+import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
+import { filmEffectWorld } from "../../../internal/filmEffectWorld";
+import { filmEffectZone } from "../../../internal/filmEffectZone";
+import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
 
 /**
  * Effect streams preserve their owner protocol, ordered cue identity and independent input data.

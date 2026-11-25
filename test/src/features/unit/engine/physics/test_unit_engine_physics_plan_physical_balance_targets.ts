@@ -45,11 +45,6 @@ type Poses = Record<string, IAutoMovieRigidTransform>;
  * 3. An elevated point that already matches its XYZ goal still has to meet the
  *    declared planted floor or report the outstanding floor error.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Gives each test case and its expected result, including the distinction between XYZ and a planted surface.
- * @evidence contracts/development/testing.md#behavioral-verification Exercises both public fit stages on tilted box patches and checks their final world geometry, then checks unreachable and elevated-contact outputs.
- * @evidence contracts/development/testing.md#independent-expectations Derives complete box bounds from transformed corners and directly computes the point projection and endpoint error. Uses #3095's 0.2 mm displayed tolerance and checks the unresolved norm against its measured endpoint and floor components. Tilts are degrees, as `Quaternion.fromAxisAngle` takes them. Each unfitted stage must breach the bound tenfold, so an implementation that skips fitting fails.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers feasible flat placement, disturbance through contact fitting, a refused relationship result and an elevated planted endpoint without explicit plane witnesses.
- * @evidence contracts/development/testing.md#execution-ownership The named runner unit borrows in-memory primitive fixtures and uses only Engine's initialized shape-query adapter.
  */
 export async function test_unit_engine_physics_plan_physical_balance_targets(): Promise<void> {
   const profile: IAutoMoviePhysicalProfile = PhysicalModelFixtures.quadrupod();

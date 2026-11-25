@@ -26,11 +26,6 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A frame that lacks a segment the profile names is refused naming the body and
  *    the bone.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the engine producer on profiles and frames the test writes and reads the returned marks' paths, kinds, shapes and anchors.
- * @evidence contracts/development/testing.md#independent-expectations Expected ends and points are the positions written into the frame, and the expected paths follow the documented `<body>/<bone>/bone` and `<body>/<bone>/joint` forms.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts bones against joints, one body against two, and a complete frame against one missing a segment. Drawing the marks belongs to the inspection tests.
- * @evidence contracts/development/testing.md#execution-ownership This named portable unit builds its own profiles and frames and starts no solver, browser, server or GPU.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: A two-bone chain of three segments, root, mid and tip, joined root to mid and mid to tip).
  */
 export function test_unit_engine_physics_mark_skeleton(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

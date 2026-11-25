@@ -29,11 +29,6 @@ import { TestValidator } from "@nestia/e2e";
  *    but leaves its pitch, and asks its own spin along x (design-4017-edge,
  *    E2).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each role's reference and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceJointTarget` and `physicalJointMotorCommand` and reads the targets and the commanded error.
- * @evidence contracts/development/testing.md#independent-expectations The goal's relative rotation, the intended pelvis recomposed from the thigh and the target, and the latched foot recomposed from the shank, each by quaternion products written out here.
- * @evidence contracts/development/testing.md#distinguishing-cases A target latched from the actual pose fails scenario 1 by following the knee; a hip held as a relative angle fails scenario 2 by keeping the pitch; a foot following its goal fails scenario 3.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_joint_target(): void {
   const findings: string[] = [];

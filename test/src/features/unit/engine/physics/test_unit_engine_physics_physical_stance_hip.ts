@@ -37,11 +37,6 @@ import { TestValidator } from "@nestia/e2e";
  *    none against a lateral one; one stance hip has one either way; a trunk
  *    leaning toward the push has that much less angle left.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the reach, the trigger and the capacity rule with their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceHip.hipReach`, `exceeds` and `hip` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The flywheel model is integrated step by step, independently of the closed form; the trigger and capacity expectations are hand-evaluated distances, torques and inertias.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates an excess just inside the reach from one just outside, inside from past the support, an angle left from one spent, an excess growing from one coming back, a measured stall from a measured shrink, a forward push from a lateral one, and two stance hips from one.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over stand-in segment poses; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_hip(): void {
   const failures: string[] = [];

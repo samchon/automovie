@@ -94,11 +94,6 @@ const REACH: number = 0.5;
  * 10. A pair's two steps share a start and count as one landed swing phase; a
  *    step armed before the phase ahead of it resolved overlaps it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `AutoMoviePhysicalBalance.assess` on rectangular foot patches and reads its state, step target and timing.
- * @evidence contracts/development/testing.md#independent-expectations The capture point at landing follows the closed form with the remaining foot's shrunken rectangle clamped by hand, and the new support is a hand-built convex hull, not the implementation's polygon routines.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a trigger on the full outline from one on the shrunken outline, a crossover step from one on its own side, a landing that leaves the capture point outside the new support from one that captures it, an unclamped step from a clamped one, a repeated front foot from the other, an unloading request from one not yet unloading, a pair from an unloadable single step, and a pair's shared start from an overlapping step.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_balance_step_choice(): void {
   const failures: string[] = [];

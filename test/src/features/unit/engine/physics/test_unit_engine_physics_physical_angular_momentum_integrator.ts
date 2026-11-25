@@ -22,11 +22,6 @@ import { TestValidator } from "@nestia/e2e";
  * 7. `reset` keeps the integral and clears the flag; a new integrator is not stuck
  *    with a zero integral.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the stuck rule, the integral law and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Advances the integrator's returned state and reads its flag and integral.
- * @evidence contracts/development/testing.md#independent-expectations The values follow the reference's update by hand: K_i dt e per stuck update, leak^dt decay, the length clamp and the 1e-10 gain cut; an integrator acting while unstuck, unsticking on a fast centre of mass, or filtering the flag fails.
- * @evidence contracts/development/testing.md#distinguishing-cases Moving and resting plans, slow and fast centres of mass from stuck and fresh states, the smart switch, the leak, clamp and gain boundaries, and the not-a-number path; its use inside the controller belongs to the zero-error test.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory states.
  */
 export function test_unit_engine_physics_physical_angular_momentum_integrator(): void {
   const integrator = physicalAngularMomentumIntegrator;

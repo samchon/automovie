@@ -34,11 +34,6 @@ const HALF: number = 0.125;
  * 3. Failed landing: the same push after a failed landing is unrecoverable, and
  *    the failure is kept.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the soles, the three states and what each assessment must show.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalBalancePlan` and reads its state and assessment.
- * @evidence contracts/development/testing.md#independent-expectations The rate is sqrt(g / h), the capture point c + v / omega and the distance outside the front edge its z less the half length, all closed forms of the stated soles and motion.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a capture point inside from one outside, a first rate from a held one, and a failed landing kept outside from one cleared inside.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on synthetic readings in memory; no native world, viewer or simulation run.
  */
 export function test_unit_engine_physics_physical_balance_plan(): void {
   const failures: string[] = [];

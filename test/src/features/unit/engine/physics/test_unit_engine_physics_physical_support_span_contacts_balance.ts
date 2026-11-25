@@ -23,11 +23,6 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A 0.5 m error, past the hull: the centre of pressure saturates on the hull
  *    shrunk by the 2 mm safe distance (`ICPControllerQPSolver` l.643-669).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the body-independent balance and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Runs the controller on each hull and reads the commanded centre of pressure, pivot and feedback pair.
- * @evidence contracts/development/testing.md#independent-expectations The plan's point, the hull's interior and the shrunk edge are fixed by the geometry and the reference's safe distance; a hull built from a limb count, an ignored support or a pivot pushing the wrong way fails it.
- * @evidence contracts/development/testing.md#distinguishing-cases Quiet, inside and saturating errors on four contact counts; the controller's own splits belong to its feedback and constraint tests.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory states.
  */
 export function test_unit_engine_physics_physical_support_span_contacts_balance(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

@@ -13,11 +13,9 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 import { namedFacts } from "../../../internal/predicates";
-import {
-  productionSoundCompiled,
-  productionSoundContract,
-  productionSoundTimeline,
-} from "./productionSoundFixtures";
+import { productionSoundCompiled } from "../../../internal/productionSoundCompiled";
+import { productionSoundContract } from "../../../internal/productionSoundContract";
+import { productionSoundTimeline } from "../../../internal/productionSoundTimeline";
 
 /**
  * Semantic events deterministically become spatial PCM and review evidence.

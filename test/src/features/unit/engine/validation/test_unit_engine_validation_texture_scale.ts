@@ -48,12 +48,17 @@ const material: (
   id: string,
   base: IAutoMovieMaterial["baseColorTexture"],
   extra: Partial<IAutoMovieMaterial> = {},
-): IAutoMovieMaterial =>
-  ({
-    id,
-    baseColorTexture: base,
-    ...extra,
-  }) as IAutoMovieMaterial;
+): IAutoMovieMaterial => ({
+  id,
+  name: null,
+  baseColor: { r: 1, g: 1, b: 1, a: null, hex: null },
+  metallic: 0,
+  roughness: 1,
+  emissive: null,
+  opacity: 1,
+  baseColorTexture: base,
+  ...extra,
+});
 
 /** One mesh part whose UV rectangle spans exactly `spanU` by `spanV`. */
 const meshPart: (
@@ -87,15 +92,16 @@ const model: (
 ) => IAutoMovieModel = (
   parts: IAutoMovieModelPart[],
   materials: IAutoMovieMaterial[],
-): IAutoMovieModel =>
-  ({
-    id: "residence",
-    origin: "generated",
-    parts,
-    skeleton: null,
-    body: null,
-    materials,
-  }) as IAutoMovieModel;
+): IAutoMovieModel => ({
+  id: "residence",
+  name: null,
+  origin: "generated",
+  parts,
+  skeleton: null,
+  body: null,
+  materials,
+  asset: null,
+});
 
 const run: (
   parts: IAutoMovieModelPart[],
@@ -376,7 +382,7 @@ export function test_unit_engine_validation_texture_scale(): void {
       type: "primitive",
       shape: { type: "box", width: 9, height: 9, depth: 9 },
     },
-  } as IAutoMovieModelPart;
+  };
   const unmeasurable: readonly string[] = [
     "a primitive's coordinates are produced downstream, not carried",
     "an imported mesh may carry no texture coordinates at all",

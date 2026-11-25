@@ -15,12 +15,10 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/nclose";
 import { namedFacts } from "../../../internal/predicates";
-import {
-  productionSoundCompiled,
-  productionSoundContract,
-  productionSoundRefused,
-  productionSoundTimeline,
-} from "./productionSoundFixtures";
+import { productionSoundCompiled } from "../../../internal/productionSoundCompiled";
+import { productionSoundContract } from "../../../internal/productionSoundContract";
+import { productionSoundRefused } from "../../../internal/productionSoundRefused";
+import { productionSoundTimeline } from "../../../internal/productionSoundTimeline";
 
 /**
  * Caption phonemes become mouth targets, and unsound evidence is refused.

@@ -10,6 +10,7 @@ import type {
   AutoMovieHumanoidSocket,
   IAutoMovieAffordance,
   IAutoMovieHumanLimbGoal,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -24,7 +25,6 @@ import type {
 
 import { HumanTrunk } from "../everyday/HumanTrunk";
 import { seated } from "../everyday/seated";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { hipJoints } from "../posture/hipJoints";
 import { humanPostureHeading } from "../posture/humanPostureHeading";
@@ -33,6 +33,7 @@ import { resolveHumanPosture } from "../posture/resolveHumanPosture";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
+import { humanBicycleEffortTimeline } from "./humanBicycleEffortTimeline";
 
 /** Sides of the bicycle contact pairs. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
@@ -83,12 +84,7 @@ function planHumanBicycleEffort(
     seatOn,
     lift,
   }: typeof params = params;
-  HumanBound.above("duration", seconds, HumanRide.TAKE, "s");
-  HumanBound.least("seatOff", seatOff, HumanRide.TAKE, "s");
-  HumanBound.above("up", up, seatOff, "s");
-  HumanBound.least("lower", lower, up, "s");
-  HumanBound.within("seatOn", seatOn, lower, seconds, "s", "minimum");
-  HumanBound.above("lift", lift, 0, "m");
+  const events: IAutoMovieMotionEvent[] = humanBicycleEffortTimeline(params);
 
   const bicycle: ReturnType<typeof context.prop> = context.prop(on);
   const points: readonly string[] = [
@@ -319,12 +315,7 @@ function planHumanBicycleEffort(
   );
   return {
     ...ride,
-    events: [
-      { name: "seatOff", share: seatOff / seconds },
-      { name: "standing", share: up / seconds },
-      { name: "lower", share: lower / seconds },
-      { name: "seatOn", share: seatOn / seconds },
-    ],
+    events,
     contacts: [
       ...ride.contacts.filter(
         (window: IAutoMovieMotionHumanContactWindow): boolean =>

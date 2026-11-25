@@ -9,12 +9,10 @@ import type {
 import { planProductionRenderJob } from "@automovie/render";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  filmEffectRefusal,
-  filmEffectTimeline,
-  materializedFilmEffects,
-  resealFilmEffect,
-} from "../../engine/film/filmEffectRuntimeFixtures";
+import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
+import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { materializedFilmEffects } from "../../../internal/materializedFilmEffects";
+import { resealFilmEffect } from "../../../internal/resealFilmEffect";
 import { throwsError } from "../../../internal/predicates";
 import { GRAPHICS_FIXTURE } from "../../../internal/renderBudgetFixtures";
 

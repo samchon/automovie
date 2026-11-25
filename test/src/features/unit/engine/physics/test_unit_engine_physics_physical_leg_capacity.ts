@@ -26,11 +26,6 @@ import { TestValidator } from "@nestia/e2e";
  *    ahead is allocated there, where the front foot's share is exactly 0.6,
  *    never more (MIT Cheetah-Software `maxForce`; Chen et al. 2022, `f_max`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the capacity, the region and their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalLegCapacity`, `physicalLegCapacity.region` and `physicalStanceAllocation.allocate` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The joint moments, forces, edge and share are evaluated by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a forward cap from a reverse one, the binding joint from the slack one, and a bounded foot's region from the unbounded support.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over stand-in segment poses; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_leg_capacity(): void {
   const failures: string[] = [];

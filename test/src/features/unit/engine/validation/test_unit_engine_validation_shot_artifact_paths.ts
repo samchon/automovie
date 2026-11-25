@@ -54,7 +54,7 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
       {
         id: "key",
         transform: transform(),
-        color: { r: 1, g: 1, b: 1 },
+        color: { r: 1, g: 1, b: 1, a: null, hex: null },
         intensity: 1,
         type: "spot",
         range: 10,

@@ -22,11 +22,6 @@ import { TestValidator } from "@nestia/e2e";
  *    torque, is the same Float64 value, the negative zero included.
  * 2. One step of each leaves the same snapshot bytes.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the body's state, the round trip and the one step compared.
- * @evidence contracts/development/testing.md#behavioral-verification Takes a snapshot, restores it, reads the body's state and steps both worlds once, comparing bytes and values.
- * @evidence contracts/development/testing.md#independent-expectations The expectation is the original world itself, value for value with `Object.is`, and its own step; no stored output is read.
- * @evidence contracts/development/testing.md#distinguishing-cases Every field set away from its default, so a restore that drops or defaults any of them, or loses the zero's sign, fails 1; a lost timestep, gravity scale, mass property or pending force moves the step and fails 2. Long runs and contacts across a restore are `test_physical_xpbd_world`'s; choosing and copying the resumed prefix are `test_physical_checkpoint_resume`'s, `test_physical_checkpoint_prefix`'s and `test_physical_checkpoint_ledgers`'.
- * @evidence contracts/development/testing.md#execution-ownership Pure in-memory computation: one world of one body and one direct step call; no simulation run, viewer or file host.
  */
 export function test_unit_engine_physics_xpbd_world_snapshot(): void {
   const world: AutoMovieXpbdWorld = new AutoMovieXpbdWorld({

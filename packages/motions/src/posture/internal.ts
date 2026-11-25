@@ -22,6 +22,7 @@ export * from "./HumanSeidelProgram";
 export * from "./HumanQuinticSegment";
 export * from "./HumanKnot";
 export * from "./HumanKnotTiming";
+export * from "./HumanKnotTimingExcess";
 export * from "./prepareHumanKnotCourse";
 export * from "./prepareHumanFreeCurve";
 export * from "./HumanTrunkTurn";

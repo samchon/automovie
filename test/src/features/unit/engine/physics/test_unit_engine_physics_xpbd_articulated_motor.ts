@@ -27,11 +27,6 @@ import { TestValidator } from "@nestia/e2e";
  *    the system's linear and angular momentum at zero and both anchors
  *    together.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Steps real worlds one substep from rest and asserts the joints' relative angular velocities, the total momenta and the anchors' relative velocities.
- * @evidence contracts/development/testing.md#independent-expectations The planar double pendulum's mass matrix at the straight pose, M11 = I1 + m1 c1^2 + I2 + m2 (l1^2 + c2^2 + 2 l1 c2), M12 = I2 + m2 (c2^2 + l1 c2), M22 = I2 + m2 c2^2, with the damper's backward-Euler law; momentum conservation under internal impulses.
- * @evidence contracts/development/testing.md#distinguishing-cases A free damper against a capped one on the same arm, and a fixed base against a free torso; a motor seeing only its own link's inertia about the shoulder misses the first closed form.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory test entered through `test_physical_articulated_motor`; it starts no process or viewer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario with its closed form or conserved quantity.
  */
 export async function test_unit_engine_physics_xpbd_articulated_motor(): Promise<void> {
   const findings: string[] = [];

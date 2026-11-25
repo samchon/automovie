@@ -29,11 +29,6 @@ import { throwsError } from "../../../internal/throwsError";
  * 3. A contact span to an infinite end, and a step (1e-20 s) whose count
  *    over one second passes 2^53, are refused.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs the public planner and contact resolver on inputs whose loops did not end before the termination fixes (a clock period under the time resolution, a bracket of adjacent doubles wider than the resolution, an unbounded or uncountable grid) and asserts the refusals and the reported contact; a loop without a bound never returns, and a contact at another second or against another body fails.
- * @evidence contracts/development/testing.md#independent-expectations The spacing of doubles at 1e20 (2^14) and at 1e7 (2^-29) are binary64 facts; a weapon inside the wall from the moment it is live touches at that moment; 1 / 1e-20 = 1e20 steps exceeds 2^53.
- * @evidence contracts/development/testing.md#distinguishing-cases A refused and an ordinary planner clock; a late-live weapon past 2^23 s; an infinite span and an uncountable step. Ordinary contact resolution is owned by the contact-event tests and planning by the physical planner tests.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit test of public engine functions over the shared physical fixtures, discovered by its exported name; it starts no host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios and what each pins.
  */
 export function test_unit_engine_physics_step_planner_degenerate_termination(): void {
   // 1. A clock period under the time resolution.

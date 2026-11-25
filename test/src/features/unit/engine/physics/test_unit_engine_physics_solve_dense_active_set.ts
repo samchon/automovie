@@ -15,11 +15,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. Rows x0 <= -1 and -x0 <= -1 are infeasible: null.
  * 3. An indefinite H: null.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the program, the oracle and the cases.
- * @evidence contracts/development/testing.md#behavioral-verification Solves each program and compares the minimizer.
- * @evidence contracts/development/testing.md#independent-expectations The oracle enumerates every active set, solves its KKT system by Gaussian elimination and keeps the feasible one with nonnegative multipliers, a different method from the solver's.
- * @evidence contracts/development/testing.md#distinguishing-cases A wrong substitution, a dropped row or a sign error on h moves the minimizer in some random program; the failures are scenarios 2 and 3.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on seeded in-memory programs.
  */
 export function test_unit_engine_physics_solve_dense_active_set(): void {
   let seed: number = 0x4017;

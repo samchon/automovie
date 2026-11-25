@@ -31,11 +31,6 @@ import { TestValidator } from "@nestia/e2e";
  *    re-latched once and its share ramps back over `FADE`, half of it at half
  *    the window (design-4017-qp3, Section 3, rules 2 and 3).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the bearing rule, the ramp, the drawn outline and the room with their closed forms.
- * @evidence contracts/development/testing.md#behavioral-verification Advances `physicalStanceSeat` substep by substep and reads the shares, and reads `physicalStanceSupport.support`'s polygon and `physicalStanceSwing.reach`.
- * @evidence contracts/development/testing.md#independent-expectations Shares from the ramp's slope dt / FADE; spans, edges and room from the squares' coordinates, the margin and the share by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases A bearing share that follows measured load fails scenario 1; one that ramps a lifted foot out fails scenario 2; a foot dropped from the support at once fails scenario 3's partial shares; a ray crossing decided by round-off fails scenario 4's edge point either way; an entry that follows load alone fails scenario 5's touching unloaded foot, and one that never resets fails its foot out of contact.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_seat(): void {
   const findings: string[] = [];

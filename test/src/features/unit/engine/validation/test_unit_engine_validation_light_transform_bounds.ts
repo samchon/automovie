@@ -2,6 +2,7 @@ import { validateShotArtifact } from "@automovie/engine";
 import type {
   AutoMovieChannelValueType,
   AutoMovieInterpolation,
+  IAutoMovieColor,
   IAutoMovieConstraintViolation,
   IAutoMovieScene,
   IAutoMovieShot,
@@ -12,6 +13,9 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../../internal/predicates";
+
+/** The white every staged light emits, with no stated alpha or hex. */
+const WHITE: IAutoMovieColor = { r: 1, g: 1, b: 1, a: null, hex: null };
 
 /** The identity placement every staged object starts from. */
 const transform: () => IAutoMovieTransform = (): IAutoMovieTransform => ({
@@ -39,7 +43,7 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
       {
         id: "key",
         transform: transform(),
-        color: { r: 1, g: 1, b: 1 },
+        color: WHITE,
         intensity: 1,
         type: "spot",
         range: 10,
@@ -48,14 +52,14 @@ const scene: () => IAutoMovieScene = (): IAutoMovieScene => ({
       {
         id: "sun",
         transform: transform(),
-        color: { r: 1, g: 1, b: 1 },
+        color: WHITE,
         intensity: 3,
         type: "directional",
       },
       {
         id: "bulb",
         transform: transform(),
-        color: { r: 1, g: 1, b: 1 },
+        color: WHITE,
         intensity: 1,
         type: "point",
         range: 5,

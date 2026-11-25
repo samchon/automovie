@@ -15,11 +15,6 @@ import { repositoryRoot } from "../../../internal/repositoryRoot";
  * each rotated pair is summed and rotated in the same order, so a reordering of
  * the loops alone must leave every bit in place.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the stored programs, what was recorded and why the bits must match.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `solveXpbdDualActiveSet` and reads its minimizer and active set.
- * @evidence contracts/development/testing.md#independent-expectations The expected bits were recorded from the solver as it was before the reordering.
- * @evidence contracts/development/testing.md#distinguishing-cases Problems of three sizes, with and without equalities and preferred rows; a single changed bit or active row fails.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic on stored inputs; no world, viewer or simulation run.
  */
 export async function test_unit_engine_physics_solve_xpbd_dual_active_set(): Promise<void> {
   const cases: {

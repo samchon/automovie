@@ -33,11 +33,6 @@ import { TestValidator } from "@nestia/e2e";
  * 3. A taper of one radius on both ends reads the bare distance less that
  *    radius on every kind, to 1e-9.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public proximity owner and reads its distance and segment point; a taper read at one end, a radius not subtracted or a search that misses the convex minimum fails.
- * @evidence contracts/development/testing.md#independent-expectations Every value is the closed form of this axis-aligned geometry, written here.
- * @evidence contracts/development/testing.md#distinguishing-cases A falling taper against all four shape kinds and a constant taper against the bare reading.
- * @evidence contracts/development/testing.md#execution-ownership A pure in-memory unit; it runs in CI.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 3 scenarios and what each pins.
  */
 export function test_unit_engine_physics_physical_shape_nearest(): void {
   const still: IAutoMovieRigidTransform = {

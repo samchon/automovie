@@ -27,11 +27,6 @@ import { TestValidator } from "@nestia/e2e";
  * - Two runs of the same scene give identical snapshot bytes, and a run restored
  *   from a mid-run snapshot ends bit for bit where the uninterrupted run ends.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Steps real worlds and asserts rest depth, slope motion, rebound height, joint ranges and snapshot bytes.
- * @evidence contracts/development/testing.md#independent-expectations Expectations are closed forms written here: g / omega^2, g (sin - mu cos), e^2 h, the declared ranges, and byte equality.
- * @evidence contracts/development/testing.md#distinguishing-cases Static against sliding friction on the same slope, bounce against rest, a box limit against a cone limit, and a fresh against a restored run.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory test entered through `test_physical_xpbd_world`; it starts no process or viewer.
- * @evidence contracts/development/common.md#meaningful-documentation Lists each scenario and its closed form.
  */
 export async function test_unit_engine_physics_xpbd_world(): Promise<void> {
   const findings: string[] = [];

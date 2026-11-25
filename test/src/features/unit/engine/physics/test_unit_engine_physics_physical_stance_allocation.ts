@@ -48,11 +48,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A square shrunk by the margin keeps its centre and loses the margin on every
  *    side.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each law and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceAllocation.law`, `allocate`, `hipRoom` and `shrink` and `trackPhysicalRoot.moment` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated formulas and the research note's allocation cases evaluated by hand for a strip and a square.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a command with room from a trimmed one, the shrunken edge from the support's own, inside from past the support, the band from inside the shrunken polygon, a hip strategy spinning up from one braking and none, a bias from none, a single-support trunk within the sole's room from one past it, and loaded hips from unloaded ones.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_allocation(): void {
   const failures: string[] = [];

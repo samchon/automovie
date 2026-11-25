@@ -4,8 +4,8 @@ import { minimumJerk } from "@automovie/engine";
  * A sitting-volleyball shift's phases over its share (World ParaVolley Rule
  * 9.4.1, the pelvis kept on the court): the palm reaches to its plant by
  * `PLANT`, the seat scoots on it from `PLANT` to `RELEASE`, the palm lifts and
- * the forearms come to the receive platform by `RECEIVE`, and the platform eases
- * off by the end, each a minimum-jerk share (provisional staging).
+ * the forearms come to the receive platform by `RECEIVE`, and the platform
+ * eases off by the end, each a minimum-jerk share (provisional staging).
  *
  * @param share The shift's progress, 0 to 1.
  * @returns How far the seat has scooted, the palm reaches, and the platform is
@@ -14,7 +14,9 @@ import { minimumJerk } from "@automovie/engine";
 export function humanSittingVolleyPhases(
   share: number,
 ): humanSittingVolleyPhases.IPhases {
-  const { PLANT, RELEASE, RECEIVE } = humanSittingVolleyPhases;
+  const PLANT: number = humanSittingVolleyPhases.PLANT;
+  const RELEASE: number = humanSittingVolleyPhases.RELEASE;
+  const RECEIVE: number = humanSittingVolleyPhases.RECEIVE;
   return {
     moving: minimumJerk.share((share - PLANT) / (RELEASE - PLANT)),
     reaching:

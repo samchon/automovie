@@ -24,11 +24,6 @@ import { TestValidator } from "@nestia/e2e";
  *    centroids and 0.25 halfway to the middle.
  * 6. A foot of one point puts the exit pivot on it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the feet, the parameters and each expected pivot.
- * @evidence contracts/development/testing.md#behavioral-verification Computes the pivots and compares them with hand-placed points.
- * @evidence contracts/development/testing.md#independent-expectations Each pivot is placed by hand from the reference's rule: centroid, step share, clamp, signed inside offset, projection onto the foot shrunk by the safe distance; a wrong side sign, clamp, share, frame or chicken rule moves it by millimetres, far past 1e-12.
- * @evidence contracts/development/testing.md#distinguishing-cases Left and right feet, a clamped and an unclamped share, an offset inside and outside the shrunk foot, three chicken fractions and a point foot; how the planner chains the pivots belongs to the single-support test.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory values.
  */
 export function test_unit_engine_physics_physical_icp_planner_cmps(): void {
   const cmps = physicalIcpPlannerCmps;

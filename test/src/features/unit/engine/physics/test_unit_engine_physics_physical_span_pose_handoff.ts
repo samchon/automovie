@@ -22,11 +22,6 @@ import { TestValidator } from "@nestia/e2e";
  * 4. A rotation of the thigh about its own origin carries the knee: the shank left
  *    behind is not admissible, the one moved with it is.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the condition, the chain and each case.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSpanPose.admissible` on in-memory joints and poses and reads its decision.
- * @evidence contracts/development/testing.md#independent-expectations The anchors' world places follow from the rigid transforms by hand; the limit is the stated envelope.
- * @evidence contracts/development/testing.md#distinguishing-cases A gap on either side of the limit, a missing pose and a rotated parent tell a condition that ignores the gap, the rotation or the limit; the span's own curves are `test_physical_disturbance_span`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory transforms; no world, simulation, viewer or file host.
  */
 export function test_unit_engine_physics_physical_span_pose_handoff(): void {
   const knee: IAutoMoviePhysicalJoint = {

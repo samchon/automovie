@@ -13,12 +13,10 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { namedFacts } from "../../../internal/predicates";
-import {
-  productionSoundCompiled,
-  productionSoundContract,
-  productionSoundRefused,
-  productionSoundTimeline,
-} from "./productionSoundFixtures";
+import { productionSoundCompiled } from "../../../internal/productionSoundCompiled";
+import { productionSoundContract } from "../../../internal/productionSoundContract";
+import { productionSoundRefused } from "../../../internal/productionSoundRefused";
+import { productionSoundTimeline } from "../../../internal/productionSoundTimeline";
 
 /**
  * Actual mixed PCM becomes opaque evidence rasters with bounded drawable rows.

@@ -25,11 +25,6 @@ import { TestValidator } from "@nestia/e2e";
  *    (0.05, 0.05) share 4.375, 3.125, 1.875 and 0.625, and with it on the edge
  *    x = 0.1, 5, 5, 0 and 0.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each row's expected value and the shared impulse.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `objectiveRow` and `solveXpbdSupportCascade` and reads their outputs.
- * @evidence contracts/development/testing.md#independent-expectations The rows are cross products worked by hand; each split is the least-norm solution of sum n = 10 and sum n p = 10 cop, worked by hand over the feet's centred coordinates.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a normal row from a tangential one, a counted body from another, a weighted centre of pressure from the unweighted wrench rows, which would split the impulse evenly, two feet from four, and a point inside the support from one on its edge, where a foot carries nothing.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or simulation run.
  */
 export function test_unit_engine_physics_solve_xpbd_support_cascade(): void {
   const failures: string[] = [];

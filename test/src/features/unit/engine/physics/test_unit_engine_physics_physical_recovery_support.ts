@@ -54,11 +54,6 @@ import { PhysicalHumanProfiles } from "../../../internal/PhysicalHumanProfiles";
  *    the hip's (Kajita et al., Introduction to Humanoid Robotics, Section 2.5;
  *    TSID `ex_4_walking`).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the seeding share, the joint-centre chain and the shared path.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSwingReference` and `physicalRecoverySupportGoals` and reads their poses and goals.
- * @evidence contracts/development/testing.md#independent-expectations Joint angles are read back as relative rotations about one axis; the path is checked against the shared sampler plus the stated hang, and against the closed form 16 h (p (1 - p))^2 at mid-swing.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates share zero, one half and one, a pelvis reference apart from the actual pelvis, the start, middle and end of the swing, a drive's path from the policy's, and a reference rate at lift-off, within the fade and past it.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory over the stored profile and the quiet recording read from the repository; no figure built, no native world, viewer or file host.
  */
 export async function test_unit_engine_physics_physical_recovery_support(): Promise<void> {
   const failures: string[] = [];

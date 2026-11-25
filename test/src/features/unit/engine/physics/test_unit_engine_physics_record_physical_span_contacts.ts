@@ -34,11 +34,6 @@ const SUBSTEPS: number = 32;
  * 3. Wrench: every recorded support wrench asks and is allocated the weight up,
  *    with no residual.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the record and the three conditions it must meet.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `recordPhysicalSpanContacts` substep by substep on an in-memory binding and reads the receipts and wrenches it writes.
- * @evidence contracts/development/testing.md#independent-expectations The weight's impulse m g dt is Newton's second law for a body whose height is held; an unloaded swing foot and a floor-to-foot receipt are the definitions of single support and provenance.
- * @evidence contracts/development/testing.md#distinguishing-cases A share that does not sum to one fails 1, a load on the swinging foot or a receipt on another bone fails 2, and a wrench that drops the weight fails 3; the curves are `test_physical_disturbance_span`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on an in-memory binding; no world, simulation, viewer or file host.
  */
 export function test_unit_engine_physics_record_physical_span_contacts(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);

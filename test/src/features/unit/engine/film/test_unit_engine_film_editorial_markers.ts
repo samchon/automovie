@@ -182,10 +182,16 @@ export function test_unit_engine_film_editorial_markers(): void {
     "$input.editorialMarkers[1].endSeconds",
     "$input.editorialMarkers[2].endSeconds",
   ];
-  for (const [boundary, result] of [
+  const boundaries: ReadonlyArray<
+    [
+      string,
+      ReturnType<typeof performShot> | ReturnType<typeof validateShotArtifact>,
+    ]
+  > = [
     ["authoring", rejected],
     ["stored artifact", artifact],
-  ] as const)
+  ];
+  for (const [boundary, result] of boundaries)
     TestValidator.equals(
       boundary + " rejection fields",
       result.success ? [] : result.violations.map((item): string => item.path),

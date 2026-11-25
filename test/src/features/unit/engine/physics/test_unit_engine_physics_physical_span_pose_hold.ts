@@ -16,11 +16,6 @@ import { TestValidator } from "@nestia/e2e";
  *    the first substep after, then that one held, sampling the same values.
  * 3. Before the push and after the response settles, nothing plays.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the hold, the restore and the play window.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalSpanPose.play` and reads the binding and the samples.
- * @evidence contracts/development/testing.md#independent-expectations Identity and equality of the held response; the window from the recorded push and the response's own settling time.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates holding from preparing again, and a restore from a continuing run.
- * @evidence contracts/development/testing.md#execution-ownership Pure functions in memory; no world or simulation run.
  */
 export function test_unit_engine_physics_physical_span_pose_hold(): void {
   const failures: string[] = [];

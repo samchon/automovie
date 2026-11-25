@@ -51,11 +51,6 @@ import { PhysicalPerformanceFixtures } from "../../../internal/PhysicalPerforman
  *    twice the smaller; and both come back within a millimetre within a second,
  *    as the walk the push lands in goes on.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States both walks and each held property with its source.
- * @evidence contracts/development/testing.md#behavioral-verification Reads the planner's phases and the authored targets, and calls `physicalGravityTorques`, `physicalJointMotorCommand` and `AutoMoviePhysicalTracking.force` on the authored poses and the fixture's gains.
- * @evidence contracts/development/testing.md#independent-expectations The slip bound is one percent of the fixture's stride; the range bound is the two degrees a tracked joint keeps of its authored rotation (test_physical_human_profile's bound); the caps are each joint's declared torque; the return is the servo's own discrete closed loop at the substep, x' = x + h v', v' = v + h F / m, whose response is linear below the force bound.
- * @evidence contracts/development/testing.md#distinguishing-cases Two independent providers; a planted foot that drifts fails 1, a target past its joint's range, a gravity moment past a cap or a drive that saturates at its own target fails 2, a servo that saturates or does not converge fails 3. The step function's convergence on light links is `test_physical_xpbd_light_chain`'s, the joint limits' reading `test_physical_joint_chart_velocity`'s.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on the walk fixture's key frames, the Human read from its stored profile and Stand with no figure built; no world, simulation, viewer or file host beyond reading those fixtures.
  */
 export async function test_unit_engine_physics_measure_physical_authored_locomotion(): Promise<void> {
   const duration: number = 1;

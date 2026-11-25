@@ -28,11 +28,6 @@ import { vclose } from "../../../internal/vclose";
  * 3. Offset angular motion, an absent proof and malformed declarations exercise
  *    the certificate boundary. A nonzero query start retains its launch clock.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the signed-gap oracles, independent shape pairs, motion admission and launch-clock behavior.
- * @evidence contracts/development/testing.md#behavioral-verification Uses stock public builders and contact sweep with actual independent sphere and convex-hull witnesses, without injecting clearance or inspecting private proof state.
- * @evidence contracts/development/testing.md#independent-expectations Signed gaps come from the fixture's independently declared quadratic trajectories and the known upper collider plane. All first-hit points and normals follow from those shapes, their translation, and the explicit launch clock.
- * @evidence contracts/development/testing.md#distinguishing-cases Same geometry with opposite relative motion, separate and simultaneous part IDs, declared and absent motion, initial shallow overlap and malformed data distinguish the failure paths.
- * @evidence contracts/development/testing.md#execution-ownership The shared test runner executes pure public Engine builders and sweeps against local finite geometry. Rigid part poses come from the maintained `ProjectileMovingPartFixture`, which the moving-performer consumer of #3827 shares.
  */
 export function test_unit_engine_physics_projectile_first_contact_moving_departure(): void {
   const sphere: IAutoMoviePhysicalShape = baseSphere(ZERO);

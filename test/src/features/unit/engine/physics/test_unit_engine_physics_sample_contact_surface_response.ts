@@ -15,11 +15,6 @@ import { TestValidator } from "@nestia/e2e";
  * 2. A geometric receipt has no impulse authority: both consumers refuse it without an explicit formula estimate and use exactly that estimate when supplied.
  * 3. A geometric receipt that asserts a solved impulse or completed solver samples is refused by both consumers.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `compileImpactEffects` and `sampleContactSurfaceResponse` on in-memory receipts and observes the particle burst and the surface weight each impulse produces. A consumer that prefers a formula over a measured impulse, promotes geometry to a solved impulse, silently treats a missing estimate as zero, or accepts a geometric receipt carrying solver evidence fails an assertion.
- * @evidence contracts/development/testing.md#independent-expectations The consumers' documented scales give the expectations: the burst is the ceiling of impulse times particles per N s (10 here), and a centred, undecayed surface weight is impulse times weight per N s (0.1 here), so measured 2 N s, formula 3 N s and the conflicting 7 N s give distinct 20, 30 and 70 particles or 0.2, 0.3 and 0.7 weights.
- * @evidence contracts/development/testing.md#distinguishing-cases Pairs each source with and without a formula estimate, adds the conflicting estimate for a solver id, and refuses geometric receipts with an impulse or samples. Native receipt production belongs to test_physical_native_contact_pair; spray transport and stains belong to test_physical_effect_transport; outcome audits belong to test_physical_layers_geometry; contact marks belong to test_mark_contacts.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_receipt_authority`; it starts no simulation, process, viewer or render host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the three scenarios, naming the receipts, estimates and observed burst and weight.
  */
 export function test_unit_engine_physics_sample_contact_surface_response(): void {
   const solver: IAutoMovieContactReceipt = receipt("hit", "solver", 2);
@@ -81,11 +76,11 @@ export function test_unit_engine_physics_sample_contact_surface_response(): void
     actual: number | "refused",
     expected: number | "refused",
   ): void {
-    if (
-      typeof actual !== typeof expected ||
-      (typeof actual === "number" &&
-        Math.abs(actual - (expected as number)) > 1e-12)
-    )
+    const same: boolean =
+      actual === "refused" || expected === "refused"
+        ? actual === expected
+        : Math.abs(actual - expected) <= 1e-12;
+    if (!same)
       findings.push(`${label}: ${actual} instead of ${expected}`);
   }
 

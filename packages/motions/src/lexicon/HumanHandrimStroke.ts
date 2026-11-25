@@ -35,6 +35,7 @@ import { HumanHandrimStrokeRefuseRim } from "./HumanHandrimStrokeRefuseRim";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRide } from "./HumanRide";
 import type { WorkingSeatRidePlan } from "./WorkingSeatRidePlan";
+import { humanHandrimStrokePhases } from "./humanHandrimStrokePhases";
 
 /** The point and directions a rider uses to take the rim. */
 type Grip = Parameters<typeof HumanMountRider.hold>[3];
@@ -137,38 +138,10 @@ function planHumanHandrimStroke(
     push,
     recovery,
   }: IAutoMovieMotionHumanHandrimStroke = context.params;
-  const release: number = approach + push;
-  const duration: number = release + recovery;
-  for (const [axis, value] of Object.entries({
-    approach,
-    push,
-    recovery,
-  })) {
-    if (!(value > 0))
-      throw new HumanRefusal({
-        kind: "parameter",
-        axis,
-        value,
-        feasible: {
-          kind: "range",
-          minimum: 0,
-          maximum: null,
-          unit: "s",
-          open: "minimum",
-        },
-        reason: "the phase needs positive, finite seconds",
-        fix: "give a positive duration in seconds for this phase",
-      });
-  }
-  if (!(approach < release && release < duration))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "duration",
-      value: duration,
-      feasible: null,
-      reason: "the phase durations do not produce distinct finite times",
-      fix: "give positive phase seconds of comparable scale",
-    });
+  const phases: humanHandrimStrokePhases.IPhases = humanHandrimStrokePhases(
+    context.params,
+  );
+  const { release, duration } = phases;
 
   const chair: IAutoMovieMotionHumanPropReader = context.prop(on);
   if (chair.prop.motion === undefined)
@@ -450,10 +423,7 @@ function planHumanHandrimStroke(
     ...base,
     hands: active,
     contact: approach,
-    events: [
-      { name: "catch", share: approach / duration },
-      { name: "release", share: release / duration },
-    ],
+    events: phases.events,
     contacts: [...base.contacts, ...windows],
     posture,
   };

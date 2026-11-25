@@ -13,19 +13,25 @@ import { TestValidator } from "@nestia/e2e";
 
 import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
 
-/** Native authority boundaries retain rational event time and admitted constraint residuals.
+/** How far an authority time may stand off the native tick grid, ticks. */
+const GRID: number = 1e-10;
+
+/**
+ * The playback's segment ownership (`IAutoMoviePhysicsCache.ownership`, read by
+ * `ownershipAt`): who drives each segment at a second, the authored pose, the
+ * native solver or the return between them, on a minimal world.
  *
  * Scenarios:
- * 1. First-interval activation and exact-completion reactivation encode/decode at three native rates.
- * 2. A declared 1 mm native pivot residual returns continuously instead of projecting the entry pose.
- * 3. A returning parent can remain connected to a dynamic child across the native step.
- * 4. Admitted compliant floor compression does not falsely obstruct a stationary return.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `interface`, `AutoMoviePhysicalPlayback`, `AutoMoviePhysicalSimulation` on in-memory inputs and asserts the returned observations through 3x TestValidator.predicate, 7x TestValidator.equals; 4 numbered scenarios (first: First-interval activation and exact-completion reactivation encode/decode at three native rates.; last: Admitted compliant floor compression does not falsely obstruct a stationary return.). A wrong result for any of those inputs fails an assertion, while results the scenarios allow do not.
- * @evidence contracts/development/testing.md#independent-expectations Expected values come from the literals and relations written in the test itself (9 assertion sites compare against numeric literals) and from the scenario sentences above, not from a snapshot of the implementation's output; where an expectation is computed by another production function the oracle is not independent, and this answer does not establish a reference beyond the scenario text.
- * @evidence contracts/development/testing.md#distinguishing-cases Contributes 4 numbered scenarios (first: First-interval activation and exact-completion reactivation encode/decode at three native rates.; last: Admitted compliant floor compression does not falsely obstruct a stationary return.), including the negative, boundary or refusal cases those sentences name; cases the sentences do not name are not claimed here and are owned by other tests or are uncovered.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through the discoverable function `test_physical_ownership_boundaries`, which owns the cases delegated to `PhysicalFixtures`; it registers no dynamic cases and starts no process, browser, viewer, render or GPU host.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the 4 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: First-interval activation and exact-completion reactivation encode/decode at three native rates.).
+ * 1. A ball dynamic over steps 1 to 24 and from 49 on, at 3, 8 and 32 substeps:
+ *    every authority time is non-negative, increasing and on the `120 s`
+ *    substep grid; it is dynamic at 0 and at the exact completion 0.4 s; the
+ *    ownership survives an archive encode and decode.
+ * 2. A hinged pair entering with a 1 mm pivot residual returns from it
+ *    continuously, converging to the pivot at 0.3 m by 0.4 s.
+ * 3. A parent returning while its child stays dynamic is `return` at 0.2 s, the
+ *    child `dynamic` at 0.35 s, the parent `authored` at 0.4 s.
+ * 4. A soft sphere compressed into the floor still completes its return.
  */
 export async function test_unit_engine_physics_physical_playback_ownership(): Promise<void> {
   for (const substeps of [3, 8, 32]) {
@@ -52,7 +58,7 @@ export async function test_unit_engine_physics_physical_playback_ownership(): Pr
           Math.abs(
             entry.seconds * 120 * substeps -
               Math.round(entry.seconds * 120 * substeps),
-          ) < 1e-10,
+          ) < GRID,
       );
       previous = entry.seconds;
     }

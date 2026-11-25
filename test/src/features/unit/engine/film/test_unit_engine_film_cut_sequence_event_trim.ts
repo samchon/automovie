@@ -93,15 +93,29 @@ export function test_unit_engine_film_cut_sequence_event_trim(): void {
   const cut: IAutoMovieCut = cutSequence(plan, [shot]);
   if (!cut.success) throw new Error("both symbolic trims must be admitted");
   TestValidator.predicate("retimed runtime", nclose(cut.runtime, 1.5));
+  // The whole entry is compared, so a symbolic `trimByEvents` left on the
+  // normalized entry is a difference; every bound is an exact binary fraction.
   const normalized: IAutoMovieSequenceEntry[] = cut.sequence.shots;
-  TestValidator.predicate(
+  const expected: IAutoMovieSequenceEntry[] = [
+    {
+      shot: shot.id,
+      trim: { start: 0.5, duration: 1 },
+      exactSourceEnd: 1.5,
+      transition: null,
+      playbackRate: 2,
+    },
+    {
+      shot: shot.id,
+      trim: { start: 1.5, duration: 2 },
+      exactSourceEnd: 3.5,
+      transition: null,
+      playbackRate: 2,
+    },
+  ];
+  TestValidator.equals(
     "symbolic bounds become the two source spans",
-    normalized.length === 2 &&
-      nclose(normalized[0]?.trim?.start ?? NaN, 0.5) &&
-      nclose(normalized[0]?.trim?.duration ?? NaN, 1) &&
-      nclose(normalized[1]?.trim?.start ?? NaN, 1.5) &&
-      nclose(normalized[1]?.trim?.duration ?? NaN, 2) &&
-      normalized.every((entry): boolean => !("trimByEvents" in entry)),
+    normalized,
+    expected,
   );
   const seamPlays: IAutoMoviePlaybackEvent[] = sequenceEventTimeline(
     cut.sequence,

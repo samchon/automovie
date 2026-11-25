@@ -9,6 +9,7 @@ import type {
   AutoMovieHumanoidBone,
   IAutoMovieAffordance,
   IAutoMovieHumanoidSurfaces,
+  IAutoMovieMotionEvent,
   IAutoMovieMotionHumanActionContext,
   IAutoMovieMotionHumanActionLaw,
   IAutoMovieMotionHumanActionPlan,
@@ -37,6 +38,7 @@ import { AquaticPosture } from "../sport/AquaticPosture";
 import { HumanFloatBesideForm } from "./HumanFloatBesideForm";
 import { HumanMountRider } from "./HumanMountRider";
 import { HumanRideHands } from "./HumanRideHands";
+import { humanFloatBesideAdmit } from "./humanFloatBesideAdmit";
 
 /**
  * Place the floating body beside the horse's moving held part and verify the
@@ -58,29 +60,11 @@ function planHumanFloatBeside(
     side,
     hold = "mane",
     water,
-    blocked = [],
     duration: seconds,
     transition,
   } = context.params;
   const body: IAutoMovieMotionHumanBody = context.body;
-  if (!(transition > 0 && transition < seconds))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "transition",
-      value: transition,
-      feasible: null,
-      reason: "a float needs a positive slide-off shorter than the action",
-      fix: "Give a transition shorter than the total seconds.",
-    });
-  if (blocked.includes(side))
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "side",
-      value: side,
-      feasible: null,
-      reason: `the horse's ${side} side is blocked, and sliding off downstream puts the rider under the horse`,
-      fix: "Clear the upstream side, or keep the rider seated through the swim.",
-    });
+  const events: IAutoMovieMotionEvent[] = humanFloatBesideAdmit(context.params);
   const support: IAutoMovieMotionHumanPropReader = context.prop(on);
   const part: IAutoMovieAffordance | undefined = support.prop.affordances?.find(
     (contact: IAutoMovieAffordance): boolean => contact.id === hold,
@@ -244,16 +228,12 @@ function planHumanFloatBeside(
       root: { x: at.x - offset.x, y: height, z: at.z - offset.z },
     };
   };
-  const sliding: number = transition / seconds;
   // The law's goal: the near hand on the held part where the horse has it
   // at every second.
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration: seconds,
     hands: [near],
-    events: [
-      { name: "slideOff", share: 0 },
-      { name: "afloat", share: sliding },
-    ],
+    events,
     contacts: [
       {
         part: `${near}Hand`,

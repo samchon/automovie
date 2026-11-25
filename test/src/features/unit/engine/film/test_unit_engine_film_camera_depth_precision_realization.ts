@@ -106,7 +106,7 @@ function realize(
               ): IAutoMovieShotContract["reviewFrames"][number] => ({
                 id: `frame-${index}`,
                 time,
-                passes: ["beauty" as const],
+                passes: ["beauty"],
               }),
             ),
     },

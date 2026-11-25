@@ -21,11 +21,6 @@ import { PhysicalFixtures } from "../../../internal/PhysicalFixtures";
  * 1. A 200001-frame prefix restores its complete ordered frame references and an independent solver world.
  * 2. A failing controller clone is reported before a deliberately unusable snapshot can be restored.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls actual prefix restoration using an in-memory solver snapshot, then checks prefix length, endpoints and the rebuilt world. A throwing checkpoint getter pins copy-before-restore ordering without replacing any method.
- * @evidence contracts/development/testing.md#independent-expectations The supplied prefix has exactly start+1 indexed seconds and preserves borrowed frame identity; the unique thrown sentinel belongs to the caller's checkpoint, and the empty snapshot bytes could not be restored, so the sentinel proves the copy ran first. The failure case establishes ordering, not a heap measurement.
- * @evidence contracts/development/testing.md#distinguishing-cases Covers a prefix above common JavaScript argument limits, empty causal ledgers, a successful world restore and a pre-restore copy failure. Existing simulation tests own solver and controller trajectory equivalence.
- * @evidence contracts/development/testing.md#execution-ownership Portable unit test on explicit in-memory data through the discoverable function `test_physical_checkpoint_prefix`; it starts no host, native build or process.
- * @evidence contracts/development/common.md#meaningful-documentation States the prefix size, the restored world and the failure sentinel's proof limit.
  */
 export async function test_unit_engine_physics_restore_physical_simulation_checkpoint_prefix(): Promise<void> {
   const start: number = 200000;

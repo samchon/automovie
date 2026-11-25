@@ -35,11 +35,6 @@ import { TestValidator } from "@nestia/e2e";
  *    limb's effective mass; at rest on its path the leg is held against its
  *    weight, and no position error enters it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each rule and its closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Calls `physicalStanceBalance.release`, `touchdown`, `ready`, `tipping`, `saturate` and `swingForce` and reads their values.
- * @evidence contracts/development/testing.md#independent-expectations The expectations are the stated thresholds and the closed-form rate, angle and force evaluated by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates a loaded from an unloaded limb, a long-waiting loaded one from an unloaded one, a held load from a single substep's, a cleared foot's load from one that never left the floor, a rising foot's scrape from a descending foot's touchdown, a ramping landing from a settled one, horizontal from vertical momentum, a small error from a saturated one, and a resting swing from an accelerating one.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_physical_stance_swing(): void {
   const failures: string[] = [];

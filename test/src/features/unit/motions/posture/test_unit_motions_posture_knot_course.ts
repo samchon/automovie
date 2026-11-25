@@ -1,4 +1,5 @@
 import {
+  HumanKnotTiming,
   HumanQuinticSegment,
   prepareHumanKnotCourse,
 } from "@automovie/motions/internal";
@@ -29,6 +30,11 @@ const ROUNDING: number = 1e-9;
  * 4. An interior hold: knots 0, 1 and 2 arriving at 0, 1 and 2.25, the middle one
  *    held a quarter second; at 0.5 s the curve is ½ moving at 15/8, in the hold
  *    it is 1, and it ends at 2.25.
+ * 5. Through 0, 1 and 0 at 0, 1 and 2 s the path is symmetric about 1 s: at 1
+ *    there at rest, equal at 0.5 and 1.5 s.
+ * 6. Optimal timing 0 → 1, held 0.4 s, → 0 under 1 m/s² alone: each piece takes
+ *    from bang-bang's 2 s to the minimum-jerk timing's √(10 / √3) ≈ 2.4028 s,
+ *    so the curve ends between 4.4 and 5.2056 s; mid-hold it is at 1 at rest.
  */
 export function test_unit_motions_posture_knot_course(): void {
   const course: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
@@ -80,5 +86,45 @@ export function test_unit_motions_posture_knot_course(): void {
       nclose(held.state(0.5).velocity[0]!, 1.875, ROUNDING) &&
       held.position(1.1)[0] === 1 &&
       held.end === 2.25,
+  );
+
+  // 5. A symmetric via point.
+  const via: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
+    [
+      { position: [0], dwell: 0 },
+      { position: [1], dwell: 0 },
+      { position: [0], dwell: 0 },
+    ],
+    { kind: "fixed", times: [0, 1, 2] },
+  );
+  TestValidator.predicate(
+    "the symmetric path peaks at its via point at rest",
+    nclose(via.position(1)[0]!, 1, ROUNDING) &&
+      nclose(via.state(1).velocity[0]!, 0, ROUNDING) &&
+      nclose(via.position(0.5)[0]!, via.position(1.5)[0]!, ROUNDING),
+  );
+
+  // 6. Optimal timing with an interior hold.
+  const limit: HumanKnotTiming.ILimit = { velocity: 1e3, acceleration: 1 };
+  const timed: prepareHumanKnotCourse.ICourse = prepareHumanKnotCourse(
+    [
+      { position: [0], dwell: 0 },
+      { position: [1], dwell: 0.4 },
+      { position: [0], dwell: 0 },
+    ],
+    {
+      kind: "optimal",
+      segments: [limit, limit],
+      precision: 1e-4,
+      overshoot: 0.01,
+    },
+  );
+  const jerk: number = Math.sqrt(10 / Math.sqrt(3));
+  TestValidator.predicate(
+    "two optimal pieces and the hold",
+    timed.end >= 4.4 &&
+      timed.end <= 0.4 + 2 * jerk &&
+      timed.position(timed.end / 2)[0] === 1 &&
+      timed.state(timed.end / 2).velocity[0] === 0,
   );
 }

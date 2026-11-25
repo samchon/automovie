@@ -27,11 +27,6 @@ import { nclose } from "../../../internal/nclose";
  *    only it.
  * 8. A frame facing world +z has its left along world +x, and maps back.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each semantic and its scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Calls every helper on fixed polygons and reads its result.
- * @evidence contracts/development/testing.md#independent-expectations Areas and centroids are the trapezoid's closed forms, the visible vertices follow Euclid's clockwise line-of-sight definition, distances and projections are the square's geometry, and the frame's left is up x forward.
- * @evidence contracts/development/testing.md#distinguishing-cases Counter-clockwise output, a vertex-mean centroid, a zero empty area, a reversed visible order, a strict inside test or a mirrored frame each fails one scenario.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory points.
  */
 export function test_unit_engine_physics_physical_planar_polygon(): void {
   const signed = (polygon: readonly Polygon.IPoint[]): number =>

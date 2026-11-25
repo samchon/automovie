@@ -66,7 +66,12 @@ export function test_unit_engine_math_prepared_linear_system(): void {
   solution("singleton signed division", AutoMovieSolidVector.solve([[-4]], [10]), [-2.5]);
 
   const start: number[] = [0, 0];
-  for (const [bias, expected] of [[2, [3, 1]], [8, [4, 0]], [2, [3, 1]]] as const) {
+  const biases: ReadonlyArray<[number, [number, number]]> = [
+    [2, [3, 1]],
+    [8, [4, 0]],
+    [2, [3, 1]],
+  ];
+  for (const [bias, expected] of biases) {
     const result: number[] = fitDigitDescent({
       start,
       primary: (x: readonly number[]): number[] => [x[0]! + x[1]! - 4],
@@ -87,7 +92,11 @@ export function test_unit_engine_math_prepared_linear_system(): void {
   );
   const q: (x: readonly number[], index: number) => number = (x: readonly number[], index: number): number => Math.max(0, x[index]!);
   const primaryMetFindings: string[] = [];
-  for (const initial of [[2, 0], [1.5, 0.5]] as const) {
+  const initials: ReadonlyArray<[number, number]> = [
+    [2, 0],
+    [1.5, 0.5],
+  ];
+  for (const initial of initials) {
     const probeStart: number[] = [...initial];
     const released: number[] = fitDigitDescent({
       start: probeStart,
@@ -125,7 +134,12 @@ export function test_unit_engine_math_prepared_linear_system(): void {
   TestValidator.predicate("an empty point still reaches its actual projector and nonzero primary residual",
     emptyProjections > 0 && emptyResidualReads > 0,
   );
-  for (const [initial, zeroSecondary] of [[2, false], [2, true], [0, false]] as const) {
+  const seeds: ReadonlyArray<[number, boolean]> = [
+    [2, false],
+    [2, true],
+    [0, false],
+  ];
+  for (const [initial, zeroSecondary] of seeds) {
     const seed: number[] = [initial];
     const result: number[] = fitDigitDescent({
       start: seed,

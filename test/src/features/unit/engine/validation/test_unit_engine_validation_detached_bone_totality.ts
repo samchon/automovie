@@ -238,7 +238,7 @@ export function test_unit_engine_validation_detached_bone_totality(): void {
     node,
     skeleton: DETACHED_SKELETON,
     motion: MOTION,
-    capsules: [{ from: "hips" as const, to: "leftFoot" as const, radius: 0.1 }],
+    capsules: [{ from: "hips", to: "leftFoot", radius: 0.1 }],
     body: null,
   });
   const collision: IAutoMovieBodyCollisionResult = detectBodyCollision({

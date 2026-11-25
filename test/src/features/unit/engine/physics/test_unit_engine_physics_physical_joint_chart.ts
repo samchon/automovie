@@ -28,11 +28,6 @@ import { TestValidator } from "@nestia/e2e";
  *    projects to the rate returning exactly the solver's measured excess over
  *    the substep, and to zero on the other axes.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Calls `projectPhysicalJointVelocity`, `physicalJointMotorCommand` and `measurePhysicalJointLimits` on in-memory chart joints and asserts the projected and commanded rates.
- * @evidence contracts/development/testing.md#independent-expectations The poses are composed from literal chart angles with `AutoMoviePhysicalJointChart.compose`; the ends are the literal ranges; the independent reading 2 atan2(q_y, q_w) is computed here; the excess is the solver's own measurement, the quantity the motor must agree with.
- * @evidence contracts/development/testing.md#distinguishing-cases A box read in independent twist coordinates fails scenario 1 on both the zero request and the PD's speed; a box read on the wrong angle fails the held request; a projection that ignores the chart or the measurement fails scenario 2.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on a synthetic joint; no world, simulation, viewer or file host.
- * @evidence contracts/development/common.md#meaningful-documentation States the joint, both poses and each condition.
  */
 export function test_unit_engine_physics_physical_joint_chart(): void {
   const order: IAutoMoviePhysicalJointAxis["axis"][] = ["z", "y", "x"];

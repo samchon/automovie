@@ -19,7 +19,6 @@ import type {
 import { AutoMovieMotionHumanBend } from "../compose/AutoMovieMotionHumanBend";
 import { AutoMovieMotionHumanTrunk } from "../compose/AutoMovieMotionHumanTrunk";
 import { courseArmGoal } from "../compose/courseArmGoal";
-import { HumanBound } from "../law/HumanBound";
 import { HumanRefusal } from "../law/HumanRefusal";
 import { HumanBoneGroups } from "../posture/HumanBoneGroups";
 import { HumanHand } from "../posture/HumanHand";
@@ -31,6 +30,7 @@ import { StrikingHeld } from "../striking/StrikingHeld";
 import { HumanMountedFrame } from "./HumanMountedFrame";
 import { HumanPoloForm } from "./HumanPoloForm";
 import { HumanPoloHand } from "./HumanPoloHand";
+import { humanPoloTimetable } from "./humanPoloTimetable";
 
 /** The law's context. */
 type Context =
@@ -82,17 +82,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: `a polo stroke is made from the saddle, and the performer is ${entered.kind}`,
       fix: "ride the horse first",
     });
-  const lean: number = params.lean ?? HumanPoloForm.MOST;
-  HumanBound.above("lean", lean, 0, "deg");
-  HumanBound.within("lean", lean, 0, HumanPoloForm.MOST);
-  const speed: number = params.speed ?? 20;
-  HumanBound.above("speed", speed, 0, "m/s");
-  const contact: number = params.contact;
-  const ahead: number =
-    HumanPoloForm.PHASES.lean +
-    HumanPoloForm.PHASES.takeAway +
-    HumanPoloForm.PHASES.down;
-  HumanBound.least("contact", contact, ahead, "s");
+  const timetable: humanPoloTimetable.ITimetable = humanPoloTimetable(params);
+  const { lean, speed, contact } = timetable;
 
   const support: IAutoMovieMotionHumanPropReader = context.prop(params.on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
@@ -251,11 +242,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
     });
 
   // The instants, the head's angle and the wrist's deviation between them.
-  const takeAway: number =
-    contact - HumanPoloForm.PHASES.down - HumanPoloForm.PHASES.takeAway;
-  const top: number = contact - HumanPoloForm.PHASES.down;
-  const finish: number = contact + HumanPoloForm.PHASES.follow;
-  const duration: number = finish + HumanPoloForm.PHASES.settle;
+  const { takeAway, top, finish, duration } = timetable;
+
   const share = (a: number, b: number, t: number): number =>
     minimumJerk.share(Math.min(1, Math.max(0, (t - a) / (b - a))));
   // The arm's angle in the plane: still at the carry and the top, short of straight up along the upright trunk, then down through the contact, where the head meets the ball, on to the finish; the rider leans out over the downswing.
@@ -348,12 +336,8 @@ function plan(context: Context): IAutoMovieMotionHumanActionPlan {
   const grips: IAutoMovieMotionHumanContactWindow[] = StrikingHeld.grips(tool);
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
-    events: [
-      { name: "takeAway", share: takeAway / duration },
-      { name: "top", share: top / duration },
-      { name: "contact", share: contact / duration },
-      { name: "finish", share: finish / duration },
-    ],
+    events: timetable.events,
+
     contacts: [
       ...grips,
       ...(["left", "right"] as const)

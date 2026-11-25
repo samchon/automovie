@@ -1,5 +1,6 @@
 import {
   HumanKnotTiming,
+  HumanKnotTimingExcess,
   HumanQuinticSegment,
 } from "@automovie/motions/internal";
 import { TestValidator } from "@nestia/e2e";
@@ -24,6 +25,12 @@ const CURVATURE_POINTS: number = 33;
 
 /** Points a grid interval is read at, its ends included. */
 const CHECK_POINTS: number = 17;
+
+/**
+ * The most time the intervals left at the resolution floor may take together,
+ * seconds: a thousandth of a 24 Hz frame, far under anything a viewer shows.
+ */
+const SUBFRAME: number = 1 / 24 / 1000;
 
 /** The path's first four derivatives by s at a path parameter. */
 function derivatives(timed: HumanKnotTiming.ITimed, s: number): number[] {
@@ -54,9 +61,10 @@ function derivatives(timed: HumanKnotTiming.ITimed, s: number): number[] {
  * exactly f = q' u + q'' x, its squared speed h = q'² x. Between two gridpoints
  * a smooth function strays from the chord of its end values by at most Δ² / 8
  * times its greatest second derivative, f'' = 5 q''' u + q'''' x and h'' = 2
- * (q''² + q' q''') x + 8 q' q'' u; `HumanKnotTiming.excess` bounds that excess
+ * (q''² + q' q''') x + 8 q' q'' u; `HumanKnotTimingExcess` bounds that excess
  * in closed form, and the grid is bisected wherever it passes the overshoot, so
- * the bound holds on every interval of the returned grid.
+ * the bound holds on every interval of the returned grid above the resolution
+ * floor (`HumanKnotTiming.floor`).
  *
  * Scenarios, one rest-to-rest piece of 2 m under 2 m/s and 1 m/s² (it cannot
  * reach its rate, so the acceleration limit binds) at an overshoot of a
@@ -64,10 +72,13 @@ function derivatives(timed: HumanKnotTiming.ITimed, s: number): number[] {
  *
  * 1. At every gridpoint the acceleration is within 1 m/s² and the speed within 2
  *    m/s.
- * 2. At every read instant the acceleration is within 1.01 m/s² and the speed
- *    within 2.02 m/s: the requirement, guaranteed.
- * 3. On every interval the closed-form `excess` is no less than Δ² / 8 times the
- *    greatest |f''| and |h''| sampled at 33 points, and within the overshoot.
+ * 2. At every read instant of an interval above the floor the acceleration is
+ *    within 1.01 m/s² and the speed within 2.02 m/s: the requirement,
+ *    guaranteed.
+ * 3. On every interval the closed-form excess is no less than Δ² / 8 times the
+ *    greatest |f''| and |h''| sampled at 33 points, and above the floor within
+ *    the overshoot.
+ * 4. The intervals left at the floor last a thousandth of a frame at most.
  */
 export function test_unit_motions_posture_knot_timing_bound(): void {
   const timed: HumanKnotTiming.ITimed = HumanKnotTiming.parametrize({
@@ -98,6 +109,8 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
   const intervals: number[] = g
     .slice(0, -1)
     .map((_: number, i: number): number => i);
+  const least: number = HumanKnotTiming.floor(timed.stations.at(-1)!);
+  const floored = (i: number): boolean => (g[i + 1]! - g[i]!) / 2 < least;
 
   // 1. The gridpoints.
   TestValidator.predicate(
@@ -115,6 +128,7 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
   TestValidator.predicate(
     "within the overshoot at every instant",
     intervals.every((i: number): boolean => {
+      if (floored(i)) return true;
       const from: number = timed.times[i]!;
       const span: number = timed.times[i + 1]! - from;
       return Array.from(
@@ -148,7 +162,7 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
       );
       const curve = (c: number): number =>
         Math.max(...samples.map((r: number[]): number => Math.abs(r[c]!)));
-      const bound: HumanKnotTiming.IExcess = HumanKnotTiming.excess(
+      const bound: HumanKnotTimingExcess.IExcess = HumanKnotTimingExcess(
         timed.segments[0]!,
         g[i]!,
         g[i + 1]!,
@@ -159,9 +173,22 @@ export function test_unit_motions_posture_knot_timing_bound(): void {
       return (
         bound.acceleration >= ((delta * delta) / 8) * curve(2) - ROUNDING &&
         bound.speed >= ((delta * delta) / 8) * curve(3) - ROUNDING &&
-        bound.acceleration <= OVERSHOOT * LIMIT.acceleration &&
-        bound.speed <= ((1 + OVERSHOOT) ** 2 - 1) * LIMIT.velocity ** 2
+        (floored(i) ||
+          (bound.acceleration <= OVERSHOOT * LIMIT.acceleration &&
+            bound.speed <= ((1 + OVERSHOOT) ** 2 - 1) * LIMIT.velocity ** 2))
       );
     }),
+  );
+
+  // 4. The floor's intervals.
+  TestValidator.predicate(
+    "the intervals at the floor last a sub-frame instant",
+    intervals
+      .filter(floored)
+      .reduce(
+        (sum: number, i: number): number =>
+          sum + timed.times[i + 1]! - timed.times[i]!,
+        0,
+      ) <= SUBFRAME,
   );
 }

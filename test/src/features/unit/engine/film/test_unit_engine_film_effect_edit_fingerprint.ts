@@ -6,7 +6,8 @@ import { IAutoMovieFilmTimeline } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 import { createHash } from "node:crypto";
 
-import { filmEffectCue, filmEffectTimeline } from "./filmEffectRuntimeFixtures";
+import { filmEffectCue } from "../../../internal/filmEffectCue";
+import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
 
 /**
  * The effect edit digest follows normalized edit fields and excludes builder provenance.

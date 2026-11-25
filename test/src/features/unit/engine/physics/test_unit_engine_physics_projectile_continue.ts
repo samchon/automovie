@@ -117,9 +117,10 @@ export function test_unit_engine_physics_projectile_continue(): void {
     ...flight,
     gravity: { x: 0, y, z: 0 },
   });
-  const outcome = (
-    roll?: IAutoMovieProjectileContinue.IRoll,
-  ): IAutoMovieProjectileContinue.Outcome => ({
+  const outcome = (roll?: {
+    radius: number;
+    resistance: number;
+  }): IAutoMovieProjectileContinue.Outcome => ({
     kind: "bounce",
     restitution: 1,
     friction: 0,

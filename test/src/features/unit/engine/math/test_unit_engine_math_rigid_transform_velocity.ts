@@ -1,5 +1,6 @@
 import { Vector3, rigidTransformVelocity } from "@automovie/engine";
 import type {
+  IAutoMovieQuaternion,
   IAutoMovieTransform,
   IAutoMovieVector3,
 } from "@automovie/interface";
@@ -8,6 +9,14 @@ import { TestValidator } from "@nestia/e2e";
 import { nclose } from "../../../internal/nclose";
 import { throwsError } from "../../../internal/throwsError";
 import { vclose } from "../../../internal/vclose";
+
+/** The four components of a quaternion, in storage order. */
+const COMPONENTS: readonly (keyof IAutoMovieQuaternion)[] = [
+  "x",
+  "y",
+  "z",
+  "w",
+];
 
 /**
  * Rigid-frame secants retain WORLD axes, quaternion sign equivalence and their
@@ -49,7 +58,7 @@ export function test_unit_engine_math_rigid_transform_velocity(): void {
     for (const newSign of [-1, 1]) {
       const oldFrame: typeof previous = structuredClone(previous);
       const newFrame: typeof current = structuredClone(current);
-      for (const axis of ["x", "y", "z", "w"] as const) {
+      for (const axis of COMPONENTS) {
         oldFrame.rotation[axis] *= oldSign;
         newFrame.rotation[axis] *= newSign;
       }

@@ -48,11 +48,6 @@ import { nclose } from "../../../internal/nclose";
  * 6. A box in a fixed frame departs by its supporting plane and is met again at
  *    2v/g; the same box read through an opaque pose keeps the contact.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Public contact and continuation queries collect initial-policy, full-span reentry, competing-body, carried-penetration, attitude, drag and malformed-certificate failures in one named unit; no launch time or collision threshold is shifted.
- * @evidence contracts/development/testing.md#independent-expectations Default initial contact is exactly zero. Constant-acceleration reentry is 2v/g, the wall time is distance/speed, and the drag return is [atan(v sqrt(k/g))+acosh(sqrt(1+kv²/g))]/sqrt(kg). These equations do not read production candidates or the departure witness.
- * @evidence contracts/development/testing.md#distinguishing-cases Resolved versus raw contact, outward versus stationary/approaching motion, real plane versus opaque collider, fixed versus opaque shape pose, fixed versus rotating tail, another collider before/at departure, drag-free versus drag and valid versus invalid certificates exercise separate branches.
- * @evidence contracts/development/testing.md#execution-ownership The exported unit invokes only public engine APIs with test-owned immutable input records and pure collider callbacks; the shared test runner owns execution, with no monkeypatch, private import or process.
- * @evidence contracts/development/common.md#meaningful-documentation States the physical equations, input variants, untouched default policy and the existing drag-free and integrated-flight accuracy used by the assertions.
  */
 export function test_unit_engine_physics_projectile_first_contact_departure(): void {
   const zero: IAutoMovieVector3 = { x: 0, y: 0, z: 0 };

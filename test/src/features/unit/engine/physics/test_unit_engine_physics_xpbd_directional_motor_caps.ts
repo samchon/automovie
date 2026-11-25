@@ -35,11 +35,6 @@ import { TestValidator } from "@nestia/e2e";
  *    it the weak way; the same program with both caps at the weak bound stops
  *    at it.
  *
- * @evidence contracts/development/common.md#meaningful-documentation Lists the configured bounds, the free motor's closed form and the cascade's program with its distinguishing control.
- * @evidence contracts/development/testing.md#behavioral-verification Configures a real joint's motors, steps a real world one substep and solves the cascade's program, reading the motors, the link's angular velocity and the cascade's impulses.
- * @evidence contracts/development/testing.md#independent-expectations The hanging link's backward-Euler closed form `qd = tau h / (I + m c^2)`; the cascade's hold `lambda = tau` with the task `lambda = 5` set by hand.
- * @evidence contracts/development/testing.md#distinguishing-cases The forward against the reverse bound on one motor, and a directional against a symmetric weak cap on one program; a cap taken from the demand's direction alone fails scenarios 1 and 3.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory test entered through `test_physical_directional_motor_caps`; it starts no process or viewer.
  */
 export function test_unit_engine_physics_xpbd_directional_motor_caps(): void {
   const findings: string[] = [];

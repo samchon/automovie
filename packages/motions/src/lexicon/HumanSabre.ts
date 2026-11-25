@@ -35,6 +35,7 @@ import { HumanMountedPresentation } from "./HumanMountedPresentation";
 import { HumanSabreForm } from "./HumanSabreForm";
 import { HumanSwordGuard } from "./HumanSwordGuard";
 import { HumanUnseatPose } from "./HumanUnseatPose";
+import { humanSabreCharge } from "./humanSabreCharge";
 
 /** The law's context. */
 type Context = IAutoMovieMotionHumanActionContext<IAutoMovieMotionHumanSabre>;
@@ -80,22 +81,7 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
       reason: `a sabre is carried from the saddle, and the performer is ${entered.kind}`,
       fix: "ride the horse first",
     });
-  HumanBound.above("duration", params.duration, 0, "s");
-  HumanBound.above("transition", params.transition, 0, "s");
-  if (params.transition > HumanSabreForm.STRIDE)
-    throw new HumanRefusal({
-      kind: "parameter",
-      axis: "transition",
-      value: params.transition,
-      feasible: {
-        kind: "range",
-        minimum: 0,
-        maximum: HumanSabreForm.STRIDE,
-        unit: "s",
-      },
-      reason: "a charge comes to the engage within one gallop stride",
-      fix: `take the engage in at most ${HumanSabreForm.STRIDE} s`,
-    });
+  humanSabreCharge(params);
   const support = context.prop(params.on);
   const carrier: HumanMountedFrame.Reader = HumanMountedFrame(
     support,
@@ -357,16 +343,8 @@ function planHumanSabre(context: Context): IAutoMovieMotionHumanActionPlan {
   ];
   const goals: IAutoMovieMotionHumanActionPlan = {
     duration,
-    events:
-      from === undefined
-        ? []
-        : [
-            { name: "charge", share: Math.min(1, from / duration) },
-            {
-              name: "engaged",
-              share: Math.min(1, (from + params.transition) / duration),
-            },
-          ],
+    events: humanSabreCharge.events(params, from),
+
     contacts: windows,
     base: entered,
     holds: StrikingHeld.holds(context, tool),

@@ -8,6 +8,15 @@ import { TestValidator } from "@nestia/e2e";
 
 import { nclose } from "../../../internal/predicates";
 
+/** A check of one support contact. */
+type ISupportCheck = Extract<
+  IAutoMoviePlacedContact.IProps,
+  { kind: "support" }
+>;
+
+/** A check of one grip contact. */
+type IGripCheck = Extract<IAutoMoviePlacedContact.IProps, { kind: "grip" }>;
+
 const IDENTITY: IAutoMovieQuaternion = { x: 0, y: 0, z: 0, w: 1 };
 const QUARTER_TURN: IAutoMovieQuaternion = {
   x: 0,
@@ -31,12 +40,12 @@ const CARRIER: IAutoMovieRigidTransform = {
  * @evidence contracts/development/testing.md#execution-ownership This named portable Engine unit runs only explicit, in-memory placed inputs and starts no renderer, clock or stateful pose producer.
  */
 export const test_unit_engine_validation_placed_contact = (): void => {
-  const support = {
+  const support: ISupportCheck = {
     kind: "support",
     path: "actors.rook.support",
     maxGap: 0.05,
     maxSlip: 0.1,
-  } as const;
+  };
   const supportSample: IAutoMoviePlacedContact.ISupportSample = {
     point: { x: 10, y: 4, z: 5 },
     frame: CARRIER,
@@ -110,12 +119,12 @@ export const test_unit_engine_validation_placed_contact = (): void => {
       penetrating.violations[0]?.path === "actors.rook.support.gap",
   );
 
-  const grip = {
+  const grip: IGripCheck = {
     kind: "grip",
     path: "props.lantern.grip",
     maxDistance: 0.05,
     maxAngle: 0.1,
-  } as const;
+  };
   const gripSample: IAutoMoviePlacedContact.IGripSample = {
     hand: CARRIER,
     prop: { position: { x: 10, y: 2.25, z: 4 }, rotation: QUARTER_TURN },

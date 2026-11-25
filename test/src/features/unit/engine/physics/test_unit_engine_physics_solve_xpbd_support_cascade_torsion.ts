@@ -52,11 +52,6 @@ import { TestValidator } from "@nestia/e2e";
  *    gave past the bound is the floor's, not taken back through the other
  *    supports (Herzog et al. 2016, Section 5.3; unilateral contact).
  *
- * @evidence contracts/development/common.md#meaningful-documentation States each program, its bound and its expected solution in closed form.
- * @evidence contracts/development/testing.md#behavioral-verification Solves `solveXpbdSupportCascade` over rows built with `AutoMovieXpbdSupportRows.impulse` and `along`, and integrates `AutoMoviePhysicalTracking.torque` on `physicalStanceBalance.saturate`.
- * @evidence contracts/development/testing.md#independent-expectations The bound mu sum |r . t| N, the cancelled and free spins, the entry bound and the servo's monotone return are evaluated by hand from the soles' numbers.
- * @evidence contracts/development/testing.md#distinguishing-cases A torsional hold makes scenario 1's equalities rank-deficient and stops scenario 2's spin; an unbounded row cancels scenario 3's moment; an unbounded entering foot exceeds scenario 4's share; an underdamped or unsaturated servo fails scenario 5; a negative room fails scenario 7.
- * @evidence contracts/development/testing.md#execution-ownership Pure arithmetic in memory; no native world, viewer or file host.
  */
 export function test_unit_engine_physics_solve_xpbd_support_cascade_torsion(): void {
   const findings: string[] = [];

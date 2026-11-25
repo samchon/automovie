@@ -23,11 +23,6 @@ import { nclose } from "../../../internal/nclose";
  *    Each tensor must use its actual captured scalar for both its key and
  *    arithmetic: the first diagonalXX is2, the next100, and old rows stay2.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States kilogram/metre frames, independent intrinsic/shift dependencies and the four mutation/ownership scenarios with literal geometry.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the public prepared tensor on changing same-object part inputs, reads every actual tensor entry, changes every declared key/shift cause and checks old output ownership and shrink/restore behavior.
- * @evidence contracts/development/testing.md#independent-expectations Rz90 permutes diagonal moments and the parallel-axis theorem m((d dot d)E-dd transpose) gives the literal 3x3 expectations, including signed cross entries. An identity principal frame at its own centre leaves the tensor diagonal unchanged, so an accessor first supplying2 and then100 requires those respective XX values with YY3/ZZ4. No cold or prepared product result supplies those values.
- * @evidence contracts/development/testing.md#distinguishing-cases Separates inertia versus principal rotation changes from mass/centre/reference-only changes, exercises both cross-entry signs, zero intrinsic point masses, singleton/two-part/empty/restored assemblies, nested output mutation and same-capture key/arithmetic under an owned changing positive moment accessor. General input admission belongs to physical-profile owners.
- * @evidence contracts/development/testing.md#execution-ownership One discoverable in-memory numerical unit owns every part, vector and returned row. It replaces no library operation or global, changes no physical acceptance bound and starts no host or compiler.
  */
 export function test_unit_engine_physics_physical_inertia_tensor(): void {
   const part: IAutoMovieCombinePhysicalMassProperties.IPart = {

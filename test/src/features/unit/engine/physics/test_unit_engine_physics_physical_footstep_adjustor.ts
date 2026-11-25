@@ -25,11 +25,6 @@ import { nclose } from "../../../internal/nclose";
  *    but whose half outline ends at x = 0.98, moves.
  * 4. An empty region moves nothing.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the rule, the fixture and each scenario.
- * @evidence contracts/development/testing.md#behavioral-verification Calls the adjustor and reads its position and flag.
- * @evidence contracts/development/testing.md#independent-expectations The far point (11.5, 0) projects to (2, 0) by the square's geometry; the half outline's reach is the footstep plus a quarter of the outline's width.
- * @evidence contracts/development/testing.md#distinguishing-cases An adjustor moving an overlapping step fails 2, one testing the full outline keeps scenario 3's step, one projecting the footstep itself lands at (1, 0) in scenario 1, and one moving on an empty region fails 4.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on in-memory polygons.
  */
 export function test_unit_engine_physics_physical_footstep_adjustor(): void {
   const region: Polygon.IPoint[] = Polygon.hull([

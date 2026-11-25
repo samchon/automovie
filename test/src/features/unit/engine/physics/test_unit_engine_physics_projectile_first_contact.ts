@@ -34,11 +34,6 @@ import { vclose } from "../../../internal/vclose";
  *    is upward, so a plane through its phase-0.15 point keeps that resolved
  *    initial contact.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Finds the contacts of a fast capsule, a falling sphere and a miss; a coarse step that tunnels, a wrong normal or a false contact fails one.
- * @evidence contracts/development/testing.md#independent-expectations Entry times are the geometry over the speed and the free-fall time, written here.
- * @evidence contracts/development/testing.md#distinguishing-cases Contrasts a thin capsule, a plane and a gap. The same thin capsule uses prepared and full-only paths.
- * @evidence contracts/development/testing.md#execution-ownership The named unit calls the engine's contact search directly.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four numbered scenarios with their inputs and bounds.
  */
 export function test_unit_engine_physics_projectile_first_contact(): void {
   const zero = { x: 0, y: 0, z: 0 };

@@ -15,11 +15,6 @@ import { TestValidator } from "@nestia/e2e";
  * 3. On a box's edge the normal bisects the two faces' normals.
  * 4. Carried 1 mm at a time over a box's edge from one face to the next, the normal turns by under 10 degrees a step, where a face's own normal would step by 90.
  *
- * @evidence contracts/development/testing.md#behavioral-verification Runs `physicalShapeNormal` on in-memory shapes and asserts the four scenarios' findings through one TestValidator.equals.
- * @evidence contracts/development/testing.md#independent-expectations Expected normals are written from the shapes' geometry in the test: a radius, an axis offset, a face's axis and the bisector of two axes.
- * @evidence contracts/development/testing.md#distinguishing-cases A face's own normal fails scenarios 3 and 4; a direction taken as the normal fails scenario 1's cap and side; a blend too wide fails scenario 2.
- * @evidence contracts/development/testing.md#execution-ownership Portable in-memory unit test entered through `test_physical_shape_normal`; it starts no process, browser, viewer or render.
- * @evidence contracts/development/common.md#meaningful-documentation Lists the four scenarios with the input and the behaviour each pins.
  */
 export async function test_unit_engine_physics_physical_shape_normal(): Promise<void> {
   const still: IAutoMovieRigidTransform = {

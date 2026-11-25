@@ -5,12 +5,10 @@ import {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import {
-  filmEffectRefusal,
-  filmEffectTimeline,
-  materializedFilmEffects,
-  resealFilmEffect,
-} from "./filmEffectRuntimeFixtures";
+import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
+import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { materializedFilmEffects } from "../../../internal/materializedFilmEffects";
+import { resealFilmEffect } from "../../../internal/resealFilmEffect";
 
 /**
  * The persisted effect population must match the complete current cue set.

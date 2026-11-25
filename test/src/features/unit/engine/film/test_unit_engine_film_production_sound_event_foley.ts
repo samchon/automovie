@@ -11,11 +11,9 @@ import type {
 import { TestValidator } from "@nestia/e2e";
 
 import { throwsError } from "../../../internal/predicates";
-import {
-  productionSoundCompiled,
-  productionSoundContract,
-  productionSoundTimeline,
-} from "./productionSoundFixtures";
+import { productionSoundCompiled } from "../../../internal/productionSoundCompiled";
+import { productionSoundContract } from "../../../internal/productionSoundContract";
+import { productionSoundTimeline } from "../../../internal/productionSoundTimeline";
 
 /**
  * Adopted source cues follow picture events through trims and repeated shots.

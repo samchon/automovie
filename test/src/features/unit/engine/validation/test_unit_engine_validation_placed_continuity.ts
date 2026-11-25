@@ -1,8 +1,24 @@
 import { measureAutoMoviePlacedContinuity } from "@automovie/engine";
+import type { IAutoMoviePlacedContinuity } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
 import { IDENTITY_TRANSFORM } from "../../../internal/fixtures";
 import { nclose } from "../../../internal/predicates";
+
+/** A check of one placed transform. */
+type ITransformCheck = Extract<
+  IAutoMoviePlacedContinuity.IProps,
+  { kind: "transform" }
+>;
+
+/** A check of one step between two placed endpoints. */
+type IStepCheck = Extract<IAutoMoviePlacedContinuity.IProps, { kind: "step" }>;
+
+/** A check of who holds a prop across a handoff. */
+type ICustodyCheck = Extract<
+  IAutoMoviePlacedContinuity.IProps,
+  { kind: "custody" }
+>;
 
 /**
  * Check malformed placed facts and authored transform and custody boundaries
@@ -15,7 +31,10 @@ import { nclose } from "../../../internal/predicates";
  * @evidence contracts/development/testing.md#execution-ownership This named portable Engine unit checks explicit pairs and revisits a handoff in reverse request order without a renderer, clock or external producer.
  */
 export const test_unit_engine_validation_placed_continuity = (): void => {
-  const transform = { kind: "transform", path: "props.lantern.world" } as const;
+  const transform: ITransformCheck = {
+    kind: "transform",
+    path: "props.lantern.world",
+  };
   const raw = measureAutoMoviePlacedContinuity({
     ...transform,
     observation: {
@@ -51,7 +70,7 @@ export const test_unit_engine_validation_placed_continuity = (): void => {
       missing.violations[0]?.path === "props.lantern.world",
   );
 
-  const edge = {
+  const edge: IStepCheck = {
     kind: "step",
     path: "actors.rook.root",
     boundary: "continuous",
@@ -64,7 +83,7 @@ export const test_unit_engine_validation_placed_continuity = (): void => {
         rotation: { x: 0, y: 0, z: 0, w: -1 },
       },
     },
-  } as const;
+  };
   const jump = measureAutoMoviePlacedContinuity({
     ...edge,
     maxDistance: 0.25,
@@ -139,7 +158,10 @@ export const test_unit_engine_validation_placed_continuity = (): void => {
       reverse.violations[0]?.path === "actors.rook.root.after.seconds",
   );
 
-  const custody = { kind: "custody", path: "props.lantern.custody" } as const;
+  const custody: Pick<ICustodyCheck, "kind" | "path"> = {
+    kind: "custody",
+    path: "props.lantern.custody",
+  };
   const after = measureAutoMoviePlacedContinuity({
     ...custody,
     allowed: ["receiver.hand"],

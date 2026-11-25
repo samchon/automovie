@@ -6,6 +6,7 @@ import {
   prepareJointRotationProjection,
 } from "@automovie/engine";
 import type {
+  AutoMovieJointTwistPlacement,
   IAutoMovieJointAxes,
   IAutoMovieJointPose,
   IAutoMovieQuaternion,
@@ -15,6 +16,12 @@ import { TestValidator } from "@nestia/e2e";
 import { jointRotationOracle as O } from "../../../internal/jointRotationOracle";
 import { nclose } from "../../../internal/nclose";
 import { qclose } from "../../../internal/qclose";
+
+/** Both places a joint's twist can sit along its segment. */
+const PLACEMENTS: readonly AutoMovieJointTwistPlacement[] = [
+  "proximal",
+  "distal",
+];
 
 /**
  * Repeated public projections preserve independent two-axis box geometry.
@@ -54,7 +61,7 @@ export function test_unit_engine_math_prepared_rotation_coefficients(): void {
     twist: { x: sixth, y: sixth, z: -2 * sixth },
   };
   for (const basisInput of [O.CANONICAL, dense])
-    for (const placement of ["proximal", "distal"] as const) {
+    for (const placement of PLACEMENTS) {
       const basis: IAutoMovieJointAxes = normalizeJointAxes(
         { ...basisInput, twistPlacement: placement },
         "prepared projection coefficient basis",

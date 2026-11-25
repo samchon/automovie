@@ -56,13 +56,13 @@ const drives: (
       ? [
           {
             channel: {
-              kind: "node" as const,
+              kind: "node",
               node: "stone",
-              path: "rotation" as const,
+              path: "rotation",
             },
             times,
             values: times.flatMap((): number[] => [0, 0, 0, 1]),
-            interpolation: "linear" as const,
+            interpolation: "linear",
           },
         ]
       : []),

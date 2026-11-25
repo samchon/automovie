@@ -197,12 +197,13 @@ export async function test_unit_engine_validation_scene_collision(): Promise<voi
       maxPenetration: 0.25,
     },
   ];
-  for (const [seconds, status] of [
+  const instants: ReadonlyArray<[number, Collision.IFinding["status"]]> = [
     [0.125, "permitted"],
     [0.25, "confirmed"],
     [0.375, "permitted"],
     [0.5, "confirmed"],
-  ] as const) {
+  ];
+  for (const [seconds, status] of instants) {
     const actual: Collision.IResult = measureAutoMovieSceneCollision({
       parts: held,
       geometry,

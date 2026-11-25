@@ -104,7 +104,15 @@ export function test_unit_engine_math_segment_conditioning(): void {
       1e-12,
     ),
   );
-  for (const [a, b, c, d, expected] of [
+  const gaps: ReadonlyArray<
+    [
+      IAutoMovieVector3,
+      IAutoMovieVector3,
+      IAutoMovieVector3,
+      IAutoMovieVector3,
+      number,
+    ]
+  > = [
     [v(0), v(2), v(1, 1), v(3, 1), 1],
     [v(0), v(1), v(1), v(2), 0],
     [v(0), v(1), v(2), v(3), 1],
@@ -112,7 +120,8 @@ export function test_unit_engine_math_segment_conditioning(): void {
     [v(0), v(0), v(0, 2), v(0, 2), 2],
     [v(0), v(2), v(1, 1), v(1, 1), 1],
     [v(1, 1), v(1, 1), v(0), v(2), 1],
-  ] as const) {
+  ];
+  for (const [a, b, c, d, expected] of gaps) {
     TestValidator.predicate(
       "independent parallel/endpoint/point gap",
       nclose(

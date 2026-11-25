@@ -1,4 +1,4 @@
-import { Quaternion, Vector3, minimumJerk } from "@automovie/engine";
+import { Quaternion, Vector3 } from "@automovie/engine";
 import type {
   AutoMovieHumanSide,
   AutoMovieHumanoidBone,
@@ -26,14 +26,15 @@ import { HumanHandTarget } from "../posture/HumanHandTarget";
 import { carryHumanPosture } from "../posture/carryHumanPosture";
 import { poseBones } from "../posture/poseBones";
 import { resolveHumanPosture } from "../posture/resolveHumanPosture";
+import { humanSittingVolleyPhases } from "./humanSittingVolleyPhases";
 
 /** Arm sides used in the forearm platform. */
 const SIDES: readonly AutoMovieHumanSide[] = ["left", "right"];
 
-/** The minimum-jerk shares at the authored palm plant, release and receive. */
-const PLANT: number = 0.25;
-const RELEASE: number = 0.55;
-const RECEIVE: number = 0.8;
+/** The shares at the authored palm plant, release and receive. */
+const PLANT: number = humanSittingVolleyPhases.PLANT;
+const RELEASE: number = humanSittingVolleyPhases.RELEASE;
+const RECEIVE: number = humanSittingVolleyPhases.RECEIVE;
 
 /**
  * Maximum free scoot, in thigh lengths, and maximum trunk inclination, in
@@ -225,16 +226,9 @@ function planHumanSittingVolley(
   const posture = (at: number): IAutoMovieMotionHumanPosture => {
     const share: number = Math.min(1, Math.max(0, at / seconds));
     if (share === 0) return low;
-    const moving: number = minimumJerk.share(
-      (share - PLANT) / (RELEASE - PLANT),
-    );
+    const { moving, reaching, platform }: humanSittingVolleyPhases.IPhases =
+      humanSittingVolleyPhases(share);
     const moved: IAutoMovieVector3 = Vector3.scale(travel, moving);
-    const reaching: number =
-      minimumJerk.share(share / PLANT) *
-      (1 - minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)));
-    const platform: number =
-      minimumJerk.share((share - RELEASE) / (RECEIVE - RELEASE)) *
-      (1 - minimumJerk.share((share - RECEIVE) / (1 - RECEIVE)));
     const tilted: IAutoMovieMotionHumanPosture = torso(
       moved,
       reaching,

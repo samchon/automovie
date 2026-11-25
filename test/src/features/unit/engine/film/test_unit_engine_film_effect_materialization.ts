@@ -15,16 +15,14 @@ import { TestValidator } from "@nestia/e2e";
 
 import { filmEffectValuesClose } from "../../../internal/filmEffectValuesClose";
 import { throwsError } from "../../../internal/predicates";
-import {
-  filmEffectCue,
-  filmEffectIdentity,
-  filmEffectRecipe,
-  filmEffectRefusal,
-  filmEffectTimeline,
-  filmEffectWorld,
-  filmEffectZone,
-  nodeCanonicalDigest,
-} from "./filmEffectRuntimeFixtures";
+import { filmEffectCue } from "../../../internal/filmEffectCue";
+import { filmEffectIdentity } from "../../../internal/filmEffectIdentity";
+import { filmEffectRecipe } from "../../../internal/filmEffectRecipe";
+import { filmEffectRefusal } from "../../../internal/filmEffectRefusal";
+import { filmEffectTimeline } from "../../../internal/filmEffectTimeline";
+import { filmEffectWorld } from "../../../internal/filmEffectWorld";
+import { filmEffectZone } from "../../../internal/filmEffectZone";
+import { nodeCanonicalDigest } from "../../../internal/nodeCanonicalDigest";
 
 /**
  * Film cue materialization enforces current identity, rational clock and

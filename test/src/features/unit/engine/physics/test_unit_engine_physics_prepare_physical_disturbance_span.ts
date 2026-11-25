@@ -54,11 +54,6 @@ import { TestValidator } from "@nestia/e2e";
  *    in time order and joins its capture point and centre of mass across each
  *    branch.
  *
- * @evidence contracts/development/common.md#meaningful-documentation States the input, each closed form and its source.
- * @evidence contracts/development/testing.md#behavioral-verification Prepares spans with `preparePhysicalDisturbanceSpan` and reads their branches, footstep and samples.
- * @evidence contracts/development/testing.md#independent-expectations The one- and two-step premises, the divergence and the decay are the linear inverted pendulum's closed forms, asserted in the test; the swing bounds and transfer time are the reference's constants; continuity is the physical requirement. None is computed by the span.
- * @evidence contracts/development/testing.md#distinguishing-cases A span that steps twice where one step captures fails 2, one that stops after a step that cannot capture, or loops, fails 3, a swing outside the reference's bounds fails 4, a moving pivot in double support fails 5, a jump fails 6, a wrong gain fails 7, a step for a small push fails 8, and, at any contact count, a needless step, a second step or a fall where one step captures fails 12. The pose and the recorded floor reaction are `test_physical_disturbance_pose`'s and `_contacts`'.
- * @evidence contracts/development/testing.md#execution-ownership Pure computation on hand-built feet; no world, simulation, viewer or file host.
  */
 export function test_unit_engine_physics_prepare_physical_disturbance_span(): void {
   const omega: number = Math.sqrt(9.81 / 0.9);
@@ -291,7 +286,7 @@ export function test_unit_engine_physics_prepare_physical_disturbance_span(): vo
   );
   check(
     "fall has no capturable step",
-    fall.branches.some((branch) => (branch.kind as string) === "fall") ||
+    fall.branches.some((branch) => branch.kind === "fall") ||
       fall.footstep?.viable === false,
     `${listed(fall)} footstep ${JSON.stringify(fall.footstep)}`,
   );
