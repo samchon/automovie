@@ -110,12 +110,27 @@ export function prepareHumanPerformance(
     },
   );
 
-  // Each hand span's hand course, on the actions just prepared: from here
-  // on a held prop is read on it, never on the holder's live posture.
+  // A carry and its contact often declare the same hand interval. Lay its
+  // course once and attach it to each grip that will read it during playback.
+  const handSpans: Map<string, IAutoMovieMotionHumanPerformanceState.IGrip[]> =
+    new Map();
   for (const grips of self.grips.values())
     for (const grip of grips)
-      if (grip.bone === undefined && grip.mount === undefined)
-        grip.hand = prepareHumanGripHand(self, grip);
+      if (grip.bone === undefined && grip.mount === undefined) {
+        const to: number = Math.min(grip.to, self.duration);
+        const key: string = `${grip.subject}/${grip.side}/${grip.from}/${to}`;
+        const span: IAutoMovieMotionHumanPerformanceState.IGrip[] =
+          handSpans.get(key) ?? [];
+        span.push(grip);
+        handSpans.set(key, span);
+      }
+  for (const span of handSpans.values()) {
+    const hand: ReturnType<typeof prepareHumanGripHand> = prepareHumanGripHand(
+      self,
+      span[0]!,
+    );
+    for (const grip of span) grip.hand = hand;
+  }
 
   self.hits = HumanPerformanceHits.solve(self);
   for (const prop of self.props.values())

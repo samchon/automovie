@@ -6,7 +6,6 @@ import type {
   IAutoMovieVector3,
 } from "@automovie/interface";
 
-import { AutoMovieMotionHumanArmCourse } from "../compose/AutoMovieMotionHumanArmCourse";
 import { HumanArmTrajectoryTerms } from "../posture/HumanArmTrajectoryTerms";
 import { prepareHumanAdaptiveKnots } from "../posture/prepareHumanAdaptiveKnots";
 import type { prepareHumanKnotCourse } from "../posture/prepareHumanKnotCourse";
@@ -22,10 +21,11 @@ import { HumanPerformanceRead } from "./HumanPerformanceRead";
  * socket moved along the frame's `+X` and `+Z` by the holder's hand length.
  * Their nine coordinates are knotted by AutoKnots (Vitenti et al. 2024,
  * arXiv:2412.13423; `prepareHumanAdaptiveKnots`) to the arm solver's own
- * millimetre (`HumanArmTrajectoryTerms.TOLERANCE`), no finer than the frame
- * grid (`AutoMovieMotionHumanArmCourse.STEP`); a read takes the socket and the
- * frame the two axes span, orthonormalized (Gram-Schmidt). Action and overlay
- * boundaries are knots, where the displayed hand can change its motion.
+ * millimetre (`HumanArmTrajectoryTerms.TOLERANCE`). The grip is read
+ * continuously so its spatial requirement decides the knot density. A read
+ * takes the socket and the frame the two axes span, orthonormalized
+ * (Gram-Schmidt). Action and overlay boundaries are knots, where the displayed
+ * hand can change its motion.
  *
  * @param self The performance, its actions prepared.
  * @param grip The hand span.
@@ -66,7 +66,6 @@ export function prepareHumanGripHand(
       absolute: HumanArmTrajectoryTerms.TOLERANCE / (1000 * Math.sqrt(3)),
     },
     requiredTimes: requiredTimes.length > 0 ? requiredTimes : undefined,
-    maxKnots: Math.ceil((to - from) / AutoMovieMotionHumanArmCourse.STEP) + 1,
   }).course;
   return (seconds: number): IAutoMovieRigidTransform => {
     const v: number[] = course.position(Math.min(to, Math.max(from, seconds)));
