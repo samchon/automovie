@@ -140,6 +140,7 @@ export * from "./probeAutoMovieSolidMesh";
 export * from "./realizeAutoMovieConstruction";
 export * from "./rollAutoMovieViewAxis";
 export * from "./rootsAutoMovieViewPolynomial";
+export * from "./prepareAutoMovieSolidExactRailBoundary";
 export * from "./rootsAutoMovieViewSinPolynomial";
 export * from "./sampleAutoMovieConstructionCurves";
 export * from "./supportAutoMovieViewOutline";
