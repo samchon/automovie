@@ -56,20 +56,25 @@ export function createStairs(
       seed,
       params,
     );
-  const steps: number = params.steps ?? 12;
-  if (steps < 2 || steps > createStairs.STEPS)
+  const requested: number = params.steps ?? 12;
+  const stepNumbers: number[] = Array.from(
+    { length: Math.min(requested, createStairs.STEPS) },
+    (_: unknown, index: number): number => index + 1,
+  );
+  const steps: number = stepNumbers.length;
+  if (steps < 2 || steps !== requested)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "stairs",
       axis: "steps",
-      value: steps,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 2,
         maximum: createStairs.STEPS,
         unit: "",
       },
-      reason: `a flight has 2 to ${createStairs.STEPS} risers between landings, not ${steps}`,
+      reason: `a flight has 2 to ${createStairs.STEPS} risers between landings, not ${requested}`,
       fix: "give a whole number of risers, and join flights with landings for a taller rise",
     });
   const rail: createStairs.Rail = ArchetypeDraw.choice(
@@ -103,7 +108,7 @@ export function createStairs(
 
   // Treads 1 to steps - 1, then the landing at the top; each nosing is the front edge of its tread.
   const landing: number = Math.min(width, createStairs.LANDING);
-  for (let k: number = 1; k <= steps; k++) {
+  for (const k of stepNumbers) {
     const depth: number = k === steps ? landing : tread;
     builder.box(
       k === steps ? "landing" : `step-${k}`,

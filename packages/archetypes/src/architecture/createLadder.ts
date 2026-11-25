@@ -61,20 +61,25 @@ export function createLadder(
     params.kind,
     createLadder.KINDS,
   );
-  const rungs: number = params.rungs ?? 10;
-  if (rungs < 2 || rungs > createLadder.RUNGS)
+  const requested: number = params.rungs ?? 10;
+  const rungNumbers: number[] = Array.from(
+    { length: Math.min(requested, createLadder.RUNGS) },
+    (_: unknown, index: number): number => index + 1,
+  );
+  const rungs: number = rungNumbers.length;
+  if (rungs < 2 || rungs !== requested)
     throw new AutoMovieArchetypeRefusal({
       kind: "parameter",
       archetype: "ladder",
       axis: "rungs",
-      value: rungs,
+      value: requested,
       feasible: {
         kind: "range",
         minimum: 2,
         maximum: createLadder.RUNGS,
         unit: "",
       },
-      reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${rungs}`,
+      reason: `a ladder has 2 to ${createLadder.RUNGS} rungs, not ${requested}`,
       fix: "give a whole number of rungs",
     });
   const d: Record<createLadder.Dimension, number> = draw.dimensions(
@@ -136,7 +141,7 @@ export function createLadder(
       length,
     });
   }
-  for (let k: number = 1; k <= rungs; k++) {
+  for (const k of rungNumbers) {
     const at: IAutoMovieVector3 = Vector3.scale(along, k * d.spacing);
     builder.rod(
       `rung-${k}`,

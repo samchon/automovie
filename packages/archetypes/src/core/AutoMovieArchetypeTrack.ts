@@ -313,7 +313,9 @@ export namespace AutoMovieArchetypeTrack {
       const steps: number = Math.ceil(
         phaseEnd / integrateMotionTrajectory.STEP,
       );
-      if (!(steps > 0))
+
+      // The integrator advances one exactly indexed step at a time.
+      if (!(steps > 0 && steps <= Number.MAX_SAFE_INTEGER))
         throw new AutoMovieArchetypeRefusal({
           kind: "parameter",
           archetype: name,
