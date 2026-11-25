@@ -103,6 +103,25 @@ export namespace AutoMovieHumanSkinDivide {
   const toward = (normal: V, direction: V): V =>
     dot(normal, direction) > 0 ? normal : [-normal[0], -normal[1], -normal[2]];
 
+  /**
+   * The plane through the adjacent bases' midpoint, holding the axial bisector
+   * and row normal.
+   */
+  export function web(a: IDigit, b: IDigit, up: V): IEnd {
+    const along: V = unit(
+      add(unit(sub(a.second, a.first)), unit(sub(b.second, b.first))),
+    );
+    return {
+      point: middle(a.first, b.first),
+      normal: unit(toward(cross(along, up), sub(b.first, a.first))),
+    };
+  }
+
+  /** The palm normal through the wrist and the row's two outer bases. */
+  export function palmNormal(wrist: V, first: IDigit, last: IDigit): V {
+    return unit(cross(sub(last.first, wrist), sub(first.first, wrist)));
+  }
+
   function tubed(p: V, course: readonly V[]): number {
     let least: number = Infinity;
     for (let i: number = 0; i + 1 < course.length; ++i) {
