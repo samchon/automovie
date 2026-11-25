@@ -14,6 +14,7 @@ export * from "./HumanPerformancePlaceTiming";
 export * from "./HumanPerformanceLayers";
 export * from "./HumanPerformanceTether";
 export * from "./HumanSegment";
+export * from "./carrySeatTransition";
 export * from "./prepareHumanSegment";
 export * from "./HumanPerformanceSoft";
 export * from "./HumanPerformanceHold";

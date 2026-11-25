@@ -31,6 +31,7 @@ import { HumanSegmentPlant } from "./HumanSegmentPlant";
 import { HumanSegmentPoseSeeds } from "./HumanSegmentPoseSeeds";
 import { HumanSegmentShown } from "./HumanSegmentShown";
 import { HumanSegmentStop } from "./HumanSegmentStop";
+import { carrySeatTransition } from "./carrySeatTransition";
 import { observableHumanSegment } from "./observableHumanSegment";
 import { prepareHumanSegmentPose } from "./prepareHumanSegmentPose";
 import { readHumanSegmentLeaf } from "./readHumanSegmentLeaf";
@@ -152,43 +153,18 @@ export namespace HumanSegmentPose {
       rig,
       codec,
     );
-    const entry = segment.context.entry;
-    if (entry.base.kind !== "seated") return decay;
-    const previous = entry.supports.find(
-      (contact) => contact.part === "seat" && contact.kind === "seat",
-    )?.support;
-    if (previous === undefined) return decay;
-    const first = source.pose.root?.translation;
-    const next = target.pose.root?.translation;
-    const coincides =
-      first !== undefined &&
-      next !== undefined &&
-      first.x === next.x &&
-      first.y === next.y &&
-      first.z === next.z;
     const from = (transition.cut - segment.start) / segment.plan.duration;
-    const until = from + transition.blend / segment.plan.duration;
-    const carriedSeat = segment.plan.contacts.some(
-      (contact) =>
-        contact.part === "seat" &&
-        contact.kind === "seat" &&
-        contact.support.kind === "prop" &&
-        contact.from <= from &&
-        contact.to >= until &&
-        (previous.kind === "ground"
-          ? coincides
-          : previous.kind === "prop" &&
-            previous.subject === contact.support.subject &&
-            (previous.point === undefined ||
-              contact.support.point === undefined ||
-              previous.point === contact.support.point)),
+    return carrySeatTransition(
+      segment.context.entry,
+      {
+        from,
+        until: from + transition.blend / segment.plan.duration,
+        contacts: segment.plan.contacts,
+        sourceRoot: source.pose.root?.translation,
+        targetRoot: target.pose.root?.translation,
+      },
+      decay,
     );
-    // A seat held through the cut carries the authored root. A world offset
-    // would leave the saddle while the grounded limbs refit to it. A seat
-    // staged in world coordinates can hand over when the two roots coincide.
-    return carriedSeat
-      ? (elapsed, pose) => ({ ...decay(elapsed, pose), root: pose.root })
-      : decay;
   }
 
   /**
