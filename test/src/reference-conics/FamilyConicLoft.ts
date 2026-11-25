@@ -574,7 +574,7 @@ export namespace FamilyConicLoft {
    * Measure unchanged direct skin cuts against the stored splice, including
    * stations that supplied skin but did not have an admissible fitting seed.
    *
-   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reader measures a new splice and replays an archived splice without refitting.
+   * @evidence contracts/development/implementation.md#reuse-equivalent-work The same reader measures a new splice and replays an archived splice without refitting. Each cut shares one prepared section across its 512 phases.
    * @evidence contracts/development/implementation.md#principled-implementation The view loft receives increasing physical stations; a view failure and absent skin are separate outcomes.
    */
   export function verifyPrefix(
@@ -599,8 +599,10 @@ export namespace FamilyConicLoft {
       return { evidence: null, observations: [], viewRefusals: loft.diagnostics };
     const chain = loft.chain;
     const observations: IPrefixObservation[] = measured.map(({ s, heldout, world }: IPrefixCut): IPrefixObservation => {
+      const pointAt: ReturnType<typeof AutoMovieLoftChain.sampler> =
+        AutoMovieLoftChain.sampler(chain, s);
       const ring: V3[] = Array.from({ length: 512 }, (_: unknown, j: number): V3 =>
-        AutoMovieLoftChain.point(chain, s, (2 * Math.PI * j) / 512),
+        pointAt((2 * Math.PI * j) / 512),
       );
       return {
         s, heldout, points: world.length,
