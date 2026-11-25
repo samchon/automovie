@@ -49,7 +49,7 @@ const OPENING: number = 1.6;
  * @evidence contracts/development/testing.md#distinguishing-cases Before and after the alarm, the scattered band and the bunch, the gate and the open field. Each mare's steered course is ridden as a real timed ride in scenario 6; stride timing against the gait rows is pinned by equine's ride specs.
  * @evidence contracts/development/testing.md#execution-ownership A synchronous CPU-only feature spec.
  */
-export function test_world_herd_flight(): void {
+export function test_archetype_herd_flight(): void {
   const outline: readonly IAutoMovieVector3[] =
     AutoMovieArchetypePassage.footprint(
       createHorse({ withersHeight: 1.6 }, 1003),

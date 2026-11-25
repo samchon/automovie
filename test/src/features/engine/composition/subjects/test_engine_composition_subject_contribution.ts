@@ -10,8 +10,8 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { namedFacts } from "../internal/predicates";
-import { test12ValuesClose } from "../internal/test12ValuesClose";
+import { namedFacts } from "../../../internal/predicates";
+import { test12ValuesClose } from "../../../internal/test12ValuesClose";
 
 /** A leaf subject that contributes exactly what it was built with. */
 class Leaf extends AutoMovieSubject<{ id: string }> {
@@ -121,10 +121,10 @@ const context: IAutoMovieShotBuildContext = {} as IAutoMovieShotBuildContext;
  * @evidence contracts/development/testing.md#behavioral-verification Calls contribution merging and actual subject-group composition, observing selected field concatenation/order, omitted empty fields, duplicate preservation, nested groups, additive overrides and compact populations; dropped members, deduplication or population expansion fails.
  * @evidence contracts/development/testing.md#independent-expectations Authored leaf records and explicit expected field lists determine ordinary merge/group results, while the nested-versus-flat case is a consistency check backed by those literal cases. Partial id-only sentinels exercise reference concatenation without proving complete model/clip admission; numeric leaves retain exact expectations through zero-tolerance nclose in the existing structural predicate.
  * @evidence contracts/development/testing.md#distinguishing-cases Covers ordered heterogeneous fields, absent/empty fields, duplicate ids, ordinary/empty/nested groups, additive group output, design ids and a 10000-member population kept as one entry; unexercised contribution fields, membership cycles and downstream uniqueness admission are outside this unit.
- * @evidence contracts/development/testing.md#execution-ownership The synchronous test_world_subject_contribution entry owns direct merge/composite calls through small authored subclasses that return resident records; no shot compiler, production asset, renderer, browser or dynamic scenario registration runs.
+ * @evidence contracts/development/testing.md#execution-ownership The synchronous test_engine_composition_subject_contribution entry owns direct merge/composite calls through small authored subclasses that return resident records; no shot compiler, production asset, renderer, browser or dynamic scenario registration runs.
  * @evidence contracts/development/common.md#meaningful-documentation Lists the 7 numbered scenarios it runs, each sentence naming the input and the behavior it pins (first: Merging carries the exercised contribution keys, concatenating in the order given, so).
  */
-export function test_world_subject_contribution(): void {
+export function test_engine_composition_subject_contribution(): void {
   TestValidator.predicate(
     "merging concatenates the exercised keys in the order given",
     test12ValuesClose(

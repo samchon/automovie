@@ -15,7 +15,7 @@ import type {
 } from "@automovie/interface";
 import { TestValidator } from "@nestia/e2e";
 
-import { nclose, throwsError, vclose } from "../internal/predicates";
+import { nclose, throwsError, vclose } from "../../../internal/predicates";
 
 const design: IAutoMovieFormationDesign = {
   id: "band",
@@ -71,7 +71,7 @@ const second: IAutoMovieFormationStageMarkSet = {
  * @evidence contracts/development/testing.md#execution-ownership A discoverable CPU-only feature spec samples numeric placements without a human body, renderer, browser or artist tooling.
  * @evidence contracts/development/common.md#meaningful-documentation States the staged unit and which data the reference positions use.
  */
-export function test_world_formation_stage_marks(): void {
+export function test_engine_space_formation_stage_marks(): void {
   const motions = compileFormationStageMarks(design, [first, second]);
   const at = (
     slot: number,
