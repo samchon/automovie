@@ -19,6 +19,7 @@ import { FamilyConicBodyCases as Cases } from "./FamilyConicBodyCases";
 import { FamilyConicCaseIdentity as Identity } from "./FamilyConicCaseIdentity";
 import { FamilyConicNeutralForm as Form } from "./FamilyConicNeutralForm";
 import { FamilyConicNeutralNailAssembly as Nails } from "./FamilyConicNeutralNailAssembly";
+import { FamilyConicNeutralViews as Views } from "./FamilyConicNeutralViews";
 import { NodeCanvasRaster } from "./render/NodeCanvasRaster";
 
 /**
@@ -193,6 +194,7 @@ export namespace FamilyConicNeutralCases {
     id: string,
     output: string,
     nailOutput?: string,
+    viewOutput?: string,
   ): Promise<void> {
     const row: ICase | undefined = CASES.find(
       (candidate: ICase): boolean => candidate.id === id,
@@ -221,6 +223,19 @@ export namespace FamilyConicNeutralCases {
       observe("nail-views");
     }
     const form: Form.IReport = Form.measure(report, observe);
+    let views: Awaited<ReturnType<typeof Views.write>> | undefined;
+    if (viewOutput !== undefined) {
+      try {
+        views = await Views.write(report, path.resolve(viewOutput), id);
+      } catch (error: unknown) {
+        views = {
+          frames: [],
+          preparations: [],
+          unavailable: [error instanceof Error ? error.message : String(error)],
+        };
+      }
+      observe("body-views");
+    }
     const floorMetres: number = report.mesh.positions.reduce(
       (lowest: number, value: number, index: number): number =>
         index % 3 === 1 ? Math.min(lowest, value) : lowest,
@@ -243,6 +258,7 @@ export namespace FamilyConicNeutralCases {
           diagnostics: report.diagnostics,
           form,
           nails,
+          views,
           triangleGroups: report.triangleGroups,
           trianglesByOwner: report.trianglesByOwner,
           milliseconds: report.milliseconds,
@@ -257,6 +273,8 @@ export namespace FamilyConicNeutralCases {
       form.measurements === null ||
       form.measurements.findings.length !== 0 ||
       form.unavailable.length !== 0 ||
+      (views !== undefined &&
+        (views.frames.length === 0 || views.unavailable.length !== 0)) ||
       (nails !== undefined &&
         (nails.sites.length !== 20 ||
           nails.sites.some(
@@ -281,11 +299,21 @@ export namespace FamilyConicNeutralCases {
     const nailOutput: string | undefined = args
       .find((arg: string): boolean => arg.startsWith("--nails="))
       ?.slice(8);
-    if (!id || !output || args.length !== (nailOutput ? 3 : 2))
+    const viewOutput: string | undefined = args
+      .find((arg: string): boolean => arg.startsWith("--views="))
+      ?.slice(8);
+    if (
+      !id ||
+      !output ||
+      nailOutput === "" ||
+      viewOutput === "" ||
+      args.length !==
+        2 + Number(nailOutput !== undefined) + Number(viewOutput !== undefined)
+    )
       throw new Error(
-        "Use --list or supply --case=<id> --out=<report.json> with optional --nails=<directory>",
+        "Use --list or supply --case=<id> --out=<report.json> with optional --nails=<directory> and --views=<directory>",
       );
-    await run(id, output, nailOutput);
+    await run(id, output, nailOutput, viewOutput);
   }
 }
 
