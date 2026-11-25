@@ -7,6 +7,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanObject } from "../perform/HumanObject";
 import { HumanPropFrame } from "../perform/HumanPropFrame";
 
 /**
@@ -51,13 +52,16 @@ export function preparePoleVaultLinks(
       ),
     ),
   ];
+  const site: IAutoMovieMotionHumanProp["articulateSite"] =
+    HumanObject.articulateSite(prop);
   return (
     state: Readonly<Record<string, number>>,
   ): IAutoMovieRigidTransform[] => {
     let posed: readonly IAutoMovieAffordance[] | undefined;
     const frames: Map<string, IAutoMovieRigidTransform> = new Map();
     for (const id of ids) {
-      const narrow: IAutoMovieAffordance | undefined = prop.articulateSite?.(
+      const narrow: IAutoMovieAffordance | undefined = site?.call(
+        prop,
         id,
         state,
       );

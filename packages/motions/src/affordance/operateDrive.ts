@@ -15,6 +15,7 @@ import type {
 } from "@automovie/interface";
 
 import { HumanRefusal } from "../law/HumanRefusal";
+import { HumanObject } from "../perform/HumanObject";
 
 /**
  * The part an operation moves on a prop that articulates, and the drive the
@@ -165,7 +166,9 @@ export namespace operateDrive {
         AffordanceArticulation.leader(byId, id),
       ]),
     );
-    const narrow: typeof held.prop.articulateSite = held.prop.articulateSite;
+    const narrow: typeof held.prop.articulateSite = HumanObject.articulateSite(
+      held.prop,
+    );
     const unrelated: Readonly<Record<string, number>> = Object.fromEntries(
       Object.entries(before).filter(([id]: [string, number]): boolean => {
         const leader: string = leaders.get(id) ?? id;

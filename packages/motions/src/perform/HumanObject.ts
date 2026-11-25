@@ -91,8 +91,17 @@ export namespace HumanObject {
       ),
     );
     const shapes: IAutoMoviePhysicalShape[] | undefined = model.shapes?.();
+    const articulate: IAutoMovieMotionHumanProp["articulate"] =
+      model.articulate === undefined
+        ? undefined
+        : (
+            state: Readonly<Record<string, number>>,
+          ): IAutoMovieMotionHumanProp.IPosed =>
+            posedModel(model.articulate!(state));
     const articulateSite: IAutoMovieMotionHumanProp["articulateSite"] =
       model.prepareArticulateSite?.();
+    if (articulate !== undefined && articulateSite !== undefined)
+      ARTICULATE_SITES.set(articulate, articulateSite);
     const prop: IAutoMovieMotionHumanProp = {
       subject,
       frame: frame(placement),
@@ -113,7 +122,9 @@ export namespace HumanObject {
       ...(placement.fixed === true ? { fixed: true } : {}),
       ...(shapes === undefined ? {} : { shapes }),
       ...(tracks === undefined || tracks.length === 0 ? {} : { tracks }),
-      ...(articulateSite === undefined ? {} : { articulateSite }),
+      ...(articulate === undefined && articulateSite !== undefined
+        ? { articulateSite }
+        : {}),
       ...(model.body === undefined || model.body === null
         ? {}
         : { body: model.body }),
@@ -122,14 +133,7 @@ export namespace HumanObject {
         ? {}
         : { hasArticulations: model.hasArticulations }),
       // An object whose parts move is posed by the performance's state.
-      ...(model.articulate === undefined
-        ? {}
-        : {
-            articulate: (
-              state: Readonly<Record<string, number>>,
-            ): IAutoMovieMotionHumanProp.IPosed =>
-              posedModel(model.articulate!(state)),
-          }),
+      ...(articulate === undefined ? {} : { articulate }),
       ...(modelAt === undefined
         ? {}
         : {
@@ -165,6 +169,22 @@ export namespace HumanObject {
     };
     RigidCarrierSample.adapt(prop, model, motion, contact);
     return prop;
+  }
+
+  /**
+   * Resolve a prop's explicit site reader or the narrow projection prepared
+   * from its bound articulation provider. A copy that keeps the provider keeps
+   * its projection. Recreating the prop also recreates the projection.
+   */
+  export function articulateSite(
+    prop: Pick<IAutoMovieMotionHumanProp, "articulate" | "articulateSite">,
+  ): IAutoMovieMotionHumanProp["articulateSite"] {
+    return (
+      prop.articulateSite ??
+      (prop.articulate === undefined
+        ? undefined
+        : ARTICULATE_SITES.get(prop.articulate))
+    );
   }
 
   /**
@@ -335,6 +355,12 @@ export namespace HumanObject {
     };
   }
 }
+
+/** One model's derived projection belongs to its full articulation provider. */
+const ARTICULATE_SITES: WeakMap<
+  NonNullable<IAutoMovieMotionHumanProp["articulate"]>,
+  NonNullable<IAutoMovieMotionHumanProp["articulateSite"]>
+> = new WeakMap();
 
 /** Where each footrest is placed and which affordance carries it. */
 interface ISeatFootrests {

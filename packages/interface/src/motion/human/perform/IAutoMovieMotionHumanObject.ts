@@ -52,7 +52,10 @@ export namespace IAutoMovieMotionHumanObject {
       state: Readonly<Record<string, number>>,
     ): IAutoMovieMotionHumanObject.IModel;
 
-    /** Prepare the object's optional single-contact articulation reader. */
+    /**
+     * Prepare a single-contact projection of the same absolute articulation as
+     * `articulate`, when the model supports selected reads.
+     */
     prepareArticulateSite?(): IAutoMovieMotionHumanProp["articulateSite"];
 
     /** Its physical data (an archetype's model body); none when absent or null. */

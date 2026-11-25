@@ -507,9 +507,11 @@ if (layout === "production") {
       path.join(target, "movies", production),
     );
   run("pnpm run evidence", "pnpm", ["run", "evidence"], target);
-  for (const production of productions)
-    browserSmoke(path.join(target, "movies", production), {
-      parity: production === parityProduction,
-    });
+  for (const production of productions) {
+    const directory = path.join(target, "movies", production);
+    const parity = production === parityProduction;
+    if (browserSmoke(directory, { parity }) && parity)
+      motionTakeSmoke(directory);
+  }
 }
 finish();

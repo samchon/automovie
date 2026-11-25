@@ -92,10 +92,14 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
       yaw: 0,
     },
   );
-  const site: IAutoMovieAffordance | undefined = prop.articulateSite?.(
-    "wheel",
-    { wheel: 45 },
+  TestValidator.equals(
+    "a model projection adds no independent provider to the record",
+    Object.hasOwn(prop, "articulateSite"),
+    false,
   );
+  const site: IAutoMovieAffordance | undefined = HumanObject.articulateSite({
+    ...prop,
+  })?.("wheel", { wheel: 45 });
   TestValidator.predicate(
     "the prop narrow adapter reads the displaced wheel",
     site !== undefined &&
@@ -104,6 +108,20 @@ export function test_archetypes_vehicles_prepared_ride_frames(): void {
         car.articulate({ wheel: 45 }).affordance("wheel").frame.rotation,
         1e-12,
       ),
+  );
+  const external: NonNullable<typeof prop.articulateSite> = () => undefined;
+  TestValidator.equals(
+    "an explicit callback supersedes the model projection",
+    HumanObject.articulateSite({ ...prop, articulateSite: external }),
+    external,
+  );
+  TestValidator.equals(
+    "replacing the full provider drops the old projection",
+    HumanObject.articulateSite({
+      ...prop,
+      articulate: (state) => prop.articulate!(state),
+    }),
+    undefined,
   );
 
   const timed: AutoMovieArchetypeCourse.IPlan = AutoMovieArchetypeCourse.timed(
