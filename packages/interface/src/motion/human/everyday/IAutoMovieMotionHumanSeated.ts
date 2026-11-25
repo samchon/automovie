@@ -1,6 +1,4 @@
-import type { IAutoMovieRigidTransform } from "../../../geometry/IAutoMovieRigidTransform";
 import type { IAutoMovieVector3 } from "../../../geometry/IAutoMovieVector3";
-import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysicalShape";
 
 /**
  * The geometry every seat law shares: where on a seat the body's seat socket
@@ -34,15 +32,6 @@ import type { IAutoMoviePhysicalShape } from "../../../physics/IAutoMoviePhysica
  * underside meets a level seat.
  */
 export namespace IAutoMovieMotionHumanSeated {
-  /** The model colliders of a static seat in their actual placed frame. */
-  export interface IStaticSolid {
-    /** The model's fixed world frame. */
-    frame: IAutoMovieRigidTransform;
-
-    /** The model's actual colliders, expressed in that frame. */
-    shapes: readonly IAutoMoviePhysicalShape[];
-  }
-
   /**
    * Whether a seat is a high one for a body: above the band, so the feet cannot
    * stay on the floor and the body gets onto it by a step up or a swing of a
@@ -86,9 +75,6 @@ export namespace IAutoMovieMotionHumanSeated {
      * seat. Carried with the carrier alone when absent.
      */
     point?: string;
-
-    /** Material of an explicitly prepared static astride seat. */
-    solid?: IStaticSolid;
 
     /**
      * Depth back from the front edge, metres; deep enough for the thigh when

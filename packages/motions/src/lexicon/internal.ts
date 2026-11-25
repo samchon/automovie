@@ -24,7 +24,6 @@ export * from "./crutchSitKit";
 export * from "./crutchSitPath";
 export * from "./HumanTabletop";
 export * from "./HumanMountedTimeline";
-export * from "./boundMountKnotJets";
 export * from "./prepareMountOffFloor";
 export * from "./HumanUnseatFlight";
 export * from "./fixedSeatHarmonic";
