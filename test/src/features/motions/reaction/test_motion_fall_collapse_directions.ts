@@ -16,6 +16,7 @@ import {
 import { TestValidator } from "@nestia/e2e";
 
 import { motionHumanBody } from "../../internal/motionHumanBody";
+import { observeCollapseTrajectory } from "./observeCollapseTrajectory";
 
 /** One case: a direction and a tone. */
 interface ICase {
@@ -86,7 +87,11 @@ const REACH: number = 0.08;
  */
 export function test_motion_fall_collapse_directions(): void {
   const failures: string[] = [];
-  for (const cast of ["m-average", "f-small"] as const) {
+  const trace: boolean = process.env.AUTOMOVIE_COLLAPSE_TRACE === "1";
+  const casts: readonly motionHumanBody.Name[] = trace
+    ? motionHumanBody.EXTREMES
+    : ["m-average", "f-small"];
+  for (const cast of casts) {
     const body: IAutoMovieMotionHumanBody = motionHumanBody(cast);
     for (const one of CASES) {
       const label: string = `${cast} ${one.direction} ${one.tone}`;
@@ -121,6 +126,7 @@ export function test_motion_fall_collapse_directions(): void {
         const standing: number = film.bones("a", 0).get("chest")!.worldPosition
           .y;
         const last: Bones = film.bones("a", end);
+        if (trace) observeCollapseTrajectory(film, body, { cast, ...one });
         const hips: IAutoMovieVector3 = last.get("hips")!.worldPosition;
         const head: IAutoMovieVector3 = last.get("head")!.worldPosition;
         const check = (what: string, ok: boolean): void => {
@@ -179,12 +185,10 @@ export function test_motion_fall_collapse_directions(): void {
             const chest: IAutoMovieVector3 = bones.get("chest")!.worldPosition;
             if (chest.y <= last.get("chest")!.worldPosition.y + ABOVE) continue;
             if (chest.y >= standing - ABOVE) continue;
-            const reach: number = Math.min(
-              bones.get("leftHand")!.worldPosition.z,
-              bones.get("rightHand")!.worldPosition.z,
-            );
-            if (reach > chest.z + REACH) ahead = true;
-            if (reach > chest.z) behind = false;
+            const left: number = bones.get("leftHand")!.worldPosition.z;
+            const right: number = bones.get("rightHand")!.worldPosition.z;
+            if (Math.min(left, right) > chest.z + REACH) ahead = true;
+            if (Math.max(left, right) > chest.z) behind = false;
           }
           check(
             one.tone === "protective"
